@@ -3,13 +3,13 @@ package org.commcare.models.database.connect;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectChannel;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV2;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.android.database.connect.models.ConnectJobPaymentRecordV18;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecordV3;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecordV10;
@@ -21,10 +21,9 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
+import org.commcare.android.database.connect.models.ConnectMessage;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.android.database.connect.models.ConnectMessagingChannelRecordV18;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.android.database.connect.models.ConnectMessagingMessageRecordV18;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
@@ -129,10 +128,6 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 17) {
             upgradeSeventeenEighteen(db);
             oldVersion = 18;
-        }
-        if (oldVersion == 18) {
-            upgradeEighteenNineteen(db);
-            oldVersion = 19;
         }
     }
 
@@ -609,6 +604,11 @@ public class ConnectDatabaseUpgrader {
     private void upgradeFifteenSixteen(IDatabase db) {
         addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
     }
+    private void upgradeSixteenSeventeen(IDatabase db) {
+        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+        addTableForNewModel(db, ConnectChannel.STORAGE_KEY, new ConnectChannel());
+        addTableForNewModel(db, ConnectMessage.STORAGE_KEY, new ConnectMessage());
+    }
 
     private void upgradeSixteenSeventeen(IDatabase db) {
         db.beginTransaction();
@@ -649,68 +649,6 @@ public class ConnectDatabaseUpgrader {
             // We have not been populating this table yet, so just drop and recreate
             SqlStorage.dropTable(db, PersonalIdCredential.STORAGE_KEY);
             addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    private void upgradeEighteenNineteen(IDatabase db) {
-        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
-
-        db.beginTransaction();
-        try {
-            //migrate the old ConnectMessagingChannelRecord in storage to the new version
-            SqlStorage<ConnectMessagingChannelRecordV18> oldChannelRecord = new SqlStorage<>(
-                    ConnectMessagingChannelRecordV18.STORAGE_KEY,
-                    ConnectMessagingChannelRecordV18.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            SqlStorage<Persistable> newChannelRecord = new SqlStorage<>(
-                    ConnectMessagingChannelRecord.STORAGE_KEY,
-                    ConnectMessagingChannelRecord.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            for (ConnectMessagingChannelRecordV18 oldRecord : oldChannelRecord) {
-                ConnectMessagingChannelRecord newRecord = ConnectMessagingChannelRecord.fromV17(oldRecord);
-                newRecord.setID(oldRecord.getID());
-                newChannelRecord.write(newRecord);
-            }
-
-            //Next, migrate the old ConnectMessagingMessageRecord in storage to the new version
-            SqlStorage<ConnectMessagingMessageRecordV18> oldConnectMessagingMessageRecord = new SqlStorage<>(
-                    ConnectMessagingMessageRecordV18.STORAGE_KEY,
-                    ConnectMessagingMessageRecordV18.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            SqlStorage<Persistable> newConnectMessagingMessageRecord = new SqlStorage<>(
-                    ConnectMessagingMessageRecord.STORAGE_KEY,
-                    ConnectMessagingMessageRecord.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            for (ConnectMessagingMessageRecordV18 oldRecord : oldConnectMessagingMessageRecord) {
-                ConnectMessagingMessageRecord newRecord = ConnectMessagingMessageRecord.fromV17(oldRecord);
-                newRecord.setID(oldRecord.getID());
-                newConnectMessagingMessageRecord.write(newRecord);
-            }
-
-            //Next, migrate the old ConnectJobPaymentRecord in storage to the new version
-            SqlStorage<ConnectJobPaymentRecordV18> oldConnectJobPaymentRecord = new SqlStorage<>(
-                    ConnectJobPaymentRecordV18.STORAGE_KEY,
-                    ConnectJobPaymentRecordV18.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            SqlStorage<Persistable> newConnectJobPaymentRecord = new SqlStorage<>(
-                    ConnectJobPaymentRecord.STORAGE_KEY,
-                    ConnectJobPaymentRecord.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            for (ConnectJobPaymentRecordV18 oldRecord : oldConnectJobPaymentRecord) {
-                ConnectJobPaymentRecord newRecord = ConnectJobPaymentRecord.fromV18(oldRecord);
-                newRecord.setID(oldRecord.getID());
-                newConnectJobPaymentRecord.write(newRecord);
-            }
-
-            db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }

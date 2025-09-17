@@ -34,7 +34,6 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     public static final String META_MESSAGE_IS_OUTGOING = "is_outgoing";
     public static final String META_MESSAGE_CONFIRM = "confirmed";
     public static final String META_MESSAGE_USER_VIEWED = "user_viewed";
-    public static final String META_MESSAGE_NOTIFICATION_ID = "notification_id";
 
     public ConnectMessagingMessageRecord() {
 
@@ -68,20 +67,11 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     @MetaField(META_MESSAGE_USER_VIEWED)
     private boolean userViewed;
 
-    @Persisting(8)
-    @MetaField(META_MESSAGE_NOTIFICATION_ID)
-    private String notificationId;
-
     public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
         ConnectMessagingMessageRecord connectMessagingMessageRecord = new ConnectMessagingMessageRecord();
 
         connectMessagingMessageRecord.messageId = json.getString(META_MESSAGE_ID);
         connectMessagingMessageRecord.channelId = json.getString(META_MESSAGE_CHANNEL_ID);
-        connectMessagingMessageRecord.notificationId =
-                json.has(META_MESSAGE_NOTIFICATION_ID) && !json.isNull(META_MESSAGE_NOTIFICATION_ID)
-                        ? json.getString(META_MESSAGE_NOTIFICATION_ID)
-                        : null;
-
 
         ConnectMessagingChannelRecord channel = getChannel(channels, connectMessagingMessageRecord.channelId);
         if(channel == null) {
@@ -129,13 +119,6 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         record.setMessage(decrypted);
         record.setUserViewed(false);
         record.setIsOutgoing(false);
-        String notifIdStr = payloadData.get(META_MESSAGE_NOTIFICATION_ID);
-        record.setNotificationId(
-                (notifIdStr != null && !notifIdStr.isEmpty())
-                        ? notifIdStr
-                        : null
-        );
-
 
         return record;
     }
@@ -252,27 +235,5 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     public void setUserViewed(boolean userViewed) {
         this.userViewed = userViewed;
-    }
-    public String getNotificationId() {
-        return notificationId;
-    }
-
-    public void setNotificationId(String notificationId) {
-        this.notificationId = notificationId;
-    }
-
-    public static ConnectMessagingMessageRecord fromV17(ConnectMessagingMessageRecordV18 oldRecord) {
-        ConnectMessagingMessageRecord newRecord = new ConnectMessagingMessageRecord();
-
-        newRecord.setMessageId(oldRecord.getMessageId());
-        newRecord.setChannelId(oldRecord.getChannelId());
-        newRecord.setTimeStamp(oldRecord.getTimeStamp());
-        newRecord.setMessage(oldRecord.getMessage());
-        newRecord.setIsOutgoing(oldRecord.getIsOutgoing());
-        newRecord.setConfirmed(oldRecord.getConfirmed());
-        newRecord.setUserViewed(oldRecord.getUserViewed());
-        newRecord.setNotificationId(null);
-
-        return newRecord;
     }
 }

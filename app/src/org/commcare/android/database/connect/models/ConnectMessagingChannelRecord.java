@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,7 +31,6 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public static final String META_CHANNEL_NAME = "channel_source";
     public static final String META_KEY_URL = "key_url";
     public static final String META_KEY = "key";
-    public static final String META_CHANNEL_NOTIFICATION_ID = "notification_id";
 
     public ConnectMessagingChannelRecord() {
 
@@ -64,10 +64,6 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     @MetaField(META_KEY)
     private String key;
 
-    @Persisting(8)
-    @MetaField(META_CHANNEL_NOTIFICATION_ID)
-    private String notificationId;
-
     private SpannableString preview;
 
     private List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
@@ -83,9 +79,6 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         connectMessagingChannelRecord.channelCreated = new Date();
         connectMessagingChannelRecord.answeredConsent = false;
         connectMessagingChannelRecord.key = "";
-        connectMessagingChannelRecord.notificationId = json.has(META_CHANNEL_NOTIFICATION_ID) && !json.isNull(META_CHANNEL_NOTIFICATION_ID)
-                ? json.getString(META_CHANNEL_NOTIFICATION_ID)
-                : null;
 
         return connectMessagingChannelRecord;
     }
@@ -101,12 +94,6 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         connectMessagingChannelRecord.channelCreated = new Date();
         connectMessagingChannelRecord.answeredConsent = false;
         connectMessagingChannelRecord.key = "";
-        String notifIdStr = payloadData.get(META_CHANNEL_NOTIFICATION_ID);
-        connectMessagingChannelRecord.notificationId =
-                (notifIdStr != null && !notifIdStr.isEmpty())
-                        ? notifIdStr
-                        : null;
-
 
         return connectMessagingChannelRecord;
     }
@@ -183,14 +170,6 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         return messages.size() > 0 ? messages.get(messages.size() - 1).getTimeStamp() : null;
     }
 
-    public String getNotificationId() {
-        return notificationId;
-    }
-
-    public void setNotificationId(String notificationId) {
-        this.notificationId = notificationId;
-    }
-
     public int getUnreadCount() {
         int unread = 0;
 
@@ -203,21 +182,6 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         }
 
         return unread;
-    }
-
-    public static ConnectMessagingChannelRecord fromV17(ConnectMessagingChannelRecordV18 oldRecord) {
-        ConnectMessagingChannelRecord newRecord = new ConnectMessagingChannelRecord();
-
-        newRecord.setChannelId(oldRecord.getChannelId());
-        newRecord.setChannelCreated(oldRecord.getChannelCreated());
-        newRecord.setAnsweredConsent(oldRecord.getAnsweredConsent());
-        newRecord.setConsented(oldRecord.getConsented());
-        newRecord.setChannelName(oldRecord.getChannelName());
-        newRecord.setKeyUrl(oldRecord.getKeyUrl());
-        newRecord.setKey(oldRecord.getKey());
-        newRecord.setNotificationId(null);
-
-        return newRecord;
     }
 
 }

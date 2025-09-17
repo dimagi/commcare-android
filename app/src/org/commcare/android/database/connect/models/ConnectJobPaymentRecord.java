@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Table(ConnectJobPaymentRecord.STORAGE_KEY)
@@ -25,7 +26,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_ID = "payment_id";
     public static final String META_CONFIRMED = "confirmed";
     public static final String META_CONFIRMED_DATE = "date_confirmed";
-    public static final String META_NOTIFICATION_ID = "notification_id";
     private static final long CONFIRMATION_WINDOW_DAYS = 7;
     private static final long UNDO_WINDOW_DAYS = 1;
 
@@ -57,10 +57,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_CONFIRMED_DATE)
     private Date confirmedDate;
 
-    @Persisting(7)
-    @MetaField(META_NOTIFICATION_ID)
-    private String notificationId;
-
     public ConnectJobPaymentRecord() {
     }
 
@@ -78,22 +74,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         return newRecord;
     }
 
-    public static ConnectJobPaymentRecord fromV18(ConnectJobPaymentRecordV18 oldRecord) {
-        ConnectJobPaymentRecord newRecord = new ConnectJobPaymentRecord();
-
-        newRecord.jobId = oldRecord.getJobId();
-        newRecord.date = oldRecord.getDate();
-        newRecord.amount = oldRecord.getAmount();
-        newRecord.paymentId = oldRecord.getPaymentId();
-        newRecord.confirmed = oldRecord.getConfirmed();
-        newRecord.confirmedDate = oldRecord.getConfirmedDate();
-        newRecord.notificationId = null;
-
-        return newRecord;
-    }
-
-
-
     public static ConnectJobPaymentRecord fromJson(JSONObject json, int jobId) throws JSONException {
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
@@ -107,10 +87,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
                     DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
         } catch (Exception e) {
             throw new JSONException("Error parsing confirmed date: " + e.getMessage());
-        }
-
-        if (json.has(META_NOTIFICATION_ID) && !json.isNull(META_NOTIFICATION_ID)) {
-            payment.notificationId = json.getString(META_NOTIFICATION_ID);
         }
 
         return payment;
@@ -144,14 +120,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         if (confirmed) {
             confirmedDate = new Date();
         }
-    }
-
-    public String getNotificationId() {
-        return notificationId;
-    }
-
-    public void setNotificationId(String notificationId) {
-        this.notificationId = notificationId;
     }
 
     /**

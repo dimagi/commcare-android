@@ -393,18 +393,13 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc"
             , "org.commcare.android.database.connect.models.ConnectUserRecordV13"
             , "org.commcare.android.database.global.models.GlobalErrorRecord"
+
             ,"org.commcare.android.database.connect.models.ConnectUserRecordV14"
 
             //Added in 2.58
             ,"org.commcare.android.database.connect.models.PersonalIdCredential"
             ,"org.commcare.android.database.connect.models.ConnectUserRecordV16"
             ,"org.commcare.android.database.connect.models.PushNotificationRecord"
-            ,"org.commcare.android.database.connect.models.ConnectMessagingChannelRecordV18"
-            ,"org.commcare.android.database.connect.models.ConnectMessagingMessageRecordV18"
-            ,"org.commcare.android.database.connect.models.ConnectJobPaymentRecordV18"
-
-            //Added in 2.60
-            ,"org.commcare.suite.model.Credential"
     );
 
 
