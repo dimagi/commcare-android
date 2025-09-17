@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.TextUtils
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
     override suspend fun doWork(): Result = withContext(Dispatchers.IO){
         val pnApiStatus = startAppropriateSync()
         if (pnApiStatus.success) {
-            Result.success()
+            Result.success(workDataOf(PN_DATA to Gson().toJson(pnData)))
         } else if (pnApiStatus.retry && workerParams.runAttemptCount < MAX_RETRIES) {
             Result.retry()
         } else {

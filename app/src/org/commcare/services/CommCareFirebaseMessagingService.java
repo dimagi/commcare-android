@@ -2,6 +2,7 @@ package org.commcare.services;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -11,9 +12,12 @@ import org.commcare.pn.workermanager.PNApiSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
@@ -35,14 +39,18 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
                 remoteMessage.getData());
-        FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(),remoteMessage.getNotification());
-        handleSyncForNotification(remoteMessage);
+
+        if(!startSyncForNotification(remoteMessage)){
+            FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(), remoteMessage.getNotification());
+        }
+
     }
 
-    private void handleSyncForNotification(RemoteMessage remoteMessage){
+    private Boolean startSyncForNotification(RemoteMessage remoteMessage){
         ArrayList<Map<String,String>> pns = new ArrayList<>();
         pns.add(remoteMessage.getData());
-        new PNApiSyncWorkerManager(getApplicationContext(),pns);
+        PNApiSyncWorkerManager pnApiSyncWorkerManager = new PNApiSyncWorkerManager(getApplicationContext(),pns, PNApiSyncWorkerManager.SYNC_TYPE.FCM);
+        return pnApiSyncWorkerManager.startPNApiSync();
     }
 
     @Override
