@@ -22,6 +22,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.util.CommCarePlatform;
@@ -463,5 +464,10 @@ public class CommCareApp implements AppFilePathBuilder {
         } else {
             throw new RuntimeException("For testing purposes only!");
         }
+    }
+
+    public Profile initApplicationProfile() throws ResourceInitializationException {
+        platform.initializeProfile();
+        return platform.getCurrentProfile();
     }
 }
