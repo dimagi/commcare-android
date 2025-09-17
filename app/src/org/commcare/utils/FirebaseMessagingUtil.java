@@ -174,7 +174,9 @@ public class FirebaseMessagingUtil {
      */
     private static boolean showNotificationFromNotificationPayload(Context context, RemoteMessage.Notification payloadNotification,boolean showNotification) {
         if (payloadNotification != null &&
-                !Strings.isEmptyOrWhitespace(payloadNotification.getTitle()) && !Strings.isEmptyOrWhitespace(payloadNotification.getBody())) {
+                !Strings.isEmptyOrWhitespace(payloadNotification.getTitle()) &&
+                !Strings.isEmptyOrWhitespace(payloadNotification.getBody()) &&
+                showNotification) {
             Map<String, String> notificationPayload = new HashMap<>();
             notificationPayload.put(NOTIFICATION_TITLE, payloadNotification.getTitle());
             notificationPayload.put(NOTIFICATION_BODY, payloadNotification.getBody());
@@ -322,10 +324,12 @@ public class FirebaseMessagingUtil {
      * @return Intent
      */
     private static Intent handleGeneralApplicationPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        Intent intent = new Intent(context, DispatchActivity.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        if(showNotification) showNotification(context, buildNotification(context, intent, fcmMessageData));
+        if(showNotification) {
+            Intent intent = new Intent(context, DispatchActivity.class);
+            intent.setAction(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            showNotification(context, buildNotification(context, intent, fcmMessageData));
+        }
         return null;    // This will always null as we are already in DispatchActivity and don't want to start again
     }
 
