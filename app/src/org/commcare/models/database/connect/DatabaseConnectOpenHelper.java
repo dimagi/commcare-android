@@ -58,8 +58,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
      * V.16 - Added  personal_id_credential table
      * V17  - Added a new column has_connect_access to ConnectUserRecord
+     * V18 - Added new columns to personal_id_credential table (previously the table was unused)
      */
-    private static final int CONNECT_DB_VERSION = 17;
+    private static final int CONNECT_DB_VERSION = 18;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 

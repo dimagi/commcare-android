@@ -9,9 +9,17 @@
     <item
         android:id="@+id/action_credential"
         android:icon="@drawable/ic_credential"
-        android:title="@string/credential"
+        android:title="@string/personalid_credential"
         android:visible="false"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_bell"
+        android:icon="@drawable/ic_bell"
+        android:title="@string/personalid_notification"
+        android:visible="false"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/action_sync"
         android:icon="@drawable/ic_backup"

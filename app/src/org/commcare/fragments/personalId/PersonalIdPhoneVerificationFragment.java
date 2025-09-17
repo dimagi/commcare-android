@@ -1,5 +1,7 @@
 package org.commcare.fragments.personalId;
 
+import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -100,6 +102,16 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
                 if (otpCallback == null) return;
+                
+                // Auto-switch from Firebase to PersonalId for non-recoverable errors
+                if (shouldAutoSwitchToPersonalIdAuth(errorType)) {
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-switching from Firebase to PersonalId auth due to error: " + errorType);
+                    otpManager = new OtpManager(activity, personalIdSessionData, otpCallback,
+                            SMS_METHOD_PERSONAL_ID);
+                    requestOtp();
+                    return;
+                }
+                
                 String userMessage = switch (errorType) {
                     case INVALID_CREDENTIAL -> getString(R.string.personalid_incorrect_otp);
                     case TOO_MANY_REQUESTS -> getString(R.string.personalid_too_many_otp_attempts);
@@ -127,6 +139,21 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             }
         };
         otpManager = new OtpManager(activity, personalIdSessionData, otpCallback);
+    }
+
+    /**
+     * Determines if we should auto-switch from Firebase to PersonalId auth based on the error type.
+     * Only switches from Firebase to PersonalId, never the reverse.
+     * 
+     * @param errorType The OTP error type from Firebase
+     * @return true if we should switch to PersonalId auth, false otherwise
+     */
+    private boolean shouldAutoSwitchToPersonalIdAuth(OtpErrorType errorType) {
+        if(SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())) {
+            return false;
+        }
+
+        return personalIdSessionData.getOtpFallback() && errorType.isNonRecoverable();
     }
 
     @Override

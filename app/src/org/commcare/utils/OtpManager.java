@@ -11,15 +11,20 @@ import org.javarosa.core.services.Logger;
  */
 public class OtpManager {
 
-    private static final String SMS_METHOD_PERSONAL_ID = "personal_id";
+    public static final String SMS_METHOD_PERSONAL_ID = "personal_id";
 
     private final OtpAuthService authService;
 
     public OtpManager(Activity activity, PersonalIdSessionData personalIdSessionData,
             OtpVerificationCallback otpCallback) {
+        this(activity,personalIdSessionData, otpCallback,  personalIdSessionData.getSmsMethod());
+    }
+
+    public OtpManager(Activity activity, PersonalIdSessionData personalIdSessionData,
+            OtpVerificationCallback otpCallback, String otpMethod) {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Initializing OtpManager with SMS method: "
-                + personalIdSessionData.getSmsMethod());
-        if (SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())) {
+                + otpMethod);
+        if (SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(otpMethod)) {
             authService = new PersonalIdAuthService(activity, personalIdSessionData, otpCallback);
         } else {
             authService = new FirebaseAuthService(activity, personalIdSessionData, otpCallback);

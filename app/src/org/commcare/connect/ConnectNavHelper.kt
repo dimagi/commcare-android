@@ -3,6 +3,7 @@ package org.commcare.connect
 import android.content.Context
 import android.content.Intent
 import org.commcare.activities.CommCareActivity
+import org.commcare.activities.PushNotificationActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -27,6 +28,12 @@ object ConnectNavHelper {
 
     fun goToMessaging(context: Context) {
         val i = Intent(context, ConnectMessagingActivity::class.java)
+        context.startActivity(i)
+    }
+
+    @JvmStatic
+    fun goToNotification(context: Context) {
+        val i = Intent(context, PushNotificationActivity::class.java)
         context.startActivity(i)
     }
 
