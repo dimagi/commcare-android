@@ -641,6 +641,7 @@ public class ConnectDatabaseUpgrader {
             // We have not been populating this table yet, so just drop and recreate
             SqlStorage.dropTable(db, PersonalIdCredential.STORAGE_KEY);
             addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
+            db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
@@ -653,7 +654,6 @@ public class ConnectDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(storageKey);
             builder.addData(modelToAdd);
             db.execSQL(builder.getTableCreateString());
-
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
