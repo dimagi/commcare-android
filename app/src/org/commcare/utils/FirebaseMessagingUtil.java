@@ -474,16 +474,15 @@ public class FirebaseMessagingUtil {
     public static Intent getIntentForPNIfAny(Context context,Intent intent){
         if(intent!=null && intent.getExtras()!=null){
             Map<String, String> dataPayload = new HashMap<>();
-            if (intent.getExtras() != null) {
-                for (String key : intent.getExtras().keySet()) {
-                    String value = intent.getExtras().getString(key);
-                    dataPayload.put(key, value);
-                }
+            for (String key : intent.getExtras().keySet()) {
+                String value = intent.getExtras().getString(key);
+                dataPayload.put(key, value);
             }
-            intent.replaceExtras(new Bundle()); // clear all intent
-
-            return handleNotification(context,dataPayload,null,false);
-
+            Intent pnIntent = handleNotification(context,dataPayload,null,false);
+            if(pnIntent!=null){
+                intent.replaceExtras(new Bundle()); // clear intents if push notification intents are present else app keeps reloading same PN intents
+            }
+            return pnIntent;
         }
         return null;
     }
