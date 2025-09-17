@@ -20,6 +20,7 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.pn.workers.PNApiSyncWorker
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.PN_DATA
+import org.commcare.pn.workers.PNApiSyncWorker.Companion.cccCheckPassed
 import java.util.concurrent.TimeUnit
 
 class PNApiSyncWorkerManager(val context: Context) {
@@ -124,13 +125,6 @@ class PNApiSyncWorkerManager(val context: Context) {
                 PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY))
         }
     }
-
-    private fun cccCheckPassed(): Boolean{
-        return PersonalIdManager.getInstance().isloggedIn()
-    }
-
-
-
 
     fun getWorkRequest(pn: Map<String,String>,action: PNApiSyncWorker.Companion.SYNC_ACTION): WorkRequest {
 

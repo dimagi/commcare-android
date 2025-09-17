@@ -1,24 +1,25 @@
 package org.commcare.pn.workers
 
 import android.content.Context
+import android.text.TextUtils
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.MessageManager
+import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
-import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.connect.ConnectApiHandler
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
+import org.javarosa.core.services.Logger
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
-
-    private var runAttemptCount =0
 
     private var pnData:Map<String,String>?=null
     private var syncAction:SYNC_ACTION?=null
@@ -36,25 +37,26 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
             SYNC_DELIVERY_PROGRESS,
             SYNC_LEARNING_PROGRESS
         }
+
+        fun cccCheckPassed(): Boolean{
+            return PersonalIdManager.getInstance().isloggedIn()
+        }
     }
 
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO){
         val pnApiStatus = startAppropriateSync()
-        return if (pnApiStatus.success) {
+        if (pnApiStatus.success) {
             Result.success()
-        } else if (pnApiStatus.retry && runAttemptCount < MAX_RETRIES) {
-            runAttemptCount--
+        } else if (pnApiStatus.retry && workerParams.runAttemptCount < MAX_RETRIES) {
             Result.retry()
         } else {
-            return Result.failure()
+            Result.failure()
         }
     }
 
 
     private suspend fun startAppropriateSync():PNApiResponseStatus{
-
-
 
         val pnJsonString = inputData.getString(PN_DATA)
         if (pnJsonString != null) {
@@ -74,55 +76,54 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
             return when(syncAction!!){
 
                 SYNC_ACTION.SYNC_OPPORTUNITY->{
-                    syncOpportunities()
+                    if(cccCheckPassed()) syncOpportunities() else getFailedResponseWithoutRetry()
                 }
 
                 SYNC_ACTION.SYNC_PERSONALID_MESSAGING->{
-                    syncPersonalIdMessagesOrChannel()
+                    if(cccCheckPassed()) syncPersonalIdMessagesOrChannel() else getFailedResponseWithoutRetry()
                 }
 
                 SYNC_ACTION.SYNC_DELIVERY_PROGRESS->{
-                    syncDeliveryProgress()
+                    if(cccCheckPassed()) syncDeliveryProgress() else getFailedResponseWithoutRetry()
                 }
 
                 SYNC_ACTION.SYNC_LEARNING_PROGRESS->{
-                    syncLearningProgress()
+                    if(cccCheckPassed()) syncLearningProgress()  else getFailedResponseWithoutRetry()
                 }
 
             }
 
-
         }
-
-        return PNApiResponseStatus(false,false)
-
+        Logger.exception("Push notification sync failed", Throwable("invalid sync type"))
+        return getFailedResponseWithoutRetry()
     }
 
-    private suspend fun syncOpportunities(): PNApiResponseStatus{
-        val user = ConnectUserDatabaseUtil.getUser(appContext)
-
-        return suspendCoroutine { continuation ->
-            val user = ConnectUserDatabaseUtil.getUser(appContext)
-            object : ConnectApiHandler<ConnectOpportunitiesResponseModel?>() {
-                public override fun onFailure(
-                    errorCode: PersonalIdOrConnectApiErrorCodes,
-                    t: Throwable?
-                ) {
-                   continuation.resume(PNApiResponseStatus(false,true))
-                }
-
-                public override fun onSuccess(data: ConnectOpportunitiesResponseModel?) {
-                   continuation.resume(PNApiResponseStatus(true,false))
-                }
-            }.getConnectOpportunities(appContext, user!!)
-        }
+    private suspend fun syncOpportunities(): PNApiResponseStatus = suspendCoroutine { continuation ->
+        ConnectJobHelper.retrieveOpportunities(appContext, object :ConnectActivityCompleteListener{
+            override fun connectActivityComplete(success: Boolean) {
+                continuation.resume(PNApiResponseStatus(success,!success))
+            }
+        })
     }
 
 
-    private suspend fun syncPersonalIdMessagesOrChannel() : PNApiResponseStatus {
-        return suspendCoroutine { continuation ->
 
-            MessageManager.retrieveMessages(appContext, object : ConnectActivityCompleteListener {
+    private suspend fun syncPersonalIdMessagesOrChannel() : PNApiResponseStatus = suspendCoroutine { continuation ->
+        MessageManager.retrieveMessages(appContext, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                continuation.resume(PNApiResponseStatus(success,!success))
+            }
+        })
+    }
+
+
+    private suspend fun syncDeliveryProgress(): PNApiResponseStatus{
+        val job = getConnectJob()
+        if(job==null) {
+            return getFailedResponseWithoutRetry()
+        }
+        return suspendCoroutine { continuation ->
+            ConnectJobHelper.updateDeliveryProgress(appContext,job, object :ConnectActivityCompleteListener{
                 override fun connectActivityComplete(success: Boolean) {
                     continuation.resume(PNApiResponseStatus(success,!success))
                 }
@@ -130,26 +131,10 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
         }
     }
 
-    private suspend fun syncDeliveryProgress(): PNApiResponseStatus{
-        val opportunityId = pnData?.get(OPPORTUNITY_ID)
-        val job = ConnectJobUtils.getCompositeJob(appContext, Integer.parseInt(opportunityId))
-        if(job==null) {
-            return PNApiResponseStatus(false, false)
-        }
-        return suspendCoroutine { continuation ->
-            ConnectJobHelper.updateDeliveryProgress(appContext,job, object :ConnectActivityCompleteListener{
-                override fun connectActivityComplete(success: Boolean) {
-                        continuation.resume(PNApiResponseStatus(success,!success))
-                }
-            })
-        }
-    }
-
     private suspend fun syncLearningProgress(): PNApiResponseStatus{
-        val opportunityId = pnData?.get(OPPORTUNITY_ID)
-        val job = ConnectJobUtils.getCompositeJob(appContext, Integer.parseInt(opportunityId))
-        if(job==null) {
-            return PNApiResponseStatus(false, false)
+        val job = getConnectJob()
+        if(job == null) {
+            return getFailedResponseWithoutRetry()
         }
         return suspendCoroutine { continuation ->
             ConnectJobHelper.updateLearningProgress(appContext,job, object :ConnectActivityCompleteListener{
@@ -160,6 +145,11 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
         }
     }
 
+    private fun getConnectJob(): ConnectJobRecord?{
+        val opportunityId = pnData?.get(OPPORTUNITY_ID)
+        return if(TextUtils.isEmpty(opportunityId)) null else ConnectJobUtils.getCompositeJob(appContext, Integer.parseInt(opportunityId!!))
+    }
 
+    private fun getFailedResponseWithoutRetry() = PNApiResponseStatus(false,false)
 
 }
