@@ -41,7 +41,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 remoteMessage.getData());
 
         if(!startSyncForNotification(remoteMessage)){
-            FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(), remoteMessage.getNotification());
+            FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(), remoteMessage.getNotification(),true);
         }
 
     }

@@ -149,6 +149,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
     private File writeToTempFile(InputStream inputFileStream) throws LocalStorageUnavailableException, IOException {
         File tempFile = new File(CommCareApplication.instance().getTempFilePath());
+        FileUtil.ensureFilePathExists(tempFile);
         try {
             OutputStream outputFileStream = new FileOutputStream(tempFile);
             StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
