@@ -52,8 +52,7 @@ public class ConnectDatabaseHelper {
             //Store the received passphrase as what's in use locally
             ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
         } catch (Exception e) {
-            Logger.exception("Handling received DB passphrase", e);
-            crashDb();
+            crashDb(GlobalErrors.PERSONALID_DB_UPGRADE_ERROR);
         }
     }
 
@@ -94,8 +93,7 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            Logger.exception("Corrupt Connect DB", e);
-                            crashDb();
+                            crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR);
                         }
                     }
                     return connectDatabase;
@@ -113,13 +111,9 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void crashDb() {
-        crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR);
-    }
-
     public static void crashDb(GlobalErrors error) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
-        throw new RuntimeException("Connect database crash");
+        throw new RuntimeException("Connect database crash: " + error.name());
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
