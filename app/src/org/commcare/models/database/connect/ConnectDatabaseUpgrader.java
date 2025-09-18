@@ -653,6 +653,7 @@ public class ConnectDatabaseUpgrader {
 
     private void upgradeEighteenNineteen(IDatabase db) {
         addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+        db.setTransactionSuccessful();
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,

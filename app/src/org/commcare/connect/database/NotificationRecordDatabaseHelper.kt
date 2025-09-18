@@ -2,11 +2,53 @@ package org.commcare.connect.database
 
 import android.content.Context
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.models.database.SqlStorage
 
 class NotificationRecordDatabaseHelper {
+
+    private fun getStorage(context: Context): SqlStorage<PushNotificationRecord> {
+        return ConnectDatabaseHelper.getConnectStorage(context, PushNotificationRecord::class.java)
+    }
+
+    /**
+     * Fetch all notifications
+     */
     fun getAllNotifications(context: Context): List<PushNotificationRecord> {
-        return ConnectDatabaseHelper
-            .getConnectStorage(context, PushNotificationRecord::class.java)
-            .getRecordsForValues(arrayOf(), arrayOf())
+        return getStorage(context).getRecordsForValues(arrayOf(), arrayOf())
+    }
+
+    /**
+     * 1. Fetch a notification from notification_id
+     */
+    fun getNotificationById(context: Context, notificationId: Int): PushNotificationRecord? {
+        val records = getStorage(context).getRecordsForValues(
+            arrayOf(PushNotificationRecord.META_NOTIFICATION_ID),
+            arrayOf(notificationId)
+        )
+        return records.firstOrNull()
+    }
+
+    /**
+     * 2. Update the read status for a notification using notification_id
+     */
+    fun updateReadStatus(context: Context, notificationId: Int, isRead: Boolean) {
+        val record = getNotificationById(context, notificationId) ?: return
+        record.readStatus = isRead
+        getStorage(context).write(record)
+    }
+
+    /**
+     * 3. Append notification(s) to DB (insert or update)
+     */
+    fun storeNotifications(context: Context, notifications: List<PushNotificationRecord>) {
+        val storage = getStorage(context)
+
+        for (incoming in notifications) {
+            val existing = getNotificationById(context, incoming.notificationId ?: -1)
+            if (existing != null) {
+                incoming.id = existing.id
+            }
+            storage.write(incoming)
+        }
     }
 }
