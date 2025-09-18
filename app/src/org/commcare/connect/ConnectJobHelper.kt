@@ -83,34 +83,32 @@ object ConnectJobHelper {
         val user = ConnectUserDatabaseUtil.getUser(context)
         object : ConnectApiHandler<DeliveryAppProgressResponseModel>() {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
-                var shouldLogDelivery = false
                 if (deliveryAppProgressResponseModel.updatedJob) {
-                    shouldLogDelivery = true
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"Started a delivery job")
                     ConnectJobUtils.upsertJob(context, job)
                 }
 
                 if (deliveryAppProgressResponseModel.hasDeliveries) {
                     if (job.getDeliveryProgressPercentage() == 100) {
-                        shouldLogDelivery = true
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"Finished a delivery job")
                     }
                     ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobId, true)
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
                     if (job.payments.isNotEmpty()){
-                        shouldLogDelivery = true
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"Gotten paid for a delivery job")
                     }
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
                 }
 
-                if (shouldLogDelivery) {
-                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
-                }
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,null)
+
                 listener.connectActivityComplete(true)
             }
 
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false)
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false,null)
                 listener.connectActivityComplete(false)
             }
         }.getDeliveries(context, user, job)

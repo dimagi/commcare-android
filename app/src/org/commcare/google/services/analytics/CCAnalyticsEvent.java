@@ -57,7 +57,6 @@ public class CCAnalyticsEvent {
     static final String NAV_DRAWER_ITEM_SELECTED = "nav_drawer_item_selected";
     static final String PERSONAL_ID_CONTINUE_CLICKED = "PERSONAL_ID_CONTINUE_CLICKED";
     static final String PERSONAL_ID_MESSAGE_SENT = "PERSONAL_ID_MESSAGE_SENT";
-    static final String PERSONAL_ID_LINKED = "PERSONAL_ID_LINKED";
-    static final String PERSONAL_ID_LINKING_FAILED = "PERSONAL_ID_LINKING_FAILED";
+    static final String PERSONAL_ID_LINKING = "PERSONAL_ID_LINKING";
 
 }

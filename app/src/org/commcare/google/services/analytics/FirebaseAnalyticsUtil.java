@@ -18,6 +18,7 @@ import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
+import java.util.Objects;
 
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -32,6 +33,8 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
+
+import javax.annotation.Nullable;
 
 /**
  * Created by amstone326 on 10/13/17.
@@ -480,9 +483,10 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_CLAIM_JOB, b);
     }
 
-    public static void reportCccApiDeliveryProgress(boolean success) {
+    public static void reportCccApiDeliveryProgress(boolean success, @Nullable String deliveryInfo) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putString(CCAnalyticsParam.PARAM_API_SUCCESS_DELIVERY_INFO,Objects.toString(deliveryInfo, ""));
         reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
     }
 
@@ -520,22 +524,21 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
-    public static void reportContinueButtonClicks() {
-        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED);
+    public static void reportPersonalIDContinueClicked(String screenName,@Nullable String info) {
+        Bundle params = new Bundle();
+        params.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
+        params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO, Objects.toString(info, ""));
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
     }
-    public static void reportSentMessage() {
+    public static void reportPersonalIDMessageSent() {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_MESSAGE_SENT);
     }
 
-    public static void reportPersonalIdLinked(String appId) {
+    public static void reportPersonalIDLinking(String appId, boolean success) {
         Bundle bundle = new Bundle();
         bundle.putString(CCAnalyticsParam.CC_APP_ID, appId);
-        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKED,bundle);
-    }
-    public static void reportPersonalIdLinkingFailed(String appId) {
-        Bundle bundle = new Bundle();
-        bundle.putString(CCAnalyticsParam.CC_APP_ID, appId);
-        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING_FAILED,bundle);
+        bundle.putBoolean(CCAnalyticsParam.PERSONAL_ID_SUCCESS, success);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING, bundle);
     }
 
     // logs screen view events when set to a navigation controller

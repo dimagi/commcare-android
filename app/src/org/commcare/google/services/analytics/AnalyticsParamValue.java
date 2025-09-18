@@ -183,4 +183,5 @@ public class AnalyticsParamValue {
     public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE = "min_biometric_hardware_unavailable";
     public static final String MIN_BIOMETRIC_NEEDS_UPDATE = "min_biometric_needs_update";
     public static final String MIN_BIOMETRIC_PIN_NEEDS_UPDATE = "min_biometric_pin_needs_update";
+    public static final String SCREEN_PERSONAL_ID_BACKUP_CODE_FRAGMENT = "PersonalIdBackupCodeFragment";
 }

@@ -177,7 +177,7 @@ public class ConnectMessageFragment extends Fragment {
                 chat.setMessageRead(success);
                 adapter.updateMessageReadStatus(chat);
                 scrollToLatestMessage();
-                FirebaseAnalyticsUtil.reportSentMessage();
+                FirebaseAnalyticsUtil.reportPersonalIDMessageSent();
             }
         });
     }
