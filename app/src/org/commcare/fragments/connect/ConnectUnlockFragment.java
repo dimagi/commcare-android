@@ -99,7 +99,6 @@ public class ConnectUnlockFragment extends Fragment {
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
                 if (!data.getValidJobs().isEmpty()) {
-                    ConnectJobUtils.storeJobs(requireContext(), data.getValidJobs(), true);
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
                 setFragmentRedirection();
