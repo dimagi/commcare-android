@@ -2,7 +2,6 @@ package org.commcare.services;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -41,6 +40,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 remoteMessage.getData());
 
         if(!startSyncForNotification(remoteMessage)){
+            Logger.log(LogTypes.TYPE_FCM,"No sync present, it will try to raise the notification directly");
             FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(), remoteMessage.getNotification(),true);
         }
 

@@ -26,14 +26,14 @@ import org.commcare.pn.workers.PNApiSyncWorker
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.PN_DATA
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.SYNC_ACTION
-import org.commcare.pn.workers.PNApiSyncWorker.Companion.cccCheckPassed
 import org.commcare.services.FCMMessageData.NOTIFICATION_BODY
 import org.commcare.utils.FirebaseMessagingUtil
+import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 
 /**
- * This class is responsible for allocating the work request for each of push notification
+ * This class is responsible for allocating the work request for each type of push notification
  */
 class PNApiSyncWorkerManager(val context: Context) {
 
@@ -152,7 +152,7 @@ class PNApiSyncWorkerManager(val context: Context) {
 
 
     private fun createPersonalIdMessagingSyncWorkRequest(pn:Map<String,String>){
-        if(!requiredWorkerThread.containsKey(CCC_MESSAGE) && cccCheckPassed()){
+        if(!requiredWorkerThread.containsKey(CCC_MESSAGE) && cccCheckPassed(context)){
             requiredWorkerThread.put(CCC_MESSAGE,getWorkRequest(pn,
                 SYNC_ACTION.SYNC_PERSONALID_MESSAGING
             ))
@@ -160,7 +160,7 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     private fun createLearningSyncWorkRequest(pn:Map<String,String>){
-        if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed()){
+        if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
             val opportunityId = pn.get(OPPORTUNITY_ID)
             if(!requiredWorkerThread.containsKey(SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString() +"-${opportunityId}")){
                 requiredWorkerThread.put(SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
@@ -170,7 +170,7 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     private fun createDeliverySyncWorkRequest(pn:Map<String,String>){
-        if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed()){
+        if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
             val opportunityId = pn.get(OPPORTUNITY_ID)
             if(!requiredWorkerThread.containsKey(SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString() +"-${opportunityId}")){
                 requiredWorkerThread.put(SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
@@ -181,7 +181,7 @@ class PNApiSyncWorkerManager(val context: Context) {
 
 
     private fun createOpportunitiesSyncWorkRequest(pn:Map<String,String>){
-        if(!requiredWorkerThread.containsKey(SYNC_ACTION.SYNC_OPPORTUNITY.toString()) && cccCheckPassed()){
+        if(!requiredWorkerThread.containsKey(SYNC_ACTION.SYNC_OPPORTUNITY.toString()) && cccCheckPassed(context)){
             requiredWorkerThread.put(SYNC_ACTION.SYNC_OPPORTUNITY.toString() ,getWorkRequest(pn,
                 SYNC_ACTION.SYNC_OPPORTUNITY))
         }
@@ -212,7 +212,7 @@ class PNApiSyncWorkerManager(val context: Context) {
         if(syncPassedCount==requiredWorkerThread.size && syncType== SYNC_TYPE.FCM) {
             val dataPayload = getPNDataPayload(workInfo)
             if (dataPayload != null) {
-                raiseFCMPushNotification(pns.get(0))
+                raiseFCMPushNotification(dataPayload)
             }
         }
     }
@@ -220,7 +220,7 @@ class PNApiSyncWorkerManager(val context: Context) {
     private fun processAfterSyncFailed(workInfo: WorkInfo){
         Logger.exception("WorkRequest Failed to complete the task-${workInfo.stopReason}", Throwable("WorkRequest Failed with ${workInfo.stopReason}"))
         syncFailedCount++
-        if(syncType == SYNC_TYPE.FCM && syncFailedCount ==0){   // raise the notification on first failure and not multiple times
+        if(syncType == SYNC_TYPE.FCM && syncFailedCount ==1){   // raise the notification on first failure and not multiple times
             val dataPayload = getPNDataPayload(workInfo)
             if (dataPayload != null) {
                 dataPayload.put(
@@ -233,7 +233,7 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     private fun raiseFCMPushNotification(dataPayload:Map<String,String>){
-        FirebaseMessagingUtil.handleNotification(context,dataPayload,null)
+        FirebaseMessagingUtil.handleNotification(context,dataPayload,null,true)
     }
 
     private fun getPNDataPayload(workInfo: WorkInfo):HashMap<String,String>?{

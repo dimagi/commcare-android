@@ -14,8 +14,8 @@ import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.javarosa.core.services.Logger
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -38,11 +38,8 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
             SYNC_DELIVERY_PROGRESS,
             SYNC_LEARNING_PROGRESS
         }
-
-        fun cccCheckPassed(): Boolean{
-            return PersonalIdManager.getInstance().isloggedIn()
-        }
     }
+
 
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO){
@@ -77,19 +74,19 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
             return when(syncAction!!){
 
                 SYNC_ACTION.SYNC_OPPORTUNITY->{
-                    if(cccCheckPassed()) syncOpportunities() else getFailedResponseWithoutRetry()
+                    if(cccCheckPassed(appContext)) syncOpportunities() else getFailedResponseWithoutRetry()
                 }
 
                 SYNC_ACTION.SYNC_PERSONALID_MESSAGING->{
-                    if(cccCheckPassed()) syncPersonalIdMessagesOrChannel() else getFailedResponseWithoutRetry()
+                    if(cccCheckPassed(appContext)) syncPersonalIdMessagesOrChannel() else getFailedResponseWithoutRetry()
                 }
 
                 SYNC_ACTION.SYNC_DELIVERY_PROGRESS->{
-                    if(cccCheckPassed()) syncDeliveryProgress() else getFailedResponseWithoutRetry()
+                    if(cccCheckPassed(appContext)) syncDeliveryProgress() else getFailedResponseWithoutRetry()
                 }
 
                 SYNC_ACTION.SYNC_LEARNING_PROGRESS->{
-                    if(cccCheckPassed()) syncLearningProgress()  else getFailedResponseWithoutRetry()
+                    if(cccCheckPassed(appContext)) syncLearningProgress()  else getFailedResponseWithoutRetry()
                 }
 
             }
