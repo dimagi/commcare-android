@@ -25,6 +25,7 @@ import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
@@ -104,6 +105,11 @@ public class DispatchActivity extends AppCompatActivity {
         }
     }
 
+
+    private Intent checkIfAnyPNIntentPresent(){
+        return FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
+    }
+
     /**
      * A workaround required by Android Bug #2373 -- An app launched from the Google Play store
      * has different intent flags than one launched from the App launcher, which ruins the back
@@ -155,7 +161,11 @@ public class DispatchActivity extends AppCompatActivity {
         }
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (currentApp == null) {
+
+        Intent pnIntent = checkIfAnyPNIntentPresent();
+        if(pnIntent!=null) {
+            startActivity(pnIntent);
+        }else if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
