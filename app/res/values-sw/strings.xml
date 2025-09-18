@@ -479,7 +479,7 @@
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
     <string name="personalid_credential_my_worker_history">Historia Yangu ya Kazi</string>
-    <string name="personalid_credential">Kitambulisho</string>
+    <string name="personalid_credential">Historia ya Kazi</string>
     <string name="personalid_credential_worked_on">Ilifanywa Kazi Kwenye:</string>
     <string name="personalid_credential_earned_on">Ilipatikana Kwenye:</string>
     <string name="personalid_credential_active_for">Inatumika Kwa:</string>
