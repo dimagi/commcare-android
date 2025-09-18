@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,6 +25,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.common.base.Strings;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.activities.PushNotificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
@@ -79,9 +81,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
-        if (opportunityId > 0) {
-            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
+        String opportunityId = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
+        if(!TextUtils.isEmpty(opportunityId)){
+            job = ConnectJobUtils.getCompositeJob(this, Integer.parseInt(opportunityId));
         }
     }
 
@@ -185,6 +187,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
         if (item.getItemId() == R.id.action_credential) {
             startActivity(new Intent(this, PersonalIdCredentialActivity.class));
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_bell) {
+            ConnectNavHelper.goToNotification(this);
             return true;
         }
 
