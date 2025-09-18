@@ -178,6 +178,7 @@ License.
     <string name="recovery_forms_send_failure">फॉर्म जमा करते समय त्रुटियां हुईं।</string>
     <string name="recovery_forms_send_parital_success">फॉर्म भेजते समय त्रुटियां हुईं। केवल %s भेजे गए थे। कृपया बाद में पुनः प्रयास करें।</string>
     <string name="recovery_forms_send_network_error">खराब नेटवर्क के कारण फॉर्म भेजने में विफल रहा</string>
+    <string name="recovery_unable_to_claim_opportunity">अवसर का दावा करने में असमर्थ, कृपया एक व्यवस्थापक से संपर्क करें।</string>
     <string name="recovery_forms_send_error">फॉर्म भेजते समय त्रुटि</string>
     <string name="recovery_forms_state_unavailable">फॉर्म उपलब्ध नहीं हैं। जांचें कि आपके फ़ोन का संग्रहण स्थान उपलब्ध है।</string>
     <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</string>
