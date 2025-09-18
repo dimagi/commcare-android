@@ -185,11 +185,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             return true;
         }
 
-        if (item.getItemId() == R.id.action_credential) {
-            startActivity(new Intent(this, PersonalIdCredentialActivity.class));
-            return true;
-        }
-
         if (item.getItemId() == R.id.action_bell) {
             ConnectNavHelper.goToNotification(this);
             return true;

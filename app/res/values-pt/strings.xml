@@ -479,7 +479,7 @@
     <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
     <string name="personalid_capture_photo">Capturar foto</string>
     <string name="personalid_credential_my_worker_history">Meu Histórico de Trabalho</string>
-    <string name="personalid_credential">Credencial</string>
+    <string name="personalid_credential">Histórico de Trabalho</string>
     <string name="personalid_credential_worked_on">Trabalhou Em:</string>
     <string name="personalid_credential_earned_on">Obtido Em:</string>
     <string name="personalid_credential_active_for">Ativo Por:</string>

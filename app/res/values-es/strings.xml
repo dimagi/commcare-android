@@ -471,7 +471,7 @@
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
     <string name="personalid_credential_my_worker_history">Mi Historial Laboral</string>
-    <string name="personalid_credential">Credencial</string>
+    <string name="personalid_credential">Historial Laboral</string>
     <string name="personalid_credential_worked_on">Trabajado en:</string>
     <string name="personalid_credential_earned_on">Obtenido el:</string>
     <string name="personalid_credential_active_for">Activo durante:</string>
