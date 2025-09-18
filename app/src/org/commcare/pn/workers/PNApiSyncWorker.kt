@@ -46,7 +46,7 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
         val pnApiStatus = startAppropriateSync()
         if (pnApiStatus.success) {
             Result.success(workDataOf(PN_DATA to Gson().toJson(pnData)))
-        } else if (pnApiStatus.retry && workerParams.runAttemptCount < MAX_RETRIES) {
+        } else if (pnApiStatus.retry && runAttemptCount < MAX_RETRIES) {
             Result.retry()
         } else {
             Result.failure()
@@ -59,7 +59,7 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
         val pnJsonString = inputData.getString(PN_DATA)
         if (pnJsonString != null) {
             val mapType = object : TypeToken<Map<String, Any>>() {}.type
-            pnData = Gson().fromJson(pnJsonString, mapType)
+            pnData = Gson().fromJson<Map<String, String>>(pnJsonString, mapType)
         }
 
 

@@ -12,6 +12,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS
@@ -31,6 +32,7 @@ import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * This class is responsible for allocating the work request for each type of push notification
@@ -55,8 +57,8 @@ class PNApiSyncWorkerManager(val context: Context) {
     lateinit var syncType: SYNC_TYPE
     val requiredWorkerThread = HashMap<String, WorkRequest>()
 
-    var syncFailedCount = 0
-    var syncPassedCount = 0
+    var syncFailedCount = AtomicInteger(0)
+    var syncPassedCount = AtomicInteger(0)
 
     /**
      * This can receive the push notification data payload from FCM and notification API.
@@ -126,28 +128,14 @@ class PNApiSyncWorkerManager(val context: Context) {
     private suspend fun startListeningToWorkerRequest(workRequest: WorkRequest){
 
         WorkManager.getInstance(context).enqueue(workRequest)
-        WorkManager.getInstance(context).getWorkInfoByIdFlow(workRequest.id)
-            .collect { workInfo ->
-                if (workInfo != null) {
-                    when (workInfo.state) {
-                        WorkInfo.State.SUCCEEDED -> {
-                            processAfterSuccessfulSync(workInfo)
-                        }
+        val workInfo = WorkManager.getInstance(context).getWorkInfoByIdFlow(workRequest.id)
+            .first { it != null && it.state.isFinished }
 
-                        WorkInfo.State.FAILED -> {
-                            processAfterSyncFailed(workInfo)
-                        }
-
-                        WorkInfo.State.BLOCKED, WorkInfo.State.CANCELLED -> {
-                            processAfterSyncFailed(workInfo)
-                        }
-
-                        else -> {
-                            // Work is still running or in other states
-                        }
-                    }
-                }
-            }
+        when (workInfo?.state) {
+            WorkInfo.State.SUCCEEDED -> processAfterSuccessfulSync(workInfo)
+            WorkInfo.State.FAILED, WorkInfo.State.BLOCKED, WorkInfo.State.CANCELLED -> processAfterSyncFailed(workInfo)
+            else -> { }
+        }
     }
 
 
@@ -208,8 +196,8 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     private fun processAfterSuccessfulSync(workInfo: WorkInfo){
-        syncPassedCount++
-        if(syncPassedCount==requiredWorkerThread.size && syncType== SYNC_TYPE.FCM) {
+        val passed = syncPassedCount.incrementAndGet()
+        if(passed==requiredWorkerThread.size && syncType== SYNC_TYPE.FCM) {
             val dataPayload = getPNDataPayload(workInfo)
             if (dataPayload != null) {
                 raiseFCMPushNotification(dataPayload)
@@ -219,8 +207,8 @@ class PNApiSyncWorkerManager(val context: Context) {
 
     private fun processAfterSyncFailed(workInfo: WorkInfo){
         Logger.exception("WorkRequest Failed to complete the task-${workInfo.stopReason}", Throwable("WorkRequest Failed with ${workInfo.stopReason}"))
-        syncFailedCount++
-        if(syncType == SYNC_TYPE.FCM && syncFailedCount ==1){   // raise the notification on first failure and not multiple times
+        val failed = syncFailedCount.incrementAndGet()
+        if(syncType == SYNC_TYPE.FCM && failed ==1){   // raise the notification on first failure and not multiple times
             val dataPayload = getPNDataPayload(workInfo)
             if (dataPayload != null) {
                 dataPayload.put(
@@ -240,7 +228,7 @@ class PNApiSyncWorkerManager(val context: Context) {
         val pnJsonString = workInfo.outputData.getString(PN_DATA)
         if (pnJsonString != null) {
             val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
-            return Gson().fromJson(pnJsonString, mapType)
+            return Gson().fromJson<HashMap<String, String>>(pnJsonString, mapType)
         }
         return null
     }
