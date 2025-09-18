@@ -230,6 +230,7 @@
     <string name="recovery_network_server_error">There was an error processing your request.</string>
     <string name="recovery_network_cooldown">Too many request attempts, try again after an hour.</string>
     <string name="recovery_network_unknown">Something went wrong, please try again.</string>
+    <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity, please contact an administrator.</string>
     <string name="recovery_app_manager">Go to App Manager</string>
     <string name="recovery_retry">Retry Recovery</string>
     <string name="notification_channel_errors_title">Errors</string>
@@ -645,7 +646,7 @@
     <string name="connect_claim_job_error">Error claiming job</string>
 
     <string name="personalid_credential_my_worker_history">My Work History</string>
-    <string name="personalid_credential">Credential</string>
+    <string name="personalid_credential">Work History</string>
     <string name="personalid_credential_worked_on">Worked On:</string>
     <string name="personalid_credential_earned_on">Earned On:</string>
     <string name="personalid_credential_view_credential">View Credential</string>

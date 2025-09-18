@@ -6,6 +6,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.PushNotificationActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
+import org.commcare.activities.connect.PersonalIdCredentialActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
@@ -13,17 +14,21 @@ import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 
 object ConnectNavHelper {
-    fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+    private fun unlockAndGoTo(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener, navigationAction: (Context) -> Unit) {
         val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(activity)
         personalIdManager.unlockConnect(
             activity
         ) { success: Boolean ->
             if (success) {
-                goToMessaging(activity)
+                navigationAction(activity)
             }
             listener.connectActivityComplete(success)
         }
+    }
+
+    fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+        unlockAndGoTo(activity, listener, ::goToMessaging)
     }
 
     fun goToMessaging(context: Context) {
@@ -37,21 +42,21 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
+    fun unlockAndGoToCredentials(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+        unlockAndGoTo(activity, listener, ::goToCredentials)
+    }
+
+    fun goToCredentials(context: Context) {
+        val i = Intent(context, PersonalIdCredentialActivity::class.java)
+        context.startActivity(i)
+    }
+
     fun unlockAndGoToConnectJobsList(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
-        personalIdManager.unlockConnect(
-            activity
-        ) { success: Boolean ->
-            if (success) {
-                goToConnectJobsList(activity)
-            }
-            listener.connectActivityComplete(success)
-        }
+        unlockAndGoTo(activity, listener, ::goToConnectJobsList)
     }
 
     fun goToConnectJobsList(context: Context) {
-        checkConnectAccess(context);
+        checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
         context.startActivity(i)
     }
