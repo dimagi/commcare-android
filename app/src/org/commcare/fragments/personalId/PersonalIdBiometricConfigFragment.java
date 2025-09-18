@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -353,6 +354,12 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
             int phase, int buttonText) {
         NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
                 title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
-        Navigation.findNavController(binding.getRoot()).navigate(navDirections);
+
+        NavController navController = Navigation.findNavController(binding.getRoot());
+
+        // Only navigate if we’re not already on PersonalIdMessageFragment
+        if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() != R.id.personalid_message_display) {
+            navController.navigate(navDirections);
+        }
     }
 }
