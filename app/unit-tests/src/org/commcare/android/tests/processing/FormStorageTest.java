@@ -396,7 +396,7 @@ public class FormStorageTest {
             ,"org.commcare.android.database.connect.models.ConnectUserRecordV14"
 
             //Added in 2.58
-            ,"org.commcare.android.database.connect.models.PersonalIdCredential"
+            ,"org.commcare.android.database.connect.models.PersonalIdWorkHistory"
             ,"org.commcare.android.database.connect.models.ConnectUserRecordV16"
 
             //Added in 2.60

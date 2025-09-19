@@ -20,7 +20,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.IDatabase;
@@ -140,7 +140,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder(PersonalIdCredential.class);
+            builder = new TableBuilder(PersonalIdWorkHistory.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
