@@ -19,6 +19,8 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.personalId.PersonalIdFeatureFlagChecker
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
@@ -223,7 +225,7 @@ class BaseDrawerController(
 
     private fun shouldShowCredential(): Boolean {
         // we are keeping this off for now until we have go ahead to release this feature
-        return PersonalIdManager.getInstance().isloggedIn() && false;
+        return PersonalIdManager.getInstance().isloggedIn() && PersonalIdFeatureFlagChecker.isFeatureEnabled(WORK_HISTORY);
     }
 
     fun closeDrawer() {
