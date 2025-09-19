@@ -11,7 +11,7 @@ class PushNotificationRecord : Persisted(), Serializable {
 
     @Persisting(1)
     @MetaField(META_NOTIFICATION_ID)
-    var notificationId: Int? = null
+    var notificationId: Int = 0
 
     @Persisting(2)
     @MetaField(META_NOTIFICATION_TYPE)
@@ -19,7 +19,7 @@ class PushNotificationRecord : Persisted(), Serializable {
 
     @Persisting(3)
     @MetaField(META_ACTION)
-    var action: String? = null
+    var action: String = ""
 
     @Persisting(4)
     @MetaField(META_TITLE)

@@ -13,7 +13,7 @@ class NotificationRecordDatabaseHelper {
     /**
      * Fetch all notifications
      */
-    fun getAllNotifications(context: Context): List<PushNotificationRecord> {
+    fun getAllNotifications(context: Context): List<PushNotificationRecord>? {
         return getStorage(context).getRecordsForValues(arrayOf(), arrayOf())
     }
 
@@ -44,7 +44,7 @@ class NotificationRecordDatabaseHelper {
         val storage = getStorage(context)
 
         for (incoming in notifications) {
-            val existing = getNotificationById(context, incoming.notificationId ?: -1)
+            val existing = getNotificationById(context, incoming.notificationId)
             if (existing != null) {
                 incoming.id = existing.id
             }
