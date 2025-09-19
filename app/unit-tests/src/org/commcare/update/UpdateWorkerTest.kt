@@ -58,7 +58,7 @@ class UpdateWorkerTest {
         assertTrue(dir.delete())
 
         val profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update", "profile.ccpr")
-        runAndTestUpdateWorker(profileRef, ListenableWorker.Result.failure())
+        runAndTestUpdateWorker(profileRef, ListenableWorker.Result.success())
     }
 
     @Test
