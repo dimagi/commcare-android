@@ -1,7 +1,10 @@
 package org.commcare.utils;
 
+import android.content.Context;
+
 import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.android.security.KeyStoreHandler;
+import org.commcare.android.security.RsaKeyStoreHandler;
 
 /**
  * Class for providing encryption keys backed by Android Keystore
@@ -9,27 +12,42 @@ import org.commcare.android.security.KeyStoreHandler;
  * @author dviggiano
  */
 public class EncryptionKeyProvider {
+
+    private final Context context;
     private final boolean needsUserAuth;
     private final String keyAlias;
 
-    public EncryptionKeyProvider(boolean needsUserAuth, String keyAlias) {
+    public EncryptionKeyProvider(Context context, boolean needsUserAuth, String keyAlias) {
+        this.context = context;
         this.needsUserAuth = needsUserAuth;
         this.keyAlias = keyAlias;
     }
 
-    public EncryptionKeyAndTransform getCryptographicKey() {
-        return getHandler().getKeyOrGenerate();
+    public EncryptionKeyAndTransform getKeyForEncryption() {
+        return getHandler(true).getKeyOrGenerate();
     }
 
-    private KeyStoreHandler getHandler() {
-        return new AesKeyStoreHandler(keyAlias, needsUserAuth);
+    public EncryptionKeyAndTransform getKeyForDecryption() {
+        return getHandler(false).getKeyOrGenerate();
+    }
+
+    /**
+     * If RSA key exists, use it. Otherwise use AES keys
+     */
+    private KeyStoreHandler getHandler(boolean isEncryptMode) {
+        RsaKeyStoreHandler rsaKeystoreHandler = new RsaKeyStoreHandler(context, keyAlias, isEncryptMode);
+        if (rsaKeystoreHandler.doesKeyExist()) {
+            return rsaKeystoreHandler;
+        } else {
+            return new AesKeyStoreHandler(keyAlias, needsUserAuth);
+        }
     }
 
     public boolean isKeyValid() {
-        return getHandler().isKeyValid();
+        return getHandler(false).isKeyValid();
     }
 
     public void deleteKey() {
-        getHandler().deleteKey();
+        getHandler(false).deleteKey();
     }
 }

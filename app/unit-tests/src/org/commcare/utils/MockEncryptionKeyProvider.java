@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import android.content.Context;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -21,20 +22,29 @@ public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
     private SecretKey secretKey = null;
     private static final String TEST_SECRET = "test-secret";
 
-    public MockEncryptionKeyProvider() {
-        super(false, TEST_SECRET);
+    public MockEncryptionKeyProvider(Context context) {
+        super(context, false, TEST_SECRET);
     }
 
     @Override
-    public EncryptionKeyAndTransform getCryptographicKey() {
+    public EncryptionKeyAndTransform getKeyForEncryption() {
         try {
             return getKey();
-        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException e) {
+        } catch (InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private EncryptionKeyAndTransform getKey() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+    @Override
+    public EncryptionKeyAndTransform getKeyForDecryption() {
+        try {
+            return getKey();
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private EncryptionKeyAndTransform getKey() throws InvalidAlgorithmParameterException {
         if (secretKey == null) {
             MockKeyGenerator keyGenerator =  new MockKeyGenerator();
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(TEST_SECRET,

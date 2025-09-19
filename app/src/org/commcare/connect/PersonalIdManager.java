@@ -199,14 +199,14 @@ public class PersonalIdManager {
 
     private void logBiometricInvalidations() {
         if(AndroidKeyStore.INSTANCE.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) {
-            EncryptionKeyProvider encryptionKeyProvider =
-                    new EncryptionKeyProvider(true, BIOMETRIC_INVALIDATION_KEY);
+            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity,
+                    true, BIOMETRIC_INVALIDATION_KEY);
             if (!encryptionKeyProvider.isKeyValid()) {
                 FirebaseAnalyticsUtil.reportBiometricInvalidated();
 
                 // reset key
                 encryptionKeyProvider.deleteKey();
-                encryptionKeyProvider.getCryptographicKey();
+                encryptionKeyProvider.getKeyForEncryption();
             }
         }
     }

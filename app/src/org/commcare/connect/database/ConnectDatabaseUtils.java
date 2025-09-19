@@ -24,8 +24,8 @@ public class ConnectDatabaseUtils {
                 throw new IllegalArgumentException("Passphrase must not be null or empty");
             }
 
-            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(false, SECRET_NAME);
-            EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getCryptographicKey();
+            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false, SECRET_NAME);
+            EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForEncryption();
             String encoded = EncryptionUtils.encrypt(passphrase, keyAndTransform.getKey(),
                     keyAndTransform.getTransformation(), true);
 
@@ -78,8 +78,9 @@ public class ConnectDatabaseUtils {
             if (record != null) {
                 byte[] encrypted = Base64.decode(record.getEncryptedPassphrase());
 
-                EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(false, SECRET_NAME);
-                EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getCryptographicKey();
+                EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false,
+                        SECRET_NAME);
+                EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForDecryption();
                 return EncryptionUtils.decrypt(encrypted, keyAndTransform.getKey(), keyAndTransform.getTransformation(), true);
             } else {
                 CrashUtil.log("We don't find paraphrase in db");
