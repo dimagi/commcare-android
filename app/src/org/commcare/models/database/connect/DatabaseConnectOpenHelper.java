@@ -31,6 +31,7 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.Base64;
 import org.commcare.util.Base64DecoderException;
 import org.commcare.utils.CrashUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 
@@ -157,6 +158,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         try {
             return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
+            Logger.exception("Opening database failed", sqle);
             DbUtil.trySqlCipherDbUpdate(key, mContext, CONNECT_DB_LOCATOR);
             try {
                 return super.getWritableDatabase();
