@@ -21,6 +21,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.IDatabase;
@@ -60,8 +61,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.16 - Added  personal_id_credential table
      * V17  - Added a new column has_connect_access to ConnectUserRecord
      * V18 - Added new columns to personal_id_credential table (previously the table was unused)
+     * V.19 - Added push_notification_history
      */
-    private static final int CONNECT_DB_VERSION = 18;
+    private static final int CONNECT_DB_VERSION = 19;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -141,6 +143,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(PersonalIdCredential.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(PushNotificationRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
