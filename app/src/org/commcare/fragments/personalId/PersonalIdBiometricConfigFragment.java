@@ -189,7 +189,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private void onFingerprintButtonClicked() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked("PersonalIdBiometricConfigFragment","fingerprint clicked");
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(PersonalIdBiometricConfigFragment.class.getSimpleName(),"continue_with_fingerprint");
         BiometricsHelper.ConfigurationStatus status = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
 
@@ -238,7 +238,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private void onPinButtonClicked() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked("PersonalIdBiometricConfigFragment","pin clicked");
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(PersonalIdBiometricConfigFragment.class.getSimpleName(),"continue_with_pin");
         BiometricsHelper.ConfigurationStatus status = BiometricsHelper.checkPinStatus(getActivity(),
                 biometricManager);
 

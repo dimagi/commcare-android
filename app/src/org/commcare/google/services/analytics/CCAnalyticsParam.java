@@ -41,7 +41,6 @@ public class CCAnalyticsParam {
     static final String PARAM_API_SUCCESS_DELIVERY_INFO = "ccc_api_success_delivery_info";
     static final String PARAM_API_TOTAL_JOBS = "ccc_api_total_jobs";
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
-    public static final String PERSONAL_ID_SUCCESS = "success";
     public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO = "personal_id_continue_button_clicked_info";
 
 }

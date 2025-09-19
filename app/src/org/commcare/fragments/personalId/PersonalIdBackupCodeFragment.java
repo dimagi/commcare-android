@@ -1,7 +1,5 @@
 package org.commcare.fragments.personalId;
 
-import static org.commcare.google.services.analytics.AnalyticsParamValue.SCREEN_PERSONAL_ID_BACKUP_CODE_FRAGMENT;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -187,7 +185,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void handleBackupCodeSubmission() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(SCREEN_PERSONAL_ID_BACKUP_CODE_FRAGMENT,"");
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(PersonalIdBackupCodeFragment.class.getSimpleName(),null);
         if (isRecovery) {
             confirmBackupCode();
         } else {

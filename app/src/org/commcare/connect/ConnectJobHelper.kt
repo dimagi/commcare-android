@@ -84,20 +84,20 @@ object ConnectJobHelper {
         object : ConnectApiHandler<DeliveryAppProgressResponseModel>() {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
                 if (deliveryAppProgressResponseModel.updatedJob) {
-                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"Started a delivery job")
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"start_delivery")
                     ConnectJobUtils.upsertJob(context, job)
                 }
 
                 if (deliveryAppProgressResponseModel.hasDeliveries) {
                     if (job.getDeliveryProgressPercentage() == 100) {
-                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"Finished a delivery job")
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"finish_delivery")
                     }
                     ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobId, true)
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
                     if (job.payments.isNotEmpty()){
-                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"Gotten paid for a delivery job")
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"paid_delivery")
                     }
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
                 }

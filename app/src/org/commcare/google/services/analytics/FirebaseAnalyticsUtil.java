@@ -486,7 +486,9 @@ public class FirebaseAnalyticsUtil {
     public static void reportCccApiDeliveryProgress(boolean success, @Nullable String deliveryInfo) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
-        b.putString(CCAnalyticsParam.PARAM_API_SUCCESS_DELIVERY_INFO,Objects.toString(deliveryInfo, ""));
+        if (deliveryInfo != null){
+            b.putString(CCAnalyticsParam.PARAM_API_SUCCESS_DELIVERY_INFO,deliveryInfo);
+        }
         reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
     }
 
@@ -527,17 +529,19 @@ public class FirebaseAnalyticsUtil {
     public static void reportPersonalIDContinueClicked(String screenName,@Nullable String info) {
         Bundle params = new Bundle();
         params.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
-        params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO, Objects.toString(info, ""));
+        if (info != null) {
+            params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO,info);
+        }
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
     }
     public static void reportPersonalIDMessageSent() {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_MESSAGE_SENT);
     }
 
-    public static void reportPersonalIDLinking(String appId, boolean success) {
+    public static void reportPersonalIDLinking(String appId, String result) {
         Bundle bundle = new Bundle();
         bundle.putString(CCAnalyticsParam.CC_APP_ID, appId);
-        bundle.putBoolean(CCAnalyticsParam.PERSONAL_ID_SUCCESS, success);
+        bundle.putString(CCAnalyticsParam.RESULT, result);
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING, bundle);
     }
 
