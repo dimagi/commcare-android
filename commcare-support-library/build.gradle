@@ -42,7 +42,7 @@ android {
     namespace "org.commcare.commcaresupportlibrary"
     compileSdk 36
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 35
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }

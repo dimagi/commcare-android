@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -1588,7 +1587,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.M)
     public void requestNeededPermissions(int requestCode) {
         switch (requestCode) {
             case ImageWidget.REQUEST_CAMERA_PERMISSION:
