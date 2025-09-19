@@ -101,7 +101,7 @@ public class ConnectJobsListsFragment extends Fragment
 
     private void navigateFailure() {
         reportApiCall(false, 0, 0);
-        setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
+        setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), ConnectJobRecord.STATUS_ALL_JOBS, null));
     }
 
     private void reportApiCall(boolean success, int totalJobs, int newJobs) {

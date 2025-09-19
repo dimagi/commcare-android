@@ -94,9 +94,9 @@ class AppUpdateTest {
         Assert.assertTrue(dir.delete())
         val profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update", "profile.ccpr")
         UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.NoLocalStorage,
-                AppInstallStatus.UnknownFailure)
-        checkUpdateComplete(6, false, false)
+                AppInstallStatus.UpdateStaged,
+                AppInstallStatus.Installed)
+        checkUpdateComplete(9, true, true)
     }
 
     @Test
