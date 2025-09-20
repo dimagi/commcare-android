@@ -27,6 +27,7 @@ import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.ArrayList;
@@ -176,6 +177,7 @@ public class ConnectMessageFragment extends Fragment {
                 chat.setMessageRead(success);
                 adapter.updateMessageReadStatus(chat);
                 scrollToLatestMessage();
+                FirebaseAnalyticsUtil.reportPersonalIDMessageSent();
             }
         });
     }
