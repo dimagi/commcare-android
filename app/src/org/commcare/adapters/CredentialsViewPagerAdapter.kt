@@ -8,14 +8,18 @@ import org.commcare.fragments.personalId.PendingCredentialFragment
 
 class CredentialsViewPagerAdapter(fragmentActivity: FragmentActivity,private val username: String,
                                   private val profilePic: String) : FragmentStateAdapter(fragmentActivity) {
+    
+    companion object {
+        const val TOTAL_PAGES = 2
+        const val EARNED_TAB_INDEX = 0
+        const val PENDING_TAB_INDEX = 1
+    }
 
-    private val fragments = listOf(EarnedCredentialFragment(), PendingCredentialFragment())
-
-    override fun getItemCount(): Int = fragments.size
+    override fun getItemCount(): Int = TOTAL_PAGES
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> EarnedCredentialFragment.newInstance(username, profilePic)
-            1 -> PendingCredentialFragment.newInstance(username)
+            EARNED_TAB_INDEX -> EarnedCredentialFragment.newInstance(username, profilePic)
+            PENDING_TAB_INDEX -> PendingCredentialFragment.newInstance(username)
             else -> throw IndexOutOfBoundsException("Invalid tab position")
         }
     }

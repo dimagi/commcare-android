@@ -36,11 +36,9 @@ import androidx.viewbinding.ViewBinding;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.fragments.BreadcrumbBarHelper;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.TaskConnectorViewModel;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
@@ -75,8 +73,6 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function2;
 
 /**
  * Base class for CommCareActivities to simplify
@@ -85,7 +81,7 @@ import kotlin.jvm.functions.Function2;
  * @author ctsims
  */
 
-public abstract class CommCareActivity<R> extends AppCompatActivity
+public abstract class CommCareActivity<R> extends CommonBaseActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener {
 
     private static final String TAG = CommCareActivity.class.getSimpleName();
