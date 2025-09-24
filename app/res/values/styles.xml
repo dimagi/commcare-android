@@ -351,4 +351,9 @@
         <item name="android:textColor">@color/nav_drawer_text</item>
     </style>
 
+    <style name="TranslucentScreenTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
 </resources>
