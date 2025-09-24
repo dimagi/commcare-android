@@ -56,11 +56,24 @@ public class CyclicCasesPurgeTest {
         FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry();
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
+        
+        // Wait for async form save task to complete and dialog to be created
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         ShadowLooper.idleMainLooper();
+        
+        // Retry mechanism to handle async timing issues
+        Dialog latestDialog = null;
+        for (int attempt = 0; attempt < 5; attempt++) {
+            latestDialog = ShadowDialog.getLatestDialog();
+            if (latestDialog != null) {
+                break;
+            }
+            // Run additional looper tasks and wait
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
+            ShadowLooper.idleMainLooper();
+        }
 
         // verify that form save results into an error
-        Dialog latestDialog = ShadowDialog.getLatestDialog();
         assertNotNull(latestDialog);
         assertTrue(latestDialog.isShowing());
 

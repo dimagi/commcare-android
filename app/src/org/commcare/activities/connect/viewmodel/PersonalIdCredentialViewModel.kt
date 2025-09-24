@@ -5,13 +5,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.commcare.CommCareApp
 import org.commcare.android.database.connect.models.PersonalIdCredential
+import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.utils.MultipleAppsUtil
+import java.util.ArrayList
 
 class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
     private val _apiError =
@@ -24,32 +28,33 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
     private val _pendingCredentials = MutableLiveData<List<PersonalIdCredential>>()
     val pendingCredentials: LiveData<List<PersonalIdCredential>> = _pendingCredentials
 
-    private val _installedAppRecords = MutableLiveData<List<PersonalIdCredential>>()
+    private lateinit var installedAppsCredentials : List<PersonalIdCredential>
 
     private val user = ConnectUserDatabaseUtil.getUser(application)
     val userName: String = user.name
     val profilePhoto: String? = user.photo
 
-    init {
-        _installedAppRecords.value = initInstalledAppsList()
-    }
-
     fun retrieveAndProcessCredentials() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             object : PersonalIdApiHandler<List<PersonalIdCredential>>() {
                 override fun onSuccess(result: List<PersonalIdCredential>) {
                     val earned = result
-                    val earnedAppIds = earned.map { it.appId }.toSet()
-                    val installedApps = _installedAppRecords.value.orEmpty()
-
-                    val pending = installedApps.filter { it.appId !in earnedAppIds }
-
                     _earnedCredentials.postValue(
                         earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
                     )
-                    _pendingCredentials.postValue(
-                        pending.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
-                    )
+
+                    if (!::installedAppsCredentials.isInitialized) {
+                        installedAppsCredentials = evalInstalledAppsCredentials()
+                    }
+                    val pending = installedAppsCredentials.filter { installedCredential ->
+                        !earned.any { earnedCredential ->
+                            earnedCredential.appId == installedCredential.appId &&
+                            earnedCredential.title == installedCredential.title &&
+                            earnedCredential.level == installedCredential.level
+                        }
+                    }
+
+                    _pendingCredentials.postValue(pending)
                 }
 
 
@@ -59,17 +64,34 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
                 ) {
                     _apiError.postValue(failureCode to t)
                 }
-            }.retrieveCredentials(getApplication(), userName, user.password)
+            }.retrieveCredentials(getApplication(), user.userId, user.password)
         }
     }
 
-    private fun initInstalledAppsList(): List<PersonalIdCredential> {
-        return MultipleAppsUtil.getUsableAppRecords().map { record ->
-            PersonalIdCredential().apply {
-                appId = record.applicationId
-                title = record.displayName ?: ""
+    private fun evalInstalledAppsCredentials(): List<PersonalIdCredential> {
+        val previousSandbox = CommCareApp.currentSandbox
+        val records = MultipleAppsUtil.getUsableAppRecords()
+        return try {
+            getCredentialsFromAppRecords(records)
+        } finally {
+            CommCareApp.currentSandbox = previousSandbox
+        }
+    }
+
+    private fun getCredentialsFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdCredential> {
+        return records.flatMap { record ->
+            val commcareApp = CommCareApp(record)
+            commcareApp.setupSandbox()
+            val profile = commcareApp.initApplicationProfile();
+            profile.credentials.map { credential ->
+                PersonalIdCredential().apply {
+                    appId = record.applicationId
+                    title = record.displayName ?: ""
+                    level = credential.level
+                }
             }
         }
     }
+
 }
 

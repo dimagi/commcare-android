@@ -25,5 +25,6 @@ public class StartConfigurationResponseParser implements PersonalIdApiResponsePa
         sessionData.setSmsMethod(JsonExtensions.optStringSafe(json, "sms_method", null));
         sessionData.setSessionFailureCode(JsonExtensions.optStringSafe(json, "failure_code", null));
         sessionData.setSessionFailureSubcode(JsonExtensions.optStringSafe(json, "failure_subcode", null));
+        sessionData.setOtpFallback(json.optBoolean("otp_fallback", false));
     }
 }
