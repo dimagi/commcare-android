@@ -8,13 +8,11 @@ import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -29,8 +27,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function2;
 
 import com.scottyab.rootbeer.RootBeer;
 
@@ -47,7 +43,6 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenLoginBinding;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -187,7 +182,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.M)
     public void requestNeededPermissions(int requestCode) {
         ActivityCompat.requestPermissions(this, Permissions.getAppPermissions(),
                 requestCode);
@@ -587,7 +581,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
+        menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(true);
         menu.findItem(MENU_FORGOT_PIN).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         menu.findItem(MENU_PERSONAL_ID_SIGN_IN).setVisible(
                 !personalIdManager.isloggedIn() && personalIdManager.checkDeviceCompability());
