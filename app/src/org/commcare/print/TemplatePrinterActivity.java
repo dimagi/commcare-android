@@ -1,10 +1,8 @@
 package org.commcare.print;
 
-import android.annotation.TargetApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
@@ -19,6 +17,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommonBaseActivity;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -45,7 +44,7 @@ import java.util.Date;
  * @author Richard Lu
  * @author amstone
  */
-public class TemplatePrinterActivity extends AppCompatActivity implements PopulateListener {
+public class TemplatePrinterActivity extends CommonBaseActivity implements PopulateListener {
 
     private static final String KEY_TEMPLATE_STYLE = "PRINT_TEMPLATE_STYLE";
     private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";

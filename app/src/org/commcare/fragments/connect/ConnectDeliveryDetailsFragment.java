@@ -1,11 +1,12 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.utils.ViewUtils.showSnackBarWithDismissAction;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +18,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
@@ -25,9 +25,6 @@ import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDetailsBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.MultipleAppsUtil;
-
-import java.io.InputStream;
 
 public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
@@ -108,7 +105,13 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t), Toast.LENGTH_LONG).show();
+                String message;
+                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
+                    message = getString(R.string.recovery_unable_to_claim_opportunity);
+                } else {
+                    message = PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t);
+                }
+                showSnackBarWithDismissAction(binding.getRoot(), message);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());

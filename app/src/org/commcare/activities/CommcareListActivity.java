@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,7 +12,7 @@ import org.commcare.dalvik.R;
 /**
  * An AppCompat compatible implemenation for Android's {@link android.app.ListActivity} class
  */
-public class CommcareListActivity extends AppCompatActivity {
+public class CommcareListActivity extends CommonBaseActivity {
 
     protected ListAdapter mAdapter;
     protected ListView mListView;
