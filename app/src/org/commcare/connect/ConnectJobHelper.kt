@@ -3,9 +3,6 @@ package org.commcare.connect
 import android.content.Context
 import android.widget.Toast
 import org.commcare.CommCareApplication
-import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord
-import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord
-import org.commcare.android.database.connect.models.ConnectJobLearningRecord
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
@@ -65,7 +62,9 @@ object ConnectJobHelper {
                     learningAppProgressResponseModel.connectJobLearningRecords.size
                 job.assessments = learningAppProgressResponseModel.connectJobAssessmentRecords
                 ConnectJobUtils.updateJobLearnProgress(context, job)
-                FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
+                if (job.passedAssessment()){
+                    FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
+                }
                 listener.connectActivityComplete(true)
             }
 
@@ -85,23 +84,31 @@ object ConnectJobHelper {
         object : ConnectApiHandler<DeliveryAppProgressResponseModel>() {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
                 if (deliveryAppProgressResponseModel.updatedJob) {
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"start_delivery")
                     ConnectJobUtils.upsertJob(context, job)
                 }
 
                 if (deliveryAppProgressResponseModel.hasDeliveries) {
+                    if (job.getDeliveryProgressPercentage() == 100) {
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"finish_delivery")
+                    }
                     ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobId, true)
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
+                    if (job.payments.isNotEmpty()){
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,"paid_delivery")
+                    }
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
                 }
 
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true,null)
+
                 listener.connectActivityComplete(true)
             }
 
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false)
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false,null)
                 listener.connectActivityComplete(false)
             }
         }.getDeliveries(context, user, job)

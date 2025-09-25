@@ -185,6 +185,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void handleBackupCodeSubmission() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(PersonalIdBackupCodeFragment.class.getSimpleName(),null);
         if (isRecovery) {
             confirmBackupCode();
         } else {
