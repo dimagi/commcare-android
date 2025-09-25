@@ -26,6 +26,7 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_FULL;
@@ -389,6 +390,16 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{CORRUPT_APP_STATE});
+    }
+
+    /**
+     *  Report when an RSA key is successfully retrieved from the keystore. This is to assess how many devices
+     *  are using RSA keys, to then plan the deprecation of the RsaKeyStoreHandler.
+     */
+    public static void reportRsaKeyUse() {
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{RSA_KEYSTORE_KEY_RETRIEVAL});
     }
 
     public static void reportFormQuarantined(String quarantineReasonType) {
