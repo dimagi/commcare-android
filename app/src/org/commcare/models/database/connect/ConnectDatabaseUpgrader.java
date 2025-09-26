@@ -29,6 +29,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -125,6 +126,10 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 17) {
             upgradeSeventeenEighteen(db);
             oldVersion = 18;
+        }
+        if (oldVersion == 18) {
+            upgradeEighteenNineteen(db);
+            oldVersion = 19;
         }
     }
 
@@ -610,7 +615,7 @@ public class ConnectDatabaseUpgrader {
                     ConnectJobRecord.STORAGE_KEY,
                     ConnectJobRecord.class,
                     new ConcreteAndroidDbHelper(c, db));
-            
+
             boolean hasConnectAccess = jobStorage.getNumRecords() > 0;
 
             SqlStorage<ConnectUserRecordV16> oldStorage = new SqlStorage<>(
@@ -644,6 +649,10 @@ public class ConnectDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void upgradeEighteenNineteen(IDatabase db) {
+        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,

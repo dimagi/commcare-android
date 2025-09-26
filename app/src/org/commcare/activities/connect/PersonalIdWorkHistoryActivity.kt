@@ -4,19 +4,21 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
+import org.commcare.activities.CommonBaseActivity
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdWorkHistoryBinding
 
-class PersonalIdWorkHistoryActivity : AppCompatActivity() {
+
+class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
     private val binding: ActivityPersonalIdWorkHistoryBinding by lazy {
         ActivityPersonalIdWorkHistoryBinding.inflate(layoutInflater)
     }
+
     private lateinit var workHistoryViewPagerAdapter: WorkHistoryViewPagerAdapter
     private lateinit var personalIdWorkHistoryViewModel: PersonalIdWorkHistoryViewModel
     private var userName: String? = null

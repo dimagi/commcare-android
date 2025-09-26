@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,7 +18,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author amstone
  */
-public class SeatAppActivity extends AppCompatActivity {
+public class SeatAppActivity extends CommonBaseActivity {
 
     private static final String KEY_IN_PROGRESS = "initialization_in_progress";
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
