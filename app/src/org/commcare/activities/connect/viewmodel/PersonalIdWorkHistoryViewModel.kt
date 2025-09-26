@@ -64,7 +64,7 @@ class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewMode
                 ) {
                     _apiError.postValue(failureCode to t)
                 }
-            }.retrieveCredentials(getApplication(), user.userId, user.password)
+            }.retrieveWorkHistory(getApplication(), user.userId, user.password)
         }
     }
 

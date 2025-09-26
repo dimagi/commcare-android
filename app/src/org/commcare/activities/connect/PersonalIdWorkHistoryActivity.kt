@@ -11,11 +11,11 @@ import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
+import org.commcare.dalvik.databinding.ActivityPersonalIdWorkHistoryBinding
 
 class PersonalIdWorkHistoryActivity : AppCompatActivity() {
-    private val binding: ActivityPersonalIdCredentialBinding by lazy {
-        ActivityPersonalIdCredentialBinding.inflate(layoutInflater)
+    private val binding: ActivityPersonalIdWorkHistoryBinding by lazy {
+        ActivityPersonalIdWorkHistoryBinding.inflate(layoutInflater)
     }
     private lateinit var workHistoryViewPagerAdapter: WorkHistoryViewPagerAdapter
     private lateinit var personalIdWorkHistoryViewModel: PersonalIdWorkHistoryViewModel
@@ -44,8 +44,8 @@ class PersonalIdWorkHistoryActivity : AppCompatActivity() {
             setDisplayShowHomeEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
-        binding.vpCredentials.adapter = workHistoryViewPagerAdapter
-        TabLayoutMediator(binding.tabCredentials, binding.vpCredentials) { tab, position ->
+        binding.vpWorkHistory.adapter = workHistoryViewPagerAdapter
+        TabLayoutMediator(binding.tabWorkHistory, binding.vpWorkHistory) { tab, position ->
             tab.text = getString(titles[position])
             tab.setIcon(icons[position])
         }.attach()
