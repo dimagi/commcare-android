@@ -191,11 +191,8 @@ public class BiometricsHelper {
         if (authenticator == DEVICE_CREDENTIAL && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
 
-            boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                    manager.isDeviceSecure() :
-                    manager.isKeyguardSecure();
-
-            return isSecure ? BiometricManager.BIOMETRIC_SUCCESS : BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
+            return manager.isDeviceSecure() ? BiometricManager.BIOMETRIC_SUCCESS :
+                    BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
         }
 
         return biometricManager.canAuthenticate(authenticator);

@@ -1,20 +1,21 @@
 package org.commcare.activities.connect
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
+import org.commcare.activities.CommonBaseActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
 import org.commcare.adapters.CredentialsViewPagerAdapter
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
 
-class PersonalIdCredentialActivity : AppCompatActivity() {
+
+class PersonalIdCredentialActivity : CommonBaseActivity() {
+
     private val binding: ActivityPersonalIdCredentialBinding by lazy {
         ActivityPersonalIdCredentialBinding.inflate(layoutInflater)
     }

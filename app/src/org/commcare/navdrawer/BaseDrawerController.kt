@@ -16,9 +16,12 @@ import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.personalId.PersonalIdFeatureFlagChecker
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
@@ -40,6 +43,7 @@ class BaseDrawerController(
         WORK_HISTORY,
         MESSAGING,
         PAYMENTS,
+        CREDENTIAL,
     }
 
     fun setupDrawer() {
@@ -126,6 +130,13 @@ class BaseDrawerController(
     fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
+            val notifications = NotificationRecordDatabaseHelper().getAllNotifications(activity)
+            val hasUnreadNotification = notifications!!.any { !it.readStatus }
+
+            binding.ivNotification.setImageResource(
+                if (hasUnreadNotification) R.drawable.ic_new_notification_bell
+                else R.drawable.ic_bell
+            )
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
             Glide.with(binding.imageUserProfile)
@@ -172,14 +183,6 @@ class BaseDrawerController(
                 )
             )
 
-//            items.add(
-//                NavDrawerItem.ParentItem(
-//                    activity.getString(R.string.nav_drawer_work_history),
-//                    R.drawable.nav_drawer_worker_history_icon,
-//                    NavItemType.WORK_HISTORY,
-//                )
-//            )
-
             if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
                 val iconId =
                     if (ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).isNotEmpty())
@@ -191,6 +194,16 @@ class BaseDrawerController(
                         activity.getString(R.string.connect_messaging_title),
                         iconId,
                         NavItemType.MESSAGING,
+                    )
+                )
+            }
+
+            if (shouldShowCredential()) {
+                items.add(
+                    NavDrawerItem.ParentItem(
+                        activity.getString(R.string.personalid_credential),
+                        R.drawable.ic_credential,
+                        NavItemType.CREDENTIAL,
                     )
                 )
             }
@@ -216,6 +229,11 @@ class BaseDrawerController(
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.notificationView.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+    }
+
+    private fun shouldShowCredential(): Boolean {
+        // we are keeping this off for now until we have go ahead to release this feature
+        return PersonalIdManager.getInstance().isloggedIn() && PersonalIdFeatureFlagChecker.isFeatureEnabled(WORK_HISTORY);
     }
 
     fun closeDrawer() {
