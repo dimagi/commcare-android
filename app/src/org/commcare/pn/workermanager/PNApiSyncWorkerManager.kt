@@ -66,7 +66,6 @@ class PNApiSyncWorkerManager(val context: Context) {
     constructor(context: Context, pns : ArrayList<Map<String,String>>, syncType: SYNC_TYPE):this(context){
         this.pns = pns
         this.syncType = syncType
-        CoroutineScope(Dispatchers.IO).launch { startPNApiSync() }
     }
 
 
