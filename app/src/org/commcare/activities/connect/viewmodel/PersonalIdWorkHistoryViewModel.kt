@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.CommCareApp
-import org.commcare.android.database.connect.models.PersonalIdCredential
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -17,44 +17,44 @@ import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.utils.MultipleAppsUtil
 import java.util.ArrayList
 
-class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
+class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val _apiError =
         MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
     val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> = _apiError
 
-    private val _earnedCredentials = MutableLiveData<List<PersonalIdCredential>>()
-    val earnedCredentials: LiveData<List<PersonalIdCredential>> = _earnedCredentials
+    private val _earnedWorkHistory = MutableLiveData<List<PersonalIdWorkHistory>>()
+    val earnedWorkHistory: LiveData<List<PersonalIdWorkHistory>> = _earnedWorkHistory
 
-    private val _pendingCredentials = MutableLiveData<List<PersonalIdCredential>>()
-    val pendingCredentials: LiveData<List<PersonalIdCredential>> = _pendingCredentials
+    private val _pendingWorkHistory = MutableLiveData<List<PersonalIdWorkHistory>>()
+    val pendingWorkHistory: LiveData<List<PersonalIdWorkHistory>> = _pendingWorkHistory
 
-    private lateinit var installedAppsCredentials : List<PersonalIdCredential>
+    private lateinit var installedAppsWorkHistory : List<PersonalIdWorkHistory>
 
     private val user = ConnectUserDatabaseUtil.getUser(application)
     val userName: String = user.name
     val profilePhoto: String? = user.photo
 
-    fun retrieveAndProcessCredentials() {
+    fun retrieveAndProcessWorkHistory() {
         viewModelScope.launch(Dispatchers.IO) {
-            object : PersonalIdApiHandler<List<PersonalIdCredential>>() {
-                override fun onSuccess(result: List<PersonalIdCredential>) {
+            object : PersonalIdApiHandler<List<PersonalIdWorkHistory>>() {
+                override fun onSuccess(result: List<PersonalIdWorkHistory>) {
                     val earned = result
-                    _earnedCredentials.postValue(
+                    _earnedWorkHistory.postValue(
                         earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
                     )
 
-                    if (!::installedAppsCredentials.isInitialized) {
-                        installedAppsCredentials = evalInstalledAppsCredentials()
+                    if (!::installedAppsWorkHistory.isInitialized) {
+                        installedAppsWorkHistory = evalInstalledAppsWorkHistory()
                     }
-                    val pending = installedAppsCredentials.filter { installedCredential ->
-                        !earned.any { earnedCredential ->
-                            earnedCredential.appId == installedCredential.appId &&
-                            earnedCredential.title == installedCredential.title &&
-                            earnedCredential.level == installedCredential.level
+                    val pending = installedAppsWorkHistory.filter { installedWorkHistory ->
+                        !earned.any { earnedWorkHistory ->
+                            earnedWorkHistory.appId == installedWorkHistory.appId &&
+                            earnedWorkHistory.title == installedWorkHistory.title &&
+                            earnedWorkHistory.level == installedWorkHistory.level
                         }
                     }
 
-                    _pendingCredentials.postValue(pending)
+                    _pendingWorkHistory.postValue(pending)
                 }
 
 
@@ -64,27 +64,27 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
                 ) {
                     _apiError.postValue(failureCode to t)
                 }
-            }.retrieveCredentials(getApplication(), user.userId, user.password)
+            }.retrieveWorkHistory(getApplication(), user.userId, user.password)
         }
     }
 
-    private fun evalInstalledAppsCredentials(): List<PersonalIdCredential> {
+    private fun evalInstalledAppsWorkHistory(): List<PersonalIdWorkHistory> {
         val previousSandbox = CommCareApp.currentSandbox
         val records = MultipleAppsUtil.getUsableAppRecords()
         return try {
-            getCredentialsFromAppRecords(records)
+            getWorkHistoryFromAppRecords(records)
         } finally {
             CommCareApp.currentSandbox = previousSandbox
         }
     }
 
-    private fun getCredentialsFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdCredential> {
+    private fun getWorkHistoryFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdWorkHistory> {
         return records.flatMap { record ->
             val commcareApp = CommCareApp(record)
             commcareApp.setupSandbox()
             val profile = commcareApp.initApplicationProfile();
             profile.credentials.map { credential ->
-                PersonalIdCredential().apply {
+                PersonalIdWorkHistory().apply {
                     appId = record.applicationId
                     title = record.displayName ?: ""
                     level = credential.level

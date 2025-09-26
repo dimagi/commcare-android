@@ -11,7 +11,7 @@ import org.commcare.connect.network.NoParsingResponseParser;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.parser.ConnectTokenResponseParser;
-import org.commcare.connect.network.connectId.parser.RetrieveCredentialsResponseParser;
+import org.commcare.connect.network.connectId.parser.RetrieveWorkHistoryResponseParser;
 import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
@@ -135,9 +135,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         new CompleteProfileResponseParser()));
     }
 
-    public void retrieveCredentials(Context context, String userId, String password) {
-        ApiPersonalId.retrieveCredentials(context, userId, password,
-                createCallback(new RetrieveCredentialsResponseParser<T>(context),null));
+    public void retrieveWorkHistory(Context context, String userId, String password) {
+        ApiPersonalId.retrieveWorkHistory(context, userId, password,
+                createCallback(new RetrieveWorkHistoryResponseParser<T>(context),null));
     }
 
     public void sendOtp(Activity activity, PersonalIdSessionData sessionData) {

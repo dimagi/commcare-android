@@ -6,7 +6,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.PushNotificationActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
-import org.commcare.activities.connect.PersonalIdCredentialActivity
+import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
@@ -47,7 +47,7 @@ object ConnectNavHelper {
     }
 
     fun goToCredentials(context: Context) {
-        val i = Intent(context, PersonalIdCredentialActivity::class.java)
+        val i = Intent(context, PersonalIdWorkHistoryActivity::class.java)
         context.startActivity(i)
     }
 

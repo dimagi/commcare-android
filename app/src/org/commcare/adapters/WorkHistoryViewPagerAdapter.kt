@@ -3,10 +3,10 @@ package org.commcare.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import org.commcare.fragments.personalId.EarnedCredentialFragment
-import org.commcare.fragments.personalId.PendingCredentialFragment
+import org.commcare.fragments.personalId.WorkHistoryEarnedFragment
+import org.commcare.fragments.personalId.WorkHistoryPendingFragment
 
-class CredentialsViewPagerAdapter(fragmentActivity: FragmentActivity,private val username: String,
+class WorkHistoryViewPagerAdapter(fragmentActivity: FragmentActivity, private val username: String,
                                   private val profilePic: String) : FragmentStateAdapter(fragmentActivity) {
     
     companion object {
@@ -18,8 +18,8 @@ class CredentialsViewPagerAdapter(fragmentActivity: FragmentActivity,private val
     override fun getItemCount(): Int = TOTAL_PAGES
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            EARNED_TAB_INDEX -> EarnedCredentialFragment.newInstance(username, profilePic)
-            PENDING_TAB_INDEX -> PendingCredentialFragment.newInstance(username)
+            EARNED_TAB_INDEX -> WorkHistoryEarnedFragment.newInstance(username, profilePic)
+            PENDING_TAB_INDEX -> WorkHistoryPendingFragment.newInstance(username)
             else -> throw IndexOutOfBoundsException("Invalid tab position")
         }
     }
