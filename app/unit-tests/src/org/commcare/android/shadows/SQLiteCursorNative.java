@@ -1,13 +1,11 @@
 package org.commcare.android.shadows;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.database.CharArrayBuffer;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 /**
@@ -226,7 +224,6 @@ public class SQLiteCursorNative implements Cursor {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.M)
     public void setExtras(Bundle extras) {
         cursor.setExtras(extras);
     }

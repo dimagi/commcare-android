@@ -148,6 +148,7 @@ public class AnalyticsParamValue {
     public static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
     public static final String UPDATE_RESET = "update_reset";
     public static final String CORRUPT_APP_STATE = "corrupt_app_state";
+    public static final String RSA_KEYSTORE_KEY_RETRIEVAL = "rsa_keystore_key_retrieval";
 
     public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
     public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";

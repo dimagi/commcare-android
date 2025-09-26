@@ -52,8 +52,7 @@ public class ConnectDatabaseHelper {
             //Store the received passphrase as what's in use locally
             ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
         } catch (Exception e) {
-            Logger.exception("Handling received DB passphrase", e);
-            crashDb();
+            crashDb(GlobalErrors.PERSONALID_DB_UPGRADE_ERROR, e);
         }
     }
 
@@ -73,6 +72,9 @@ public class ConnectDatabaseHelper {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
+                            if(passphrase == null) {
+                                throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
+                            }
 
                             String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
                             String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
@@ -83,8 +85,7 @@ public class ConnectDatabaseHelper {
                                         UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
                             } else {
                                 //LEGACY: Used to open the DB using the byte[], not String overload
-                                String encrypted = passphrase != null ? "(encrypted)" : "(unencrypted)";
-                                Logger.exception("Legacy DB Usage", new Exception("Accessing Connect DB via legacy code " + encrypted));
+                                Logger.exception("Legacy DB Usage", new Exception("Accessing Connect DB via legacy code"));
                                 dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
                                         Base64.encodeToString(passphrase, Base64.NO_WRAP));
                             }
@@ -92,8 +93,7 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            Logger.exception("Corrupt Connect DB", e);
-                            crashDb();
+                            crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR, e);
                         }
                     }
                     return connectDatabase;
@@ -111,13 +111,13 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void crashDb() {
-        crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR);
+    public static void crashDb(GlobalErrors error) {
+        crashDb(error, null);
     }
 
-    public static void crashDb(GlobalErrors error) {
+    public static void crashDb(GlobalErrors error, Exception ex) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
-        throw new RuntimeException("Connect database crash");
+        throw new RuntimeException("Connect database crash: " + error.name(), ex);
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {

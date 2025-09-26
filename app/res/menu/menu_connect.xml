@@ -6,12 +6,14 @@
         android:icon="@drawable/ic_connect_messaging_base"
         android:title="@string/personalid_messaging_menu_title"
         app:showAsAction="always" />
+
     <item
-        android:id="@+id/action_credential"
-        android:icon="@drawable/ic_credential"
-        android:title="@string/personalid_credential"
+        android:id="@+id/action_bell"
+        android:icon="@drawable/ic_bell"
+        android:title="@string/personalid_notification"
         android:visible="false"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/action_sync"
         android:icon="@drawable/ic_backup"
