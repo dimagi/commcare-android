@@ -65,12 +65,12 @@ public class EntityStringFilterer extends EntityFiltererBase {
         }
 
         // If cancelled, the tracing is not to be stopped and Firebase is supposed to discard it
-        if (trace != null) {
+        if (trace != null && !isFilterEmpty) {
             Map<String, String> attrs = new HashMap<>();
             attrs.put(CCPerfMonitoring.ATTR_RESULTS_COUNT,
                     String.valueOf((matchList == null ? 0 : matchList.size())));
             attrs.put(CCPerfMonitoring.ATTR_SEARCH_QUERY_LENGTH,
-                    String.valueOf((searchTerms == null ? 0 : StringUtils.getSumOfLengths(searchTerms))));
+                    String.valueOf(StringUtils.getSumOfLengths(searchTerms)));
             CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
         }
 
