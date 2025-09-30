@@ -194,6 +194,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/connect_backup_code_button"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    android:visibility="gone"
                     android:textStyle="bold"/>
 
                 <com.google.android.material.button.MaterialButton
