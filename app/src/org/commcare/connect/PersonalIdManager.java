@@ -1,5 +1,9 @@
 package org.commcare.connect;
 
+import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_USER_DENIED;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.SYNC_SUCCESS;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -343,7 +347,7 @@ public class PersonalIdManager {
         dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
             activity.dismissAlertDialog();
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
-            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),"failure_user_denied");
+            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),FAILURE_USER_DENIED);
             callback.connectActivityComplete(false);
         });
 
@@ -354,12 +358,12 @@ public class PersonalIdManager {
         unlockConnect(activity, success -> {
             if (!success) {
                 callback.connectActivityComplete(false);
-                FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),"failure_unlock_failed");
+                FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),FAILURE_UNLOCK_FAILED);
                 return;
             }
 
             linkedApp.linkToPersonalId(password);
-            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),"success");
+            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),SYNC_SUCCESS);
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
