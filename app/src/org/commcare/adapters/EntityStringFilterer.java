@@ -54,7 +54,6 @@ public class EntityStringFilterer extends EntityFiltererBase {
     @Override
     protected void filter() {
         long startTime = System.currentTimeMillis();
-        // Capture case_search_time trace for performance monitoring
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_CASE_SEARCH_TIME);
 
         if (!isFilterEmpty) {

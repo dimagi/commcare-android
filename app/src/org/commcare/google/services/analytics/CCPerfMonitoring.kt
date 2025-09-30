@@ -31,12 +31,12 @@ object CCPerfMonitoring {
         return null
     }
 
-    fun stopTracing(trace: Trace?, attrs: MutableMap<String, String>?) {
+    fun stopTracing(trace: Trace, attrs: MutableMap<String, String>?) {
         try {
             attrs?.forEach {
-                (key, value) -> trace?.putAttribute(key, value)
+                (key, value) -> trace.putAttribute(key, value)
             }
-            trace?.stop();
+            trace.stop();
         } catch (exception: Exception) {
             Logger.exception("Error starting perf trace: ${trace?.name}", exception)
         }
