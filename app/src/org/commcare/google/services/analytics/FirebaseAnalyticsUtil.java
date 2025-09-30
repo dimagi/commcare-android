@@ -1,30 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import android.os.Bundle;
-import android.os.Environment;
-import android.text.TextUtils;
-
-import com.google.firebase.analytics.FirebaseAnalytics;
-
-import org.commcare.CommCareApplication;
-import org.commcare.DiskUtils;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.logging.ReportingUtils;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.dalvik.BuildConfig;
-import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.util.EncryptionUtils;
-import org.commcare.utils.FormUploadResult;
-import org.javarosa.core.services.Logger;
-
-import java.util.Date;
-
-import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
-import androidx.navigation.fragment.FragmentNavigator;
-
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -35,6 +10,29 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
+
+import android.os.Bundle;
+import android.os.Environment;
+import android.text.TextUtils;
+
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
+
+import org.commcare.CommCareApplication;
+import org.commcare.DiskUtils;
+import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.suite.model.OfflineUserRestore;
+import org.commcare.util.EncryptionUtils;
+import org.commcare.utils.FormUploadResult;
+import org.javarosa.core.services.Logger;
+
+import java.util.Date;
 
 /**
  * Created by amstone326 on 10/13/17.
@@ -584,6 +582,14 @@ public class FirebaseAnalyticsUtil {
     public static void reportNavDrawerItemSelected(String selectedItem) {
         reportEvent(CCAnalyticsEvent.NAV_DRAWER_ITEM_SELECTED, new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{selectedItem});
+    }
+
+    public static void reportNetworkRequest(String url, int responseCode, long durationMs) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(CCAnalyticsParam.RESPONSE_CODE, responseCode);
+        bundle.putLong(CCAnalyticsParam.REQUEST_DURATION_MS, durationMs);
+        bundle.putString(CCAnalyticsParam.URL, url);
+        reportEvent(CCAnalyticsEvent.NETWORK_REQUEST, bundle);
     }
 
 }

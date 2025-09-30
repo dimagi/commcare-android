@@ -5,6 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.commcare.dalvik.BuildConfig
+import org.commcare.network.NetworkAnalyticsInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -22,6 +23,7 @@ object BaseApiClient {
 
         val okHttpClient: OkHttpClient = OkHttpClient.Builder()
             .addInterceptor(logging)
+            .addInterceptor(NetworkAnalyticsInterceptor())
             .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                 val originalRequest = chain.request()
                 val requestWithHeadersBuilder = originalRequest.newBuilder()

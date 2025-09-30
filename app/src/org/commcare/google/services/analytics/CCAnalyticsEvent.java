@@ -55,5 +55,6 @@ public class CCAnalyticsEvent {
     static final String PERSONAL_ID_CONFIGURATION_FAILURE = "personal_id_configuration_failure";
     static final String NAV_DRAWER_OPEN = "nav_drawer_open";
     static final String NAV_DRAWER_ITEM_SELECTED = "nav_drawer_item_selected";
+    static final String NETWORK_REQUEST = "network_request";
 
 }
