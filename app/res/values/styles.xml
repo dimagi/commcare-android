@@ -331,6 +331,11 @@
         <item name="android:textColor">@color/cc_brand_text</item>
     </style>
 
+    <style name="personalIdCircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <style name="CircularImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
@@ -344,6 +349,11 @@
     <style name="TextAppearance.NavDrawerItem.SubTitle" parent="@android:style/TextAppearance">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/nav_drawer_text</item>
+    </style>
+
+    <style name="TranslucentScreenTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
 </resources>

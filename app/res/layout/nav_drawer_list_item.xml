@@ -14,7 +14,6 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/commcare_actionbar_logo"
-        app:tint="@android:color/white"
         android:contentDescription="@null"/>
 
     <TextView

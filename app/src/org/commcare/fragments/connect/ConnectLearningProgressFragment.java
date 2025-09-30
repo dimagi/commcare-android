@@ -161,12 +161,15 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment
         viewBinding.connectLearningButton.setVisibility(showAppLaunch ? View.VISIBLE : View.GONE);
 
         if (showAppLaunch) {
-            if (complete && passed) {
+            if(complete && passed) {
                 configureJobDetailsButton();
-            } else if (AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+            } else if(!AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+                //This case needs to come before any that would launch the learn app
+                configureDownloadButton();
+            } else if(!complete) {
                 configureLaunchLearningButton();
             } else {
-                configureDownloadButton();
+                configureGoToAssessmentButton();
             }
         }
     }
@@ -177,6 +180,14 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment
                 v -> Navigation.findNavController(v).navigate(ConnectLearningProgressFragmentDirections
                         .actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(
                         true)));
+    }
+
+    private void configureGoToAssessmentButton() {
+        viewBinding.connectLearningButton.setText(getString(R.string.connect_learn_go_to_assessment));
+        viewBinding.connectLearningButton.setOnClickListener(v -> {
+            CommCareApplication.instance().closeUserSession();
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
+        });
     }
 
     private void configureLaunchLearningButton() {

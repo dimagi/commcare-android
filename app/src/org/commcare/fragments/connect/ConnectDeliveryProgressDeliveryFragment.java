@@ -113,6 +113,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
             );
             recyclerView.setAdapter(adapter);
         } else {
+            recyclerView.setAdapter(adapter);
             adapter.updateData(deliveryProgressList);
         }
     }

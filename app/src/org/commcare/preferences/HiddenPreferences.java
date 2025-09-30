@@ -364,7 +364,8 @@ public class HiddenPreferences {
     }
 
     public static String getAppVersionTag() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
+        return app == null ? "" : app.getAppPreferences()
                 .getString(APP_VERSION_TAG, "");
     }
 

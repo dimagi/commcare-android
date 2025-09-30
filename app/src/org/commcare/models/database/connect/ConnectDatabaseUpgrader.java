@@ -26,8 +26,10 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
+import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -116,6 +118,18 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 15) {
             upgradeFifteenSixteen(db);
             oldVersion = 16;
+        }
+        if (oldVersion == 16) {
+            upgradeSixteenSeventeen(db);
+            oldVersion = 17;
+        }
+        if (oldVersion == 17) {
+            upgradeSeventeenEighteen(db);
+            oldVersion = 18;
+        }
+        if (oldVersion == 18) {
+            upgradeEighteenNineteen(db);
+            oldVersion = 19;
         }
     }
 
@@ -573,11 +587,11 @@ public class ConnectDatabaseUpgrader {
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
                     ConnectUserRecord.STORAGE_KEY,
-                    ConnectUserRecord.class,
+                    ConnectUserRecordV16.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (ConnectUserRecordV14 oldRecord : oldStorage) {
-                ConnectUserRecord newRecord = ConnectUserRecord.fromV14(oldRecord);
+                ConnectUserRecordV16 newRecord = ConnectUserRecordV16.fromV14(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -591,6 +605,54 @@ public class ConnectDatabaseUpgrader {
 
     private void upgradeFifteenSixteen(IDatabase db) {
         addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
+    }
+
+    private void upgradeSixteenSeventeen(IDatabase db) {
+        db.beginTransaction();
+        try {
+
+            SqlStorage<Persistable> jobStorage = new SqlStorage<>(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            boolean hasConnectAccess = jobStorage.getNumRecords() > 0;
+
+            SqlStorage<ConnectUserRecordV16> oldStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecordV16.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectUserRecordV16 oldRecord : oldStorage) {
+                ConnectUserRecord newRecord = ConnectUserRecord.fromV16(oldRecord, hasConnectAccess);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeSeventeenEighteen(IDatabase db) {
+        db.beginTransaction();
+        try {
+            // We have not been populating this table yet, so just drop and recreate
+            SqlStorage.dropTable(db, PersonalIdCredential.STORAGE_KEY);
+            addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeEighteenNineteen(IDatabase db) {
+        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,

@@ -27,17 +27,17 @@ public class UpdatePromptHelper {
      *
      * @return - If the user was prompted to update
      */
-    public static boolean promptForUpdateIfNeeded(AppCompatActivity context) {
+    public static boolean promptForUpdateIfNeeded(AppCompatActivity context, boolean skipOptionalUpdates) {
         try {
             CommCareSessionService currentSession = CommCareApplication.instance().getSession();
             UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
-            if (shouldShowPrompt(apkUpdate, currentSession.apkUpdatePromptWasShown())) {
+            if (shouldShowPrompt(apkUpdate, currentSession.apkUpdatePromptWasShown(), skipOptionalUpdates)) {
                 Intent i = new Intent(context, PromptApkUpdateActivity.class);
                 context.startActivity(i);
                 return true;
             }
             UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
-            if (shouldShowPrompt(cczUpdate, currentSession.cczUpdatePromptWasShown())) {
+            if (shouldShowPrompt(cczUpdate, currentSession.cczUpdatePromptWasShown(), skipOptionalUpdates)) {
                 Intent i = new Intent(context, PromptCczUpdateActivity.class);
                 context.startActivity(i);
                 return true;
@@ -48,8 +48,10 @@ public class UpdatePromptHelper {
         return false;
     }
 
-    private static boolean shouldShowPrompt(UpdateToPrompt prompt, boolean isAlreadyShown) {
-        return prompt != null && (prompt.isForced() || (!isAlreadyShown && prompt.shouldShowOnThisLogin()));
+    private static boolean shouldShowPrompt(UpdateToPrompt prompt, boolean isAlreadyShown,
+                                            boolean skipOptionalUpdates) {
+        return prompt != null && (prompt.isForced() ||
+                (!skipOptionalUpdates && (!isAlreadyShown && prompt.shouldShowOnThisLogin())));
     }
 
     /**

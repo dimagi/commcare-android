@@ -3,6 +3,7 @@ package org.commcare.android.security
 
 import android.content.Context
 import android.security.KeyPairGeneratorSpec
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.EncryptionKeyAndTransform
 import java.math.BigInteger
 import java.security.KeyPair
@@ -24,6 +25,7 @@ class RsaKeyStoreHandler(
         if (doesKeyExist()) {
             val entry = AndroidKeyStore.instance.getEntry(alias, null) as KeyStore.PrivateKeyEntry
             val key = entry.privateKey
+            FirebaseAnalyticsUtil.reportRsaKeyUse();
             return EncryptionKeyAndTransform(key, "RSA/ECB/PKCS1Padding")
         } else {
             return generateRsaKey()

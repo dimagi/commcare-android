@@ -27,5 +27,6 @@ public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponsePar
             sessionData.setSessionFailureCode(json.getString("error_code"));
         }
         sessionData.setOauthPassword(JsonExtensions.optStringSafe(json, "password", null));
+        sessionData.setInvitedUser(json.optBoolean("invited_user", false));
     }
 }

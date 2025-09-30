@@ -4,6 +4,8 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,18 +57,37 @@ public class ConnectUnlockFragment extends Fragment {
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
 
-        PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
-            if (success) {
-                retrieveOpportunities();
-            } else {
-                requireActivity().finish();
-            }
-        });
-
         return binding.getRoot();
     }
 
-    public void retrieveOpportunities() {
+    private final Runnable unlockRunnable = new Runnable() {
+        @Override
+        public void run() {
+            PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
+                if (success) {
+                    retrieveOpportunities();
+                } else {
+                    requireActivity().finish();
+                }
+            });
+        }
+    };
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        new Handler().post(unlockRunnable);
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        binding = null;
+        super.onDestroyView();
+    }
+
+    private void retrieveOpportunities() {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
@@ -77,7 +98,10 @@ public class ConnectUnlockFragment extends Fragment {
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                ConnectJobUtils.storeJobs(requireContext(),data.getValidJobs(),true);
+                if (!data.getValidJobs().isEmpty()) {
+                    ConnectJobUtils.storeJobs(requireContext(), data.getValidJobs(), true);
+                    ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
+                }
                 setFragmentRedirection();
 
             }

@@ -78,13 +78,11 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message);
             binding.backupCodeLayout.setVisibility(View.VISIBLE);
             binding.confirmCodeLayout.setVisibility(View.GONE);
-            binding.notMeButton.setVisibility(View.VISIBLE);
             setUserNameAndPhoto();
         } else {
             titleId = R.string.connect_backup_code_title_set;
             binding.backupCodeLayout.setVisibility(View.VISIBLE);
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
-            binding.notMeButton.setVisibility(View.GONE);
             binding.welcomeBackLayout.setVisibility(View.GONE);
         }
     }
@@ -232,7 +230,8 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
                 String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
                 personalIdSessionData.getPhotoBase64(),
-                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock());
+                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
+                personalIdSessionData.getInvitedUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
         navigateToSuccess();

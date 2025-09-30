@@ -44,6 +44,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyProvider;
+import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -124,7 +125,7 @@ public class PersonalIdManager {
                 }
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.crashDb();
+                ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
             }
         }
     }
@@ -222,7 +223,6 @@ public class PersonalIdManager {
         parentActivity = activity;
         if (resultCode == AppCompatActivity.RESULT_OK) {
             completeSignin();
-            ConnectNavHelper.INSTANCE.goToConnectJobsList(activity);
         }
     }
 

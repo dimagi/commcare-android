@@ -12,6 +12,8 @@ public class ConnectConstants {
     public static final int COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE = 1051;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
+    public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
+    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
 
     public static final String PIN = "PIN";
     public static final String CONNECT_KEY_TOKEN = "access_token";
@@ -43,4 +45,5 @@ public class ConnectConstants {
     public final static int PERSONALID_RECOVERY_ACCOUNT_LOCKED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 10;
     public final static int PERSONALID_LOCATION_PERMISSION_FAILURE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
     public final static int PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
+    public final static String STATUS_APPROVED = "approved";
 }
