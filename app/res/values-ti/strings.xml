@@ -169,6 +169,7 @@
     <string name="recovery_forms_send_error">ቅጥዕታት ኣብ ምልኣክ ስሕተት ኣሎ</string>
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
+    <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እቲ ኣፕሊኬሽን ግዜኡ ዝሓለፎ ሰለዝኮነ ድሕሪ ሕጂ ምስቲ ሰርቨር ክራኸብ ኣይክእልን እዩ። በይዝኦም ኣብ Google Play Store ብምእታውነቲ ኣፕሊኬሽን የዘምንዎ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
     <string name="recovery_retry">ንናይ</string>
@@ -463,7 +464,7 @@
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
     <string name="personalid_credential_my_worker_history">ታሪኽ ስራሐይ</string>
-    <string name="personalid_credential">ምስክር ወረቐት</string>
+    <string name="personalid_credential">ታሪኽ ስራሕ</string>
     <string name="personalid_credential_worked_on">ዝሰርሓሉ:</string>
     <string name="personalid_credential_earned_on">ዝተረኽበሉ:</string>
     <string name="personalid_credential_active_for">ንጡፍ ዝኾነሉ:</string>
@@ -479,6 +480,11 @@
     <string name="personalid_credential_level_6_month_active">6 ኣዋርሕ\nተግባር</string>
     <string name="personalid_credential_level_9_month_active">9 ኣዋርሕ\nተግባር</string>
     <string name="personalid_credential_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
+
+    <string name="personalid_notification">መፍለጥታትን</string>
+
+    <string name="personalid_credential_no_pending_credential">ዝኾነ ኣብ መስርሕ ዘሎ ምስክር ወረቐት የለን</string>
+
     <string name="nav_drawer_signin_register">እቶም ኣእትዉ / ይመዝገቡ</string>
     <string name="nav_drawer_help">እርዳታ</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>

@@ -182,6 +182,7 @@
     <string name="recovery_forms_send_error">Hitilafu wakati wa kutuma fomu</string>
     <string name="recovery_forms_state_unavailable">Fomu hazipatikani. Hakikisha hifadhi ya simu yako inapatikana</string>
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
+    <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa, tafadhali wasiliana na msimamizi.</string>
     <string name="recovery_network_outdated">Programu imepitwa na wakati na haiwezi tena kuwasiliana na seva. Tafadhali sasisha programu kwenye Google Play Store.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
     <string name="recovery_retry">Jaribu Urejeshaji tena</string>
@@ -478,7 +479,7 @@
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
     <string name="personalid_credential_my_worker_history">Historia Yangu ya Kazi</string>
-    <string name="personalid_credential">Kitambulisho</string>
+    <string name="personalid_credential">Historia ya Kazi</string>
     <string name="personalid_credential_worked_on">Ilifanywa Kazi Kwenye:</string>
     <string name="personalid_credential_earned_on">Ilipatikana Kwenye:</string>
     <string name="personalid_credential_active_for">Inatumika Kwa:</string>
@@ -494,6 +495,9 @@
     <string name="personalid_credential_level_6_month_active">Miezi 6 ya\nShughuli</string>
     <string name="personalid_credential_level_9_month_active">Miezi 9 ya\nShughuli</string>
     <string name="personalid_credential_level_12_month_active">Miezi 12 ya\nShughuli</string>
+    <string name="personalid_credential_no_pending_credential">Hakuna vitambulisho vinavyosubiri</string>
+
+    <string name="personalid_notification">Arifa</string>
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>

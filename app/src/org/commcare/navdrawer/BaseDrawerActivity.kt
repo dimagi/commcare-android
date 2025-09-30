@@ -10,6 +10,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToCredentials
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.utils.FirebaseMessagingUtil
@@ -80,6 +81,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.PAYMENTS -> {}
             NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
+            NavItemType.CREDENTIAL -> { navigateToCredential() }
         }
     }
 
@@ -103,6 +105,16 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected fun navigateToMessaging() {
         unlockAndGoToMessaging(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
+            }
+        })
+    }
+
+    protected  fun navigateToCredential() {
+        unlockAndGoToCredentials(this, object : ConnectActivityCompleteListener {
             override fun connectActivityComplete(success: Boolean) {
                 if (success) {
                     closeDrawer()

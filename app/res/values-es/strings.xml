@@ -122,6 +122,7 @@
     <string name="recovery_network_outdated">La aplicación está desactualizada y ya no puede comunicarse con el servidor. Actualízala en Google Play Store.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
     <string name="recovery_retry">Reintentar recuperación</string>
+    <string name="recovery_unable_to_claim_opportunity">No se puede reclamar la oportunidad, comunícate con un administrador.</string>
     <string name="notification_channel_errors_title">Errores</string>
     <string name="notification_channel_errors_description">Notificaciones para mensajes de error cuando algo sucede, por ejemplo, al instalar una aplicación de CommCare o al sincronizar formularios con el servidor</string>
     <string name="notification_channel_user_session_title">Sesión de usuario</string>
@@ -470,7 +471,7 @@
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
     <string name="personalid_credential_my_worker_history">Mi Historial Laboral</string>
-    <string name="personalid_credential">Credencial</string>
+    <string name="personalid_credential">Historial Laboral</string>
     <string name="personalid_credential_worked_on">Trabajado en:</string>
     <string name="personalid_credential_earned_on">Obtenido el:</string>
     <string name="personalid_credential_active_for">Activo durante:</string>
@@ -486,6 +487,9 @@
     <string name="personalid_credential_level_6_month_active">6 Meses de\nActividad</string>
     <string name="personalid_credential_level_9_month_active">9 Meses de\nActividad</string>
     <string name="personalid_credential_level_12_month_active">12 Meses de\nActividad</string>
+    <string name="personalid_credential_no_pending_credential">No hay credenciales pendientes</string>
+
+    <string name="personalid_notification">Notificaciones</string>
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
