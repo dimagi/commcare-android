@@ -16,14 +16,14 @@ object CCPerfMonitoring {
     const val ATTR_FORM_NAME = "form_name"
     const val ATTR_FORM_XMLNS = "form_xmlns"
 
-    fun startTracing (traceName: String): Trace? {
+    fun startTracing(traceName: String): Trace? {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
             trace.putAttribute(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain())
             trace.putAttribute(CCAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId())
             trace.putAttribute(CCAnalyticsParam.CC_APP_NAME, ReportingUtils.getAppName())
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
-            trace.start();
+            trace.start()
             return trace
         } catch (exception: Exception) {
             Logger.exception("Error starting perf trace: $traceName", exception)
@@ -33,7 +33,7 @@ object CCPerfMonitoring {
 
     fun stopTracing(trace: Trace?) {
         try {
-            trace?.stop();
+            trace?.stop()
         } catch (exception: Exception) {
             Logger.exception("Error starting perf trace: ${trace?.name}", exception)
         }
