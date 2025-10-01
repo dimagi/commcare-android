@@ -107,8 +107,6 @@ object ConnectJobHelper {
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
                 }
 
-                if (events.isEmpty()) events.add(null)
-
                 events.forEach { event ->
                     FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event)
                 }
