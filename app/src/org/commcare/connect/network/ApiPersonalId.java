@@ -1,7 +1,6 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
@@ -9,7 +8,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 
@@ -48,8 +46,6 @@ import java.util.List;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.HttpException;
 import retrofit2.Response;
 
 
@@ -322,7 +318,7 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.completeProfile);
     }
 
-    public static void retrieveCredentials(Context context, String userId, String password,
+    public static void retrieveWorkHistory(Context context, String userId, String password,
             IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
         String tokenAuth = HttpUtils.getCredential(authInfo);
