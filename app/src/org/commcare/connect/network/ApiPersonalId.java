@@ -219,15 +219,6 @@ public class ApiPersonalId {
         throw new TokenUnavailableException();
     }
 
-
-    public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
-        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
-        ConnectNetworkHelper.get(context,
-                url,
-                API_VERSION_PERSONAL_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
-                ArrayListMultimap.create(), true, callback);
-    }
-
     public static void confirmBackupCode(Context context,
             String backupCode, String token, IApiCallback callback) {
 
