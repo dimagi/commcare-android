@@ -7,6 +7,7 @@ import org.commcare.modern.models.MetaField
 import org.javarosa.core.services.Logger
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import java.io.Serializable
 
 @Table(PushNotificationRecord.STORAGE_KEY)
@@ -83,30 +84,35 @@ class PushNotificationRecord : Persisted(), Serializable {
                 try {
                     val obj = jsonArray.getJSONObject(i)
                     val record = PushNotificationRecord().apply {
-                        notificationId = obj.optString(META_NOTIFICATION_ID,"")
-                        notificationType = obj.optString(META_NOTIFICATION_TYPE,"")
-                        title = obj.optString(META_TITLE,"")
-                        body = obj.optString(META_BODY,"")
-                        confirmationStatus = obj.optString(META_CONFIRMATION_STATUS,"")
-                        paymentId = obj.optString(META_PAYMENT_ID,"")
-                        readStatus = obj.optBoolean(META_READ_STATUS,false)
-                        timeStamp = obj.optString(META_TIME_STAMP,"")
+                        notificationId = getRequiredString(obj, META_NOTIFICATION_ID, i)
+                        title = getRequiredString(obj, META_TITLE, i)
+                        body = getRequiredString(obj, META_BODY, i)
+                        notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
+                        confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
+                        paymentId = obj.optString(META_PAYMENT_ID, "")
+                        readStatus = obj.optBoolean(META_READ_STATUS, false)
+                        timeStamp = obj.optString(META_TIME_STAMP, "")
 
                         val dataObj = obj.optJSONObject("data")
                         dataObj?.let {
-                            connectMessageId = it.optString(META_MESSAGE_ID,"")
-                            channel = it.optString(META_CHANNEL,"")
-                            action = it.optString(META_ACTION,"")
-                            opportunityId = it.optString(META_OPPORTUNITY_ID,"")
+                            connectMessageId = it.optString(META_MESSAGE_ID, "")
+                            channel = it.optString(META_CHANNEL, "")
+                            action = getRequiredString(it, META_ACTION, i)
+                            opportunityId = it.optString(META_OPPORTUNITY_ID, "")
                         }
                     }
                     records.add(record)
                 } catch (e: JSONException) {
-                    Logger.exception("Error parsing notification at index $i", e)
-                    throw RuntimeException("Error parsing notification at index $i", e)
+                    Logger.exception("Error parsing push notification", e)
+                    throw RuntimeException("Error parsing push notification history", e)
                 }
             }
             return records
+        }
+
+        private fun getRequiredString(obj: JSONObject, key: String, index: Int): String {
+            return obj.optString(key, "").takeIf { it.isNotBlank() && it != "null" }
+                ?: throw RuntimeException("$key is missing at index $index")
         }
     }
 }
