@@ -14,6 +14,7 @@ object CCPerfMonitoring {
     // Attributes
     const val ATTR_NUM_CASES_LOADED = "number_of_cases_loaded"
     const val ATTR_FORM_NAME = "form_name"
+    const val ATTR_FORM_XMLNS = "form_xmlns"
 
     fun startTracing (traceName: String): Trace? {
         try {

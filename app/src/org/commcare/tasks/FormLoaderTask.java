@@ -149,6 +149,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
         if (trace != null) {
             trace.putAttribute(CCPerfMonitoring.ATTR_FORM_NAME, fd.getName());
+            trace.putAttribute(CCPerfMonitoring.ATTR_FORM_XMLNS, fd.getMainInstance().schema);
             CCPerfMonitoring.INSTANCE.stopTracing(trace);
         }
         return data;
