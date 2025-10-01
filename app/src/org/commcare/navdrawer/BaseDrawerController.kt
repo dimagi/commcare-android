@@ -201,7 +201,7 @@ class BaseDrawerController(
             if (shouldShowCredential()) {
                 items.add(
                     NavDrawerItem.ParentItem(
-                        activity.getString(R.string.personalid_credential),
+                        activity.getString(R.string.personalid_work_history),
                         R.drawable.ic_credential,
                         NavItemType.CREDENTIAL,
                     )
