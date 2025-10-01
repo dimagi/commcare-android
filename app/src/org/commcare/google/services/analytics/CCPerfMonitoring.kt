@@ -16,14 +16,14 @@ object CCPerfMonitoring {
     const val ATTR_RESULTS_COUNT: String = "case_search_results_count"
     const val ATTR_SEARCH_QUERY_LENGTH: String = "case_search_query_length"
 
-    fun startTracing (traceName: String): Trace? {
+    fun startTracing(traceName: String): Trace? {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
             trace.putAttribute(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain())
             trace.putAttribute(CCAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId())
             trace.putAttribute(CCAnalyticsParam.CC_APP_NAME, ReportingUtils.getAppName())
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
-            trace.start();
+            trace.start()
             return trace
         } catch (exception: Exception) {
             Logger.exception("Error starting perf trace: $traceName", exception)
@@ -33,12 +33,10 @@ object CCPerfMonitoring {
 
     fun stopTracing(trace: Trace, attrs: MutableMap<String, String>?) {
         try {
-            attrs?.forEach {
-                (key, value) -> trace.putAttribute(key, value)
-            }
-            trace.stop();
+            attrs?.forEach { (key, value) -> trace.putAttribute(key, value) }
+            trace.stop()
         } catch (exception: Exception) {
-            Logger.exception("Error starting perf trace: ${trace?.name}", exception)
+            Logger.exception("Error starting perf trace: ${trace.name}", exception)
         }
     }
 }
