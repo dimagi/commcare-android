@@ -1,9 +1,8 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import androidx.core.util.Pair;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import androidx.core.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -12,6 +11,8 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.util.InvalidCaseGraphException;
+import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
@@ -20,6 +21,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
@@ -287,6 +289,10 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to SSL error");
             responseError = PullTaskResult.BAD_CERTIFICATE;
+        }catch (TokenUnavailableException e) {
+            responseError = PullTaskResult.TOKEN_UNAVAILABLE;
+        } catch (TokenDeniedException e) {
+            responseError = PullTaskResult.TOKEN_DENIED;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
@@ -450,6 +456,7 @@ public abstract class DataPullTask<R>
         recordSuccessfulSyncTime(username);
 
         ExternalDataUpdateHelper.broadcastDataUpdate(context, null);
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
 
         if (loginNeeded) {
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
@@ -552,7 +559,7 @@ public abstract class DataPullTask<R>
         //this is the temporary implementation of everything past this point
 
         //Wipe storage
-        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+        IDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         userDb.beginTransaction();
         wipeStorageForFourTwelveSync(userDb);
 
@@ -574,7 +581,7 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
+    private void wipeStorageForFourTwelveSync(IDatabase userDb) {
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
@@ -627,7 +634,7 @@ public abstract class DataPullTask<R>
             UnfullfilledRequirementsException {
         initParsers(factory);
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        IDatabase db = CommCareApplication.instance().getUserDbHandle();
         db.beginTransaction();
         try {
             parseStream(stream, factory);
@@ -691,7 +698,9 @@ public abstract class DataPullTask<R>
         STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_STORAGE_FULL),
         CAPTIVE_PORTAL(AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL),
         AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP),
-        BAD_CERTIFICATE(AnalyticsParamValue.SYNC_FAIL_BAD_CERTIFICATE);
+        BAD_CERTIFICATE(AnalyticsParamValue.SYNC_FAIL_BAD_CERTIFICATE),
+        TOKEN_UNAVAILABLE(AnalyticsParamValue.SYNC_FAIL_TOKEN_UNAVAILABLE),
+        TOKEN_DENIED(AnalyticsParamValue.SYNC_FAIL_TOKEN_DENIED);
 
         public final String analyticsFailureReasonParam;
 

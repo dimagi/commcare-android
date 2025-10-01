@@ -9,7 +9,6 @@ import android.view.View;
 
 import androidx.core.app.ActivityCompat;
 
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 
 import org.commcare.activities.CommCareActivity;
@@ -37,14 +36,14 @@ public class FormEntryDialogs {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(activity,
                 StringUtils.getStringRobust(activity, R.string.quit_form_title));
 
-        View.OnClickListener stayInFormListener = v -> activity.dismissAlertDialog();
+        View.OnClickListener stayInFormListener = v -> dialog.dismiss();
         DialogChoiceItem stayInFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(activity, R.string.do_not_exit),
                 LocalePreferences.isLocaleRTL() ? R.drawable.ic_blue_backward : R.drawable.ic_blue_forward,
                 stayInFormListener);
 
         View.OnClickListener exitFormListener = v -> {
-            activity.dismissAlertDialog();
+            dialog.dismiss();
             ViewUtil.hideVirtualKeyboard(activity);
             activity.discardChangesAndExit();
         };
@@ -57,7 +56,7 @@ public class FormEntryDialogs {
         if (isIncompleteEnabled) {
             View.OnClickListener saveIncompleteListener = v -> {
                 activity.saveFormToDisk(FormEntryConstants.EXIT);
-                activity.dismissAlertDialog();
+                dialog.dismiss();
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
                     StringUtils.getStringRobust(activity, R.string.keep_changes),
@@ -84,7 +83,10 @@ public class FormEntryDialogs {
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[languageCodes.length];
         for (int i = 0; i < languageCodes.length; i++) {
             final int index = i;
-            View.OnClickListener listener = v -> activity.setFormLanguage(languageCodes, index);
+            View.OnClickListener listener = v -> {
+                dialog.dismiss();
+                activity.setFormLanguage(languageCodes, index);
+            };
             choiceItems[i] = new DialogChoiceItem(localizedLanguages[i], -1, listener);
         }
 
@@ -105,9 +107,7 @@ public class FormEntryDialogs {
             question = question.substring(0, 50) + "...";
         }
         String msg = StringUtils.getStringSpannableRobust(activity, R.string.clearanswer_confirm, question).toString();
-        StandardAlertDialog d = new StandardAlertDialog(activity, title, msg);
-        d.setIcon(android.R.drawable.ic_dialog_info);
-
+        StandardAlertDialog d = new StandardAlertDialog(title, msg, null, android.R.drawable.ic_dialog_info);
         DialogInterface.OnClickListener quitListener = (dialog, i) -> {
             switch (i) {
                 case DialogInterface.BUTTON_POSITIVE:
@@ -117,7 +117,7 @@ public class FormEntryDialogs {
                 case DialogInterface.BUTTON_NEGATIVE:
                     break;
             }
-            activity.dismissAlertDialog();
+            dialog.dismiss();
         };
         d.setPositiveButton(StringUtils.getStringSpannableRobust(activity, R.string.discard_answer), quitListener);
         d.setNegativeButton(StringUtils.getStringSpannableRobust(activity, R.string.clear_answer_no), quitListener);
@@ -150,7 +150,7 @@ public class FormEntryDialogs {
                 if (i == DialogInterface.BUTTON_POSITIVE) {
                     GeoUtils.goToProperLocationSettingsScreen(activity);
                 }
-                activity.dismissAlertDialog();
+                dialog.dismiss();
             };
             GeoUtils.showNoGpsDialog(activity, onChangeListener);
         }

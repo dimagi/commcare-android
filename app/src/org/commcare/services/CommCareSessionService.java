@@ -17,7 +17,9 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
-import net.sqlcipher.database.SQLiteDatabase;
+
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -28,10 +30,9 @@ import org.commcare.core.encryption.CryptUtil;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
@@ -42,21 +43,13 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nullable;
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -89,7 +82,6 @@ public class CommCareSessionService extends Service {
      * 2h time in Milliseconds to extend the session if needed
      */
     private static final long SESSION_EXTENSION_TIME = 2 * 60 * 60 * 1000;
-
     private Timer maintenanceTimer;
 
     private byte[] key = null;
@@ -102,7 +94,7 @@ public class CommCareSessionService extends Service {
     private String userKeyRecordUUID;
     private int userKeyRecordID;
 
-    private SQLiteDatabase userDatabase;
+    private IDatabase userDatabase;
 
     // unique id for logged in notification
     private final static int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
@@ -206,11 +198,8 @@ public class CommCareSessionService extends Service {
             Intent i = new Intent(this, DispatchActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-            PendingIntent contentIntent = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            else
-                contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
                     .setContentTitle(this.getString(R.string.expirenotification))
@@ -226,7 +215,7 @@ public class CommCareSessionService extends Service {
 
     //Start CommCare Specific Functionality
 
-    public SQLiteDatabase getUserDbHandle() {
+    public IDatabase getUserDbHandle() {
         synchronized (lock) {
             return userDatabase;
         }
@@ -243,8 +232,7 @@ public class CommCareSessionService extends Service {
                 userDatabase.close();
             }
 
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(), userKeyRecordUUID)
-                    .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+            userDatabase = CommCareApplication.instance().getUserDbOpenHelper(userKeyRecordUUID, UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
 
@@ -512,11 +500,8 @@ public class CommCareSessionService extends Service {
 
                 // The PendingIntent to launch our activity if the user selects this notification
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
-                PendingIntent contentIntent;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
-                else
-                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
+                PendingIntent contentIntent =
+                        PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
                         CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
@@ -679,10 +664,7 @@ public class CommCareSessionService extends Service {
         callable.setAction("android.intent.action.MAIN");
         callable.addCategory("android.intent.category.LAUNCHER");
 
-        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            pendingIntentFlags = pendingIntentFlags | PendingIntent.FLAG_IMMUTABLE;
-        }
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, pendingIntentFlags);
 
         String notificationText;

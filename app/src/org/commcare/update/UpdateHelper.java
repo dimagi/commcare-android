@@ -36,6 +36,7 @@ import java.util.Vector;
 import androidx.core.util.Pair;
 import androidx.work.WorkManager;
 
+import static org.commcare.AppUtils.getCurrentAppId;
 import static org.commcare.CommCareApplication.areAutomatedActionsInvalid;
 
 /**
@@ -273,7 +274,7 @@ public class UpdateHelper implements TableStateListener {
 
     // Returns Unique request name for the UpdateWorker Request
     public static String getUpdateRequestName() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String appId = getCurrentAppId();
         return UPDATE_REQUEST_NAME + "_" + appId;
     }
 

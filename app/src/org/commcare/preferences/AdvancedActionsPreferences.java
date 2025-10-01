@@ -105,7 +105,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     }
 
     @Override
-    protected void conditionallyHideSpecificPrefs() {
+    protected void updateConditionallyVisibleSpecificPrefs() {
         Preference reportProblemButton = findPreference(REPORT_PROBLEM);
         if (reportProblemButton != null && DeveloperPreferences.shouldHideReportIssue()) {
             getPreferenceScreen().removePreference(reportProblemButton);
@@ -274,7 +274,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     public static void clearUserData(final AppCompatActivity activity) {
         int numUnsentAndIncompleteForms = StorageUtils.getNumUnsentAndIncompleteForms();
         StandardAlertDialog d =
-                new StandardAlertDialog(activity,
+                new StandardAlertDialog(
                         Localization.get("clear.user.data.warning.title"),
                         getClearUserDataMessage(numUnsentAndIncompleteForms));
         DialogInterface.OnClickListener listener = (dialog, which) -> {
@@ -290,7 +290,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                         getClearUserDataPositiveOption(numUnsentAndIncompleteForms)),
                 listener);
         d.setNegativeButton(StringUtils.getStringRobust(activity, R.string.cancel), listener);
-        d.showNonPersistentDialog();
+        d.showNonPersistentDialog(activity);
     }
 
     private static String getClearUserDataMessage(int numUnsentAndIncompleteForms) {

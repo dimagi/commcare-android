@@ -43,6 +43,8 @@ public class CommCareVerificationActivity
     private static final String KEY_REQUIRE_REFRESH = "require_referesh";
     public static final String KEY_LAUNCH_FROM_SETTINGS = "from_settings";
 
+    public static final String KEY_LAUNCH_FROM_CONNECT = "from_connect";
+
     private static final int DIALOG_VERIFY_PROGRESS = 0;
     private static final String MISSING_MEDIA_TEXT_KEY = "missing-media-text-key";
     private static final String NEW_MEDIA_KEY = "new-media-to-validate";
@@ -68,6 +70,7 @@ public class CommCareVerificationActivity
      * CommCareHomeActivity
      */
     private boolean fromSettings;
+    private boolean fromConnect;
     private boolean isFirstLaunch;
 
     @Override
@@ -86,6 +89,8 @@ public class CommCareVerificationActivity
 
         this.fromSettings = this.getIntent().
                 getBooleanExtra(KEY_LAUNCH_FROM_SETTINGS, false);
+        this.fromConnect = this.getIntent().
+                getBooleanExtra(KEY_LAUNCH_FROM_CONNECT, false);
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
@@ -129,7 +134,7 @@ public class CommCareVerificationActivity
         // then something was done on the Manager screen that means we no longer want to be here --
         // VerificationActivity should be displayed to a user only if we were explicitly sent from
         // the manager, or if the state of installed apps calls for it
-        boolean shouldBeHere = fromManager || fromSettings || MultipleAppsUtil.shouldSeeMMVerification();
+        boolean shouldBeHere = fromManager || fromSettings || fromConnect || MultipleAppsUtil.shouldSeeMMVerification();
         if (!shouldBeHere) {
             // send back to dispatch activity
             setResult(RESULT_OK);

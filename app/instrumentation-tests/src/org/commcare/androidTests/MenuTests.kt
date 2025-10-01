@@ -37,7 +37,7 @@ class MenuTests: BaseTest() {
                 "Advanced",
                 "Settings")
 
-        val advancedOptions = arrayOf("Wifi Direct",
+        val advancedOptions = arrayOf("Wi-Fi Direct",
                 "Manage SD",
                 "Report Problem",
                 "Force Log Submission",

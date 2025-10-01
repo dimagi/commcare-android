@@ -42,6 +42,7 @@ public class EndOfFormTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
+        ((CommCareTestApplication)CommCareTestApplication.instance()).initWorkManager();
     }
 
     /**

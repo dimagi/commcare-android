@@ -2,6 +2,8 @@ package org.commcare.network;
 
 import android.content.Context;
 
+import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.core.network.ModernHttpRequester;
@@ -43,7 +45,10 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         NetworkFailureBadPassword,
         IncorrectPin,
         AuthOverHttp,
-        CaptivePortal
+        InsufficientRolePermission,
+        CaptivePortal,
+        TokenUnavailable,
+        TokenRequestDenied
     }
 
     private final Context c;
@@ -81,6 +86,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
                     outcome = doResponseSuccess(response);
                 } else if (responseCode == 401) {
                     outcome = doResponseAuthFailed(response);
+                } else if (responseCode == 403) {
+                    outcome = doResponseInsufficientRolePermission(response);
                 } else {
                     outcome = doResponseOther(response);
                 }
@@ -92,9 +99,15 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.AuthOverHttp;
-            } catch (CaptivePortalRedirectException e){
+            } catch (CaptivePortalRedirectException e) {
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.CaptivePortal;
+            } catch (TokenUnavailableException e) {
+                e.printStackTrace();
+                outcome = HttpCalloutOutcomes.TokenUnavailable;
+            } catch (TokenDeniedException e) {
+                e.printStackTrace();
+                outcome = HttpCalloutOutcomes.TokenRequestDenied;
             } catch (IOException e) {
                 //This is probably related to local files, actually
                 e.printStackTrace();
@@ -121,6 +134,10 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         return doPostCalloutTask(calloutFailed);
     }
 
+    private HttpCalloutOutcomes doResponseInsufficientRolePermission(Response response) {
+        return HttpCalloutOutcomes.InsufficientRolePermission;
+    }
+
     protected boolean processSuccessfulRequest() {
         return true;
     }
@@ -129,7 +146,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         return null;
     }
 
-    protected abstract Response<ResponseBody> doHttpRequest() throws IOException;
+    protected abstract Response<ResponseBody> doHttpRequest() throws IOException, TokenDeniedException, TokenUnavailableException;
 
     protected HttpCalloutOutcomes doResponseSuccess(Response<ResponseBody> response) throws IOException {
         beginResponseHandling(response);

@@ -1,0 +1,106 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+        <ScrollView
+            android:id="@+id/firstLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="vertical"
+            tools:context="org.commcare.fragments.personalId.PersonalIdNameFragment">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include layout="@layout/grid_header_top_banner"/>
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="40dp"
+                    android:background="@color/connect_light_grey" />
+
+                <TextView
+                    android:id="@+id/name_fragment_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/personalid_name_fragment_subtitle"
+                    android:textColor="@color/connect_dark_blue_color"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:id="@+id/name_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="start"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/connect_side_icon_bg"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:padding="1dp"
+                            android:src="@drawable/ic_outline_person_24" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/nameTextValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="55dp"
+                        android:layout_marginStart="16dp"
+                        android:background="@drawable/connect_edit_text_bg"
+                        android:hint="@string/connect_register_name"
+                        android:inputType="textPersonName|textCapWords"
+                        android:imeOptions="actionNext"
+                        android:paddingStart="16dp"
+                        android:textColorHint="@color/connect_grey"
+                        />
+
+                </LinearLayout>
+
+                <TextView
+                    android:textStyle="bold"
+                    android:id="@+id/personalid_name_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="84dp"
+                    android:paddingTop="4dp"
+                    android:textColor="@android:color/holo_red_light"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                     />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/personalid_name_continue_button"
+                    style="@style/CustomButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="start|center"
+                    android:text="@string/review"
+                    android:drawableEnd="@drawable/connect_right_arrow"
+                    />
+
+            </LinearLayout>
+        </ScrollView>
+</layout>

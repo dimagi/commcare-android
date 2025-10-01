@@ -33,13 +33,12 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DecimalFormat;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 /**
  * Activity that blocks user until the current GPS location is captured
  */
-public class GeoPointActivity extends AppCompatActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
+public class GeoPointActivity extends CommonBaseActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
 
     private GeoProgressDialog locationDialog;
     private Location location;
@@ -235,7 +234,7 @@ public class GeoPointActivity extends AppCompatActivity implements TimerListener
                                 LOCATION_PERMISSION_REQ,
                                 Localization.get("permission.location.title"),
                                 Localization.get("permission.location.message"));
-                dialog.showNonPersistentDialog();
+                dialog.showNonPersistentDialog(this);
             } else {
                 missingPermissions();
             }

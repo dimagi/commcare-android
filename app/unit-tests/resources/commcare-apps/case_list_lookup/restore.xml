@@ -14,6 +14,9 @@
             <sample_choice_question>choice3</sample_choice_question>
             <sample_number_question>145</sample_number_question>
         </update>
+        <index>
+            <parent case_type="case">c44c7ade-0cec-4401-b422-4c475f0043ae</parent>
+        </index>
     </case>
     <case case_id="8e011880-602f-4017-b9d6-ed9dcbba7516"
           date_modified="2016-03-10T11:16:45.182000Z" user_id="441bdbb17001bade54aa23dcb7313950"
@@ -27,6 +30,9 @@
             <sample_choice_question>choice1</sample_choice_question>
             <sample_number_question>147</sample_number_question>
         </update>
+        <index>
+            <parent case_type="case">b319e951-03f1-4172-b662-4fb3964a0be7</parent>
+        </index>
     </case>
     <case case_id="c44c7ade-0cec-4401-b422-4c475f0043ae"
           date_modified="2016-03-10T11:19:50.826000Z" user_id="441bdbb17001bade54aa23dcb7313950"

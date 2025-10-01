@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_messaging"
+        android:icon="@drawable/ic_connect_messaging_base"
+        android:title="@string/personalid_messaging_menu_title"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_bell"
+        android:icon="@drawable/ic_bell"
+        android:title="@string/personalid_notification"
+        android:visible="false"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_sync"
+        android:icon="@drawable/ic_backup"
+        android:iconTint="@color/white"
+        android:title="@string/personalid_sync_menu_title"
+        app:showAsAction="always" />
+</menu>

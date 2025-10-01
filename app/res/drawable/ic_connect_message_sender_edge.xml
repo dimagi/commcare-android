@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:autoMirrored="true"
+    android:width="8dp"
+    android:height="8dp"
+    android:viewportWidth="8"
+    android:viewportHeight="8">
+  <path
+      android:pathData="M0,8V0C0,0 0,0 5.6677,0C13.2245,0 0,8 0,8Z"
+      android:fillColor="@color/connect_message_sender_bg"/>
+</vector>

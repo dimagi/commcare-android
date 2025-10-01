@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
@@ -43,7 +42,6 @@ public class DriftHelper {
 
     static StandardAlertDialog getDriftDialog(Context context) {
         StandardAlertDialog driftDialog = StandardAlertDialog.getBasicAlertDialog(
-                context,
                 context.getResources().getString(R.string.incorrect_time_dialog_title),
                 context.getResources().getString(R.string.incorrect_time_dialog_message),
                 null);

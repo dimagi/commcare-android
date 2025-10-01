@@ -13,6 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
+import java.io.File;
+import java.net.URL;
+
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
 public class ImageInflationTest {
@@ -30,7 +33,7 @@ public class ImageInflationTest {
     private DisplayMetrics createFakeDisplayMetrics(int screenDensity) {
         DisplayMetrics metrics = new DisplayMetrics();
         metrics.densityDpi = screenDensity;
-        metrics.density = (float)screenDensity / DisplayMetrics.DENSITY_DEFAULT;
+        metrics.density = (float) screenDensity / DisplayMetrics.DENSITY_DEFAULT;
         return metrics;
     }
 
@@ -53,7 +56,14 @@ public class ImageInflationTest {
 
     @Before
     public void init() {
-        imageFilepath = "/images/100x100.png";
+        URL resource = getClass().getClassLoader().getResource("images/100x100.png");
+        if (resource == null) {
+            throw new IllegalStateException("Test resource not found: images/100x100.png");
+        }
+
+        File file = new File(resource.getFile());
+        imageFilepath = file.getAbsolutePath();
+
         lowDensityDevice = createFakeDisplayMetrics(DisplayMetrics.DENSITY_LOW);
         mediumDensityDevice = createFakeDisplayMetrics(DisplayMetrics.DENSITY_MEDIUM);
         highDensityDevice = createFakeDisplayMetrics(DisplayMetrics.DENSITY_HIGH);
@@ -62,7 +72,7 @@ public class ImageInflationTest {
 
     @Test
     public void testScaleFactorComputationSimple() {
-        Assert.assertEquals((double)160 / 280,
+        Assert.assertEquals((double) 160 / 280,
                 MediaUtil.computeInflationScaleFactor(mediumDensityDevice, DisplayMetrics.DENSITY_280), .1);
     }
 
@@ -72,16 +82,16 @@ public class ImageInflationTest {
     @Test
     public void testScaleFactorComputationComplex1() {
         // the expected value of density for a 160 dpi device is 160/160 = 1, so this is 10% larger
-        mediumDensityDevice.density = (float)1.1;
-        Assert.assertEquals((double)160 / 280 * 1.1,
+        mediumDensityDevice.density = (float) 1.1;
+        Assert.assertEquals((double) 160 / 280 * 1.1,
                 MediaUtil.computeInflationScaleFactor(mediumDensityDevice, DisplayMetrics.DENSITY_280), .1);
     }
 
     @Test
     public void testScaleFactorComputationComplex2() {
         // the expected value of density for 120dpi device is 120/160 = .75, so this is 33% smaller
-        lowDensityDevice.density = (float)0.5;
-        Assert.assertEquals((double)120 / 280 * ((double)2 / 3),
+        lowDensityDevice.density = (float) 0.5;
+        Assert.assertEquals((double) 120 / 280 * ((double) 2 / 3),
                 MediaUtil.computeInflationScaleFactor(lowDensityDevice, DisplayMetrics.DENSITY_280), .1);
     }
 

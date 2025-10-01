@@ -21,6 +21,7 @@ import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.ConcurrentHashMap
 
 @RunWith(AndroidJUnit4::class)
 @BrowserstackTests
@@ -33,11 +34,18 @@ class ApkDependenciesTest : BaseTest() {
     }
 
     @Test
+    fun keepConcurrentHashMapConstructor() {
+        // This constructor is used by a Google Location API, but R8 was stripping it from the instrumentation
+        // tests APK, which caused some tests to fail. This dummy test is to force R8 to retain the constructor
+        ConcurrentHashMap<Any, Any>(1, 1.00f, 1)
+    }
+
+    @Test
     fun testAppDependenciesCheck() {
         installApp(APP_NAME, CCZ_NAME)
         val unstatisfiedDependencies = ImmutableList.of("Reminders", "Test")
         verifyDependencyDialog(unstatisfiedDependencies)
-        InstrumentationUtility.login("test", "123");
+        InstrumentationUtility.login("test", "123")
         onView(withText("Start"))
             .perform(click())
         verifyDependencyDialog(unstatisfiedDependencies)
@@ -86,8 +94,8 @@ class ApkDependenciesTest : BaseTest() {
 
     private fun verifyPlaystoreIntent() {
         val receivedIntents = Intents.getIntents()
-        receivedIntents.findLast { intent -> intent.action ==  Intent.ACTION_VIEW}.let {
-            assertEquals("Incorrect Play store url",PLAY_STORE_URL,it!!.data.toString())
+        receivedIntents.findLast { intent -> intent.action == Intent.ACTION_VIEW }.let {
+            assertEquals("Incorrect Play store url", PLAY_STORE_URL, it!!.data.toString())
         }
     }
 }

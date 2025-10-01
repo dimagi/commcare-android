@@ -61,6 +61,7 @@ class LogSubmissionTest: BaseTest() {
         InstrumentationUtility.selectOptionItem(withText("Advanced"))
         onView(withText("Report Problem"))
             .perform(click())
+        onView(ViewMatchers.isRoot()).perform(ViewActions.closeSoftKeyboard())
         InstrumentationUtility.enterText(R.id.ReportText01,reportText)
         onView(ViewMatchers.isRoot()).perform(ViewActions.closeSoftKeyboard())
         onView(withText("Submit Report")).isPresent()

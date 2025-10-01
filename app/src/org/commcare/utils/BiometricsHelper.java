@@ -1,0 +1,258 @@
+package org.commcare.utils;
+
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
+import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+
+import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.provider.Settings;
+import android.text.TextUtils;
+
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+
+import org.commcare.connect.ConnectConstants;
+import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
+
+import java.util.Locale;
+
+/**
+ * Helper class for biometric configuration and verification
+ *
+ * @author dviggiano
+ */
+public class BiometricsHelper {
+
+    /**
+     * Enum representing the availability and configuration status of a biometric method.
+     */
+    public enum ConfigurationStatus {
+        NotAvailable,  // Biometrics not available on the device
+        NotConfigured, // Biometrics available but not set up
+        Configured,     // Biometrics set up and ready for authentication
+        NoHardware, // No biometric hardware available
+        NeedsUpdate
+    }
+
+    /**
+     * Checks the fingerprint authentication status.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return The fingerprint configuration status.
+     */
+    public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
+        return checkStatus(context, biometricManager, BIOMETRIC_STRONG);
+    }
+
+    /**
+     * Determines if fingerprint authentication is configured on the device.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return True if fingerprint authentication is configured, false otherwise.
+     */
+    public static boolean isFingerprintConfigured(Context context, BiometricManager biometricManager) {
+        return checkFingerprintStatus(context, biometricManager) == ConfigurationStatus.Configured;
+    }
+
+    /**
+     * Prompts the user to configure fingerprint authentication.
+     *
+     * @param activity The current activity.
+     * @return True if the configuration process starts successfully, false otherwise.
+     */
+    public static boolean configureFingerprint(Activity activity) {
+        return configureBiometric(activity, BIOMETRIC_STRONG);
+    }
+
+
+    public static void authenticateFingerprint(FragmentActivity activity,
+                                               BiometricManager biometricManager,
+                                               BiometricPrompt.AuthenticationCallback biometricPromptCallback, boolean allowOtherOptions) {
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback, allowOtherOptions);
+    }
+
+    /**
+     * Checks the status of PIN-based authentication.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return The PIN configuration status.
+     */
+    public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
+        return checkStatus(context, biometricManager, DEVICE_CREDENTIAL);
+    }
+
+    /**
+     * Determines if PIN authentication is configured on the device.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return True if PIN authentication is configured, false otherwise.
+     */
+    public static boolean isPinConfigured(Context context, BiometricManager biometricManager) {
+        return checkPinStatus(context, biometricManager) == ConfigurationStatus.Configured;
+    }
+
+    /**
+     * Prompts the user to configure PIN-based authentication.
+     *
+     * @param activity The current activity.
+     * @return True if the configuration process starts successfully, false otherwise.
+     */
+    public static boolean configurePin(Activity activity) {
+        return configureBiometric(activity, DEVICE_CREDENTIAL);
+    }
+
+    /**
+     * Initiates PIN-based authentication.
+     *
+     * @param activity                The fragment activity.
+     * @param biometricManager        The BiometricManager instance.
+     * @param biometricPromptCallback The callback for authentication results.
+     */
+    public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
+                                       BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
+
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback, true);
+    }
+
+    public static void authenticatePinOrBiometric(FragmentActivity activity, BiometricManager biometricManager,
+                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback, boolean allowOtherOptions) {
+        if (BiometricsHelper.isPinConfigured(activity, biometricManager) || BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
+            BiometricPrompt prompt = new BiometricPrompt(activity,
+                    ContextCompat.getMainExecutor(activity),
+                    biometricPromptCallback);
+
+            BiometricPrompt.PromptInfo.Builder builder = new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle(activity.getString(R.string.connect_unlock_title))
+                    .setSubtitle(activity.getString(R.string.connect_unlock_message));
+
+            if (allowOtherOptions) {
+                builder.setAllowedAuthenticators(DEVICE_CREDENTIAL |
+                        BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+            } else {
+                builder.setAllowedAuthenticators(BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+                builder.setNegativeButtonText(activity.getString(R.string.cancel));
+            }
+
+            prompt.authenticate(builder.build());
+        }
+    }
+
+    /**
+     * Checks the biometric authentication status for a specific authentication method.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @param authenticator    The authenticator type (e.g., fingerprint, PIN).
+     * @return The biometric configuration status.
+     */
+    public static ConfigurationStatus checkStatus(Context context, BiometricManager biometricManager,
+                                                  int authenticator) {
+        int val = canAuthenticate(context, biometricManager, authenticator);
+        switch (val) {
+            case BiometricManager.BIOMETRIC_SUCCESS -> {
+                return ConfigurationStatus.Configured;
+            }
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                return ConfigurationStatus.NotConfigured;
+            }
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+                return ConfigurationStatus.NoHardware;
+            }
+            case BiometricManager.BIOMETRIC_STATUS_UNKNOWN,
+                 BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
+                 BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED-> {
+                return ConfigurationStatus.NeedsUpdate;
+            }
+            default -> {
+                Logger.exception("Unhandled biometric status", new Exception(
+                        String.format(Locale.getDefault(), "Mode %d encountered unexpected status %d",
+                                authenticator, val)
+                ));
+
+                return ConfigurationStatus.NotAvailable;
+            }
+        }
+    }
+
+    private static int canAuthenticate(Context context, BiometricManager biometricManager, int authenticator) {
+        if (authenticator == DEVICE_CREDENTIAL && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
+
+            return manager.isDeviceSecure() ? BiometricManager.BIOMETRIC_SUCCESS :
+                    BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
+        }
+
+        return biometricManager.canAuthenticate(authenticator);
+    }
+
+    private static boolean configureBiometric(Activity activity, int authenticator) {
+        // Prompts the user to create credentials that your app accepts.
+        Intent enrollIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //Best case, handles both fingerprint and PIN
+            enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+            enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                    authenticator);
+        } else if (authenticator == BIOMETRIC_STRONG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            //An alternative for fingerprint enroll that might be available
+            enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
+        } else {
+            //No way to enroll, have to fail
+            Logger.log("Biometric config failed", String.format(Locale.getDefault(),
+                    "No available enroll activity for authenticator %d", authenticator));
+            return false;
+        }
+
+        activity.startActivityForResult(enrollIntent, ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE);
+        return true;
+    }
+
+
+    //// start: min security requirements
+
+    public static void checkForValidSecurityType(String requiredLock) {
+        if (TextUtils.isEmpty(requiredLock) ||
+                (!requiredLock.equals(PIN) && !requiredLock.equals(BIOMETRIC_TYPE))) {
+            crashWithInvalidSecurityTypeException(requiredLock);
+        }
+    }
+
+    private static void crashWithInvalidSecurityTypeException(String requiredLock) {
+        throw new IllegalStateException("Invalid device security requirements from server: " + requiredLock);
+    }
+
+    public static String getPinHardwareUnavailableError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_pin_unavailable_message);
+    }
+
+    public static String getPinNeedsUpdateError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_pin_needs_update_message);
+    }
+
+    public static String getNoBiometricHardwareError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_biometric_no_hardware_message);
+    }
+
+    public static String getBiometricHardwareUnavailableError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_biometric_unavailable_message);
+    }
+
+    public static String getBiometricNeedsUpdateError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_biometric_needs_update_message);
+    }
+
+    //// end: min security requirements
+}

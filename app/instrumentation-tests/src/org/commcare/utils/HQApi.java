@@ -326,7 +326,7 @@ public class HQApi {
     }
 
     private static CommCareNetworkService createTestNetworkService() {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(BuildConfig.HQ_API_USERNAME, BuildConfig.HQ_API_PASSWORD);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(BuildConfig.HQ_API_USERNAME, BuildConfig.HQ_API_PASSWORD,false);
         CommCareNetworkService networkService =
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(
                         HttpUtils.getCredential(authInfo),

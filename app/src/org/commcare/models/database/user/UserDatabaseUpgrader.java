@@ -4,8 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.ACasePreV28Model;
@@ -18,6 +16,7 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -64,7 +63,7 @@ class UserDatabaseUpgrader {
         this.fileMigrationKey = fileMigrationKey;
     }
 
-    public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void upgrade(IDatabase db, int oldVersion, int newVersion) {
         // A lot of the upgrade processes can take a little while, so we tell the service to wait
         // longer than usual in order to make sure the upgrade has time to finish
         CommCareApplication.instance().setCustomServiceBindTimeout(5 * 60 * 1000);
@@ -230,9 +229,15 @@ class UserDatabaseUpgrader {
                 oldVersion = 28;
             }
         }
+
+        if (oldVersion == 28) {
+            if (updateTwentyEightTwentyNine(db)) {
+                oldVersion = 29;
+            }
+        }
     }
 
-    private boolean upgradeOneTwo(final SQLiteDatabase db) {
+    private boolean upgradeOneTwo(final IDatabase db) {
         db.beginTransaction();
         try {
             markSenseIncompleteUnsent(db);
@@ -243,7 +248,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeTwoThree(final SQLiteDatabase db) {
+    private boolean upgradeTwoThree(final IDatabase db) {
         db.beginTransaction();
         try {
             markSenseIncompleteUnsent(db);
@@ -254,7 +259,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeThreeFour(SQLiteDatabase db) {
+    private boolean upgradeThreeFour(IDatabase db) {
         db.beginTransaction();
         try {
             UserDbUpgradeUtils.addStockTable(db);
@@ -266,7 +271,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeFourFive(SQLiteDatabase db) {
+    private boolean upgradeFourFive(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
@@ -277,7 +282,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeFiveSix(SQLiteDatabase db) {
+    private boolean upgradeFiveSix(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
@@ -306,7 +311,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeSixSeven(SQLiteDatabase db) {
+    private boolean upgradeSixSeven(IDatabase db) {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
@@ -324,7 +329,7 @@ class UserDatabaseUpgrader {
      * Depcrecate the old AUser object so that both platforms are using the User object
      * to represents users
      */
-    private boolean upgradeSevenEight(SQLiteDatabase db) {
+    private boolean upgradeSevenEight(IDatabase db) {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
@@ -348,7 +353,7 @@ class UserDatabaseUpgrader {
      * scheme, and re-serialize them using the new scheme that preserves
      * attributes.
      */
-    private boolean upgradeEightNine(SQLiteDatabase db) {
+    private boolean upgradeEightNine(IDatabase db) {
         Log.d(TAG, "starting user fixture migration");
 
         FixtureSerializationMigration.stageFixtureTables(db);
@@ -363,7 +368,7 @@ class UserDatabaseUpgrader {
     /**
      * Adding an appId field to FormRecords, for compatibility with multiple apps functionality
      */
-    private boolean upgradeNineTen(SQLiteDatabase db) {
+    private boolean upgradeNineTen(IDatabase db) {
         db.beginTransaction();
         try {
 
@@ -416,7 +421,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeTenEleven(SQLiteDatabase db) {
+    private boolean upgradeTenEleven(IDatabase db) {
         db.beginTransaction();
         try {
             // add table for dedicated xpath error logging for reporting xpath
@@ -433,7 +438,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeElevenTwelve(SQLiteDatabase db) {
+    private boolean upgradeElevenTwelve(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL("DROP TABLE IF EXISTS " + GeocodeCacheModel.STORAGE_KEY);
@@ -444,7 +449,7 @@ class UserDatabaseUpgrader {
         return true;
     }
 
-    private boolean upgradeTwelveThirteen(SQLiteDatabase db) {
+    private boolean upgradeTwelveThirteen(IDatabase db) {
         db.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
@@ -464,7 +469,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeThirteenFourteen(SQLiteDatabase db) {
+    private boolean upgradeThirteenFourteen(IDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<FormRecordV2> formRecordSqlStorage = new SqlStorage<>(
@@ -486,7 +491,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
+    private boolean upgradeFourteenFifteen(IDatabase db) {
         db.beginTransaction();
         try {
             IndexedFixturePathUtils.createStorageBackedFixtureIndexTableV15(db);
@@ -497,7 +502,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeFifteenSixteen(SQLiteDatabase db) {
+    private boolean upgradeFifteenSixteen(IDatabase db) {
         db.beginTransaction();
         try {
             String typeFirstIndexId = "NAME_TARGET_RECORD";
@@ -516,7 +521,7 @@ class UserDatabaseUpgrader {
      * submissions. Since submissions were previously ordered by the last modified property,
      * set the new form numbers in this order.
      */
-    private boolean upgradeSixteenSeventeen(SQLiteDatabase db) {
+    private boolean upgradeSixteenSeventeen(IDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<FormRecordV2> oldStorage = new SqlStorage<>(
@@ -552,7 +557,7 @@ class UserDatabaseUpgrader {
     /**
      * Add index on owner ID to case db
      */
-    private boolean upgradeSeventeenEighteen(SQLiteDatabase db) {
+    private boolean upgradeSeventeenEighteen(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
@@ -573,7 +578,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
+    private boolean upgradeEighteenNineteen(IDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
@@ -588,7 +593,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeNineteenTwenty(SQLiteDatabase db) {
+    private boolean upgradeNineteenTwenty(IDatabase db) {
         db.beginTransaction();
         try {
             Set<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNamesAsSet(db);
@@ -609,7 +614,7 @@ class UserDatabaseUpgrader {
     }
 
 
-    private boolean upgradeTwentyTwentyOne(SQLiteDatabase db) {
+    private boolean upgradeTwentyTwentyOne(IDatabase db) {
         db.beginTransaction();
         try {
             UserDbUpgradeUtils.addRelationshipToAllCases(c, db);
@@ -622,7 +627,7 @@ class UserDatabaseUpgrader {
 
     }
 
-    private boolean upgradeTwentyOneTwentyTwo(SQLiteDatabase db) {
+    private boolean upgradeTwentyOneTwentyTwo(IDatabase db) {
         //drop the existing table and recreate using current definition
         db.beginTransaction();
         try {
@@ -635,7 +640,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
+    private boolean upgradeTwentyTwoTwentyThree(IDatabase db) {
         // drop the existing table and recreate using current definition
         boolean success;
         Vector<Uri> migratedInstances;
@@ -666,7 +671,7 @@ class UserDatabaseUpgrader {
     /**
      * Add external_id index to Case table
      */
-    private boolean upgradeTwentyThreeTwentyFour(SQLiteDatabase db) {
+    private boolean upgradeTwentyThreeTwentyFour(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
@@ -688,7 +693,7 @@ class UserDatabaseUpgrader {
     }
 
     // check for integrity of SSD records and wipes the whole table in case of any discrepancy
-    private boolean upgradeTwentyFourTwentyFive(SQLiteDatabase db) {
+    private boolean upgradeTwentyFourTwentyFive(IDatabase db) {
         db.beginTransaction();
         try {
             boolean strandedRecordObserved = false;
@@ -730,7 +735,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeTwentyFiveTwentySix(SQLiteDatabase db) {
+    private boolean upgradeTwentyFiveTwentySix(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
@@ -745,7 +750,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean updateTwentySixTwentySeven(SQLiteDatabase db) {
+    private boolean updateTwentySixTwentySeven(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
@@ -763,7 +768,7 @@ class UserDatabaseUpgrader {
     /**
      * Add category and state index to Case table
      */
-    private boolean updateTwentySevenTwentyEight(SQLiteDatabase db) {
+    private boolean updateTwentySevenTwentyEight(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
@@ -784,6 +789,19 @@ class UserDatabaseUpgrader {
                     "case_category_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CATEGORY)));
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_state_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_STATE)));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean updateTwentyEightTwentyNine(IDatabase db) {
+        //drop the existing table and recreate using current definition
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + CommCareEntityStorageCache.TABLE_NAME);
+            db.execSQL(CommCareEntityStorageCache.getTableDefinition());
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -823,7 +841,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private void markSenseIncompleteUnsent(final SQLiteDatabase db) {
+    private void markSenseIncompleteUnsent(final IDatabase db) {
         //Fix for Bug in 2.7.0/1, forms in sense mode weren't being properly marked as complete after entry.
         if (inSenseMode) {
             //Get form record storage

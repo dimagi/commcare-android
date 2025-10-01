@@ -23,6 +23,8 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.GlobalPrivilegesManager;

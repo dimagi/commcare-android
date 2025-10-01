@@ -1,22 +1,33 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.ConnectJobHelper;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.NavDrawerHelper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ApkDependenciesUtils;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -33,24 +44,26 @@ public class StandardHomeActivity
 
     private static final String TAG = StandardHomeActivity.class.getSimpleName();
 
-    // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
-    public static final int MENU_UPDATE = Menu.FIRST + 1;
-    public static final int MENU_SAVED_FORMS = Menu.FIRST + 2;
-    public static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 3;
-    public static final int MENU_PREFERENCES = Menu.FIRST + 4;
-    public static final int MENU_ADVANCED = Menu.FIRST + 5;
-    public static final int MENU_ABOUT = Menu.FIRST + 6;
-    public static final int MENU_PIN = Menu.FIRST + 7;
-    public static final int MENU_UPDATE_COMMCARE = Menu.FIRST + 8;
-
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
+    private Map<Integer, String> menuIdToAnalyticsParam;
+    private boolean personalIdManagedLogin = false;
+
+    private boolean rootContainerReadyToShowDrawer = false;
+
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+        personalIdManagedLogin = getIntent()
+                .getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+    }
+
+    @Override
+    public void onResumeSessionSafe() {
+        super.onResumeSessionSafe();
     }
 
     void enterRootModule() {
@@ -102,7 +115,6 @@ public class StandardHomeActivity
                                 NotificationMessageFactory.StockMessages.Sync_NoConnections,
                                 AIRPLANE_MODE_CATEGORY));
             }
-
             FirebaseAnalyticsUtil.reportSyncResult(
                     false,
                     AnalyticsParamValue.SYNC_TRIGGER_USER,
@@ -110,12 +122,13 @@ public class StandardHomeActivity
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
+        fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
 
     void syncSubTextPressed() {
-        if(CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             CommCareNoficationManager.performIntentCalloutToNotificationsView(this);
         }
     }
@@ -124,50 +137,44 @@ public class StandardHomeActivity
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
+        uiController.updateConnectJobProgress();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_app_home, menu);
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
+        menu.findItem(R.id.action_update).setTitle(Localization.get("home.menu.update"));
+        menu.findItem(R.id.action_saved_forms).setTitle(Localization.get("home.menu.saved.forms"));
+        menu.findItem(R.id.action_change_language).setTitle(Localization.get("home.menu.locale.change"));
+        menu.findItem(R.id.action_about).setTitle(Localization.get("home.menu.about"));
+        menu.findItem(R.id.action_advanced).setTitle(Localization.get("home.menu.advanced"));
+        menu.findItem(R.id.action_preferences).setTitle(Localization.get("home.menu.settings"));
+        menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.set"));
+        menu.findItem(R.id.action_update_commcare).setTitle(Localization.get("home.menu.update.commcare"));
 
-        menu.add(0, MENU_UPDATE, 0, Localization.get("home.menu.update")).setIcon(
-                android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
-                android.R.drawable.ic_menu_save);
-        menu.add(0, MENU_CHANGE_LANGUAGE, 0, Localization.get("home.menu.locale.change")).setIcon(
-                android.R.drawable.ic_menu_set_as);
-        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
-                android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_ADVANCED, 0, Localization.get("home.menu.advanced")).setIcon(
-                android.R.drawable.ic_menu_edit);
-        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
-                android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
-        menu.add(0, MENU_UPDATE_COMMCARE, 0, Localization.get("home.menu.update.commcare"));
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
-
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
-        menu.findItem(MENU_UPDATE).setVisible(enableMenus);
-        menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
-        menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(true);
-        menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
-        menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
-        menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-        menu.findItem(MENU_UPDATE_COMMCARE).setVisible(enableMenus && showCommCareUpdateMenu);
+        menu.findItem(R.id.action_update).setVisible(enableMenus);
+        menu.findItem(R.id.action_saved_forms).setVisible(enableMenus);
+        menu.findItem(R.id.action_change_language).setVisible(true);
+        menu.findItem(R.id.action_preferences).setVisible(enableMenus);
+        menu.findItem(R.id.action_advanced).setVisible(enableMenus);
+        menu.findItem(R.id.action_about).setVisible(enableMenus);
+        menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
         preparePinMenu(menu, enableMenus);
         return true;
     }
 
     private static void preparePinMenu(Menu menu, boolean enableMenus) {
         boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
-        menu.findItem(MENU_PIN).setVisible(pinEnabled);
+        menu.findItem(R.id.action_set_pin).setVisible(pinEnabled);
         boolean hasPinSet = false;
 
         try {
@@ -177,65 +184,98 @@ public class StandardHomeActivity
         }
 
         if (hasPinSet) {
-            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
+            menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.change"));
         } else {
-            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
+            menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.set"));
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-
-        switch (item.getItemId()) {
-            case MENU_UPDATE:
-                launchUpdateActivity(false);
-                return true;
-            case MENU_SAVED_FORMS:
-                goToFormArchive(false);
-                return true;
-            case MENU_CHANGE_LANGUAGE:
-                showLocaleChangeMenu(uiController);
-                return true;
-            case MENU_PREFERENCES:
-                createPreferencesMenu(this);
-                return true;
-            case MENU_ADVANCED:
-                showAdvancedActionsPreferences();
-                return true;
-            case MENU_ABOUT:
-                showAboutCommCareDialog();
-                return true;
-            case MENU_PIN:
-                launchPinAuthentication();
-                return true;
-            case MENU_UPDATE_COMMCARE:
-                startCommCareUpdate();
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_update) {
+            launchUpdateActivity(false);
+            return true;
+        } else if (itemId == R.id.action_saved_forms) {
+            goToFormArchive(false);
+            return true;
+        } else if (itemId == R.id.action_change_language) {
+            showLocaleChangeMenu(uiController);
+            return true;
+        } else if (itemId == R.id.action_preferences) {
+            createPreferencesMenu(this);
+            return true;
+        } else if (itemId == R.id.action_advanced) {
+            showAdvancedActionsPreferences();
+            return true;
+        } else if (itemId == R.id.action_about) {
+            showAboutCommCareDialog();
+            return true;
+        } else if (itemId == R.id.action_set_pin) {
+            launchPinAuthentication();
+            return true;
+        } else if (itemId == R.id.action_update_commcare) {
+            startCommCareUpdate();
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(MENU_UPDATE,
+        menuIdToAnalyticsEvent.put(R.id.action_update,
                 AnalyticsParamValue.ITEM_UPDATE_CC);
-        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS,
+        menuIdToAnalyticsEvent.put(R.id.action_saved_forms,
                 AnalyticsParamValue.ITEM_SAVED_FORMS);
-        menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE,
+        menuIdToAnalyticsEvent.put(R.id.action_change_language,
                 AnalyticsParamValue.ITEM_CHANGE_LANGUAGE);
-        menuIdToAnalyticsEvent.put(MENU_PREFERENCES,
+        menuIdToAnalyticsEvent.put(R.id.action_preferences,
                 AnalyticsParamValue.ITEM_SETTINGS);
-        menuIdToAnalyticsEvent.put(MENU_ADVANCED,
+        menuIdToAnalyticsEvent.put(R.id.action_advanced,
                 AnalyticsParamValue.ITEM_ADVANCED_ACTIONS);
-        menuIdToAnalyticsEvent.put(MENU_ABOUT,
+        menuIdToAnalyticsEvent.put(R.id.action_about,
                 AnalyticsParamValue.ITEM_ABOUT_CC);
-        menuIdToAnalyticsEvent.put(MENU_UPDATE_COMMCARE,
+        menuIdToAnalyticsEvent.put(R.id.action_update_commcare,
                 AnalyticsParamValue.ITEM_UPDATE_CC_PLATFORM);
         return menuIdToAnalyticsEvent;
+    }
+
+    @Override
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case COMMCARE_APPS -> {
+                if(recordId != null) {
+                    String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    if(!recordId.equals(currentSeatedId)) {
+                        //Navigate to LoginActivity for selected app
+                        CommCareApplication.instance().closeUserSession();
+                        Intent i = new Intent();
+                        i.putExtra(EXTRA_APP_ID, recordId);
+                        setResult(RESULT_OK, i);
+                        finish();
+                    }
+                }
+            }
+            case OPPORTUNITIES -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
+                    closeDrawer();
+                } else {
+                    navigateToConnectMenu();
+                }
+            }
+            case MESSAGING -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToMessaging(this);
+                    closeDrawer();
+                } else {
+                    navigateToMessaging();
+                }
+            }
+        }
     }
 
     @Override
@@ -252,7 +292,8 @@ public class StandardHomeActivity
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend,
                                      boolean usingRemoteKeyManagement) {
-        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
+        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend,
+                usingRemoteKeyManagement);
         uiController.refreshView();
     }
 
@@ -266,6 +307,41 @@ public class StandardHomeActivity
         return false;
     }
 
+
+    /**
+     * Its not good idea to have such patches but its seems like no choice here.
+     * BaseDrawerActivity is trying to add the drawer before root view of this activity is created. Reason for this is
+     * this home activity is going through lot of process for sessions and then creating root view from `home_screen.xml`
+     * @param status
+     */
+    protected void toggleDrawerSetUp(boolean status){
+        this.rootContainerReadyToShowDrawer = status;
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+
+        if(!rootContainerReadyToShowDrawer) return false;   // wait for root content to get load through xml
+
+
+        if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
+            return true;
+        }
+
+        boolean showDrawer = PersonalIdManager.getInstance().isloggedIn();
+
+        if(showDrawer) {
+            NavDrawerHelper.INSTANCE.setDrawerShown();
+        }
+
+        return showDrawer;
+    }
+
+    @Override
+    protected boolean shouldHighlightSeatedApp() {
+        return true;
+    }
+
     @Override
     public void refreshUI() {
         uiController.refreshView();
@@ -274,5 +350,20 @@ public class StandardHomeActivity
     @Override
     void refreshCCUpdateOption() {
         invalidateOptionsMenu();
+    }
+
+    public void fetchJobProgressOverNetwork() {
+        ConnectJobRecord job = getActiveJob();
+        if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
+                if (success) {
+                    uiController.updateConnectJobProgress();
+                }
+            });
+        }
+    }
+
+    public ConnectJobRecord getActiveJob() {
+        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
     }
 }

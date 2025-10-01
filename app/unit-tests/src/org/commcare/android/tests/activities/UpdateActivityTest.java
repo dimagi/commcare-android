@@ -47,6 +47,7 @@ public class UpdateActivityTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/update_tests/base_app/profile.ccpr",
                 "test", "123");
+        ((CommCareTestApplication)CommCareTestApplication.instance()).initWorkManager();
     }
 
     /**

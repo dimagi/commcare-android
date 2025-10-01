@@ -147,7 +147,9 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     protected void togglePlayButton(boolean enabled) {
-        mPlayButton.setEnabled(enabled);
+        if (mPlayButton != null) {
+            mPlayButton.setEnabled(enabled);
+        }
     }
 
     protected abstract void initializeButtons();
@@ -238,19 +240,29 @@ public abstract class MediaWidget extends QuestionWidget {
     @Override
     public void unsetListeners() {
         super.unsetListeners();
-
-        mCaptureButton.setOnLongClickListener(null);
+        
+        // Checks necessary for DocumentWidget, which only initializes the mChooseButton
+        if (mCaptureButton != null) {
+            mCaptureButton.setOnLongClickListener(null);
+        }
         mChooseButton.setOnLongClickListener(null);
-        mPlayButton.setOnLongClickListener(null);
+        if (mPlayButton != null) {
+            mPlayButton.setOnLongClickListener(null);
+        }
     }
 
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
-
-        mCaptureButton.cancelLongPress();
+        
+        // Checks necessary for DocumentWidget, which only initializes the mChooseButton
+        if (mCaptureButton != null) {
+            mCaptureButton.cancelLongPress();
+        }
         mChooseButton.cancelLongPress();
-        mPlayButton.cancelLongPress();
+        if (mPlayButton != null) {
+            mPlayButton.cancelLongPress();
+        }
     }
 
     @Override

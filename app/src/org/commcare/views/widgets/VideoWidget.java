@@ -46,7 +46,7 @@ public class VideoWidget extends MediaWidget {
                     Video.Media.EXTERNAL_CONTENT_URI.toString());
             try {
                 ((AppCompatActivity)getContext()).startActivityForResult(i,
-                        FormEntryConstants.AUDIO_VIDEO_FETCH);
+                        FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),
@@ -64,11 +64,10 @@ public class VideoWidget extends MediaWidget {
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(v -> {
-            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-            i.setType("video/*");
             try {
-                ((AppCompatActivity)getContext()).startActivityForResult(i,
-                        FormEntryConstants.AUDIO_VIDEO_FETCH);
+                ((AppCompatActivity)getContext())
+                        .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "video/*"),
+                                FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <include layout="@layout/grid_header_top_banner"/>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@color/connect_light_grey" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:text="@string/personalid_photo_capture_title"
+            android:textColor="@color/connect_blue_color"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:text="@string/personalid_photo_capture_subtitle"
+            android:textColor="@color/connect_subtext"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <ImageView
+            android:id="@+id/photo_image_view"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:contentDescription="@null"
+            android:src="@drawable/baseline_person_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/take_photo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:text="@string/personalid_photo_capture_take_photo_button" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save_photo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:enabled="false"
+            android:text="@string/personalid_photo_capture_save_photo_button" />
+
+        <TextView
+            android:id="@+id/errorTextView"
+            tools:text="Error uploading photo"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@android:color/holo_red_light"
+            android:visibility="gone"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</layout>

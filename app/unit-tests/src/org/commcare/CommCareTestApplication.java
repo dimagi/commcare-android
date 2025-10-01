@@ -6,6 +6,9 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 
+import androidx.work.Configuration;
+
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -17,11 +20,15 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
-import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.models.database.UnencryptedDatabaseAdapter;
+import org.commcare.models.database.app.DatabaseAppOpenHelperMock;
+import org.commcare.models.database.global.DatabaseGlobalOpenHelperMock;
+import org.commcare.models.database.user.DatabaseUserOpenHelperMock;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
@@ -43,10 +50,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.work.WorkManager;
+
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -62,10 +70,10 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private static final String TAG = CommCareTestApplication.class.getSimpleName();
     private static PrototypeFactory testPrototypeFactory;
     private static final ArrayList<String> factoryClassNames = new ArrayList<>();
-
     private String cachedUserPassword;
 
     private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
+    private boolean skipWorkManager = false;
 
     @Override
     public void onCreate() {
@@ -76,7 +84,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
-
         Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
@@ -86,6 +93,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     protected void attachISRGCert() {
         //overrule this custom loader due to issues with bootstrapping the library
     }
+
     @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -93,6 +101,20 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 .detectLeakedClosableObjects()
                 .penaltyLog()
                 .build());
+    }
+
+
+    public void initWorkManager() {
+        Context context = ApplicationProvider.getApplicationContext();
+        try {
+            // first try to get instance to see if it's already initialised
+            WorkManager.getInstance(context);
+        } catch (IllegalStateException e) {
+            Configuration config = new Configuration.Builder()
+                    .setMinimumLoggingLevel(Log.DEBUG)
+                    .build();
+            WorkManager.initialize(context, config);
+        }
     }
 
     @Override
@@ -141,8 +163,10 @@ public class CommCareTestApplication extends CommCareApplication implements Test
      */
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
-            String[] baseODK = new String[]{BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
-                        , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
+            String[] baseODK = new String[]{BuildConfig.BUILD_DIR
+                    + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
+                    , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"
+                    , BuildConfig.BUILD_DIR + "/tmp/kotlin-classes/commcareDebug/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 
@@ -252,6 +276,13 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void afterTest(Method method) {
+        CommCareApp app = getCurrentApp();
+        if(app != null) {
+            app.teardownSandbox();
+        }
+
+        ConnectDatabaseHelper.teardown();
+
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
                 throwable.printStackTrace();
@@ -300,5 +331,29 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public boolean isNsdServicesEnabled() {
         return false;
+    }
+
+    public void setSkipWorkManager() {
+        skipWorkManager = true;
+    }
+
+    @Override
+    public IDatabase getGlobalDbOpenHelper() {
+        return new UnencryptedDatabaseAdapter(new DatabaseGlobalOpenHelperMock(this));
+    }
+
+    @Override
+    public IDatabase getUserDbOpenHelper(String userKeyRecordId, String key) {
+        return new UnencryptedDatabaseAdapter(new DatabaseUserOpenHelperMock(this, userKeyRecordId));
+    }
+
+    @Override
+    public IDatabase getUserDbOpenHelperFromFile(String path, String password) {
+        return new UnencryptedDatabaseAdapter(path);
+    }
+
+    @Override
+    public IDatabase getAppDbOpenHelper(String appId) {
+        return new UnencryptedDatabaseAdapter(new DatabaseAppOpenHelperMock(this, appId));
     }
 }

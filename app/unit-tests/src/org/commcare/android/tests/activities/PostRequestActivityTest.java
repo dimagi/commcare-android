@@ -61,11 +61,13 @@ import java.util.HashMap;
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
 public class PostRequestActivityTest {
+
     @Before
     public void setup() {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/case_search_and_claim/profile.ccpr",
                 "test", "123");
+        ((CommCareTestApplication)CommCareTestApplication.instance()).initWorkManager();
     }
 
     @Test

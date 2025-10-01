@@ -1,7 +1,10 @@
 package org.commcare.views.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -21,6 +24,8 @@ import org.commcare.preferences.MainConfigurablePreferences;
 
 public class WidgetUtils {
     private static final TableLayout.LayoutParams params;
+    private static final String INVALID_XML1_CHARACTERS_REGEX = "[\u001D]";
+    private static final String REPLACEMENT_CHARACTER = "\uFFFD";
 
     static {
         params = new TableLayout.LayoutParams();
@@ -61,7 +66,7 @@ public class WidgetUtils {
      */
     public static Intent createScanIntent(Context context, String... formats) {
         if (MainConfigurablePreferences.useIntentCalloutForScanner()) {
-            Intent scanIntent = new Intent(Intents.Scan.ACTION);
+            Intent scanIntent = new Intent(Intents.Scan.ACTION).addCategory(Intent.CATEGORY_DEFAULT);
             if (scanIntent.resolveActivity(context.getPackageManager()) != null) {
                 if (formats != null) {
                     scanIntent.putExtra(Intents.Scan.FORMATS, TextUtils.join(",", formats));
@@ -74,5 +79,42 @@ public class WidgetUtils {
             intentIntegrator.setDesiredBarcodeFormats(formats);
         }
         return intentIntegrator.createScanIntent();
+    }
+
+    @SuppressLint("InlinedApi")
+    public static Intent createPickMediaIntent(Context context, String mimeType) {
+        if (mimeType.equals("application/*,text/*")) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            String [] mimeTypes = {"application/*", "text/*"};
+            intent.setType("*/*");
+            return intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        }
+        Intent intent = new Intent();
+        if (isPhotoPickerSupported(context)) {
+            intent.setAction(MediaStore.ACTION_PICK_IMAGES);
+        } else {
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+        }
+        return intent.setType(mimeType);
+    }
+
+    @SuppressLint("InlinedApi")
+    public static boolean isPhotoPickerSupported(Context context) {
+        Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+        PackageManager packageManager = context.getPackageManager();
+        return intent.resolveActivity(packageManager) != null;
+    }
+
+    /**
+     * Sanitizes XML by replacing characters that are invalid under the XML 1.0 spec with a replacement character
+     * This is ensures that XML data is well-formed and does not contain characters that would cause parsing
+     * errors
+     *
+     * @param xml The XML string to sanitize.
+     * @return The sanitized XML string.
+     */
+    public static String sanitizeXml(String xml) {
+        return xml.replaceAll(INVALID_XML1_CHARACTERS_REGEX, REPLACEMENT_CHARACTER);
     }
 }

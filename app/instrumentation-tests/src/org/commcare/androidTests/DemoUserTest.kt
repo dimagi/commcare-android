@@ -21,12 +21,12 @@ abstract class DemoUserTest: BaseTest() {
         // Enter practice mode
         enterPracticeMode()
 
-        onView(withId(R.id.home_gridview_buttons))
+        onView(withId(R.id.nsv_home_screen))
                 .perform(swipeUp())
         withText("Logged In: demo.user.test").isDisplayed()
 
         // Confirm that the right restore has been used
-        onView(withId(R.id.home_gridview_buttons))
+        onView(withId(R.id.nsv_home_screen))
                 .perform(swipeDown())
         openForm("Case List", "Followup")
 
@@ -54,12 +54,12 @@ abstract class DemoUserTest: BaseTest() {
         // Enter practice mode
         enterPracticeMode()
 
-        onView(withId(R.id.home_gridview_buttons))
+        onView(withId(R.id.nsv_home_screen))
                 .perform(swipeUp())
         withText("Logged In: demo.user.test.2").isDisplayed()
 
         // Confirm that the right restore has been used
-        onView(withId(R.id.home_gridview_buttons))
+        onView(withId(R.id.nsv_home_screen))
                 .perform(swipeDown())
         openForm("Case List", "Followup")
         matchListItems(arrayOf("balloon", "block", "bear"))

@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -19,7 +18,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-public class CommCarePreferenceActivity extends AppCompatActivity {
+public class CommCarePreferenceActivity extends CommonBaseActivity {
 
     public static final String EXTRA_PREF_TYPE = "extra_pref_type";
 

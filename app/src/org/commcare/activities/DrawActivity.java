@@ -41,7 +41,7 @@ import java.io.IOException;
  *
  * @author BehrAtherton@gmail.com
  */
-public class DrawActivity extends AppCompatActivity implements DrawView.Callback {
+public class DrawActivity extends CommonBaseActivity implements DrawView.Callback {
     private static final String t = "DrawActivity";
 
     public static final String OPTION = "option";
@@ -78,12 +78,11 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        getSupportActionBar().hide();
         Bundle extras = getIntent().getExtras();
 
         if (extras == null) {
@@ -320,7 +319,7 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
 
         dialog.addButton(getString(R.string.cancel), v -> dialog.dismiss());
 
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(this);
     }
 
     @Override

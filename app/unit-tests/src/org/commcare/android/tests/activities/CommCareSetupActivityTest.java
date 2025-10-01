@@ -56,7 +56,7 @@ public class CommCareSetupActivityTest {
 
         // click the 'offline install' menu item
         ShadowActivity shadowActivity = Shadows.shadowOf(setupActivity);
-        shadowActivity.clickMenuItem(CommCareSetupActivity.MENU_ARCHIVE);
+        shadowActivity.clickMenuItem(CommCareSetupActivity.MENU_OFFLINE_INSTALL);
 
         // make sure there are no pinned notifications
         NotificationManager notificationManager =

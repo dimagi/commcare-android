@@ -8,7 +8,8 @@ import org.commcare.activities.DataPullController;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.data.xml.TransactionParser;
+import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.UserSandboxUtils;
@@ -25,7 +26,6 @@ import org.commcare.xml.KeyRecordParser;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.kxml2.io.KXmlParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -207,6 +207,19 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|captive portal detected");
                 receiver.raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
                 break;
+            case InsufficientRolePermission:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|insufficient role permission");
+                receiver.raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
+                break;
+            case TokenUnavailable:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|token unavailable");
+                receiver.raiseLoginMessage(StockMessages.TokenUnavailable, true);
+                break;
+            case TokenRequestDenied:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|token request denied");
+                receiver.raiseLoginMessage(StockMessages.TokenDenied, true);
+                break;
+
             default:
                 break;
         }
@@ -333,7 +346,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
     @Override
-    protected Response<ResponseBody> doHttpRequest() throws IOException {
+    protected Response<ResponseBody> doHttpRequest() throws IOException, TokenDeniedException, TokenUnavailableException {
         CommcareRequestGenerator requestor = new CommcareRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }

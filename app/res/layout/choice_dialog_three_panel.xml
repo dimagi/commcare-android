@@ -26,6 +26,7 @@
 
         <Button
             android:id="@+id/choice_dialog_panel_1"
+            android:textColor="@color/black"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -37,6 +38,7 @@
 
         <Button
             android:id="@+id/choice_dialog_panel_2"
+            android:textColor="@color/black"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -50,6 +52,7 @@
 
         <Button
             android:id="@+id/choice_dialog_panel_3"
+            android:textColor="@color/black"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

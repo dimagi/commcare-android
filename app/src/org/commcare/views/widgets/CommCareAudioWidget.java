@@ -80,7 +80,7 @@ public class CommCareAudioWidget extends AudioWidget
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.setType("audio/*");
             try {
-                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),

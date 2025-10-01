@@ -25,6 +25,7 @@ def buildTestCommand(appToken, testToken, classes=None):
     test["project"] = "CommCare"
     test["app"] = appToken
     test["deviceLogs"] = True
+    test["disableAnimations"] = True
     test["testSuite"] = testToken
     test["networkLogs"] = True
     test["annotation"] = ["org.commcare.annotations.BrowserstackTests"]

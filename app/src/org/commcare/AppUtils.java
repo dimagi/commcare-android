@@ -1,7 +1,5 @@
 package org.commcare;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -13,7 +11,7 @@ import org.commcare.heartbeat.ApkVersion;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.user.UserDatabaseSchemaManager;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.LogTypes;
@@ -27,7 +25,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,6 +56,14 @@ public class AppUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * @param appId - the uniqueId of the ApplicationRecord being sought
+     * @return true if an ApplicationRecord with the given id exists, false otherwise
+     */
+    public static boolean isAppInstalled(String appId) {
+        return getAppById(appId) != null;
     }
 
     /**
@@ -128,7 +133,7 @@ public class AppUtils {
 
         // Wipe the user db for all matching UKRs
         for (String id : dbIdsToRemove) {
-            CommCareApplication.instance().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
+            CommCareApplication.instance().getDatabasePath(UserDatabaseSchemaManager.getDbName(id)).delete();
         }
     }
 
@@ -173,9 +178,7 @@ public class AppUtils {
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
         return Localization.get(application.getString(R.string.app_version_string), new String[]{
-                BuildConfig.VERSION_NAME,
-                String.valueOf(BuildConfig.VERSION_CODE),
-                ccv, buildNumber, buildDate, profileVersion});
+                ccv, String.valueOf(BuildConfig.VERSION_CODE), ccv, buildNumber, buildDate, profileVersion});
     }
 
     public static String getCurrentAppId() {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/connect_fragment_jobs_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/connect_background_color"
+    tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
+
+    <TextView
+        android:id="@+id/connect_no_jobs_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="40dp"
+        android:text="@string/connect_no_jobs"
+        android:textAlignment="center"
+        android:textColor="@color/blue"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textStyle="bold"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvJobList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_login_connect_home_apps" />
+</androidx.constraintlayout.widget.ConstraintLayout>

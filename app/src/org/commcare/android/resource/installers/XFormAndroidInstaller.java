@@ -32,6 +32,7 @@ import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.XPathException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
@@ -95,7 +96,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         FormDef formDef;
         try (InputStream inputStream = local.getStream()) {
             formDef = XFormExtensionUtils.getFormFromInputStream(inputStream);
-        } catch (XFormParseException xfpe) {
+        } catch (XFormParseException | XPathException xfpe) {
             throw new InvalidResourceException(r.getDescriptor(), xfpe.getMessage());
         }
 
