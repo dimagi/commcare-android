@@ -142,4 +142,13 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     public CommCareApp getApp() {
         return app;
     }
+
+    public void initializeProfile() throws ResourceInitializationException {
+        ResourceTable global = getGlobalResourceTable();
+        Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        if (profile == null) {
+            throw new IllegalStateException("No profile found in global resource table");
+        }
+        global.attemptResourceInitialization(this, false, profile, new Vector<>());
+    }
 }

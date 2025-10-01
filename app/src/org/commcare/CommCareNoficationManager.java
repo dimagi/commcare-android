@@ -68,10 +68,8 @@ public class CommCareNoficationManager {
                 // The PendingIntent to launch our activity if the user selects this notification
                 Intent i = new Intent(context, MessageActivity.class);
 
-                int intentFlags = 0;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    intentFlags = PendingIntent.FLAG_IMMUTABLE;
-                PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, intentFlags);
+                PendingIntent contentIntent =
+                        PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE);
 
                 String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
                 Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
@@ -80,7 +78,8 @@ public class CommCareNoficationManager {
                         .setSmallIcon(R.drawable.commcare_actionbar_logo)
                         .setNumber(pendingMessages.size())
                         .setContentIntent(contentIntent)
-                        .setDeleteIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, NotificationClearReceiver.class), intentFlags))
+                        .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
+                                new Intent(context, NotificationClearReceiver.class), PendingIntent.FLAG_IMMUTABLE))
                         .setOngoing(true)
                         .setWhen(System.currentTimeMillis())
                         .build();

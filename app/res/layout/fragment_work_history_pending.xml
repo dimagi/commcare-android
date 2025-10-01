@@ -1,29 +1,26 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.commcare.fragments.personalId.EarnedCredentialFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="org.commcare.fragments.personalId.WorkHistoryPendingFragment">
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvNoCredentialsAvailable"
-        android:layout_width="match_parent"
+        android:id="@+id/tvNoPendingWorkHistory"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
         android:layout_marginTop="10dp"
-        android:background="@color/personal_id_credentials_earned"
-        android:drawableEnd="@drawable/ic_close_yellow"
-        android:gravity="start"
-        android:lineSpacingExtra="10dp"
-        android:padding="20dp"
-        android:text="@string/personalid_credential_no_credentials_currently_available"
-        android:textColor="@color/connect_yellow_dot"
+        android:textColor="@color/black"
         android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        android:text="@string/personalid_work_history_no_pending_records"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvEarnedCredential"
+        android:id="@+id/rvPendingWorkHistory"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
@@ -34,6 +31,7 @@
         tools:itemCount="3"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
-        tools:listitem="@layout/item_earned_credential" />
+        android:layout_marginHorizontal="15dp"
+        tools:listitem="@layout/item_pending_credential" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

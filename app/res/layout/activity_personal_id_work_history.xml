@@ -7,7 +7,7 @@
     android:background="@color/white">
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_credentials"
+        android:id="@+id/tab_work_history"
         android:layout_width="match_parent"
         android:backgroundTint="@color/white"
         android:layout_height="?actionBarSize"
@@ -26,13 +26,13 @@
         app:tabTextColor="@color/connect_grey" />
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vpCredentials"
+        android:id="@+id/vp_work_history"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tab_credentials" />
+        app:layout_constraintTop_toBottomOf="@id/tab_work_history" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvLearnMore"
@@ -44,7 +44,7 @@
         android:drawablePadding="10dp"
         android:paddingHorizontal="20dp"
         android:paddingVertical="10dp"
-        android:text="@string/personalid_credential_learn_more_about_credentials"
+        android:text="@string/personalid_work_history_learn_more"
         android:textColor="@color/white"
         android:textSize="15sp"
         app:drawableTint="@color/white"

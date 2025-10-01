@@ -10,6 +10,7 @@ import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.DbUtil;
+import org.javarosa.core.services.Logger;
 
 import static org.commcare.models.database.app.AppDatabaseSchemaManager.DB_VERSION_APP;
 import static org.commcare.models.database.app.AppDatabaseSchemaManager.getDbName;
@@ -44,6 +45,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         try {
             return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
+            Logger.exception("Opening database failed", sqle);
             DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mAppId));
             return super.getWritableDatabase();
         }

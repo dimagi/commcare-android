@@ -26,6 +26,7 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_FULL;
@@ -391,6 +392,16 @@ public class FirebaseAnalyticsUtil {
                 new String[]{CORRUPT_APP_STATE});
     }
 
+    /**
+     *  Report when an RSA key is successfully retrieved from the keystore. This is to assess how many devices
+     *  are using RSA keys, to then plan the deprecation of the RsaKeyStoreHandler.
+     */
+    public static void reportRsaKeyUse() {
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{RSA_KEYSTORE_KEY_RETRIEVAL});
+    }
+
     public static void reportFormQuarantined(String quarantineReasonType) {
         reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
@@ -409,9 +420,19 @@ public class FirebaseAnalyticsUtil {
                 new String[]{String.valueOf(first), String.valueOf(second)});
     }
 
-    public static void reportPersonalIdIntegritySubmission(String requestId, String responseCode) {
+    public static void reportPersonalIdConfigurationIntegritySubmission(String responseCode) {
+        String label = "PersonalID Configuration";
+        reportPersonalIdIntegritySubmission(label, label, responseCode);
+    }
+
+    public static void reportPersonalIdHeartbeatIntegritySubmission(String requestId, String responseCode) {
+        reportPersonalIdIntegritySubmission("Heartbeat", requestId, responseCode);
+    }
+
+    public static void reportPersonalIdIntegritySubmission(String trigger, String requestId, String responseCode) {
         Bundle b = new Bundle();
         b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
+        b.putString(CCAnalyticsParam.TRIGGER, trigger);
         b.putString(CCAnalyticsParam.RESULT_CODE, responseCode);
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_INTEGRITY_REPORTED, b);
     }

@@ -75,17 +75,17 @@ public class ConnectDatabaseUtils {
     public static byte[] getConnectDbPassphrase(Context context, boolean isLocal) {
         try {
             ConnectKeyRecord record = ConnectDatabaseUtils.getKeyRecord(isLocal);
-            if (record != null) {
-                byte[] encrypted = Base64.decode(record.getEncryptedPassphrase());
-
-                EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false,
-                        SECRET_NAME);
-                EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForDecryption();
-                return EncryptionUtils.decrypt(encrypted, keyAndTransform.getKey(), keyAndTransform.getTransformation(), true);
-            } else {
-                CrashUtil.log("We don't find paraphrase in db");
-                throw new RuntimeException("We don't find a record in db to get passphrase");
+            if (record == null) {
+                return null;
             }
+
+            byte[] encrypted = Base64.decode(record.getEncryptedPassphrase());
+
+            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false,
+                    SECRET_NAME);
+            EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForDecryption();
+            return EncryptionUtils.decrypt(encrypted, keyAndTransform.getKey(),
+                    keyAndTransform.getTransformation(), true);
         } catch (Base64DecoderException | EncryptionUtils.EncryptionException e) {
             throw new RuntimeException(e);
         }
