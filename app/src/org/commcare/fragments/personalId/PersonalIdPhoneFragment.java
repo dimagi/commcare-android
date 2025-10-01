@@ -235,7 +235,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void onContinueClicked() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(PersonalIdPhoneFragment.class.getSimpleName(),null);
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
         enableContinueButton(false);
         startConfigurationRequest();
     }
