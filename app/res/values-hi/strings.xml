@@ -178,6 +178,7 @@ License.
     <string name="recovery_forms_send_failure">फॉर्म जमा करते समय त्रुटियां हुईं।</string>
     <string name="recovery_forms_send_parital_success">फॉर्म भेजते समय त्रुटियां हुईं। केवल %s भेजे गए थे। कृपया बाद में पुनः प्रयास करें।</string>
     <string name="recovery_forms_send_network_error">खराब नेटवर्क के कारण फॉर्म भेजने में विफल रहा</string>
+    <string name="recovery_unable_to_claim_opportunity">अवसर का दावा करने में असमर्थ, कृपया एक व्यवस्थापक से संपर्क करें।</string>
     <string name="recovery_forms_send_error">फॉर्म भेजते समय त्रुटि</string>
     <string name="recovery_forms_state_unavailable">फॉर्म उपलब्ध नहीं हैं। जांचें कि आपके फ़ोन का संग्रहण स्थान उपलब्ध है।</string>
     <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</string>
@@ -467,24 +468,23 @@ License.
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
-    <string name="personalid_credential_my_worker_history">मेरा कार्य इतिहास</string>
-    <string name="personalid_credential">क्रेडेंशियल</string>
-    <string name="personalid_credential_worked_on">इस पर काम किया:</string>
-    <string name="personalid_credential_earned_on">इस पर अर्जित किया:</string>
-    <string name="personalid_credential_active_for">इसके लिए सक्रिय:</string>
-    <string name="personalid_credential_learn_more_about_credentials">क्रेडेंशियल्स के बारे में और जानें</string>
-    <string name="personalid_credential_view_credential">क्रेडेंशियल देखें</string>
-    <string name="personalid_credential_no_credentials_currently_available">वर्तमान में कोई क्रेडेंशियल उपलब्ध नहीं है। रीफ़्रेश करें पर क्लिक करें या बाद में फिर से देखें</string>
-    <string name="personalid_credential_earned">अर्जित</string>
-    <string name="personalid_credential_pending">लंबित</string>
-    <string name="personalid_credential_cloud_sync">क्लाउड सिंक</string>
-    <string name="personalid_credential_level_1_month_active">1 महीने की\nगतिविधि</string>
-    <string name="personalid_credential_level_2_month_active">2 महीने की\nगतिविधि</string>
-    <string name="personalid_credential_level_3_month_active">3 महीने की\nगतिविधि</string>
-    <string name="personalid_credential_level_6_month_active">6 महीने की\nगतिविधि</string>
-    <string name="personalid_credential_level_9_month_active">9 महीने की\nगतिविधि</string>
-    <string name="personalid_credential_level_12_month_active">12 महीने की\nगतिविधि</string>
-    <string name="personalid_credential_no_pending_credential">कोई भी क्रेडेंशियल लंबित नहीं हैं</string>
+    <string name="personalid_work_history_title">मेरा कार्य इतिहास</string>
+    <string name="personalid_work_history">कार्य इतिहास</string>
+    <string name="personalid_work_history_learn_more">क्रेडेंशियल्स के बारे में और जानें</string>
+    <string name="personalid_work_history_no_records_available">वर्तमान में कोई कार्य इतिहास रिकॉर्ड उपलब्ध नहीं है। रीफ़्रेश करें पर क्लिक करें या बाद में फिर से देखें</string>
+    <string name="personalid_work_history_earned">अर्जित</string>
+    <string name="personalid_work_history_pending">लंबित</string>
+    <string name="personalid_work_history_sync">सिंक</string>
+    <string name="personalid_work_history_level_1_month_active">1 महीने की\nगतिविधि</string>
+    <string name="personalid_work_history_level_2_month_active">2 महीने की\nगतिविधि</string>
+    <string name="personalid_work_history_level_3_month_active">3 महीने की\nगतिविधि</string>
+    <string name="personalid_work_history_level_6_month_active">6 महीने की\nगतिविधि</string>
+    <string name="personalid_work_history_level_9_month_active">9 महीने की\nगतिविधि</string>
+    <string name="personalid_work_history_level_12_month_active">12 महीने की\nगतिविधि</string>
+
+    <string name="personalid_notification">सूचनाएं</string>
+
+    <string name="personalid_work_history_no_pending_records">इस समय कोई लंबित रिकॉर्ड नहीं हैं</string>
 
     <string name="nav_drawer_signin_register">साइन इन / रजिस्टर</string>
     <string name="nav_drawer_help">सहायता</string>

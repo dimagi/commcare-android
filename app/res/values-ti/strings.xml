@@ -169,6 +169,7 @@
     <string name="recovery_forms_send_error">ቅጥዕታት ኣብ ምልኣክ ስሕተት ኣሎ</string>
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
+    <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እቲ ኣፕሊኬሽን ግዜኡ ዝሓለፎ ሰለዝኮነ ድሕሪ ሕጂ ምስቲ ሰርቨር ክራኸብ ኣይክእልን እዩ። በይዝኦም ኣብ Google Play Store ብምእታውነቲ ኣፕሊኬሽን የዘምንዎ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
     <string name="recovery_retry">ንናይ</string>
@@ -462,24 +463,23 @@
     <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
-    <string name="personalid_credential_my_worker_history">ታሪኽ ስራሐይ</string>
-    <string name="personalid_credential">ምስክር ወረቐት</string>
-    <string name="personalid_credential_worked_on">ዝሰርሓሉ:</string>
-    <string name="personalid_credential_earned_on">ዝተረኽበሉ:</string>
-    <string name="personalid_credential_active_for">ንጡፍ ዝኾነሉ:</string>
-    <string name="personalid_credential_learn_more_about_credentials">ብዛዕባ ምስክር ወረቐታት ዝበለጸ ፍለጥ</string>
-    <string name="personalid_credential_view_credential">ምስክር ወረቐት ርአ</string>
-    <string name="personalid_credential_no_credentials_currently_available">ኣብዚ እዋን እዚ ዝኾነ መረጋገጺ የለን። Refresh ዝብል ጠውቕ ወይ ድሒሩ ተመለስ</string>
-    <string name="personalid_credential_earned">ዝተረኽበ</string>
-    <string name="personalid_credential_pending">ኣብ ከይዲ ዘሎ</string>
-    <string name="personalid_credential_cloud_sync">ክላውድ ሲንክ</string>
-    <string name="personalid_credential_level_1_month_active">1 ወርሒ\nተግባር</string>
-    <string name="personalid_credential_level_2_month_active">2 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_credential_level_3_month_active">3 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_credential_level_6_month_active">6 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_credential_level_9_month_active">9 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_credential_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_credential_no_pending_credential">ዝኾነ ኣብ መስርሕ ዘሎ ምስክር ወረቐት የለን</string>
+    <string name="personalid_work_history_title">ታሪኽ ስራሐይ</string>
+    <string name="personalid_work_history">ታሪኽ ስራሕ</string>
+    <string name="personalid_work_history_learn_more">ብዛዕባ ምስክር ወረቐታት ዝበለጸ ፍለጥ</string>
+    <string name="personalid_work_history_no_records_available">No work history records are currently available. Click Refresh or check back later</string>
+    <string name="personalid_work_history_earned">ዝተረኽበ</string>
+    <string name="personalid_work_history_pending">ኣብ ከይዲ ዘሎ</string>
+    <string name="personalid_work_history_sync">Sync</string>
+    <string name="personalid_work_history_level_1_month_active">1 ወርሒ\nተግባር</string>
+    <string name="personalid_work_history_level_2_month_active">2 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_work_history_level_3_month_active">3 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_work_history_level_6_month_active">6 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_work_history_level_9_month_active">9 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
+
+    <string name="personalid_notification">መፍለጥታትን</string>
+
+    <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
     <string name="nav_drawer_signin_register">እቶም ኣእትዉ / ይመዝገቡ</string>
     <string name="nav_drawer_help">እርዳታ</string>

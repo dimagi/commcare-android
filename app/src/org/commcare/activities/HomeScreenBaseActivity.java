@@ -362,7 +362,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
-        if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
+        if (UpdatePromptHelper.promptForUpdateIfNeeded(this, false)) {
             return true;
         }
         checkForPinLaunchConditions();
@@ -1380,6 +1380,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending()) {
             triggerSync(true);
+            kickedOff = true;
+        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this, true)) {
             kickedOff = true;
         }
 

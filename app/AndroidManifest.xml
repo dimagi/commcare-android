@@ -567,7 +567,7 @@
             tools:node="merge" />
 
         <activity
-            android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+            android:name="org.commcare.activities.connect.PersonalIdWorkHistoryActivity"/>
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
@@ -580,7 +580,7 @@
         <receiver
             android:name="org.commcare.services.PaymentAcknowledgeReceiver"
             android:exported="false"/>
-        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+        <activity android:name="org.commcare.activities.PushNotificationActivity" />
     </application>
 
 </manifest>

@@ -20,7 +20,8 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.IDatabase;
@@ -31,6 +32,7 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.Base64;
 import org.commcare.util.Base64DecoderException;
 import org.commcare.utils.CrashUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 
@@ -59,8 +61,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.16 - Added  personal_id_credential table
      * V17  - Added a new column has_connect_access to ConnectUserRecord
      * V18 - Added new columns to personal_id_credential table (previously the table was unused)
+     * V.19 - Added push_notification_history
      */
-    private static final int CONNECT_DB_VERSION = 18;
+    private static final int CONNECT_DB_VERSION = 19;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -139,7 +142,10 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder(PersonalIdCredential.class);
+            builder = new TableBuilder(PersonalIdWorkHistory.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(PushNotificationRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
@@ -157,6 +163,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         try {
             return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
+            Logger.exception("Opening database failed", sqle);
             DbUtil.trySqlCipherDbUpdate(key, mContext, CONNECT_DB_LOCATOR);
             try {
                 return super.getWritableDatabase();

@@ -22,7 +22,8 @@ data class PersonalIdSessionData(
         var phoneNumber: String? = null, //phone number of the user
         var backupCode: String? = null, //recovery code of the user
         var smsMethod: String? = null,
-        var invitedUser: Boolean = false // indicates if user has has been invited to Connect
+        var invitedUser: Boolean = false, // indicates if user has has been invited to Connect
+        var otpFallback: Boolean = false
 ) {
 
     /**
