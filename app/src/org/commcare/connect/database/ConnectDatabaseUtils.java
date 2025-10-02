@@ -11,8 +11,6 @@ import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.EncryptionKeyProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Vector;
-
 public class ConnectDatabaseUtils {
     // the value of the key should not be renamed due to backward compatibility
     private static final String SECRET_NAME = "secret";
@@ -41,11 +39,13 @@ public class ConnectDatabaseUtils {
     }
 
     public static ConnectKeyRecord getKeyRecord() {
-        Vector<ConnectKeyRecord> records = CommCareApplication.instance()
-                .getGlobalStorage(ConnectKeyRecord.class)
-                .getRecordsForValue(ConnectKeyRecord.IS_LOCAL, true);
+        Iterable<ConnectKeyRecord> records = CommCareApplication.instance()
+                .getGlobalStorage(ConnectKeyRecord.class);
 
-        return records.size() > 0 ? records.firstElement() : null;
+        if (records.iterator().hasNext()) {
+            return records.iterator().next();
+        }
+        return null;
     }
 
     public static void storeConnectDbPassphrase(Context context, String base64EncodedPassphrase) {

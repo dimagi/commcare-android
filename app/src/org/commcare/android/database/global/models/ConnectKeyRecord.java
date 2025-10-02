@@ -20,7 +20,7 @@ public class ConnectKeyRecord extends Persisted {
     @Deprecated
     @Persisting(2)
     @MetaField(IS_LOCAL)
-    boolean isLocal = true;
+    boolean isLocal;
 
     public ConnectKeyRecord() {
     }
