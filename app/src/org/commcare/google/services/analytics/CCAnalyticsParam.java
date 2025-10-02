@@ -40,4 +40,8 @@ public class CCAnalyticsParam {
     static final String PARAM_API_SUCCESS = "ccc_api_success";
     static final String PARAM_API_TOTAL_JOBS = "ccc_api_total_jobs";
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
+
+    static final String RESPONSE_CODE = "response_code";
+    static final String REQUEST_DURATION_MS = "request_duration_ms";
+    static final String URL = "url";
 }
