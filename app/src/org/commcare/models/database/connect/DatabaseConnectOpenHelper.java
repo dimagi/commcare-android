@@ -88,16 +88,6 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         getDbFile().delete();
     }
 
-    public static void rekeyDB(IDatabase db, String newPassphrase) throws Base64DecoderException {
-        if(db != null) {
-            byte[] newBytes = Base64.decode(newPassphrase);
-            String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
-
-            db.execSQL("PRAGMA rekey = '" + newKeyEncoded + "';");
-            db.close();
-        }
-    }
-
     @Override
     public void onCreate(SQLiteDatabase db) {
         IDatabase database = new EncryptedDatabaseAdapter(db);
