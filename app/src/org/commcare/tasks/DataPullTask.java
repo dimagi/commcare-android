@@ -34,6 +34,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
@@ -264,8 +265,16 @@ public abstract class DataPullTask<R>
 
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
         asyncRestoreHelper.retryAtTime = -1;
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_APP_SYNC_DURATION);
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
+
+            if (trace != null && result != null) {
+                trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS,
+                        PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
+                CCPerfMonitoring.INSTANCE.stopTracing(trace);
+            }
+
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
                 asyncRestoreHelper.startReportingServerProgress();
                 return getRequestResultOrRetry(factory);
@@ -304,6 +313,11 @@ public abstract class DataPullTask<R>
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
         }
 
+        if (trace != null) {
+            trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS, PrefValues.NO);
+            CCPerfMonitoring.INSTANCE.stopTracing(trace);
+        }
+
         wipeLoginIfItOccurred();
         this.publishProgress(PROGRESS_DONE);
         return new ResultAndError<>(responseError);
@@ -315,8 +329,6 @@ public abstract class DataPullTask<R>
      */
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
-
-        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_APP_SYNC_DURATION);
 
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded, skipFixtures);
@@ -331,7 +343,7 @@ public abstract class DataPullTask<R>
             if (responseCode == 202) {
                 return asyncRestoreHelper.handleRetryResponseCode(pullResponse);
             } else {
-                return handleSuccessResponseCode(pullResponse, factory, trace);
+                return handleSuccessResponseCode(pullResponse, factory);
             }
         } else if (responseCode == 412) {
             return handleBadLocalState(factory);
@@ -361,7 +373,7 @@ public abstract class DataPullTask<R>
      * return
      */
     private ResultAndError<PullTaskResult> handleSuccessResponseCode(
-            RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory, Trace trace)
+            RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
         asyncRestoreHelper.completeServerProgressBarIfShowing();
@@ -382,10 +394,7 @@ public abstract class DataPullTask<R>
             updateUserSyncToken(syncToken);
 
             onSuccessfulSync();
-            if (trace != null) {
-                trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS, AnalyticsParamValue.SYNC_SUCCESS);
-                CCPerfMonitoring.INSTANCE.stopTracing(trace);
-            }
+
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } catch (XmlPullParserException e) {
             wipeLoginIfItOccurred();
