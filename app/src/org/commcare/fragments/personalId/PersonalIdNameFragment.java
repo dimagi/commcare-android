@@ -21,6 +21,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,6 +78,7 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
     }
 
     private void verifyOrAddName() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
         clearError();
         enableContinueButton(false);
         new PersonalIdApiHandler<PersonalIdSessionData>() {
