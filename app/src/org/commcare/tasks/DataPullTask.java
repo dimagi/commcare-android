@@ -278,6 +278,8 @@ public abstract class DataPullTask<R>
                 trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS,
                         PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
                 CCPerfMonitoring.INSTANCE.stopTracing(trace);
+            } else {
+                trace = null;
             }
 
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
