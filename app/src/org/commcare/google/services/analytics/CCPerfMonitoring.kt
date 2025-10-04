@@ -14,6 +14,8 @@ object CCPerfMonitoring {
     // Attributes
     const val ATTR_NUM_CASES_LOADED = "number_of_cases_loaded"
     const val ATTR_SYNC_SUCESS: String = "sync_success"
+    const val ATTR_SYNC_ITEMS_COUNT: String = "sync_items_count"
+    const val ATTR_SYNC_TYPE: String = "sync_type"
 
     fun startTracing (traceName: String): Trace? {
         try {

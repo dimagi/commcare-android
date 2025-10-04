@@ -104,10 +104,11 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
     private boolean skipFixtures;
+    private boolean userTriggeredSync;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement, boolean skipFixtures) {
+                        boolean blockRemoteKeyManagement, boolean skipFixtures, boolean userTriggeredSync) {
         this.skipFixtures = skipFixtures;
         this.server = server;
         this.username = username;
@@ -119,12 +120,13 @@ public abstract class DataPullTask<R>
         this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
         TAG = DataPullTask.class.getSimpleName();
+        this.userTriggeredSync = userTriggeredSync;
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context, boolean skipFixtures) {
+                        String server, Context context, boolean skipFixtures, boolean userTriggeredSync) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false, skipFixtures);
+                false, skipFixtures, userTriggeredSync);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -266,6 +268,9 @@ public abstract class DataPullTask<R>
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
         asyncRestoreHelper.retryAtTime = -1;
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_APP_SYNC_DURATION);
+        trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_ITEMS_COUNT, String.valueOf(mTotalItems));
+        trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_TYPE, userTriggeredSync ?
+                AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
 
