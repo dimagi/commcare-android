@@ -36,7 +36,7 @@ object CCPerfMonitoring {
             attrs?.forEach { (key, value) -> trace.putAttribute(key, value) }
             trace.stop()
         } catch (exception: Exception) {
-            Logger.exception("Error starting perf trace: ${trace.name}", exception)
+            Logger.exception("Error stopping perf trace: ${trace.name}", exception)
         }
     }
 }
