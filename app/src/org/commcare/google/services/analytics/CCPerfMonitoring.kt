@@ -18,6 +18,8 @@ object CCPerfMonitoring {
     const val ATTR_SEARCH_QUERY_LENGTH = "case_search_query_length"
     const val TRACE_APP_SYNC_DURATION = "app_sync_duration"
     const val ATTR_SYNC_SUCESS = "sync_success"
+    const val ATTR_SYNC_ITEMS_COUNT = "sync_items_count"
+    const val ATTR_SYNC_TYPE = "sync_type"
 
     fun startTracing(traceName: String): Trace? {
         try {
