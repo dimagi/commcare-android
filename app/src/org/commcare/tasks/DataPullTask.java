@@ -2,6 +2,8 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
+import com.google.firebase.perf.metrics.Trace;
+
 import androidx.core.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
@@ -31,6 +34,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
@@ -100,10 +104,11 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
     private boolean skipFixtures;
+    private boolean userTriggeredSync;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement, boolean skipFixtures) {
+                        boolean blockRemoteKeyManagement, boolean skipFixtures, boolean userTriggeredSync) {
         this.skipFixtures = skipFixtures;
         this.server = server;
         this.username = username;
@@ -115,12 +120,13 @@ public abstract class DataPullTask<R>
         this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
         TAG = DataPullTask.class.getSimpleName();
+        this.userTriggeredSync = userTriggeredSync;
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context, boolean skipFixtures) {
+                        String server, Context context, boolean skipFixtures, boolean userTriggeredSync) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false, skipFixtures);
+                false, skipFixtures, userTriggeredSync);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -261,8 +267,21 @@ public abstract class DataPullTask<R>
 
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
         asyncRestoreHelper.retryAtTime = -1;
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_APP_SYNC_DURATION);
+        trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_ITEMS_COUNT, String.valueOf(mTotalItems));
+        trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_TYPE, userTriggeredSync ?
+                AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
+
+            if (trace != null && result != null) {
+                trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS,
+                        PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
+                CCPerfMonitoring.INSTANCE.stopTracing(trace);
+            } else {
+                trace = null;
+            }
+
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
                 asyncRestoreHelper.startReportingServerProgress();
                 return getRequestResultOrRetry(factory);
@@ -299,6 +318,11 @@ public abstract class DataPullTask<R>
         } catch (UnknownSyncError e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
+        }
+
+        if (trace != null) {
+            trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS, PrefValues.NO);
+            CCPerfMonitoring.INSTANCE.stopTracing(trace);
         }
 
         wipeLoginIfItOccurred();
@@ -377,6 +401,7 @@ public abstract class DataPullTask<R>
             updateUserSyncToken(syncToken);
 
             onSuccessfulSync();
+
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } catch (XmlPullParserException e) {
             wipeLoginIfItOccurred();
