@@ -8,10 +8,8 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -20,6 +18,7 @@ import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
+import java.util.Objects;
 
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -35,6 +34,8 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
+
+import javax.annotation.Nullable;
 
 /**
  * Created by amstone326 on 10/13/17.
@@ -493,9 +494,12 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_CLAIM_JOB, b);
     }
 
-    public static void reportCccApiDeliveryProgress(boolean success) {
+    public static void reportCccApiDeliveryProgress(boolean success, @Nullable String deliveryInfo) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
+        if (deliveryInfo != null){
+            b.putString(CCAnalyticsParam.PARAM_API_SUCCESS_DELIVERY_INFO,deliveryInfo);
+        }
         reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
     }
 
@@ -533,6 +537,25 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
+    public static void reportPersonalIDContinueClicked(String screenName,@Nullable String info) {
+        Bundle params = new Bundle();
+        params.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
+        if (info != null) {
+            params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO,info);
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
+    }
+    public static void reportPersonalIDMessageSent() {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_MESSAGE_SENT);
+    }
+
+    public static void reportPersonalIDLinking(String appId, String result) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.CC_APP_ID, appId);
+        bundle.putString(CCAnalyticsParam.RESULT, result);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING, bundle);
+    }
+
     // logs screen view events when set to a navigation controller
     public static NavController.OnDestinationChangedListener getNavControllerPageChangeLoggingListener() {
         return (navController, navDestination, args) -> {
@@ -558,10 +581,6 @@ public class FirebaseAnalyticsUtil {
     public static void reportNotificationType(String notificationType) {
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
                 CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
-    }
-
-    public static void reportRekeyedDatabase() {
-        reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
     }
 
     public static void reportBiometricInvalidated() {

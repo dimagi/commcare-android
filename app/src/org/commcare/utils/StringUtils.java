@@ -66,12 +66,12 @@ public class StringUtils {
 
     public static String getLocalizedLevel(String levelCode, Context context) {
         return switch (levelCode) {
-            case "1MON_ACTIVE" -> context.getString(R.string.personalid_credential_level_1_month_active);
-            case "2MON_ACTIVE" -> context.getString(R.string.personalid_credential_level_2_month_active);
-            case "3MON_ACTIVE" -> context.getString(R.string.personalid_credential_level_3_month_active);
-            case "6MON_ACTIVE" -> context.getString(R.string.personalid_credential_level_6_month_active);
-            case "9MON_ACTIVE" -> context.getString(R.string.personalid_credential_level_9_month_active);
-            case "12MON_ACTIVE" -> context.getString(R.string.personalid_credential_level_12_month_active);
+            case "1MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_1_month_active);
+            case "2MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_2_month_active);
+            case "3MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_3_month_active);
+            case "6MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_6_month_active);
+            case "9MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_9_month_active);
+            case "12MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_12_month_active);
             default -> levelCode;
         };
     }

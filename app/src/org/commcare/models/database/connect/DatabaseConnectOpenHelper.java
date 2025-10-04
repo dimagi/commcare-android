@@ -20,7 +20,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
@@ -88,16 +88,6 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         getDbFile().delete();
     }
 
-    public static void rekeyDB(IDatabase db, String newPassphrase) throws Base64DecoderException {
-        if(db != null) {
-            byte[] newBytes = Base64.decode(newPassphrase);
-            String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
-
-            db.execSQL("PRAGMA rekey = '" + newKeyEncoded + "';");
-            db.close();
-        }
-    }
-
     @Override
     public void onCreate(SQLiteDatabase db) {
         IDatabase database = new EncryptedDatabaseAdapter(db);
@@ -142,7 +132,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder(PersonalIdCredential.class);
+            builder = new TableBuilder(PersonalIdWorkHistory.class);
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(PushNotificationRecord.class);

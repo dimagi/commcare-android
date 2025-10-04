@@ -4,31 +4,31 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import org.commcare.android.database.connect.models.PersonalIdCredential
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.connect.ConnectDateUtils.convertIsoDate
 import org.commcare.dalvik.databinding.ItemEarnedCredentialBinding
 import org.commcare.utils.StringUtils
 
-class EarnedCredentialAdapter(
-    private val listener: OnCredentialClickListener,private val profilePic:String?
-) : RecyclerView.Adapter<EarnedCredentialAdapter.CredentialViewHolder>() {
+class WorkHistoryEarnedAdapter(
+    private val listener: OnWorkHistoryItemClickListener,private val profilePic:String?
+) : RecyclerView.Adapter<WorkHistoryEarnedAdapter.WorkHistoryViewHolder>() {
 
-    private val credentialList = mutableListOf<PersonalIdCredential>()
+    private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class CredentialViewHolder(val binding: ItemEarnedCredentialBinding) :
+    inner class WorkHistoryViewHolder(val binding: ItemEarnedCredentialBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CredentialViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkHistoryViewHolder {
         val binding = ItemEarnedCredentialBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
-        return CredentialViewHolder(binding)
+        return WorkHistoryViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: CredentialViewHolder, position: Int) {
-        val item = credentialList[position]
+    override fun onBindViewHolder(holder: WorkHistoryViewHolder, position: Int) {
+        val item = workHistoryList[position]
         val formattedIssuedDate: String =
             convertIsoDate(item.issuedDate, "dd/MM/yyyy")
 
@@ -40,15 +40,15 @@ class EarnedCredentialAdapter(
         }
     }
 
-    override fun getItemCount(): Int = credentialList.size
+    override fun getItemCount(): Int = workHistoryList.size
 
-    fun setData(newList: List<PersonalIdCredential>) {
-        credentialList.clear()
-        credentialList.addAll(newList)
+    fun setData(newList: List<PersonalIdWorkHistory>) {
+        workHistoryList.clear()
+        workHistoryList.addAll(newList)
         notifyDataSetChanged()
     }
 
-    interface OnCredentialClickListener {
-        fun onViewCredentialClick(credential: PersonalIdCredential)
+    interface OnWorkHistoryItemClickListener {
+        fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory)
     }
 }

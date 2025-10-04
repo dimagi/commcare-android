@@ -1,5 +1,9 @@
 package org.commcare.connect;
 
+import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_USER_DENIED;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.SYNC_SUCCESS;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -27,13 +31,10 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
@@ -46,15 +47,9 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -118,11 +113,6 @@ public class PersonalIdManager {
                 personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
 
                 CrashUtil.registerUserData();
-
-                String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
-                if (remotePassphrase == null) {
-                    getRemoteDbPassphrase(parent, user);
-                }
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
                 ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
@@ -343,6 +333,7 @@ public class PersonalIdManager {
         dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
             activity.dismissAlertDialog();
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
+            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),FAILURE_USER_DENIED);
             callback.connectActivityComplete(false);
         });
 
@@ -353,10 +344,12 @@ public class PersonalIdManager {
         unlockConnect(activity, success -> {
             if (!success) {
                 callback.connectActivityComplete(false);
+                FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),FAILURE_UNLOCK_FAILED);
                 return;
             }
 
             linkedApp.linkToPersonalId(password);
+            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(),SYNC_SUCCESS);
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
@@ -448,54 +441,6 @@ public class PersonalIdManager {
         }
 
         return null;
-    }
-
-    private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
-        ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try (InputStream in = responseData) {
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(in));
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                        if (json.has(key)) {
-                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                        }
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    Logger.exception("Parsing return from DB key request", e);
-                }
-            }
-
-            @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse,String endPoint) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                Logger.log("ERROR", "Failed (network)");
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                Logger.log("ERROR", "Failed (token unavailable)");
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException();
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(context);
-            }
-        });
     }
 
     public PersonalIdStatus getStatus() {
