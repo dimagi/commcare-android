@@ -10,6 +10,6 @@ fun JSONObject.optStringSafe(key: String, fallback: String? = null): String? {
 }
 
 fun JSONObject.getRequiredString(key: String, index: Int): String {
-    return optString(key, "").takeIf { it.isNotBlank() && it != "null" }
+    return this.optStringSafe(key)?.takeIf { it.isNotBlank() && it != "null" }
         ?: throw RuntimeException("$key is missing at index $index")
 }

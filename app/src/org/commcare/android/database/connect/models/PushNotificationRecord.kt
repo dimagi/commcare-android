@@ -6,10 +6,7 @@ import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
 import org.commcare.utils.getRequiredString
 import org.javarosa.core.model.utils.DateUtils
-import org.javarosa.core.services.Logger
 import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.io.Serializable
 import java.util.Date
 
@@ -87,35 +84,30 @@ class PushNotificationRecord : Persisted(), Serializable {
             val records = mutableListOf<PushNotificationRecord>()
 
             for (i in 0 until jsonArray.length()) {
-                var obj: JSONObject? = null
-                try {
-                    obj = jsonArray.getJSONObject(i)
-                    val record = PushNotificationRecord().apply {
-                        notificationId = obj.getRequiredString(META_NOTIFICATION_ID, i)
-                        title = obj.getRequiredString(META_TITLE, i)
-                        body = obj.getRequiredString(META_BODY, i)
-                        notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
-                        confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
-                        paymentId = obj.optString(META_PAYMENT_ID, "")
-                        readStatus = obj.optBoolean(META_READ_STATUS, false)
-                        val dateString: String = obj.getString(META_TIME_STAMP)
-                        createdDate = DateUtils.parseDateTime(dateString)
+                val obj = jsonArray.getJSONObject(i)
+                val record = PushNotificationRecord().apply {
+                    notificationId = obj.getRequiredString(META_NOTIFICATION_ID, i)
+                    title = obj.getRequiredString(META_TITLE, i)
+                    body = obj.getRequiredString(META_BODY, i)
+                    notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
+                    confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
+                    paymentId = obj.optString(META_PAYMENT_ID, "")
+                    readStatus = obj.optBoolean(META_READ_STATUS, false)
 
-                        val dataObj = obj.optJSONObject("data")
-                        dataObj?.let {
-                            connectMessageId = it.optString(META_MESSAGE_ID, "")
-                            channel = it.optString(META_CHANNEL, "")
-                            action = it.getRequiredString(META_ACTION, i)
-                            opportunityId = it.optString(META_OPPORTUNITY_ID, "")
-                        }
+                    val dateString: String = obj.getString(META_TIME_STAMP)
+                    createdDate = DateUtils.parseDateTime(dateString)
+
+                    val dataObj = obj.optJSONObject("data")
+                    dataObj?.let {
+                        connectMessageId = it.optString(META_MESSAGE_ID, "")
+                        channel = it.optString(META_CHANNEL, "")
+                        action = it.getRequiredString(META_ACTION, i)
+                        opportunityId = it.optString(META_OPPORTUNITY_ID, "")
                     }
-                    records.add(record)
-                } catch (e: JSONException) {
-                    val corruptedJson = obj?.toString() ?: "Unknown JSON"
-                    val errorMessage = "Corrupt pn at index $i: $corruptedJson"
-                    Logger.exception(errorMessage, e)
                 }
+                records.add(record)
             }
+
             return records
         }
     }
