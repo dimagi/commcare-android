@@ -646,6 +646,7 @@ public class ConnectDatabaseUpgrader {
             // We have not been populating this table yet, so just drop and recreate
             SqlStorage.dropTable(db, PersonalIdWorkHistory.STORAGE_KEY);
             addTableForNewModel(db, PersonalIdWorkHistory.STORAGE_KEY, new PersonalIdWorkHistory());
+            db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
@@ -662,7 +663,6 @@ public class ConnectDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(storageKey);
             builder.addData(modelToAdd);
             db.execSQL(builder.getTableCreateString());
-
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

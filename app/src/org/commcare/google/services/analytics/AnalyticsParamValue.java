@@ -184,4 +184,11 @@ public class AnalyticsParamValue {
     public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE = "min_biometric_hardware_unavailable";
     public static final String MIN_BIOMETRIC_NEEDS_UPDATE = "min_biometric_needs_update";
     public static final String MIN_BIOMETRIC_PIN_NEEDS_UPDATE = "min_biometric_pin_needs_update";
+    public static final String START_DELIVERY = "start_delivery";
+    public static final String FINISH_DELIVERY = "finish_delivery";
+    public static final String PAID_DELIVERY = "paid_delivery";
+    public static final String FAILURE_USER_DENIED = "failure_user_denied";
+    public static final String FAILURE_UNLOCK_FAILED = "failure_unlock_failed";
+    public static final String CONTINUE_WITH_FINGERPRINT = "continue_with_fingerprint";
+    public static final String CONTINUE_WITH_PIN = "continue_with_pin";
 }

@@ -3,9 +3,6 @@ package org.commcare.connect
 import android.content.Context
 import android.widget.Toast
 import org.commcare.CommCareApplication
-import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord
-import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord
-import org.commcare.android.database.connect.models.ConnectJobLearningRecord
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
@@ -14,6 +11,9 @@ import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
+import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
+import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
+import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 object ConnectJobHelper {
@@ -65,7 +65,9 @@ object ConnectJobHelper {
                     learningAppProgressResponseModel.connectJobLearningRecords.size
                 job.assessments = learningAppProgressResponseModel.connectJobAssessmentRecords
                 ConnectJobUtils.updateJobLearnProgress(context, job)
-                FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
+                if (job.passedAssessment()){
+                    FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
+                }
                 listener.connectActivityComplete(true)
             }
 
@@ -84,24 +86,36 @@ object ConnectJobHelper {
         val user = ConnectUserDatabaseUtil.getUser(context)
         object : ConnectApiHandler<DeliveryAppProgressResponseModel>() {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
+                val events = mutableSetOf<String?>()
+
                 if (deliveryAppProgressResponseModel.updatedJob) {
+                    events.add(START_DELIVERY)
                     ConnectJobUtils.upsertJob(context, job)
                 }
 
                 if (deliveryAppProgressResponseModel.hasDeliveries) {
+                    if (job.getDeliveryProgressPercentage() == 100) {
+                        events.add(FINISH_DELIVERY)
+                    }
                     ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobId, true)
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
+                    if (job.payments.isNotEmpty()){
+                        events.add(PAID_DELIVERY)
+                    }
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
                 }
 
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
+                events.forEach { event ->
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event)
+                }
+
                 listener.connectActivityComplete(true)
             }
 
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false)
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false,null)
                 listener.connectActivityComplete(false)
             }
         }.getDeliveries(context, user, job)
