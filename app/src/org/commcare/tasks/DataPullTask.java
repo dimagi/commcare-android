@@ -270,15 +270,15 @@ public abstract class DataPullTask<R>
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
         asyncRestoreHelper.retryAtTime = -1;
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_APP_SYNC_DURATION);
-        trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_ITEMS_COUNT, String.valueOf(mTotalItems));
-        trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_TYPE, userTriggeredSync ?
-                AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
 
             if (result != null) {
                 try {
                     Map<String, String> attrs = new HashMap<>();
+                    attrs.put(CCPerfMonitoring.ATTR_SYNC_ITEMS_COUNT, String.valueOf(mTotalItems));
+                    attrs.put(CCPerfMonitoring.ATTR_SYNC_TYPE, userTriggeredSync ?
+                            AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
                     attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS,
                             PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
                     CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
@@ -325,6 +325,9 @@ public abstract class DataPullTask<R>
 
         try {
             Map<String, String> attrs = new HashMap<>();
+            attrs.put(CCPerfMonitoring.ATTR_SYNC_ITEMS_COUNT, String.valueOf(mTotalItems));
+            attrs.put(CCPerfMonitoring.ATTR_SYNC_TYPE, userTriggeredSync ?
+                    AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
             attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS, PrefValues.NO);
             CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
         } catch (Exception ignored) {}
