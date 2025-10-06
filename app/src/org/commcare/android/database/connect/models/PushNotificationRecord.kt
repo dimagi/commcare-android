@@ -4,11 +4,14 @@ import org.commcare.android.storage.framework.Persisted
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
+import org.commcare.utils.getRequiredString
+import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.Logger
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.Serializable
+import java.util.Date
 
 @Table(PushNotificationRecord.STORAGE_KEY)
 class PushNotificationRecord : Persisted(), Serializable {
@@ -34,8 +37,8 @@ class PushNotificationRecord : Persisted(), Serializable {
     var body: String = ""
 
     @Persisting(6)
-    @MetaField(META_TIME_STAMP)
-    var timeStamp: String = ""
+    @MetaField(META_CREATED_DATE)
+    var createdDate: Date = Date()
 
     @Persisting(7)
     @MetaField(META_CONFIRMATION_STATUS)
@@ -69,7 +72,7 @@ class PushNotificationRecord : Persisted(), Serializable {
         const val META_ACTION = "action"
         const val META_TITLE = "title"
         const val META_BODY = "body"
-        const val META_TIME_STAMP = "timestamp"
+        const val META_CREATED_DATE = "created_date"
         const val META_CONFIRMATION_STATUS = "confirmation_status"
         const val META_OPPORTUNITY_ID = "opportunity_id"
         const val META_MESSAGE_ID = "message_id"
@@ -77,42 +80,43 @@ class PushNotificationRecord : Persisted(), Serializable {
         const val META_PAYMENT_ID = "payment_id"
         const val META_READ_STATUS = "read_status"
 
+        const val META_TIME_STAMP = "timestamp"
+
+
         fun fromJsonArray(jsonArray: JSONArray): List<PushNotificationRecord> {
             val records = mutableListOf<PushNotificationRecord>()
 
             for (i in 0 until jsonArray.length()) {
+                var obj: JSONObject? = null
                 try {
-                    val obj = jsonArray.getJSONObject(i)
+                    obj = jsonArray.getJSONObject(i)
                     val record = PushNotificationRecord().apply {
-                        notificationId = getRequiredString(obj, META_NOTIFICATION_ID, i)
-                        title = getRequiredString(obj, META_TITLE, i)
-                        body = getRequiredString(obj, META_BODY, i)
+                        notificationId = obj.getRequiredString(META_NOTIFICATION_ID, i)
+                        title = obj.getRequiredString(META_TITLE, i)
+                        body = obj.getRequiredString(META_BODY, i)
                         notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
                         confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
                         paymentId = obj.optString(META_PAYMENT_ID, "")
                         readStatus = obj.optBoolean(META_READ_STATUS, false)
-                        timeStamp = obj.optString(META_TIME_STAMP, "")
+                        val dateString: String = obj.getString(META_TIME_STAMP)
+                        createdDate = DateUtils.parseDateTime(dateString)
 
                         val dataObj = obj.optJSONObject("data")
                         dataObj?.let {
                             connectMessageId = it.optString(META_MESSAGE_ID, "")
                             channel = it.optString(META_CHANNEL, "")
-                            action = getRequiredString(it, META_ACTION, i)
+                            action = it.getRequiredString(META_ACTION, i)
                             opportunityId = it.optString(META_OPPORTUNITY_ID, "")
                         }
                     }
                     records.add(record)
                 } catch (e: JSONException) {
-                    Logger.exception("Error parsing push notification", e)
-                    throw RuntimeException("Error parsing push notification history", e)
+                    val corruptedJson = obj?.toString() ?: "Unknown JSON"
+                    val errorMessage = "Corrupt pn at index $i: $corruptedJson"
+                    Logger.exception(errorMessage, e)
                 }
             }
             return records
-        }
-
-        private fun getRequiredString(obj: JSONObject, key: String, index: Int): String {
-            return obj.optString(key, "").takeIf { it.isNotBlank() && it != "null" }
-                ?: throw RuntimeException("$key is missing at index $index")
         }
     }
 }
