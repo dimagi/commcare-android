@@ -4,7 +4,6 @@ import org.commcare.android.storage.framework.Persisted
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
-import org.commcare.utils.getRequiredString
 import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONArray
 import java.io.Serializable
@@ -86,9 +85,9 @@ class PushNotificationRecord : Persisted(), Serializable {
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
                 val record = PushNotificationRecord().apply {
-                    notificationId = obj.getRequiredString(META_NOTIFICATION_ID, i)
-                    title = obj.getRequiredString(META_TITLE, i)
-                    body = obj.getRequiredString(META_BODY, i)
+                    notificationId = obj.optString(META_NOTIFICATION_ID,"")
+                    title = obj.optString(META_TITLE,"")
+                    body = obj.optString(META_BODY,"")
                     notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
                     confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
                     paymentId = obj.optString(META_PAYMENT_ID, "")
@@ -101,7 +100,7 @@ class PushNotificationRecord : Persisted(), Serializable {
                     dataObj?.let {
                         connectMessageId = it.optString(META_MESSAGE_ID, "")
                         channel = it.optString(META_CHANNEL, "")
-                        action = it.getRequiredString(META_ACTION, i)
+                        action = it.optString(META_ACTION, "")
                         opportunityId = it.optString(META_OPPORTUNITY_ID, "")
                     }
                 }
