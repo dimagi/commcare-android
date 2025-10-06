@@ -276,11 +276,13 @@ public abstract class DataPullTask<R>
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
 
-            if (trace != null && result != null) {
-                Map<String, String> attrs = new HashMap<>();
-                attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS,
-                        PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
-                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+            if (result != null) {
+                try {
+                    Map<String, String> attrs = new HashMap<>();
+                    attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS,
+                            PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
+                    CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+                } catch (Exception ignored) {}
             }
 
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
@@ -321,10 +323,11 @@ public abstract class DataPullTask<R>
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
         }
 
-        if (trace != null) {
-            trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS, PrefValues.NO);
-            CCPerfMonitoring.INSTANCE.stopTracing(trace);
-        }
+        try {
+            Map<String, String> attrs = new HashMap<>();
+            attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS, PrefValues.NO);
+            CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+        } catch (Exception ignored) {}
 
         wipeLoginIfItOccurred();
         this.publishProgress(PROGRESS_DONE);
