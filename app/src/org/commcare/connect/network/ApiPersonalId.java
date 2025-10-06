@@ -52,8 +52,6 @@ import retrofit2.Response;
 public class ApiPersonalId {
     private static final String API_VERSION_NONE = null;
     public static final String API_VERSION_PERSONAL_ID = "2.0";
-    private static final int NETWORK_ACTIVITY_ID = 7000;
-    private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
 
