@@ -54,6 +54,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -148,9 +150,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         data = new FECWrapper(formController);
 
         if (trace != null) {
-            trace.putAttribute(CCPerfMonitoring.ATTR_FORM_NAME, fd.getName());
-            trace.putAttribute(CCPerfMonitoring.ATTR_FORM_XMLNS, fd.getMainInstance().schema);
-            CCPerfMonitoring.INSTANCE.stopTracing(trace);
+            Map<String, String> attrs = new HashMap<>();
+            attrs.put(CCPerfMonitoring.ATTR_FORM_NAME, fd.getName());
+            attrs.put(CCPerfMonitoring.ATTR_FORM_XMLNS, fd.getMainInstance().schema);
+            CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
         }
         return data;
     }
