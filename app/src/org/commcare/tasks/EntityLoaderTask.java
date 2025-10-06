@@ -63,11 +63,13 @@ public class EntityLoaderTask
             Pair<List<Entity<TreeReference>>, List<TreeReference>> entities = entityLoaderHelper.loadEntities(
                     nodeset[0], this);
 
-            if (trace != null && !entityLoaderHelper.isAsyncNodeEntityFactory()) {
-                Map<String, String> attrs = new HashMap<>();
-                attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED,
-                        String.valueOf((entities == null || entities.first == null ? 0 : entities.first.size())));
-                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+            if (!entityLoaderHelper.isAsyncNodeEntityFactory()) {
+                try {
+                    Map<String, String> attrs = new HashMap<>();
+                    attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED,
+                            String.valueOf((entities == null || entities.first == null ? 0 : entities.first.size())));
+                    CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+                } catch (Exception ignored) {}
             }
             return entities;
         } catch (XPathException xe) {

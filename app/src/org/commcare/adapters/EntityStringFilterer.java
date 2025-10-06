@@ -65,14 +65,16 @@ public class EntityStringFilterer extends EntityFiltererBase {
         }
 
         // If cancelled, the tracing is not to be stopped and Firebase is supposed to discard it
-        if (trace != null && !isFilterEmpty && (fullEntityList != null && !fullEntityList.isEmpty())) {
-            Map<String, String> attrs = new HashMap<>();
-            attrs.put(CCPerfMonitoring.ATTR_RESULTS_COUNT,
-                    String.valueOf((matchList == null ? 0 : matchList.size())));
-            attrs.put(CCPerfMonitoring.ATTR_SEARCH_QUERY_LENGTH,
-                    String.valueOf(StringUtils.getSumOfLengths(searchTerms)));
-            attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED, String.valueOf(fullEntityList.size()));
-            CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+        if (!isFilterEmpty && (fullEntityList != null && !fullEntityList.isEmpty())) {
+            try {
+                Map<String, String> attrs = new HashMap<>();
+                attrs.put(CCPerfMonitoring.ATTR_RESULTS_COUNT,
+                        String.valueOf((matchList == null ? 0 : matchList.size())));
+                attrs.put(CCPerfMonitoring.ATTR_SEARCH_QUERY_LENGTH,
+                        String.valueOf(StringUtils.getSumOfLengths(searchTerms)));
+                attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED, String.valueOf(fullEntityList.size()));
+                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+            } catch (Exception ignored) {}
         }
 
         long time = System.currentTimeMillis() - startTime;
