@@ -3,6 +3,8 @@ package org.commcare.connect.database
 import android.content.Context
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.models.database.SqlStorage
+import org.javarosa.core.services.Logger
+import java.sql.SQLException
 
 class NotificationRecordDatabaseHelper {
 
@@ -20,7 +22,7 @@ class NotificationRecordDatabaseHelper {
     /**
      * Fetch a notification from notification_id
      */
-    fun getNotificationById(context: Context, notificationId: Int): PushNotificationRecord? {
+    fun getNotificationById(context: Context, notificationId: String): PushNotificationRecord? {
         val records = getStorage(context).getRecordsForValues(
             arrayOf(PushNotificationRecord.META_NOTIFICATION_ID),
             arrayOf(notificationId)
@@ -31,7 +33,7 @@ class NotificationRecordDatabaseHelper {
     /**
      * Update the read status for a notification using notification_id
      */
-    fun updateReadStatus(context: Context, notificationId: Int, isRead: Boolean) {
+    fun updateReadStatus(context: Context, notificationId: String, isRead: Boolean) {
         val record = getNotificationById(context, notificationId) ?: return
         record.readStatus = isRead
         getStorage(context).write(record)
@@ -40,15 +42,26 @@ class NotificationRecordDatabaseHelper {
     /**
      * Append notification(s) to DB (insert or update)
      */
-    fun storeNotifications(context: Context, notifications: List<PushNotificationRecord>) {
+    fun storeNotifications(
+        context: Context,
+        notifications: List<PushNotificationRecord>,
+        callback: ((Boolean) -> Unit)? = null
+    ) {
         val storage = getStorage(context)
+        var allSuccess = true
 
         for (incoming in notifications) {
-            val existing = getNotificationById(context, incoming.notificationId)
-            if (existing != null) {
-                incoming.id = existing.id
+            try {
+                getNotificationById(context, incoming.notificationId)?.let { existing ->
+                    incoming.id = existing.id
+                }
+                storage.write(incoming)
+            } catch (e: SQLException) {
+                allSuccess = false
+                Logger.exception("Failed to write notification with ID ${incoming.notificationId}: ${e.message}",e)
             }
-            storage.write(incoming)
         }
+
+        callback?.invoke(allSuccess)
     }
 }
