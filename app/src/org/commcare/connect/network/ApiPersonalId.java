@@ -51,9 +51,6 @@ import retrofit2.Response;
 
 public class ApiPersonalId {
     private static final String API_VERSION_NONE = null;
-    public static final String API_VERSION_PERSONAL_ID = "2.0";
-    private static final int NETWORK_ACTIVITY_ID = 7000;
-    private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
 
@@ -70,7 +67,7 @@ public class ApiPersonalId {
 
                 String tokenAuth = HttpUtils.getCredential(token);
                 HashMap<String, String> headers = new HashMap<>();
-                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, API_VERSION_PERSONAL_ID, headers);
+                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
                 ApiService apiService = PersonalIdApiClient.getClientApi();
                 Call<ResponseBody> call = apiService.connectHeartbeat(tokenAuth,headers, requestBody);
                 BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.connectHeartbeatURL);
@@ -100,7 +97,7 @@ public class ApiPersonalId {
         params.put("password", user.getPassword());
 
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, API_VERSION_PERSONAL_ID, headers);
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.connectToken(headers,requestBody);
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectTokenURL);
@@ -117,7 +114,7 @@ public class ApiPersonalId {
         String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                API_VERSION_PERSONAL_ID, new AuthInfo.NoAuth(), params, true, false);
+                PersonalIdApiClient.API_VERSION, new AuthInfo.NoAuth(), params, true, false);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result " + postResult.responseCode);
         if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
             try {
@@ -348,7 +345,7 @@ public class ApiPersonalId {
         Multimap<String, String> params = ArrayListMultimap.create();
         ConnectNetworkHelper.get(context,
                 context.getString(R.string.ConnectMessageRetrieveMessagesURL),
-                API_VERSION_PERSONAL_ID, authInfo, params, true, callback);
+                PersonalIdApiClient.API_VERSION, authInfo, params, true, callback);
     }
 
     public static boolean updateChannelConsent(Context context, String username, String password,
@@ -362,7 +359,7 @@ public class ApiPersonalId {
 
         return ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageChannelConsentURL),
-                API_VERSION_PERSONAL_ID, authInfo, params, false, false, callback);
+                PersonalIdApiClient.API_VERSION, authInfo, params, false, false, callback);
     }
 
     private static void handleApiError(Response<?> response) {
@@ -434,7 +431,7 @@ public class ApiPersonalId {
 
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageConfirmURL),
-                API_VERSION_PERSONAL_ID, authInfo, params, false, true, callback);
+                PersonalIdApiClient.API_VERSION, authInfo, params, false, true, callback);
     }
 
     public static void sendMessagingMessage(Context context, String username, String password,
@@ -460,8 +457,6 @@ public class ApiPersonalId {
 
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageSendURL),
-                API_VERSION_PERSONAL_ID, authInfo, params, false, true, callback);
+                PersonalIdApiClient.API_VERSION, authInfo, params, false, true, callback);
     }
-
-
 }
