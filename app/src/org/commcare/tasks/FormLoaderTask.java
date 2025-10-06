@@ -149,12 +149,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
         data = new FECWrapper(formController);
 
-        if (trace != null) {
+        try {
             Map<String, String> attrs = new HashMap<>();
             attrs.put(CCPerfMonitoring.ATTR_FORM_NAME, fd.getName());
             attrs.put(CCPerfMonitoring.ATTR_FORM_XMLNS, fd.getMainInstance().schema);
             CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-        }
+        } catch (Exception ignored) {}
         return data;
     }
 
