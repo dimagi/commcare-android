@@ -20,7 +20,7 @@ class NotificationRecordDatabaseHelper {
     /**
      * Fetch a notification from notification_id
      */
-    fun getNotificationById(context: Context, notificationId: Int): PushNotificationRecord? {
+    fun getNotificationById(context: Context, notificationId: String): PushNotificationRecord? {
         val records = getStorage(context).getRecordsForValues(
             arrayOf(PushNotificationRecord.META_NOTIFICATION_ID),
             arrayOf(notificationId)
@@ -31,7 +31,7 @@ class NotificationRecordDatabaseHelper {
     /**
      * Update the read status for a notification using notification_id
      */
-    fun updateReadStatus(context: Context, notificationId: Int, isRead: Boolean) {
+    fun updateReadStatus(context: Context, notificationId: String, isRead: Boolean) {
         val record = getNotificationById(context, notificationId) ?: return
         record.readStatus = isRead
         getStorage(context).write(record)
@@ -40,12 +40,14 @@ class NotificationRecordDatabaseHelper {
     /**
      * Append notification(s) to DB (insert or update)
      */
-    fun storeNotifications(context: Context, notifications: List<PushNotificationRecord>) {
+    fun storeNotifications(
+        context: Context,
+        notifications: List<PushNotificationRecord>,
+    ) {
         val storage = getStorage(context)
 
         for (incoming in notifications) {
-            val existing = getNotificationById(context, incoming.notificationId)
-            if (existing != null) {
+            getNotificationById(context, incoming.notificationId)?.let { existing ->
                 incoming.id = existing.id
             }
             storage.write(incoming)
