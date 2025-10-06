@@ -60,7 +60,9 @@ import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.crypto.SecretKey;
@@ -275,9 +277,10 @@ public abstract class DataPullTask<R>
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
 
             if (trace != null && result != null) {
-                trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS,
+                Map<String, String> attrs = new HashMap<>();
+                attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS,
                         PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
-                CCPerfMonitoring.INSTANCE.stopTracing(trace);
+                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
             }
 
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
