@@ -3,6 +3,7 @@ package org.commcare.activities.connect;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,6 +36,7 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
+import org.commcare.personalId.PersonalIdFeatureFlagChecker;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -144,6 +146,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
         messagingMenuItem = menu.findItem(R.id.action_messaging);
         updateMessagingIcon();
+
+        MenuItem notiificationsMenuItem = menu.findItem(R.id.action_bell);
+        notiificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
 
         return super.onCreateOptionsMenu(menu);
     }
