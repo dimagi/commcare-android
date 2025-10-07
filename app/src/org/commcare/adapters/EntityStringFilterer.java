@@ -1,20 +1,28 @@
 package org.commcare.adapters;
 
+
+import com.google.firebase.perf.metrics.Trace;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.models.database.IDatabase;
 import org.commcare.modern.util.Pair;
 import org.commcare.util.EntitySortUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -46,6 +54,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
     @Override
     protected void filter() {
         long startTime = System.currentTimeMillis();
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_CASE_SEARCH_TIME);
 
         if (!isFilterEmpty) {
             buildMatchList();
@@ -53,6 +62,19 @@ public class EntityStringFilterer extends EntityFiltererBase {
 
         if (isCancelled()) {
             return;
+        }
+
+        // If cancelled, the tracing is not to be stopped and Firebase is supposed to discard it
+        if (!isFilterEmpty && (fullEntityList != null && !fullEntityList.isEmpty())) {
+            try {
+                Map<String, String> attrs = new HashMap<>();
+                attrs.put(CCPerfMonitoring.ATTR_RESULTS_COUNT,
+                        String.valueOf((matchList == null ? 0 : matchList.size())));
+                attrs.put(CCPerfMonitoring.ATTR_SEARCH_QUERY_LENGTH,
+                        String.valueOf(StringUtils.getSumOfLengths(searchTerms)));
+                attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED, String.valueOf(fullEntityList.size()));
+                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+            } catch (Exception ignored) {}
         }
 
         long time = System.currentTimeMillis() - startTime;

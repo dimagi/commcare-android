@@ -3,8 +3,6 @@ package org.commcare.connect.database
 import android.content.Context
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.models.database.SqlStorage
-import org.javarosa.core.services.Logger
-import java.sql.SQLException
 
 class NotificationRecordDatabaseHelper {
 
@@ -45,23 +43,14 @@ class NotificationRecordDatabaseHelper {
     fun storeNotifications(
         context: Context,
         notifications: List<PushNotificationRecord>,
-        callback: ((Boolean) -> Unit)? = null
     ) {
         val storage = getStorage(context)
-        var allSuccess = true
 
         for (incoming in notifications) {
-            try {
-                getNotificationById(context, incoming.notificationId)?.let { existing ->
-                    incoming.id = existing.id
-                }
-                storage.write(incoming)
-            } catch (e: SQLException) {
-                allSuccess = false
-                Logger.exception("Failed to write notification with ID ${incoming.notificationId}: ${e.message}",e)
+            getNotificationById(context, incoming.notificationId)?.let { existing ->
+                incoming.id = existing.id
             }
+            storage.write(incoming)
         }
-
-        callback?.invoke(allSuccess)
     }
 }

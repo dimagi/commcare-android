@@ -193,7 +193,7 @@ public class FormAndDataSyncer {
 
         DataPullTask<PullTaskResultReceiver> dataPullTask = new DataPullTask<PullTaskResultReceiver>(
                 username, password, userId, server, activity, dataPullRequester,
-                blockRemoteKeyManagement, false) {
+                blockRemoteKeyManagement, false, userTriggeredSync) {
 
             @Override
             protected void deliverResult(PullTaskResultReceiver receiver,
