@@ -21,6 +21,8 @@ import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
@@ -228,12 +230,12 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
-        binding.notificationView.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+        binding.notificationView.visibility = if (isSignedIn && isFeatureEnabled(NOTIFICATIONS)) View.VISIBLE else View.GONE
     }
 
     private fun shouldShowCredential(): Boolean {
         // we are keeping this off for now until we have go ahead to release this feature
-        return PersonalIdManager.getInstance().isloggedIn() && PersonalIdFeatureFlagChecker.isFeatureEnabled(WORK_HISTORY);
+        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY);
     }
 
     fun closeDrawer() {
