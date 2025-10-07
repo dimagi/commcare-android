@@ -673,6 +673,7 @@
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
     <string name="personalid_notification">Notifications</string>
+    <string name="pn_no_notification_found">No notifications found</string>
 
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
     <string name="nav_drawer_open">Open navigation drawer</string>

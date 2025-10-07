@@ -59,6 +59,9 @@ class PushNotificationRecord : Persisted(), Serializable {
     @Persisting(12)
     @MetaField(META_READ_STATUS)
     var readStatus: Boolean = false
+    @Persisting(13)
+    @MetaField(META_ACKNOWLEDGED)
+    var acknowledged: Boolean = false
 
     companion object {
         const val STORAGE_KEY = "push_notification_history"
@@ -75,6 +78,7 @@ class PushNotificationRecord : Persisted(), Serializable {
         const val META_CHANNEL = "channel"
         const val META_PAYMENT_ID = "payment_id"
         const val META_READ_STATUS = "read_status"
+        const val META_ACKNOWLEDGED = "acknowledged"
 
         const val META_TIME_STAMP = "timestamp"
 
@@ -108,6 +112,25 @@ class PushNotificationRecord : Persisted(), Serializable {
             }
 
             return records
+        }
+
+        @JvmStatic
+        fun fromV18(old: PushNotificationRecordV19): PushNotificationRecord {
+            return PushNotificationRecord().apply {
+                notificationId = old.notificationId
+                notificationType = old.notificationType
+                action = old.action
+                title = old.title
+                body = old.body
+                createdDate = old.createdDate
+                confirmationStatus = old.confirmationStatus
+                opportunityId = old.opportunityId
+                connectMessageId = old.connectMessageId
+                channel = old.channel
+                paymentId = old.paymentId
+                readStatus = old.readStatus
+                acknowledged = false
+            }
         }
     }
 }

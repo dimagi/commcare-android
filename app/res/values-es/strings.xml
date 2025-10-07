@@ -486,6 +486,7 @@
     <string name="personalid_work_history_no_pending_records">No hay registros pendientes en este momento</string>
 
     <string name="personalid_notification">Notificaciones</string>
+    <string name="pn_no_notification_found">No se encontraron notificaciones</string>
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>

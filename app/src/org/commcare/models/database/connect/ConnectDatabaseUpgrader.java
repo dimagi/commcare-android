@@ -30,6 +30,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
+import org.commcare.android.database.connect.models.PushNotificationRecordV19;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -130,6 +131,10 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 18) {
             upgradeEighteenNineteen(db);
             oldVersion = 19;
+        }
+        if (oldVersion == 19) {
+            upgradeNineteenTwenty(db);
+            oldVersion = 20;
         }
     }
 
@@ -654,6 +659,31 @@ public class ConnectDatabaseUpgrader {
 
     private void upgradeEighteenNineteen(IDatabase db) {
         addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+    }
+
+    private void upgradeNineteenTwenty(IDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<PushNotificationRecordV19> oldStorage = new SqlStorage<>(
+                    PushNotificationRecordV19.STORAGE_KEY,
+                    PushNotificationRecordV19.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    PushNotificationRecord.STORAGE_KEY,
+                    PushNotificationRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (PushNotificationRecordV19 oldRecord : oldStorage) {
+                PushNotificationRecord newRecord = PushNotificationRecord.fromV18(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,

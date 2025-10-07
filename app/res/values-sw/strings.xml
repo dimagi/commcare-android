@@ -494,6 +494,7 @@
     <string name="personalid_work_history_no_pending_records">Hakuna rekodi zinazosubiri kwa sasa</string>
 
     <string name="personalid_notification">Arifa</string>
+    <string name="pn_no_notification_found">Hakuna arifa zilizopatikana</string>
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>

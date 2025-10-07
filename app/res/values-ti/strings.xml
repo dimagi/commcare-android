@@ -478,6 +478,7 @@
     <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
 
     <string name="personalid_notification">መፍለጥታትን</string>
+    <string name="pn_no_notification_found">ዝኾነ መፍለጢ ኣይተረኽበን</string>
 
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 

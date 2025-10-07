@@ -483,6 +483,7 @@ License.
     <string name="personalid_work_history_level_12_month_active">12 महीने की\nगतिविधि</string>
 
     <string name="personalid_notification">सूचनाएं</string>
+    <string name="pn_no_notification_found">कोई सूचना नहीं मिली</string>
 
     <string name="personalid_work_history_no_pending_records">इस समय कोई लंबित रिकॉर्ड नहीं हैं</string>
 
