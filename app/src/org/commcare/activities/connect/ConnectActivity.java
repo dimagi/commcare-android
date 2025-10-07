@@ -81,9 +81,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        String opportunityId = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-        if(!TextUtils.isEmpty(opportunityId)){
-            job = ConnectJobUtils.getCompositeJob(this, Integer.parseInt(opportunityId));
+        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
+        if(opportunityId != -1) {
+            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
         }
     }
 
