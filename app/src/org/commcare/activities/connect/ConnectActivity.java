@@ -25,6 +25,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.activities.PushNotificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -83,9 +84,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        String opportunityId = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-        if(!TextUtils.isEmpty(opportunityId)){
-            job = ConnectJobUtils.getCompositeJob(this, Integer.parseInt(opportunityId));
+        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
+        if (opportunityId == -1) {
+            String opportunityIdStr = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
+            if (!StringUtils.isEmpty(opportunityIdStr)) {
+                opportunityId = Integer.parseInt(opportunityIdStr);
+            }
+        }
+        if(opportunityId != -1) {
+            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
         }
     }
 
