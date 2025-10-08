@@ -15,6 +15,11 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.MessageManager
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.dalvik.R
+import org.commcare.pn.workermanager.PNApiSyncWorkerManager
+import org.commcare.pn.workermanager.PNApiSyncWorkerManager.SYNC_TYPE
+import org.commcare.services.FCMMessageData.NOTIFICATION_BODY
+import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.javarosa.core.services.Logger
 import kotlin.coroutines.resume
@@ -22,8 +27,10 @@ import kotlin.coroutines.suspendCoroutine
 
 class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
-    private var pnData:Map<String,String>?=null
+    private var pnData: HashMap<String,String>?=null
     private var syncAction:SYNC_ACTION?=null
+
+    private var syncType: SYNC_TYPE?=null
 
     companion object {
         const val MAX_RETRIES = 3
@@ -31,6 +38,8 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
         const val PN_DATA = "PN_DATA"
 
         const val ACTION = "ACTION"
+
+        const val SYNC_TYPE = "SYNC_TYPE"
 
         enum class SYNC_ACTION {
             SYNC_OPPORTUNITY,
@@ -45,10 +54,12 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
     override suspend fun doWork(): Result = withContext(Dispatchers.IO){
         val pnApiStatus = startAppropriateSync()
         if (pnApiStatus.success) {
+            processAfterSuccessfulSync()
             Result.success(workDataOf(PN_DATA to Gson().toJson(pnData)))
         } else if (pnApiStatus.retry && runAttemptCount < MAX_RETRIES) {
             Result.retry()
         } else {
+            processAfterSyncFailed()
             Result.failure()
         }
     }
@@ -58,8 +69,8 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
 
         val pnJsonString = inputData.getString(PN_DATA)
         if (pnJsonString != null) {
-            val mapType = object : TypeToken<Map<String, Any>>() {}.type
-            pnData = Gson().fromJson<Map<String, String>>(pnJsonString, mapType)
+            val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
+            pnData = Gson().fromJson<HashMap<String, String>>(pnJsonString, mapType)
         }
 
 
@@ -67,6 +78,12 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
         if (syncActionJsonString != null) {
             val enumType = object : TypeToken<SYNC_ACTION>() {}.type
             syncAction = Gson().fromJson(syncActionJsonString, enumType)
+        }
+
+        val syncTypeString = inputData.getString(SYNC_TYPE)
+        if(syncTypeString!=null){
+            val enumType = object : TypeToken<SYNC_TYPE>() {}.type
+            syncType = Gson().fromJson(syncTypeString, enumType)
         }
 
         if(pnData!=null && syncAction!=null){
@@ -149,5 +166,27 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
     }
 
     private fun getFailedResponseWithoutRetry() = PNApiResponseStatus(false,false)
+
+
+    private fun processAfterSuccessfulSync(){
+        raiseFCMPushNotificationIfApplicable()
+    }
+
+    private fun processAfterSyncFailed(){
+        Logger.exception("WorkRequest Failed to complete the task for -${syncAction}", Throwable("WorkRequest Failed for ${syncAction}"))
+        if(PNApiSyncWorkerManager.SYNC_TYPE.FCM == syncType ){   // raise the notification on first failure and not multiple times
+            pnData?.put(
+                NOTIFICATION_BODY,
+                appContext.getString(R.string.fcm_sync_failed_body_text)
+            )
+            raiseFCMPushNotificationIfApplicable()
+        }
+    }
+
+    private fun raiseFCMPushNotificationIfApplicable(){
+        if(PNApiSyncWorkerManager.SYNC_TYPE.FCM == syncType) {
+            FirebaseMessagingUtil.handleNotification(appContext, pnData, null, true)
+        }
+    }
 
 }

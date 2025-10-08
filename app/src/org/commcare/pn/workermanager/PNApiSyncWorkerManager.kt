@@ -57,9 +57,6 @@ class PNApiSyncWorkerManager(val context: Context) {
     lateinit var syncType: SYNC_TYPE
     val requiredWorkerThread = HashMap<String, WorkRequest>()
 
-    var syncFailedCount = AtomicInteger(0)
-    var syncPassedCount = AtomicInteger(0)
-
     /**
      * This can receive the push notification data payload from FCM and notification API.
      */
@@ -69,13 +66,11 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
 
-     fun startPNApiSync() : Boolean {
+    fun startPNApiSync() : Boolean {
         createSyncWorkerRequest()
         if(requiredWorkerThread.isNotEmpty()){
             for(workRequest in requiredWorkerThread){
-                CoroutineScope(Dispatchers.IO).launch {
-                    startListeningToWorkerRequest(workRequest.value)
-                }
+                startWorkerRequest(workRequest.value)
             }
         }
         return requiredWorkerThread.isNotEmpty()
@@ -124,17 +119,9 @@ class PNApiSyncWorkerManager(val context: Context) {
         }
     }
 
-    private suspend fun startListeningToWorkerRequest(workRequest: WorkRequest){
+    private fun startWorkerRequest(workRequest: WorkRequest){
 
         WorkManager.getInstance(context).enqueue(workRequest)
-        val workInfo = WorkManager.getInstance(context).getWorkInfoByIdFlow(workRequest.id)
-            .first { it != null && it.state.isFinished }
-
-        when (workInfo?.state) {
-            WorkInfo.State.SUCCEEDED -> processAfterSuccessfulSync(workInfo)
-            WorkInfo.State.FAILED, WorkInfo.State.BLOCKED, WorkInfo.State.CANCELLED -> processAfterSyncFailed(workInfo)
-            else -> { }
-        }
     }
 
 
@@ -178,13 +165,15 @@ class PNApiSyncWorkerManager(val context: Context) {
 
         val pnJsonString = Gson().toJson(pn)
         val syncActionString = Gson().toJson(action)
+        val syncTypeString = Gson().toJson(syncType)
         val inputData = Data.Builder()
             .putString(PN_DATA, pnJsonString)
             .putString(ACTION,syncActionString)
+            .putString(PNApiSyncWorker.SYNC_TYPE,syncTypeString)
             .build()
 
-         return OneTimeWorkRequestBuilder<PNApiSyncWorker>()
-             .setInputData(inputData)
+        return OneTimeWorkRequestBuilder<PNApiSyncWorker>()
+            .setInputData(inputData)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(
                 androidx.work.BackoffPolicy.EXPONENTIAL,
@@ -192,44 +181,6 @@ class PNApiSyncWorkerManager(val context: Context) {
                 TimeUnit.MILLISECONDS
             ).build()
 
-    }
-
-    private fun processAfterSuccessfulSync(workInfo: WorkInfo){
-        val passed = syncPassedCount.incrementAndGet()
-        if(passed==requiredWorkerThread.size && syncType== SYNC_TYPE.FCM) {
-            val dataPayload = getPNDataPayload(workInfo)
-            if (dataPayload != null) {
-                raiseFCMPushNotification(dataPayload)
-            }
-        }
-    }
-
-    private fun processAfterSyncFailed(workInfo: WorkInfo){
-        Logger.exception("WorkRequest Failed to complete the task-${workInfo.stopReason}", Throwable("WorkRequest Failed with ${workInfo.stopReason}"))
-        val failed = syncFailedCount.incrementAndGet()
-        if(syncType == SYNC_TYPE.FCM && failed ==1){   // raise the notification on first failure and not multiple times
-            val dataPayload = getPNDataPayload(workInfo)
-            if (dataPayload != null) {
-                dataPayload.put(
-                    NOTIFICATION_BODY,
-                    context.getString(R.string.fcm_sync_failed_body_text)
-                )
-                raiseFCMPushNotification(dataPayload)
-            }
-        }
-    }
-
-    private fun raiseFCMPushNotification(dataPayload:Map<String,String>){
-        FirebaseMessagingUtil.handleNotification(context,dataPayload,null,true)
-    }
-
-    private fun getPNDataPayload(workInfo: WorkInfo):HashMap<String,String>?{
-        val pnJsonString = workInfo.outputData.getString(PN_DATA)
-        if (pnJsonString != null) {
-            val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
-            return Gson().fromJson<HashMap<String, String>>(pnJsonString, mapType)
-        }
-        return null
     }
 
 
