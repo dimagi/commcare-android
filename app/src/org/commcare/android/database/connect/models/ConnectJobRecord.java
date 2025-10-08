@@ -487,6 +487,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return numLearning > 0 ? (100 * getCompletedLearningModules() / numLearning) : 100;
     }
 
+    public int getDeliveryProgressPercentage() {
+        int completed = getCompletedVisits();
+        int total = getMaxVisits();
+        return total > 0 ? (100 * completed / total) : 100;
+    }
+
     public boolean attemptedAssessment() {
         return getLearningCompletePercentage() >= 100 && assessments != null && !assessments.isEmpty();
     }

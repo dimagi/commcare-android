@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
@@ -101,9 +102,17 @@ public class FirebaseMessagingUtil {
     private static OnCompleteListener handleFCMTokenRetrieval() {
         return (OnCompleteListener<String>)task -> {
             if (task.isSuccessful()) {
-                updateFCMToken(task.getResult());
+                String token = task.getResult();
+                if (!StringUtils.isEmpty(token)) {
+                    updateFCMToken(token);
+                } else {
+                    Logger.exception("Fetching FCM registration token failed",
+                            new Throwable("FCM registration token is empty"));
+                }
             } else {
-                Logger.exception("Fetching FCM registration token failed", task.getException());
+                Throwable throwable = task.getException() != null ? task.getException() : new Throwable(
+                        "Task to fetch FCM registration token failed");
+                Logger.exception("Fetching FCM registration token failed", throwable);
             }
         };
     }

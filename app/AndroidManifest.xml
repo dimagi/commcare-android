@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.60">
+          android:versionName="2.61">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -182,7 +182,8 @@
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
@@ -567,7 +568,7 @@
             tools:node="merge" />
 
         <activity
-            android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+            android:name="org.commcare.activities.connect.PersonalIdWorkHistoryActivity"/>
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
