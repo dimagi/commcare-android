@@ -101,7 +101,10 @@ public class JobStoreManager {
         for (ConnectJobRecord existingJob : existingJobs) {
             if (existingJob.getJobId() == job.getJobId()) {
                 job.setID(existingJob.getID());  // Set ID for updating
-                job.setStatus(existingJob.getStatus());
+                if(existingJob.getStatus() > job.getStatus()) {
+                    //Status should never go backwards
+                    job.setStatus(existingJob.getStatus());
+                }
                 isExisting = true;
                 break;
             }
