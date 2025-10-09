@@ -3,6 +3,7 @@ package org.commcare.pn.workermanager
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
@@ -55,7 +56,8 @@ class PNApiSyncWorkerManager(val context: Context) {
     lateinit var pns : ArrayList<Map<String,String>>
 
     lateinit var syncType: SYNC_TYPE
-    val requiredWorkerThread = HashMap<String, WorkRequest>()
+
+    var signaling = false
 
     /**
      * This can receive the push notification data payload from FCM and notification API.
@@ -67,35 +69,29 @@ class PNApiSyncWorkerManager(val context: Context) {
 
 
     fun startPNApiSync() : Boolean {
-        createSyncWorkerRequest()
-        if(requiredWorkerThread.isNotEmpty()){
-            for(workRequest in requiredWorkerThread){
-                startWorkerRequest(workRequest.value)
-            }
-        }
-        return requiredWorkerThread.isNotEmpty()
+        return createSyncWorkerRequest()
     }
 
-    fun createSyncWorkerRequest(){
-        for(pn in pns){
+    fun createSyncWorkerRequest() : Boolean {
+        for (pn in pns) {
 
-            when(pn[REDIRECT_ACTION]){
+            when (pn[REDIRECT_ACTION]) {
 
-                null , "" -> {
+                null, "" -> {
                     continue
                 }
 
 
-                CCC_MESSAGE ->{
+                CCC_MESSAGE -> {
                     createPersonalIdMessagingSyncWorkRequest(pn)
                 }
 
-                CCC_DEST_PAYMENTS->{
+                CCC_DEST_PAYMENTS -> {
                     createOpportunitiesSyncWorkRequest(pn)
                     createDeliverySyncWorkRequest(pn)
                 }
 
-                CCC_PAYMENT_INFO_CONFIRMATION->{
+                CCC_PAYMENT_INFO_CONFIRMATION -> {
                     createOpportunitiesSyncWorkRequest(pn)
                 }
 
@@ -117,52 +113,46 @@ class PNApiSyncWorkerManager(val context: Context) {
 
             }
         }
-    }
-
-    private fun startWorkerRequest(workRequest: WorkRequest){
-
-        WorkManager.getInstance(context).enqueue(workRequest)
+        return signaling
     }
 
 
     private fun createPersonalIdMessagingSyncWorkRequest(pn:Map<String,String>){
-        if(!requiredWorkerThread.containsKey(CCC_MESSAGE) && cccCheckPassed(context)){
-            requiredWorkerThread.put(CCC_MESSAGE,getWorkRequest(pn,
-                SYNC_ACTION.SYNC_PERSONALID_MESSAGING
-            ))
+        if(cccCheckPassed(context)) {
+            startWorkRequest(
+                pn,
+                SYNC_ACTION.SYNC_PERSONALID_MESSAGING,
+                SYNC_ACTION.SYNC_PERSONALID_MESSAGING.toString()
+            )
         }
     }
 
     private fun createLearningSyncWorkRequest(pn:Map<String,String>){
         if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
             val opportunityId = pn.get(OPPORTUNITY_ID)
-            if(!requiredWorkerThread.containsKey(SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString() +"-${opportunityId}")){
-                requiredWorkerThread.put(SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
-                    SYNC_ACTION.SYNC_LEARNING_PROGRESS))
-            }
+            startWorkRequest(pn, SYNC_ACTION.SYNC_LEARNING_PROGRESS,SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}")
         }
     }
 
     private fun createDeliverySyncWorkRequest(pn:Map<String,String>){
         if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
             val opportunityId = pn.get(OPPORTUNITY_ID)
-            if(!requiredWorkerThread.containsKey(SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString() +"-${opportunityId}")){
-                requiredWorkerThread.put(SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
-                    SYNC_ACTION.SYNC_DELIVERY_PROGRESS))
-            }
+            startWorkRequest(pn, SYNC_ACTION.SYNC_DELIVERY_PROGRESS,SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}")
         }
     }
 
 
     private fun createOpportunitiesSyncWorkRequest(pn:Map<String,String>){
-        if(!requiredWorkerThread.containsKey(SYNC_ACTION.SYNC_OPPORTUNITY.toString()) && cccCheckPassed(context)){
-            requiredWorkerThread.put(SYNC_ACTION.SYNC_OPPORTUNITY.toString() ,getWorkRequest(pn,
-                SYNC_ACTION.SYNC_OPPORTUNITY))
+        if(cccCheckPassed(context)) {
+            startWorkRequest(
+                pn,
+                SYNC_ACTION.SYNC_OPPORTUNITY,
+                SYNC_ACTION.SYNC_OPPORTUNITY.toString()
+            )
         }
     }
 
-    fun getWorkRequest(pn: Map<String,String>,action: SYNC_ACTION): WorkRequest {
-
+    fun startWorkRequest(pn: Map<String,String>,action: SYNC_ACTION,uniqueWorkName:String) {
         val pnJsonString = Gson().toJson(pn)
         val syncActionString = Gson().toJson(action)
         val syncTypeString = Gson().toJson(syncType)
@@ -172,7 +162,7 @@ class PNApiSyncWorkerManager(val context: Context) {
             .putString(PNApiSyncWorker.SYNC_TYPE,syncTypeString)
             .build()
 
-        return OneTimeWorkRequestBuilder<PNApiSyncWorker>()
+        val workRequest =  OneTimeWorkRequestBuilder<PNApiSyncWorker>()
             .setInputData(inputData)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(
@@ -180,6 +170,13 @@ class PNApiSyncWorkerManager(val context: Context) {
                 PN_SYNC_BACKOFF_DELAY_IN_MILLIS,
                 TimeUnit.MILLISECONDS
             ).build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            uniqueWorkName,
+            ExistingWorkPolicy.KEEP,
+            workRequest
+        )
+        signaling=true
 
     }
 

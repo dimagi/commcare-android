@@ -174,13 +174,11 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
 
     private fun processAfterSyncFailed(){
         Logger.exception("WorkRequest Failed to complete the task for -${syncAction}", Throwable("WorkRequest Failed for ${syncAction}"))
-        if(PNApiSyncWorkerManager.SYNC_TYPE.FCM == syncType ){   // raise the notification on first failure and not multiple times
-            pnData?.put(
-                NOTIFICATION_BODY,
-                appContext.getString(R.string.fcm_sync_failed_body_text)
-            )
-            raiseFCMPushNotificationIfApplicable()
-        }
+        pnData?.put(
+            NOTIFICATION_BODY,
+            appContext.getString(R.string.fcm_sync_failed_body_text)
+        )
+        raiseFCMPushNotificationIfApplicable()
     }
 
     private fun raiseFCMPushNotificationIfApplicable(){
