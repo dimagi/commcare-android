@@ -115,7 +115,7 @@ class PushNotificationRecord : Persisted(), Serializable {
         }
 
         @JvmStatic
-        fun fromV18(old: PushNotificationRecordV19): PushNotificationRecord {
+        fun fromV19(old: PushNotificationRecordV19): PushNotificationRecord {
             return PushNotificationRecord().apply {
                 notificationId = old.notificationId
                 notificationType = old.notificationType

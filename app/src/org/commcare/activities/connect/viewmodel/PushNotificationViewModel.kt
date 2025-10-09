@@ -1,6 +1,7 @@
 package org.commcare.activities.connect.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -24,7 +25,6 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
 
     private val notificationRecordDbHelper = NotificationRecordDatabaseHelper()
     private val user = ConnectUserDatabaseUtil.getUser(application)
-    var savedNotificationIds: List<String> = emptyList()
 
     fun loadNotifications() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -38,10 +38,10 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                 override fun onSuccess(result: List<PushNotificationRecord>) {
                     // append new results to UI
                     val currentNotifications = _allNotifications.value.orEmpty()
-                    val updatedNotifications = currentNotifications + result
-                    _allNotifications.postValue(updatedNotifications.distinctBy { it.notificationId })
+                    val updatedNotifications = (result + currentNotifications).distinctBy { it.notificationId }
+                    _allNotifications.postValue(updatedNotifications)
                     // Save API result into DB and get notification IDs for stored notifications
-                    savedNotificationIds =
+                    val savedNotificationIds =
                         notificationRecordDbHelper.storeNotifications(
                             getApplication(), result
                         )
@@ -57,7 +57,7 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                 override fun onFailure(
                     failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?
                 ) {
-
+                    _fetchApiError.postValue(failureCode to t)
                 }
             }.retrieveNotifications(getApplication(), user.userId, user.password)
         }
@@ -66,7 +66,7 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
     /**
      * Update notifications for a list of notification IDs
      */
-    fun updateNotifications(userId: String, password: String, notificationIds: List<String>) {
+    fun updateNotifications(userId: String, password: String, savedNotificationIds: List<String>) {
         viewModelScope.launch(Dispatchers.IO) {
             object : PersonalIdApiHandler<Unit>() {
                 override fun onSuccess(result: Unit) {
@@ -81,9 +81,9 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                 override fun onFailure(
                     failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?
                 ) {
-
+                    _fetchApiError.postValue(failureCode to t)
                 }
-            }.updateNotifications(getApplication(), userId, password, notificationIds)
+            }.updateNotifications(getApplication(), userId, password, savedNotificationIds)
         }
     }
 }

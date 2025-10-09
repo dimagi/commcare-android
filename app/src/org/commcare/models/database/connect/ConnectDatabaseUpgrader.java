@@ -675,7 +675,7 @@ public class ConnectDatabaseUpgrader {
                     new ConcreteAndroidDbHelper(c, db));
 
             for (PushNotificationRecordV19 oldRecord : oldStorage) {
-                PushNotificationRecord newRecord = PushNotificationRecord.fromV18(oldRecord);
+                PushNotificationRecord newRecord = PushNotificationRecord.fromV19(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
