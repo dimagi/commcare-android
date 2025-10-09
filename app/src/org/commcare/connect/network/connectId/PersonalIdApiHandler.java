@@ -55,7 +55,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             @Override
             public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
                 if (!handleErrorCodeIfPresent(errorCode, errorSubCode, sessionData)) {
-                    super.processFailure(responseCode, errorCode, errorSubCode, url);
+                    super.processFailure(responseCode, url, errorCode, errorSubCode);
                 }
             }
         };
