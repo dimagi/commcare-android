@@ -315,6 +315,27 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.CREDENTIALS);
     }
 
+    public static void retrieveNotifications(Context context, String userId, String password,
+                                             IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.getAllNotifications(tokenAuth);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.RETRIEVE_NOTIFICATIONS);
+    }
+
+    public static void updateNotifications(Context context, String userId, String password, IApiCallback callback, List<String> notificationId) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("notifications", notificationId);
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, false, PersonalIdApiClient.API_VERSION, headers);
+        Call<ResponseBody> call = apiService.updateNotification(tokenAuth, headers, requestBody);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.UPDATE_NOTIFICATIONS);
+    }
+
     public static void sendOtp(Context context, String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);

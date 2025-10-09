@@ -403,6 +403,7 @@ public class FormStorageTest {
 
             //Added in 2.60
             ,"org.commcare.suite.model.Credential"
+            ,"org.commcare.android.database.connect.models.PushNotificationRecordV19"
     );
 
 
