@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
+import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.HTTPMethod;
@@ -179,7 +180,7 @@ public class PostRequestActivity
     }
 
     @Override
-    public void processClientError(int responseCode) {
+    public void processClientError(int responseCode, ResponseStreamAccessor streamAccessor) {
         String clientErrorMessage;
         switch (responseCode) {
             case 409:

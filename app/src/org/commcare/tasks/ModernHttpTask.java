@@ -34,6 +34,7 @@ public class ModernHttpTask
 
     private final ModernHttpRequester requester;
     private InputStream responseDataStream;
+    private InputStream errorResponseDataStream;
     private IOException mException;
     private Response<ResponseBody> mResponse;
 
@@ -69,6 +70,8 @@ public class ModernHttpTask
             mResponse = requester.makeRequest();
             if (mResponse.isSuccessful()) {
                 responseDataStream = requester.getResponseStream(mResponse);
+            } else  {
+                errorResponseDataStream = requester.getErrorResponseStream(mResponse);
             }
         } catch (IOException e) {
             mException = e;
@@ -92,6 +95,11 @@ public class ModernHttpTask
                         @Override
                         public InputStream getResponseStream() {
                             return responseDataStream;
+                        }
+
+                        @Override
+                        public InputStream getErrorResponseStream() {
+                            return errorResponseDataStream;
                         }
 
                         @Override

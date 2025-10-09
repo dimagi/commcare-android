@@ -6,7 +6,11 @@ import okhttp3.ResponseBody
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.network.IApiCallback
+import org.commcare.connect.network.NetworkUtils.getErrorCodes
+import org.commcare.connect.network.NetworkUtils.logFailedResponse
+import org.commcare.connect.network.NetworkUtils.logNetworkError
 import org.commcare.util.LogTypes
+import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import retrofit2.Call
 import retrofit2.Callback
@@ -37,15 +41,22 @@ class BaseApi {
                                 callback.processSuccess(response.code(), responseStream)
                             }
                         } catch (e: IOException) {
+                            Logger.exception("Error reading response stream", e);
                             // Handle error when reading the stream
-                            callback.processFailure(response.code(), null, endPoint)
+                            callback.processFailure(response.code(), endPoint, "", "")
                         }
                     } else {
-                        // Handle validation errors
-                        logFailedResponse(response, endPoint)
                         val stream = if (response.errorBody() != null) response.errorBody()!!
                             .byteStream() else null
-                        callback.processFailure(response.code(), stream, endPoint)
+                        try {
+                            val errorCodes = getErrorCodes(stream)
+                            val errorCode = errorCodes.first
+                            val errorSubCode = errorCodes.second
+                            logFailedResponse(response.message(), response.code(), endPoint, errorCode, errorSubCode)
+                            callback.processFailure(response.code(), endPoint, errorCode, errorSubCode)
+                        } finally {
+                            StreamsUtil.closeStream(stream)
+                        }
                     }
                 }
 
@@ -76,45 +87,6 @@ class BaseApi {
                 }
             }
         }
-
-
-        fun logFailedResponse(response: Response<*>, endPoint: String) {
-            val message = response.message()
-            var errorMessage = when (response.code()) {
-                400 -> "Bad Request: $message"
-                401 -> "Unauthorized: $message"
-                404 -> "Not Found: $message"
-                500 -> "Server Error: $message"
-                else -> "API Error: $message"
-
-            }
-            errorMessage += " for url ${endPoint ?: "url not found"}"
-
-            Logger.log(
-                LogTypes.TYPE_ERROR_SERVER_COMMS,
-                errorMessage
-            )
-            Logger.exception(LogTypes.TYPE_ERROR_SERVER_COMMS, Throwable(errorMessage))
-        }
-
-
-        fun logNetworkError(t: Throwable, endPoint: String) {
-            val message = t.message
-
-            var errorMessage = when (t) {
-                is IOException -> "Network Error: $message"
-                is HttpException -> "HTTP Error: $message"
-                else -> "Unexpected Error: $message"
-            }
-
-            errorMessage += " for url ${endPoint ?: "url not found"}"
-            Logger.log(
-                LogTypes.TYPE_ERROR_SERVER_COMMS,
-                errorMessage
-            )
-            Logger.exception(errorMessage, t)
-        }
-
     }
 
 }

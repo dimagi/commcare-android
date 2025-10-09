@@ -87,7 +87,7 @@ public class MessageManager {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+            public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
                 listener.connectActivityComplete(false);
             }
 
@@ -139,7 +139,7 @@ public class MessageManager {
 
             @Override
 
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+            public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
                 listener.connectActivityComplete(false);
             }
 
@@ -191,7 +191,7 @@ public class MessageManager {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+                    public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
                         if (listener != null) {
                             listener.connectActivityComplete(false);
                         }
@@ -251,7 +251,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+                public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
                     listener.connectActivityComplete(false);
                 }
 
@@ -305,7 +305,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+                public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
                     listener.connectActivityComplete(false);
                 }
 
