@@ -68,19 +68,18 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
 
+    /**
+     * This method will start Api sync for received PNs either through FCM or notification API
+     * @return true if any signalising PN API sync is required
+     */
     fun startPNApiSync() : Boolean {
         return createSyncWorkerRequest()
     }
 
-    fun createSyncWorkerRequest() : Boolean {
+    private fun createSyncWorkerRequest() : Boolean {
         for (pn in pns) {
 
             when (pn[REDIRECT_ACTION]) {
-
-                null, "" -> {
-                    continue
-                }
-
 
                 CCC_MESSAGE -> {
                     createPersonalIdMessagingSyncWorkRequest(pn)

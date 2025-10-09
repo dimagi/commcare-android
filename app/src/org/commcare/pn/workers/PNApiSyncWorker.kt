@@ -25,7 +25,7 @@ import org.javarosa.core.services.Logger
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
+class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
     private var pnData: HashMap<String,String>?=null
     private var syncAction:SYNC_ACTION?=null
@@ -86,31 +86,30 @@ class PNApiSyncWorker (val appContext: Context, val workerParams: WorkerParamete
             syncType = Gson().fromJson(syncTypeString, enumType)
         }
 
-        if(pnData!=null && syncAction!=null){
+        requireNotNull(pnData){"PN data cannot be null"}
+        requireNotNull(syncAction){"Sync action cannot be null"}
 
-            return when(syncAction!!){
 
-                SYNC_ACTION.SYNC_OPPORTUNITY->{
-                    if(cccCheckPassed(appContext)) syncOpportunities() else getFailedResponseWithoutRetry()
-                }
 
-                SYNC_ACTION.SYNC_PERSONALID_MESSAGING->{
-                    if(cccCheckPassed(appContext)) syncPersonalIdMessagesOrChannel() else getFailedResponseWithoutRetry()
-                }
+        return when(syncAction!!){
 
-                SYNC_ACTION.SYNC_DELIVERY_PROGRESS->{
-                    if(cccCheckPassed(appContext)) syncDeliveryProgress() else getFailedResponseWithoutRetry()
-                }
+            SYNC_ACTION.SYNC_OPPORTUNITY->{
+                if(cccCheckPassed(appContext)) syncOpportunities() else getFailedResponseWithoutRetry()
+            }
 
-                SYNC_ACTION.SYNC_LEARNING_PROGRESS->{
-                    if(cccCheckPassed(appContext)) syncLearningProgress()  else getFailedResponseWithoutRetry()
-                }
+            SYNC_ACTION.SYNC_PERSONALID_MESSAGING->{
+                if(cccCheckPassed(appContext)) syncPersonalIdMessagesOrChannel() else getFailedResponseWithoutRetry()
+            }
 
+            SYNC_ACTION.SYNC_DELIVERY_PROGRESS->{
+                if(cccCheckPassed(appContext)) syncDeliveryProgress() else getFailedResponseWithoutRetry()
+            }
+
+            SYNC_ACTION.SYNC_LEARNING_PROGRESS->{
+                if(cccCheckPassed(appContext)) syncLearningProgress()  else getFailedResponseWithoutRetry()
             }
 
         }
-        Logger.exception("Push notification sync failed", Throwable("invalid sync type"))
-        return getFailedResponseWithoutRetry()
     }
 
     private suspend fun syncOpportunities(): PNApiResponseStatus = suspendCoroutine { continuation ->
