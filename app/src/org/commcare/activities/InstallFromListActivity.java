@@ -20,11 +20,10 @@ import androidx.appcompat.widget.SwitchCompat;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.GlobalPrivilegesManager;
@@ -326,7 +325,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void processClientError(int responseCode) {
+    public void processClientError(int responseCode, ResponseStreamAccessor streamAccessor) {
         handleRequestError(responseCode, true);
     }
 

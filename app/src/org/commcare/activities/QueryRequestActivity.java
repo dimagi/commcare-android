@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -173,7 +174,7 @@ public class QueryRequestActivity
     }
 
     @Override
-    public void processClientError(int responseCode) {
+    public void processClientError(int responseCode, ResponseStreamAccessor streamAccessor) {
         enterErrorState(Localization.get("post.client.error", responseCode + ""));
     }
 
