@@ -7,6 +7,8 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.NetworkUtils.getErrorCodes
+import org.commcare.connect.network.NetworkUtils.logFailedResponse
+import org.commcare.connect.network.NetworkUtils.logNetworkError
 import org.commcare.util.LogTypes
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
@@ -50,7 +52,7 @@ class BaseApi {
                             val errorCodes = getErrorCodes(stream)
                             val errorCode = errorCodes.first
                             val errorSubCode = errorCodes.second
-                            logFailedResponse(response, endPoint, errorCode, errorSubCode)
+                            logFailedResponse(response.message(), response.code(), endPoint, errorCode, errorSubCode)
                             callback.processFailure(response.code(), endPoint, errorCode, errorSubCode)
                         } finally {
                             StreamsUtil.closeStream(stream)
@@ -85,47 +87,6 @@ class BaseApi {
                 }
             }
         }
-
-
-        fun logFailedResponse(response: Response<*>, endPoint: String, errorCode: String, errorSubCode: String) {
-            var message = response.message()
-            message += if (errorCode.isNotEmpty()) " | error_code: $errorCode" else ""
-            message += if (errorSubCode.isNotEmpty()) " | error_sub_code: $errorSubCode" else ""
-            var errorMessage = when (response.code()) {
-                400 -> "Bad Request: $message"
-                401 -> "Unauthorized: $message"
-                404 -> "Not Found: $message"
-                500 -> "Server Error: $message"
-                else -> "API Error: $message"
-
-            }
-            errorMessage += " for url ${endPoint ?: "url not found"}"
-
-            Logger.log(
-                LogTypes.TYPE_ERROR_SERVER_COMMS,
-                errorMessage
-            )
-            Logger.exception(LogTypes.TYPE_ERROR_SERVER_COMMS, Throwable(errorMessage))
-        }
-
-
-        fun logNetworkError(t: Throwable, endPoint: String) {
-            val message = t.message
-
-            var errorMessage = when (t) {
-                is IOException -> "Network Error: $message"
-                is HttpException -> "HTTP Error: $message"
-                else -> "Unexpected Error: $message"
-            }
-
-            errorMessage += " for url ${endPoint ?: "url not found"}"
-            Logger.log(
-                LogTypes.TYPE_ERROR_SERVER_COMMS,
-                errorMessage
-            )
-            Logger.exception(errorMessage, t)
-        }
-
     }
 
 }
