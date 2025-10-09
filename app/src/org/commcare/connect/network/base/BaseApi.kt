@@ -7,12 +7,15 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.network.IApiCallback
 import org.commcare.util.LogTypes
+import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 
 class BaseApi {
 
@@ -37,15 +40,29 @@ class BaseApi {
                                 callback.processSuccess(response.code(), responseStream)
                             }
                         } catch (e: IOException) {
+                            Logger.exception("Error reading response stream", e);
                             // Handle error when reading the stream
-                            callback.processFailure(response.code(), null, endPoint)
+                            callback.processFailure(response.code(), "", "", endPoint)
                         }
                     } else {
                         // Handle validation errors
-                        logFailedResponse(response, endPoint)
                         val stream = if (response.errorBody() != null) response.errorBody()!!
                             .byteStream() else null
-                        callback.processFailure(response.code(), stream, endPoint)
+                        var errorCode = ""
+                        var errorSubCode = ""
+                        try {
+                            if (stream != null) {
+                                val errorBytes = StreamsUtil.inputStreamToByteArray(stream)
+                                val jsonStr = String(errorBytes, StandardCharsets.UTF_8)
+                                val json = JSONObject(jsonStr)
+                                errorCode = json.optString("error_code", "");
+                                errorSubCode = json.optString("error_sub_code", "");
+                            }
+                        } catch (e: Exception) {
+                            Logger.exception("Error parsing error_code", e);
+                        }
+                        logFailedResponse(response,  endPoint, errorCode, errorSubCode)
+                        callback.processFailure(response.code(), errorCode, errorSubCode, endPoint)
                     }
                 }
 
@@ -78,8 +95,10 @@ class BaseApi {
         }
 
 
-        fun logFailedResponse(response: Response<*>, endPoint: String) {
-            val message = response.message()
+        fun logFailedResponse(response: Response<*>, endPoint: String, errorCode: String, errorSubCode: String) {
+            var message = response.message()
+            message += if (errorCode.isNotEmpty()) " | error_code: $errorCode" else ""
+            message += if (errorSubCode.isNotEmpty()) " | error_sub_code: $errorSubCode" else ""
             var errorMessage = when (response.code()) {
                 400 -> "Bad Request: $message"
                 401 -> "Unauthorized: $message"
