@@ -134,6 +134,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
     private suspend fun syncDeliveryProgress(): PNApiResponseStatus{
         val job = getConnectJob()
         if(job==null) {
+            Logger.exception("WorkRequest Failed to complete the task for -${syncAction} as connect job not found", Throwable("WorkRequest Failed for ${syncAction} as connect job not found"))
             return getFailedResponseWithoutRetry()
         }
         return suspendCoroutine { continuation ->
@@ -148,6 +149,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
     private suspend fun syncLearningProgress(): PNApiResponseStatus{
         val job = getConnectJob()
         if(job == null) {
+            Logger.exception("WorkRequest Failed to complete the task for -${syncAction} as connect job not found", Throwable("WorkRequest Failed for ${syncAction} as connect job not found"))
             return getFailedResponseWithoutRetry()
         }
         return suspendCoroutine { continuation ->
