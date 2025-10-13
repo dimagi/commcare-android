@@ -39,6 +39,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.FCMMessageData;
 import org.commcare.services.PaymentAcknowledgeReceiver;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.util.HashMap;
@@ -204,7 +205,8 @@ public class FirebaseMessagingUtil {
      */
     private static Intent handleCCCActionPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
 
-         if(!PersonalIdManager.getInstance().isloggedIn()) {    // app doesn't show notification related to CCC if user is not logged in)
+         if(!cccCheckPassed(context)) {    // app doesn't show notification related to CCC if user is not logged in
+             Logger.log(LogTypes.TYPE_FCM,"CCC push notification sent while user is logout");
              return null;
          }
 
@@ -494,6 +496,12 @@ public class FirebaseMessagingUtil {
             return pnIntent;
         }
         return null;
+    }
+
+    public static boolean cccCheckPassed(Context context){
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(context);
+        return personalIdManager.isloggedIn();
     }
 
 }

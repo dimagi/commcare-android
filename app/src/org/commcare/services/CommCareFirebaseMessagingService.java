@@ -1,39 +1,19 @@
 package org.commcare.services;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.os.Build;
 
-import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.google.android.gms.common.util.Strings;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.commcare.CommCareNoficationManager;
-import org.commcare.activities.DispatchActivity;
-import org.commcare.activities.connect.ConnectActivity;
-import org.commcare.activities.connect.ConnectMessagingActivity;
-import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
-import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.sync.FirebaseMessagingDataSyncer;
+import org.commcare.pn.workermanager.PNApiSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
+import java.util.ArrayList;
 import java.util.Map;
-
-import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
@@ -55,7 +35,19 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
                 remoteMessage.getData());
-        FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(),remoteMessage.getNotification(),true);
+
+        if(!startSyncForNotification(remoteMessage)){
+            Logger.log(LogTypes.TYPE_FCM,"No sync present, it will try to raise the notification directly");
+            FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(), remoteMessage.getNotification(),true);
+        }
+
+    }
+
+    private Boolean startSyncForNotification(RemoteMessage remoteMessage){
+        ArrayList<Map<String,String>> pns = new ArrayList<>();
+        pns.add(remoteMessage.getData());
+        PNApiSyncWorkerManager pnApiSyncWorkerManager = new PNApiSyncWorkerManager(getApplicationContext(),pns, PNApiSyncWorkerManager.SYNC_TYPE.FCM);
+        return pnApiSyncWorkerManager.startPNApiSync();
     }
 
     @Override
