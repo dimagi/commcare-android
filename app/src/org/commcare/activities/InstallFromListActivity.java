@@ -20,7 +20,6 @@ import androidx.appcompat.widget.SwitchCompat;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.core.interfaces.HttpResponseProcessor;
-import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
@@ -325,7 +324,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void processClientError(int responseCode, ResponseStreamAccessor streamAccessor) {
+    public void processClientError(int responseCode, InputStream errorStream) {
         handleRequestError(responseCode, true);
     }
 

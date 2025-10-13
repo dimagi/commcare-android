@@ -13,7 +13,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.core.interfaces.HttpResponseProcessor;
-import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -25,7 +24,6 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -328,7 +326,7 @@ public class ConnectNetworkHelper {
             }
 
             @Override
-            public void processClientError(int responseCode, ResponseStreamAccessor streamAccessor) {
+            public void processClientError(int responseCode, InputStream errorStream) {
                 onFinishProcessing(context, background);
 
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
@@ -344,18 +342,11 @@ public class ConnectNetworkHelper {
                         ConnectSsoHelper.discardTokens(context, null);
                         handler.processTokenUnavailableError();
                     } else {
-                        InputStream errorStream = streamAccessor.getErrorResponseStream();
-                        try {
-                            Pair<String, String> errorCodes = NetworkUtils.getErrorCodes(errorStream);
-                            NetworkUtils.logFailedResponse("", responseCode, url, errorCodes.getFirst(),
-                                    errorCodes.getSecond());
-                            handler.processFailure(responseCode, url, errorCodes.getFirst(),
-                                    errorCodes.getSecond());
-                        } catch (Exception e) {
-                            Logger.exception("Exception during network error processing", e);
-                        } finally {
-                            StreamsUtil.closeStream(errorStream);
-                        }
+                        Pair<String, String> errorCodes = NetworkUtils.getErrorCodes(errorStream);
+                        NetworkUtils.logFailedResponse("", responseCode, url, errorCodes.getFirst(),
+                                errorCodes.getSecond());
+                        handler.processFailure(responseCode, url, errorCodes.getFirst(),
+                                errorCodes.getSecond());
                     }
                 }
             }

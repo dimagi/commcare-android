@@ -97,6 +97,7 @@ public class ModernHttpTask
                             return responseDataStream;
                         }
 
+                        @Nullable
                         @Override
                         public InputStream getErrorResponseStream() {
                             return errorResponseDataStream;

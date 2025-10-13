@@ -7,7 +7,6 @@ import com.google.common.collect.Multimap;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
-import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
@@ -81,7 +80,7 @@ public abstract class GetAndParseActor {
         }
 
         @Override
-        public void processClientError(int responseCode, ResponseStreamAccessor streamAccessor) {
+        public void processClientError(int responseCode, InputStream errorStream) {
             processErrorResponse(responseCode);
         }
 
