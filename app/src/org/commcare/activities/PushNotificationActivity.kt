@@ -26,7 +26,7 @@ class PushNotificationActivity : AppCompatActivity() {
         setContentView(binding.root)
         initViews()
         observeRetrieveNotificationApi()
-        fetchAllNotifications()
+        pushNotificationViewModel.loadNotifications(isRefreshed = false)
     }
 
     private fun observeRetrieveNotificationApi() {
@@ -59,14 +59,10 @@ class PushNotificationActivity : AppCompatActivity() {
         pushNotificationAdapter = PushNotificationAdapter(listener = object :
             PushNotificationAdapter.OnNotificationClickListener {
             override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
-
+                notificationRecord.acknowledged = true
             }
         })
         binding.rvNotifications.adapter = pushNotificationAdapter
-    }
-
-    private fun fetchAllNotifications() {
-        pushNotificationViewModel.loadNotifications()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -82,7 +78,7 @@ class PushNotificationActivity : AppCompatActivity() {
             }
 
             R.id.notification_cloud_sync -> {
-                fetchAllNotifications()
+                pushNotificationViewModel.loadNotifications(isRefreshed = true)
                 true
             }
 
