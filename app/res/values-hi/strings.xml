@@ -399,7 +399,7 @@ License.
     <string name="connect_expired">समाप्त</string>
     <string name="connect_job_tile_daily_limit_description">दैनिक सीमा पूरी हो गई। फॉर्म जमा करने पर कोई भुगतान नहीं।</string>
     <string name="connect_recovery_button_phone">जारी रखें</string>
-
+    <string name="fcm_sync_failed_body_text">अधिक जानकारी के लिए यहां क्लिक करें</string>
     <string name="connect_verify_phone_resend_code">कोड पुनः भेजें</string>
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>
     <string name="connect_messaging_title">मैसेजिंग</string>
