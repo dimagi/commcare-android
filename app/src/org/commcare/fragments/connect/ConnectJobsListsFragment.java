@@ -90,23 +90,16 @@ public class ConnectJobsListsFragment extends Fragment
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                int totalJobs = data.getValidJobs().size();
-                int newJobs = ConnectJobUtils.storeJobs(getContext(), data.getValidJobs(), true);
                 corruptJobs = data.getCorruptJobs();
                 setJobListData(data.getValidJobs());
-                reportApiCall(true, totalJobs, newJobs);
             }
         }.getConnectOpportunities(requireContext(), user);
     }
 
     private void navigateFailure() {
-        reportApiCall(false, 0, 0);
         setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), ConnectJobRecord.STATUS_ALL_JOBS, null));
     }
 
-    private void reportApiCall(boolean success, int totalJobs, int newJobs) {
-        FirebaseAnalyticsUtil.reportCccApiJobs(success, totalJobs, newJobs);
-    }
 
     private void initRecyclerView() {
         binding.connectNoJobsText.setVisibility(corruptJobs.isEmpty() && jobList.isEmpty() ?

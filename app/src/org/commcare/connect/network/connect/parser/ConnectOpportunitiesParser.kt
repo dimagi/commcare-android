@@ -1,15 +1,17 @@
 package org.commcare.connect.network.connect.parser
 
+import android.content.Context
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.BaseApiResponseParser
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.models.connect.ConnectLoginJobListModel
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import java.io.InputStream
 
 class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
@@ -34,15 +36,22 @@ class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
                             handleCorruptJob(obj, corruptJobs)
                         }
                     }
+
+                    val newJobs = ConnectJobUtils.storeJobs(anyInputObject as Context, jobs, true)
+                    reportApiCall(true, jobs.size, newJobs)
                 }
             }
         } catch (e: JSONException) {
+            reportApiCall(false, 0, 0)
             throw RuntimeException(e)
         }
-
         return ConnectOpportunitiesResponseModel(jobs, corruptJobs) as T
 
+    }
 
+
+    private fun reportApiCall(success: Boolean, totalJobs: Int, newJobs: Int) {
+        FirebaseAnalyticsUtil.reportCccApiJobs(success, totalJobs, newJobs)
     }
 
     private fun handleCorruptJob(obj: JSONObject?,corruptJobs: ArrayList<ConnectLoginJobListModel>) {

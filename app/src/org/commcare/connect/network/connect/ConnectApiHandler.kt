@@ -19,7 +19,8 @@ abstract class ConnectApiHandler<T> : BaseApiHandler<T>() {
     fun getConnectOpportunities(context: Context, user: ConnectUserRecord) {
         ApiConnect.getConnectOpportunities(
             context, user, createCallback(
-                ConnectOpportunitiesParser<T>()
+                ConnectOpportunitiesParser<T>(),
+                context
             )
         )
     }
