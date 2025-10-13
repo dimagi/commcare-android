@@ -362,7 +362,6 @@
     <string name="app_with_id_not_found">La aplicación CommCare requerida no está instalada en el dispositivo</string>
     <string name="audio_recording_notification">Notificación de grabación de audio</string>
     <string name="user_suspended">El usuario está suspendido. Por favor, contacta al administrador.</string>
-    <string name="connect_job_list_api_failure">Ocurrió un error al conectar con el servidor.</string>
     <string name="connect_payment_acknowledge_notification_yes">Sí</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
     <string name="enter_otp">Ingresa el código SMS</string>

@@ -360,7 +360,6 @@ License.
     <string name="app_with_id_not_found">आवश्यक CommCare एप्लिकेशन डिवाइस पर इंस्टॉल नहीं है</string>
     <string name="audio_recording_notification">ऑडियो रिकॉर्डिंग अधिसूचना</string>
     <string name="user_suspended">उपयोगकर्ता निलंबित है। कृपया व्यवस्थापक से संपर्क करें।</string>
-    <string name="connect_job_list_api_failure">सर्वर से कनेक्ट करते समय एक त्रुटि हुई।</string>
     <string name="connect_payment_acknowledge_notification_yes">हाँ</string>
     <string name="connect_payment_acknowledge_notification_no">नहीं</string>
     <string name="enter_otp">SMS कोड दर्ज करें</string>
