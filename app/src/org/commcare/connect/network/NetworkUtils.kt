@@ -56,7 +56,7 @@ object NetworkUtils {
             else -> "API Error: $message"
 
         }
-        errorMessage += " for url ${endPoint ?: "url not found"}"
+        errorMessage += " for url ${endPoint ?: "unknown url"}"
 
         Logger.log(
             LogTypes.TYPE_ERROR_SERVER_COMMS,
