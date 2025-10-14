@@ -1,30 +1,24 @@
 package org.commcare.connect.database;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.Toast;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.network.SsoToken;
-import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.IDatabase;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Date;
+
 
 /**
  * Helper class for accessing the Connect DB
@@ -33,24 +27,15 @@ import java.util.Date;
  */
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
-    public static SQLiteDatabase connectDatabase;
+    public static IDatabase connectDatabase;
     static boolean dbBroken = false;
 
-    public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
-        ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, false);
-        try {
-            if ((connectDatabase == null || !connectDatabase.isOpen())) {
-                DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
-                ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
-            }
-        } catch (Exception e) {
-            Logger.exception("Handling received DB passphrase", e);
-            crashDb();
-        }
+    public static void handleReceivedDbPassphrase(Context context, String passphrase) {
+        ConnectDatabaseUtils.storeConnectDbPassphrase(context, passphrase);
     }
 
-    public static boolean dbExists(Context context) {
-        return DatabaseConnectOpenHelper.dbExists(context);
+    public static boolean dbExists() {
+        return DatabaseConnectOpenHelper.dbExists();
     }
 
     public static boolean isDbBroken() {
@@ -60,28 +45,21 @@ public class ConnectDatabaseHelper {
     static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
         return new SqlStorage<>(c.getAnnotation(Table.class).value(), c, new AndroidDbHelper(context) {
             @Override
-            public SQLiteDatabase getHandle() {
+            public IDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
-                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
-
-                            DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
-
-                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
-                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
-                            if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
-                                //Using the UserSandboxUtils helper method to align with other code
-                                connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
-                            } else {
-                                //LEGACY: Used to open the DB using the byte[], not String overload
-                                connectDatabase = helper.getWritableDatabase(passphrase);
+                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
+                            if(passphrase == null) {
+                                throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
                             }
+
+                            connectDatabase = new EncryptedDatabaseAdapter(new DatabaseConnectOpenHelper(
+                                    this.c, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            Logger.exception("Corrupt Connect DB", e);
-                            crashDb();
+                            crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR, e);
                         }
                     }
                     return connectDatabase;
@@ -99,14 +77,13 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void crashDb() {
-        crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR);
+    public static void crashDb(GlobalErrors error) {
+        crashDb(error, null);
     }
 
-    public static void crashDb(GlobalErrors error) {
+    public static void crashDb(GlobalErrors error, Exception ex) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
-
-        throw new RuntimeException("Connect database crash");
+        throw new RuntimeException("Connect database crash: " + error.name(), ex);
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {

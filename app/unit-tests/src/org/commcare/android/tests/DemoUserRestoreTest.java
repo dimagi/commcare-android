@@ -65,7 +65,7 @@ public class DemoUserRestoreTest {
                 Robolectric.buildActivity(LoginActivity.class, loginActivityIntent)
                         .setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
-        shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
+        shadowActivity.clickMenuItem(LoginActivity.MENU_PRACTICE_MODE);
         ShadowLooper.idleMainLooper();
     }
 

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.ACase;
@@ -19,6 +17,7 @@ import org.commcare.android.database.user.models.FormRecordV5;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
@@ -41,7 +40,7 @@ import java.util.Vector;
  */
 public class UserDbUpgradeUtils {
 
-    protected static void addAppIdColumnToTable(SQLiteDatabase db) {
+    protected static void addAppIdColumnToTable(IDatabase db) {
         // Alter the FormRecord table to include an app id column
         db.execSQL(DbUtil.addColumnToTable(
                 FormRecord.STORAGE_KEY,
@@ -49,7 +48,7 @@ public class UserDbUpgradeUtils {
                 "TEXT"));
     }
 
-    protected static void addFormNumberColumnToTable(SQLiteDatabase db) {
+    protected static void addFormNumberColumnToTable(IDatabase db) {
         // Alter the FormRecord table to include an app id column
         db.execSQL(DbUtil.addColumnToTable(
                 FormRecord.STORAGE_KEY,
@@ -81,7 +80,7 @@ public class UserDbUpgradeUtils {
         return null;
     }
 
-    protected static void deleteExistingFormRecordsAndWarnUser(Context c, SQLiteDatabase db) {
+    protected static void deleteExistingFormRecordsAndWarnUser(Context c, IDatabase db) {
         SqlStorage<FormRecordV1> formRecordStorage = new SqlStorage<>(
                 FormRecord.STORAGE_KEY,
                 FormRecordV1.class,
@@ -102,13 +101,13 @@ public class UserDbUpgradeUtils {
         CommCareApplication.instance().storeMessageForUserOnDispatch(warningTitle, warningMessage);
     }
 
-    protected static void updateIndexes(SQLiteDatabase db) {
+    protected static void updateIndexes(IDatabase db) {
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
     }
 
-    protected static void addStockTable(SQLiteDatabase db) {
+    protected static void addStockTable(IDatabase db) {
         TableBuilder builder = new TableBuilder(Ledger.STORAGE_KEY);
         builder.addData(new Ledger());
         builder.setUnique(Ledger.INDEX_ENTITY_ID);
@@ -165,7 +164,7 @@ public class UserDbUpgradeUtils {
         return idToDateIndex;
     }
 
-    protected static void addRelationshipToAllCases(Context c, SQLiteDatabase db) {
+    protected static void addRelationshipToAllCases(Context c, IDatabase db) {
         SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                 new ConcreteAndroidDbHelper(c, db));
 
@@ -178,7 +177,7 @@ public class UserDbUpgradeUtils {
         indexTable.reIndexAllCases(caseStorage);
     }
 
-    protected static void migrateFormRecordsToV3(Context c, SQLiteDatabase db) {
+    protected static void migrateFormRecordsToV3(Context c, IDatabase db) {
         SqlStorage<FormRecordV3> oldStorage = getFormRecordStorage(c, db, FormRecordV3.class);
         SqlStorage<FormRecordV4> newStorage = getFormRecordStorage(c, db, FormRecordV4.class);
 
@@ -203,7 +202,7 @@ public class UserDbUpgradeUtils {
      * @param db User DB we are migrating
      * @return a Vector containing Instance Uris corresponding to InstanceProvider entries that got migrated successfully
      */
-    protected static Vector<Uri> migrateV4FormRecords(Context c, SQLiteDatabase db) {
+    protected static Vector<Uri> migrateV4FormRecords(Context c, IDatabase db) {
         SqlStorage<FormRecordV4> oldStorage = getFormRecordStorage(c, db, FormRecordV4.class);
 
         Vector<Uri> migratedInstances = new Vector<>();
@@ -271,7 +270,7 @@ public class UserDbUpgradeUtils {
         return migratedInstances;
     }
 
-    protected static void migrateV5FormRecords(Context c, SQLiteDatabase db) {
+    protected static void migrateV5FormRecords(Context c, IDatabase db) {
         SqlStorage<FormRecordV5> oldStorage = getFormRecordStorage(c, db, FormRecordV5.class);
         SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
 
@@ -292,7 +291,7 @@ public class UserDbUpgradeUtils {
         }
     }
 
-    public static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {
+    public static SqlStorage getFormRecordStorage(Context c, IDatabase db, Class formRecordClass) {
         return new SqlStorage<>(
                 FormRecord.STORAGE_KEY,
                 formRecordClass,

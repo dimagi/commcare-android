@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -181,6 +180,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
     private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
             new PendingSyncAlertBroadcastReceiver();
@@ -537,7 +537,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         super.onCreateOptionsMenu(menu);
-
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers))
                 .setIcon(android.R.drawable.ic_menu_save);
         menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy))
@@ -557,7 +557,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return super.onPrepareOptionsMenu(menu);
         }
         super.onPrepareOptionsMenu(menu);
-
         menu.findItem(FormEntryConstants.MENU_SAVE).setVisible(mIncompleteEnabled && !instanceIsReadOnly);
 
         boolean hasMultipleLanguages = (!(mFormController == null ||
@@ -569,8 +568,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
 
@@ -1590,7 +1587,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.M)
     public void requestNeededPermissions(int requestCode) {
         switch (requestCode) {
             case ImageWidget.REQUEST_CAMERA_PERMISSION:

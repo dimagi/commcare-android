@@ -42,7 +42,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         setTitle();
         initPrefsFile();
         loadPrefs();
-        conditionallyHideSpecificPrefs();
     }
 
     @CallSuper
@@ -61,7 +60,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         setupLocalizedText();
     }
 
-    protected void conditionallyHideSpecificPrefs() {
+    protected void updateConditionallyVisibleSpecificPrefs() {
         // default implementation does nothing
     }
 
@@ -113,6 +112,13 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         } else {
             super.onDisplayPreferenceDialog(preference);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        updateConditionallyVisibleSpecificPrefs();
     }
 
     @Override

@@ -30,6 +30,17 @@ public class AnalyticsParamValue {
     public static final String ITEM_FORM_HIERARCHY = "form_hierarchy";
     public static final String ITEM_CHANGE_FORM_SETTINGS = "change_settings";
     public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
+    public static final String CC_SETUP_MENU_OFFLINE_INSTALL = "cc_setup_menu_offline_install";
+    public static final String CC_SETUP_MENU_INSTALL_FROM_LIST = "cc_setup_menu_install_from_list";
+    public static final String CC_SETUP_MENU_PERSONAL_ID_SIGN_IN = "cc_setup_menu_personal_id_sign_in";
+    public static final String CC_SETUP_MENU_PERSONAL_ID_FORGET = "cc_setup_menu_personal_id_forget";
+    public static final String LOGIN_MENU_PRACTICE_MODE = "login_menu_practice_mode";
+    public static final String LOGIN_MENU_ABOUT_COMMCARE = "login_menu_about_commcare";
+    public static final String LOGIN_MENU_ACQUIRE_PERMISSIONS = "login_menu_acquire_permissions";
+    public static final String LOGIN_MENU_FORGOT_PIN = "login_menu_forgot_pin";
+    public static final String LOGIN_MENU_APP_MANAGER = "login_menu_app_manager";
+    public static final String LOGIN_MENU_PERSONAL_ID_SIGN_IN = "login_menu_personal_id_sign_in";
+    public static final String LOGIN_MENU_PERSONAL_ID_FORGET = "login_menu_personal_id_forget";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
@@ -137,6 +148,7 @@ public class AnalyticsParamValue {
     public static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
     public static final String UPDATE_RESET = "update_reset";
     public static final String CORRUPT_APP_STATE = "corrupt_app_state";
+    public static final String RSA_KEYSTORE_KEY_RETRIEVAL = "rsa_keystore_key_retrieval";
 
     public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
     public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
@@ -159,7 +171,24 @@ public class AnalyticsParamValue {
     public static final String USER_TRIGGERED = "user_triggered";
     public static final String SYSTEM_TRIGGERED = "system_triggered";
 
-    public static final String CCC_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
-    public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
-    public static final String CCC_DB_ERROR = "global_connect_error";
+    public static final String PERSONAL_ID_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
+    public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
+    public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
+
+    // Param values for personal ID configuration failure
+    public static final String START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE = "start_configuration_integrity_device_failure";
+    public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE = "start_configuration_integrity_check_failure";
+    public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE = "start_configuration_locked_account_failure";
+    public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";
+    public static final String MIN_BIOMETRIC_HARDWARE_ABSENT = "min_biometric_hardware_absent";
+    public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE = "min_biometric_hardware_unavailable";
+    public static final String MIN_BIOMETRIC_NEEDS_UPDATE = "min_biometric_needs_update";
+    public static final String MIN_BIOMETRIC_PIN_NEEDS_UPDATE = "min_biometric_pin_needs_update";
+    public static final String START_DELIVERY = "start_delivery";
+    public static final String FINISH_DELIVERY = "finish_delivery";
+    public static final String PAID_DELIVERY = "paid_delivery";
+    public static final String FAILURE_USER_DENIED = "failure_user_denied";
+    public static final String FAILURE_UNLOCK_FAILED = "failure_unlock_failed";
+    public static final String CONTINUE_WITH_FINGERPRINT = "continue_with_fingerprint";
+    public static final String CONTINUE_WITH_PIN = "continue_with_pin";
 }

@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,7 +15,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.databind.type.MapType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,7 +44,7 @@ import static org.commcare.views.widgets.GeoPointWidget.EXTRA_VIEW_ONLY;
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
  */
-public class GeoPointMapActivity extends AppCompatActivity
+public class GeoPointMapActivity extends CommonBaseActivity
         implements LocationListener, OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener {
 
@@ -68,8 +66,8 @@ public class GeoPointMapActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.geopoint_layout);
 
         loadViewModeState();

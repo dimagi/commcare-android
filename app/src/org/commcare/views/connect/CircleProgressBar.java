@@ -1,6 +1,7 @@
 package org.commcare.views.connect;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -10,6 +11,8 @@ import android.graphics.SweepGradient;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+
+import org.commcare.dalvik.R;
 
 public class CircleProgressBar extends View {
 
@@ -25,20 +28,30 @@ public class CircleProgressBar extends View {
 
     public CircleProgressBar(Context context) {
         super(context);
-        init();
+        init(null);
     }
 
     public CircleProgressBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
     }
 
     public CircleProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs);
     }
 
-    private void init() {
+    private void init(AttributeSet attrs) {
+        if(attrs != null) {
+            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CircleProgressBar);
+            progressColor = a.getColor(R.styleable.CircleProgressBar_progressColor, progressColor);
+            backgroundColor = a.getColor(R.styleable.CircleProgressBar_progressBackgroundColor,
+                    backgroundColor);
+            strokeWidth = a.getDimension(R.styleable.CircleProgressBar_strokeWidth, strokeWidth);
+
+            a.recycle();
+        }
+
         backgroundPaint = new Paint();
         backgroundPaint.setColor(backgroundColor);
         backgroundPaint.setStyle(Paint.Style.STROKE);

@@ -18,11 +18,14 @@ import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class PersonalIdNameFragment extends Fragment {
+public class PersonalIdNameFragment extends BasePersonalIdFragment {
     private ScreenPersonalidNameBinding binding;
     private Activity activity;
     private PersonalIdSessionData personalIdSessionData;
@@ -75,16 +78,21 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
     private void verifyOrAddName() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
+        clearError();
         enableContinueButton(false);
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 sessionData.setUserName(binding.nameTextValue.getText().toString().trim());
                 Navigation.findNavController(binding.getRoot()).navigate(navigateToBackupCodePage());
             }
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                navigateFailure(failureCode);
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                if (handleCommonSignupFailures(failureCode)) {
+                    return;
+                }
+                navigateFailure(failureCode, t);
             }
         }.addOrVerifyNameCall(
                 requireActivity(),
@@ -93,15 +101,34 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+    }
+
+    private void clearError() {
+        binding.personalidNameError.setVisibility(View.GONE);
+        binding.personalidNameError.setText("");
+    }
+
+    private void showError(String message) {
+        binding.personalidNameError.setVisibility(View.VISIBLE);
+        binding.personalidNameError.setText(message);
     }
 
     private NavDirections navigateToBackupCodePage() {
         return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode();
     }
 
+    @Override
+    protected void navigateToMessageDisplay(@NotNull String title, @Nullable String message, boolean isCancellable,
+            int phase, int buttonText) {
+        NavDirections action = PersonalIdNameFragmentDirections
+                .actionPersonalidNameToPersonalidMessage(title, message, phase, getString(buttonText), null)
+                .setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.getRoot()).navigate(action);
+    }
 }

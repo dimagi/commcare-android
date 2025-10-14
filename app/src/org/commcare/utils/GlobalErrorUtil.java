@@ -35,7 +35,7 @@ public class GlobalErrorUtil {
             }
 
             if(deleteConnectStorage) {
-                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.CCC_DB_ERROR);
+                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
             }
 
             //Clear the errors once retrieved

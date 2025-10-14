@@ -12,9 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-
 import org.commcare.activities.MessageActivity;
 import org.commcare.dalvik.R;
 import org.commcare.utils.PopupHandler;
@@ -25,8 +22,10 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 
 /**
@@ -41,6 +40,7 @@ public class CommCareNoficationManager {
     public static final String NOTIFICATION_CHANNEL_USER_SESSION_ID = "notification-channel-user-session";
     public static final String NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID = "notification-channel-server-communications";
     public static final String NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID = "notification-channel-push-notifications";
+    public static final String NOTIFICATION_CHANNEL_MESSAGING_ID = "notification-channel-messaging";
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -68,10 +68,8 @@ public class CommCareNoficationManager {
                 // The PendingIntent to launch our activity if the user selects this notification
                 Intent i = new Intent(context, MessageActivity.class);
 
-                int intentFlags = 0;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    intentFlags = PendingIntent.FLAG_IMMUTABLE;
-                PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, intentFlags);
+                PendingIntent contentIntent =
+                        PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE);
 
                 String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
                 Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
@@ -80,7 +78,8 @@ public class CommCareNoficationManager {
                         .setSmallIcon(R.drawable.commcare_actionbar_logo)
                         .setNumber(pendingMessages.size())
                         .setContentIntent(contentIntent)
-                        .setDeleteIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, NotificationClearReceiver.class), intentFlags))
+                        .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
+                                new Intent(context, NotificationClearReceiver.class), PendingIntent.FLAG_IMMUTABLE))
                         .setOngoing(true)
                         .setWhen(System.currentTimeMillis())
                         .build();
@@ -196,6 +195,11 @@ public class CommCareNoficationManager {
                 R.string.notification_channel_push_notfications_title,
                 R.string.notification_channel_push_notfications_description,
                 NotificationManager.IMPORTANCE_DEFAULT);
+
+        createNotificationChannel(NOTIFICATION_CHANNEL_MESSAGING_ID,
+                R.string.notification_channel_messaging_title,
+                R.string.notification_channel_messaging_description,
+                NotificationManager.IMPORTANCE_MAX);
     }
 
     @TargetApi(Build.VERSION_CODES.O)

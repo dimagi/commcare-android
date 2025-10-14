@@ -1,7 +1,5 @@
 package org.commcare.android.database.connect.models;
 
-import android.content.Intent;
-
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.models.framework.Persisting;
@@ -10,6 +8,8 @@ import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
 
 /**
  * DB model for a ConnectID user and their info
@@ -37,7 +37,7 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(4)
     private String primaryPhone;
-
+    @Deprecated
     @Persisting(5)
     private String alternatePhone;
 
@@ -55,12 +55,20 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 10, nullable = true)
     @MetaField(META_PIN)
     private String pin;
+    @Deprecated
     @Persisting(11)
     @MetaField(META_SECONDARY_PHONE_VERIFIED)
+    /**
+     * @Deprecated should no longer be used, just here to avoid a db migration for the moment
+     */
     private boolean secondaryPhoneVerified;
 
     @Persisting(12)
     @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
+    @Deprecated
+    /**
+     * @Deprecated should no longer be used, just here to avoid a db migration for the moment
+     */
     private Date verifySecondaryPhoneByDate;
 
     @Persisting(value = 13, nullable = true)
@@ -69,16 +77,23 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 14)
     private boolean isDemo;
 
+    @Persisting(value = 15)
+    private String requiredLock = PersonalIdSessionData.PIN;
+
+    @Persisting(value = 16)
+    private boolean hasConnectAccess;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;
         verifySecondaryPhoneByDate = new Date();
+        alternatePhone = "";
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
-                             Date lastPinVerifyDate, String photo, boolean isDemo) {
+                             Date lastPinVerifyDate, String photo, boolean isDemo,String requiredLock, boolean hasConnectAccess) {
         this();
         this.primaryPhone = primaryPhone;
         this.userId = userId;
@@ -89,6 +104,8 @@ public class ConnectUserRecord extends Persisted {
         this.photo = photo;
         this.isDemo = isDemo;
         connectTokenExpiration = new Date();
+        this.requiredLock = requiredLock;
+        this.hasConnectAccess = hasConnectAccess;
     }
 
     public String getUserId() {
@@ -101,14 +118,6 @@ public class ConnectUserRecord extends Persisted {
 
     public void setPrimaryPhone(String primaryPhone) {
         this.primaryPhone = primaryPhone;
-    }
-
-    public String getAlternatePhone() {
-        return alternatePhone;
-    }
-
-    public void setAlternatePhone(String alternatePhone) {
-        this.alternatePhone = alternatePhone;
     }
 
     public void setPin(String pin) {
@@ -151,28 +160,9 @@ public class ConnectUserRecord extends Persisted {
         lastPasswordDate = date;
     }
 
-    public boolean getSecondaryPhoneVerified() {
-        return secondaryPhoneVerified;
-    }
-
-    public void setSecondaryPhoneVerified(boolean verified) {
-        secondaryPhoneVerified = verified;
-    }
-
-    public Date getSecondaryPhoneVerifyByDate() {
-        return  verifySecondaryPhoneByDate;
-    }
-
-    public void setSecondaryPhoneVerifyByDate(Date date) {
-        verifySecondaryPhoneByDate = date;
-    }
 
     public boolean shouldForcePin() {
         return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
-    }
-
-    public boolean shouldForcePassword() {
-        return shouldForceRecoveryLogin() && !shouldForcePin();
     }
 
     private boolean shouldForceRecoveryLogin() {
@@ -186,14 +176,6 @@ public class ConnectUserRecord extends Persisted {
         }
 
         return forcePin;
-    }
-
-    public boolean shouldRequireSecondaryPhoneVerification() {
-        if (secondaryPhoneVerified) {
-            return false;
-        }
-
-        return (new Date()).after(verifySecondaryPhoneByDate);
     }
 
     public void updateConnectToken(String token, Date expirationDate) {
@@ -214,24 +196,44 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV13(ConnectUserRecordV13 oldRecord) {
+    public static ConnectUserRecord fromV16(ConnectUserRecordV16 oldRecord, boolean hasConnectAccess) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
         newRecord.name = oldRecord.getName();
         newRecord.primaryPhone = oldRecord.getPrimaryPhone();
-        newRecord.alternatePhone = oldRecord.getAlternatePhone();
+        newRecord.alternatePhone = "";
         newRecord.registrationPhase = oldRecord.getRegistrationPhase();
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
         newRecord.connectToken = oldRecord.getConnectToken();
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
         newRecord.secondaryPhoneVerified = true;
-        newRecord.photo = null;
-        newRecord.isDemo = false;
+        newRecord.photo = oldRecord.getPhoto();
+        newRecord.isDemo = oldRecord.isDemo();
+        newRecord.requiredLock = oldRecord.getRequiredLock();
+        newRecord.hasConnectAccess = hasConnectAccess;
         return newRecord;
     }
 
     public void setPhoto(String photo) {
         this.photo = photo;
     }
+
+    @Nullable
+    public String getPhoto() {
+        return photo;
+    }
+
+    public String getRequiredLock() {
+        return requiredLock;
+    }
+
+    public boolean hasConnectAccess() {
+        return hasConnectAccess;
+    }
+
+    public void setHasConnectAccess(boolean hasConnectAccess) {
+        this.hasConnectAccess = hasConnectAccess;
+    }
+
 }

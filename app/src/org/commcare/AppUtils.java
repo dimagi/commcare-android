@@ -11,7 +11,7 @@ import org.commcare.heartbeat.ApkVersion;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.user.UserDatabaseSchemaManager;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.LogTypes;
@@ -56,6 +56,14 @@ public class AppUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * @param appId - the uniqueId of the ApplicationRecord being sought
+     * @return true if an ApplicationRecord with the given id exists, false otherwise
+     */
+    public static boolean isAppInstalled(String appId) {
+        return getAppById(appId) != null;
     }
 
     /**
@@ -125,7 +133,7 @@ public class AppUtils {
 
         // Wipe the user db for all matching UKRs
         for (String id : dbIdsToRemove) {
-            CommCareApplication.instance().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
+            CommCareApplication.instance().getDatabasePath(UserDatabaseSchemaManager.getDbName(id)).delete();
         }
     }
 
@@ -170,7 +178,7 @@ public class AppUtils {
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
         return Localization.get(application.getString(R.string.app_version_string), new String[]{
-                ccv, String.valueOf(BuildConfig.VERSION_CODE), buildNumber, buildDate, profileVersion});
+                ccv, String.valueOf(BuildConfig.VERSION_CODE), ccv, buildNumber, buildDate, profileVersion});
     }
 
     public static String getCurrentAppId() {

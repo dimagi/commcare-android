@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_connect"
-    app:startDestination="@id/connect_jobs_list_fragment">
+   >
 
     <fragment
         android:id="@+id/connect_unlock_fragment"

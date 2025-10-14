@@ -139,16 +139,23 @@ public class ReportingUtils {
     }
 
     public static String getUserForCrashes() {
-        String user = getUser();
-        if(user.isEmpty()) {
-            try {
-                if (PersonalIdManager.getInstance().isloggedIn()) {
-                    return PersonalIdManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
-                }
-            } catch (Exception ignored) {
+        try {
+            String user = getUser();
+            if (user.isEmpty()) {
+                return getPersonalID();
             }
+        } catch (Exception ignored) {
         }
+        return null;
+    }
 
+    public static String getPersonalID() {
+        try {
+            if (PersonalIdManager.getInstance().isloggedIn()) {
+                return PersonalIdManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
+            }
+        } catch (Exception ignored) {
+        }
         return null;
     }
 }

@@ -98,7 +98,7 @@ public class ConnectNetworkHelper {
         return getInstance().getInternal(context, url, version, authInfo, params, background, handler);
     }
 
-    private static void addVersionHeader(HashMap<String, String> headers, String version) {
+    public static void addVersionHeader(HashMap<String, String> headers, String version) {
         if (version != null) {
             headers.put("Accept", "application/json;version=" + version);
         }
@@ -187,7 +187,7 @@ public class ConnectNetworkHelper {
         return true;
     }
 
-    private static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
+    public static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
         RequestBody requestBody;
 
         if (useFormEncoding) {
@@ -340,7 +340,7 @@ public class ConnectNetworkHelper {
                         ConnectSsoHelper.discardTokens(context, null);
                         handler.processTokenUnavailableError();
                     } else {
-                        handler.processFailure(responseCode, null);
+                        handler.processFailure(responseCode, null, url);
                     }
                 }
             }
@@ -353,7 +353,7 @@ public class ConnectNetworkHelper {
                 CrashUtil.reportException(new Exception(message));
 
                 //500 error for internal server error
-                handler.processFailure(responseCode, null);
+                handler.processFailure(responseCode, null, url);
             }
 
             @Override
@@ -363,7 +363,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                handler.processFailure(responseCode, null);
+                handler.processFailure(responseCode, null, url);
             }
 
             @Override
@@ -373,7 +373,7 @@ public class ConnectNetworkHelper {
                     handler.processNetworkFailure();
                 } else {
                     Logger.exception("IO Exception during API call", exception);
-                    handler.processFailure(-1, null);
+                    handler.processFailure(-1, null, url);
                 }
             }
 

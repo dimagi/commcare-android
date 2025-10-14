@@ -35,7 +35,8 @@
             app:popUpTo="@id/personalid_otp_page" />
         <action
             android:id="@+id/action_personalid_otp_page_to_personalid_name"
-            app:destination="@id/personalid_name" />
+            app:destination="@id/personalid_name"
+            app:popUpTo="@id/personalid_phone_fragment"/>
         <action
             android:id="@+id/action_personalid_otp_page_to_personalid_phone_fragment"
             app:destination="@id/personalid_phone_fragment" />
@@ -75,6 +76,7 @@
             app:nullable="false" />
         <argument
             android:name="buttonText"
+            app:nullable="false"
             app:argType="string" />
         <argument
             android:name="button2Text"
@@ -131,7 +133,9 @@
         android:name="org.commcare.fragments.personalId.PersonalIdNameFragment"
         android:label="personalid_name"
         tools:layout="@layout/screen_personalid_name">
-
+        <action
+            android:id="@+id/action_personalid_name_to_personalid_message"
+            app:destination="@id/personalid_message_display" />
         <action
             android:id="@+id/action_personalid_name_to_personalid_backup_code"
             app:destination="@id/personalid_backup_code" />
