@@ -154,7 +154,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
             attrs.put(CCPerfMonitoring.ATTR_FORM_NAME, fd.getName());
             attrs.put(CCPerfMonitoring.ATTR_FORM_XMLNS, fd.getMainInstance().schema);
             CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Logger.exception("Failed to stop tracing ", e);
+        }
         return data;
     }
 

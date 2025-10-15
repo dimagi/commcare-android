@@ -282,7 +282,9 @@ public abstract class DataPullTask<R>
                     attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS,
                             PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
                     CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    Logger.exception("Failed to stop tracing ", e);
+                }
             }
 
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
@@ -330,7 +332,9 @@ public abstract class DataPullTask<R>
                     AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
             attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS, PrefValues.NO);
             CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Logger.exception("Failed to stop tracing ", e);
+        }
 
         wipeLoginIfItOccurred();
         this.publishProgress(PROGRESS_DONE);
