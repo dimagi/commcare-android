@@ -4,7 +4,7 @@ import android.content.Context
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.models.database.SqlStorage
 
-class NotificationRecordDatabaseHelper {
+object NotificationRecordDatabaseHelper {
 
     private fun getStorage(context: Context): SqlStorage<PushNotificationRecord> {
         return ConnectDatabaseHelper.getConnectStorage(context, PushNotificationRecord::class.java)

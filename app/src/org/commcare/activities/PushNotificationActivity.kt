@@ -41,8 +41,7 @@ class PushNotificationActivity : AppCompatActivity() {
             }
         }
 
-        pushNotificationViewModel.fetchApiError.observe(this) { (code, throwable) ->
-            val errorMessage = PersonalIdApiErrorHandler.handle(this, code, throwable)
+        pushNotificationViewModel.fetchApiError.observe(this) { errorMessage ->
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }

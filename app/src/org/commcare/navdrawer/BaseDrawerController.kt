@@ -130,7 +130,7 @@ class BaseDrawerController(
     fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
-            val notifications = NotificationRecordDatabaseHelper().getAllNotifications(activity)
+            val notifications = NotificationRecordDatabaseHelper.getAllNotifications(activity)
             val hasUnreadNotification = notifications!!.any { !it.readStatus }
 
             binding.ivNotification.setImageResource(
