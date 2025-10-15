@@ -74,8 +74,8 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                     onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
                     return true;
                 } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
-                    if (json.has("sub_code")) {
-                        String subErrorCode = json.optString("sub_code");
+                    if (json.has("error_sub_code")) {
+                        String subErrorCode = json.optString("error_sub_code");
                         Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + subErrorCode);
                         sessionData.setSessionFailureSubcode(subErrorCode);
                         onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
