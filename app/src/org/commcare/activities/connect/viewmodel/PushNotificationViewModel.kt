@@ -1,13 +1,11 @@
 package org.commcare.activities.connect.viewmodel
 
 import android.app.Application
-
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.android.database.connect.models.PushNotificationRecord
@@ -25,12 +23,14 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
 
     private val user = ConnectUserDatabaseUtil.getUser(application)
 
-    fun loadNotifications() {
+    fun loadNotifications(isRefreshed: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             // Load from DB first
-            val cachedNotifications =
-                NotificationRecordDatabaseHelper.getAllNotifications(getApplication()).orEmpty()
-            _allNotifications.postValue(cachedNotifications)
+            if (!isRefreshed) {
+                val cachedNotifications =
+                    NotificationRecordDatabaseHelper.getAllNotifications(getApplication()).orEmpty()
+                _allNotifications.postValue(cachedNotifications)
+            }
 
             val latestPushNotificationsFromApi = retrieveLatestPushNotifications(application)
             latestPushNotificationsFromApi.onSuccess {

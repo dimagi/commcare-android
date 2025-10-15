@@ -113,24 +113,5 @@ class PushNotificationRecord : Persisted(), Serializable {
 
             return records
         }
-
-        @JvmStatic
-        fun fromV19(old: PushNotificationRecordV19): PushNotificationRecord {
-            return PushNotificationRecord().apply {
-                notificationId = old.notificationId
-                notificationType = old.notificationType
-                action = old.action
-                title = old.title
-                body = old.body
-                createdDate = old.createdDate
-                confirmationStatus = old.confirmationStatus
-                opportunityId = old.opportunityId
-                connectMessageId = old.connectMessageId
-                channel = old.channel
-                paymentId = old.paymentId
-                readStatus = old.readStatus
-                acknowledged = false
-            }
-        }
     }
 }

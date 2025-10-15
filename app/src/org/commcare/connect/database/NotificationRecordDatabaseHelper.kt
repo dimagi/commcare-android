@@ -49,9 +49,15 @@ object NotificationRecordDatabaseHelper {
         val savedNotificationIds = mutableListOf<String>()
 
         for (incoming in notifications) {
-            getNotificationById(context, incoming.notificationId)?.let { existing ->
-                incoming.id = existing.id
+            val existing = getNotificationById(context, incoming.notificationId)
+
+            // Skip if record already exists
+            if (existing != null) {
+                savedNotificationIds.add(existing.notificationId)
+                continue
             }
+
+            // Otherwise, write new record
             storage.write(incoming)
 
             // Verify persistence

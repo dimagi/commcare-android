@@ -19,7 +19,7 @@ import org.commcare.dalvik.databinding.ItemPushNotificationBinding
 class PushNotificationAdapter(
     private val listener: OnNotificationClickListener
 ) : ListAdapter<PushNotificationRecord, PushNotificationAdapter.PushNotificationViewHolder>(
-    DiffCallback
+    NotificationDiffCallback
 ) {
     inner class PushNotificationViewHolder(val binding: ItemPushNotificationBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -36,7 +36,7 @@ class PushNotificationAdapter(
     override fun onBindViewHolder(holder: PushNotificationViewHolder, position: Int) {
         val item = getItem(position)
         with(holder.binding) {
-            tvNotification.text = item.title
+            tvNotification.text = item.body
             val iconRes = when (item.action) {
                 CCC_DEST_PAYMENTS -> R.drawable.ic_dollar_payment_pn
                 CCC_MESSAGE -> R.drawable.nav_drawer_message_icon
@@ -64,7 +64,7 @@ class PushNotificationAdapter(
         fun onNotificationClick(notificationRecord: PushNotificationRecord)
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<PushNotificationRecord>() {
+    companion object NotificationDiffCallback : DiffUtil.ItemCallback<PushNotificationRecord>() {
         override fun areItemsTheSame(
             oldItem: PushNotificationRecord,
             newItem: PushNotificationRecord
