@@ -38,7 +38,7 @@ object PushNotificationApiHelper {
                 ) {
                     continuation.resume(Result.failure(Exception(PersonalIdApiErrorHandler.handle(context, failureCode, t))))
                 }
-            }.retrieveNotifications(context, user.userId, user.password)
+            }.retrieveNotifications(context, user)
         }
     }
 
