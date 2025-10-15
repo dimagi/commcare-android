@@ -74,7 +74,9 @@ public class EntityStringFilterer extends EntityFiltererBase {
                         String.valueOf(StringUtils.getSumOfLengths(searchTerms)));
                 attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED, String.valueOf(fullEntityList.size()));
                 CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                Logger.exception("Failed to stop tracing ", e);
+            }
         }
 
         long time = System.currentTimeMillis() - startTime;
