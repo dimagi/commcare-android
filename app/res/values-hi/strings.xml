@@ -500,4 +500,5 @@ License.
 
     <string name="setup_refresh_opportunities_no_jobs">कोई अवसर नहीं मिला</string>
     <string name="setup_refresh_opportunities_with_jobs">नए अवसर मिले, अधिक जानने के लिए अवसर पर क्लिक करें।</string>
+    <string name="personalid_not_login_from_fcm_error">कृपया विवरण देखने के लिए PersonalId पर लॉगिन करें</string>
 </resources>

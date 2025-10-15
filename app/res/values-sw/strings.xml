@@ -511,4 +511,5 @@
 
     <string name="setup_refresh_opportunities_no_jobs">Hakuna fursa zilizopatikana</string>
     <string name="setup_refresh_opportunities_with_jobs">Fursa mpya zimepatikana, bofya Fursa kujifunza zaidi.</string>
+    <string name="personalid_not_login_from_fcm_error">Tafadhali ingia kwenye Kitambulisho cha Kibinafsi ili kuona maelezo</string>
 </resources>

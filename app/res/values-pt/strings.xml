@@ -511,4 +511,5 @@
 
     <string name="setup_refresh_opportunities_no_jobs">Nenhuma oportunidade encontrada</string>
     <string name="setup_refresh_opportunities_with_jobs">Novas oportunidades encontradas, clique em Oportunidades para saber mais.</string>
+    <string name="personalid_not_login_from_fcm_error">Faça login no PersonalId para ver os detalhes</string>
 </resources>
