@@ -504,4 +504,5 @@ License.
 
     <string name="setup_refresh_opportunities_no_jobs">Aucune opportunité trouvée</string>
     <string name="setup_refresh_opportunities_with_jobs">Nouvelles opportunités trouvées, cliquez sur Opportunités pour en savoir plus.</string>
+    <string name="personalid_not_login_from_fcm_error">Veuillez vous connecter à PersonalId pour voir les détails</string>
 </resources>

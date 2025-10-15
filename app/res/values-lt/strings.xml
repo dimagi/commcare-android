@@ -89,4 +89,5 @@
     <string name="fcm_sync_failed_body_text">Norėdami sužinoti daugiau, spustelėkite čia</string>
     <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
     <string name="connect_fetch_delivery_progress_error">Nepavyko gauti pristatymo eigos</string>
+    <string name="personalid_not_login_from_fcm_error">Norėdami peržiūrėti išsamią informaciją, prisijunkite prie „PersonalId“.</string>
 </resources>
