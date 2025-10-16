@@ -209,7 +209,9 @@
     <string name="connect_register_success_message">¡Tu cuenta de PersonalId se ha creado con éxito y ahora está lista para usar!</string>
     <string name="connect_register_success_button">DE ACUERDO</string>
     <string name="connect_verify_title">Opciones de desbloqueo</string>
-    <string name="connect_verify_message">Configura un método a continuación para desbloquear tanto tu dispositivo como tu cuenta de PersonalId</string>
+    <string name="connect_verify_message">Configura un método a continuación para desbloquear tanto tu dispositivo como tu cuenta de PersonalID</string>
+    <string name="connect_verify_message_pin">Configure un PIN o patrón a continuación para desbloquear su dispositivo y su cuenta PersonalID</string>
+    <string name="connect_verify_message_fingerprint">Configure su huella digital a continuación para desbloquear tanto su dispositivo como su cuenta PersonalID</string>
     <string name="connect_verify_use_fingerprint_long">Usar huella digital para iniciar sesión</string>
     <string name="connect_verify_fingerprint_configured">Tu huella digital ya se ha configurado y se utilizará para desbloquear PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Configurar huella digital</string>

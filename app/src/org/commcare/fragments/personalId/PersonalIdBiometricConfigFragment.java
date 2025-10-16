@@ -138,11 +138,14 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
             message = getString(R.string.connect_verify_fingerprint_configured);
             fingerprintButton = getString(R.string.connect_verify_agree);
         } else {
-            message = getString(R.string.connect_verify_message);
             if(hasFingerprintHardware) {
+                message = getString(R.string.connect_verify_message_fingerprint);
                 fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
             }
             if (PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {
+                message = hasFingerprintHardware ?
+                        getString(R.string.connect_verify_message) :
+                        getString(R.string.connect_verify_message_pin);
                 pinButton = pinStatus == BiometricsHelper.ConfigurationStatus.Configured ?
                         getString(R.string.connect_verify_agree) :
                         getString(R.string.connect_verify_configure_pin);

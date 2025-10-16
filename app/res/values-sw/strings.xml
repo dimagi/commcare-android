@@ -273,7 +273,9 @@
     <string name="connect_register_success_message">Akaunti yako ya PersonalId imeundwa kwa ufanisi na sasa iko tayari kwako kuitumia!</string>
     <string name="connect_register_success_button">Sawa</string>
     <string name="connect_verify_title">Fungua Chaguzi</string>
-    <string name="connect_verify_message">Tafadhali sanidi mbinu iliyo hapa chini ili kufungua kifaa chako na akaunti ya PersonalId</string>
+    <string name="connect_verify_message">Tafadhali sanidi mbinu iliyo hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
+    <string name="connect_verify_message_pin">Tafadhali sanidi PIN au mchoro hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
+    <string name="connect_verify_message_fingerprint">Tafadhali sanidi alama ya kidole chako hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
     <string name="connect_verify_use_fingerprint_long">Tumia Alama ya Kidole Kuunganisha</string>
     <string name="connect_verify_fingerprint_configured">Alama yako ya kidole tayari imesanidiwa na itatumika kufungua PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Sanidi Alama ya Kidole</string>
