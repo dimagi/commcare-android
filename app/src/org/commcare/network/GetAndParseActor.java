@@ -1,7 +1,5 @@
 package org.commcare.network;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import com.google.common.collect.Multimap;
@@ -82,7 +80,7 @@ public abstract class GetAndParseActor {
         }
 
         @Override
-        public void processClientError(int responseCode) {
+        public void processClientError(int responseCode, InputStream errorStream) {
             processErrorResponse(responseCode);
         }
 
