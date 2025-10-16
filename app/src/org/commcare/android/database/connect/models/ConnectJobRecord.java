@@ -567,7 +567,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         int dailyVisitCount = 0;
         Date today = new Date();
         for (ConnectJobDeliveryRecord record : deliveries) {
-            if(DateUtils.dateDiff(today, record.getDate()) == 0 && record.getStatus().equals(STATUS_APPROVED)) {
+            if(DateUtils.dateDiff(today, record.getDate()) == 0) {
                 dailyVisitCount++;
             }
         }
