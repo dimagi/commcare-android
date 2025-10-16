@@ -48,8 +48,8 @@ object PushNotificationApiHelper {
         val savedNotificationIds = NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
-            object : PersonalIdApiHandler<Unit>() {
-                override fun onSuccess(result: Unit) {
+            object : PersonalIdApiHandler<Boolean>() {
+                override fun onSuccess(result: Boolean) {
                     NotificationRecordDatabaseHelper.updateColumnForNotifications(
                         context,
                         savedNotificationIds
