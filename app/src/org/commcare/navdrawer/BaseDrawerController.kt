@@ -131,7 +131,7 @@ class BaseDrawerController(
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             val notifications = NotificationRecordDatabaseHelper.getAllNotifications(activity)
-            val hasUnreadNotification = notifications!!.any { !it.readStatus }
+            val hasUnreadNotification = notifications!!.any { !it.acknowledged }
 
             binding.ivNotification.setImageResource(
                 if (hasUnreadNotification) R.drawable.ic_new_notification_bell

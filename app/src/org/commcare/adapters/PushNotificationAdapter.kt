@@ -13,6 +13,8 @@ import org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
 import org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS
 import org.commcare.connect.ConnectConstants.CCC_MESSAGE
+import org.commcare.connect.ConnectDateUtils.formatNotificationTime
+import org.commcare.connect.database.NotificationRecordDatabaseHelper.updateReadStatus
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ItemPushNotificationBinding
 
@@ -46,15 +48,26 @@ class PushNotificationAdapter(
                 else -> null
             }
             iconRes?.let { ivNotification.setImageResource(it) }
-            if (item.action == CCC_MESSAGE) {
-                ivNotification.imageTintList = ColorStateList.valueOf(
-                    ContextCompat.getColor(holder.binding.root.context, R.color.black)
+            ivNotification.imageTintList = if (item.action == CCC_MESSAGE) {
+                ColorStateList.valueOf(ContextCompat.getColor(root.context, R.color.black))
+            } else null
+
+            tvTime.text = formatNotificationTime(this.clMain.context, item.createdDate)
+
+            if (item.readStatus) {
+                clMain.setBackgroundColor(
+                    ContextCompat.getColor(clMain.context, R.color.connect_background_color)
                 )
             } else {
-                ivNotification.imageTintList = null
+                clMain.setBackgroundColor(
+                    ContextCompat.getColor(clMain.context, R.color.white)
+                )
             }
 
-            root.setOnClickListener {
+            clMain.setOnClickListener {
+                item.readStatus = true
+                notifyItemChanged(holder.adapterPosition)
+                updateReadStatus(clMain.context, item.notificationId, true)
                 listener.onNotificationClick(item)
             }
         }

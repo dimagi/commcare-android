@@ -503,4 +503,10 @@
     <string name="setup_refresh_opportunities_no_jobs">No se encontraron oportunidades</string>
     <string name="setup_refresh_opportunities_with_jobs">Nuevas oportunidades encontradas, haz clic en Oportunidades para obtener más información.</string>
     <string name="personalid_not_login_from_fcm_error">Inicie sesión en PersonalId para ver los detalles.</string>
+
+    <string name="just_now">Ahora mismo</string>
+    <string name="minutes_ago">Hace %1$d minutos</string>
+    <string name="hours_ago">Hace %1$d horas</string>
+    <string name="yesterday">Ayer %1$s</string>
+
 </resources>

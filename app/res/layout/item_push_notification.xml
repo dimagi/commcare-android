@@ -2,16 +2,16 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clMain"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginVertical="10dp"
-    android:layout_marginHorizontal="15dp">
+    android:layout_height="wrap_content">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivNotification"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/nav_drawer_message_icon" />
@@ -23,7 +23,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="20dp"
         android:textColor="@color/black"
-        android:textSize="15sp"
+        android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="@id/ivNotification"
         app:layout_constraintEnd_toStartOf="@id/ivForwardArrow"
         app:layout_constraintStart_toEndOf="@id/ivNotification"
@@ -34,19 +34,34 @@
         android:id="@+id/ivForwardArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="15dp"
         android:src="@drawable/ic_connect_arrow_forward"
         app:layout_constraintBottom_toBottomOf="@id/tvNotification"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/tvNotification" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:alpha="0.5"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="end"
+        android:textSize="11sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvNotification" />
+
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"
+        android:layout_marginTop="5dp"
         android:background="@color/pn_item_grey_color"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/tvNotification"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTime" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

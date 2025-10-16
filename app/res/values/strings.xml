@@ -684,4 +684,9 @@
     <string name="setup_refresh_opportunities_with_jobs">New opportunities found, click on Opportunities to learn more.</string>
 
     <string name="personalid_not_login_from_fcm_error">Please login to PersonalId to view the details</string>
+
+    <string name="just_now">Just now</string>
+    <string name="minutes_ago">%1$d minutes ago</string>
+    <string name="hours_ago">%1$d hours ago</string>
+    <string name="yesterday">Yesterday %1$s</string>
 </resources>

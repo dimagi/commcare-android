@@ -90,4 +90,10 @@
     <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
     <string name="connect_fetch_delivery_progress_error">Nepavyko gauti pristatymo eigos</string>
     <string name="personalid_not_login_from_fcm_error">Norėdami peržiūrėti išsamią informaciją, prisijunkite prie „PersonalId“.</string>
+
+    <string name="just_now">Ką tik</string>
+    <string name="minutes_ago">Prieš %1$d min.</string>
+    <string name="hours_ago">Prieš %1$d val.</string>
+    <string name="yesterday">Vakar %1$s</string>
+
 </resources>

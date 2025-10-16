@@ -512,4 +512,10 @@
     <string name="setup_refresh_opportunities_no_jobs">Nenhuma oportunidade encontrada</string>
     <string name="setup_refresh_opportunities_with_jobs">Novas oportunidades encontradas, clique em Oportunidades para saber mais.</string>
     <string name="personalid_not_login_from_fcm_error">Faça login no PersonalId para ver os detalhes</string>
+
+    <string name="just_now">Agora mesmo</string>
+    <string name="minutes_ago">Há %1$d minutos</string>
+    <string name="hours_ago">Há %1$d horas</string>
+    <string name="yesterday">Ontem %1$s</string>
+
 </resources>

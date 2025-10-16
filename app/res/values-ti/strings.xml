@@ -495,4 +495,9 @@
     <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>
     <string name="personalid_not_login_from_fcm_error">ዝርዝር ንምርኣይ ናብ PersonalId እቶ</string>
 
+    <string name="just_now">ሕጂ ሕጂ</string>
+    <string name="minutes_ago">ቅድሚ %1$d ደቓይቕ</string>
+    <string name="hours_ago">ቅድሚ %1$d ሰዓታት</string>
+    <string name="yesterday">ትማሊ %1$s</string>
+
 </resources>

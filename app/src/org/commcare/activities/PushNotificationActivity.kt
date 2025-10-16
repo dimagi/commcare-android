@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PushNotificationViewModel
 import org.commcare.adapters.PushNotificationAdapter
 import org.commcare.android.database.connect.models.PushNotificationRecord
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
 
@@ -31,13 +30,22 @@ class PushNotificationActivity : AppCompatActivity() {
 
     private fun observeRetrieveNotificationApi() {
         pushNotificationViewModel.allNotifications.observe(this) { notifications ->
-            if (notifications.isNotEmpty()) {
-                pushNotificationAdapter.submitList(notifications)
-                binding.tvNoNotifications.visibility = View.GONE
-                binding.rvNotifications.visibility = View.VISIBLE
-            } else {
-                binding.tvNoNotifications.visibility = View.VISIBLE
-                binding.rvNotifications.visibility = View.GONE
+            val isLoading = pushNotificationViewModel.isLoading.value == true
+
+            when {
+                notifications.isNotEmpty() -> {
+                    pushNotificationAdapter.submitList(notifications)
+                    binding.rvNotifications.visibility = View.VISIBLE
+                    binding.tvNoNotifications.visibility = View.GONE
+                }
+                isLoading -> {
+                    binding.rvNotifications.visibility = View.GONE
+                    binding.tvNoNotifications.visibility = View.GONE
+                }
+                else -> {
+                    binding.rvNotifications.visibility = View.GONE
+                    binding.tvNoNotifications.visibility = View.VISIBLE
+                }
             }
         }
 
@@ -58,7 +66,7 @@ class PushNotificationActivity : AppCompatActivity() {
         pushNotificationAdapter = PushNotificationAdapter(listener = object :
             PushNotificationAdapter.OnNotificationClickListener {
             override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
-                notificationRecord.acknowledged = true
+
             }
         })
         binding.rvNotifications.adapter = pushNotificationAdapter

@@ -512,4 +512,10 @@
     <string name="setup_refresh_opportunities_no_jobs">Hakuna fursa zilizopatikana</string>
     <string name="setup_refresh_opportunities_with_jobs">Fursa mpya zimepatikana, bofya Fursa kujifunza zaidi.</string>
     <string name="personalid_not_login_from_fcm_error">Tafadhali ingia kwenye Kitambulisho cha Kibinafsi ili kuona maelezo</string>
+
+    <string name="just_now">Muda mfupi uliopita</string>
+    <string name="minutes_ago">Dakika %1$d zilizopita</string>
+    <string name="hours_ago">Saa %1$d zilizopita</string>
+    <string name="yesterday">Jana %1$s</string>
+
 </resources>

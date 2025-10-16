@@ -28,7 +28,9 @@ object PushNotificationApiHelper {
             object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
                 override fun onSuccess(result: List<PushNotificationRecord>) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        updatePushNotifications(context,result)
+                        if (result.isNotEmpty()){
+                            updatePushNotifications(context,result)
+                         }
                     }
                     continuation.resume(Result.success(result))
                 }
