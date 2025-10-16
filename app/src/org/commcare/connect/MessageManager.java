@@ -87,7 +87,7 @@ public class MessageManager {
             }
 
             @Override
-            public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
+            public void processFailure(int responseCode, String url, String errorBody) {
                 listener.connectActivityComplete(false);
             }
 
@@ -139,7 +139,7 @@ public class MessageManager {
 
             @Override
 
-            public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
+            public void processFailure(int responseCode, String url, String errorBody) {
                 listener.connectActivityComplete(false);
             }
 
@@ -191,7 +191,7 @@ public class MessageManager {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
+                    public void processFailure(int responseCode, String url, String errorBody) {
                         if (listener != null) {
                             listener.connectActivityComplete(false);
                         }
@@ -251,7 +251,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
+                public void processFailure(int responseCode, String url, String errorBody) {
                     listener.connectActivityComplete(false);
                 }
 
@@ -305,7 +305,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
+                public void processFailure(int responseCode, String url, String errorBody) {
                     listener.connectActivityComplete(false);
                 }
 

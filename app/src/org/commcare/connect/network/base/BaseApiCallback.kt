@@ -17,7 +17,7 @@ import java.io.InputStream
 abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
 
     IApiCallback {
-    override fun processFailure(responseCode: Int, url: String?, errorCode: String, errorSubCode: String) {
+    override fun processFailure(responseCode: Int, url: String?, errorBody: String) {
         // Common error_code handler used before checking error response code
         when (responseCode) {
             401 -> baseApiHandler.onFailure(

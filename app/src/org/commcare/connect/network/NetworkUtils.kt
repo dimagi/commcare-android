@@ -12,6 +12,19 @@ import java.nio.charset.StandardCharsets
 
 object NetworkUtils {
 
+    @JvmStatic
+    fun getErrorBody(stream: InputStream?): String {
+        try {
+            if (stream != null) {
+                val errorBytes = StreamsUtil.inputStreamToByteArray(stream)
+                return String(errorBytes, StandardCharsets.UTF_8)
+            }
+        } catch (e: Exception) {
+            Logger.exception("Error parsing error_code", e);
+        }
+        return ""
+    }
+
     /**
      * Extracts error_code and error_sub_code from a JSON error response body.
      * If the stream is null or parsing fails, returns empty strings for both codes.
@@ -20,17 +33,13 @@ object NetworkUtils {
      * @return Pair of error_code and error_sub_code
      */
     @JvmStatic
-    fun getErrorCodes(stream: InputStream?): Pair<String, String> {
+    fun getErrorCodes(errorBody: String): Pair<String, String> {
         var errorCode = ""
         var errorSubCode = ""
         try {
-            if (stream != null) {
-                val errorBytes = StreamsUtil.inputStreamToByteArray(stream)
-                val jsonStr = String(errorBytes, StandardCharsets.UTF_8)
-                val json = JSONObject(jsonStr)
-                errorCode = json.optString("error_code", "");
-                errorSubCode = json.optString("error_sub_code", "");
-            }
+            val json = JSONObject(errorBody)
+            errorCode = json.optString("error_code", "");
+            errorSubCode = json.optString("error_sub_code", "");
         } catch (e: Exception) {
             Logger.exception("Error parsing error_code", e);
         }
@@ -42,12 +51,10 @@ object NetworkUtils {
         responseMessage: String,
         responseCode: Int,
         endPoint: String,
-        errorCode: String,
-        errorSubCode: String
+        errorBody: String
     ) {
         var message = "Response Message: $responseMessage | Response Code: $responseCode"
-        message += if (errorCode.isNotEmpty()) " | error_code: $errorCode" else ""
-        message += if (errorSubCode.isNotEmpty()) " | error_sub_code: $errorSubCode" else ""
+        message += if (errorBody.isNotEmpty()) " | error: $errorBody" else ""
         var errorMessage = when (responseCode) {
             400 -> "Bad Request: $message"
             401 -> "Unauthorized: $message"

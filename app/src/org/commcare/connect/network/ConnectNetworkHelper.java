@@ -342,11 +342,9 @@ public class ConnectNetworkHelper {
                         ConnectSsoHelper.discardTokens(context, null);
                         handler.processTokenUnavailableError();
                     } else {
-                        Pair<String, String> errorCodes = NetworkUtils.getErrorCodes(errorStream);
-                        NetworkUtils.logFailedResponse("", responseCode, url, errorCodes.getFirst(),
-                                errorCodes.getSecond());
-                        handler.processFailure(responseCode, url, errorCodes.getFirst(),
-                                errorCodes.getSecond());
+                        String errorBody = NetworkUtils.getErrorBody(errorStream);
+                        NetworkUtils.logFailedResponse("", responseCode, url, errorBody);
+                        handler.processFailure(responseCode, url, errorBody);
                     }
                 }
             }
@@ -359,7 +357,7 @@ public class ConnectNetworkHelper {
                 CrashUtil.reportException(new Exception(message));
 
                 //500 error for internal server error
-                handler.processFailure(responseCode, "", "", url);
+                handler.processFailure(responseCode, url, "");
             }
 
             @Override
@@ -369,7 +367,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                handler.processFailure(responseCode, "", "", url);
+                handler.processFailure(responseCode, url, "");
             }
 
             @Override
@@ -379,7 +377,7 @@ public class ConnectNetworkHelper {
                     handler.processNetworkFailure();
                 } else {
                     Logger.exception("IO Exception during API call", exception);
-                    handler.processFailure(-1, "", "", url);
+                    handler.processFailure(-1, url, "");
                 }
             }
 

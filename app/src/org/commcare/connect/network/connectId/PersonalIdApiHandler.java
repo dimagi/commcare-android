@@ -1,5 +1,7 @@
 package org.commcare.connect.network.connectId;
 
+import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
+
 import android.app.Activity;
 import android.content.Context;
 
@@ -21,12 +23,15 @@ import org.commcare.connect.network.connectId.parser.ReportIntegrityResponsePars
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+
+import kotlin.Pair;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
@@ -53,9 +58,10 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             }
 
             @Override
-            public void processFailure(int responseCode, String url, String errorCode, String errorSubCode) {
-                if (!handleErrorCodeIfPresent(errorCode, errorSubCode, sessionData)) {
-                    super.processFailure(responseCode, url, errorCode, errorSubCode);
+            public void processFailure(int responseCode, String url, String errorBody) {
+                Pair<String, String> errorCodes = getErrorCodes(errorBody);
+                if (!handleErrorCodeIfPresent(errorCodes.getFirst(), errorCodes.getSecond(), sessionData)) {
+                    super.processFailure(responseCode, url, errorBody);
                 }
             }
         };

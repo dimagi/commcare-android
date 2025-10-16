@@ -9,7 +9,7 @@ import java.io.InputStream;
  */
 public interface IApiCallback {
     void processSuccess(int responseCode, InputStream responseData);
-    void processFailure(int responseCode, String url, String errorCode, String errorSubCode);
+    void processFailure(int responseCode, String url, String errorBody);
     void processNetworkFailure();
     void processOldApiError();
     void processTokenUnavailableError();
