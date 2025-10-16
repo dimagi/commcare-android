@@ -50,7 +50,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
-    private MenuItem messagingMenuItem = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,28 +116,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        updateMessagingIcon();
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(messagingUpdateReceiver,
-                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver);
-    }
-
-    private final BroadcastReceiver messagingUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateMessagingIcon();
-        }
-    };
-
-    @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         getSupportActionBar().setTitle(title);
@@ -151,9 +128,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         MenuItem notification = menu.findItem(R.id.action_sync);
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-        messagingMenuItem = menu.findItem(R.id.action_messaging);
-        updateMessagingIcon();
-
         MenuItem notiificationsMenuItem = menu.findItem(R.id.action_bell);
         notiificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
 
@@ -163,7 +137,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
-        menu.findItem(R.id.action_messaging).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -176,27 +149,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void retrieveMessages(){
         MessageManager.retrieveMessages(this, success -> {
-            updateMessagingIcon();
         });
-    }
-
-    public void updateMessagingIcon() {
-        if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_messaging_base;
-            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(this).size() > 0) {
-                icon = R.drawable.ic_connect_messaging_unread;
-            }
-            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
-        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_messaging) {
-            ConnectNavHelper.INSTANCE.goToMessaging(this);
-            return true;
-        }
-
         if (item.getItemId() == R.id.action_bell) {
             ConnectNavHelper.goToNotification(this);
             return true;
