@@ -42,7 +42,7 @@ class BaseApi {
                         } catch (e: IOException) {
                             Logger.exception("Error reading response stream", e);
                             // Handle error when reading the stream
-                            callback.processFailure(response.code(), endPoint, "", "")
+                            callback.processFailure(response.code(), endPoint, "")
                         }
                     } else {
                         val stream = if (response.errorBody() != null) response.errorBody()!!
