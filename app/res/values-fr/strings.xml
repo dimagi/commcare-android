@@ -489,6 +489,7 @@ License.
     <string name="personalid_work_history_no_pending_records">Il n\'y a aucun enregistrement en attente pour le moment</string>
 
     <string name="personalid_notification">Notifications</string>
+    <string name="pn_no_notification_found">Aucune notification trouvée</string>
 
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
@@ -505,4 +506,10 @@ License.
     <string name="setup_refresh_opportunities_no_jobs">Aucune opportunité trouvée</string>
     <string name="setup_refresh_opportunities_with_jobs">Nouvelles opportunités trouvées, cliquez sur Opportunités pour en savoir plus.</string>
     <string name="personalid_not_login_from_fcm_error">Veuillez vous connecter à PersonalId pour voir les détails</string>
+
+    <string name="just_now">À l\'instant</string>
+    <string name="minutes_ago">Il y a %1$d minutes</string>
+    <string name="hours_ago">Il y a %1$d heures</string>
+    <string name="yesterday">Hier %1$s</string>
+
 </resources>

@@ -90,4 +90,10 @@
     <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
     <string name="connect_fetch_delivery_progress_error">Kunne ikke hente leveringsfremdriften</string>
     <string name="personalid_not_login_from_fcm_error">Vennligst logg inn på PersonalId for å se detaljene</string>
+
+    <string name="just_now">Akkurat nå</string>
+    <string name="minutes_ago">For %1$d minutter siden</string>
+    <string name="hours_ago">For %1$d timer siden</string>
+    <string name="yesterday">I går %1$s</string>
+
 </resources>
