@@ -347,7 +347,15 @@ public class QuestionsView extends ScrollView
     }
 
     private void scrollToWidget(final QuestionWidget widget) {
-        new Handler().post(() -> QuestionsView.this.scrollTo(0, widget.getTop()));
+        new Handler().post(() -> {
+            String widgetTextId = "None";
+            try {
+                widgetTextId = widget.getPrompt().getQuestion().getTextID();
+            } catch (Exception ignore) {}
+            Logger.log(LogTypes.SOFT_ASSERT, "Attempting to scroll to widget: " + widgetTextId);
+
+            QuestionsView.this.scrollTo(0, widget.getTop());
+        });
     }
 
     /**
