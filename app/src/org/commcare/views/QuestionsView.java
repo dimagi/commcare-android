@@ -346,6 +346,17 @@ public class QuestionsView extends ScrollView
         }
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        try {
+            super.onSizeChanged(w, h, oldw, oldh);
+        } catch (IllegalArgumentException e) {
+            Logger.log(LogTypes.SOFT_ASSERT,
+                    "Resizing from "+oldw+"X"+oldh+" to "+w+"X"+h+" failed with focus on: " + findFocus());
+            throw e;
+        }
+    }
+
     private void scrollToWidget(final QuestionWidget widget) {
         new Handler().post(() -> QuestionsView.this.scrollTo(0, widget.getTop()));
     }
