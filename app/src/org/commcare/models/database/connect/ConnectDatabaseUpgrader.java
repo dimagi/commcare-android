@@ -131,6 +131,10 @@ public class ConnectDatabaseUpgrader {
             upgradeEighteenNineteen(db);
             oldVersion = 19;
         }
+        if (oldVersion == 19) {
+            upgradeNineteenTwenty(db);
+            oldVersion = 20;
+        }
     }
 
     private void upgradeOneTwo(IDatabase db) {
@@ -654,6 +658,17 @@ public class ConnectDatabaseUpgrader {
 
     private void upgradeEighteenNineteen(IDatabase db) {
         addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+    }
+
+    private void upgradeNineteenTwenty(IDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage.dropTable(db, PushNotificationRecord.STORAGE_KEY);
+            addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,

@@ -16,6 +16,7 @@ import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
+import org.commcare.connect.network.connectId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
 import org.commcare.util.LogTypes;
@@ -26,6 +27,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
@@ -161,5 +163,14 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
 
+    public void retrieveNotifications(Context context, ConnectUserRecord user) {
+        ApiPersonalId.retrieveNotifications(context, user.getUserId(), user.getPassword(),
+                createCallback(new RetrieveNotificationsResponseParser<>(),null));
+    }
+
+    public void updateNotifications(Context context, String userId, String password, List<String> notificationId) {
+        ApiPersonalId.updateNotifications(context, userId, password,
+                createCallback(new NoParsingResponseParser<>(),null),notificationId);
+    }
 
 }

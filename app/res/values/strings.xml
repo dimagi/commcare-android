@@ -674,6 +674,7 @@
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
     <string name="personalid_notification">Notifications</string>
+    <string name="pn_no_notification_found">No notifications found</string>
 
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
     <string name="nav_drawer_open">Open navigation drawer</string>
@@ -683,4 +684,9 @@
     <string name="setup_refresh_opportunities_with_jobs">New opportunities found, click on Opportunities to learn more.</string>
 
     <string name="personalid_not_login_from_fcm_error">Please login to PersonalId to view the details</string>
+
+    <string name="just_now">Just now</string>
+    <string name="minutes_ago">%1$d minutes ago</string>
+    <string name="hours_ago">%1$d hours ago</string>
+    <string name="yesterday">Yesterday %1$s</string>
 </resources>
