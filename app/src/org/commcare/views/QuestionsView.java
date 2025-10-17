@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import androidx.annotation.NonNull;
+
 /**
  * @author carlhartung
  */
@@ -346,16 +348,32 @@ public class QuestionsView extends ScrollView
         }
     }
 
-    private void scrollToWidget(final QuestionWidget widget) {
-        new Handler().post(() -> {
-            String widgetTextId = "None";
-            try {
-                widgetTextId = widget.getPrompt().getQuestion().getTextID();
-            } catch (Exception ignore) {}
-            Logger.log(LogTypes.SOFT_ASSERT, "Attempting to scroll to widget: " + widgetTextId);
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        try {
+            super.onSizeChanged(w, h, oldw, oldh);
+        } catch (IllegalArgumentException e) {
+            Logger.log(LogTypes.SOFT_ASSERT,
+                    "Resizing from " + oldw + "X" + oldh + " to " + w + "X" + h + " failed with focus on: " + getFocusedViewClassName());
+            throw e;
+        }
+    }
 
-            QuestionsView.this.scrollTo(0, widget.getTop());
-        });
+    @NonNull
+    private String getFocusedViewClassName() {
+        View focusedView = findFocus();
+        String focusedViewClassName = "None";
+        if (focusedView != null) {
+            focusedViewClassName = focusedView.getClass().toString();
+            if (focusedView.getParent() != null) {
+                focusedViewClassName += "/"+ focusedView.getParent().getClass();
+            }
+        }
+        return focusedViewClassName;
+    }
+
+    private void scrollToWidget(final QuestionWidget widget) {
+        new Handler().post(() -> QuestionsView.this.scrollTo(0, widget.getTop()));
     }
 
     /**
