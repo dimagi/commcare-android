@@ -62,7 +62,6 @@ object ConnectDateUtils {
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
     fun formatNotificationTime(context: Context, date: Date): String {
         val now = Calendar.getInstance()
         val then = Calendar.getInstance().apply { time = date }
@@ -77,17 +76,15 @@ object ConnectDateUtils {
             minutes < 60 -> context.getString(R.string.minutes_ago, minutes.toInt())
             hours < 24 -> context.getString(R.string.hours_ago, hours.toInt())
             days < 2 -> {
-                val timeFormat = SimpleDateFormat("hh:mm a")
+                val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
                 context.getString(R.string.yesterday, timeFormat.format(date))
             }
-
             days <= 7 -> {
-                val dayFormat = SimpleDateFormat("EEEE hh:mm a")
+                val dayFormat = SimpleDateFormat("EEEE hh:mm a", Locale.getDefault())
                 dayFormat.format(date)
             }
-
             else -> {
-                val dateFormat = SimpleDateFormat("MMM d hh:mm a")
+                val dateFormat = SimpleDateFormat("MMM d hh:mm a", Locale.getDefault())
                 dateFormat.format(date)
             }
         }

@@ -130,13 +130,8 @@ class BaseDrawerController(
     fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
-            val notifications = NotificationRecordDatabaseHelper.getAllNotifications(activity)
-            val hasUnreadNotification = notifications!!.any { !it.acknowledged }
 
-            binding.ivNotification.setImageResource(
-                if (hasUnreadNotification) R.drawable.ic_new_notification_bell
-                else R.drawable.ic_bell
-            )
+            binding.ivNotification.setImageResource(R.drawable.ic_bell)
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
             Glide.with(binding.imageUserProfile)

@@ -44,7 +44,7 @@ class PushNotificationAdapter(
                 CCC_MESSAGE -> R.drawable.nav_drawer_message_icon
                 CCC_DEST_OPPORTUNITY_SUMMARY_PAGE -> R.drawable.ic_connect_new_opportunity
                 CCC_DEST_LEARN_PROGRESS -> R.drawable.ic_connect_learning
-                CCC_DEST_DELIVERY_PROGRESS -> R.drawable.ic_delivery_pn
+                CCC_DEST_DELIVERY_PROGRESS -> R.drawable.ic_connect_delivery
                 else -> null
             }
             iconRes?.let { ivNotification.setImageResource(it) }
