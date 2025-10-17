@@ -130,7 +130,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         boolean hasFingerprintHardware = fingerprintStatus != BiometricsHelper.ConfigurationStatus.NoHardware;
 
         String title;
-        String message;
+        String message = "";
         String fingerprintButton = null;
         String pinButton = null;
 
