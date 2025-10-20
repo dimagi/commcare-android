@@ -264,7 +264,9 @@
     <string name="connect_register_success_message">ናይ PersonalId ኣካውንትካ ብዓወት ተፈጢሩ ኣሎ፡ ኸዚ ድማ ንኽትጥቀመሉ ድሉው ኮይኑ ኣሎ!</string>
     <string name="connect_register_success_button">እሺ</string>
     <string name="connect_verify_title">ኣማራፂታት ምኽፋት።</string>
-    <string name="connect_verify_message">በይዛኻ ንኽልቲኡ መሳርሒኻን PersonalId ኣካውንትካን ንምኽፋት ኣብ ታሕቲ ዘሎ ሜላ ኣወሃህድ</string>
+    <string name="connect_verify_message">በይዛኻ ንኽልቲኡ መሳርሒኻን PersonalID ኣካውንትካን ንምኽፋት ኣብ ታሕቲ ዘሎ ሜላ ኣወሃህድ</string>
+    <string name="connect_verify_message_pin">ንኽልቲኡ መሳርሒኻን PersonalID ኣካውንትካን ንምኽፋት በጃኻ ኣብ ታሕቲ ፒን ወይ ፓተርን ኣወሃህድ</string>
+    <string name="connect_verify_message_fingerprint">ንኽልቲኡ መሳርሒኻን PersonalID ኣካውንትካን ንምኽፋት በጃኻ ኣብ ታሕቲ ኣሰር ኣጻብዕትኻ ኣወሃህቦ</string>
     <string name="connect_verify_use_fingerprint_long">ንምትእስሳር ኣሰር ኣፃብዕቲ ተጠቐም</string>
     <string name="connect_verify_fingerprint_configured">ኣሰር ኣፃብዕትኻ በቃ ተዋቒሩ ኣሎ፡ ንPersonalId ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
     <string name="connect_verify_configure_fingerprint">ኣሰር ኣፃብዕቲ ምውቃር</string>

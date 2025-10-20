@@ -173,7 +173,7 @@ public class QueryRequestActivity
     }
 
     @Override
-    public void processClientError(int responseCode) {
+    public void processClientError(int responseCode, InputStream errorStream) {
         enterErrorState(Localization.get("post.client.error", responseCode + ""));
     }
 
