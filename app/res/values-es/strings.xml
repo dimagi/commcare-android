@@ -332,6 +332,7 @@
     <string name="change_settings">Change Settings</string>
     <string name="connect_message_you">Tú</string>
     <string name="connect_message_them">Ellos</string>
+    <string name="fcm_sync_failed_body_text">Haga clic aquí para saber más</string>
     <string name="connect_progress_warning_max_reached_single">Has alcanzado el número máximo de visitas. No podrás progresar en trabajos adicionales.</string>
     <string name="connect_progress_warning_daily_max_reached_single">Has alcanzado el número máximo de visitas de hoy. Es posible que no obtengas progreso por trabajo adicional.</string>
     <string name="connect_progress_warning_max_reached_multi">Has alcanzado el número máximo de visitas para %s.</string>
@@ -364,7 +365,6 @@
     <string name="app_with_id_not_found">La aplicación CommCare requerida no está instalada en el dispositivo</string>
     <string name="audio_recording_notification">Notificación de grabación de audio</string>
     <string name="user_suspended">El usuario está suspendido. Por favor, contacta al administrador.</string>
-    <string name="connect_job_list_api_failure">Ocurrió un error al conectar con el servidor.</string>
     <string name="connect_payment_acknowledge_notification_yes">Sí</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
     <string name="enter_otp">Ingresa el código SMS</string>
@@ -488,6 +488,7 @@
     <string name="personalid_work_history_no_pending_records">No hay registros pendientes en este momento</string>
 
     <string name="personalid_notification">Notificaciones</string>
+    <string name="pn_no_notification_found">No se encontraron notificaciones</string>
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
@@ -503,4 +504,11 @@
 
     <string name="setup_refresh_opportunities_no_jobs">No se encontraron oportunidades</string>
     <string name="setup_refresh_opportunities_with_jobs">Nuevas oportunidades encontradas, haz clic en Oportunidades para obtener más información.</string>
+    <string name="personalid_not_login_from_fcm_error">Inicie sesión en PersonalId para ver los detalles.</string>
+
+    <string name="just_now">Ahora mismo</string>
+    <string name="minutes_ago">Hace %1$d minutos</string>
+    <string name="hours_ago">Hace %1$d horas</string>
+    <string name="yesterday">Ayer %1$s</string>
+
 </resources>

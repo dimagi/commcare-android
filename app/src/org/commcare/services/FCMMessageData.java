@@ -1,5 +1,7 @@
 package org.commcare.services;
 
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+
 import android.graphics.Bitmap;
 
 import org.commcare.CommCareNoficationManager;
@@ -52,13 +54,13 @@ public class FCMMessageData implements Externalizable {
 
     public FCMMessageData(Map<String, String> payloadData) {
         this.payloadData = payloadData;
-        actionType = getActionType(payloadData.get("action"));
+        actionType = getActionType(payloadData.get(REDIRECT_ACTION));
         username = payloadData.get("username");
         domain = payloadData.get("domain");
         creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
         notificationTitle = payloadData.get(NOTIFICATION_TITLE);
         notificationText = payloadData.get(NOTIFICATION_BODY);
-        action = payloadData.get("action");
+        action = payloadData.get(REDIRECT_ACTION);
         priority = NotificationCompat.PRIORITY_HIGH;
         notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
         smallIcon = R.drawable.commcare_actionbar_logo;

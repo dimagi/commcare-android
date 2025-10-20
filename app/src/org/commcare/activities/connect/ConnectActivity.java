@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.core.content.res.ResourcesCompat;
@@ -50,25 +51,38 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
+    private MenuItem messagingMenuItem = null;
+    private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(getString(R.string.connect_title));
 
-        initStateFromExtras();
-        updateBackButton();
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(this);
 
-        // Wait for fragment to attach
-        getSupportFragmentManager().executePendingTransactions();
+        if(personalIdManager.isloggedIn()){
+            initStateFromExtras();
+            updateBackButton();
 
-        NavInflater inflater = navController.getNavInflater();
-        NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
-        Bundle startArgs = new Bundle();
-        graph.setStartDestination(getStartDestinationId(startArgs));
-        navController.setGraph(graph, startArgs);
+            // Wait for fragment to attach
+            getSupportFragmentManager().executePendingTransactions();
 
-        retrieveMessages();
+            NavInflater inflater = navController.getNavInflater();
+            NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
+            Bundle startArgs = new Bundle();
+            graph.setStartDestination(getStartDestinationId(startArgs));
+            navController.setGraph(graph, startArgs);
+
+            retrieveMessages();
+        }else{
+            Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
+            personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            finish();
+        }
+
+
     }
 
     private int getStartDestinationId(Bundle startArgs) {

@@ -131,8 +131,8 @@ class BaseDrawerController(
     fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
-            updateNotificationsIcon()
-
+            binding.ivNotification.setImageResource(R.drawable.ic_bell)
+            
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
             Glide.with(binding.imageUserProfile)
@@ -217,18 +217,6 @@ class BaseDrawerController(
             navDrawerAdapter.refreshList(items)
         } else {
             setSignedInState(false)
-        }
-    }
-
-    private fun updateNotificationsIcon() {
-        if(shouldShowNotiifcations()) {
-            val notifications = NotificationRecordDatabaseHelper().getAllNotifications(activity)
-            val hasUnreadNotification = notifications!!.any { !it.readStatus }
-
-            binding.ivNotification.setImageResource(
-                if (hasUnreadNotification) R.drawable.ic_new_notification_bell
-                else R.drawable.ic_bell
-            )
         }
     }
 

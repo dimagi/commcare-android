@@ -20,4 +20,6 @@ public class ApiEndPoints {
     public static final String connectDeliveriesURL = "/api/opportunity/{id}/delivery_progress";
     public static final String connectPaymentConfirmationURL = "/api/payment/{id}/confirm";
     public static final String CREDENTIALS = "/users/credentials";
+    public static final String RETRIEVE_NOTIFICATIONS = "/messaging/retrieve_notifications/";
+    public static final String UPDATE_NOTIFICATIONS = "/messaging/update_notification_received/";
 }

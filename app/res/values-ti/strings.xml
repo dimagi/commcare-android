@@ -430,6 +430,7 @@
     <string name="connect_send_message_btn_desc">መልእኽቲ ንምልኣኽ ኣብዚ ጠውቑ</string>
     <string name="connect_message_you">ንስኻ</string>
     <string name="connect_message_them">ንሶም</string>
+    <string name="fcm_sync_failed_body_text">ንዝያዳ ሓበሬታ ኣብዚ ጠውቑ</string>
     <string name="connect_corrupt_job_text">ነዚ ዕድል ክጽዕን ኣይከኣለን</string>
     <string name="connect_results_summary_pending">ኣብ ከይዲ</string>
     <string name="connect_results_summary_rejected">ተነጺጉ</string>
@@ -480,6 +481,7 @@
     <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
 
     <string name="personalid_notification">መፍለጥታትን</string>
+    <string name="pn_no_notification_found">ዝኾነ መፍለጢ ኣይተረኽበን</string>
 
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
@@ -493,5 +495,11 @@
     <string name="nav_drawer_manage_profile">ፕሮፋይል ኣስተዳደር</string>
     <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>
     <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>
+    <string name="personalid_not_login_from_fcm_error">ዝርዝር ንምርኣይ ናብ PersonalId እቶ</string>
+
+    <string name="just_now">ሕጂ ሕጂ</string>
+    <string name="minutes_ago">ቅድሚ %1$d ደቓይቕ</string>
+    <string name="hours_ago">ቅድሚ %1$d ሰዓታት</string>
+    <string name="yesterday">ትማሊ %1$s</string>
 
 </resources>

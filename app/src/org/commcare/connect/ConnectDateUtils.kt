@@ -1,8 +1,12 @@
 package org.commcare.connect
 
+import android.annotation.SuppressLint
+import android.content.Context
+import org.commcare.dalvik.R
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -55,6 +59,34 @@ object ConnectDateUtils {
             isoFormat.parse(dateStr)
         } catch (e: ParseException) {
             null
+        }
+    }
+
+    fun formatNotificationTime(context: Context, date: Date): String {
+        val now = Calendar.getInstance()
+        val then = Calendar.getInstance().apply { time = date }
+
+        val diffMillis = now.timeInMillis - then.timeInMillis
+        val minutes = diffMillis / (1000 * 60)
+        val hours = diffMillis / (1000 * 60 * 60)
+        val days = diffMillis / (1000 * 60 * 60 * 24)
+
+        return when {
+            minutes < 1 -> context.getString(R.string.just_now)
+            minutes < 60 -> context.getString(R.string.minutes_ago, minutes.toInt())
+            hours < 24 -> context.getString(R.string.hours_ago, hours.toInt())
+            days < 2 -> {
+                val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                context.getString(R.string.yesterday, timeFormat.format(date))
+            }
+            days <= 7 -> {
+                val dayFormat = SimpleDateFormat("EEEE hh:mm a", Locale.getDefault())
+                dayFormat.format(date)
+            }
+            else -> {
+                val dateFormat = SimpleDateFormat("MMM d hh:mm a", Locale.getDefault())
+                dateFormat.format(date)
+            }
         }
     }
 }

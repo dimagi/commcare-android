@@ -362,7 +362,6 @@ License.
     <string name="app_with_id_not_found">आवश्यक CommCare एप्लिकेशन डिवाइस पर इंस्टॉल नहीं है</string>
     <string name="audio_recording_notification">ऑडियो रिकॉर्डिंग अधिसूचना</string>
     <string name="user_suspended">उपयोगकर्ता निलंबित है। कृपया व्यवस्थापक से संपर्क करें।</string>
-    <string name="connect_job_list_api_failure">सर्वर से कनेक्ट करते समय एक त्रुटि हुई।</string>
     <string name="connect_payment_acknowledge_notification_yes">हाँ</string>
     <string name="connect_payment_acknowledge_notification_no">नहीं</string>
     <string name="enter_otp">SMS कोड दर्ज करें</string>
@@ -401,7 +400,7 @@ License.
     <string name="connect_expired">समाप्त</string>
     <string name="connect_job_tile_daily_limit_description">दैनिक सीमा पूरी हो गई। फॉर्म जमा करने पर कोई भुगतान नहीं।</string>
     <string name="connect_recovery_button_phone">जारी रखें</string>
-
+    <string name="fcm_sync_failed_body_text">अधिक जानकारी के लिए यहां क्लिक करें</string>
     <string name="connect_verify_phone_resend_code">कोड पुनः भेजें</string>
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>
     <string name="connect_messaging_title">मैसेजिंग</string>
@@ -485,6 +484,7 @@ License.
     <string name="personalid_work_history_level_12_month_active">12 महीने की\nगतिविधि</string>
 
     <string name="personalid_notification">सूचनाएं</string>
+    <string name="pn_no_notification_found">कोई सूचना नहीं मिली</string>
 
     <string name="personalid_work_history_no_pending_records">इस समय कोई लंबित रिकॉर्ड नहीं हैं</string>
 
@@ -502,4 +502,11 @@ License.
 
     <string name="setup_refresh_opportunities_no_jobs">कोई अवसर नहीं मिला</string>
     <string name="setup_refresh_opportunities_with_jobs">नए अवसर मिले, अधिक जानने के लिए अवसर पर क्लिक करें।</string>
+    <string name="personalid_not_login_from_fcm_error">कृपया विवरण देखने के लिए PersonalId पर लॉगिन करें</string>
+
+    <string name="just_now">अभी-अभी</string>
+    <string name="minutes_ago">"%1$d मिनट पहले"</string>
+    <string name="hours_ago">"%1$d घंटे पहले"</string>
+    <string name="yesterday">कल %1$s</string>
+
 </resources>

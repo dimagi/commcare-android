@@ -8,6 +8,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectApiHandler
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
@@ -150,4 +151,23 @@ object ConnectJobHelper {
             }
         }.setPaymentConfirmation(context, user, payment.paymentId, confirmed)
     }
+
+    fun retrieveOpportunities(context: Context,
+                              listener: ConnectActivityCompleteListener){
+        val user = ConnectUserDatabaseUtil.getUser(context)
+        object : ConnectApiHandler<ConnectOpportunitiesResponseModel?>() {
+            override fun onFailure(
+                errorCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?
+            ) {
+                listener.connectActivityComplete(false)
+            }
+
+            override fun onSuccess(data: ConnectOpportunitiesResponseModel?) {
+                listener.connectActivityComplete(true)
+            }
+        }.getConnectOpportunities(context, user!!)
+    }
+
+
 }

@@ -445,6 +445,7 @@
     <string name="connect_send_message_btn_desc">Clique aqui para enviar mensagem</string>
     <string name="connect_message_you">Você</string>
     <string name="connect_message_them">Eles</string>
+    <string name="fcm_sync_failed_body_text">Clique aqui para saber mais</string>
     <string name="connect_corrupt_job_text">Falha ao carregar esta oportunidade</string>
     <string name="connect_results_summary_pending">Pendente</string>
     <string name="connect_results_summary_rejected">Rejeitado</string>
@@ -496,6 +497,7 @@
     <string name="personalid_work_history_no_pending_records">Não há registros pendentes no momento</string>
 
     <string name="personalid_notification">Notificações</string>
+    <string name="pn_no_notification_found">Nenhuma notificação encontrada</string>
 
     <string name="nav_drawer_signin_register">Entrar / Registrar-se</string>
     <string name="nav_drawer_help">Ajuda</string>
@@ -511,4 +513,11 @@
 
     <string name="setup_refresh_opportunities_no_jobs">Nenhuma oportunidade encontrada</string>
     <string name="setup_refresh_opportunities_with_jobs">Novas oportunidades encontradas, clique em Oportunidades para saber mais.</string>
+    <string name="personalid_not_login_from_fcm_error">Faça login no PersonalId para ver os detalhes</string>
+
+    <string name="just_now">Agora mesmo</string>
+    <string name="minutes_ago">Há %1$d minutos</string>
+    <string name="hours_ago">Há %1$d horas</string>
+    <string name="yesterday">Ontem %1$s</string>
+
 </resources>
