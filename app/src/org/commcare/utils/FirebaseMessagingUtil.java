@@ -53,12 +53,12 @@ import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.services.FCMMessageData.NOTIFICATION_BODY;
-import static org.commcare.services.FCMMessageData.NOTIFICATION_TITLE;
 
 /**
  * This class will be used to handle notification whenever

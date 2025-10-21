@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_MESSAGE_ID
@@ -18,7 +19,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import org.commcare.services.FCMMessageData.NOTIFICATION_BODY
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
