@@ -1,5 +1,7 @@
 package org.commcare.services;
 
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 import android.graphics.Bitmap;
@@ -38,10 +40,6 @@ public class FCMMessageData implements Externalizable {
     private String action;
     private String notificationChannel;
     private Map<String, String> payloadData;
-
-
-    public static String NOTIFICATION_TITLE = "title";
-    public static String NOTIFICATION_BODY = "body";
 
 
     /**

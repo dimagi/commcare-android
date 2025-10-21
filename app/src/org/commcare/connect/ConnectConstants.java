@@ -46,4 +46,11 @@ public class ConnectConstants {
     public final static int PERSONALID_LOCATION_PERMISSION_FAILURE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
     public final static int PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
     public final static String STATUS_APPROVED = "approved";
+    public final static String NOTIFICATION_TITLE = "title";
+    public final static String NOTIFICATION_BODY = "body";
+    public final static String NOTIFICATION_ID = "notification_id";
+    public final static String NOTIFICATION_TIME_STAMP = "timestamp";
+    public final static String NOTIFICATION_STATUS = "status";
+    public final static String NOTIFICATION_MESSAGE_ID = "message_id";
+    public final static String NOTIFICATION_CHANNEL_ID = "channel";
 }
