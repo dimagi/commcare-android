@@ -5,10 +5,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
+import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
+import org.commcare.connect.ConnectConstants.NOTIFICATION_MESSAGE_ID
+import org.commcare.connect.ConnectConstants.NOTIFICATION_STATUS
+import org.commcare.connect.ConnectConstants.NOTIFICATION_TIME_STAMP
+import org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.PAYMENT_ID
+import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.services.FCMMessageData.NOTIFICATION_BODY
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -68,6 +78,32 @@ object PushNotificationApiHelper {
                 }
             }.updateNotifications(context, user.userId, user.password, savedNotificationIds)
         }
+    }
+
+
+    fun convertPNRecordsToPayload(pnsRecords:List<PushNotificationRecord>?): ArrayList<Map<String,String>>{
+        val pns = ArrayList<Map<String,String>>()
+        pnsRecords?.let {
+            it.map {pnRecord ->
+                pns.add(convertPNRecordToPayload(pnRecord))
+            }
+        }
+        return pns
+    }
+
+    fun convertPNRecordToPayload(pnRecord: PushNotificationRecord): HashMap<String,String> {
+        val pn = HashMap<String,String>()
+        pn.put(REDIRECT_ACTION,pnRecord.action)
+        pn.put(NOTIFICATION_TITLE,pnRecord.title)
+        pn.put(NOTIFICATION_BODY,pnRecord.body)
+        pn.put(NOTIFICATION_ID,""+pnRecord.notificationId)
+        pn.put(NOTIFICATION_TIME_STAMP,pnRecord.createdDate.toString())
+        pn.put(NOTIFICATION_STATUS,pnRecord.confirmationStatus)
+        pn.put(NOTIFICATION_MESSAGE_ID,""+pnRecord.connectMessageId)
+        pn.put(NOTIFICATION_CHANNEL_ID,""+pnRecord.channel)
+        pn.put(OPPORTUNITY_ID,""+pnRecord.opportunityId)
+        pn.put(PAYMENT_ID,""+pnRecord.paymentId)
+        return pn
     }
 
 

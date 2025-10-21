@@ -12,6 +12,7 @@ import org.commcare.adapters.PushNotificationAdapter
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
+import org.commcare.utils.FirebaseMessagingUtil.getIntentForPNClick
 
 class PushNotificationActivity : AppCompatActivity() {
     private val binding: ActivityPushNotificationBinding by lazy {
@@ -66,7 +67,10 @@ class PushNotificationActivity : AppCompatActivity() {
         pushNotificationAdapter = PushNotificationAdapter(listener = object :
             PushNotificationAdapter.OnNotificationClickListener {
             override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
-
+                val activityIntent = getIntentForPNClick(application,notificationRecord)
+                if(activityIntent!=null) {
+                    startActivity(activityIntent)
+                }
             }
         })
         binding.rvNotifications.adapter = pushNotificationAdapter

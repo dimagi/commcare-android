@@ -15,21 +15,14 @@ import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
 import org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS
 import org.commcare.connect.ConnectConstants.CCC_MESSAGE
 import org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION
-import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
-import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
-import org.commcare.connect.ConnectConstants.NOTIFICATION_MESSAGE_ID
-import org.commcare.connect.ConnectConstants.NOTIFICATION_STATUS
-import org.commcare.connect.ConnectConstants.NOTIFICATION_TIME_STAMP
-import org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
-import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.pn.workers.PNApiSyncWorker
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.PN_DATA
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.SYNC_ACTION
-import org.commcare.services.FCMMessageData.NOTIFICATION_BODY
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
+import org.commcare.utils.PushNotificationApiHelper.convertPNRecordsToPayload
 import java.util.concurrent.TimeUnit
 
 /**
@@ -65,22 +58,7 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     constructor(context: Context, pnsRecords:List<PushNotificationRecord>?, syncType: SYNC_TYPE):this(context){
-        pnsRecords?.let {
-            it.map { pnRecord ->
-                val pn = HashMap<String,String>()
-                pn.put(REDIRECT_ACTION,pnRecord.action)
-                pn.put(NOTIFICATION_TITLE,pnRecord.title)
-                pn.put(NOTIFICATION_BODY,pnRecord.body)
-                pn.put(NOTIFICATION_ID,""+pnRecord.notificationId)
-                pn.put(NOTIFICATION_TIME_STAMP,pnRecord.createdDate.toString())
-                pn.put(NOTIFICATION_STATUS,pnRecord.confirmationStatus)
-                pn.put(NOTIFICATION_MESSAGE_ID,""+pnRecord.connectMessageId)
-                pn.put(NOTIFICATION_CHANNEL_ID,""+pnRecord.channel)
-                pn.put(OPPORTUNITY_ID,""+pnRecord.opportunityId)
-                pn.put(PAYMENT_ID,""+pnRecord.paymentId)
-                pns.add(pn)
-            }
-        }
+        this.pns = convertPNRecordsToPayload(pnsRecords)
         this.syncType = syncType
     }
 

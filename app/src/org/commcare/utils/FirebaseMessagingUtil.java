@@ -27,6 +27,7 @@ import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -496,6 +497,10 @@ public class FirebaseMessagingUtil {
             return pnIntent;
         }
         return null;
+    }
+
+    public static Intent getIntentForPNClick(Context context, PushNotificationRecord pushNotificationRecord){
+        return cccCheckPassed(context) ? handleNotification(context,PushNotificationApiHelper.INSTANCE.convertPNRecordToPayload(pushNotificationRecord),null ,false): null;
     }
 
     public static boolean cccCheckPassed(Context context){
