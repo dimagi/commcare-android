@@ -27,6 +27,7 @@ import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -52,12 +53,12 @@ import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.services.FCMMessageData.NOTIFICATION_BODY;
-import static org.commcare.services.FCMMessageData.NOTIFICATION_TITLE;
 
 /**
  * This class will be used to handle notification whenever
@@ -496,6 +497,10 @@ public class FirebaseMessagingUtil {
             return pnIntent;
         }
         return null;
+    }
+
+    public static Intent getIntentForPNClick(Context context, PushNotificationRecord pushNotificationRecord){
+        return cccCheckPassed(context) ? handleNotification(context,PushNotificationApiHelper.INSTANCE.convertPNRecordToPayload(pushNotificationRecord),null ,false): null;
     }
 
     public static boolean cccCheckPassed(Context context){
