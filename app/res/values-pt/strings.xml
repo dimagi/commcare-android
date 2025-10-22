@@ -326,7 +326,7 @@
     <string name="connect_learn_completed">Concluído em: %s</string>
     <string name="connect_learn_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_learn_review">Rever a aprendizagem</string>
-    <string name="connect_learn_view_details">Ver detalhes do trabalho</string>
+    <string name="connect_learn_view_details">Ver detalhes da oportunidade</string>
     <string name="connect_learn_go_to_assessment">Ir para avaliação</string>
     <string name="connect_learn_try_again">Tentar novamente</string>
     <string name="connect_learn_start">Inicie a aprendizagem</string>
