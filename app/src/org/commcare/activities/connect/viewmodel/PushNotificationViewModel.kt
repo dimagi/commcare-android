@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
+import org.commcare.pn.workermanager.PNApiSyncWorkerManager
 import org.commcare.utils.PushNotificationApiHelper.retrieveLatestPushNotifications
 
 class PushNotificationViewModel(application: Application) : AndroidViewModel(application) {
@@ -38,6 +39,11 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
             val latestPushNotificationsFromApi = retrieveLatestPushNotifications(application)
             latestPushNotificationsFromApi.onSuccess {
                 val currentNotifications = _allNotifications.value.orEmpty()
+                PNApiSyncWorkerManager(
+                    application,
+                    it,
+                    PNApiSyncWorkerManager.SYNC_TYPE.NOTIFICATION_API
+                ).startPNApiSync()
                 val updatedNotifications = (it + currentNotifications).distinctBy { it.notificationId }.sortedByDescending { it.createdDate }
                 _isLoading.postValue(false)
                 _allNotifications.postValue(updatedNotifications)

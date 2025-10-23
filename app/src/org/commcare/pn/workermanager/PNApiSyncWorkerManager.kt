@@ -6,15 +6,9 @@ import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
@@ -23,17 +17,13 @@ import org.commcare.connect.ConnectConstants.CCC_MESSAGE
 import org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
-import org.commcare.dalvik.R
 import org.commcare.pn.workers.PNApiSyncWorker
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.PN_DATA
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.SYNC_ACTION
-import org.commcare.services.FCMMessageData.NOTIFICATION_BODY
-import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
-import org.javarosa.core.services.Logger
+import org.commcare.utils.PushNotificationApiHelper.convertPNRecordsToPayload
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * This class is responsible for allocating the work request for each type of push notification
@@ -64,6 +54,11 @@ class PNApiSyncWorkerManager(val context: Context) {
      */
     constructor(context: Context, pns : ArrayList<Map<String,String>>, syncType: SYNC_TYPE):this(context){
         this.pns = pns
+        this.syncType = syncType
+    }
+
+    constructor(context: Context, pnsRecords:List<PushNotificationRecord>?, syncType: SYNC_TYPE):this(context){
+        this.pns = convertPNRecordsToPayload(pnsRecords)
         this.syncType = syncType
     }
 

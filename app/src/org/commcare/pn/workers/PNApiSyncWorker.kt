@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.MessageManager
@@ -18,7 +19,6 @@ import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.R
 import org.commcare.pn.workermanager.PNApiSyncWorkerManager
 import org.commcare.pn.workermanager.PNApiSyncWorkerManager.SYNC_TYPE
-import org.commcare.services.FCMMessageData.NOTIFICATION_BODY
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.javarosa.core.services.Logger
