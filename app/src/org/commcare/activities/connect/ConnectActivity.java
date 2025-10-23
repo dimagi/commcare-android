@@ -51,6 +51,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private MenuItem messagingMenuItem = null;
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
 
+    // Hello world
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
