@@ -21,6 +21,7 @@ import org.commcare.pn.workers.PNApiSyncWorker
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.PN_DATA
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.SYNC_ACTION
+import org.commcare.pn.workers.NotificationsRetrievalWorker
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper.convertPNRecordsToPayload
 import java.util.concurrent.TimeUnit
@@ -33,9 +34,6 @@ class PNApiSyncWorkerManager(val context: Context) {
 
     companion object{
         val PN_SYNC_BACKOFF_DELAY_IN_MILLIS: Long = 3 * 60 * 1000L  // min 3 minutes
-
-        val SYNC_TYPE_STRING = "SYNC_TYPE_STRING"
-
     }
 
     enum class SYNC_TYPE{
@@ -156,7 +154,7 @@ class PNApiSyncWorkerManager(val context: Context) {
             .putString(PNApiSyncWorker.SYNC_TYPE,syncTypeString)
             .build()
 
-        val workRequest =  OneTimeWorkRequestBuilder<PNApiSyncWorker>()
+        val syncWorkRequest =  OneTimeWorkRequestBuilder<PNApiSyncWorker>()
             .setInputData(inputData)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(
@@ -165,14 +163,16 @@ class PNApiSyncWorkerManager(val context: Context) {
                 TimeUnit.MILLISECONDS
             ).build()
 
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            uniqueWorkName,
-            ExistingWorkPolicy.KEEP,
-            workRequest
-        )
+        val notificationRetrievalRequest = OneTimeWorkRequestBuilder<NotificationsRetrievalWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork(uniqueWorkName, ExistingWorkPolicy.KEEP, syncWorkRequest)
+            .then(notificationRetrievalRequest)
+            .enqueue()
+        
         signaling=true
 
     }
-
-
 }
