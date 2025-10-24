@@ -29,21 +29,14 @@ import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
-    private FragmentConnectResultsSummaryListBinding binding;
+public class ConnectResultsSummaryListFragment extends ConnectJobFragment<FragmentConnectResultsSummaryListBinding> {
     private ResultsAdapter adapter;
 
     public static ConnectResultsSummaryListFragment newInstance() {
         return new ConnectResultsSummaryListFragment();
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectResultsSummaryListBinding.inflate(inflater, container, false);
-        setupRecyclerView();
-        updateView();
-        return binding.getRoot();
     }
 
     public void updateView() {
@@ -53,24 +46,30 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;        // prevent view-leak
-    }
-
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        binding.resultsList.setLayoutManager(layoutManager);
+        getBinding().resultsList.setLayoutManager(layoutManager);
         adapter = new ResultsAdapter(requireContext(), job, true);
-        binding.resultsList.setAdapter(adapter);
-        binding.resultsList.addItemDecoration(
+        getBinding().resultsList.setAdapter(adapter);
+        getBinding().resultsList.addItemDecoration(
                 new DividerItemDecoration(requireContext(), layoutManager.getOrientation()));
     }
 
     private void updateSummaryView() {
-        binding.paymentEarnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
-        binding.paymentTransferredAmount.setText(job.getMoneyString(job.getPaymentTotal()));
+        getBinding().paymentEarnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
+        getBinding().paymentTransferredAmount.setText(job.getMoneyString(job.getPaymentTotal()));
+    }
+
+    @Override
+    protected @NotNull FragmentConnectResultsSummaryListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectResultsSummaryListBinding.inflate(inflater, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupRecyclerView();
+        updateView();
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
