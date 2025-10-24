@@ -343,7 +343,9 @@
     <string name="connect_register_success_message">Your PersonalID account has been successfully created and is now ready for you to use!</string>
     <string name="connect_register_success_button">OK</string>
     <string name="connect_verify_title">Unlock Options</string>
-    <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalId account</string>
+    <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalID account</string>
+    <string name="connect_verify_message_pin">Please configure a PIN or pattern below to unlock both your device and PersonalID account</string>
+    <string name="connect_verify_message_fingerprint">Please configure your fingerprint below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_use_fingerprint_long">Use Fingerprint to Connect</string>
     <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock PersonalID.</string>
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>

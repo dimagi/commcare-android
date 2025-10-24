@@ -271,9 +271,11 @@ License.
     <string name="connect_register_success_message">आपका PersonalId खाता सफलतापूर्वक बना लिया गया है और अब उपयोग के लिए तैयार है!</string>
     <string name="connect_register_success_button">ठीक है</string>
     <string name="connect_verify_title">अनलॉक विकल्प</string>
-    <string name="connect_verify_message">कृपया अपने डिवाइस और अपने PersonalId खाते दोनों को अनलॉक करने के लिए नीचे एक विधि कॉन्फ़िगर करें</string>
+    <string name="connect_verify_message">कृपया अपने डिवाइस और अपने PersonalID खाते दोनों को अनलॉक करने के लिए नीचे एक विधि कॉन्फ़िगर करें</string>
+    <string name="connect_verify_message_pin">कृपया अपने डिवाइस और पर्सनलआईडी खाते दोनों को अनलॉक करने के लिए नीचे पिन या पैटर्न कॉन्फ़िगर करें</string>
+    <string name="connect_verify_message_fingerprint">कृपया अपने डिवाइस और पर्सनलआईडी खाते दोनों को अनलॉक करने के लिए नीचे अपना फ़िंगरप्रिंट कॉन्फ़िगर करें</string>
     <string name="connect_verify_use_fingerprint_long">लॉग इन करने के लिए फ़िंगरप्रिंट का उपयोग करें</string>
-    <string name="connect_verify_fingerprint_configured">आपका फ़िंगरप्रिंट पहले ही कॉन्फ़िगर किया जा चुका है और इसका उपयोग PersonalId को अनलॉक करने के लिए किया जाएगा।</string>
+    <string name="connect_verify_fingerprint_configured">आपका फ़िंगरप्रिंट पहले ही कॉन्फ़िगर किया जा चुका है और इसका उपयोग PersonalID को अनलॉक करने के लिए किया जाएगा।</string>
     <string name="connect_verify_configure_fingerprint">फ़िंगरप्रिंट कॉन्फ़िगर करें</string>
     <string name="connect_verify_use_pin_long">लॉग इन करने के लिए पिन का उपयोग करें</string>
     <string name="connect_verify_pin_configured">आपका पिन पहले ही कॉन्फ़िगर किया जा चुका है और इसका उपयोग PersonalId को अनलॉक करने के लिए किया जाएगा।</string>

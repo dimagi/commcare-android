@@ -69,7 +69,9 @@ public class EntityLoaderTask
                     attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED,
                             String.valueOf((entities == null || entities.first == null ? 0 : entities.first.size())));
                     CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    Logger.exception("Failed to stop tracing ", e);
+                }
             }
             return entities;
         } catch (XPathException xe) {

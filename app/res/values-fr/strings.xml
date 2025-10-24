@@ -271,7 +271,9 @@ License.
     <string name="connect_register_success_message">Votre compte PersonalId a été créé avec succès et est maintenant prêt à être utilisé!</string>
     <string name="connect_register_success_button">D\'ACCORD</string>
     <string name="connect_verify_title">Options de déverrouillage</string>
-    <string name="connect_verify_message">Veuillez configurer une méthode ci-dessous pour déverrouiller à la fois votre appareil et votre compte PersonalId</string>
+    <string name="connect_verify_message">Veuillez configurer une méthode ci-dessous pour déverrouiller à la fois votre appareil et votre compte PersonalID</string>
+    <string name="connect_verify_message_pin">Veuillez configurer un code PIN ou un modèle ci-dessous pour déverrouiller votre appareil et votre compte PersonalID</string>
+    <string name="connect_verify_message_fingerprint">Veuillez configurer votre empreinte digitale ci-dessous pour déverrouiller à la fois votre appareil et votre compte PersonalID</string>
     <string name="connect_verify_use_fingerprint_long">Utiliser l\'empreinte digitale pour se connecter</string>
     <string name="connect_verify_fingerprint_configured">Votre empreinte digitale a déjà été configurée et sera utilisée pour déverrouiller PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Configurer l\'empreinte digitale</string>
