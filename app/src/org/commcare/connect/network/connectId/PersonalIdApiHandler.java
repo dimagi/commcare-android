@@ -165,7 +165,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     public void retrieveNotifications(Context context, ConnectUserRecord user) {
         ApiPersonalId.retrieveNotifications(context, user.getUserId(), user.getPassword(),
-                createCallback(new RetrieveNotificationsResponseParser<>(),null));
+                createCallback(new RetrieveNotificationsResponseParser<>(context),null));
     }
 
     public void updateNotifications(Context context, String userId, String password, List<String> notificationId) {

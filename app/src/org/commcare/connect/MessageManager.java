@@ -13,6 +13,7 @@ import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.PushNotificationApiHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -24,7 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import kotlin.coroutines.CoroutineContext;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
 
 public class MessageManager {
 
@@ -36,84 +42,7 @@ public class MessageManager {
     }
 
     public static void retrieveMessages(Context context, ConnectActivityCompleteListener listener) {
-        IApiCallback callback = new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try (InputStream in = responseData) {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(in));
-                    List<ConnectMessagingChannelRecord> channels = new ArrayList<>();
-                    List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        JSONArray channelsJson = json.getJSONArray("channels");
-                        for (int i = 0; i < channelsJson.length(); i++) {
-                            JSONObject obj = (JSONObject)channelsJson.get(i);
-                            ConnectMessagingChannelRecord channel = ConnectMessagingChannelRecord.fromJson(obj);
-                            channels.add(channel);
-                        }
-
-                        ConnectMessagingDatabaseHelper.storeMessagingChannels(context, channels, true);
-
-                        for (ConnectMessagingChannelRecord channel : channels) {
-                            if (channel.getConsented() && channel.getKey().length() == 0) {
-                                getChannelEncryptionKey(context, channel, null);
-                            }
-                        }
-
-                        JSONArray messagesJson = json.getJSONArray("messages");
-                        List<ConnectMessagingChannelRecord> existingChannels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
-                        for (int i = 0; i < messagesJson.length(); i++) {
-                            JSONObject obj = (JSONObject)messagesJson.get(i);
-                            ConnectMessagingMessageRecord message = ConnectMessagingMessageRecord.fromJson(obj, existingChannels);
-                            if (message != null) {
-                                messages.add(message);
-                            }
-                        }
-                    }
-
-                    ConnectMessagingDatabaseHelper.storeMessagingMessages(context, messages, false);
-
-
-                    if (messages.size() > 0) {
-                        MessageManager.updateReceivedMessages(context, success -> {
-                            //Do nothing
-                        });
-                    }
-
-                    listener.connectActivityComplete(true);
-                } catch (Exception e) {
-                    listener.connectActivityComplete(false);
-                }
-            }
-
-            @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
-                listener.connectActivityComplete(false);
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                listener.connectActivityComplete(false);
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                listener.connectActivityComplete(false);
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                listener.connectActivityComplete(false);
-            }
-
-            @Override
-            public void processOldApiError() {
-                listener.connectActivityComplete(false);
-            }
-        };
-
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        ApiPersonalId.retrieveMessages(context, user.getUserId(), user.getPassword(), callback);
+        PushNotificationApiHelper.INSTANCE.retrieveLatestPushNotificationsJVM(context);
     }
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
