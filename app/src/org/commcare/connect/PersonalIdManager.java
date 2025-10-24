@@ -38,6 +38,7 @@ import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
+import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -111,7 +112,6 @@ public class PersonalIdManager {
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
                 personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
-
                 CrashUtil.registerUserData();
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
@@ -206,6 +206,7 @@ public class PersonalIdManager {
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
         scheduleHeartbeat();
+        NotificationsRetrievalWorkerManager.INSTANCE.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();
     }
 
@@ -223,6 +224,9 @@ public class PersonalIdManager {
         }
         ConnectUserDatabaseUtil.forgetUser();
         personalIdSatus = PersonalIdStatus.NotIntroduced;
+
+        // Cancel periodic push notification retrieval when user logs out
+        NotificationsRetrievalWorkerManager.INSTANCE.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
