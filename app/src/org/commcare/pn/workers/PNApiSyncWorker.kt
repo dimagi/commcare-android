@@ -19,6 +19,7 @@ import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.R
 import org.commcare.pn.workermanager.PNApiSyncWorkerManager
 import org.commcare.pn.workermanager.PNApiSyncWorkerManager.SYNC_TYPE
+import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.javarosa.core.services.Logger
@@ -171,6 +172,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
 
     private fun processAfterSuccessfulSync(){
         raiseFCMPushNotificationIfApplicable()
+        NotificationsRetrievalWorkerManager.scheduleImmediateNotificationRetrieval(appContext)
     }
 
     private fun processAfterSyncFailed(){

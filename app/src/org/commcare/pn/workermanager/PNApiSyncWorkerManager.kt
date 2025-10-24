@@ -21,7 +21,6 @@ import org.commcare.pn.workers.PNApiSyncWorker
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.PN_DATA
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.SYNC_ACTION
-import org.commcare.pn.workers.NotificationsRetrievalWorker
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper.convertPNRecordsToPayload
 import java.util.concurrent.TimeUnit
@@ -163,14 +162,11 @@ class PNApiSyncWorkerManager(val context: Context) {
                 TimeUnit.MILLISECONDS
             ).build()
 
-        val notificationRetrievalRequest = OneTimeWorkRequestBuilder<NotificationsRetrievalWorker>()
-            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-            .build()
-
-        WorkManager.getInstance(context)
-            .beginUniqueWork(uniqueWorkName, ExistingWorkPolicy.KEEP, syncWorkRequest)
-            .then(notificationRetrievalRequest)
-            .enqueue()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            uniqueWorkName,
+            ExistingWorkPolicy.KEEP,
+            syncWorkRequest
+        )
         
         signaling=true
 
