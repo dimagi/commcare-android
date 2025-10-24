@@ -21,7 +21,7 @@ class PersonalIdFeatureFlagChecker {
         @JvmStatic
         fun isFeatureEnabled(@FeatureFlag feature: String): Boolean {
             return when(feature) {
-                FeatureFlag.WORK_HISTORY -> false
+                FeatureFlag.WORK_HISTORY -> true
                 FeatureFlag.NOTIFICATIONS -> false
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
