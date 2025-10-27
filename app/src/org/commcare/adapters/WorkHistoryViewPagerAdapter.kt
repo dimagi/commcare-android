@@ -6,9 +6,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.commcare.fragments.personalId.WorkHistoryEarnedFragment
 import org.commcare.fragments.personalId.WorkHistoryPendingFragment
 
-class WorkHistoryViewPagerAdapter(fragmentActivity: FragmentActivity, private val username: String,
-                                  private val profilePic: String) : FragmentStateAdapter(fragmentActivity) {
-    
+class WorkHistoryViewPagerAdapter(
+    fragmentActivity: FragmentActivity,
+    private val username: String,
+    private val profilePic: String
+) : FragmentStateAdapter(fragmentActivity) {
+
     companion object {
         const val TOTAL_PAGES = 1 // temporary set to 1 until pending work history is rolled out
         const val EARNED_TAB_INDEX = 0

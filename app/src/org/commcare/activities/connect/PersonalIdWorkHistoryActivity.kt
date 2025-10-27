@@ -6,13 +6,12 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
+import org.commcare.activities.CommonBaseActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
-import org.commcare.activities.CommonBaseActivity
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdWorkHistoryBinding
-
 
 class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
     private val binding: ActivityPersonalIdWorkHistoryBinding by lazy {
@@ -24,17 +23,23 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
     private var userName: String? = null
     private var profilePic: String? = null
     private val titles = listOf(R.string.personalid_work_history_earned, R.string.personalid_work_history_pending)
-    private val icons = listOf(R.drawable.ic_personalid_work_history_earned, R.drawable.ic_personalid_work_history_pending)
+    private val icons =
+        listOf(R.drawable.ic_personalid_work_history_earned, R.drawable.ic_personalid_work_history_pending)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         personalIdWorkHistoryViewModel = ViewModelProvider(
-            this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[PersonalIdWorkHistoryViewModel::class.java]
         userName = personalIdWorkHistoryViewModel.userName
         profilePic = personalIdWorkHistoryViewModel.profilePhoto
-        workHistoryViewPagerAdapter = WorkHistoryViewPagerAdapter(this,userName!!,profilePic ?: "")
+        workHistoryViewPagerAdapter = WorkHistoryViewPagerAdapter(
+            this,
+            userName!!,
+            profilePic ?: ""
+        )
         observeWorkHistoryApiCall()
         fetchWorkHistoryFromNetwork()
         setUpUi()
@@ -47,7 +52,7 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
         binding.vpWorkHistory.adapter = workHistoryViewPagerAdapter
-        
+
         // Hide TabLayout when there's only one page
         if (WorkHistoryViewPagerAdapter.TOTAL_PAGES == 1) {
             binding.tabWorkHistory.visibility = android.view.View.GONE
