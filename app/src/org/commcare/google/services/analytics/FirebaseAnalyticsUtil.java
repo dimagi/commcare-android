@@ -431,6 +431,10 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportPersonalIdIntegritySubmission(String trigger, String requestId, String responseCode) {
+        if(responseCode == null || responseCode.equals("null")) {
+            Logger.exception("Integrity Check", new Exception("Null response code in integrity check: " + responseCode));
+        }
+        
         Bundle b = new Bundle();
         b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
         b.putString(CCAnalyticsParam.TRIGGER, trigger);
