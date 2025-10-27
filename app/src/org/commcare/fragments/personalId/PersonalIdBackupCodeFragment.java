@@ -258,6 +258,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
 
     private void handleAccountLockout() {
         logRecoveryResult(false);
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE);
         clearBackupCodeFields();
         navigateWithMessage(getString(R.string.personalid_recovery_lockout_title),
                 getString(R.string.personalid_recovery_lockout_message),

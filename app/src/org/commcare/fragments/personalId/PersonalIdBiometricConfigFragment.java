@@ -130,48 +130,47 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         boolean hasFingerprintHardware = fingerprintStatus != BiometricsHelper.ConfigurationStatus.NoHardware;
 
         String title;
-        String message;
-        String fingerprintButton;
+        String message = "";
+        String fingerprintButton = null;
         String pinButton = null;
 
-        if (fingerprintStatus != BiometricsHelper.ConfigurationStatus.Configured
-                && pinStatus != BiometricsHelper.ConfigurationStatus.Configured) {  // nothing is configured
-            title = getString(R.string.connect_verify_title);
-            message = getString(R.string.connect_verify_message);
-            fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
-            if (PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {
-                pinButton = getString(R.string.connect_verify_configure_pin);
-            }
-        } else if (fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {    // Fingerprint is configured so works for both PIN and BIOMETRIC_TYPE
-            title = getString(R.string.connect_verify_use_fingerprint_long);
+        if (fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {    // Fingerprint is configured so works for both PIN and BIOMETRIC_TYPE
             message = getString(R.string.connect_verify_fingerprint_configured);
             fingerprintButton = getString(R.string.connect_verify_agree);
-        } else if (BIOMETRIC_TYPE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {   //Fingerprint not configured but required for BIOMETRIC_TYPE
-            // Need at least Fingerprint configuration for BIOMETRIC_TYPE
+        } else {
             if(hasFingerprintHardware) {
-                title = getString(R.string.connect_verify_title);
-                message = getString(R.string.connect_verify_message);
+                message = getString(R.string.connect_verify_message_fingerprint);
                 fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
-            } else {
-                showNoBiometricHardwareError();
-                return;
             }
-        } else {   // Only PIN is configure
-            title = getString(R.string.connect_verify_use_pin_long);
-            message = getString(R.string.connect_verify_pin_configured);
-            pinButton = getString(R.string.connect_verify_agree);
-            fingerprintButton = hasFingerprintHardware ?
-                    getString(R.string.connect_verify_configure_fingerprint) : null;
+            if (PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {
+                message = hasFingerprintHardware ?
+                        getString(R.string.connect_verify_message) :
+                        getString(R.string.connect_verify_message_pin);
+                pinButton = pinStatus == BiometricsHelper.ConfigurationStatus.Configured ?
+                        getString(R.string.connect_verify_agree) :
+                        getString(R.string.connect_verify_configure_pin);
+            }
         }
-
-        binding.connectVerifyTitle.setText(title);
-        binding.connectVerifyMessage.setText(message);
 
         updateFingerprintSection(fingerprintButton);
         updatePinSection(pinButton);
 
         binding.connectVerifyOr.setVisibility(
                 (fingerprintButton != null && pinButton != null) ? View.VISIBLE : View.INVISIBLE);
+
+        if(fingerprintButton != null && pinButton != null) {
+            title = getString(R.string.connect_verify_title);
+        } else if (fingerprintButton != null) {
+            title = getString(R.string.connect_verify_use_fingerprint_long);
+        } else if (pinButton != null) {
+            title = getString(R.string.connect_verify_use_pin_long);
+        } else {
+            showNoBiometricHardwareError();
+            return;
+        }
+
+        binding.connectVerifyTitle.setText(title);
+        binding.connectVerifyMessage.setText(message);
     }
 
     private void updateFingerprintSection(String buttonText) {

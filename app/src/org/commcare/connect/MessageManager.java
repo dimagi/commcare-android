@@ -7,6 +7,7 @@ import android.widget.Toast;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
@@ -24,10 +25,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import kotlin.Result;
 import kotlin.coroutines.CoroutineContext;
 import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.Dispatchers;
@@ -42,7 +45,7 @@ public class MessageManager {
     }
 
     public static void retrieveMessages(Context context, ConnectActivityCompleteListener listener) {
-        PushNotificationApiHelper.INSTANCE.retrieveLatestPushNotificationsJVM(context);
+        CompletableFuture<Result<List<PushNotificationRecord>>> notificationsCompletableFuture = PushNotificationApiHelper.INSTANCE.retrieveLatestPushNotificationsJVM(context);
     }
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
@@ -68,7 +71,7 @@ public class MessageManager {
 
             @Override
 
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+            public void processFailure(int responseCode, String url, String errorBody) {
                 listener.connectActivityComplete(false);
             }
 
@@ -120,7 +123,7 @@ public class MessageManager {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+                    public void processFailure(int responseCode, String url, String errorBody) {
                         if (listener != null) {
                             listener.connectActivityComplete(false);
                         }
@@ -180,7 +183,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+                public void processFailure(int responseCode, String url, String errorBody) {
                     listener.connectActivityComplete(false);
                 }
 
@@ -234,7 +237,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
+                public void processFailure(int responseCode, String url, String errorBody) {
                     listener.connectActivityComplete(false);
                 }
 
