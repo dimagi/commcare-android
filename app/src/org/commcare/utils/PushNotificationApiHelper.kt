@@ -3,10 +3,9 @@ package org.commcare.utils
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.future.future
 import kotlinx.coroutines.launch
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
@@ -21,14 +20,23 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
 
 
-    fun retrieveLatestPushNotificationsJVM(context: Context): CompletableFuture<Result<List<PushNotificationRecord>>> = GlobalScope.future { retrieveLatestPushNotifications(context) }
+    fun retrieveLatestPushNotificationsWithCallback(context: Context, listener: ConnectActivityCompleteListener){
+        CoroutineScope(Dispatchers.IO).launch {
+            retrieveLatestPushNotifications(context).onSuccess {
+                listener.connectActivityComplete(true)
+            }.onFailure {
+                listener.connectActivityComplete(false)
+            }
+        }
+    }
+
+
 
     suspend fun retrieveLatestPushNotifications(context: Context): Result<List<PushNotificationRecord>>{
         val pushNotificationListResult = callPushNotificationApi(context)

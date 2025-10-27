@@ -16,8 +16,8 @@ import java.io.InputStream
  */
 class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResponseParser<T> {
 
-    val channels: MutableList<ConnectMessagingChannelRecord> = ArrayList<ConnectMessagingChannelRecord>()
-    val messages: MutableList<ConnectMessagingMessageRecord?> = ArrayList<ConnectMessagingMessageRecord?>()
+    val channels: MutableList<ConnectMessagingChannelRecord> = ArrayList()
+    val messages: MutableList<ConnectMessagingMessageRecord?> = ArrayList()
     var notificationsJsonArray: JSONArray? = null
 
     override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
@@ -40,7 +40,8 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
             }
             ConnectMessagingDatabaseHelper.storeMessagingChannels(context, channels, true)
             for (channel in channels) {
-                if (channel.getConsented() && channel.getKey().length == 0) {   // if there is no key for channel, remove that messages for PN so that it can be retrieved back again by calling API
+                // if there is no key for channel, remove that messages for PN so that it can be retrieved back again by calling API
+                if (channel.getConsented() && channel.getKey().length == 0) {
                     needReloadDueToMissingChannelKey=true
                     removeConnectMessagesWithoutEncryptionKey(channel.channelId)
                     MessageManager.getChannelEncryptionKey(context, channel, null)
@@ -65,7 +66,8 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
 
 
         if(needReloadDueToMissingChannelKey){
-
+            //Should start immediate worker thread to fetch the notifications.
+            //It will be available as a part of https://dimagi.atlassian.net/browse/CCCT-1805
         }
 
 

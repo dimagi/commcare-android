@@ -7,33 +7,20 @@ import android.widget.Toast;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.PushNotificationApiHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import kotlin.Result;
-import kotlin.coroutines.CoroutineContext;
-import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.Dispatchers;
 
 public class MessageManager {
 
@@ -45,7 +32,7 @@ public class MessageManager {
     }
 
     public static void retrieveMessages(Context context, ConnectActivityCompleteListener listener) {
-        CompletableFuture<Result<List<PushNotificationRecord>>> notificationsCompletableFuture = PushNotificationApiHelper.INSTANCE.retrieveLatestPushNotificationsJVM(context);
+        PushNotificationApiHelper.INSTANCE.retrieveLatestPushNotificationsWithCallback(context,listener);
     }
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
