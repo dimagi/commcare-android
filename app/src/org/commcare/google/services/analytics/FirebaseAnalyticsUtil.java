@@ -567,7 +567,7 @@ public class FirebaseAnalyticsUtil {
             String currentFragmentClassName = "UnknownDestination";
             NavDestination destination = navController.getCurrentDestination();
             if (destination instanceof FragmentNavigator.Destination) {
-                currentFragmentClassName = ((FragmentNavigator.Destination) destination).getClassName();
+                currentFragmentClassName = ((FragmentNavigator.Destination)destination).getClassName();
             }
 
             Bundle bundle = new Bundle();
