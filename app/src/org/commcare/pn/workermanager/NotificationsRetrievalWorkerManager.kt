@@ -20,7 +20,7 @@ object NotificationsRetrievalWorkerManager {
 
     private const val PUSH_NOTIFICATION_RETRIEVAL_WORKER_TAG = "push_notification_retrieval_worker"
     private const val PERIODICITY_FOR_RETRIEVAL_IN_HOURS = 1L
-    private const val BACKOFF_DELAY_FOR_RETRIEVAL_RETRY = 10 * 60 * 1000L // 10 minutes
+    private const val BACKOFF_DELAY_FOR_RETRIEVAL_RETRY = 10L
     private const val NOTIFICATION_RETRIEVAL_PERIODIC_REQUEST_NAME = "notification_retrieval_periodic_request"
     private const val NOTIFICATION_RETRIEVAL_ONE_TIME_REQUEST_NAME = "notification_retrieval_one_time_request"
 
@@ -57,7 +57,7 @@ object NotificationsRetrievalWorkerManager {
             .setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 BACKOFF_DELAY_FOR_RETRIEVAL_RETRY,
-                TimeUnit.MILLISECONDS
+                TimeUnit.MINUTES
             )
             .build()
 
