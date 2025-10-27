@@ -1,6 +1,7 @@
 package org.commcare;
 
 import static org.commcare.AppUtils.getCurrentAppId;
+import static org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager.schedulePeriodicPushNotificationRetrieval;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -78,6 +79,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.OkHttpBuilderCustomConfig;
+import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -274,6 +276,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         setRxJavaGlobalHandler();
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+        NotificationsRetrievalWorkerManager.schedulePeriodicPushNotificationRetrievalChecked(
+                CommCareApplication.instance());
     }
 
     protected void loadSqliteLibs() {

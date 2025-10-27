@@ -9,6 +9,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import org.commcare.connect.PersonalIdManager
 import org.commcare.pn.workers.NotificationsRetrievalWorker
 import java.util.concurrent.TimeUnit
 
@@ -22,6 +23,19 @@ object NotificationsRetrievalWorkerManager {
     private const val BACKOFF_DELAY_FOR_RETRIEVAL_RETRY = 10 * 60 * 1000L // 10 minutes
     private const val NOTIFICATION_RETRIEVAL_PERIODIC_REQUEST_NAME = "notification_retrieval_periodic_request"
     private const val NOTIFICATION_RETRIEVAL_ONE_TIME_REQUEST_NAME = "notification_retrieval_one_time_request"
+
+    /**
+     * Schedules periodic push notification retrieval to run every hour only if Personal ID login is present
+     * @param context Application context
+     */
+    @JvmStatic
+    fun schedulePeriodicPushNotificationRetrievalChecked(context: Context) {
+        val perosnalIdManager = PersonalIdManager.getInstance()
+        perosnalIdManager.init(context)
+        if (perosnalIdManager.isloggedIn()) {
+            schedulePeriodicPushNotificationRetrieval(context)
+        }
+    }
 
     /**
      * Schedules periodic push notification retrieval to run every hour
