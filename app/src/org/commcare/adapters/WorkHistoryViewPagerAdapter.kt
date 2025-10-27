@@ -10,7 +10,7 @@ class WorkHistoryViewPagerAdapter(fragmentActivity: FragmentActivity, private va
                                   private val profilePic: String) : FragmentStateAdapter(fragmentActivity) {
     
     companion object {
-        const val TOTAL_PAGES = 2
+        const val TOTAL_PAGES = 1 // temporary set to 1 until pending work history is rolled out
         const val EARNED_TAB_INDEX = 0
         const val PENDING_TAB_INDEX = 1
     }
