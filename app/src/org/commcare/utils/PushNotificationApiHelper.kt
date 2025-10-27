@@ -1,6 +1,8 @@
 package org.commcare.utils
 
 import android.content.Context
+import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,18 +21,20 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.preferences.NotificationPrefs
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
 
+    const val ACTION_NEW_NOTIFICATIONS = "com.dimagi.NEW_NOTIFICATIONS_RECEIVED"
 
-    suspend fun retrieveLatestPushNotifications(context: Context): Result<List<PushNotificationRecord>>{
-        val pushNotificationListResult = callPushNotificationApi(context)
+    suspend fun retrieveLatestPushNotifications(context: Context,isFromPNActivity: Boolean = false): Result<List<PushNotificationRecord>>{
+        val pushNotificationListResult = callPushNotificationApi(context,isFromPNActivity)
         return pushNotificationListResult
     }
 
-    suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>>{
+    suspend fun callPushNotificationApi(context: Context, isFromPNActivity: Boolean): Result<List<PushNotificationRecord>>{
 
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
@@ -38,8 +42,12 @@ object PushNotificationApiHelper {
             object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
                 override fun onSuccess(result: List<PushNotificationRecord>) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (result.isNotEmpty()){
+                        if (result.isNotEmpty() && !isFromPNActivity){
                             updatePushNotifications(context,result)
+                            NotificationPrefs.setNotificationAsUnread(context)
+
+                            LocalBroadcastManager.getInstance(context)
+                                .sendBroadcast(Intent(ACTION_NEW_NOTIFICATIONS))
                          }
                     }
                     continuation.resume(Result.success(result))

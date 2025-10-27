@@ -23,6 +23,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
+import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
@@ -131,8 +132,12 @@ class BaseDrawerController(
     fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
-            binding.ivNotification.setImageResource(R.drawable.ic_bell)
-            
+
+            val isNotificationRead = NotificationPrefs.getNotificationReadStatus(activity)
+            val notificationIconRes =
+                if (isNotificationRead) R.drawable.ic_bell else R.drawable.ic_new_notification_bell
+            binding.ivNotification.setImageResource(notificationIconRes)
+
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
             Glide.with(binding.imageUserProfile)

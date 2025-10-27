@@ -12,6 +12,7 @@ import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.preferences.NotificationPrefs
 
 object ConnectNavHelper {
     private fun unlockAndGoTo(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener, navigationAction: (Context) -> Unit) {
@@ -38,6 +39,7 @@ object ConnectNavHelper {
 
     @JvmStatic
     fun goToNotification(context: Context) {
+        NotificationPrefs.setNotificationAsRead(context)
         val i = Intent(context, PushNotificationActivity::class.java)
         context.startActivity(i)
     }

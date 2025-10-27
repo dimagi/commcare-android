@@ -36,7 +36,7 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                 _allNotifications.postValue(cachedNotifications)
             }
 
-            val latestPushNotificationsFromApi = retrieveLatestPushNotifications(application)
+            val latestPushNotificationsFromApi = retrieveLatestPushNotifications(application,true)
             latestPushNotificationsFromApi.onSuccess {
                 val currentNotifications = _allNotifications.value.orEmpty()
                 PNApiSyncWorkerManager(
