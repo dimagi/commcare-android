@@ -47,10 +47,16 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
         binding.vpWorkHistory.adapter = workHistoryViewPagerAdapter
-        TabLayoutMediator(binding.tabWorkHistory, binding.vpWorkHistory) { tab, position ->
-            tab.text = getString(titles[position])
-            tab.setIcon(icons[position])
-        }.attach()
+        
+        // Hide TabLayout when there's only one page
+        if (WorkHistoryViewPagerAdapter.TOTAL_PAGES == 1) {
+            binding.tabWorkHistory.visibility = android.view.View.GONE
+        } else {
+            TabLayoutMediator(binding.tabWorkHistory, binding.vpWorkHistory) { tab, position ->
+                tab.text = getString(titles[position])
+                tab.setIcon(icons[position])
+            }.attach()
+        }
     }
 
     private fun observeWorkHistoryApiCall() {
