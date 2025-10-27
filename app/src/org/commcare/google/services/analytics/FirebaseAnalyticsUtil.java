@@ -18,7 +18,8 @@ import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
-import java.util.Objects;
+
+import javax.annotation.Nullable;
 
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -34,8 +35,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
-
-import javax.annotation.Nullable;
 
 /**
  * Created by amstone326 on 10/13/17.
