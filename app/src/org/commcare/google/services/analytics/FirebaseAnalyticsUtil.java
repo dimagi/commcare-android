@@ -67,7 +67,7 @@ public class FirebaseAnalyticsUtil {
                 b.putString(paramKeys[i], paramVals[i]);
             }
             reportEvent(eventName, b);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.exception("Error logging analytics event", e);
         }
     }
@@ -84,7 +84,7 @@ public class FirebaseAnalyticsUtil {
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
         String deviceId = ReportingUtils.getDeviceId();
-        if(deviceId.length() > MAX_USER_PROPERTY_VALUE_LENGTH) {
+        if (deviceId.length() > MAX_USER_PROPERTY_VALUE_LENGTH) {
             deviceId = deviceId.substring(deviceId.length() - MAX_USER_PROPERTY_VALUE_LENGTH);
         }
         analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, deviceId);
@@ -394,8 +394,8 @@ public class FirebaseAnalyticsUtil {
     }
 
     /**
-     *  Report when an RSA key is successfully retrieved from the keystore. This is to assess how many devices
-     *  are using RSA keys, to then plan the deprecation of the RsaKeyStoreHandler.
+     * Report when an RSA key is successfully retrieved from the keystore. This is to assess how many devices
+     * are using RSA keys, to then plan the deprecation of the RsaKeyStoreHandler.
      */
     public static void reportRsaKeyUse() {
         reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
@@ -431,10 +431,10 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportPersonalIdIntegritySubmission(String trigger, String requestId, String responseCode) {
-        if(responseCode == null || responseCode.equals("null")) {
+        if (responseCode == null || responseCode.equals("null")) {
             Logger.exception("Integrity Check", new Exception("Null response code in integrity check: " + responseCode));
         }
-        
+
         Bundle b = new Bundle();
         b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
         b.putString(CCAnalyticsParam.TRIGGER, trigger);
@@ -501,8 +501,8 @@ public class FirebaseAnalyticsUtil {
     public static void reportCccApiDeliveryProgress(boolean success, @Nullable String deliveryInfo) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
-        if (deliveryInfo != null){
-            b.putString(CCAnalyticsParam.PARAM_API_SUCCESS_DELIVERY_INFO,deliveryInfo);
+        if (deliveryInfo != null) {
+            b.putString(CCAnalyticsParam.PARAM_API_SUCCESS_DELIVERY_INFO, deliveryInfo);
         }
         reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
     }
@@ -541,14 +541,15 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
-    public static void reportPersonalIDContinueClicked(String screenName,@Nullable String info) {
+    public static void reportPersonalIDContinueClicked(String screenName, @Nullable String info) {
         Bundle params = new Bundle();
         params.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
         if (info != null) {
-            params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO,info);
+            params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO, info);
         }
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
     }
+
     public static void reportPersonalIDMessageSent() {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_MESSAGE_SENT);
     }
@@ -566,7 +567,7 @@ public class FirebaseAnalyticsUtil {
             String currentFragmentClassName = "UnknownDestination";
             NavDestination destination = navController.getCurrentDestination();
             if (destination instanceof FragmentNavigator.Destination) {
-                currentFragmentClassName = ((FragmentNavigator.Destination)destination).getClassName();
+                currentFragmentClassName = ((FragmentNavigator.Destination) destination).getClassName();
             }
 
             Bundle bundle = new Bundle();
