@@ -3,6 +3,8 @@ package org.commcare.android.database.connect.models;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
@@ -25,8 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.Nullable;
 
 /**
  * Data class for holding info related to a Connect job

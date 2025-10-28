@@ -5,6 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.navigation.Navigation;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
@@ -22,14 +30,6 @@ import org.commcare.utils.ConnectivityStatus;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.navigation.Navigation;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment
         implements RefreshableFragment {

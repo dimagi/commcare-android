@@ -1,9 +1,18 @@
 package org.commcare.activities;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+
 import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+
+import androidx.annotation.ColorRes;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -24,16 +33,6 @@ import org.commcare.suite.model.Profile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.ColorRes;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
 
 /**
  * Handles UI of the normal home screen
