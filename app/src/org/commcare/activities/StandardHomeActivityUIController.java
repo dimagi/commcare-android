@@ -117,8 +117,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             @ColorInt int backgroundColor;
 
             if (job.readyToTransitionToDelivery()) {
-                textColor = ContextCompat.getColor(activity, R.color.green_500);
-                backgroundColor = ContextCompat.getColor(activity, R.color.green);
+                textColor = ContextCompat.getColor(activity, R.color.connect_green);
+                backgroundColor = ContextCompat.getColor(activity, R.color.connect_light_green);
             } else {
                 textColor = ContextCompat.getColor(activity, R.color.connect_warning_color);
                 backgroundColor = ContextCompat.getColor(activity, R.color.connect_light_orange_color);
