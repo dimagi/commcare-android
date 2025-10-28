@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -112,17 +113,22 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
 
         if (warningText != null) {
-            TextView textView = connectMessageCard.findViewById(R.id.tvConnectMessage);
+            @ColorInt int textColor;
+            @ColorInt int backgroundColor;
 
             if (job.readyToTransitionToDelivery()) {
-                textView.setTextColor(ContextCompat.getColor(activity, R.color.green_500));
-                connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, R.color.green));
+                textColor = ContextCompat.getColor(activity, R.color.green_500);
+                backgroundColor = ContextCompat.getColor(activity, R.color.green);
             } else {
-                textView.setTextColor(ContextCompat.getColor(activity, R.color.connect_warning_color));
-                connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, R.color.connect_light_orange_color));
+                textColor = ContextCompat.getColor(activity, R.color.connect_warning_color);
+                backgroundColor = ContextCompat.getColor(activity, R.color.connect_light_orange_color);
             }
 
+            TextView textView = connectMessageCard.findViewById(R.id.tvConnectMessage);
             textView.setText(warningText);
+            textView.setTextColor(textColor);
+
+            connectMessageCard.setCardBackgroundColor(backgroundColor);
             connectMessageCard.setVisibility(View.VISIBLE);
         } else {
             connectMessageCard.setVisibility(View.GONE);
