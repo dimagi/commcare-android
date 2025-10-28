@@ -8,6 +8,7 @@ import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -112,6 +113,15 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
         if (warningText != null) {
             TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
+
+            if (job.readyToTransitionToDelivery()) {
+                tv.setTextColor(ContextCompat.getColor(activity, R.color.green_500));
+                connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, R.color.green));
+            } else {
+                tv.setTextColor(ContextCompat.getColor(activity, R.color.connect_warning_color));
+                connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, R.color.connect_light_orange_color));
+            }
+
             tv.setText(warningText);
         }
     }
