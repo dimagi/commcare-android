@@ -1,18 +1,9 @@
 package org.commcare.activities;
 
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-
 import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
-
-import androidx.annotation.ColorInt;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -33,6 +24,15 @@ import org.commcare.suite.model.Profile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+
+import androidx.annotation.ColorInt;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
 
 /**
  * Handles UI of the normal home screen
@@ -103,16 +103,16 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private void updateConnectJobMessage() {
-        String warningText = null;
+        String messageText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {
-            warningText = job.getWarningMessages(activity);
+            messageText = job.getCardMessageText(activity);
         }
 
-        if (warningText != null) {
+        if (messageText != null) {
             @ColorInt int textColor;
             @ColorInt int backgroundColor;
 
@@ -125,7 +125,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             }
 
             TextView textView = connectMessageCard.findViewById(R.id.tvConnectMessage);
-            textView.setText(warningText);
+            textView.setText(messageText);
             textView.setTextColor(textColor);
 
             connectMessageCard.setCardBackgroundColor(backgroundColor);
