@@ -35,9 +35,9 @@ class PNApiSyncWorkerManager(val context: Context) {
         const val PN_SYNC_BACKOFF_DELAY_IN_MILLIS: Long = 3 * 60 * 1000L  // min 3 minutes
     }
 
-    enum class SyncType{
-        FCM,
-        NOTIFICATION_API
+    enum class SyncType {
+        FCM, // Syncs started from FCM push notification
+        NOTIFICATION_API // Syncs started from notification screen
     }
 
     lateinit var pns : ArrayList<Map<String,String>>
