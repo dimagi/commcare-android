@@ -48,6 +48,7 @@
         android:textColor="@color/white"
         android:textSize="15sp"
         app:drawableTint="@color/white"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
