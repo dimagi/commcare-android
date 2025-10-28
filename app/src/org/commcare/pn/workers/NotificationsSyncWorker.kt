@@ -16,7 +16,7 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.R
-import org.commcare.pn.workermanager.PNApiSyncWorkerManager.SyncType
+import org.commcare.pn.workermanager.NotificationsSyncWorkerManager.SyncType
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper
@@ -28,9 +28,9 @@ import kotlin.coroutines.suspendCoroutine
  * This worker is responsible to sync different API endpoints from Connect and Personal ID server based on the action
  * specified in the input data.
  */
-class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
+class NotificationsSyncWorker (val appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
-    private var pnData: HashMap<String,String>?=null
+    private var notificationPayload: HashMap<String,String>?=null
     private var syncAction:SyncAction?=null
 
     private var syncType: SyncType?=null
@@ -38,7 +38,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
     companion object {
         const val MAX_RETRIES = 3
 
-        const val PN_DATA = "PN_DATA"
+        const val NOTIFICATION_PAYLOAD = "PN_DATA"
 
         const val ACTION = "ACTION"
 
@@ -54,11 +54,11 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO){
         initStateFromInputData()
-        val pnApiStatus = startAppropriateSync()
-        if (pnApiStatus.success) {
+        val syncResult = startAppropriateSync()
+        if (syncResult.success) {
             processAfterSuccessfulSync()
-            Result.success(workDataOf(PN_DATA to Gson().toJson(pnData)))
-        } else if (pnApiStatus.retry && runAttemptCount < MAX_RETRIES) {
+            Result.success(workDataOf(NOTIFICATION_PAYLOAD to Gson().toJson(notificationPayload)))
+        } else if (syncResult.retry && runAttemptCount < MAX_RETRIES) {
             Result.retry()
         } else {
             processAfterSyncFailed()
@@ -67,10 +67,10 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
     }
 
     private fun initStateFromInputData() {
-        val pnJsonString = inputData.getString(PN_DATA)
-        if (pnJsonString != null) {
+        val notificationPayloadJson = inputData.getString(NOTIFICATION_PAYLOAD)
+        if (notificationPayloadJson != null) {
             val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
-            pnData = Gson().fromJson<HashMap<String, String>>(pnJsonString, mapType)
+            notificationPayload = Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
         }
 
         val syncActionStr = inputData.getString(ACTION)
@@ -82,7 +82,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
         syncType = SyncType.valueOf(syncTypeStr)
 
         if (syncType == SyncType.FCM) {
-            requireNotNull(pnData) { "PN data cannot be null for FCM triggered sync" }
+            requireNotNull(notificationPayload) { "PN data cannot be null for FCM triggered sync" }
         }
     }
 
@@ -154,7 +154,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
     }
 
     private fun getConnectJob(): ConnectJobRecord?{
-        val opportunityId = pnData?.get(OPPORTUNITY_ID)
+        val opportunityId = notificationPayload?.get(OPPORTUNITY_ID)
         return if(TextUtils.isEmpty(opportunityId)) null else ConnectJobUtils.getCompositeJob(appContext, Integer.parseInt(opportunityId!!))
     }
 
@@ -167,7 +167,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
 
     private fun processAfterSyncFailed(){
         Logger.exception("WorkRequest Failed to complete the task for -${syncAction}", Throwable("WorkRequest Failed for ${syncAction}"))
-        pnData?.put(
+        notificationPayload?.put(
             NOTIFICATION_BODY,
             appContext.getString(R.string.fcm_sync_failed_body_text)
         )
@@ -176,7 +176,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
 
     private fun raiseFCMPushNotificationIfApplicable(){
         if(SyncType.FCM == syncType) {
-            FirebaseMessagingUtil.handleNotification(appContext, pnData, null, true)
+            FirebaseMessagingUtil.handleNotification(appContext, notificationPayload, null, true)
         }
     }
 }
