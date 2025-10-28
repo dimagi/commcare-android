@@ -22,10 +22,15 @@ import org.commcare.pn.workermanager.PNApiSyncWorkerManager.SyncType
 import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
+import org.commcare.utils.PushNotificationApiHelper
 import org.javarosa.core.services.Logger
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+/**
+ * This worker is responsible to sync different API endpoints from Connect and Personal ID server based on the action
+ * specified in the input data.
+ */
 class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
     private var pnData: HashMap<String,String>?=null
@@ -121,14 +126,9 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
         })
     }
 
-
-
-    private suspend fun syncPersonalIdNotifications() : PNApiResponseStatus = suspendCoroutine { continuation ->
-        MessageManager.retrieveMessages(appContext, object : ConnectActivityCompleteListener {
-            override fun connectActivityComplete(success: Boolean) {
-                continuation.resume(PNApiResponseStatus(success,!success))
-            }
-        })
+    private suspend fun syncPersonalIdNotifications() : PNApiResponseStatus {
+        val result = PushNotificationApiHelper.retrieveLatestPushNotifications(appContext)
+        return PNApiResponseStatus(result.isSuccess, result.isFailure)
     }
 
 
@@ -189,5 +189,4 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
             FirebaseMessagingUtil.handleNotification(appContext, pnData, null, true)
         }
     }
-
 }
