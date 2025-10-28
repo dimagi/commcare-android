@@ -24,6 +24,9 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkForDrawerSetUp()
+        NotificationBroadcastHelper.registerForNotifications(this, this) {
+            drawerController?.refreshDrawerContent()
+        }
     }
     override fun onResume() {
         super.onResume()
@@ -31,9 +34,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             messagingUpdateReceiver,
             IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
         )
-        NotificationBroadcastHelper.registerForNotifications(this, this) {
-            drawerController?.refreshDrawerContent()
-        }
     }
 
     override fun onPause() {
