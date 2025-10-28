@@ -52,9 +52,8 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
         }
     }
 
-
-
     override suspend fun doWork(): Result = withContext(Dispatchers.IO){
+        initStateFromInputData()
         val pnApiStatus = startAppropriateSync()
         if (pnApiStatus.success) {
             processAfterSuccessfulSync()
@@ -67,29 +66,28 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
         }
     }
 
-
-    private suspend fun startAppropriateSync():PNApiResponseStatus{
-
+    private fun initStateFromInputData() {
         val pnJsonString = inputData.getString(PN_DATA)
         if (pnJsonString != null) {
             val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
             pnData = Gson().fromJson<HashMap<String, String>>(pnJsonString, mapType)
         }
 
-
         val syncActionStr = inputData.getString(ACTION)
         requireNotNull(syncActionStr) { "Sync action cannot be null" }
+        syncAction = SyncAction.valueOf(syncActionStr)
+
         val syncTypeStr = inputData.getString(SYNC_TYPE)
         requireNotNull(syncTypeStr) { "Sync type cannot be null" }
-
-        syncAction = SyncAction.valueOf(syncActionStr)
         syncType = SyncType.valueOf(syncTypeStr)
 
         if (syncType == SyncType.FCM) {
             requireNotNull(pnData) { "PN data cannot be null for FCM triggered sync" }
         }
+    }
 
 
+    private suspend fun startAppropriateSync():PNApiResponseStatus{
         return when(syncAction!!){
 
             SyncAction.SYNC_OPPORTUNITY->{
