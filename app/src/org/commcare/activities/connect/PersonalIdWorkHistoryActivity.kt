@@ -54,7 +54,7 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
         binding.vpWorkHistory.adapter = workHistoryViewPagerAdapter
 
         // Hide TabLayout when there's only one page
-        if (WorkHistoryViewPagerAdapter.TOTAL_PAGES == 1) {
+        if (WorkHistoryViewPagerAdapter.totalPages == 1) {
             binding.tabWorkHistory.visibility = android.view.View.GONE
         } else {
             TabLayoutMediator(binding.tabWorkHistory, binding.vpWorkHistory) { tab, position ->
