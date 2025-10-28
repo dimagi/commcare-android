@@ -39,6 +39,8 @@ import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.personalId.PersonalIdFeatureFlagChecker;
+import org.commcare.pn.helper.NotificationBroadcastHelper;
+import org.commcare.preferences.NotificationPrefs;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -46,12 +48,16 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import kotlin.Unit;
+
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
     private MenuItem messagingMenuItem = null;
+    private MenuItem notificationsMenuItem = null;
+
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
 
     @Override
@@ -63,6 +69,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         personalIdManager.init(this);
 
         if(personalIdManager.isloggedIn()){
+            NotificationBroadcastHelper.INSTANCE.registerForNotifications(
+                    this,
+                    this,
+                    () -> {
+                        updateNotificationIcon();
+                        return Unit.INSTANCE;
+                    }
+            );
             initStateFromExtras();
             updateBackButton();
 
@@ -142,10 +156,18 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         MenuItem notification = menu.findItem(R.id.action_sync);
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-        MenuItem notiificationsMenuItem = menu.findItem(R.id.action_bell);
-        notiificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
+        notificationsMenuItem = menu.findItem(R.id.action_bell);
+        notificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
+        updateNotificationIcon();
 
         return super.onCreateOptionsMenu(menu);
+    }
+    private void updateNotificationIcon() {
+        if (notificationsMenuItem == null) return;
+
+        boolean isRead = NotificationPrefs.INSTANCE.getNotificationReadStatus(this);
+        int iconRes = isRead ? R.drawable.ic_bell : R.drawable.ic_new_notification_bell;
+        notificationsMenuItem.setIcon(iconRes);
     }
 
     @Override
@@ -169,6 +191,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_bell) {
+            NotificationPrefs.INSTANCE.setNotificationAsRead(this);
+            updateNotificationIcon();
             ConnectNavHelper.goToNotification(this);
             return true;
         }

@@ -12,6 +12,7 @@ import org.commcare.adapters.PushNotificationAdapter
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
+import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.FirebaseMessagingUtil.getIntentForPNClick
 
 class PushNotificationActivity : AppCompatActivity() {
@@ -95,5 +96,10 @@ class PushNotificationActivity : AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        NotificationPrefs.setNotificationAsRead(this)
     }
 }

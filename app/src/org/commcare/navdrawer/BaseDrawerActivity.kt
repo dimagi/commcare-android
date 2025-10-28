@@ -15,16 +15,11 @@ import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.utils.FirebaseMessagingUtil
 import android.os.Bundle
-import org.commcare.utils.PushNotificationApiHelper
+import org.commcare.pn.helper.NotificationBroadcastHelper
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     private var drawerController: BaseDrawerController? = null
-    private val notificationUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            refreshDrawer()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,16 +31,14 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             messagingUpdateReceiver,
             IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
         )
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-            notificationUpdateReceiver,
-            IntentFilter(PushNotificationApiHelper.ACTION_NEW_NOTIFICATIONS)
-        )
+        NotificationBroadcastHelper.registerForNotifications(this, this) {
+            drawerController?.refreshDrawerContent()
+        }
     }
 
     override fun onPause() {
         super.onPause()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver)
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationUpdateReceiver)
     }
 
     fun refreshDrawer() {
