@@ -77,22 +77,18 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
         }
 
 
-        val syncActionJsonString = inputData.getString(ACTION)
-        if (syncActionJsonString != null) {
-            val enumType = object : TypeToken<SyncAction>() {}.type
-            syncAction = Gson().fromJson(syncActionJsonString, enumType)
-        }
+        val syncActionStr = inputData.getString(ACTION)
+        requireNotNull(syncActionStr) { "Sync action cannot be null" }
+        val syncTypeStr = inputData.getString(SYNC_TYPE)
+        requireNotNull(syncTypeStr) { "Sync type cannot be null" }
 
-        val syncTypeString = inputData.getString(SYNC_TYPE)
-        if(syncTypeString!=null){
-            val enumType = object : TypeToken<SyncType>() {}.type
-            syncType = Gson().fromJson(syncTypeString, enumType)
-        }
+        syncAction = SyncAction.valueOf(syncActionStr)
+        syncType = SyncType.valueOf(syncTypeStr)
 
         if (syncType == SyncType.FCM) {
             requireNotNull(pnData) { "PN data cannot be null for FCM triggered sync" }
         }
-        requireNotNull(syncAction){"Sync action cannot be null"}
+
 
         return when(syncAction!!){
 

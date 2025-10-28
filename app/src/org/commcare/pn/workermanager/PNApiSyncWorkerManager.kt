@@ -162,12 +162,10 @@ class PNApiSyncWorkerManager(val context: Context) {
         startWorkRequest(pn, action, uniqueWorkName, syncType)
     }
 
-    fun startWorkRequest(pn: Map<String, String>, action: SyncAction, uniqueWorkName: String, syncType: SyncType) {
-        val syncActionString = Gson().toJson(action)
-        val syncTypeString = Gson().toJson(syncType)
+    fun startWorkRequest(pn: Map<String, String>, syncAction: SyncAction, uniqueWorkName: String, syncType: SyncType) {
         val inputDataBuilder = Data.Builder()
-            .putString(ACTION, syncActionString)
-            .putString(PNApiSyncWorker.SYNC_TYPE, syncTypeString)
+            .putString(ACTION, syncAction.toString())
+            .putString(PNApiSyncWorker.SYNC_TYPE, syncType.toString())
 
         if (!pn.isEmpty()) {
             val pnJsonString = Gson().toJson(pn)
