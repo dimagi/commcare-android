@@ -106,23 +106,26 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
         ConnectJobRecord job = activity.getActiveJob();
+
         if (job != null && record != null) {
             warningText = job.getWarningMessages(activity);
         }
 
-        connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
         if (warningText != null) {
-            TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
+            TextView textView = connectMessageCard.findViewById(R.id.tvConnectMessage);
 
             if (job.readyToTransitionToDelivery()) {
-                tv.setTextColor(ContextCompat.getColor(activity, R.color.green_500));
+                textView.setTextColor(ContextCompat.getColor(activity, R.color.green_500));
                 connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, R.color.green));
             } else {
-                tv.setTextColor(ContextCompat.getColor(activity, R.color.connect_warning_color));
+                textView.setTextColor(ContextCompat.getColor(activity, R.color.connect_warning_color));
                 connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, R.color.connect_light_orange_color));
             }
 
-            tv.setText(warningText);
+            textView.setText(warningText);
+            connectMessageCard.setVisibility(View.VISIBLE);
+        } else {
+            connectMessageCard.setVisibility(View.GONE);
         }
     }
 
