@@ -177,9 +177,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
 
     private void updateCardMessage() {
         String messageText = job.getCardMessageText(requireContext());
-        binding.cvConnectMessage.setVisibility(messageText == null ? View.GONE : View.VISIBLE);
+
         if (messageText != null) {
             binding.tvConnectMessage.setText(messageText);
+            binding.cvConnectMessage.setVisibility(View.VISIBLE);
+        } else {
+            binding.cvConnectMessage.setVisibility(View.GONE);
         }
     }
 
