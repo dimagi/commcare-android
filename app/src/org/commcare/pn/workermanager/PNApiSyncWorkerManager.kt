@@ -36,8 +36,8 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     enum class SyncType {
-        FCM, // Syncs started from FCM push notification
-        NOTIFICATION_API // Syncs started from notification screen
+        FCM, // Syncs from a push notification and should result into a user visible notification post-sync
+        OTHER // Syncs that don't need a user visible notification post-sync
     }
 
     lateinit var pns : ArrayList<Map<String,String>>
@@ -69,12 +69,14 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     private fun startSyncWorker() : Boolean {
+        var isNotificationSyncScheduled = false
         for (pn in pns) {
 
             when (pn[REDIRECT_ACTION]) {
 
                 CCC_MESSAGE -> {
                     startPersonalIdNotificationsWorker(pn)
+                    isNotificationSyncScheduled = true
                 }
 
                 CCC_DEST_PAYMENTS -> {
@@ -104,6 +106,10 @@ class PNApiSyncWorkerManager(val context: Context) {
 
             }
         }
+        if (!isNotificationSyncScheduled) {
+            // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
+            startPersonalIdNotificationsWorker(emptyMap())
+        }
         return signaling
     }
 
@@ -113,7 +119,8 @@ class PNApiSyncWorkerManager(val context: Context) {
             startWorkRequest(
                 pn,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS,
-                SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString()
+                SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString(),
+                SyncType.OTHER
             )
         }
     }
@@ -121,14 +128,22 @@ class PNApiSyncWorkerManager(val context: Context) {
     private fun startLearningSyncWorker(pn:Map<String,String>){
         if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
             val opportunityId = pn.get(OPPORTUNITY_ID)
-            startWorkRequest(pn, SyncAction.SYNC_LEARNING_PROGRESS,SyncAction.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}")
+            startWorkRequest(
+                pn,
+                SyncAction.SYNC_LEARNING_PROGRESS,
+                SyncAction.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}"
+            )
         }
     }
 
     private fun startDeliverySyncWorker(pn:Map<String,String>){
         if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
             val opportunityId = pn.get(OPPORTUNITY_ID)
-            startWorkRequest(pn, SyncAction.SYNC_DELIVERY_PROGRESS,SyncAction.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}")
+            startWorkRequest(
+                pn,
+                SyncAction.SYNC_DELIVERY_PROGRESS,
+                SyncAction.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}"
+            )
         }
     }
 
@@ -143,18 +158,24 @@ class PNApiSyncWorkerManager(val context: Context) {
         }
     }
 
-    fun startWorkRequest(pn: Map<String,String>, action: SyncAction, uniqueWorkName:String) {
-        val pnJsonString = Gson().toJson(pn)
+    fun startWorkRequest(pn: Map<String, String>, action: SyncAction, uniqueWorkName: String) {
+        startWorkRequest(pn, action, uniqueWorkName, syncType)
+    }
+
+    fun startWorkRequest(pn: Map<String, String>, action: SyncAction, uniqueWorkName: String, syncType: SyncType) {
         val syncActionString = Gson().toJson(action)
         val syncTypeString = Gson().toJson(syncType)
-        val inputData = Data.Builder()
-            .putString(PN_DATA, pnJsonString)
-            .putString(ACTION,syncActionString)
-            .putString(PNApiSyncWorker.SYNC_TYPE,syncTypeString)
-            .build()
+        val inputDataBuilder = Data.Builder()
+            .putString(ACTION, syncActionString)
+            .putString(PNApiSyncWorker.SYNC_TYPE, syncTypeString)
+
+        if (!pn.isEmpty()) {
+            val pnJsonString = Gson().toJson(pn)
+            inputDataBuilder.putString(PN_DATA, pnJsonString)
+        }
 
         val syncWorkRequest =  OneTimeWorkRequestBuilder<PNApiSyncWorker>()
-            .setInputData(inputData)
+            .setInputData(inputDataBuilder.build())
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(
                 androidx.work.BackoffPolicy.EXPONENTIAL,

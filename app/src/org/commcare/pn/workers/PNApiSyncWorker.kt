@@ -14,12 +14,9 @@ import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
-import org.commcare.connect.MessageManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.R
-import org.commcare.pn.workermanager.PNApiSyncWorkerManager
 import org.commcare.pn.workermanager.PNApiSyncWorkerManager.SyncType
-import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper
@@ -92,10 +89,10 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
             syncType = Gson().fromJson(syncTypeString, enumType)
         }
 
-        requireNotNull(pnData){"PN data cannot be null"}
+        if (syncType == SyncType.FCM) {
+            requireNotNull(pnData) { "PN data cannot be null for FCM triggered sync" }
+        }
         requireNotNull(syncAction){"Sync action cannot be null"}
-
-
 
         return when(syncAction!!){
 
@@ -172,7 +169,6 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
 
     private fun processAfterSuccessfulSync(){
         raiseFCMPushNotificationIfApplicable()
-        NotificationsRetrievalWorkerManager.scheduleImmediateNotificationRetrieval(appContext)
     }
 
     private fun processAfterSyncFailed(){
