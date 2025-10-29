@@ -36,11 +36,11 @@ class NotificationsSyncWorkerManager(val context: Context) {
 
 
     companion object {
-        private const val SYNC_BACKOFF_DELAY_IN_MILLIS: Long = 3 * 60 * 1000L  // min 3 minutes
-        private const val NOTIFICATION_RETRIEVAL_PERIODIC_WORKER_TAG = "notification_retrieval_periodic_worker"
+        private const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
+        private const val PERIODIC_NOTIFICATION_WORKER_TAG = "periodic_notification_worker"
         private const val PERIODICITY_FOR_NOTIFICATION_RETRIEVAL_IN_HOURS = 1L
-        private const val NOTIFICATION_RETRIEVAL_BACKOFF_DELAY_FOR_RETRIEVAL_RETRY = 10L
-        private const val NOTIFICATION_RETRIEVAL_PERIODIC_REQUEST_NAME = "notification_retrieval_periodic_request"
+        private const val PERIODIC_NOTIFICATION__BACKOFF = 10L
+        private const val PERIODIC_NOTIFICATION_REQUEST_NAME = "periodic_notification_request_name"
 
         /**
          * Schedules periodic push notification retrieval to run every hour only if Personal ID login is present
@@ -77,17 +77,17 @@ class NotificationsSyncWorkerManager(val context: Context) {
                 TimeUnit.HOURS
             )
                 .setInputData(inputData)
-                .addTag(NOTIFICATION_RETRIEVAL_PERIODIC_WORKER_TAG)
+                .addTag(PERIODIC_NOTIFICATION_WORKER_TAG)
                 .setConstraints(constraints)
                 .setBackoffCriteria(
                     BackoffPolicy.EXPONENTIAL,
-                    NOTIFICATION_RETRIEVAL_BACKOFF_DELAY_FOR_RETRIEVAL_RETRY,
+                    PERIODIC_NOTIFICATION__BACKOFF,
                     TimeUnit.MINUTES
                 )
                 .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                NOTIFICATION_RETRIEVAL_PERIODIC_REQUEST_NAME,
+                PERIODIC_NOTIFICATION_REQUEST_NAME,
                 ExistingPeriodicWorkPolicy.REPLACE,
                 retrievalRequest
             )
@@ -100,7 +100,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
         @JvmStatic
         fun cancelPeriodicPushNotificationRetrieval(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(
-                NOTIFICATION_RETRIEVAL_PERIODIC_REQUEST_NAME
+                PERIODIC_NOTIFICATION_REQUEST_NAME
             )
         }
     }
@@ -228,11 +228,12 @@ class NotificationsSyncWorkerManager(val context: Context) {
         }
     }
 
-    private fun startWorkRequest(notificationPayload: Map<String, String>, action: SyncAction, uniqueWorkName: String) {
-        startWorkRequest(notificationPayload, action, uniqueWorkName, syncType)
-    }
-
-    private fun startWorkRequest(notificationPayload: Map<String, String>, syncAction: SyncAction, uniqueWorkName: String, syncType: SyncType) {
+    private fun startWorkRequest(
+        notificationPayload: Map<String, String>,
+        syncAction: SyncAction,
+        uniqueWorkName: String,
+        syncType: SyncType = this.syncType
+    ) {
         val inputDataBuilder = Data.Builder()
             .putString(ACTION, syncAction.toString())
             .putString(NotificationsSyncWorker.SYNC_TYPE, syncType.toString())
@@ -247,8 +248,8 @@ class NotificationsSyncWorkerManager(val context: Context) {
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(
                 androidx.work.BackoffPolicy.EXPONENTIAL,
-                SYNC_BACKOFF_DELAY_IN_MILLIS,
-                TimeUnit.MILLISECONDS
+                SYNC_BACKOFF_DELAY_IN_MINS,
+                TimeUnit.MINUTES
             ).build()
 
         WorkManager.getInstance(context).enqueueUniqueWork(
