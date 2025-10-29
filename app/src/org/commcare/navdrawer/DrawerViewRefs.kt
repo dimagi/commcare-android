@@ -1,6 +1,7 @@
 package org.commcare.navdrawer
 
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -14,7 +15,7 @@ class DrawerViewRefs(rootView: View) {
     val drawerLayout: DrawerLayout = rootView.findViewById(R.id.drawer_layout)
     val navDrawerRecycler: RecyclerView = rootView.findViewById(R.id.nav_drawer_recycler)
     val drawerFrame: FrameLayout = rootView.findViewById(R.id.nav_drawer_frame)
-    val signInText: TextView = rootView.findViewById(R.id.nav_drawer_sign_in_text)
+    val signInButton: Button = rootView.findViewById(R.id.nav_drawer_sign_in_button)
     val versionText: TextView = rootView.findViewById(R.id.app_version)
     val signoutView: LinearLayout = rootView.findViewById(R.id.signout_view)
     val profileCard: CardView = rootView.findViewById(R.id.profile_card)

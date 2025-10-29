@@ -91,9 +91,6 @@ class BaseDrawerController(
     }
 
     private fun setupViews() {
-        val content = SpannableString(activity.getString(R.string.nav_drawer_signin_register))
-        content.setSpan(UnderlineSpan(), 0, content.length, 0)
-        binding.signInText.text = content
         binding.versionText.text = "v ${BuildConfig.VERSION_NAME}"
     }
 
@@ -115,7 +112,7 @@ class BaseDrawerController(
     }
 
     private fun setupListeners() {
-        binding.signInText.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             PersonalIdManager.getInstance()
                 .launchPersonalId(activity, ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE)
             closeDrawer()
