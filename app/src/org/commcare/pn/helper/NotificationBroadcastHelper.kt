@@ -40,4 +40,3 @@ object NotificationBroadcastHelper {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
     }
 }
-

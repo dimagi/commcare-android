@@ -44,7 +44,7 @@ class BaseDrawerController(
         WORK_HISTORY,
         MESSAGING,
         PAYMENTS,
-        CREDENTIAL,
+        CREDENTIAL
     }
 
     fun setupDrawer() {
@@ -145,13 +145,16 @@ class BaseDrawerController(
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
-            val seatedApp = if (highlightSeatedApp && appRecords.count() > 1)
-                CommCareApplication.instance().currentApp.uniqueId else null
+            val seatedApp = if (highlightSeatedApp && appRecords.count() > 1) {
+                CommCareApplication.instance().currentApp.uniqueId
+            } else {
+                null
+            }
+
 
             val commcareApps = appRecords.map {
                 NavDrawerItem.ChildItem(
-                    it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,
-                    it.uniqueId == seatedApp
+                    it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,it.uniqueId == seatedApp
                 )
             }
 
@@ -163,7 +166,7 @@ class BaseDrawerController(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.nav_drawer_opportunities),
                         R.drawable.nav_drawer_opportunity_icon,
-                        NavItemType.OPPORTUNITIES,
+                        NavItemType.OPPORTUNITIES
                     )
                 )
             }
@@ -181,15 +184,17 @@ class BaseDrawerController(
 
             if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
                 val iconId =
-                    if (ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).isNotEmpty())
+                    if (ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).isNotEmpty()) {
                         R.drawable.nav_drawer_message_unread_icon
-                    else R.drawable.nav_drawer_message_icon
+                    } else {
+                        R.drawable.nav_drawer_message_icon
+                    }
 
                 items.add(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.connect_messaging_title),
                         iconId,
-                        NavItemType.MESSAGING,
+                        NavItemType.MESSAGING
                     )
                 )
             }
@@ -199,7 +204,7 @@ class BaseDrawerController(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.personalid_work_history),
                         R.drawable.ic_credential,
-                        NavItemType.CREDENTIAL,
+                        NavItemType.CREDENTIAL
                     )
                 )
             }
@@ -229,11 +234,11 @@ class BaseDrawerController(
 
     private fun shouldShowCredential(): Boolean {
         // we are keeping this off for now until we have go ahead to release this feature
-        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY);
+        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
     private fun shouldShowNotiifcations(): Boolean {
-        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS);
+        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
     }
 
     fun closeDrawer() {
