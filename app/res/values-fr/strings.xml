@@ -319,7 +319,7 @@ License.
     <string name="connect_learn_completed">Terminé le: %s</string>
     <string name="connect_learn_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_learn_review">Révision de l\'apprentissage</string>
-    <string name="connect_learn_view_details">Voir les détails du poste</string>
+    <string name="connect_learn_view_details">Voir les détails de l\'opportunité</string>
     <string name="connect_learn_go_to_assessment">Accéder à l\'évaluation</string>
     <string name="connect_learn_try_again">Essayer à nouveau</string>
     <string name="connect_learn_start">Commencer à apprendre</string>

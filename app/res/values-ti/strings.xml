@@ -312,7 +312,7 @@
     <string name="connect_learn_completed">ኣብ: %s ዝተዛዘመ</string>
     <string name="connect_learn_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_learn_review">ትምህርቲ ዳግመ ግምት</string>
-    <string name="connect_learn_view_details">ዝርዝር ስራሕ ርአ</string>
+    <string name="connect_learn_view_details">ዝርዝር ዕድል ርአ</string>
     <string name="connect_learn_go_to_assessment">ናብ ገምጋም ኪድ</string>
     <string name="connect_learn_try_again">ደጊምካ ፈትን።</string>
     <string name="connect_learn_start">ትምህርቲ ጀምር</string>
