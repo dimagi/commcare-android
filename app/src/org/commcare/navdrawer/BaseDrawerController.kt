@@ -151,10 +151,12 @@ class BaseDrawerController(
                 null
             }
 
-
             val commcareApps = appRecords.map {
                 NavDrawerItem.ChildItem(
-                    it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,it.uniqueId == seatedApp
+                    it.displayName,
+                    it.uniqueId,
+                    NavItemType.COMMCARE_APPS,
+                    it.uniqueId == seatedApp
                 )
             }
 
@@ -248,5 +250,4 @@ class BaseDrawerController(
     fun handleOptionsItem(item: MenuItem): Boolean {
         return drawerToggle.onOptionsItemSelected(item)
     }
-
 }

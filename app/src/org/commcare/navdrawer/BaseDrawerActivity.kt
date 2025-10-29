@@ -142,4 +142,3 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         drawerController?.closeDrawer()
     }
 }
-
