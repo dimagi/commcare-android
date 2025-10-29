@@ -29,11 +29,13 @@
                     android:visibility="gone"
                     android:paddingTop="92dp"
                     android:layout_weight="1">
+
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:src="@drawable/nav_drawer_logged_out_avatar"/>
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -44,19 +46,20 @@
                         android:clickable="true"
                         android:textAppearance="@style/TextAppearance.NavDrawerItem"
                         android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
+
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/nav_drawer_sign_in_button"
                         style="@style/CommCare.Button.Secondary"
-                        app:icon="@drawable/connect_right_arrow"
-                        app:iconGravity="end"
-                        android:paddingStart="24dp"
-                        android:paddingEnd="24dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:id="@+id/nav_drawer_sign_in_button"
                         android:layout_gravity="center"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:paddingEnd="24dp"
+                        android:paddingStart="24dp"
                         android:paddingTop="16dp"
                         android:text="@string/nav_drawer_signin_register"
-                        android:textAppearance="@style/TextAppearance.NavDrawerItem"/>
+                        android:textAppearance="@style/TextAppearance.NavDrawerItem"
+                        app:icon="@drawable/connect_right_arrow"
+                        app:iconGravity="end" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
