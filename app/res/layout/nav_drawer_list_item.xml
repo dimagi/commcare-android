@@ -7,7 +7,7 @@
     android:orientation="horizontal"
     android:padding="16dp"
     android:gravity="center_vertical"
-    android:background="@color/cc_brand_color">
+    android:background="@color/connect_blue_color">
 
     <ImageView
         android:id="@+id/list_icon"

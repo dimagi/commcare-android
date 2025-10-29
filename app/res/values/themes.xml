@@ -99,6 +99,12 @@
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
+    <style name="CommCare.Button.Secondary" parent="Widget.MaterialComponents.Button">
+        <item name="textAllCaps">false</item>
+        <item name="colorSurface">@color/cc_brand_color</item>
+        <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
+    </style>
+
     <style name="Theme.Dialog.NoTitle" parent="Theme.AppCompat.Light.Dialog">
         <item name="windowNoTitle">true</item>
     </style>
