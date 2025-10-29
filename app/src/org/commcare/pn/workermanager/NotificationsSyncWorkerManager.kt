@@ -106,21 +106,24 @@ class NotificationsSyncWorkerManager(val context: Context) {
 
     lateinit var notificationsPayload : ArrayList<Map<String,String>>
 
-    var showNotification = false
+    private var showNotification = false
+    private var syncNotification = false
 
     var signaling = false
 
     /**
      * This can receive the push notification data payload from FCM and notification API.
      */
-    constructor(context: Context, notificationsPayload : ArrayList<Map<String,String>>, showNotification: Boolean):this(context){
+    constructor(context: Context, notificationsPayload : ArrayList<Map<String,String>>, showNotification: Boolean, syncNotification: Boolean = false):this(context){
         this.notificationsPayload = notificationsPayload
         this.showNotification = showNotification
+        this.syncNotification = syncNotification
     }
 
-    constructor(context: Context, pnsRecords:List<PushNotificationRecord>?, showNotification: Boolean):this(context){
+    constructor(context: Context, pnsRecords:List<PushNotificationRecord>?, showNotification: Boolean, syncNotification: Boolean = false):this(context){
         this.notificationsPayload = convertPNRecordsToPayload(pnsRecords)
         this.showNotification = showNotification
+        this.syncNotification = syncNotification
     }
 
 
@@ -170,7 +173,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
 
             }
         }
-        if (!isNotificationSyncScheduled) {
+        if (syncNotification && !isNotificationSyncScheduled) {
             // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
             startPersonalIdNotificationsWorker(emptyMap(), false)
         }
