@@ -63,7 +63,8 @@ class PushNotificationActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
         pushNotificationViewModel = ViewModelProvider(
-            this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[PushNotificationViewModel::class.java]
         pushNotificationAdapter = PushNotificationAdapter(
             listener = object :
