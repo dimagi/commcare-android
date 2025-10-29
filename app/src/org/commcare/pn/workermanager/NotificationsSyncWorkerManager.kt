@@ -68,7 +68,6 @@ class NotificationsSyncWorkerManager(val context: Context) {
 
             val inputData = Data.Builder()
                 .putString(ACTION, SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString())
-                .putString(NotificationsSyncWorker.SYNC_TYPE, SyncType.OTHER.toString())
                 .build()
 
             val retrievalRequest = PeriodicWorkRequest.Builder(
@@ -105,28 +104,23 @@ class NotificationsSyncWorkerManager(val context: Context) {
         }
     }
 
-    enum class SyncType {
-        FCM, // Syncs from a push notification and should result into a user visible notification post-sync
-        OTHER // Syncs that don't need a user visible notification post-sync
-    }
-
     lateinit var notificationsPayload : ArrayList<Map<String,String>>
 
-    lateinit var syncType: SyncType
+    var showNotification = false
 
     var signaling = false
 
     /**
      * This can receive the push notification data payload from FCM and notification API.
      */
-    constructor(context: Context, notificationsPayload : ArrayList<Map<String,String>>, syncType: SyncType):this(context){
+    constructor(context: Context, notificationsPayload : ArrayList<Map<String,String>>, showNotification: Boolean):this(context){
         this.notificationsPayload = notificationsPayload
-        this.syncType = syncType
+        this.showNotification = showNotification
     }
 
-    constructor(context: Context, pnsRecords:List<PushNotificationRecord>?, syncType: SyncType):this(context){
+    constructor(context: Context, pnsRecords:List<PushNotificationRecord>?, showNotification: Boolean):this(context){
         this.notificationsPayload = convertPNRecordsToPayload(pnsRecords)
-        this.syncType = syncType
+        this.showNotification = showNotification
     }
 
 
@@ -178,19 +172,22 @@ class NotificationsSyncWorkerManager(val context: Context) {
         }
         if (!isNotificationSyncScheduled) {
             // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
-            startPersonalIdNotificationsWorker(emptyMap(), SyncType.OTHER)
+            startPersonalIdNotificationsWorker(emptyMap(), false)
         }
         return signaling
     }
 
 
-    private fun startPersonalIdNotificationsWorker(notificationPayload:Map<String,String>, syncType: SyncType = this.syncType){
+    private fun startPersonalIdNotificationsWorker(
+        notificationPayload: Map<String, String>,
+        showNotification: Boolean = this.showNotification
+    ) {
         if(cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString(),
-                syncType
+                showNotification
             )
         }
     }
@@ -232,11 +229,11 @@ class NotificationsSyncWorkerManager(val context: Context) {
         notificationPayload: Map<String, String>,
         syncAction: SyncAction,
         uniqueWorkName: String,
-        syncType: SyncType = this.syncType
+        showNotification: Boolean = this.showNotification
     ) {
         val inputDataBuilder = Data.Builder()
             .putString(ACTION, syncAction.toString())
-            .putString(NotificationsSyncWorker.SYNC_TYPE, syncType.toString())
+            .putBoolean(NotificationsSyncWorker.SHOW_NOTIFICATION_KEY, showNotification)
 
         if (!notificationPayload.isEmpty()) {
             val pnJsonString = Gson().toJson(notificationPayload)

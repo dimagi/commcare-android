@@ -16,7 +16,6 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.R
-import org.commcare.pn.workermanager.NotificationsSyncWorkerManager.SyncType
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper
@@ -33,7 +32,7 @@ class NotificationsSyncWorker (val appContext: Context, workerParams: WorkerPara
     private var notificationPayload: HashMap<String,String>?=null
     private var syncAction:SyncAction?=null
 
-    private var syncType: SyncType?=null
+    private var showNotification: Boolean = false
 
     companion object {
         const val MAX_RETRIES = 3
@@ -42,7 +41,7 @@ class NotificationsSyncWorker (val appContext: Context, workerParams: WorkerPara
 
         const val ACTION = "ACTION"
 
-        const val SYNC_TYPE = "SYNC_TYPE"
+        const val SHOW_NOTIFICATION_KEY = "show_notification_key"
 
         enum class SyncAction {
             SYNC_OPPORTUNITY,
@@ -77,12 +76,10 @@ class NotificationsSyncWorker (val appContext: Context, workerParams: WorkerPara
         requireNotNull(syncActionStr) { "Sync action cannot be null" }
         syncAction = SyncAction.valueOf(syncActionStr)
 
-        val syncTypeStr = inputData.getString(SYNC_TYPE)
-        requireNotNull(syncTypeStr) { "Sync type cannot be null" }
-        syncType = SyncType.valueOf(syncTypeStr)
+        showNotification = inputData.getBoolean(SHOW_NOTIFICATION_KEY, false)
 
-        if (syncType == SyncType.FCM) {
-            requireNotNull(notificationPayload) { "PN data cannot be null for FCM triggered sync" }
+        if (showNotification) {
+            requireNotNull(notificationPayload) { "Notification payload can't be null when we want to show a notification" }
         }
     }
 
@@ -175,7 +172,7 @@ class NotificationsSyncWorker (val appContext: Context, workerParams: WorkerPara
     }
 
     private fun raiseFCMPushNotificationIfApplicable(){
-        if(SyncType.FCM == syncType) {
+        if(showNotification) {
             FirebaseMessagingUtil.handleNotification(appContext, notificationPayload, null, true)
         }
     }
