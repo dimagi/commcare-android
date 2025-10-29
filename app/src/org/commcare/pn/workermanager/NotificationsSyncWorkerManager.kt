@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit
  */
 class NotificationsSyncWorkerManager(val context: Context) {
 
-
     companion object {
         private const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
         private const val PERIODIC_NOTIFICATION_WORKER_TAG = "periodic_notification_worker"
@@ -136,7 +135,6 @@ class NotificationsSyncWorkerManager(val context: Context) {
         this.syncNotification = syncNotification
     }
 
-
     /**
      * This method will start Api sync for received PNs either through FCM or notification API
      * @return whether a sync was scheduled as part of this call
@@ -148,9 +146,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
     private fun startSyncWorker(): Boolean {
         var isNotificationSyncScheduled = false
         for (notificationPayload in notificationsPayload) {
-
             when (notificationPayload[REDIRECT_ACTION]) {
-
                 CCC_MESSAGE -> {
                     startPersonalIdNotificationsWorker(notificationPayload)
                     isNotificationSyncScheduled = true
@@ -165,11 +161,9 @@ class NotificationsSyncWorkerManager(val context: Context) {
                     startOpportunitiesSyncWorker(notificationPayload)
                 }
 
-
                 CCC_DEST_OPPORTUNITY_SUMMARY_PAGE -> {
                     startOpportunitiesSyncWorker(notificationPayload)
                 }
-
 
                 CCC_DEST_LEARN_PROGRESS -> {
                     startOpportunitiesSyncWorker(notificationPayload)
@@ -180,7 +174,6 @@ class NotificationsSyncWorkerManager(val context: Context) {
                     startOpportunitiesSyncWorker(notificationPayload)
                     startDeliverySyncWorker(notificationPayload)
                 }
-
             }
         }
         if (syncNotification && !isNotificationSyncScheduled) {
@@ -189,7 +182,6 @@ class NotificationsSyncWorkerManager(val context: Context) {
         }
         return signaling
     }
-
 
     private fun startPersonalIdNotificationsWorker(
         notificationPayload: Map<String, String>,
@@ -211,7 +203,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_LEARNING_PROGRESS,
-                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-${opportunityId}"
+                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-$opportunityId"
             )
         }
     }
@@ -222,11 +214,10 @@ class NotificationsSyncWorkerManager(val context: Context) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_DELIVERY_PROGRESS,
-                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-${opportunityId}"
+                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-$opportunityId"
             )
         }
     }
-
 
     private fun startOpportunitiesSyncWorker(notificationPayload: Map<String, String>) {
         if (cccCheckPassed(context)) {
@@ -267,8 +258,6 @@ class NotificationsSyncWorkerManager(val context: Context) {
             ExistingWorkPolicy.KEEP,
             syncWorkRequest
         )
-
         signaling = true
-
     }
 }

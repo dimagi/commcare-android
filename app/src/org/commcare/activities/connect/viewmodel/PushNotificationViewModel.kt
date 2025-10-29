@@ -43,7 +43,7 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                 NotificationsSyncWorkerManager(
                     application,
                     it,
-                    false,
+                    false
                 ).startPNApiSync()
                 val updatedNotifications = (it + currentNotifications).distinctBy { it.notificationId }
                     .sortedByDescending { it.createdDate }
@@ -53,7 +53,6 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                 _isLoading.postValue(false)
                 _fetchApiError.postValue(it.message)
             }
-
         }
     }
 }
