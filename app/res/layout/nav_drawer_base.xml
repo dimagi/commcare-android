@@ -51,6 +51,14 @@
                         android:paddingTop="16dp"
                         android:text="@string/nav_drawer_signin_register"
                         android:textAppearance="@style/TextAppearance.NavDrawerItem"/>
+                    <Button
+                        android:id="@+id/nav_drawer_sign_in_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:paddingTop="16dp"
+                        android:text="@string/nav_drawer_signin_register"
+                        android:textAppearance="@style/TextAppearance.NavDrawerItem"/>
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
