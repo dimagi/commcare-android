@@ -33,11 +33,10 @@ class PushNotificationActivity : AppCompatActivity() {
     private fun observeRetrieveNotificationApi() {
         pushNotificationViewModel.allNotifications.observe(this) { notifications ->
             val isLoading = pushNotificationViewModel.isLoading.value == true
-
+            NotificationPrefs.setNotificationAsRead(this)
             when {
                 notifications.isNotEmpty() -> {
                     pushNotificationAdapter.submitList(notifications)
-                    NotificationPrefs.setNotificationAsRead(this)
                     binding.rvNotifications.visibility = View.VISIBLE
                     binding.tvNoNotifications.visibility = View.GONE
                 }

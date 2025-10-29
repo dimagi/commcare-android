@@ -1,12 +1,10 @@
 package org.commcare.utils;
 
-import android.content.Context;
 import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import org.commcare.dalvik.R;
-import org.commcare.preferences.NotificationPrefs;
 
 public class ViewUtils {
     /**
@@ -26,10 +24,5 @@ public class ViewUtils {
         Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(view.getContext().getString(R.string.ok),v -> snackbar.dismiss());
         snackbar.show();
-    }
-
-    public static int getNotificationIcon(Context context) {
-        boolean isRead = NotificationPrefs.INSTANCE.getNotificationReadStatus(context);
-        return isRead ? R.drawable.ic_bell : R.drawable.ic_new_notification_bell;
     }
 }

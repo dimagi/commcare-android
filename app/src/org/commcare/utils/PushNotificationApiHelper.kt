@@ -40,9 +40,9 @@ object PushNotificationApiHelper {
                 override fun onSuccess(result: List<PushNotificationRecord>) {
                     CoroutineScope(Dispatchers.IO).launch {
                         if (result.isNotEmpty()){
-                            updatePushNotifications(context,result)
                             NotificationPrefs.setNotificationAsUnread(context)
                             NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
+                            updatePushNotifications(context,result)
                          }
                     }
                     continuation.resume(Result.success(result))

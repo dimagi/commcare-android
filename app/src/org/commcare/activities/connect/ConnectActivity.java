@@ -4,7 +4,7 @@ import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
-import static org.commcare.utils.ViewUtils.getNotificationIcon;
+import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

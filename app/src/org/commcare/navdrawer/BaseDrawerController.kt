@@ -23,7 +23,7 @@ import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureE
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.MultipleAppsUtil
-import org.commcare.utils.ViewUtils.getNotificationIcon
+import org.commcare.utils.NotificationUtil.getNotificationIcon
 import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
 
