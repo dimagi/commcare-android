@@ -1,6 +1,5 @@
 package org.commcare.navdrawer
-import android.text.SpannableString
-import android.text.style.UnderlineSpan
+
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -16,7 +15,6 @@ import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -114,10 +112,17 @@ class BaseDrawerController(
     private fun setupListeners() {
         binding.signInButton.setOnClickListener {
             PersonalIdManager.getInstance()
-                .launchPersonalId(activity, ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE)
+                .launchPersonalId(
+                    activity,
+                    ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE
+                )
             closeDrawer()
         }
-        binding.aboutView.setOnClickListener { DialogCreationHelpers.showAboutCommCareDialog(activity) }
+        binding.aboutView.setOnClickListener {
+            DialogCreationHelpers.showAboutCommCareDialog(
+                activity
+            )
+        }
         binding.notificationView.setOnClickListener {
             ConnectNavHelper.goToNotification(activity)
             closeDrawer()
@@ -129,7 +134,7 @@ class BaseDrawerController(
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             binding.ivNotification.setImageResource(R.drawable.ic_bell)
-            
+
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
             Glide.with(binding.imageUserProfile)
@@ -221,16 +226,17 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
-        binding.notificationView.visibility = if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
+        binding.notificationView.visibility =
+            if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
     }
 
     private fun shouldShowCredential(): Boolean {
         // we are keeping this off for now until we have go ahead to release this feature
-        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY);
+        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
     private fun shouldShowNotiifcations(): Boolean {
-        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS);
+        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
     }
 
     fun closeDrawer() {
