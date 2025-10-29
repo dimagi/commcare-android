@@ -4,6 +4,7 @@ import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
+import static org.commcare.utils.ViewUtils.getNotificationIcon;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -40,7 +41,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.personalId.PersonalIdFeatureFlagChecker;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
-import org.commcare.preferences.NotificationPrefs;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -165,8 +165,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private void updateNotificationIcon() {
         if (notificationsMenuItem == null) return;
 
-        boolean isRead = NotificationPrefs.INSTANCE.getNotificationReadStatus(this);
-        int iconRes = isRead ? R.drawable.ic_bell : R.drawable.ic_new_notification_bell;
+        int iconRes = getNotificationIcon(this);
         notificationsMenuItem.setIcon(iconRes);
     }
 
@@ -191,7 +190,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_bell) {
-            NotificationPrefs.INSTANCE.setNotificationAsRead(this);
             updateNotificationIcon();
             ConnectNavHelper.goToNotification(this);
             return true;

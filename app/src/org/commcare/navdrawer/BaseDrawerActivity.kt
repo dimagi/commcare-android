@@ -24,8 +24,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkForDrawerSetUp()
-        NotificationBroadcastHelper.registerForNotifications(this, this) {
-            drawerController?.refreshDrawerContent()
+        if (drawerController != null){
+            NotificationBroadcastHelper.registerForNotifications(this, this) {
+                drawerController?.refreshDrawerContent()
+            }
         }
     }
     override fun onResume() {

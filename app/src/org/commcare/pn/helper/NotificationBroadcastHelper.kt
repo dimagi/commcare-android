@@ -8,7 +8,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 object NotificationBroadcastHelper {
-    const val ACTION_NEW_NOTIFICATIONS = "com.dimagi.NEW_NOTIFICATIONS_RECEIVED"
+    const val ACTION_NEW_NOTIFICATIONS = "org.commcare.dalvik.action.NEW_NOTIFICATION"
 
     fun registerForNotifications(
         context: Context,

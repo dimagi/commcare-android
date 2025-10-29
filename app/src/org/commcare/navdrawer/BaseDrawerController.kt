@@ -22,8 +22,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
-import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.MultipleAppsUtil
+import org.commcare.utils.ViewUtils.getNotificationIcon
 import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
 
@@ -122,7 +122,6 @@ class BaseDrawerController(
         }
         binding.aboutView.setOnClickListener { DialogCreationHelpers.showAboutCommCareDialog(activity) }
         binding.notificationView.setOnClickListener {
-            NotificationPrefs.setNotificationAsRead(activity)
             ConnectNavHelper.goToNotification(activity)
             closeDrawer()
         }
@@ -132,11 +131,7 @@ class BaseDrawerController(
     fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
-
-            val isNotificationRead = NotificationPrefs.getNotificationReadStatus(activity)
-            val notificationIconRes =
-                if (isNotificationRead) R.drawable.ic_bell else R.drawable.ic_new_notification_bell
-            binding.ivNotification.setImageResource(notificationIconRes)
+            binding.ivNotification.setImageResource(getNotificationIcon(activity))
 
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name

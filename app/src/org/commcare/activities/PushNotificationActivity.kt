@@ -37,6 +37,7 @@ class PushNotificationActivity : AppCompatActivity() {
             when {
                 notifications.isNotEmpty() -> {
                     pushNotificationAdapter.submitList(notifications)
+                    NotificationPrefs.setNotificationAsRead(this)
                     binding.rvNotifications.visibility = View.VISIBLE
                     binding.tvNoNotifications.visibility = View.GONE
                 }
@@ -96,10 +97,5 @@ class PushNotificationActivity : AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        NotificationPrefs.setNotificationAsRead(this)
     }
 }
