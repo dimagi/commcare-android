@@ -111,7 +111,8 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
                 override fun connectActivityComplete(success: Boolean) {
                     continuation.resume(PNApiResponseStatus(success, !success))
                 }
-            })
+            }
+        )
     }
 
     private suspend fun syncPersonalIdNotifications(): PNApiResponseStatus {
@@ -136,7 +137,8 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
                     override fun connectActivityComplete(success: Boolean) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
-                })
+                }
+            )
         }
     }
 
