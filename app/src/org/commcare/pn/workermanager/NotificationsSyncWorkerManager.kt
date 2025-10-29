@@ -104,7 +104,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
         }
     }
 
-    lateinit var notificationsPayload : ArrayList<Map<String,String>>
+    lateinit var notificationsPayload: ArrayList<Map<String, String>>
 
     private var showNotification = false
     private var syncNotification = false
@@ -114,13 +114,23 @@ class NotificationsSyncWorkerManager(val context: Context) {
     /**
      * This can receive the push notification data payload from FCM and notification API.
      */
-    constructor(context: Context, notificationsPayload : ArrayList<Map<String,String>>, showNotification: Boolean, syncNotification: Boolean = false):this(context){
+    constructor(
+        context: Context,
+        notificationsPayload: ArrayList<Map<String, String>>,
+        showNotification: Boolean,
+        syncNotification: Boolean = false
+    ) : this(context) {
         this.notificationsPayload = notificationsPayload
         this.showNotification = showNotification
         this.syncNotification = syncNotification
     }
 
-    constructor(context: Context, pnsRecords:List<PushNotificationRecord>?, showNotification: Boolean, syncNotification: Boolean = false):this(context){
+    constructor(
+        context: Context,
+        pnsRecords: List<PushNotificationRecord>?,
+        showNotification: Boolean,
+        syncNotification: Boolean = false
+    ) : this(context) {
         this.notificationsPayload = convertPNRecordsToPayload(pnsRecords)
         this.showNotification = showNotification
         this.syncNotification = syncNotification
@@ -131,11 +141,11 @@ class NotificationsSyncWorkerManager(val context: Context) {
      * This method will start Api sync for received PNs either through FCM or notification API
      * @return whether a sync was scheduled as part of this call
      */
-    fun startPNApiSync() : Boolean {
+    fun startPNApiSync(): Boolean {
         return startSyncWorker()
     }
 
-    private fun startSyncWorker() : Boolean {
+    private fun startSyncWorker(): Boolean {
         var isNotificationSyncScheduled = false
         for (notificationPayload in notificationsPayload) {
 
@@ -185,7 +195,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
         notificationPayload: Map<String, String>,
         showNotification: Boolean = this.showNotification
     ) {
-        if(cccCheckPassed(context)) {
+        if (cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS,
@@ -195,31 +205,31 @@ class NotificationsSyncWorkerManager(val context: Context) {
         }
     }
 
-    private fun startLearningSyncWorker(notificationPayload:Map<String,String>){
-        if(notificationPayload.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
+    private fun startLearningSyncWorker(notificationPayload: Map<String, String>) {
+        if (notificationPayload.containsKey(OPPORTUNITY_ID) && cccCheckPassed(context)) {
             val opportunityId = notificationPayload.get(OPPORTUNITY_ID)
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_LEARNING_PROGRESS,
-                SyncAction.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}"
+                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-${opportunityId}"
             )
         }
     }
 
-    private fun startDeliverySyncWorker(notificationPayload:Map<String,String>){
-        if(notificationPayload.containsKey(OPPORTUNITY_ID)  && cccCheckPassed(context)){
+    private fun startDeliverySyncWorker(notificationPayload: Map<String, String>) {
+        if (notificationPayload.containsKey(OPPORTUNITY_ID) && cccCheckPassed(context)) {
             val opportunityId = notificationPayload.get(OPPORTUNITY_ID)
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_DELIVERY_PROGRESS,
-                SyncAction.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}"
+                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-${opportunityId}"
             )
         }
     }
 
 
-    private fun startOpportunitiesSyncWorker(notificationPayload:Map<String,String>){
-        if(cccCheckPassed(context)) {
+    private fun startOpportunitiesSyncWorker(notificationPayload: Map<String, String>) {
+        if (cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_OPPORTUNITY,
@@ -243,7 +253,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
             inputDataBuilder.putString(NOTIFICATION_PAYLOAD, pnJsonString)
         }
 
-        val syncWorkRequest =  OneTimeWorkRequestBuilder<NotificationsSyncWorker>()
+        val syncWorkRequest = OneTimeWorkRequestBuilder<NotificationsSyncWorker>()
             .setInputData(inputDataBuilder.build())
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(
@@ -257,8 +267,8 @@ class NotificationsSyncWorkerManager(val context: Context) {
             ExistingWorkPolicy.KEEP,
             syncWorkRequest
         )
-        
-        signaling=true
+
+        signaling = true
 
     }
 }

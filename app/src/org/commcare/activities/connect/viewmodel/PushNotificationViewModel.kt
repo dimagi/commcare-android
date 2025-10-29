@@ -29,8 +29,9 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
             // Load from DB first
             if (!isRefreshed) {
                 val cachedNotifications =
-                    NotificationRecordDatabaseHelper.getAllNotifications(getApplication()).orEmpty().sortedByDescending { it.createdDate }
-                if (cachedNotifications.isNotEmpty()){
+                    NotificationRecordDatabaseHelper.getAllNotifications(getApplication()).orEmpty()
+                        .sortedByDescending { it.createdDate }
+                if (cachedNotifications.isNotEmpty()) {
                     _isLoading.postValue(false)
                 }
                 _allNotifications.postValue(cachedNotifications)
@@ -44,7 +45,8 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                     it,
                     false,
                 ).startPNApiSync()
-                val updatedNotifications = (it + currentNotifications).distinctBy { it.notificationId }.sortedByDescending { it.createdDate }
+                val updatedNotifications = (it + currentNotifications).distinctBy { it.notificationId }
+                    .sortedByDescending { it.createdDate }
                 _isLoading.postValue(false)
                 _allNotifications.postValue(updatedNotifications)
             }.onFailure {
