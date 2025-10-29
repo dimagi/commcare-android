@@ -178,19 +178,19 @@ class NotificationsSyncWorkerManager(val context: Context) {
         }
         if (!isNotificationSyncScheduled) {
             // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
-            startPersonalIdNotificationsWorker(emptyMap())
+            startPersonalIdNotificationsWorker(emptyMap(), SyncType.OTHER)
         }
         return signaling
     }
 
 
-    private fun startPersonalIdNotificationsWorker(notificationPayload:Map<String,String>){
+    private fun startPersonalIdNotificationsWorker(notificationPayload:Map<String,String>, syncType: SyncType = this.syncType){
         if(cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString(),
-                SyncType.OTHER
+                syncType
             )
         }
     }
