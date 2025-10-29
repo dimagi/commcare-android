@@ -65,15 +65,17 @@ class PushNotificationActivity : AppCompatActivity() {
         pushNotificationViewModel = ViewModelProvider(
             this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[PushNotificationViewModel::class.java]
-        pushNotificationAdapter = PushNotificationAdapter(listener = object :
-            PushNotificationAdapter.OnNotificationClickListener {
-            override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
-                val activityIntent = getIntentForPNClick(application,notificationRecord)
-                if(activityIntent!=null) {
-                    startActivity(activityIntent)
+        pushNotificationAdapter = PushNotificationAdapter(
+            listener = object :
+                PushNotificationAdapter.OnNotificationClickListener {
+                override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
+                    val activityIntent = getIntentForPNClick(application, notificationRecord)
+                    if (activityIntent != null) {
+                        startActivity(activityIntent)
+                    }
                 }
             }
-        })
+        )
         binding.rvNotifications.adapter = pushNotificationAdapter
     }
 
