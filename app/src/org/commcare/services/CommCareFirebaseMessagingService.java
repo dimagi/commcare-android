@@ -7,7 +7,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.commcare.dalvik.R;
-import org.commcare.pn.workermanager.PNApiSyncWorkerManager;
+import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
@@ -46,8 +46,8 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     private Boolean startSyncForNotification(RemoteMessage remoteMessage){
         ArrayList<Map<String,String>> pns = new ArrayList<>();
         pns.add(remoteMessage.getData());
-        PNApiSyncWorkerManager pnApiSyncWorkerManager = new PNApiSyncWorkerManager(getApplicationContext(),pns, PNApiSyncWorkerManager.SYNC_TYPE.FCM);
-        return pnApiSyncWorkerManager.startPNApiSync();
+        NotificationsSyncWorkerManager notificationsSyncWorkerManager = new NotificationsSyncWorkerManager(getApplicationContext(),pns, NotificationsSyncWorkerManager.SyncType.FCM);
+        return notificationsSyncWorkerManager.startPNApiSync();
     }
 
     @Override

@@ -38,10 +38,10 @@ import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
-import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
@@ -206,7 +206,7 @@ public class PersonalIdManager {
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
         scheduleHeartbeat();
-        NotificationsRetrievalWorkerManager.INSTANCE.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
+        NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();
     }
 
@@ -226,7 +226,7 @@ public class PersonalIdManager {
         personalIdSatus = PersonalIdStatus.NotIntroduced;
 
         // Cancel periodic push notification retrieval when user logs out
-        NotificationsRetrievalWorkerManager.INSTANCE.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
+        NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
     }
 
     public AuthInfo.TokenAuth getConnectToken() {

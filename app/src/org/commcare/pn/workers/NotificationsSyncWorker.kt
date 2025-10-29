@@ -14,50 +14,51 @@ import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
-import org.commcare.connect.MessageManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.R
-import org.commcare.pn.workermanager.PNApiSyncWorkerManager
-import org.commcare.pn.workermanager.PNApiSyncWorkerManager.SYNC_TYPE
-import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager
+import org.commcare.pn.workermanager.NotificationsSyncWorkerManager.SyncType
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
+import org.commcare.utils.PushNotificationApiHelper
 import org.javarosa.core.services.Logger
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
+/**
+ * This worker is responsible to sync different API endpoints from Connect and Personal ID server based on the action
+ * specified in the input data.
+ */
+class NotificationsSyncWorker (val appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
-    private var pnData: HashMap<String,String>?=null
-    private var syncAction:SYNC_ACTION?=null
+    private var notificationPayload: HashMap<String,String>?=null
+    private var syncAction:SyncAction?=null
 
-    private var syncType: SYNC_TYPE?=null
+    private var syncType: SyncType?=null
 
     companion object {
         const val MAX_RETRIES = 3
 
-        const val PN_DATA = "PN_DATA"
+        const val NOTIFICATION_PAYLOAD = "PN_DATA"
 
         const val ACTION = "ACTION"
 
         const val SYNC_TYPE = "SYNC_TYPE"
 
-        enum class SYNC_ACTION {
+        enum class SyncAction {
             SYNC_OPPORTUNITY,
-            SYNC_PERSONALID_MESSAGING,
+            SYNC_PERSONALID_NOTIFICATIONS,
             SYNC_DELIVERY_PROGRESS,
             SYNC_LEARNING_PROGRESS
         }
     }
 
-
-
     override suspend fun doWork(): Result = withContext(Dispatchers.IO){
-        val pnApiStatus = startAppropriateSync()
-        if (pnApiStatus.success) {
+        initStateFromInputData()
+        val syncResult = startAppropriateSync()
+        if (syncResult.success) {
             processAfterSuccessfulSync()
-            Result.success(workDataOf(PN_DATA to Gson().toJson(pnData)))
-        } else if (pnApiStatus.retry && runAttemptCount < MAX_RETRIES) {
+            Result.success(workDataOf(NOTIFICATION_PAYLOAD to Gson().toJson(notificationPayload)))
+        } else if (syncResult.retry && runAttemptCount < MAX_RETRIES) {
             Result.retry()
         } else {
             processAfterSyncFailed()
@@ -65,48 +66,43 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
         }
     }
 
+    private fun initStateFromInputData() {
+        val notificationPayloadJson = inputData.getString(NOTIFICATION_PAYLOAD)
+        if (notificationPayloadJson != null) {
+            val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
+            notificationPayload = Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
+        }
+
+        val syncActionStr = inputData.getString(ACTION)
+        requireNotNull(syncActionStr) { "Sync action cannot be null" }
+        syncAction = SyncAction.valueOf(syncActionStr)
+
+        val syncTypeStr = inputData.getString(SYNC_TYPE)
+        requireNotNull(syncTypeStr) { "Sync type cannot be null" }
+        syncType = SyncType.valueOf(syncTypeStr)
+
+        if (syncType == SyncType.FCM) {
+            requireNotNull(notificationPayload) { "PN data cannot be null for FCM triggered sync" }
+        }
+    }
+
 
     private suspend fun startAppropriateSync():PNApiResponseStatus{
-
-        val pnJsonString = inputData.getString(PN_DATA)
-        if (pnJsonString != null) {
-            val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
-            pnData = Gson().fromJson<HashMap<String, String>>(pnJsonString, mapType)
-        }
-
-
-        val syncActionJsonString = inputData.getString(ACTION)
-        if (syncActionJsonString != null) {
-            val enumType = object : TypeToken<SYNC_ACTION>() {}.type
-            syncAction = Gson().fromJson(syncActionJsonString, enumType)
-        }
-
-        val syncTypeString = inputData.getString(SYNC_TYPE)
-        if(syncTypeString!=null){
-            val enumType = object : TypeToken<SYNC_TYPE>() {}.type
-            syncType = Gson().fromJson(syncTypeString, enumType)
-        }
-
-        requireNotNull(pnData){"PN data cannot be null"}
-        requireNotNull(syncAction){"Sync action cannot be null"}
-
-
-
         return when(syncAction!!){
 
-            SYNC_ACTION.SYNC_OPPORTUNITY->{
+            SyncAction.SYNC_OPPORTUNITY->{
                 if(cccCheckPassed(appContext)) syncOpportunities() else getFailedResponseWithoutRetry()
             }
 
-            SYNC_ACTION.SYNC_PERSONALID_MESSAGING->{
-                if(cccCheckPassed(appContext)) syncPersonalIdMessagesOrChannel() else getFailedResponseWithoutRetry()
+            SyncAction.SYNC_PERSONALID_NOTIFICATIONS->{
+                if(cccCheckPassed(appContext)) syncPersonalIdNotifications() else getFailedResponseWithoutRetry()
             }
 
-            SYNC_ACTION.SYNC_DELIVERY_PROGRESS->{
+            SyncAction.SYNC_DELIVERY_PROGRESS->{
                 if(cccCheckPassed(appContext)) syncDeliveryProgress() else getFailedResponseWithoutRetry()
             }
 
-            SYNC_ACTION.SYNC_LEARNING_PROGRESS->{
+            SyncAction.SYNC_LEARNING_PROGRESS->{
                 if(cccCheckPassed(appContext)) syncLearningProgress()  else getFailedResponseWithoutRetry()
             }
 
@@ -121,14 +117,9 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
         })
     }
 
-
-
-    private suspend fun syncPersonalIdMessagesOrChannel() : PNApiResponseStatus = suspendCoroutine { continuation ->
-        MessageManager.retrieveMessages(appContext, object : ConnectActivityCompleteListener {
-            override fun connectActivityComplete(success: Boolean) {
-                continuation.resume(PNApiResponseStatus(success,!success))
-            }
-        })
+    private suspend fun syncPersonalIdNotifications() : PNApiResponseStatus {
+        val result = PushNotificationApiHelper.retrieveLatestPushNotifications(appContext)
+        return PNApiResponseStatus(result.isSuccess, result.isFailure)
     }
 
 
@@ -163,7 +154,7 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
     }
 
     private fun getConnectJob(): ConnectJobRecord?{
-        val opportunityId = pnData?.get(OPPORTUNITY_ID)
+        val opportunityId = notificationPayload?.get(OPPORTUNITY_ID)
         return if(TextUtils.isEmpty(opportunityId)) null else ConnectJobUtils.getCompositeJob(appContext, Integer.parseInt(opportunityId!!))
     }
 
@@ -172,12 +163,11 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
 
     private fun processAfterSuccessfulSync(){
         raiseFCMPushNotificationIfApplicable()
-        NotificationsRetrievalWorkerManager.scheduleImmediateNotificationRetrieval(appContext)
     }
 
     private fun processAfterSyncFailed(){
         Logger.exception("WorkRequest Failed to complete the task for -${syncAction}", Throwable("WorkRequest Failed for ${syncAction}"))
-        pnData?.put(
+        notificationPayload?.put(
             NOTIFICATION_BODY,
             appContext.getString(R.string.fcm_sync_failed_body_text)
         )
@@ -185,9 +175,8 @@ class PNApiSyncWorker (val appContext: Context, workerParams: WorkerParameters) 
     }
 
     private fun raiseFCMPushNotificationIfApplicable(){
-        if(PNApiSyncWorkerManager.SYNC_TYPE.FCM == syncType) {
-            FirebaseMessagingUtil.handleNotification(appContext, pnData, null, true)
+        if(SyncType.FCM == syncType) {
+            FirebaseMessagingUtil.handleNotification(appContext, notificationPayload, null, true)
         }
     }
-
 }

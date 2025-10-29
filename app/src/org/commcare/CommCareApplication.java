@@ -92,7 +92,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.OkHttpBuilderCustomConfig;
-import org.commcare.pn.workermanager.NotificationsRetrievalWorkerManager;
+import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -275,7 +275,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         setRxJavaGlobalHandler();
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-        NotificationsRetrievalWorkerManager.schedulePeriodicPushNotificationRetrievalChecked(
+        NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrievalChecked(
                 CommCareApplication.instance());
     }
 
