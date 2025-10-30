@@ -20,11 +20,12 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.pn.helper.NotificationBroadcastHelper
+import org.commcare.preferences.NotificationPrefs
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
-
 
     fun retrieveLatestPushNotificationsWithCallback(context: Context, listener: ConnectActivityCompleteListener){
         CoroutineScope(Dispatchers.IO).launch {
@@ -43,33 +44,43 @@ object PushNotificationApiHelper {
         return pushNotificationListResult
     }
 
-    suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>>{
-
+    suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
 
             object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
                 override fun onSuccess(result: List<PushNotificationRecord>) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (result.isNotEmpty()){
-                            updatePushNotifications(context,result)
-                         }
+                        if (result.isNotEmpty()) {
+                            NotificationPrefs.setNotificationAsUnread(context)
+                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
+                            updatePushNotifications(context, result)
+                        }
                     }
                     continuation.resume(Result.success(result))
                 }
 
                 override fun onFailure(
-                    failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?
+                    failureCode: PersonalIdOrConnectApiErrorCodes,
+                    t: Throwable?
                 ) {
-                    continuation.resume(Result.failure(Exception(PersonalIdApiErrorHandler.handle(context, failureCode, t))))
+                    continuation.resume(
+                        Result.failure(
+                            Exception(
+                                PersonalIdApiErrorHandler.handle(
+                                    context,
+                                    failureCode,
+                                    t
+                                )
+                            )
+                        )
+                    )
                 }
             }.retrieveNotifications(context, user)
         }
     }
 
-
     suspend fun updatePushNotifications(context: Context, pushNotificationList: List<PushNotificationRecord>): Boolean {
-
         val savedNotificationIds = NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
@@ -85,7 +96,8 @@ object PushNotificationApiHelper {
                 }
 
                 override fun onFailure(
-                    failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?
+                    failureCode: PersonalIdOrConnectApiErrorCodes,
+                    t: Throwable?
                 ) {
                     continuation.resumeWith(Result.success(false))
                 }
@@ -93,31 +105,28 @@ object PushNotificationApiHelper {
         }
     }
 
-
-    fun convertPNRecordsToPayload(pnsRecords:List<PushNotificationRecord>?): ArrayList<Map<String,String>>{
-        val pns = ArrayList<Map<String,String>>()
+    fun convertPNRecordsToPayload(pnsRecords: List<PushNotificationRecord>?): ArrayList<Map<String, String>> {
+        val pns = ArrayList<Map<String, String>>()
         pnsRecords?.let {
-            it.map {pnRecord ->
+            it.map { pnRecord ->
                 pns.add(convertPNRecordToPayload(pnRecord))
             }
         }
         return pns
     }
 
-    fun convertPNRecordToPayload(pnRecord: PushNotificationRecord): HashMap<String,String> {
-        val pn = HashMap<String,String>()
-        pn.put(REDIRECT_ACTION,pnRecord.action)
-        pn.put(NOTIFICATION_TITLE,pnRecord.title)
-        pn.put(NOTIFICATION_BODY,pnRecord.body)
-        pn.put(NOTIFICATION_ID,""+pnRecord.notificationId)
-        pn.put(NOTIFICATION_TIME_STAMP,pnRecord.createdDate.toString())
-        pn.put(NOTIFICATION_STATUS,pnRecord.confirmationStatus)
-        pn.put(NOTIFICATION_MESSAGE_ID,""+pnRecord.connectMessageId)
-        pn.put(NOTIFICATION_CHANNEL_ID,""+pnRecord.channel)
-        pn.put(OPPORTUNITY_ID,""+pnRecord.opportunityId)
-        pn.put(PAYMENT_ID,""+pnRecord.paymentId)
+    fun convertPNRecordToPayload(pnRecord: PushNotificationRecord): HashMap<String, String> {
+        val pn = HashMap<String, String>()
+        pn.put(REDIRECT_ACTION, pnRecord.action)
+        pn.put(NOTIFICATION_TITLE, pnRecord.title)
+        pn.put(NOTIFICATION_BODY, pnRecord.body)
+        pn.put(NOTIFICATION_ID, "" + pnRecord.notificationId)
+        pn.put(NOTIFICATION_TIME_STAMP, pnRecord.createdDate.toString())
+        pn.put(NOTIFICATION_STATUS, pnRecord.confirmationStatus)
+        pn.put(NOTIFICATION_MESSAGE_ID, "" + pnRecord.connectMessageId)
+        pn.put(NOTIFICATION_CHANNEL_ID, "" + pnRecord.channel)
+        pn.put(OPPORTUNITY_ID, "" + pnRecord.opportunityId)
+        pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         return pn
     }
-
-
 }

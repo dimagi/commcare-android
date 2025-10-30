@@ -12,6 +12,7 @@ import org.commcare.adapters.PushNotificationAdapter
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
+import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.FirebaseMessagingUtil.getIntentForPNClick
 
 class PushNotificationActivity : AppCompatActivity() {
@@ -32,7 +33,7 @@ class PushNotificationActivity : AppCompatActivity() {
     private fun observeRetrieveNotificationApi() {
         pushNotificationViewModel.allNotifications.observe(this) { notifications ->
             val isLoading = pushNotificationViewModel.isLoading.value == true
-
+            NotificationPrefs.setNotificationAsRead(this)
             when {
                 notifications.isNotEmpty() -> {
                     pushNotificationAdapter.submitList(notifications)
@@ -62,17 +63,20 @@ class PushNotificationActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
         pushNotificationViewModel = ViewModelProvider(
-            this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[PushNotificationViewModel::class.java]
-        pushNotificationAdapter = PushNotificationAdapter(listener = object :
-            PushNotificationAdapter.OnNotificationClickListener {
-            override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
-                val activityIntent = getIntentForPNClick(application,notificationRecord)
-                if(activityIntent!=null) {
-                    startActivity(activityIntent)
+        pushNotificationAdapter = PushNotificationAdapter(
+            listener = object :
+                PushNotificationAdapter.OnNotificationClickListener {
+                override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
+                    val activityIntent = getIntentForPNClick(application, notificationRecord)
+                    if (activityIntent != null) {
+                        startActivity(activityIntent)
+                    }
                 }
             }
-        })
+        )
         binding.rvNotifications.adapter = pushNotificationAdapter
     }
 
