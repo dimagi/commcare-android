@@ -10,6 +10,7 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 
 import org.commcare.dalvik.R;
+import org.commcare.preferences.NotificationPrefs;
 
 /**
  * Set of methods to post notifications to the user.
@@ -39,5 +40,10 @@ public class NotificationUtil {
     public static void cancelNotification(Context context, int notificationId) {
         ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE))
                 .cancel(notificationId);
+    }
+
+    public static int getNotificationIcon(Context context) {
+        boolean isRead = NotificationPrefs.INSTANCE.getNotificationReadStatus(context);
+        return isRead ? R.drawable.ic_bell : R.drawable.ic_new_notification_bell;
     }
 }

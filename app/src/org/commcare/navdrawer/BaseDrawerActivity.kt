@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -13,8 +14,8 @@ import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToCredentials
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
+import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.utils.FirebaseMessagingUtil
-import android.os.Bundle
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
@@ -23,6 +24,11 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkForDrawerSetUp()
+        if (drawerController != null) {
+            NotificationBroadcastHelper.registerForNotifications(this, this) {
+                drawerController?.refreshDrawerContent()
+            }
+        }
     }
     override fun onResume() {
         super.onResume()
@@ -55,7 +61,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return false
     }
 
-    fun checkForDrawerSetUp(){
+    fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
             setupDrawerController()
         }
@@ -77,7 +83,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
         when (itemType) {
             NavItemType.OPPORTUNITIES -> { navigateToConnectMenu() }
-            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */}
+            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
             NavItemType.PAYMENTS -> {}
             NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
@@ -94,37 +100,45 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     protected fun navigateToConnectMenu() {
-        unlockAndGoToConnectJobsList(this, object : ConnectActivityCompleteListener {
-            override fun connectActivityComplete(success: Boolean) {
-                if (success) {
-                    closeDrawer()
+        unlockAndGoToConnectJobsList(
+            this,
+            object : ConnectActivityCompleteListener {
+                override fun connectActivityComplete(success: Boolean) {
+                    if (success) {
+                        closeDrawer()
+                    }
                 }
             }
-        })
+        )
     }
 
     protected fun navigateToMessaging() {
-        unlockAndGoToMessaging(this, object : ConnectActivityCompleteListener {
-            override fun connectActivityComplete(success: Boolean) {
-                if (success) {
-                    closeDrawer()
+        unlockAndGoToMessaging(
+            this,
+            object : ConnectActivityCompleteListener {
+                override fun connectActivityComplete(success: Boolean) {
+                    if (success) {
+                        closeDrawer()
+                    }
                 }
             }
-        })
+        )
     }
 
-    protected  fun navigateToCredential() {
-        unlockAndGoToCredentials(this, object : ConnectActivityCompleteListener {
-            override fun connectActivityComplete(success: Boolean) {
-                if (success) {
-                    closeDrawer()
+    protected fun navigateToCredential() {
+        unlockAndGoToCredentials(
+            this,
+            object : ConnectActivityCompleteListener {
+                override fun connectActivityComplete(success: Boolean) {
+                    if (success) {
+                        closeDrawer()
+                    }
                 }
             }
-        })
+        )
     }
 
     protected fun closeDrawer() {
         drawerController?.closeDrawer()
     }
 }
-
