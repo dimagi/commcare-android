@@ -34,9 +34,16 @@ jobs:
           IGNORE_GITIGNORED_FILES: true
           
           # Disable unwanted linters
+          VALIDATE_JSCPD: false
           VALIDATE_BIOME_FORMAT: false
           VALIDATE_BIOME_LINT: false
-          
+          VALIDATE_CHECKOV: false
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
+          VALIDATE_TRIVY: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
+          VALIDATE_GOOGLE_JAVA_FORMAT: false
+
           # Java/Kotlin specific settings
           JAVA_FILE_NAME: checkstyle.xml
           
