@@ -275,9 +275,9 @@ public class StandardHomeActivity
                     navigateToMessaging();
                 }
             }
-            case CREDENTIAL -> {
+            case WORK_HISTORY -> {
                 if(personalIdManagedLogin) {
-                    ConnectNavHelper.INSTANCE.goToCredentials(this);
+                    ConnectNavHelper.INSTANCE.goToWorkHistory(this);
                     closeDrawer();
                 } else {
                     navigateToCredential();

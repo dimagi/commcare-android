@@ -11,7 +11,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
-import org.commcare.connect.ConnectNavHelper.unlockAndGoToCredentials
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToWorkHistory
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.pn.helper.NotificationBroadcastHelper
@@ -86,8 +86,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
             NavItemType.PAYMENTS -> {}
             NavItemType.MESSAGING -> { navigateToMessaging() }
-            NavItemType.WORK_HISTORY -> {}
-            NavItemType.CREDENTIAL -> { navigateToCredential() }
+            NavItemType.WORK_HISTORY -> { navigateToCredential() }
         }
     }
 
@@ -126,7 +125,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     protected fun navigateToCredential() {
-        unlockAndGoToCredentials(
+        unlockAndGoToWorkHistory(
             this,
             object : ConnectActivityCompleteListener {
                 override fun connectActivityComplete(success: Boolean) {

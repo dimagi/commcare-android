@@ -32,6 +32,6 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
         android:layout_marginHorizontal="15dp"
-        tools:listitem="@layout/item_pending_credential" />
+        tools:listitem="@layout/item_pending_work_history" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
