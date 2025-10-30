@@ -43,7 +43,7 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
                 // if there is no key for channel, remove that messages for PN so that it can be retrieved back again by calling API
                 if (channel.getConsented() && channel.getKey().length == 0) {
                     needReloadDueToMissingChannelKey=true
-                    removeConnectMessagesWithoutEncryptionKey(channel.channelId)
+                    excludeMessagesForChannel(channel.channelId)
                     MessageManager.getChannelEncryptionKey(context, channel, null)
                 }
             }
@@ -78,7 +78,7 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
 
 
 
-    private fun removeConnectMessagesWithoutEncryptionKey(channelId:String){
+    private fun excludeMessagesForChannel(channelId:String){
         val newNotificationsJsonArray = JSONArray()
         notificationsJsonArray?.let {
             for (notificationJsonIndex in 0 until notificationsJsonArray!!.length()) {
