@@ -280,7 +280,7 @@ public class StandardHomeActivity
                     ConnectNavHelper.INSTANCE.goToWorkHistory(this);
                     closeDrawer();
                 } else {
-                    navigateToCredential();
+                    navigateToWorkHistory();
                 }
             }
         }

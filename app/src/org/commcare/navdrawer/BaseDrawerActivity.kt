@@ -86,7 +86,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
             NavItemType.PAYMENTS -> {}
             NavItemType.MESSAGING -> { navigateToMessaging() }
-            NavItemType.WORK_HISTORY -> { navigateToCredential() }
+            NavItemType.WORK_HISTORY -> { navigateToWorkHistory() }
         }
     }
 
@@ -124,7 +124,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         )
     }
 
-    protected fun navigateToCredential() {
+    protected fun navigateToWorkHistory() {
         unlockAndGoToWorkHistory(
             this,
             object : ConnectActivityCompleteListener {
