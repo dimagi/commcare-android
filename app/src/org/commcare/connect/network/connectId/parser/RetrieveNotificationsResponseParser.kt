@@ -1,12 +1,16 @@
 package org.commcare.connect.network.connectId.parser
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.MessageManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.network.base.BaseApiResponseParser
+import org.commcare.pn.workermanager.NotificationsSyncWorkerManager.Companion.scheduleImmediatePushNotificationRetrieval
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InputStream
@@ -25,13 +29,13 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
         val responseJsonObject = JSONObject(jsonText)
 
 
-        if(responseJsonObject.has("notifications")) {
+        if (responseJsonObject.has("notifications")) {
             notificationsJsonArray = responseJsonObject.getJSONArray("notifications")
         }
 
 
         var needReloadDueToMissingChannelKey = false
-        if(responseJsonObject.has("channels")){
+        if (responseJsonObject.has("channels")) {
             val channelsJson: JSONArray = responseJsonObject.getJSONArray("channels")
             for (i in 0 until channelsJson.length()) {
                 val obj = channelsJson.get(i) as JSONObject
@@ -42,7 +46,7 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
             for (channel in channels) {
                 // if there is no key for channel, remove that messages for PN so that it can be retrieved back again by calling API
                 if (channel.getConsented() && channel.getKey().length == 0) {
-                    needReloadDueToMissingChannelKey=true
+                    needReloadDueToMissingChannelKey = true
                     excludeMessagesForChannel(channel.channelId)
                     MessageManager.getChannelEncryptionKey(context, channel, null)
                 }
@@ -52,10 +56,14 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
         notificationsJsonArray?.let {
             val existingChannels = ConnectMessagingDatabaseHelper.getMessagingChannels(context)
             for (notificationJsonIndex in 0 until notificationsJsonArray!!.length()) {
-                val notificationJsonObject = notificationsJsonArray!!.getJSONObject(notificationJsonIndex)
-                if(pushNotificationIsMessageType(notificationJsonObject) &&
-                    notificationJsonObject.getJSONObject("data").has("message_id")){
-                    val message = ConnectMessagingMessageRecord.fromJson(notificationJsonObject.getJSONObject("data"), existingChannels)
+                val notificationJsonObject =
+                    notificationsJsonArray!!.getJSONObject(notificationJsonIndex)
+                if (pushNotificationIsMessageType(notificationJsonObject) &&
+                    notificationJsonObject.getJSONObject("data").has("message_id")
+                ) {
+                    val message = ConnectMessagingMessageRecord.fromJson(
+                        notificationJsonObject.getJSONObject("data"), existingChannels
+                    )
                     if (message != null) {
                         messages.add(message)
                     }
@@ -65,31 +73,32 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
         }
 
 
-        if(needReloadDueToMissingChannelKey){
-            //Should start immediate worker thread to fetch the notifications.
-            //It will be available as a part of https://dimagi.atlassian.net/browse/CCCT-1805
+        if (needReloadDueToMissingChannelKey) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                scheduleImmediatePushNotificationRetrieval(CommCareApplication.instance())
+            }, 3000)
         }
 
 
-        val result = PushNotificationRecord.fromJsonArray(notificationsJsonArray?: JSONArray())
+        val result = PushNotificationRecord.fromJsonArray(notificationsJsonArray ?: JSONArray())
         return result as T
     }
 
 
-
-
-    private fun excludeMessagesForChannel(channelId:String){
+    private fun excludeMessagesForChannel(channelId: String) {
         val newNotificationsJsonArray = JSONArray()
         notificationsJsonArray?.let {
             for (notificationJsonIndex in 0 until notificationsJsonArray!!.length()) {
                 var removeThisObject = false
-                val notificationJsonObject = notificationsJsonArray!!.getJSONObject(notificationJsonIndex)
-                if(pushNotificationIsMessageType(notificationJsonObject) &&
-                    notificationJsonObject.getJSONObject("data").get("channel")!=null &&
-                    notificationJsonObject.getJSONObject("data").get("channel").equals(channelId)){
+                val notificationJsonObject =
+                    notificationsJsonArray!!.getJSONObject(notificationJsonIndex)
+                if (pushNotificationIsMessageType(notificationJsonObject) &&
+                    notificationJsonObject.getJSONObject("data").get("channel") != null &&
+                    notificationJsonObject.getJSONObject("data").get("channel").equals(channelId)
+                ) {
                     removeThisObject = true
                 }
-                if(!removeThisObject){
+                if (!removeThisObject) {
                     newNotificationsJsonArray.put(notificationJsonObject)
                 }
             }
@@ -98,9 +107,10 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
     }
 
 
-    private fun pushNotificationIsMessageType(notificationJsonObject: JSONObject) = notificationJsonObject.has("notification_type") &&
-            "MESSAGING".equals(notificationJsonObject.get("notification_type")) &&
-            notificationJsonObject.has("data") &&
-            notificationJsonObject.getJSONObject("data")!=null
+    private fun pushNotificationIsMessageType(notificationJsonObject: JSONObject) =
+        notificationJsonObject.has("notification_type") &&
+                "MESSAGING".equals(notificationJsonObject.get("notification_type")) &&
+                notificationJsonObject.has("data") &&
+                notificationJsonObject.getJSONObject("data") != null
 
 }

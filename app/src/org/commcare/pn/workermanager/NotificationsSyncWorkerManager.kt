@@ -101,6 +101,13 @@ class NotificationsSyncWorkerManager(val context: Context) {
                 PERIODIC_NOTIFICATION_REQUEST_NAME
             )
         }
+
+
+        fun scheduleImmediatePushNotificationRetrieval(context: Context) {
+            val notificationSyncWorkerManager =
+                NotificationsSyncWorkerManager(context, null, false, true)
+            notificationSyncWorkerManager.startPersonalIdNotificationsWorker(emptyMap(), false)
+        }
     }
 
     lateinit var notificationsPayload: ArrayList<Map<String, String>>

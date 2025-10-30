@@ -4,6 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
@@ -27,12 +28,19 @@ import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
 
-    fun retrieveLatestPushNotificationsWithCallback(context: Context, listener: ConnectActivityCompleteListener){
+    fun retrieveLatestPushNotificationsWithCallback(
+        context: Context,
+        listener: ConnectActivityCompleteListener
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             retrieveLatestPushNotifications(context).onSuccess {
-                listener.connectActivityComplete(true)
+                withContext(Dispatchers.Main) { //switching to main to touch views
+                    listener.connectActivityComplete(true)
+                }
             }.onFailure {
-                listener.connectActivityComplete(false)
+                withContext(Dispatchers.Main) { //switching to main to touch views
+                    listener.connectActivityComplete(false)
+                }
             }
         }
     }

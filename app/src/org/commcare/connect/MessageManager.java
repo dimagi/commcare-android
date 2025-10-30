@@ -32,7 +32,7 @@ public class MessageManager {
     }
 
     public static void retrieveMessages(Context context, ConnectActivityCompleteListener listener) {
-        PushNotificationApiHelper.INSTANCE.retrieveLatestPushNotificationsWithCallback(context,listener);
+        PushNotificationApiHelper.INSTANCE.retrieveLatestPushNotificationsWithCallback(context, listener);
     }
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
