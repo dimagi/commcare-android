@@ -275,6 +275,14 @@ public class StandardHomeActivity
                     navigateToMessaging();
                 }
             }
+            case CREDENTIAL -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToCredentials(this);
+                    closeDrawer();
+                } else {
+                    navigateToCredential();
+                }
+            }
         }
     }
 
