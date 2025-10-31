@@ -43,8 +43,7 @@ class BaseDrawerController(
         COMMCARE_APPS,
         WORK_HISTORY,
         MESSAGING,
-        PAYMENTS,
-        CREDENTIAL
+        PAYMENTS
     }
 
     fun setupDrawer() {
@@ -201,12 +200,12 @@ class BaseDrawerController(
                 )
             }
 
-            if (shouldShowCredential()) {
+            if (shouldShowWorkHistory()) {
                 items.add(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.personalid_work_history),
-                        R.drawable.ic_credential,
-                        NavItemType.CREDENTIAL
+                        R.drawable.ic_work_history,
+                        NavItemType.WORK_HISTORY
                     )
                 )
             }
@@ -234,7 +233,7 @@ class BaseDrawerController(
         binding.notificationView.visibility = if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
     }
 
-    private fun shouldShowCredential(): Boolean {
+    private fun shouldShowWorkHistory(): Boolean {
         // we are keeping this off for now until we have go ahead to release this feature
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }

@@ -42,11 +42,11 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
-    fun unlockAndGoToCredentials(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
-        unlockAndGoTo(activity, listener, ::goToCredentials)
+    fun unlockAndGoToWorkHistory(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+        unlockAndGoTo(activity, listener, ::goToWorkHistory)
     }
 
-    fun goToCredentials(context: Context) {
+    fun goToWorkHistory(context: Context) {
         val i = Intent(context, PersonalIdWorkHistoryActivity::class.java)
         context.startActivity(i)
     }

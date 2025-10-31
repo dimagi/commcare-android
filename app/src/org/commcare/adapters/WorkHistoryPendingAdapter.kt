@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
-import org.commcare.dalvik.databinding.ItemPendingCredentialBinding
+import org.commcare.dalvik.databinding.ItemPendingWorkHistoryBinding
 import org.commcare.utils.StringUtils
 
 class WorkHistoryPendingAdapter(
@@ -13,11 +13,11 @@ class WorkHistoryPendingAdapter(
 
     private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class WorkHistoryViewHolder(val binding: ItemPendingCredentialBinding) :
+    inner class WorkHistoryViewHolder(val binding: ItemPendingWorkHistoryBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkHistoryViewHolder {
-        val binding = ItemPendingCredentialBinding.inflate(
+        val binding = ItemPendingWorkHistoryBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
