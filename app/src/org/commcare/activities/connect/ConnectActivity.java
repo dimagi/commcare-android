@@ -1,6 +1,7 @@
 package org.commcare.activities.connect;
 
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
@@ -37,6 +38,7 @@ import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.personalId.PersonalIdFeatureFlagChecker;
@@ -136,7 +138,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private int handleSecureRedirect(Bundle startArgs) {
         //Entering from a notification, so we may need to initialize
         PersonalIdManager.getInstance().init(this);
-
+        String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
+        if (!TextUtils.isEmpty(notificationId)) {
+            NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);
+        }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 

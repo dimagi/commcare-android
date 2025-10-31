@@ -14,9 +14,11 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
 
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> {
@@ -74,6 +76,10 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                 if (success) {
                     String channelId = getIntent().getStringExtra(
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
+                    String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
+                    if (!TextUtils.isEmpty(notificationId)) {
+                        NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);
+                    }
                     if (TextUtils.isEmpty(channelId)) {
                         showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
                     } else {
@@ -151,5 +157,4 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                 .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
                 .build();
     }
-
 }
