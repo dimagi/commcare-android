@@ -201,7 +201,10 @@ public class PersonalIdManager {
         scheduleHeartbeat();
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();
-        ((LoginActivity) parentActivity).openDrawer();
+
+        if (parentActivity instanceof LoginActivity) {
+            ((LoginActivity) parentActivity).openDrawer();
+        }
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
