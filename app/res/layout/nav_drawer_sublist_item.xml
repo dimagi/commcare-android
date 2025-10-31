@@ -7,7 +7,7 @@
     android:paddingTop="12dp"
     android:paddingBottom="12dp"
     android:gravity="center_vertical"
-    android:background="@color/connect_blue_color">
+    android:background="@color/cc_brand_color">
 
     <ImageView
         android:id="@+id/sublist_highlight_icon"
