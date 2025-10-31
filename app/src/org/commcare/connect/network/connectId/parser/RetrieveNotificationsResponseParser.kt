@@ -108,9 +108,11 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
     private fun shouldRemoveChannel(
         notificationJsonObject: JSONObject,
         channelId: String
-    ): Boolean = isNotificationMessageType(notificationJsonObject) &&
-            notificationJsonObject.getJSONObject("data").get("channel") != null &&
-            channelId.equals(notificationJsonObject.getJSONObject("data").get("channel"))
+    ): Boolean =
+        isNotificationMessageType(notificationJsonObject) && notificationJsonObject.getJSONObject("data")
+            .get("channel") != null && channelId.equals(
+            notificationJsonObject.getJSONObject("data").get("channel")
+        )
 
     private fun isNotificationMessageType(notificationJsonObject: JSONObject) =
         notificationJsonObject.has("notification_type") && "MESSAGING".equals(
