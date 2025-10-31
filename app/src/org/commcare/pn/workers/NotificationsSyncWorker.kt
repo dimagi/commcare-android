@@ -12,9 +12,11 @@ import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
+import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.database.NotificationRecordDatabaseHelper.getNotificationById
 import org.commcare.dalvik.R
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
@@ -194,8 +196,20 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
     }
 
     private fun raiseFCMPushNotificationIfApplicable() {
-        if (showNotification) {
+        if (showNotification && !userAlreadyReadThisNotificationPreviously()) {
             FirebaseMessagingUtil.handleNotification(appContext, notificationPayload, null, true)
+        }
+    }
+
+    private fun userAlreadyReadThisNotificationPreviously(): Boolean {
+        return if (notificationPayload?.containsKey(NOTIFICATION_ID)!! &&
+            notificationPayload?.get(NOTIFICATION_ID) != null
+        ) {
+            val notification =
+                getNotificationById(appContext, notificationPayload?.get(NOTIFICATION_ID)!!)
+            return notification != null && notification.readStatus
+        } else {
+            false
         }
     }
 }

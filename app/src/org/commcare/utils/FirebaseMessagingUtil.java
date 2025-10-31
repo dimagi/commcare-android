@@ -54,6 +54,7 @@ import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
@@ -444,6 +445,9 @@ public class FirebaseMessagingUtil {
                     new Throwable(String.format("Empty notification for action '%s'", fcmMessageData.getAction())));
         }
 
+        Bundle bundleExtras = new Bundle();
+        bundleExtras.putString(NOTIFICATION_ID,fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+
         NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(context,
                 fcmMessageData.getNotificationChannel())
                 .setContentTitle(fcmMessageData.getNotificationTitle())
@@ -452,7 +456,8 @@ public class FirebaseMessagingUtil {
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setPriority(fcmMessageData.getPriority())
-                .setWhen(System.currentTimeMillis());
+                .setWhen(System.currentTimeMillis())
+                .setExtras(bundleExtras);
 
         if (fcmMessageData.getLargeIcon() != null) {
             fcmNotification.setLargeIcon(fcmMessageData.getLargeIcon());
