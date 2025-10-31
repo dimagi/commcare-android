@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.Navigation;
@@ -21,14 +22,15 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectProgressDeliveryBinding;
 import org.commcare.views.connect.CircleProgressBar;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment {
-    private FragmentConnectProgressDeliveryBinding binding;
+public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<FragmentConnectProgressDeliveryBinding> {
     private RecyclerView recyclerView;
     private ConnectDeliveryProgressReportAdapter adapter;
 
@@ -36,32 +38,14 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
         return new ConnectDeliveryProgressDeliveryFragment();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectProgressDeliveryBinding.inflate(inflater, container, false);
-
-        binding.btnSync.setOnClickListener(view -> {
-            ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment)getParentFragment();
-            if (parentFragment != null) {
-                parentFragment.refresh();
-            }
-            populateDeliveryProgress();
-        });
-
-        updateProgressSummary();
-        populateDeliveryProgress();
-        return binding.getRoot();
-    }
-
     public void updateProgressSummary() {
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
 
-        CircleProgressBar progress = binding.connectProgressProgressBar;
+        CircleProgressBar progress = getBinding().connectProgressProgressBar;
         progress.setProgress(percent);
-        binding.connectProgressProgressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
+        getBinding().connectProgressProgressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
 
         StringBuilder completedText = new StringBuilder(
                 getString(R.string.connect_progress_status, completed, total));
@@ -76,7 +60,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
             }
         }
 
-        binding.connectProgressStatusText.setText(completedText.toString());
+        getBinding().connectProgressStatusText.setText(completedText.toString());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -103,7 +87,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
             ));
         }
 
-        recyclerView = binding.rvDeliveryProgressReport;
+        recyclerView = getBinding().rvDeliveryProgressReport;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         if (adapter == null) {
             adapter = new ConnectDeliveryProgressReportAdapter(
@@ -152,6 +136,27 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
     @Override
     public void onResume() {
         super.onResume();
-        binding.getRoot().requestLayout();
+        getBinding().getRoot().requestLayout();
+    }
+
+    @Override
+    protected @NotNull FragmentConnectProgressDeliveryBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectProgressDeliveryBinding.inflate(inflater, container, false);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getBinding().btnSync.setOnClickListener(v -> {
+            ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment)getParentFragment();
+            if (parentFragment != null) {
+                parentFragment.refresh();
+            }
+            populateDeliveryProgress();
+        });
+
+        updateProgressSummary();
+        populateDeliveryProgress();
     }
 }

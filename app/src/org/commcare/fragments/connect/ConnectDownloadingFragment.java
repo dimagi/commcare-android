@@ -15,6 +15,7 @@ import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectDownloadingBinding;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.resources.model.InvalidResourceException;
@@ -24,12 +25,15 @@ import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.navigation.Navigation;
 
-public class ConnectDownloadingFragment extends ConnectJobFragment implements ResourceEngineListener {
+public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConnectDownloadingBinding> implements ResourceEngineListener {
 
     private ProgressBar progressBar;
     private TextView statusText;
@@ -83,25 +87,6 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     private void startAppDownload() {
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         ConnectAppUtils.INSTANCE.downloadApp(record.getInstallUrl(), this);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
-        requireActivity().setTitle(job.getTitle());
-
-        View view = inflater.inflate(R.layout.fragment_connect_downloading, container, false);
-
-        TextView titleTv = view.findViewById(R.id.connect_downloading_title);
-        titleTv.setText(args.getTitle());
-
-        statusText = view.findViewById(R.id.connect_downloading_status);
-        updateInstallStatus(null);
-
-        progressBar = view.findViewById(R.id.connect_downloading_progress);
-
-        return view;
     }
 
     @Override
@@ -206,5 +191,25 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     public void failTargetMismatch() {
         ResourceInstallUtils.showTargetMismatchError(getActivity());
         showInstallFailError(AppInstallStatus.IncorrectTargetPackage);
+    }
+
+    @Override
+    protected @NotNull FragmentConnectDownloadingBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectDownloadingBinding.inflate(inflater, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
+        requireActivity().setTitle(job.getTitle());
+
+        TextView titleTv = view.findViewById(R.id.connect_downloading_title);
+        titleTv.setText(args.getTitle());
+
+        statusText = view.findViewById(R.id.connect_downloading_status);
+        updateInstallStatus(null);
+
+        progressBar = view.findViewById(R.id.connect_downloading_progress);
     }
 }

@@ -37,9 +37,11 @@ import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseM
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
+import org.commcare.fragments.BaseFragment;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.connect.ConnectLoginJobListModel;
+import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -50,9 +52,8 @@ import java.util.List;
  *
  * @author dviggiano
  */
-public class ConnectJobsListsFragment extends Fragment
+public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsListBinding>
         implements RefreshableFragment {
-    private FragmentConnectJobsListBinding binding;
     ArrayList<ConnectLoginJobListModel> jobList;
     ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
 
@@ -61,15 +62,8 @@ public class ConnectJobsListsFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        requireActivity().setTitle(R.string.connect_title);
-
-        binding = FragmentConnectJobsListBinding.inflate(inflater, container, false);
-
-        refreshData();
-
-        return binding.getRoot();
+    protected @NotNull FragmentConnectJobsListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectJobsListBinding.inflate(inflater, container, false);
     }
 
     @Override
@@ -102,7 +96,7 @@ public class ConnectJobsListsFragment extends Fragment
 
 
     private void initRecyclerView() {
-        binding.connectNoJobsText.setVisibility(corruptJobs.isEmpty() && jobList.isEmpty() ?
+        getBinding().connectNoJobsText.setVisibility(corruptJobs.isEmpty() && jobList.isEmpty() ?
                 View.VISIBLE : View.GONE);
 
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList,
@@ -114,14 +108,14 @@ public class ConnectJobsListsFragment extends Fragment
             }
         });
 
-        binding.rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.rvJobList.setNestedScrollingEnabled(true);
-        binding.rvJobList.setAdapter(adapter);
+        getBinding().rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
+        getBinding().rvJobList.setNestedScrollingEnabled(true);
+        getBinding().rvJobList.setAdapter(adapter);
     }
 
     private void launchJobInfo(ConnectJobRecord job) {
         setActiveJob(job);
-        Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
+        Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections
                 .actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
@@ -134,7 +128,7 @@ public class ConnectJobsListsFragment extends Fragment
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
-            Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
+            Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections
                             .actionConnectJobsListFragmentToConnectDownloadingFragment(
                                     getString(textId), isLearning));
         }
@@ -271,8 +265,9 @@ public class ConnectJobsListsFragment extends Fragment
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        requireActivity().setTitle(R.string.connect_title);
+        refreshData();
     }
 }
