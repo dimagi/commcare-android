@@ -60,6 +60,7 @@ import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.utils.StringUtils.convertToIntegers;
 
 /**
  * This class will be used to handle notification whenever
@@ -438,15 +439,16 @@ public class FirebaseMessagingUtil {
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 : PendingIntent.FLAG_UPDATE_CURRENT;
 
+        Bundle bundleExtras = new Bundle();
+        bundleExtras.putString(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, flags);
 
         if (Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationTitle()) && Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationText())) {
             Logger.exception("Empty push notification",
                     new Throwable(String.format("Empty notification for action '%s'", fcmMessageData.getAction())));
         }
-
-        Bundle bundleExtras = new Bundle();
-        bundleExtras.putString(NOTIFICATION_ID,fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
 
         NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(context,
                 fcmMessageData.getNotificationChannel())
@@ -474,7 +476,7 @@ public class FirebaseMessagingUtil {
      */
     private static void showNotification(Context context, NotificationCompat.Builder notificationBuilder) {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-        mNM.notify(FCM_NOTIFICATION, notificationBuilder.build());
+        mNM.notify(convertToIntegers(notificationBuilder.getExtras().getString(NOTIFICATION_ID)), notificationBuilder.build());
     }
 
 
