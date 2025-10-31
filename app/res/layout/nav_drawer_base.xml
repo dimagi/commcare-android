@@ -48,6 +48,7 @@
                         android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
 
                     <com.google.android.material.button.MaterialButton
+                        android:backgroundTint="@color/palatinate_blue"
                         android:id="@+id/nav_drawer_sign_in_button"
                         android:layout_gravity="center"
                         android:layout_height="wrap_content"
