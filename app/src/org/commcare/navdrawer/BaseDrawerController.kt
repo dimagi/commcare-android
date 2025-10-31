@@ -1,6 +1,5 @@
 package org.commcare.navdrawer
-import android.text.SpannableString
-import android.text.style.UnderlineSpan
+
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -90,9 +89,6 @@ class BaseDrawerController(
     }
 
     private fun setupViews() {
-        val content = SpannableString(activity.getString(R.string.nav_drawer_signin_register))
-        content.setSpan(UnderlineSpan(), 0, content.length, 0)
-        binding.signInText.text = content
         binding.versionText.text = "v ${BuildConfig.VERSION_NAME}"
     }
 
@@ -114,12 +110,19 @@ class BaseDrawerController(
     }
 
     private fun setupListeners() {
-        binding.signInText.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             PersonalIdManager.getInstance()
-                .launchPersonalId(activity, ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE)
+                .launchPersonalId(
+                    activity,
+                    ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE
+                )
             closeDrawer()
         }
-        binding.aboutView.setOnClickListener { DialogCreationHelpers.showAboutCommCareDialog(activity) }
+        binding.aboutView.setOnClickListener {
+            DialogCreationHelpers.showAboutCommCareDialog(
+                activity
+            )
+        }
         binding.notificationView.setOnClickListener {
             ConnectNavHelper.goToNotification(activity)
             closeDrawer()
@@ -230,7 +233,8 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
-        binding.notificationView.visibility = if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
+        binding.notificationView.visibility =
+            if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
     }
 
     private fun shouldShowWorkHistory(): Boolean {

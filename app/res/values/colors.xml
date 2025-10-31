@@ -13,6 +13,7 @@
     <color name="translucent_grey">#80D3D3D3</color>
     <color name="translucent_grey_light">#A0D3D3D3</color>
     <color name="blue">#3867AD</color>
+    <color name="palatinate_blue">#3843D0</color>
     <color name="blue_grey">#6884AD</color>
     <color name="blue_light">#7FA1D4</color>
     <color name="translucent_blue">#903867AD</color>
@@ -155,7 +156,6 @@
     <color name="start_sync_button">@color/cc_brand_color</color>
     <color name="start_sync_dark_button">#3b4fb6</color>
     <color name="start_logout_button">#373534</color>
-    <color name="barcode_button_color">#3843D0</color>
     <color name="url_button_color">#8EA1FF</color>
     <color name="square_button_icon_color">#FFFFFF</color>
 
