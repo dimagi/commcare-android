@@ -67,7 +67,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
-                    android:background="@color/connect_blue_color" />
+                    android:background="@color/cc_brand_color" />
 
                 <include
                     android:id="@+id/nav_drawer_footer"
