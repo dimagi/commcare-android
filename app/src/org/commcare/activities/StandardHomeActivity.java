@@ -275,6 +275,14 @@ public class StandardHomeActivity
                     navigateToMessaging();
                 }
             }
+            case WORK_HISTORY -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToWorkHistory(this);
+                    closeDrawer();
+                } else {
+                    navigateToWorkHistory();
+                }
+            }
         }
     }
 

@@ -7,11 +7,4 @@
         android:icon="@drawable/ic_backup"
         app:iconTint="@color/white"
         app:showAsAction="always"/>
-
-    <item
-        android:id="@+id/more"
-        android:title="@string/personalid_work_history_sync"
-        android:contentDescription="action"
-        android:icon="@drawable/ic_connect_action_overflow"
-        app:showAsAction="always"/>
 </menu>
