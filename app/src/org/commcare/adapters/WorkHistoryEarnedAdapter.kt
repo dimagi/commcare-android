@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.connect.ConnectDateUtils.convertIsoDate
-import org.commcare.dalvik.databinding.ItemEarnedCredentialBinding
+import org.commcare.dalvik.databinding.ItemEarnedWorkHistoryBinding
 import org.commcare.utils.StringUtils
 
 class WorkHistoryEarnedAdapter(
@@ -15,11 +15,11 @@ class WorkHistoryEarnedAdapter(
 
     private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class WorkHistoryViewHolder(val binding: ItemEarnedCredentialBinding) :
+    inner class WorkHistoryViewHolder(val binding: ItemEarnedWorkHistoryBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkHistoryViewHolder {
-        val binding = ItemEarnedCredentialBinding.inflate(
+        val binding = ItemEarnedWorkHistoryBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false

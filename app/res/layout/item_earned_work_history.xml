@@ -90,7 +90,7 @@
             android:id="@+id/ivDesignLeft"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_credential_design"
+            android:src="@drawable/ic_work_history_design"
             app:layout_constraintBottom_toTopOf="@id/tvIssuedDate"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/ivRibbin" />
@@ -99,7 +99,7 @@
             android:id="@+id/ivDesignRight"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_credential_design"
+            android:src="@drawable/ic_work_history_design"
             app:layout_constraintBottom_toTopOf="@id/tvIssuedDate"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/ivRibbin" />

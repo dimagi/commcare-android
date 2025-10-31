@@ -425,7 +425,7 @@
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_learn_review">Review Learning</string>
-    <string name="connect_learn_view_details">View Job Details</string>
+    <string name="connect_learn_view_details">View Opportunity Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
     <string name="connect_learn_try_again">Try Again</string>
     <string name="connect_learn_start">Start Learning</string>
