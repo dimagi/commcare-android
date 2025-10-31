@@ -11,8 +11,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
-import org.commcare.connect.ConnectNavHelper.unlockAndGoToWorkHistory
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToWorkHistory
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.utils.FirebaseMessagingUtil

@@ -1,9 +1,5 @@
 package org.commcare.connect;
 
-import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_USER_DENIED;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.SYNC_SUCCESS;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -42,7 +38,6 @@ import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
@@ -54,6 +49,10 @@ import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_USER_DENIED;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.SYNC_SUCCESS;
 
 /**
  * Manager class for PersonalID, handles workflow navigation and user management
