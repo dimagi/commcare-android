@@ -324,7 +324,7 @@
     <string name="connect_progress_status">%d ናይ %d ምብፃሕ ወዲእካ ኣለኻ።</string>
     <string name="connect_progress_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_not_started">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
-    <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
     <string name="connect_progress_warning_max_reached_single">ዝለዓለ ቁፅሪ ምብፃሕ ፈፂምካ ኣለኻ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_daily_max_reached_single">ንሎሚ ዝለዓለ ቁፅሪ ምብፃሕ በፂሕኩም ኣለኹም። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>
