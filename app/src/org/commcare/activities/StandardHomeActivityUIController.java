@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import androidx.annotation.ColorRes;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -101,18 +103,35 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private void updateConnectJobMessage() {
-        String warningText = null;
+        String messageText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
         ConnectJobRecord job = activity.getActiveJob();
+
         if (job != null && record != null) {
-            warningText = job.getWarningMessages(activity);
+            messageText = job.getCardMessageText(activity);
         }
 
-        connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-        if (warningText != null) {
-            TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
-            tv.setText(warningText);
+        if (messageText != null) {
+            @ColorRes int textColorRes;
+            @ColorRes int backgroundColorRes;
+
+            if (job.readyToTransitionToDelivery()) {
+                textColorRes = R.color.connect_green;
+                backgroundColorRes = R.color.connect_light_green;
+            } else {
+                textColorRes = R.color.connect_warning_color;
+                backgroundColorRes = R.color.connect_light_orange_color;
+            }
+
+            TextView textView = connectMessageCard.findViewById(R.id.tvConnectMessage);
+            textView.setText(messageText);
+            textView.setTextColor(ContextCompat.getColor(activity, textColorRes));
+
+            connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, backgroundColorRes));
+            connectMessageCard.setVisibility(View.VISIBLE);
+        } else {
+            connectMessageCard.setVisibility(View.GONE);
         }
     }
 

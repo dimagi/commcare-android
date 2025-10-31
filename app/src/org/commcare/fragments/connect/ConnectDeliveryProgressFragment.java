@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -61,7 +60,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
         setupRefreshAndConfirmationActions();
 
         updateLastUpdatedText(job.getLastDeliveryUpdate());
-        updateWarningMessage();
+        updateCardMessage();
         updatePaymentConfirmationTile(false);
 
         return binding.getRoot();
@@ -103,9 +102,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
     }
 
@@ -114,7 +116,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 updateLastUpdatedText(new Date());
-                updateWarningMessage();
+                updateCardMessage();
                 updatePaymentConfirmationTile(false);
                 viewPagerAdapter.refresh();
             }
@@ -140,7 +142,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
     }
 
     private void setupJobCard(ConnectJobRecord job) {
-        ViewJobCardBinding jobCard =binding.viewJobCard;
+        ViewJobCardBinding jobCard = binding.viewJobCard;
         jobCard.tvViewMore.setOnClickListener(v -> Navigation.findNavController(v)
                 .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()));
 
@@ -173,11 +175,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
         binding = null;
     }
 
-    private void updateWarningMessage() {
-        String warningText = job.getWarningMessages(requireContext());
-        binding.cvConnectMessage.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-        if (warningText != null) {
-            binding.tvConnectMessage.setText(warningText);
+    private void updateCardMessage() {
+        String messageText = job.getCardMessageText(requireContext());
+
+        if (messageText != null) {
+            binding.tvConnectMessage.setText(messageText);
+            binding.cvConnectMessage.setVisibility(View.VISIBLE);
+        } else {
+            binding.cvConnectMessage.setVisibility(View.GONE);
         }
     }
 

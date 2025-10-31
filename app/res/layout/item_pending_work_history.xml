@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:background="@drawable/personal_id_credential_pending"
+            android:background="@drawable/personal_id_work_history_pending"
             android:paddingHorizontal="10dp"
             android:paddingVertical="2dp"
             android:text="@string/personalid_work_history_pending"

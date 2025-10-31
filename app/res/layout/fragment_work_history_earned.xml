@@ -34,6 +34,6 @@
         tools:itemCount="3"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
-        tools:listitem="@layout/item_earned_credential" />
+        tools:listitem="@layout/item_earned_work_history" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
