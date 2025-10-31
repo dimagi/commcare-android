@@ -4,7 +4,9 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
@@ -25,6 +27,23 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
+
+    fun retrieveLatestPushNotificationsWithCallback(
+        context: Context,
+        listener: ConnectActivityCompleteListener
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            retrieveLatestPushNotifications(context).onSuccess {
+                withContext(Dispatchers.Main) { //  switching to main to touch views
+                    listener.connectActivityComplete(true)
+                }
+            }.onFailure {
+                withContext(Dispatchers.Main) { //  switching to main to touch views
+                    listener.connectActivityComplete(false)
+                }
+            }
+        }
+    }
 
     suspend fun retrieveLatestPushNotifications(context: Context): Result<List<PushNotificationRecord>> {
         val pushNotificationListResult = callPushNotificationApi(context)
@@ -67,8 +86,12 @@ object PushNotificationApiHelper {
         }
     }
 
-    suspend fun updatePushNotifications(context: Context, pushNotificationList: List<PushNotificationRecord>): Boolean {
-        val savedNotificationIds = NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
+    suspend fun updatePushNotifications(
+        context: Context,
+        pushNotificationList: List<PushNotificationRecord>
+    ): Boolean {
+        val savedNotificationIds =
+            NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
