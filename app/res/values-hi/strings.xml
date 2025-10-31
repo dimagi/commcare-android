@@ -271,9 +271,11 @@ License.
     <string name="connect_register_success_message">आपका PersonalId खाता सफलतापूर्वक बना लिया गया है और अब उपयोग के लिए तैयार है!</string>
     <string name="connect_register_success_button">ठीक है</string>
     <string name="connect_verify_title">अनलॉक विकल्प</string>
-    <string name="connect_verify_message">कृपया अपने डिवाइस और अपने PersonalId खाते दोनों को अनलॉक करने के लिए नीचे एक विधि कॉन्फ़िगर करें</string>
+    <string name="connect_verify_message">कृपया अपने डिवाइस और अपने PersonalID खाते दोनों को अनलॉक करने के लिए नीचे एक विधि कॉन्फ़िगर करें</string>
+    <string name="connect_verify_message_pin">कृपया अपने डिवाइस और पर्सनलआईडी खाते दोनों को अनलॉक करने के लिए नीचे पिन या पैटर्न कॉन्फ़िगर करें</string>
+    <string name="connect_verify_message_fingerprint">कृपया अपने डिवाइस और पर्सनलआईडी खाते दोनों को अनलॉक करने के लिए नीचे अपना फ़िंगरप्रिंट कॉन्फ़िगर करें</string>
     <string name="connect_verify_use_fingerprint_long">लॉग इन करने के लिए फ़िंगरप्रिंट का उपयोग करें</string>
-    <string name="connect_verify_fingerprint_configured">आपका फ़िंगरप्रिंट पहले ही कॉन्फ़िगर किया जा चुका है और इसका उपयोग PersonalId को अनलॉक करने के लिए किया जाएगा।</string>
+    <string name="connect_verify_fingerprint_configured">आपका फ़िंगरप्रिंट पहले ही कॉन्फ़िगर किया जा चुका है और इसका उपयोग PersonalID को अनलॉक करने के लिए किया जाएगा।</string>
     <string name="connect_verify_configure_fingerprint">फ़िंगरप्रिंट कॉन्फ़िगर करें</string>
     <string name="connect_verify_use_pin_long">लॉग इन करने के लिए पिन का उपयोग करें</string>
     <string name="connect_verify_pin_configured">आपका पिन पहले ही कॉन्फ़िगर किया जा चुका है और इसका उपयोग PersonalId को अनलॉक करने के लिए किया जाएगा।</string>
@@ -316,7 +318,7 @@ License.
     <string name="connect_learn_completed">पूरा हुआ: %s</string>
     <string name="connect_learn_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_learn_review">सीखने की समीक्षा करें</string>
-    <string name="connect_learn_view_details">नौकरी का विवरण देखें</string>
+    <string name="connect_learn_view_details">अवसर विवरण देखें</string>
     <string name="connect_learn_go_to_assessment">मूल्यांकन पर जाएं</string>
     <string name="connect_learn_try_again">पुनः प्रयास करें</string>
     <string name="connect_learn_start">सीखना शुरू करें</string>
@@ -360,7 +362,6 @@ License.
     <string name="app_with_id_not_found">आवश्यक CommCare एप्लिकेशन डिवाइस पर इंस्टॉल नहीं है</string>
     <string name="audio_recording_notification">ऑडियो रिकॉर्डिंग अधिसूचना</string>
     <string name="user_suspended">उपयोगकर्ता निलंबित है। कृपया व्यवस्थापक से संपर्क करें।</string>
-    <string name="connect_job_list_api_failure">सर्वर से कनेक्ट करते समय एक त्रुटि हुई।</string>
     <string name="connect_payment_acknowledge_notification_yes">हाँ</string>
     <string name="connect_payment_acknowledge_notification_no">नहीं</string>
     <string name="enter_otp">SMS कोड दर्ज करें</string>
@@ -483,6 +484,7 @@ License.
     <string name="personalid_work_history_level_12_month_active">12 महीने की\nगतिविधि</string>
 
     <string name="personalid_notification">सूचनाएं</string>
+    <string name="pn_no_notification_found">कोई सूचना नहीं मिली</string>
 
     <string name="personalid_work_history_no_pending_records">इस समय कोई लंबित रिकॉर्ड नहीं हैं</string>
 
@@ -500,4 +502,11 @@ License.
 
     <string name="setup_refresh_opportunities_no_jobs">कोई अवसर नहीं मिला</string>
     <string name="setup_refresh_opportunities_with_jobs">नए अवसर मिले, अधिक जानने के लिए अवसर पर क्लिक करें।</string>
+    <string name="personalid_not_login_from_fcm_error">कृपया विवरण देखने के लिए PersonalId पर लॉगिन करें</string>
+
+    <string name="just_now">अभी-अभी</string>
+    <string name="minutes_ago">"%1$d मिनट पहले"</string>
+    <string name="hours_ago">"%1$d घंटे पहले"</string>
+    <string name="yesterday">कल %1$s</string>
+
 </resources>

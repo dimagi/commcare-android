@@ -1,5 +1,7 @@
 package org.commcare.connect.network.connectId;
 
+import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
+
 import android.app.Activity;
 import android.content.Context;
 
@@ -16,17 +18,22 @@ import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
+import org.commcare.connect.network.connectId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
+
+import kotlin.Pair;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
@@ -53,38 +60,29 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             }
 
             @Override
-            public void processFailure(int responseCode, InputStream errorResponse, String url) {
-                if (!handleErrorCodeIfPresent(errorResponse, sessionData)) {
-                    super.processFailure(responseCode, null, url);
+            public void processFailure(int responseCode, String url, String errorBody) {
+                Pair<String, String> errorCodes = getErrorCodes(errorBody);
+                if (!handleErrorCodeIfPresent(errorCodes.getFirst(), errorCodes.getSecond(), sessionData)) {
+                    super.processFailure(responseCode, url, errorBody);
                 }
             }
         };
     }
 
-    private boolean handleErrorCodeIfPresent(InputStream errorResponse, PersonalIdSessionData sessionData) {
+    private boolean handleErrorCodeIfPresent(String errorCode, String errorSubCode, PersonalIdSessionData sessionData) {
         try {
-            if (errorResponse != null) {
-                byte[] errorBytes = StreamsUtil.inputStreamToByteArray(errorResponse);
-                String jsonStr = new String(errorBytes, java.nio.charset.StandardCharsets.UTF_8);
-                JSONObject json = new JSONObject(jsonStr);
-
-                String errorCode = json.optString("error_code", "");
-                sessionData.setSessionFailureCode(errorCode);
-                if ("LOCKED_ACCOUNT".equalsIgnoreCase(errorCode)) {
-                    onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
-                    return true;
-                } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
-                    if (json.has("sub_code")) {
-                        String subErrorCode = json.optString("sub_code");
-                        Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + subErrorCode);
-                        sessionData.setSessionFailureSubcode(subErrorCode);
-                        onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
-                    }
-                    return true;
-                }
+            sessionData.setSessionFailureCode(errorCode);
+            if ("LOCKED_ACCOUNT".equalsIgnoreCase(errorCode)) {
+                onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
+                return true;
+            } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + errorSubCode);
+                sessionData.setSessionFailureSubcode(errorSubCode);
+                onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
+                return true;
             }
         } catch (Exception e) {
-            Logger.exception("Error parsing error_code", e);
+            Logger.exception("Error handling error code", e);
         }
         return false;
     }
@@ -161,5 +159,14 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
 
+    public void retrieveNotifications(Context context, ConnectUserRecord user) {
+        ApiPersonalId.retrieveNotifications(context, user.getUserId(), user.getPassword(),
+                createCallback(new RetrieveNotificationsResponseParser<>(context),null));
+    }
+
+    public void updateNotifications(Context context, String userId, String password, List<String> notificationId) {
+        ApiPersonalId.updateNotifications(context, userId, password,
+                createCallback(new NoParsingResponseParser<>(),null),notificationId);
+    }
 
 }

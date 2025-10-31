@@ -43,6 +43,8 @@ git clone https://github.com/dimagi/commcare-core.git
 
 Note: If you are using any functionality that depends on the Google Cloud Project (like [Google Integrity APIs](https://developer.android.com/google/play/integrity/standard)), you will need to define `GOOGLE_CLOUD_PROJECT_NUMBER` in your local `gradle.properties` file otherwise relevant parts of the application will crash for you with `Caused by: java.lang.IllegalArgumentException: Google Cloud Project Number is not defined`. You should be able to locate the project number in Google cloud console in the "settings" for "IAM and admin" menu. 
 
+Note: In order to test locally with the Google Integrity APIs, you will also need to add the SHA fingerprint for your development computer to the CommCare Debug Build project in Firebase.
+
 ## Building
 
 Now you're basically ready to go. To build CommCare Android and get it running on your phone,

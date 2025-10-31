@@ -273,7 +273,9 @@
     <string name="connect_register_success_message">Akaunti yako ya PersonalId imeundwa kwa ufanisi na sasa iko tayari kwako kuitumia!</string>
     <string name="connect_register_success_button">Sawa</string>
     <string name="connect_verify_title">Fungua Chaguzi</string>
-    <string name="connect_verify_message">Tafadhali sanidi mbinu iliyo hapa chini ili kufungua kifaa chako na akaunti ya PersonalId</string>
+    <string name="connect_verify_message">Tafadhali sanidi mbinu iliyo hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
+    <string name="connect_verify_message_pin">Tafadhali sanidi PIN au mchoro hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
+    <string name="connect_verify_message_fingerprint">Tafadhali sanidi alama ya kidole chako hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
     <string name="connect_verify_use_fingerprint_long">Tumia Alama ya Kidole Kuunganisha</string>
     <string name="connect_verify_fingerprint_configured">Alama yako ya kidole tayari imesanidiwa na itatumika kufungua PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Sanidi Alama ya Kidole</string>
@@ -320,7 +322,7 @@
     <string name="connect_learn_completed">Ilikamilika mnamo: %s</string>
     <string name="connect_learn_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_learn_review">Kagua Mafunzo</string>
-    <string name="connect_learn_view_details">Tazama Maelezo ya Kazi</string>
+    <string name="connect_learn_view_details">Tazama Maelezo ya Fursa</string>
     <string name="connect_learn_go_to_assessment">Nenda kwa Tathmini</string>
     <string name="connect_learn_try_again">Jaribu Tena</string>
     <string name="connect_learn_start">Anza Kujifunza</string>
@@ -495,6 +497,7 @@
     <string name="personalid_work_history_no_pending_records">Hakuna rekodi zinazosubiri kwa sasa</string>
 
     <string name="personalid_notification">Arifa</string>
+    <string name="pn_no_notification_found">Hakuna arifa zilizopatikana</string>
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
@@ -510,4 +513,11 @@
 
     <string name="setup_refresh_opportunities_no_jobs">Hakuna fursa zilizopatikana</string>
     <string name="setup_refresh_opportunities_with_jobs">Fursa mpya zimepatikana, bofya Fursa kujifunza zaidi.</string>
+    <string name="personalid_not_login_from_fcm_error">Tafadhali ingia kwenye Kitambulisho cha Kibinafsi ili kuona maelezo</string>
+
+    <string name="just_now">Muda mfupi uliopita</string>
+    <string name="minutes_ago">Dakika %1$d zilizopita</string>
+    <string name="hours_ago">Saa %1$d zilizopita</string>
+    <string name="yesterday">Jana %1$s</string>
+
 </resources>

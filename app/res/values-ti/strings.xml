@@ -264,7 +264,9 @@
     <string name="connect_register_success_message">ናይ PersonalId ኣካውንትካ ብዓወት ተፈጢሩ ኣሎ፡ ኸዚ ድማ ንኽትጥቀመሉ ድሉው ኮይኑ ኣሎ!</string>
     <string name="connect_register_success_button">እሺ</string>
     <string name="connect_verify_title">ኣማራፂታት ምኽፋት።</string>
-    <string name="connect_verify_message">በይዛኻ ንኽልቲኡ መሳርሒኻን PersonalId ኣካውንትካን ንምኽፋት ኣብ ታሕቲ ዘሎ ሜላ ኣወሃህድ</string>
+    <string name="connect_verify_message">በይዛኻ ንኽልቲኡ መሳርሒኻን PersonalID ኣካውንትካን ንምኽፋት ኣብ ታሕቲ ዘሎ ሜላ ኣወሃህድ</string>
+    <string name="connect_verify_message_pin">ንኽልቲኡ መሳርሒኻን PersonalID ኣካውንትካን ንምኽፋት በጃኻ ኣብ ታሕቲ ፒን ወይ ፓተርን ኣወሃህድ</string>
+    <string name="connect_verify_message_fingerprint">ንኽልቲኡ መሳርሒኻን PersonalID ኣካውንትካን ንምኽፋት በጃኻ ኣብ ታሕቲ ኣሰር ኣጻብዕትኻ ኣወሃህቦ</string>
     <string name="connect_verify_use_fingerprint_long">ንምትእስሳር ኣሰር ኣፃብዕቲ ተጠቐም</string>
     <string name="connect_verify_fingerprint_configured">ኣሰር ኣፃብዕትኻ በቃ ተዋቒሩ ኣሎ፡ ንPersonalId ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
     <string name="connect_verify_configure_fingerprint">ኣሰር ኣፃብዕቲ ምውቃር</string>
@@ -310,7 +312,7 @@
     <string name="connect_learn_completed">ኣብ: %s ዝተዛዘመ</string>
     <string name="connect_learn_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_learn_review">ትምህርቲ ዳግመ ግምት</string>
-    <string name="connect_learn_view_details">ዝርዝር ስራሕ ርአ</string>
+    <string name="connect_learn_view_details">ዝርዝር ዕድል ርአ</string>
     <string name="connect_learn_go_to_assessment">ናብ ገምጋም ኪድ</string>
     <string name="connect_learn_try_again">ደጊምካ ፈትን።</string>
     <string name="connect_learn_start">ትምህርቲ ጀምር</string>
@@ -322,7 +324,7 @@
     <string name="connect_progress_status">%d ናይ %d ምብፃሕ ወዲእካ ኣለኻ።</string>
     <string name="connect_progress_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_not_started">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
-    <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
     <string name="connect_progress_warning_max_reached_single">ዝለዓለ ቁፅሪ ምብፃሕ ፈፂምካ ኣለኻ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_daily_max_reached_single">ንሎሚ ዝለዓለ ቁፅሪ ምብፃሕ በፂሕኩም ኣለኹም። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>
@@ -479,6 +481,7 @@
     <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
 
     <string name="personalid_notification">መፍለጥታትን</string>
+    <string name="pn_no_notification_found">ዝኾነ መፍለጢ ኣይተረኽበን</string>
 
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
@@ -492,5 +495,11 @@
     <string name="nav_drawer_manage_profile">ፕሮፋይል ኣስተዳደር</string>
     <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>
     <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>
+    <string name="personalid_not_login_from_fcm_error">ዝርዝር ንምርኣይ ናብ PersonalId እቶ</string>
+
+    <string name="just_now">ሕጂ ሕጂ</string>
+    <string name="minutes_ago">ቅድሚ %1$d ደቓይቕ</string>
+    <string name="hours_ago">ቅድሚ %1$d ሰዓታት</string>
+    <string name="yesterday">ትማሊ %1$s</string>
 
 </resources>

@@ -12,6 +12,8 @@ class PersonalIdFeatureFlagChecker {
     annotation class FeatureFlag {
         companion object {
             const val WORK_HISTORY = "work_history"
+            const val WORK_HISTORY_PENDING_TAB = "work_history_pending_tab"
+            const val NOTIFICATIONS = "notifications"
         }
     }
 
@@ -19,8 +21,10 @@ class PersonalIdFeatureFlagChecker {
 
         @JvmStatic
         fun isFeatureEnabled(@FeatureFlag feature: String): Boolean {
-            return when(feature) {
-                FeatureFlag.WORK_HISTORY -> false
+            return when (feature) {
+                FeatureFlag.WORK_HISTORY -> true
+                FeatureFlag.WORK_HISTORY_PENDING_TAB -> false
+                FeatureFlag.NOTIFICATIONS -> false
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
         }

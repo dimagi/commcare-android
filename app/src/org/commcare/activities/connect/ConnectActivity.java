@@ -3,6 +3,8 @@ package org.commcare.activities.connect;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
+import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +15,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.core.content.res.ResourcesCompat;
@@ -24,6 +27,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.activities.PushNotificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -35,6 +39,8 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
+import org.commcare.personalId.PersonalIdFeatureFlagChecker;
+import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -42,31 +48,55 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import kotlin.Unit;
+
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
     private MenuItem messagingMenuItem = null;
+    private MenuItem notificationsMenuItem = null;
+
+    private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(getString(R.string.connect_title));
 
-        initStateFromExtras();
-        updateBackButton();
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(this);
 
-        // Wait for fragment to attach
-        getSupportFragmentManager().executePendingTransactions();
+        if(personalIdManager.isloggedIn()){
+            NotificationBroadcastHelper.INSTANCE.registerForNotifications(
+                    this,
+                    this,
+                    () -> {
+                        updateNotificationIcon();
+                        return Unit.INSTANCE;
+                    }
+            );
+            initStateFromExtras();
+            updateBackButton();
 
-        NavInflater inflater = navController.getNavInflater();
-        NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
-        Bundle startArgs = new Bundle();
-        graph.setStartDestination(getStartDestinationId(startArgs));
-        navController.setGraph(graph, startArgs);
+            // Wait for fragment to attach
+            getSupportFragmentManager().executePendingTransactions();
 
-        retrieveMessages();
+            NavInflater inflater = navController.getNavInflater();
+            NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
+            Bundle startArgs = new Bundle();
+            graph.setStartDestination(getStartDestinationId(startArgs));
+            navController.setGraph(graph, startArgs);
+
+            retrieveMessages();
+        }else{
+            Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
+            personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            finish();
+        }
+
+
     }
 
     private int getStartDestinationId(Bundle startArgs) {
@@ -81,9 +111,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        String opportunityId = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-        if(!TextUtils.isEmpty(opportunityId)){
-            job = ConnectJobUtils.getCompositeJob(this, Integer.parseInt(opportunityId));
+        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
+        if (opportunityId == -1) {
+            String opportunityIdStr = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
+            if (!StringUtils.isEmpty(opportunityIdStr)) {
+                opportunityId = Integer.parseInt(opportunityIdStr);
+            }
+        }
+        if(opportunityId != -1) {
+            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
         }
     }
 
@@ -108,28 +144,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        updateMessagingIcon();
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(messagingUpdateReceiver,
-                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver);
-    }
-
-    private final BroadcastReceiver messagingUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateMessagingIcon();
-        }
-    };
-
-    @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         getSupportActionBar().setTitle(title);
@@ -142,16 +156,22 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         MenuItem notification = menu.findItem(R.id.action_sync);
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-        messagingMenuItem = menu.findItem(R.id.action_messaging);
-        updateMessagingIcon();
+        notificationsMenuItem = menu.findItem(R.id.action_bell);
+        notificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
+        updateNotificationIcon();
 
         return super.onCreateOptionsMenu(menu);
+    }
+    private void updateNotificationIcon() {
+        if (notificationsMenuItem == null) return;
+
+        int iconRes = getNotificationIcon(this);
+        notificationsMenuItem.setIcon(iconRes);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
-        menu.findItem(R.id.action_messaging).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -164,28 +184,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void retrieveMessages(){
         MessageManager.retrieveMessages(this, success -> {
-            updateMessagingIcon();
         });
-    }
-
-    public void updateMessagingIcon() {
-        if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_messaging_base;
-            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(this).size() > 0) {
-                icon = R.drawable.ic_connect_messaging_unread;
-            }
-            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
-        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_messaging) {
-            ConnectNavHelper.INSTANCE.goToMessaging(this);
-            return true;
-        }
-
         if (item.getItemId() == R.id.action_bell) {
+            updateNotificationIcon();
             ConnectNavHelper.goToNotification(this);
             return true;
         }

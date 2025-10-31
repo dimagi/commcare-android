@@ -271,7 +271,9 @@ License.
     <string name="connect_register_success_message">Votre compte PersonalId a été créé avec succès et est maintenant prêt à être utilisé!</string>
     <string name="connect_register_success_button">D\'ACCORD</string>
     <string name="connect_verify_title">Options de déverrouillage</string>
-    <string name="connect_verify_message">Veuillez configurer une méthode ci-dessous pour déverrouiller à la fois votre appareil et votre compte PersonalId</string>
+    <string name="connect_verify_message">Veuillez configurer une méthode ci-dessous pour déverrouiller à la fois votre appareil et votre compte PersonalID</string>
+    <string name="connect_verify_message_pin">Veuillez configurer un code PIN ou un modèle ci-dessous pour déverrouiller votre appareil et votre compte PersonalID</string>
+    <string name="connect_verify_message_fingerprint">Veuillez configurer votre empreinte digitale ci-dessous pour déverrouiller à la fois votre appareil et votre compte PersonalID</string>
     <string name="connect_verify_use_fingerprint_long">Utiliser l\'empreinte digitale pour se connecter</string>
     <string name="connect_verify_fingerprint_configured">Votre empreinte digitale a déjà été configurée et sera utilisée pour déverrouiller PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Configurer l\'empreinte digitale</string>
@@ -317,7 +319,7 @@ License.
     <string name="connect_learn_completed">Terminé le: %s</string>
     <string name="connect_learn_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_learn_review">Révision de l\'apprentissage</string>
-    <string name="connect_learn_view_details">Voir les détails du poste</string>
+    <string name="connect_learn_view_details">Voir les détails de l\'opportunité</string>
     <string name="connect_learn_go_to_assessment">Accéder à l\'évaluation</string>
     <string name="connect_learn_try_again">Essayer à nouveau</string>
     <string name="connect_learn_start">Commencer à apprendre</string>
@@ -489,6 +491,7 @@ License.
     <string name="personalid_work_history_no_pending_records">Il n\'y a aucun enregistrement en attente pour le moment</string>
 
     <string name="personalid_notification">Notifications</string>
+    <string name="pn_no_notification_found">Aucune notification trouvée</string>
 
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
@@ -504,4 +507,11 @@ License.
 
     <string name="setup_refresh_opportunities_no_jobs">Aucune opportunité trouvée</string>
     <string name="setup_refresh_opportunities_with_jobs">Nouvelles opportunités trouvées, cliquez sur Opportunités pour en savoir plus.</string>
+    <string name="personalid_not_login_from_fcm_error">Veuillez vous connecter à PersonalId pour voir les détails</string>
+
+    <string name="just_now">À l\'instant</string>
+    <string name="minutes_ago">Il y a %1$d minutes</string>
+    <string name="hours_ago">Il y a %1$d heures</string>
+    <string name="yesterday">Hier %1$s</string>
+
 </resources>

@@ -21,6 +21,7 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> {
     public static final String CHANNEL_ID = "channel_id";
+    private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
 
 
     @Override
@@ -28,9 +29,18 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_messaging_title);
 
-        NavigationUI.setupActionBarWithNavController(this, navController);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        handleRedirectIfAny();
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(this);
+
+        if(personalIdManager.isloggedIn()){
+            NavigationUI.setupActionBarWithNavController(this, navController);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            handleRedirectIfAny();
+        }else{
+            Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
+            personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            finish();
+        }
     }
 
     @Override

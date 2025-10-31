@@ -276,7 +276,9 @@
     <string name="connect_register_success_message">Sua conta PersonalId foi criada com sucesso e agora está pronta para você usar!</string>
     <string name="connect_register_success_button">OK</string>
     <string name="connect_verify_title">Opções de desbloqueio</string>
-    <string name="connect_verify_message">Configure um método abaixo para desbloquear o seu dispositivo e a conta PersonalId</string>
+    <string name="connect_verify_message">Configure um método abaixo para desbloquear o seu dispositivo e a conta PersonalID</string>
+    <string name="connect_verify_message_pin">Configure um PIN ou padrão abaixo para desbloquear seu dispositivo e sua conta PersonalID</string>
+    <string name="connect_verify_message_fingerprint">Configure sua impressão digital abaixo para desbloquear seu dispositivo e sua conta PersonalID</string>
     <string name="connect_verify_use_fingerprint_long">Usar impressão digital para se conectar</string>
     <string name="connect_verify_fingerprint_configured">Sua impressão digital já foi configurada e será usada para desbloquear o PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Configurar impressão digital</string>
@@ -326,7 +328,7 @@
     <string name="connect_learn_completed">Concluído em: %s</string>
     <string name="connect_learn_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_learn_review">Rever a aprendizagem</string>
-    <string name="connect_learn_view_details">Ver detalhes do trabalho</string>
+    <string name="connect_learn_view_details">Ver detalhes da oportunidade</string>
     <string name="connect_learn_go_to_assessment">Ir para avaliação</string>
     <string name="connect_learn_try_again">Tentar novamente</string>
     <string name="connect_learn_start">Inicie a aprendizagem</string>
@@ -495,6 +497,7 @@
     <string name="personalid_work_history_no_pending_records">Não há registros pendentes no momento</string>
 
     <string name="personalid_notification">Notificações</string>
+    <string name="pn_no_notification_found">Nenhuma notificação encontrada</string>
 
     <string name="nav_drawer_signin_register">Entrar / Registrar-se</string>
     <string name="nav_drawer_help">Ajuda</string>
@@ -510,4 +513,11 @@
 
     <string name="setup_refresh_opportunities_no_jobs">Nenhuma oportunidade encontrada</string>
     <string name="setup_refresh_opportunities_with_jobs">Novas oportunidades encontradas, clique em Oportunidades para saber mais.</string>
+    <string name="personalid_not_login_from_fcm_error">Faça login no PersonalId para ver os detalhes</string>
+
+    <string name="just_now">Agora mesmo</string>
+    <string name="minutes_ago">Há %1$d minutos</string>
+    <string name="hours_ago">Há %1$d horas</string>
+    <string name="yesterday">Ontem %1$s</string>
+
 </resources>

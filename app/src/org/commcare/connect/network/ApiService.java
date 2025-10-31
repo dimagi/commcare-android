@@ -91,4 +91,12 @@ public interface ApiService {
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody connectTokenRequest);
 
+    @GET(ApiEndPoints.RETRIEVE_NOTIFICATIONS)
+    Call<ResponseBody> getAllNotifications(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.UPDATE_NOTIFICATIONS)
+    Call<ResponseBody> updateNotification(@Header("Authorization") String token,
+                                        @HeaderMap Map<String, String> headers,
+                                        @Body RequestBody updateNotificationRequest);
+
 }
