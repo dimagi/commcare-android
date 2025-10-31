@@ -23,6 +23,7 @@ import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.LoginActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -41,6 +42,7 @@ import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
@@ -200,6 +202,7 @@ public class PersonalIdManager {
         scheduleHeartbeat();
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();
+        ((LoginActivity) parentActivity).openDrawer();
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {

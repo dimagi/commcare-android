@@ -140,4 +140,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     protected fun closeDrawer() {
         drawerController?.closeDrawer()
     }
+
+    fun openDrawer() {
+        drawerController?.openDrawer()
+    }
 }

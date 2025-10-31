@@ -250,6 +250,10 @@ class BaseDrawerController(
         binding.drawerLayout.closeDrawer(GravityCompat.START)
     }
 
+    fun openDrawer() {
+        binding.drawerLayout.openDrawer(GravityCompat.START)
+    }
+
     fun handleOptionsItem(item: MenuItem): Boolean {
         return drawerToggle.onOptionsItemSelected(item)
     }
