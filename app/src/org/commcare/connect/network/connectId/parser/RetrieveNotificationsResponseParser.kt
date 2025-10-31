@@ -28,11 +28,9 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
         val jsonText = responseData.bufferedReader().use { it.readText() }
         val responseJsonObject = JSONObject(jsonText)
 
-
         if (responseJsonObject.has("notifications")) {
             notificationsJsonArray = responseJsonObject.getJSONArray("notifications")
         }
-
 
         var needReloadDueToMissingChannelKey = false
         if (responseJsonObject.has("channels")) {
@@ -72,18 +70,15 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
             ConnectMessagingDatabaseHelper.storeMessagingMessages(context, messages, false)
         }
 
-
         if (needReloadDueToMissingChannelKey) {
             Handler(Looper.getMainLooper()).postDelayed({
                 scheduleImmediatePushNotificationRetrieval(CommCareApplication.instance())
             }, 3000)
         }
 
-
         val result = PushNotificationRecord.fromJsonArray(notificationsJsonArray ?: JSONArray())
         return result as T
     }
-
 
     private fun excludeMessagesForChannel(channelId: String) {
         val newNotificationsJsonArray = JSONArray()
@@ -106,11 +101,11 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
         notificationsJsonArray = newNotificationsJsonArray
     }
 
-
     private fun pushNotificationIsMessageType(notificationJsonObject: JSONObject) =
-        notificationJsonObject.has("notification_type") &&
-                "MESSAGING".equals(notificationJsonObject.get("notification_type")) &&
-                notificationJsonObject.has("data") &&
-                notificationJsonObject.getJSONObject("data") != null
+        notificationJsonObject.has("notification_type") && "MESSAGING".equals(
+            notificationJsonObject.get(
+                "notification_type"
+            )
+        ) && notificationJsonObject.has("data") && notificationJsonObject.getJSONObject("data") != null
 
 }

@@ -34,20 +34,18 @@ object PushNotificationApiHelper {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             retrieveLatestPushNotifications(context).onSuccess {
-                withContext(Dispatchers.Main) { //switching to main to touch views
+                withContext(Dispatchers.Main) { //  switching to main to touch views
                     listener.connectActivityComplete(true)
                 }
             }.onFailure {
-                withContext(Dispatchers.Main) { //switching to main to touch views
+                withContext(Dispatchers.Main) { //  switching to main to touch views
                     listener.connectActivityComplete(false)
                 }
             }
         }
     }
 
-
-
-    suspend fun retrieveLatestPushNotifications(context: Context): Result<List<PushNotificationRecord>>{
+    suspend fun retrieveLatestPushNotifications(context: Context): Result<List<PushNotificationRecord>> {
         val pushNotificationListResult = callPushNotificationApi(context)
         return pushNotificationListResult
     }
@@ -88,8 +86,12 @@ object PushNotificationApiHelper {
         }
     }
 
-    suspend fun updatePushNotifications(context: Context, pushNotificationList: List<PushNotificationRecord>): Boolean {
-        val savedNotificationIds = NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
+    suspend fun updatePushNotifications(
+        context: Context,
+        pushNotificationList: List<PushNotificationRecord>
+    ): Boolean {
+        val savedNotificationIds =
+            NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
@@ -137,4 +139,5 @@ object PushNotificationApiHelper {
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         return pn
     }
+
 }
