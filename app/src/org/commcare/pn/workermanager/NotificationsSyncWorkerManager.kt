@@ -102,7 +102,6 @@ class NotificationsSyncWorkerManager(val context: Context) {
             )
         }
 
-
         fun scheduleImmediatePushNotificationRetrieval(context: Context) {
             val notificationSyncWorkerManager =
                 NotificationsSyncWorkerManager(context, null, false, true)

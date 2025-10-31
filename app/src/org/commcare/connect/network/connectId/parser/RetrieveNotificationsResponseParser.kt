@@ -60,7 +60,8 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
                     notificationJsonObject.getJSONObject("data").has("message_id")
                 ) {
                     val message = ConnectMessagingMessageRecord.fromJson(
-                        notificationJsonObject.getJSONObject("data"), existingChannels
+                        notificationJsonObject.getJSONObject("data"),
+                        existingChannels
                     )
                     if (message != null) {
                         messages.add(message)
@@ -107,5 +108,4 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
                 "notification_type"
             )
         ) && notificationJsonObject.has("data") && notificationJsonObject.getJSONObject("data") != null
-
 }

@@ -139,5 +139,4 @@ object PushNotificationApiHelper {
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         return pn
     }
-
 }
