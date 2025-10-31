@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -48,6 +47,26 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         return new ConnectDeliveryProgressFragment();
     }
 
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentConnectDeliveryProgressBinding.inflate(inflater, container, false);
+        requireActivity().setTitle(R.string.connect_progress_delivery);
+
+        if (getArguments() != null) {
+            initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
+        }
+
+        setupTabViewPager();
+        setupJobCard(job);
+        setupRefreshAndConfirmationActions();
+
+        updateLastUpdatedText(job.getLastDeliveryUpdate());
+        updateCardMessage();
+        updatePaymentConfirmationTile(false);
+
+        return binding.getRoot();
+    }
+
     private void setupTabViewPager() {
         viewPagerAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle());
         getBinding().connectDeliveryProgressViewPager.setAdapter(viewPagerAdapter);
@@ -84,9 +103,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
     }
 
@@ -95,7 +117,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 updateLastUpdatedText(new Date());
-                updateWarningMessage();
+                updateCardMessage();
                 updatePaymentConfirmationTile(false);
                 viewPagerAdapter.refresh();
             }
@@ -148,11 +170,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
     }
 
-    private void updateWarningMessage() {
-        String warningText = job.getWarningMessages(requireContext());
-        getBinding().cvConnectMessage.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-        if (warningText != null) {
-            getBinding().tvConnectMessage.setText(warningText);
+    private void updateCardMessage() {
+        String messageText = job.getCardMessageText(requireContext());
+
+        if (messageText != null) {
+            getBinding().tvConnectMessage.setText(messageText);
+            getBinding().cvConnectMessage.setVisibility(View.VISIBLE);
+        } else {
+            getBinding().cvConnectMessage.setVisibility(View.GONE);
         }
     }
 
