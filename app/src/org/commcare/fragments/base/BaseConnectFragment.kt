@@ -43,12 +43,13 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         // Create a parent container that holds both mainView and loadingView
         val mergedLayout =
             FrameLayout(
-                requireContext()
+                requireContext(),
             ).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                )
+                layoutParams =
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
                 addView(mainView)
                 addView(loadingView)
             }
