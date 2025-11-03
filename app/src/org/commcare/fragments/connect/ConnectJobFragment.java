@@ -7,11 +7,11 @@ import androidx.viewbinding.ViewBinding;
 
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.fragments.base.BaseFragment;
+import org.commcare.fragments.base.BaseConnectFragment;
 
 import java.util.Objects;
 
-public abstract class ConnectJobFragment<T extends ViewBinding> extends BaseFragment<T> {
+public abstract class ConnectJobFragment<T extends ViewBinding> extends BaseConnectFragment<T> {
     protected ConnectJobRecord job;
 
     @Override

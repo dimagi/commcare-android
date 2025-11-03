@@ -33,6 +33,16 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
         return new ConnectDeliveryDetailsFragment();
     }
 
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
+        requireActivity().setTitle(getString(R.string.connect_job_info_title));
+        setupJobDetailsUI(job);
+        setupButtonBehavior(job, args.getIsButtonVisible());
+        return view;
+    }
+
     private void setupJobDetailsUI(ConnectJobRecord job) {
         getBinding().connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit, job.getMaxPossibleVisits()));
         getBinding().connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days, job.getDaysRemaining()));
@@ -127,15 +137,5 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
     @Override
     protected @NotNull FragmentConnectDeliveryDetailsBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectDeliveryDetailsBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
-
-        requireActivity().setTitle(getString(R.string.connect_job_info_title));
-        setupJobDetailsUI(job);
-        setupButtonBehavior(job, args.getIsButtonVisible());
     }
 }

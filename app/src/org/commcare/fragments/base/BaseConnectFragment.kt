@@ -8,10 +8,11 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import org.commcare.dalvik.databinding.LoadingBinding
-import org.commcare.interfaces.base.BaseView
+import org.commcare.interfaces.base.BaseConnectView
 
-abstract class BaseFragment<B : ViewBinding> :
-    Fragment(), BaseView {
+abstract class BaseConnectFragment<B : ViewBinding> :
+    Fragment(),
+    BaseConnectView {
     private var _binding: B? = null
     val binding get() = _binding!!
 
@@ -40,16 +41,17 @@ abstract class BaseFragment<B : ViewBinding> :
         val loadingView = loadingBinding.root
 
         // Create a parent container that holds both mainView and loadingView
-        val mergedLayout = FrameLayout(
-            requireContext()
-        ).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-            )
-            addView(mainView)
-            addView(loadingView)
-        }
+        val mergedLayout =
+            FrameLayout(
+                requireContext()
+            ).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                )
+                addView(mainView)
+                addView(loadingView)
+            }
 
         // Hide loading by default
         hideLoading()

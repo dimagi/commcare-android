@@ -37,7 +37,7 @@ import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseM
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
-import org.commcare.fragments.base.BaseFragment;
+import org.commcare.fragments.base.BaseConnectFragment;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +51,7 @@ import java.util.List;
  *
  * @author dviggiano
  */
-public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsListBinding>
+public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnectJobsListBinding>
         implements RefreshableFragment {
     ArrayList<ConnectLoginJobListModel> jobList;
     ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
@@ -61,8 +61,11 @@ public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsLi
     }
 
     @Override
-    protected @NotNull FragmentConnectJobsListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentConnectJobsListBinding.inflate(inflater, container, false);
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        requireActivity().setTitle(R.string.connect_title);
+        refreshData();
+        return view;
     }
 
     @Override
@@ -71,7 +74,7 @@ public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsLi
     }
 
     public void refreshData() {
-        setWaitDialogEnabled(false);
+        ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
         showLoading();
         corruptJobs.clear();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
@@ -209,13 +212,6 @@ public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsLi
         Collections.sort(list, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
     }
 
-    private void setWaitDialogEnabled(boolean enabled) {
-        Activity activity = getActivity();
-        if(activity instanceof ConnectActivity connectActivity) {
-            connectActivity.setWaitDialogEnabled(enabled);
-        }
-    }
-
     private ConnectLoginJobListModel createJobModel(
             ConnectJobRecord job,
             ConnectLoginJobListModel.JobListEntryType jobType,
@@ -275,9 +271,7 @@ public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsLi
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        requireActivity().setTitle(R.string.connect_title);
-        refreshData();
+    protected @NotNull FragmentConnectJobsListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectJobsListBinding.inflate(inflater, container, false);
     }
 }

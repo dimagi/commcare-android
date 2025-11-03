@@ -1,6 +1,6 @@
 package org.commcare.interfaces.base
 
-interface BaseView {
+interface BaseConnectView {
     fun showLoading()
 
     fun hideLoading()
