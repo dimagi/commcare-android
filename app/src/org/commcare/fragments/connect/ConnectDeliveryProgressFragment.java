@@ -49,6 +49,26 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         return new ConnectDeliveryProgressFragment();
     }
 
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        requireActivity().setTitle(R.string.connect_progress_delivery);
+
+        if (getArguments() != null) {
+            initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
+        }
+
+        setupTabViewPager();
+        setupJobCard(job);
+        setupRefreshAndConfirmationActions();
+
+        updateLastUpdatedText(job.getLastDeliveryUpdate());
+        updateCardMessage();
+        updatePaymentConfirmationTile(false);
+
+        return view;
+    }
+
     private void setupTabViewPager() {
         viewPagerAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle());
         getBinding().connectDeliveryProgressViewPager.setAdapter(viewPagerAdapter);
@@ -208,25 +228,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     @Override
     protected @NotNull FragmentConnectDeliveryProgressBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectDeliveryProgressBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        requireActivity().setTitle(R.string.connect_progress_delivery);
-
-        if (getArguments() != null) {
-            initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
-        }
-
-        setupTabViewPager();
-        setupJobCard(job);
-        setupRefreshAndConfirmationActions();
-
-        updateLastUpdatedText(job.getLastDeliveryUpdate());
-        updateCardMessage();
-        updatePaymentConfirmationTile(false);
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {

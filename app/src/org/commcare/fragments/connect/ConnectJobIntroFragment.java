@@ -45,6 +45,32 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
         // Required empty public constructor
     }
 
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @org.jetbrains.annotations.Nullable ViewGroup container, @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        requireActivity().setTitle(getString(R.string.connect_job_intro_title));
+
+        int totalHours = getTotalLearningHours();
+        String toLearn = getLearnModuleSummaryLines();
+
+        getBinding().connectJobIntroLearning.setText(toLearn);
+
+        getBinding().connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
+                job.getLearnAppInfo().getLearnModules().size(), totalHours));
+
+        final boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
+
+        getBinding().connectJobIntroStartButton.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app
+                : R.string.download_app));
+        getBinding().connectJobIntroStartButton.setOnClickListener(v -> {
+            //First, need to tell Connect we're starting learning so it can create a user on HQ
+            startLearning(appInstalled);
+        });
+
+        setupJobCard(job);
+        return view;
+    }
+
     private int getTotalLearningHours() {
         int totalHours = 0;
         List<ConnectLearnModuleSummaryRecord> modules = job.getLearnAppInfo().getLearnModules();
@@ -127,30 +153,5 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     @Override
     protected @NotNull FragmentConnectJobIntroBinding inflateBinding(@NotNull LayoutInflater inflater, @org.jetbrains.annotations.Nullable ViewGroup container) {
         return FragmentConnectJobIntroBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        requireActivity().setTitle(getString(R.string.connect_job_intro_title));
-
-        int totalHours = getTotalLearningHours();
-        String toLearn = getLearnModuleSummaryLines();
-
-        getBinding().connectJobIntroLearning.setText(toLearn);
-
-        getBinding().connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
-                job.getLearnAppInfo().getLearnModules().size(), totalHours));
-
-        final boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-
-        getBinding().connectJobIntroStartButton.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app
-                : R.string.download_app));
-        getBinding().connectJobIntroStartButton.setOnClickListener(v -> {
-            //First, need to tell Connect we're starting learning so it can create a user on HQ
-            startLearning(appInstalled);
-        });
-
-        setupJobCard(job);
     }
 }

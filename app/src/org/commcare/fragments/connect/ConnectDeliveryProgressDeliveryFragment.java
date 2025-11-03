@@ -6,9 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +16,6 @@ import org.commcare.android.database.connect.models.ConnectDeliveryDetails;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectProgressDeliveryBinding;
 import org.commcare.views.connect.CircleProgressBar;
@@ -36,6 +33,23 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
 
     public static ConnectDeliveryProgressDeliveryFragment newInstance() {
         return new ConnectDeliveryProgressDeliveryFragment();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        getBinding().btnSync.setOnClickListener(v -> {
+            ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment)getParentFragment();
+            if (parentFragment != null) {
+                parentFragment.refresh();
+            }
+            populateDeliveryProgress();
+        });
+
+        updateProgressSummary();
+        populateDeliveryProgress();
+        return view;
     }
 
     public void updateProgressSummary() {
@@ -142,21 +156,5 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
     @Override
     protected @NotNull FragmentConnectProgressDeliveryBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectProgressDeliveryBinding.inflate(inflater, container, false);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        getBinding().btnSync.setOnClickListener(v -> {
-            ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment)getParentFragment();
-            if (parentFragment != null) {
-                parentFragment.refresh();
-            }
-            populateDeliveryProgress();
-        });
-
-        updateProgressSummary();
-        populateDeliveryProgress();
     }
 }

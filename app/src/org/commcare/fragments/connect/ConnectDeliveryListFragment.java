@@ -54,6 +54,17 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
         return new ConnectDeliveryListFragment();
     }
 
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        unitName = ConnectDeliveryListFragmentArgs.fromBundle(getArguments()).getUnitId();
+        requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
+        setupRecyclerView();
+        setupFilterControls();
+        setupMenuProvider();
+        return view;
+    }
+
     private void setupRecyclerView() {
         getBinding().deliveryList.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new DeliveryAdapter(getContext(), getFilteredDeliveries());
@@ -145,16 +156,6 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     @Override
     protected @NotNull FragmentConnectDeliveryListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectDeliveryListBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        unitName = ConnectDeliveryListFragmentArgs.fromBundle(getArguments()).getUnitId();
-        requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
-        setupRecyclerView();
-        setupFilterControls();
-        setupMenuProvider();
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.VerificationViewHolder> {

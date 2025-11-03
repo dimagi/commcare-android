@@ -90,6 +90,23 @@ public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConne
     }
 
     @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
+        requireActivity().setTitle(job.getTitle());
+
+        TextView titleText = view.findViewById(R.id.connect_downloading_title);
+        titleText.setText(args.getTitle());
+
+        statusText = view.findViewById(R.id.connect_downloading_status);
+        updateInstallStatus(null);
+
+        progressBar = view.findViewById(R.id.connect_downloading_progress);
+
+        return view;
+    }
+
+    @Override
     public void reportSuccess(boolean isNewInstall) {
         Toast.makeText(getActivity(), R.string.connect_app_installed, Toast.LENGTH_SHORT).show();
         startAppValidation();
@@ -196,20 +213,5 @@ public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConne
     @Override
     protected @NotNull FragmentConnectDownloadingBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectDownloadingBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
-        requireActivity().setTitle(job.getTitle());
-
-        TextView titleText = view.findViewById(R.id.connect_downloading_title);
-        titleText.setText(args.getTitle());
-
-        statusText = view.findViewById(R.id.connect_downloading_status);
-        updateInstallStatus(null);
-
-        progressBar = view.findViewById(R.id.connect_downloading_progress);
     }
 }

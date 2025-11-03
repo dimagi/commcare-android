@@ -45,6 +45,20 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        if (getArguments() != null) {
+            showAppLaunch = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
+        }
+
+        requireActivity().setTitle(getString(R.string.connect_learn_title));
+        setupRefreshButton();
+        populateJobCard(job);
+        refreshLearningData();
+        return view;
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
@@ -251,18 +265,5 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     @Override
     protected @NotNull FragmentConnectLearningProgressBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectLearningProgressBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (getArguments() != null) {
-            showAppLaunch = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
-        }
-
-        requireActivity().setTitle(getString(R.string.connect_learn_title));
-        setupRefreshButton();
-        populateJobCard(job);
-        refreshLearningData();
     }
 }

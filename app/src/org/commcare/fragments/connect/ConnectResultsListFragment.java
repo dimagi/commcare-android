@@ -28,6 +28,13 @@ public class ConnectResultsListFragment extends ConnectJobFragment<FragmentConne
         return new ConnectResultsListFragment();
     }
 
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        setupRecyclerView();
+        return view;
+    }
+
     private void setupRecyclerView() {
         ConnectResultsListFragmentArgs args = ConnectResultsListFragmentArgs.fromBundle(getArguments());
         boolean showPayments = args.getShowPayments();
@@ -45,12 +52,6 @@ public class ConnectResultsListFragment extends ConnectJobFragment<FragmentConne
     @Override
     protected @NotNull FragmentConnectResultsListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectResultsListBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setupRecyclerView();
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

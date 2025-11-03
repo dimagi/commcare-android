@@ -39,6 +39,13 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
         return new ConnectResultsSummaryListFragment();
     }
 
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        setupRecyclerView();
+        return view;
+    }
+
     public void updateView() {
         updateSummaryView();
         if (adapter != null) {
@@ -63,13 +70,6 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
     @Override
     protected @NotNull FragmentConnectResultsSummaryListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectResultsSummaryListBinding.inflate(inflater, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setupRecyclerView();
-        updateView();
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
