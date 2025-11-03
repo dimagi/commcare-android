@@ -60,7 +60,11 @@ object PushNotificationApiHelper {
                         if (result.isNotEmpty()) {
                             NotificationPrefs.setNotificationAsUnread(context)
                             NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
-                            updatePushNotifications(context, result)
+                            val savedNotificationIds = NotificationRecordDatabaseHelper.storeNotifications(
+                                context,
+                                result
+                            )
+                            acknowledgeNotificationsReceipt(context, savedNotificationIds)
                         }
                     }
                     continuation.resume(Result.success(result))
@@ -86,12 +90,10 @@ object PushNotificationApiHelper {
         }
     }
 
-    suspend fun updatePushNotifications(
+    suspend fun acknowledgeNotificationsReceipt(
         context: Context,
-        pushNotificationList: List<PushNotificationRecord>
+        savedNotificationIds: List<String>
     ): Boolean {
-        val savedNotificationIds =
-            NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
