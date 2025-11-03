@@ -579,4 +579,24 @@ public class FirebaseAnalyticsUtil {
                 new String[]{selectedItem});
     }
 
+    public static void reportNotificationReceived(String deliveryMethod, @Nullable String actionType,@Nullable String notificationId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.NOTIFICATION_DELIVERY_METHOD, deliveryMethod);
+        if (actionType != null) {
+            bundle.putString(CCAnalyticsParam.NOTIFICATION_ACTION_TYPE, actionType);
+        }
+        if (notificationId != null) {
+            bundle.putString(CCAnalyticsParam.NOTIFICATION_ID, notificationId);
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_NOTIFICATION_RECEIVED, bundle);
+    }
+
+    public static void reportNotificationClicked(@Nullable String actionType, String method) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.NOTIFICATION_CLICK_METHOD, method);
+        if (actionType != null) {
+            bundle.putString(CCAnalyticsParam.NOTIFICATION_ACTION_TYPE, actionType);
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_NOTIFICATION_CLICKED, bundle);
+    }
 }

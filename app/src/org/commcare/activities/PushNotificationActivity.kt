@@ -12,6 +12,9 @@ import org.commcare.adapters.PushNotificationAdapter
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.CCAnalyticsParam
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.FirebaseMessagingUtil.getIntentForPNClick
 
@@ -70,6 +73,10 @@ class PushNotificationActivity : AppCompatActivity() {
             listener = object :
                 PushNotificationAdapter.OnNotificationClickListener {
                 override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
+                    FirebaseAnalyticsUtil.reportNotificationClicked(
+                        notificationRecord.action,
+                        AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY
+                    )
                     val activityIntent = getIntentForPNClick(application, notificationRecord)
                     if (activityIntent != null) {
                         startActivity(activityIntent)

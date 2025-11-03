@@ -2,6 +2,8 @@ package org.commcare.connect.database
 
 import android.content.Context
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.models.database.SqlStorage
 
 object NotificationRecordDatabaseHelper {
@@ -59,12 +61,14 @@ object NotificationRecordDatabaseHelper {
 
             // Otherwise, write new record
             storage.write(incoming)
+            FirebaseAnalyticsUtil.reportNotificationReceived(AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API,  incoming.action, incoming.notificationId)
 
             // Verify persistence
             val savedRecord = getNotificationById(context, incoming.notificationId)
             if (savedRecord != null) {
                 savedNotificationIds.add(incoming.notificationId)
             }
+
         }
 
         return savedNotificationIds

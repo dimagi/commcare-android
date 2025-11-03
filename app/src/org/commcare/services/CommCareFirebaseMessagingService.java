@@ -7,6 +7,9 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.CCAnalyticsParam;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
@@ -36,12 +39,15 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         Logger.log(LogTypes.TYPE_FCM,
                 "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
 
+        String actionType = remoteMessage.getData().get("action");
+        String notificationId = remoteMessage.getData().get("notification_id");
+        FirebaseAnalyticsUtil.reportNotificationReceived(AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_FIREBASE, actionType, notificationId);
+
         if (!startSyncForNotification(remoteMessage)) {
             Logger.log(LogTypes.TYPE_FCM, "No sync present, it will try to raise the notification directly");
             FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(),
                     remoteMessage.getNotification(), true);
         }
-
     }
 
     private Boolean startSyncForNotification(RemoteMessage remoteMessage) {

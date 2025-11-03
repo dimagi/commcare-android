@@ -191,4 +191,10 @@ public class AnalyticsParamValue {
     public static final String FAILURE_UNLOCK_FAILED = "failure_unlock_failed";
     public static final String CONTINUE_WITH_FINGERPRINT = "continue_with_fingerprint";
     public static final String CONTINUE_WITH_PIN = "continue_with_pin";
+
+    public static final String REPORT_NOTIFICATION_METHOD_FIREBASE = "firebase";
+    public static final String REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API = "personal_id_api";
+
+    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY = "notification_history";
+    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY = "notification_tray";
 }

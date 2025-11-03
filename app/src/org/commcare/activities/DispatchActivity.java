@@ -5,6 +5,7 @@ import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPO
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -164,6 +167,11 @@ public class DispatchActivity extends AppCompatActivity {
 
         Intent pnIntent = checkIfAnyPNIntentPresent();
         if(pnIntent!=null) {
+            String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
+            FirebaseAnalyticsUtil.reportNotificationClicked(
+                    actionType,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY
+            );
             startActivity(pnIntent);
         }else if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
