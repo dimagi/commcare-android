@@ -45,6 +45,6 @@ public class CCAnalyticsParam {
     public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO = "personal_id_continue_button_clicked_info";
     static final String NOTIFICATION_DELIVERY_METHOD = "notification_delivery_method";
     static final String NOTIFICATION_ACTION_TYPE = "notification_action_type";
-    static final String NOTIFICATION_ID= "notification_id";
-    public static final String NOTIFICATION_CLICK_METHOD = "notification_click_method";
+    static final String NOTIFICATION_ID = "notification_id";
+    static final String NOTIFICATION_CLICK_METHOD = "notification_click_method";
 }
