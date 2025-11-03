@@ -75,29 +75,4 @@ public class StringUtils {
             default -> levelCode;
         };
     }
-
-
-    public static int convertToIntegers(String input) {
-        int returnInt = 0;
-        if (input == null || input.isEmpty()) {
-            return returnInt;
-        }
-
-        try {
-            for (int i = 0; i < input.length(); i++) {
-                char ch = input.charAt(i);
-                if (Character.isAlphabetic(ch)) {
-                    char lowerCaseCh = Character.toLowerCase(ch);
-                    returnInt += lowerCaseCh - 'a' + 1; // 'a' is 1, 'b' is 2, etc.
-                } else if (Character.isDigit(ch)) {
-                    returnInt += ch - '0';
-                } else {
-                    returnInt += 1;    // any random number
-                }
-            }
-        } catch (Exception ignore) {
-
-        }
-        return returnInt;
-    }
 }

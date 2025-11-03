@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Base64;
 
 import androidx.core.app.NotificationCompat;
@@ -60,7 +61,6 @@ import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.utils.StringUtils.convertToIntegers;
 
 /**
  * This class will be used to handle notification whenever
@@ -476,7 +476,11 @@ public class FirebaseMessagingUtil {
      */
     private static void showNotification(Context context, NotificationCompat.Builder notificationBuilder) {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-        mNM.notify(convertToIntegers(notificationBuilder.getExtras().getString(NOTIFICATION_ID)), notificationBuilder.build());
+        String notificationId = notificationBuilder.getExtras().getString(NOTIFICATION_ID);
+        int notifId = !TextUtils.isEmpty(notificationId)
+                ? notificationId.hashCode()
+                : FCM_NOTIFICATION; // fallback to constant
+        mNM.notify(notifId, notificationBuilder.build());
     }
 
 
