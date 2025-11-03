@@ -656,7 +656,7 @@
     <string name="personalid_work_history_sync">Sync</string>
 
     <string name="commcarehq_worker">CommCareHQ Worker</string>
-    <string name="nav_drawer_signin_register">Sign in / Register</string>
+    <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
