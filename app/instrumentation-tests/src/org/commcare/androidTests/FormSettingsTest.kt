@@ -115,7 +115,11 @@ class FormSettingsTest: BaseTest() {
         InstrumentationUtility.openForm(0, 1 )
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val fontNames = context.resources.getStringArray(R.array.font_size_entries)
-        val fontValues = context.resources.getStringArray(R.array.font_size_entry_values)
+        val fontValues = context.resources.getStringArray(
+            if (context.resources.configuration.fontScale > 1)
+                R.array.large_font_size_entry_values
+            else
+                R.array.font_size_entry_values)
 
         // Change font size to extra small and confirm if the question text size changes
         val extraSmallFontIndex = fontNames.size - 1
