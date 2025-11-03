@@ -1,4 +1,4 @@
-package org.commcare.fragments
+package org.commcare.fragments.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,14 +8,14 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import org.commcare.dalvik.databinding.LoadingBinding
-import org.commcare.interfaces.BaseView
+import org.commcare.interfaces.base.WaitableView
 
-abstract class BaseFragment<B : ViewBinding> : Fragment(), BaseView {
+abstract class BaseFragment<B : ViewBinding> : Fragment(), WaitableView {
 
     private var _binding: B? = null
     protected val binding get() = _binding!!
 
-    private var _loadingBinding: LoadingBinding? = null
+    private lateinit var loadingBinding: LoadingBinding
     private lateinit var rootView: View
 
     /**
@@ -33,8 +33,8 @@ abstract class BaseFragment<B : ViewBinding> : Fragment(), BaseView {
         val mainView = binding.root
 
         // Inflate loading layout
-        _loadingBinding = LoadingBinding.inflate(inflater, container, false)
-        val loadingView = _loadingBinding!!.root
+        loadingBinding = LoadingBinding.inflate(inflater, container, false)
+        val loadingView = loadingBinding.root
 
         // Create a parent container that holds both mainView and loadingView
         val mergedLayout = FrameLayout(requireContext()).apply {
@@ -47,7 +47,7 @@ abstract class BaseFragment<B : ViewBinding> : Fragment(), BaseView {
         }
 
         // Hide loading by default
-        _loadingBinding?.root?.visibility = View.GONE
+        hideLoading()
 
         rootView = mergedLayout
         return rootView
@@ -56,14 +56,15 @@ abstract class BaseFragment<B : ViewBinding> : Fragment(), BaseView {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _loadingBinding = null
+        // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
+        loadingBinding.root.visibility = View.GONE
     }
 
     override fun showLoading() {
-        _loadingBinding?.root?.visibility = View.VISIBLE
+        loadingBinding.root.visibility = View.VISIBLE
     }
 
     override fun hideLoading() {
-        _loadingBinding?.root?.visibility = View.GONE
+        loadingBinding.root.visibility = View.GONE
     }
 }

@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
@@ -45,26 +47,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectDeliveryProgressBinding.inflate(inflater, container, false);
-        requireActivity().setTitle(R.string.connect_progress_delivery);
-
-        if (getArguments() != null) {
-            initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
-        }
-
-        setupTabViewPager();
-        setupJobCard(job);
-        setupRefreshAndConfirmationActions();
-
-        updateLastUpdatedText(job.getLastDeliveryUpdate());
-        updateCardMessage();
-        updatePaymentConfirmationTile(false);
-
-        return binding.getRoot();
     }
 
     private void setupTabViewPager() {
@@ -114,7 +96,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     @Override
     public void refresh() {
+        setWaitDialogEnabled(false);
+        showLoading();
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
+            hideLoading();
             if (success) {
                 updateLastUpdatedText(new Date());
                 updateCardMessage();
@@ -122,6 +107,13 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 viewPagerAdapter.refresh();
             }
         });
+    }
+
+    private void setWaitDialogEnabled(boolean enabled) {
+        Activity activity = getActivity();
+        if(activity instanceof ConnectActivity connectActivity) {
+            connectActivity.setWaitDialogEnabled(enabled);
+        }
     }
 
     private void setupRefreshAndConfirmationActions() {
@@ -233,7 +225,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         setupRefreshAndConfirmationActions();
 
         updateLastUpdatedText(job.getLastDeliveryUpdate());
-        updateWarningMessage();
+        updateCardMessage();
         updatePaymentConfirmationTile(false);
     }
 

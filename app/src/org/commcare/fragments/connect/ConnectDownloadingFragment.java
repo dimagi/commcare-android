@@ -204,8 +204,8 @@ public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConne
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         requireActivity().setTitle(job.getTitle());
 
-        TextView titleTv = view.findViewById(R.id.connect_downloading_title);
-        titleTv.setText(args.getTitle());
+        TextView titleText = view.findViewById(R.id.connect_downloading_title);
+        titleText.setText(args.getTitle());
 
         statusText = view.findViewById(R.id.connect_downloading_status);
         updateInstallStatus(null);

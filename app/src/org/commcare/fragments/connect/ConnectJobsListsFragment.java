@@ -8,6 +8,7 @@ import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
 import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -37,9 +37,8 @@ import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseM
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
-import org.commcare.fragments.BaseFragment;
+import org.commcare.fragments.base.BaseFragment;
 import org.commcare.fragments.RefreshableFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
@@ -72,18 +71,22 @@ public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsLi
     }
 
     public void refreshData() {
+        setWaitDialogEnabled(false);
+        showLoading();
         corruptJobs.clear();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                hideLoading();
                 Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 navigateFailure();
             }
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
+                hideLoading();
                 corruptJobs = data.getCorruptJobs();
                 setJobListData(data.getValidJobs());
             }
@@ -204,6 +207,13 @@ public class ConnectJobsListsFragment extends BaseFragment<FragmentConnectJobsLi
 
     private void sortJobListByLastAccessed(List<ConnectLoginJobListModel> list) {
         Collections.sort(list, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+    }
+
+    private void setWaitDialogEnabled(boolean enabled) {
+        Activity activity = getActivity();
+        if(activity instanceof ConnectActivity connectActivity) {
+            connectActivity.setWaitDialogEnabled(enabled);
+        }
     }
 
     private ConnectLoginJobListModel createJobModel(

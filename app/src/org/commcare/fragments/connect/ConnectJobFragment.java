@@ -3,12 +3,11 @@ package org.commcare.fragments.connect;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.viewbinding.ViewBinding;
 
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.fragments.BaseFragment;
+import org.commcare.fragments.base.BaseFragment;
 
 import java.util.Objects;
 
