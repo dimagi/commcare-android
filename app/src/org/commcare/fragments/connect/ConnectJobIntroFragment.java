@@ -46,7 +46,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     }
 
     @Override
-    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @org.jetbrains.annotations.Nullable ViewGroup container, @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(getString(R.string.connect_job_intro_title));
 
@@ -151,7 +151,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     }
 
     @Override
-    protected @NotNull FragmentConnectJobIntroBinding inflateBinding(@NotNull LayoutInflater inflater, @org.jetbrains.annotations.Nullable ViewGroup container) {
+    protected @NotNull FragmentConnectJobIntroBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectJobIntroBinding.inflate(inflater, container, false);
     }
 }
