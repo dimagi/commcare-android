@@ -1,6 +1,6 @@
 package org.commcare.interfaces.base
 
-interface WaitableView {
+interface BaseView {
     fun showLoading()
 
     fun hideLoading()

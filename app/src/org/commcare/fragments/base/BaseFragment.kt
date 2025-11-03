@@ -8,12 +8,12 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import org.commcare.dalvik.databinding.LoadingBinding
-import org.commcare.interfaces.base.WaitableView
+import org.commcare.interfaces.base.BaseView
 
 abstract class BaseFragment<B : ViewBinding> :
-    Fragment(), WaitableView {
+    Fragment(), BaseView {
     private var _binding: B? = null
-    protected val binding get() = _binding!!
+    val binding get() = _binding!!
 
     private lateinit var loadingBinding: LoadingBinding
     private lateinit var rootView: View
@@ -23,13 +23,13 @@ abstract class BaseFragment<B : ViewBinding> :
      */
     protected abstract fun inflateBinding(
         inflater: LayoutInflater,
-        container: ViewGroup?
+        container: ViewGroup?,
     ): B
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         // Inflate child fragment's main view
         _binding = inflateBinding(inflater, container)
@@ -40,10 +40,12 @@ abstract class BaseFragment<B : ViewBinding> :
         val loadingView = loadingBinding.root
 
         // Create a parent container that holds both mainView and loadingView
-        val mergedLayout = FrameLayout(requireContext()).apply {
+        val mergedLayout = FrameLayout(
+            requireContext()
+        ).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
             )
             addView(mainView)
             addView(loadingView)
