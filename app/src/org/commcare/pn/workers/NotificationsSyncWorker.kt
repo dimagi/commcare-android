@@ -196,12 +196,12 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
     }
 
     private fun raiseFCMPushNotificationIfApplicable() {
-        if (showNotification && !userAlreadyReadThisNotificationPreviously()) {
+        if (showNotification && !isNotificationRead()) {
             FirebaseMessagingUtil.handleNotification(appContext, notificationPayload, null, true)
         }
     }
 
-    private fun userAlreadyReadThisNotificationPreviously(): Boolean {
+    private fun isNotificationRead(): Boolean {
         return if (notificationPayload?.containsKey(NOTIFICATION_ID)!! &&
             notificationPayload?.get(NOTIFICATION_ID) != null
         ) {
