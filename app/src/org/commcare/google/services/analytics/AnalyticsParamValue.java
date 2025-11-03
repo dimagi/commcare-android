@@ -20,6 +20,8 @@ public class AnalyticsParamValue {
     public static final String SWIPE = "swipe";
 
     // Param values for options menu items
+    public static final String ITEM_CONNECT_SYNC = "connect_sync";
+    public static final String ITEM_NOTIFICATIONS_BELL = "notifications_bell";
     public static final String ITEM_SETTINGS = "settings";
     public static final String ITEM_UPDATE_CC = "update_commcare";
     public static final String ITEM_ABOUT_CC = "about_commcare";
