@@ -10,8 +10,8 @@ import androidx.viewbinding.ViewBinding
 import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.interfaces.base.WaitableView
 
-abstract class BaseFragment<B : ViewBinding> : Fragment(), WaitableView {
-
+abstract class BaseFragment<B : ViewBinding> :
+    Fragment(), WaitableView {
     private var _binding: B? = null
     protected val binding get() = _binding!!
 
@@ -21,7 +21,10 @@ abstract class BaseFragment<B : ViewBinding> : Fragment(), WaitableView {
     /**
      * Implement this method in child fragments to inflate their specific binding.
      */
-    protected abstract fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?): B
+    protected abstract fun inflateBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ): B
 
     override fun onCreateView(
         inflater: LayoutInflater,
