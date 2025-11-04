@@ -443,7 +443,6 @@ public class FirebaseMessagingUtil {
                 : PendingIntent.FLAG_UPDATE_CURRENT;
 
         Bundle bundleExtras = new Bundle();
-        bundleExtras.putString(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
         intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
 
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, flags);
@@ -481,7 +480,7 @@ public class FirebaseMessagingUtil {
     private static void showNotification(Context context, NotificationCompat.Builder notificationBuilder,
             FCMMessageData fcmMessageData) {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-        String notificationId = notificationBuilder.getExtras().getString(NOTIFICATION_ID);
+        String notificationId = fcmMessageData.getPayloadData().get(NOTIFICATION_ID);
         int notifId = !TextUtils.isEmpty(notificationId)
                 ? notificationId.hashCode()
                 : FCM_NOTIFICATION; // fallback to constant
