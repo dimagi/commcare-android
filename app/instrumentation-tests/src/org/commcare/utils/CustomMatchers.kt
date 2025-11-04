@@ -117,7 +117,7 @@ object CustomMatchers {
                 }
                 val pixels = target.textSize
                 Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "View text size: " + pixels)
-                val actualSize = pixels / target.getResources().displayMetrics.scaledDensity
+                val actualSize = Math.round(pixels / target.getResources().displayMetrics.scaledDensity)
                 Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "Actual size: " + actualSize)
                 Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "Font scale: " + target.getResources().configuration.fontScale)
                 
