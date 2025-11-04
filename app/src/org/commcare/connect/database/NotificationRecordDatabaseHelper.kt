@@ -7,33 +7,38 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.models.database.SqlStorage
 
 object NotificationRecordDatabaseHelper {
-
-    private fun getStorage(context: Context): SqlStorage<PushNotificationRecord> {
-        return ConnectDatabaseHelper.getConnectStorage(context, PushNotificationRecord::class.java)
-    }
+    private fun getStorage(context: Context): SqlStorage<PushNotificationRecord> =
+        ConnectDatabaseHelper.getConnectStorage(context, PushNotificationRecord::class.java)
 
     /**
      * Fetch all notifications
      */
-    fun getAllNotifications(context: Context): List<PushNotificationRecord>? {
-        return getStorage(context).getRecordsForValues(arrayOf(), arrayOf())
-    }
+    fun getAllNotifications(context: Context): List<PushNotificationRecord>? =
+        getStorage(context).getRecordsForValues(arrayOf(), arrayOf())
 
     /**
      * Fetch a notification from notification_id
      */
-    fun getNotificationById(context: Context, notificationId: String): PushNotificationRecord? {
-        val records = getStorage(context).getRecordsForValues(
-            arrayOf(PushNotificationRecord.META_NOTIFICATION_ID),
-            arrayOf(notificationId)
-        )
+    fun getNotificationById(
+        context: Context,
+        notificationId: String,
+    ): PushNotificationRecord? {
+        val records =
+            getStorage(context).getRecordsForValues(
+                arrayOf(PushNotificationRecord.META_NOTIFICATION_ID),
+                arrayOf(notificationId),
+            )
         return records.firstOrNull()
     }
 
     /**
      * Update the read status for a notification using notification_id
      */
-    fun updateReadStatus(context: Context, notificationId: String, isRead: Boolean) {
+    fun updateReadStatus(
+        context: Context,
+        notificationId: String,
+        isRead: Boolean,
+    ) {
         val record = getNotificationById(context, notificationId) ?: return
         record.readStatus = isRead
         getStorage(context).write(record)
@@ -65,7 +70,7 @@ object NotificationRecordDatabaseHelper {
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_RECEIVED,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API,
                 incoming.action,
-                incoming.notificationId
+                incoming.notificationId,
             )
 
             // Verify persistence
@@ -75,7 +80,6 @@ object NotificationRecordDatabaseHelper {
             }
 
         }
-
         return savedNotificationIds
     }
 
@@ -87,7 +91,7 @@ object NotificationRecordDatabaseHelper {
     fun updateColumnForNotifications(
         context: Context,
         notificationIds: List<String>,
-        updateAction: (PushNotificationRecord) -> Unit
+        updateAction: (PushNotificationRecord) -> Unit,
     ) {
         val storage = getStorage(context)
 

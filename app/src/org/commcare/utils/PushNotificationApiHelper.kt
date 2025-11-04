@@ -27,21 +27,21 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
-
     fun retrieveLatestPushNotificationsWithCallback(
         context: Context,
-        listener: ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener,
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            retrieveLatestPushNotifications(context).onSuccess {
-                withContext(Dispatchers.Main) { //  switching to main to touch views
-                    listener.connectActivityComplete(true)
+            retrieveLatestPushNotifications(context)
+                .onSuccess {
+                    withContext(Dispatchers.Main) { //  switching to main to touch views
+                        listener.connectActivityComplete(true)
+                    }
+                }.onFailure {
+                    withContext(Dispatchers.Main) { //  switching to main to touch views
+                        listener.connectActivityComplete(false)
+                    }
                 }
-            }.onFailure {
-                withContext(Dispatchers.Main) { //  switching to main to touch views
-                    listener.connectActivityComplete(false)
-                }
-            }
         }
     }
 
@@ -60,10 +60,11 @@ object PushNotificationApiHelper {
                         if (result.isNotEmpty()) {
                             NotificationPrefs.setNotificationAsUnread(context)
                             NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
-                            val savedNotificationIds = NotificationRecordDatabaseHelper.storeNotifications(
-                                context,
-                                result
-                            )
+                            val savedNotificationIds =
+                                NotificationRecordDatabaseHelper.storeNotifications(
+                                    context,
+                                    result,
+                                )
                             acknowledgeNotificationsReceipt(context, savedNotificationIds)
                         }
                     }
@@ -72,7 +73,7 @@ object PushNotificationApiHelper {
 
                 override fun onFailure(
                     failureCode: PersonalIdOrConnectApiErrorCodes,
-                    t: Throwable?
+                    t: Throwable?,
                 ) {
                     continuation.resume(
                         Result.failure(
@@ -80,10 +81,10 @@ object PushNotificationApiHelper {
                                 PersonalIdApiErrorHandler.handle(
                                     context,
                                     failureCode,
-                                    t
-                                )
-                            )
-                        )
+                                    t,
+                                ),
+                            ),
+                        ),
                     )
                 }
             }.retrieveNotifications(context, user)
@@ -92,7 +93,7 @@ object PushNotificationApiHelper {
 
     suspend fun acknowledgeNotificationsReceipt(
         context: Context,
-        savedNotificationIds: List<String>
+        savedNotificationIds: List<String>,
     ): Boolean {
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
@@ -100,7 +101,7 @@ object PushNotificationApiHelper {
                 override fun onSuccess(result: Boolean) {
                     NotificationRecordDatabaseHelper.updateColumnForNotifications(
                         context,
-                        savedNotificationIds
+                        savedNotificationIds,
                     ) { record ->
                         record.acknowledged = true
                     }
@@ -109,7 +110,7 @@ object PushNotificationApiHelper {
 
                 override fun onFailure(
                     failureCode: PersonalIdOrConnectApiErrorCodes,
-                    t: Throwable?
+                    t: Throwable?,
                 ) {
                     continuation.resumeWith(Result.success(false))
                 }
