@@ -18,6 +18,7 @@ import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.NotificationRecordDatabaseHelper.getNotificationById
 import org.commcare.dalvik.R
+import org.commcare.util.LogTypes
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper
@@ -57,6 +58,7 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         initStateFromInputData()
         val syncResult = startAppropriateSync()
+        logResult(syncResult)
         if (syncResult.success) {
             processAfterSuccessfulSync()
             Result.success(workDataOf(NOTIFICATION_PAYLOAD to Gson().toJson(notificationPayload)))
@@ -66,6 +68,11 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
             processAfterSyncFailed()
             Result.failure()
         }
+    }
+
+    private fun logResult(syncResult: PNApiResponseStatus) {
+        val actionStr = syncAction?.toString()
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Sync Action: $actionStr completed with success: ${syncResult?.success}")
     }
 
     private fun initStateFromInputData() {
