@@ -203,4 +203,5 @@ public class AnalyticsParamValue {
     public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY = "notification_tray";
     public static final String NOTIFICATION_EVENT_TYPE_CLICK = "click_notification";
     public static final String NOTIFICATION_EVENT_TYPE_RECEIVED = "receive_notification";
+    public static final String NOTIFICATION_EVENT_TYPE_SHOW = "show_notification";
 }
