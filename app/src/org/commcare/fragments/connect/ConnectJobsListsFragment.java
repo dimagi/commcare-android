@@ -8,6 +8,7 @@ import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
 import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -37,9 +37,10 @@ import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseM
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
+import org.commcare.fragments.base.BaseConnectFragment;
 import org.commcare.fragments.RefreshableFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.connect.ConnectLoginJobListModel;
+import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -50,9 +51,8 @@ import java.util.List;
  *
  * @author dviggiano
  */
-public class ConnectJobsListsFragment extends Fragment
+public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnectJobsListBinding>
         implements RefreshableFragment {
-    private FragmentConnectJobsListBinding binding;
     ArrayList<ConnectLoginJobListModel> jobList;
     ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
 
@@ -61,15 +61,11 @@ public class ConnectJobsListsFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_title);
-
-        binding = FragmentConnectJobsListBinding.inflate(inflater, container, false);
-
         refreshData();
-
-        return binding.getRoot();
+        return view;
     }
 
     @Override
@@ -78,18 +74,22 @@ public class ConnectJobsListsFragment extends Fragment
     }
 
     public void refreshData() {
+        ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
+        showLoading();
         corruptJobs.clear();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                hideLoading();
                 Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 navigateFailure();
             }
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
+                hideLoading();
                 corruptJobs = data.getCorruptJobs();
                 setJobListData(data.getValidJobs());
             }
@@ -102,7 +102,7 @@ public class ConnectJobsListsFragment extends Fragment
 
 
     private void initRecyclerView() {
-        binding.connectNoJobsText.setVisibility(corruptJobs.isEmpty() && jobList.isEmpty() ?
+        getBinding().connectNoJobsText.setVisibility(corruptJobs.isEmpty() && jobList.isEmpty() ?
                 View.VISIBLE : View.GONE);
 
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList,
@@ -114,14 +114,14 @@ public class ConnectJobsListsFragment extends Fragment
             }
         });
 
-        binding.rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.rvJobList.setNestedScrollingEnabled(true);
-        binding.rvJobList.setAdapter(adapter);
+        getBinding().rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
+        getBinding().rvJobList.setNestedScrollingEnabled(true);
+        getBinding().rvJobList.setAdapter(adapter);
     }
 
     private void launchJobInfo(ConnectJobRecord job) {
         setActiveJob(job);
-        Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
+        Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections
                 .actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
@@ -134,7 +134,7 @@ public class ConnectJobsListsFragment extends Fragment
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
-            Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
+            Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections
                             .actionConnectJobsListFragmentToConnectDownloadingFragment(
                                     getString(textId), isLearning));
         }
@@ -271,8 +271,7 @@ public class ConnectJobsListsFragment extends Fragment
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    protected @NotNull FragmentConnectJobsListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectJobsListBinding.inflate(inflater, container, false);
     }
 }

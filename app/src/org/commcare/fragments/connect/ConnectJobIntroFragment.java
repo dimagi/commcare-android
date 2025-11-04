@@ -27,6 +27,7 @@ import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,39 +39,36 @@ import java.util.Locale;
  *
  * @author dviggiano
  */
-public class ConnectJobIntroFragment extends ConnectJobFragment {
-    private FragmentConnectJobIntroBinding binding;
+public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJobIntroBinding> {
 
     public ConnectJobIntroFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(getString(R.string.connect_job_intro_title));
-        binding = FragmentConnectJobIntroBinding.inflate(inflater, container, false);
 
         int totalHours = getTotalLearningHours();
         String toLearn = getLearnModuleSummaryLines();
 
-        binding.connectJobIntroLearning.setText(toLearn);
+        getBinding().connectJobIntroLearning.setText(toLearn);
 
-        binding.connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
+        getBinding().connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
                 job.getLearnAppInfo().getLearnModules().size(), totalHours));
 
         final boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
 
-        binding.connectJobIntroStartButton.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app
+        getBinding().connectJobIntroStartButton.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app
                 : R.string.download_app));
-        binding.connectJobIntroStartButton.setOnClickListener(v -> {
+        getBinding().connectJobIntroStartButton.setOnClickListener(v -> {
             //First, need to tell Connect we're starting learning so it can create a user on HQ
             startLearning(appInstalled);
         });
 
         setupJobCard(job);
-
-        return binding.getRoot();
+        return view;
     }
 
     private int getTotalLearningHours() {
@@ -95,23 +93,23 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
     }
 
     private void setupJobCard(ConnectJobRecord job) {
-        binding.viewJobCard.tvViewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(binding.viewJobCard.tvViewMore).navigate(
+        getBinding().viewJobCard.tvViewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(getBinding().viewJobCard.tvViewMore).navigate(
                     ConnectJobIntroFragmentDirections
                             .actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
-        binding.viewJobCard.tvJobTitle.setText(job.getTitle());
-        binding.viewJobCard.tvJobDescription.setText(job.getDescription());
-        binding.viewJobCard.connectJobEndDate.setText(getString(R.string.connect_learn_complete_by,
+        getBinding().viewJobCard.tvJobTitle.setText(job.getTitle());
+        getBinding().viewJobCard.tvJobDescription.setText(job.getDescription());
+        getBinding().viewJobCard.connectJobEndDate.setText(getString(R.string.connect_learn_complete_by,
                 ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();
         boolean showHours = workingHours != null;
-        binding.viewJobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        binding.viewJobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        getBinding().viewJobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        getBinding().viewJobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
         if(showHours) {
-            binding.viewJobCard.tvJobTime.setText(workingHours);
+            getBinding().viewJobCard.tvJobTime.setText(workingHours);
         }
     }
 
@@ -137,7 +135,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
                             job.getLearnAppInfo().getAppId());
                 } else {
                     String title = getString(R.string.connect_downloading_learn);
-                    Navigation.findNavController(binding.connectJobIntroStartButton).navigate(
+                    Navigation.findNavController(getBinding().connectJobIntroStartButton).navigate(
                             ConnectJobIntroFragmentDirections.
                                     actionConnectJobIntroFragmentToConnectDownloadingFragment(
                                             title, true));
@@ -153,8 +151,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    protected @NotNull FragmentConnectJobIntroBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectJobIntroBinding.inflate(inflater, container, false);
     }
 }

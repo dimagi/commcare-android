@@ -24,7 +24,7 @@ class PersonalIdFeatureFlagChecker {
             return when (feature) {
                 FeatureFlag.WORK_HISTORY -> true
                 FeatureFlag.WORK_HISTORY_PENDING_TAB -> false
-                FeatureFlag.NOTIFICATIONS -> false
+                FeatureFlag.NOTIFICATIONS -> true
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
         }

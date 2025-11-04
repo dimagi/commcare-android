@@ -17,25 +17,35 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Get changed files
-        id: files
-        uses: octokit/request-action@v2.4.0
-        with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Lint Code Base
-        uses: super-linter/super-linter@v5
+        uses: super-linter/super-linter@v8.2.1
         env:
+          # Only lint changed files in PR
           VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # File handling
           IGNORE_GITIGNORED_FILES: true
+          
+          # Disable unwanted linters
           VALIDATE_JSCPD: false
+          VALIDATE_BIOME_FORMAT: false
+          VALIDATE_BIOME_LINT: false
+          VALIDATE_CHECKOV: false
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
+          VALIDATE_TRIVY: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
+          VALIDATE_GOOGLE_JAVA_FORMAT: false
+
+          # Java/Kotlin specific settings
           JAVA_FILE_NAME: checkstyle.xml
-        with:
-          changed_files: ${{ steps.files.outputs.files }}
+          
+          # Performance and output settings
+          SUPPRESS_POSSUM: true

@@ -33,18 +33,19 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
-                remoteMessage.getData());
+        Logger.log(LogTypes.TYPE_FCM,
+                "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
 
-        if(!startSyncForNotification(remoteMessage)){
-            Logger.log(LogTypes.TYPE_FCM,"No sync present, it will try to raise the notification directly");
-            FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(), remoteMessage.getNotification(),true);
+        if (!startSyncForNotification(remoteMessage)) {
+            Logger.log(LogTypes.TYPE_FCM, "No sync present, it will try to raise the notification directly");
+            FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(),
+                    remoteMessage.getNotification(), true);
         }
 
     }
 
-    private Boolean startSyncForNotification(RemoteMessage remoteMessage){
-        ArrayList<Map<String,String>> pns = new ArrayList<>();
+    private Boolean startSyncForNotification(RemoteMessage remoteMessage) {
+        ArrayList<Map<String, String>> pns = new ArrayList<>();
         pns.add(remoteMessage.getData());
         NotificationsSyncWorkerManager notificationsSyncWorkerManager = new NotificationsSyncWorkerManager(
                 getApplicationContext(), pns, true, true);
@@ -58,8 +59,8 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         FirebaseMessagingUtil.updateFCMToken(token);
     }
 
-    public static void clearNotification(Context context){
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(
+    public static void clearNotification(Context context) {
+        NotificationManager notificationManager = (NotificationManager)context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             notificationManager.cancel(R.string.fcm_notification);

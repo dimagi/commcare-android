@@ -19,20 +19,20 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectResultsListBinding;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ConnectResultsListFragment extends ConnectJobFragment {
+public class ConnectResultsListFragment extends ConnectJobFragment<FragmentConnectResultsListBinding> {
     private ResultsAdapter adapter;
-    private FragmentConnectResultsListBinding binding;
-
     public static ConnectResultsListFragment newInstance() {
         return new ConnectResultsListFragment();
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectResultsListBinding.inflate(inflater, container, false);
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         setupRecyclerView();
-        return binding.getRoot();
+        return view;
     }
 
     private void setupRecyclerView() {
@@ -40,13 +40,18 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
         boolean showPayments = args.getShowPayments();
         requireActivity().setTitle(job.getTitle());
 
-        RecyclerView recyclerView = binding.resultsList;
+        RecyclerView recyclerView = getBinding().resultsList;
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
         adapter = new ResultsAdapter(job, showPayments, getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), layoutManager.getOrientation()));
+    }
+
+    @Override
+    protected @NotNull FragmentConnectResultsListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectResultsListBinding.inflate(inflater, container, false);
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

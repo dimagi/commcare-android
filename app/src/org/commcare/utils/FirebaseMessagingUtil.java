@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Base64;
 
 import androidx.core.app.NotificationCompat;
@@ -54,6 +55,7 @@ import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
@@ -437,6 +439,10 @@ public class FirebaseMessagingUtil {
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 : PendingIntent.FLAG_UPDATE_CURRENT;
 
+        Bundle bundleExtras = new Bundle();
+        bundleExtras.putString(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, flags);
 
         if (Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationTitle()) && Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationText())) {
@@ -452,7 +458,8 @@ public class FirebaseMessagingUtil {
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setPriority(fcmMessageData.getPriority())
-                .setWhen(System.currentTimeMillis());
+                .setWhen(System.currentTimeMillis())
+                .setExtras(bundleExtras);
 
         if (fcmMessageData.getLargeIcon() != null) {
             fcmNotification.setLargeIcon(fcmMessageData.getLargeIcon());
@@ -469,7 +476,11 @@ public class FirebaseMessagingUtil {
      */
     private static void showNotification(Context context, NotificationCompat.Builder notificationBuilder) {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-        mNM.notify(FCM_NOTIFICATION, notificationBuilder.build());
+        String notificationId = notificationBuilder.getExtras().getString(NOTIFICATION_ID);
+        int notifId = !TextUtils.isEmpty(notificationId)
+                ? notificationId.hashCode()
+                : FCM_NOTIFICATION; // fallback to constant
+        mNM.notify(notifId, notificationBuilder.build());
     }
 
 
