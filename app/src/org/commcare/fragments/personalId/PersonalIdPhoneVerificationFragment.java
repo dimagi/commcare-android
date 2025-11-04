@@ -174,7 +174,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void setupListeners() {
-        binding.connectResendButton.setOnClickListener(v -> requestOtp());
+        binding.connectResendButton.setOnClickListener(v -> {
+            setupOtpManagerForReattempt();
+            requestOtp();
+        });
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
 
@@ -348,5 +351,27 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 .actionPersonalidOtpPageToPersonalidMessage(title, message, phase, getString(buttonText),
                         null).setIsCancellable(isCancellable);
         Navigation.findNavController(binding.getRoot()).navigate(directions);
+    }
+
+    private void setupOtpManagerForReattempt() {
+        int otpReattempts = personalIdSessionData.getOtpReattempts();
+
+        // Fallback to Twilio (via Personal ID) if this is the first time the user reattempts to send the OTP.
+        if (otpReattempts == 0) {
+            otpManager = new OtpManager(
+                    activity,
+                    personalIdSessionData,
+                    otpCallback,
+                    SMS_METHOD_PERSONAL_ID
+            );
+        } else {
+            otpManager = new OtpManager(
+                    activity,
+                    personalIdSessionData,
+                    otpCallback
+            );
+        }
+
+        personalIdSessionData.setOtpReattempts(otpReattempts + 1);
     }
 }
