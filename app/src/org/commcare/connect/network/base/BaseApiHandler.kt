@@ -1,6 +1,7 @@
 package org.commcare.connect.network.base
 
 import org.commcare.connect.network.IApiCallback
+import org.commcare.interfaces.base.BaseConnectView
 import org.javarosa.core.services.Logger
 import org.json.JSONException
 import java.io.IOException
@@ -9,7 +10,7 @@ import java.io.InputStream
 /**
  * Base class for all API handlers
  */
-abstract class BaseApiHandler<T> {
+abstract class BaseApiHandler<T>(val loading: Boolean? = false, val view: BaseConnectView? = null) {
 
     abstract fun onSuccess(data: T)
 
@@ -49,22 +50,43 @@ abstract class BaseApiHandler<T> {
 
     fun createCallback(
         parser: BaseApiResponseParser<T>,
-        anyInputObject:Any?=null
+        anyInputObject: Any? = null
     ): IApiCallback {
+        onStart()
         return object : BaseApiCallback<T>(this) {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
-                    onSuccess(parser.parse(responseCode,responseData,anyInputObject))
+                    onSuccess(parser.parse(responseCode, responseData, anyInputObject))
+                    onStop()
                 } catch (e: JSONException) {
                     Logger.exception("JSON error parsing API response", e)
-                    onFailure(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e)
+                    stopLoadingAndInformError(
+                        PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR,
+                        e
+                    )
                 } catch (e: IOException) {
                     Logger.exception("Error parsing API response", e)
-                    onFailure(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR, e)
+                    stopLoadingAndInformError(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR, e)
                 }
-
             }
         }
+    }
+
+    fun onStart() {
+        loading?.let {
+            if (loading) view?.showLoading()
+        }
+    }
+
+    fun onStop() {
+        loading?.let {
+            if (loading) view?.hideLoading()
+        }
+    }
+
+    fun stopLoadingAndInformError(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
+        onStop()
+        onFailure(errorCode, t)
     }
 
 

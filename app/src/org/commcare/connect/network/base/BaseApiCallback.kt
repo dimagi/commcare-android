@@ -20,61 +20,65 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
     override fun processFailure(responseCode: Int, url: String?, errorBody: String) {
         // Common error_code handler used before checking error response code
         when (responseCode) {
-            401 -> baseApiHandler.onFailure(
+            401 -> baseApiHandler.stopLoadingAndInformError(
                 PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
                 null
             )
 
-            403 -> baseApiHandler.onFailure(
+            403 -> baseApiHandler.stopLoadingAndInformError(
                 PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
                 null
             )
 
-            429 -> baseApiHandler.onFailure(
+            429 -> baseApiHandler.stopLoadingAndInformError(
                 PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
                 null
             )
 
-            400 -> baseApiHandler.onFailure(
-                PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,null
+            400 -> baseApiHandler.stopLoadingAndInformError(
+                PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR, null
             )
 
-            in 500..509 -> baseApiHandler.onFailure(
+            in 500..509 -> baseApiHandler.stopLoadingAndInformError(
                 PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
                 null
             )
 
             else -> {
-                val exception = Exception("Encountered response code $responseCode for url ${url ?: "url not found"}")
+                val exception =
+                    Exception("Encountered response code $responseCode for url ${url ?: "url not found"}")
                 Logger.exception("Unknown http response code", exception)
-                baseApiHandler.onFailure(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR, exception)
+                baseApiHandler.stopLoadingAndInformError(
+                    PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
+                    exception
+                )
             }
         }
     }
 
     override fun processNetworkFailure() {
-        baseApiHandler.onFailure(
+        baseApiHandler.stopLoadingAndInformError(
             PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
             null
         )
     }
 
     override fun processTokenUnavailableError() {
-        baseApiHandler.onFailure(
+        baseApiHandler.stopLoadingAndInformError(
             PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
             null
         )
     }
 
     override fun processTokenRequestDeniedError() {
-        baseApiHandler.onFailure(
+        baseApiHandler.stopLoadingAndInformError(
             PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR,
             null
         )
     }
 
     override fun processOldApiError() {
-        baseApiHandler.onFailure(
+        baseApiHandler.stopLoadingAndInformError(
             PersonalIdOrConnectApiErrorCodes.OLD_API_ERROR,
             null
         )

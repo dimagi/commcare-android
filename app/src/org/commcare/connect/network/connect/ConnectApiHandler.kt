@@ -4,19 +4,19 @@ import android.content.Context
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ApiConnect
-import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.NoParsingResponseParser
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
+import org.commcare.interfaces.base.BaseConnectView
 
 /**
  * Class for all connect api handlers
  */
-abstract class ConnectApiHandler<T> : BaseApiHandler<T>() {
+abstract class ConnectApiHandler<T>(loading: Boolean?=false, view: BaseConnectView?=null) : BaseApiHandler<T>(loading,view){
 
-    fun getConnectOpportunities(context: Context, user: ConnectUserRecord) {
+fun getConnectOpportunities(context: Context, user: ConnectUserRecord) {
         ApiConnect.getConnectOpportunities(
             context, user, createCallback(
                 ConnectOpportunitiesParser<T>(),
