@@ -30,7 +30,7 @@ class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
     private val highlightSeatedApp: Boolean,
-    private val onItemClicked: (NavItemType, String?,) -> Unit
+    private val onItemClicked: (NavItemType, String?) -> Unit,
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
@@ -67,7 +67,10 @@ class BaseDrawerController(
                     FirebaseAnalyticsUtil.reportNavDrawerOpen()
                 }
 
-                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                override fun onDrawerSlide(
+                    drawerView: View,
+                    slideOffset: Float
+                ) {
                     super.onDrawerSlide(drawerView, slideOffset)
                     (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
                     if (slideOffset > 0 && !hasRefreshed) {
@@ -103,7 +106,7 @@ class BaseDrawerController(
             },
             onChildClick = { parentType, childItem ->
                 FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
-                onItemClicked(parentType, childItem.recordId,)
+                onItemClicked(parentType, childItem.recordId)
             }
         )
         binding.navDrawerRecycler.layoutManager = LinearLayoutManager(activity)
@@ -143,7 +146,7 @@ class BaseDrawerController(
                 .apply(
                     RequestOptions.circleCropTransform()
                         .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar,)
+                        .error(R.drawable.nav_drawer_person_avatar)
                 ).into(binding.imageUserProfile)
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()

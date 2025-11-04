@@ -26,9 +26,8 @@ class NavDrawerAdapter(
     private val context: Context,
     private var recyclerList: List<NavDrawerItem.ParentItem>,
     private val onParentClick: (NavDrawerItem.ParentItem) -> Unit,
-    private val onChildClick: (BaseDrawerController.NavItemType, NavDrawerItem.ChildItem) -> Unit
+    private val onChildClick: (BaseDrawerController.NavItemType, NavDrawerItem.ChildItem) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
     private var displayList: List<NavDrawerItem> = flattenDrawerItems(recyclerList)
 
     companion object {
@@ -83,8 +82,11 @@ class NavDrawerAdapter(
             if (item.children.isNotEmpty()) {
                 arrow.visibility = View.VISIBLE
                 arrow.setImageResource(
-                    if (item.isExpanded) R.drawable.nav_drawer_arrow_down
-                    else R.drawable.ic_blue_forward
+                    if (item.isExpanded) {
+                        R.drawable.nav_drawer_arrow_down
+                    } else {
+                        R.drawable.ic_blue_forward
+                    }
                 )
             } else {
                 arrow.visibility = View.GONE
