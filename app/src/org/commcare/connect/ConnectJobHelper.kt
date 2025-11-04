@@ -16,6 +16,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVER
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.interfaces.base.BaseConnectView
 
 object ConnectJobHelper {
     fun getJobForSeatedApp(context: Context): ConnectJobRecord? {
@@ -36,6 +37,8 @@ object ConnectJobHelper {
     fun updateJobProgress(
         context: Context,
         job: ConnectJobRecord,
+        showLoading: Boolean?=null,
+        baseConnectView: BaseConnectView?=null,
         listener: ConnectActivityCompleteListener
     ) {
         when (job.status) {
@@ -44,7 +47,7 @@ object ConnectJobHelper {
             }
 
             ConnectJobRecord.STATUS_DELIVERING -> {
-                updateDeliveryProgress(context, job, listener)
+                updateDeliveryProgress(context, job,showLoading,baseConnectView, listener)
             }
 
             else -> {
@@ -82,10 +85,12 @@ object ConnectJobHelper {
     fun updateDeliveryProgress(
         context: Context,
         job: ConnectJobRecord,
+        showLoading: Boolean?=null,
+        baseConnectView: BaseConnectView?=null,
         listener: ConnectActivityCompleteListener
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<DeliveryAppProgressResponseModel>() {
+        object : ConnectApiHandler<DeliveryAppProgressResponseModel>(showLoading,baseConnectView) {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
                 val events = mutableSetOf<String?>()
 

@@ -135,6 +135,8 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
             ConnectJobHelper.updateDeliveryProgress(
                 appContext,
                 job,
+                null,
+                null,
                 object : ConnectActivityCompleteListener {
                     override fun connectActivityComplete(success: Boolean) {
                         continuation.resume(PNApiResponseStatus(success, !success))

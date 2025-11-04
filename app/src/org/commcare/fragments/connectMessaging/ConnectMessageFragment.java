@@ -106,7 +106,7 @@ public class ConnectMessageFragment extends Fragment {
 
     private void fetchMessagesFromNetwork() {
         MessageManager.retrieveMessages(requireActivity(), success -> {
-            if (success) {
+            if (!success) {
                 refreshUi();
             } else {
                 Toast.makeText(requireContext(), getString(R.string.connect_messaging_retrieve_messages_fail), Toast.LENGTH_SHORT).show();
