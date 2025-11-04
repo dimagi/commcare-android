@@ -102,10 +102,14 @@ class NotificationsSyncWorkerManager(val context: Context) {
             )
         }
 
-        fun scheduleImmediatePushNotificationRetrieval(context: Context) {
+        fun schedulePushNotificationRetrievalWith(context: Context, delay: Long = 0) {
             val notificationSyncWorkerManager =
                 NotificationsSyncWorkerManager(context, null, false, true)
-            notificationSyncWorkerManager.startPersonalIdNotificationsWorker(emptyMap(), false)
+            notificationSyncWorkerManager.startPersonalIdNotificationsWorker(
+                emptyMap(),
+                false,
+                delay
+            )
         }
     }
 
@@ -191,14 +195,16 @@ class NotificationsSyncWorkerManager(val context: Context) {
 
     private fun startPersonalIdNotificationsWorker(
         notificationPayload: Map<String, String>,
-        showNotification: Boolean = this.showNotification
+        showNotification: Boolean = this.showNotification,
+        delay:Long=0
     ) {
         if (cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString(),
-                showNotification
+                showNotification,
+                delay
             )
         }
     }
@@ -239,7 +245,8 @@ class NotificationsSyncWorkerManager(val context: Context) {
         notificationPayload: Map<String, String>,
         syncAction: SyncAction,
         uniqueWorkName: String,
-        showNotification: Boolean = this.showNotification
+        showNotification: Boolean = this.showNotification,
+        delay: Long = 0
     ) {
         val inputDataBuilder = Data.Builder()
             .putString(ACTION, syncAction.toString())
@@ -253,6 +260,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
         val syncWorkRequest = OneTimeWorkRequestBuilder<NotificationsSyncWorker>()
             .setInputData(inputDataBuilder.build())
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setBackoffCriteria(
                 androidx.work.BackoffPolicy.EXPONENTIAL,
                 SYNC_BACKOFF_DELAY_IN_MINS,

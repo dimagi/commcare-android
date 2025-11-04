@@ -1,16 +1,11 @@
 package org.commcare.connect.network.connectId.parser
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.android.database.connect.models.PushNotificationRecord
-import org.commcare.connect.MessageManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.network.base.BaseApiResponseParser
-import org.commcare.pn.workermanager.NotificationsSyncWorkerManager.Companion.scheduleImmediatePushNotificationRetrieval
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InputStream
@@ -23,7 +18,6 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
     val channels: MutableList<ConnectMessagingChannelRecord> = ArrayList()
     val messages: MutableList<ConnectMessagingMessageRecord?> = ArrayList()
     var notificationsJsonArray: JSONArray? = null
-    var needReloadDueToMissingChannelKey = false
 
     override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
         val jsonText = responseData.bufferedReader().use { it.readText() }
@@ -31,7 +25,6 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
         parseNotifications(responseJsonObject)
         parseChannel(responseJsonObject)
         parseMessages()
-        handleMissingChannelKeys()
         return PushNotificationRecord.fromJsonArray(notificationsJsonArray ?: JSONArray()) as T
     }
 
@@ -53,9 +46,7 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
             for (channel in channels) {
                 // if there is no key for channel, remove that messages for PN so that it can be retrieved back again by calling API
                 if (channel.getConsented() && channel.getKey().length == 0) {
-                    needReloadDueToMissingChannelKey = true
                     excludeMessagesForChannel(channel.channelId)
-                    MessageManager.getChannelEncryptionKey(context, channel, null)
                 }
             }
         }
@@ -80,14 +71,6 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
                 }
             }
             ConnectMessagingDatabaseHelper.storeMessagingMessages(context, messages, false)
-        }
-    }
-
-    private fun handleMissingChannelKeys() {
-        if (needReloadDueToMissingChannelKey) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                scheduleImmediatePushNotificationRetrieval(CommCareApplication.instance())
-            }, 3000)
         }
     }
 
