@@ -30,7 +30,7 @@ class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
     private val highlightSeatedApp: Boolean,
-    private val onItemClicked: (NavItemType, String?) -> Unit
+    private val onItemClicked: (NavItemType, String?,) -> Unit
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
@@ -42,7 +42,7 @@ class BaseDrawerController(
         COMMCARE_APPS,
         WORK_HISTORY,
         MESSAGING,
-        PAYMENTS
+        PAYMENTS,
     }
 
     fun setupDrawer() {
@@ -54,32 +54,33 @@ class BaseDrawerController(
     }
 
     private fun setupActionBarDrawerToggle() {
-        drawerToggle = object : ActionBarDrawerToggle(
-            activity,
-            binding.drawerLayout,
-            R.string.nav_drawer_open,
-            R.string.nav_drawer_close
-        ) {
-            override fun onDrawerOpened(drawerView: View) {
-                super.onDrawerOpened(drawerView)
-                ViewUtil.hideVirtualKeyboard(activity)
-                FirebaseAnalyticsUtil.reportNavDrawerOpen()
-            }
-
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                super.onDrawerSlide(drawerView, slideOffset)
-                (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
-                if (slideOffset > 0 && !hasRefreshed) {
-                    refreshDrawerContent()
-                    hasRefreshed = true
+        drawerToggle =
+            object : ActionBarDrawerToggle(
+                activity,
+                binding.drawerLayout,
+                R.string.nav_drawer_open,
+                R.string.nav_drawer_close,
+            ) {
+                override fun onDrawerOpened(drawerView: View) {
+                    super.onDrawerOpened(drawerView)
+                    ViewUtil.hideVirtualKeyboard(activity)
+                    FirebaseAnalyticsUtil.reportNavDrawerOpen()
                 }
-                if (slideOffset == 0f) hasRefreshed = false
-            }
 
-            override fun onDrawerClosed(drawerView: View) {
-                (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_bar)
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                    super.onDrawerSlide(drawerView, slideOffset)
+                    (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
+                    if (slideOffset > 0 && !hasRefreshed) {
+                        refreshDrawerContent()
+                        hasRefreshed = true
+                    }
+                    if (slideOffset == 0f) hasRefreshed = false
+                }
+
+                override fun onDrawerClosed(drawerView: View) {
+                    (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_bar)
+                }
             }
-        }
         binding.drawerLayout.addDrawerListener(drawerToggle)
         (activity as? AppCompatActivity)?.apply {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -102,7 +103,7 @@ class BaseDrawerController(
             },
             onChildClick = { parentType, childItem ->
                 FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
-                onItemClicked(parentType, childItem.recordId)
+                onItemClicked(parentType, childItem.recordId,)
             }
         )
         binding.navDrawerRecycler.layoutManager = LinearLayoutManager(activity)
@@ -114,13 +115,13 @@ class BaseDrawerController(
             PersonalIdManager.getInstance()
                 .launchPersonalId(
                     activity,
-                    ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE
+                    ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE,
                 )
             closeDrawer()
         }
         binding.aboutView.setOnClickListener {
             DialogCreationHelpers.showAboutCommCareDialog(
-                activity
+                activity,
             )
         }
         binding.notificationView.setOnClickListener {
@@ -142,7 +143,7 @@ class BaseDrawerController(
                 .apply(
                     RequestOptions.circleCropTransform()
                         .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar)
+                        .error(R.drawable.nav_drawer_person_avatar,)
                 ).into(binding.imageUserProfile)
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
@@ -158,7 +159,7 @@ class BaseDrawerController(
                     it.displayName,
                     it.uniqueId,
                     NavItemType.COMMCARE_APPS,
-                    it.uniqueId == seatedApp
+                    it.uniqueId == seatedApp,
                 )
             }
 
@@ -170,7 +171,7 @@ class BaseDrawerController(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.nav_drawer_opportunities),
                         R.drawable.nav_drawer_opportunity_icon,
-                        NavItemType.OPPORTUNITIES
+                        NavItemType.OPPORTUNITIES,
                     )
                 )
             }
@@ -182,20 +183,20 @@ class BaseDrawerController(
                     NavItemType.COMMCARE_APPS,
                     isEnabled = commcareApps.isNotEmpty(),
                     isExpanded = commcareApps.size < 2,
-                    children = commcareApps
+                    children = commcareApps,
                 )
             )
 
             if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
                 val unreadCount = ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).size
-                val messageCount = if (unreadCount > 0) unreadCount.toString() else null
+                val messageCount = if (unreadCount > 0) unreadCount else null
 
                 items.add(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.connect_messaging_title),
                         R.drawable.nav_drawer_message_icon,
                         NavItemType.MESSAGING,
-                        messageCount = messageCount
+                        badgeCount = messageCount,
                     )
                 )
             }
@@ -205,7 +206,7 @@ class BaseDrawerController(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.personalid_work_history),
                         R.drawable.ic_work_history,
-                        NavItemType.WORK_HISTORY
+                        NavItemType.WORK_HISTORY,
                     )
                 )
             }
@@ -239,9 +240,7 @@ class BaseDrawerController(
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotiifcations(): Boolean {
-        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
-    }
+    private fun shouldShowNotiifcations(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -251,7 +250,5 @@ class BaseDrawerController(
         binding.drawerLayout.openDrawer(GravityCompat.START)
     }
 
-    fun handleOptionsItem(item: MenuItem): Boolean {
-        return drawerToggle.onOptionsItemSelected(item)
-    }
+    fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
 }

@@ -10,7 +10,7 @@ sealed class NavDrawerItem {
         var isEnabled: Boolean = true,
         var isExpanded: Boolean = false,
         val children: List<ChildItem> = emptyList(),
-        val messageCount: String? = null
+        val badgeCount: Int? = null
     ) : NavDrawerItem()
 
     data class ChildItem(

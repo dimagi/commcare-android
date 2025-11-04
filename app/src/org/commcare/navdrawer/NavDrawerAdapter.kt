@@ -70,8 +70,8 @@ class NavDrawerAdapter(
         private val title = itemView.findViewById<TextView>(R.id.list_title)
         private val icon = itemView.findViewById<ImageView>(R.id.list_icon)
         private val arrow = itemView.findViewById<ImageView>(R.id.arrow_icon)
-        private val messageCount = itemView.findViewById<TextView>(R.id.tvMessageCount)
-        private val flMessageCounter = itemView.findViewById<FrameLayout>(R.id.flMessageCounter)
+        private val messageCount = itemView.findViewById<TextView>(R.id.tv_Message_Count)
+        private val flMessageCounter = itemView.findViewById<FrameLayout>(R.id.badge_layout)
 
         /**
          * Binds a parent item and sets up click listener to toggle expansion.
@@ -79,15 +79,7 @@ class NavDrawerAdapter(
         fun bind(item: NavDrawerItem.ParentItem) {
             title.text = item.title
             icon.setImageResource(item.iconResId)
-            val countText = item.messageCount?.toIntOrNull()?.let {
-                if (it > 9) "9+" else it.toString()
-            }
-            if (!countText.isNullOrEmpty()) {
-                messageCount.text = countText
-                flMessageCounter.visibility = View.VISIBLE
-            } else {
-                flMessageCounter.visibility = View.GONE
-            }
+            bindBadgeCount(item.badgeCount)
             if (item.children.isNotEmpty()) {
                 arrow.visibility = View.VISIBLE
                 arrow.setImageResource(
@@ -109,6 +101,18 @@ class NavDrawerAdapter(
                 item.isExpanded = !item.isExpanded
                 onParentClick(item)
                 refreshList(recyclerList)
+            }
+        }
+        private fun bindBadgeCount(count: Int?) {
+            val countText = count?.let {
+                if (it > 9) "9+" else it.toString()
+            }
+
+            if (!countText.isNullOrEmpty()) {
+                messageCount.text = countText
+                flMessageCounter.visibility = View.VISIBLE
+            } else {
+                flMessageCounter.visibility = View.GONE
             }
         }
     }
