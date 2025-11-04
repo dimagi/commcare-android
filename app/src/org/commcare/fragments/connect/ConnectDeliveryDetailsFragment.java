@@ -25,33 +25,29 @@ import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDetailsBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.jetbrains.annotations.NotNull;
 
-public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
-
-    private FragmentConnectDeliveryDetailsBinding binding;
+public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentConnectDeliveryDetailsBinding> {
 
     public static ConnectDeliveryDetailsFragment newInstance() {
         return new ConnectDeliveryDetailsFragment();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectDeliveryDetailsBinding.inflate(inflater, container, false);
-
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
-
         requireActivity().setTitle(getString(R.string.connect_job_info_title));
         setupJobDetailsUI(job);
         setupButtonBehavior(job, args.getIsButtonVisible());
-
-        return binding.getRoot();
+        return view;
     }
 
     private void setupJobDetailsUI(ConnectJobRecord job) {
-        binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit, job.getMaxPossibleVisits()));
-        binding.connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days, job.getDaysRemaining()));
-        binding.connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits()));
-        binding.connectDeliveryBudgetText.setText(buildPaymentInfoText(job));
+        getBinding().connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit, job.getMaxPossibleVisits()));
+        getBinding().connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days, job.getDaysRemaining()));
+        getBinding().connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits()));
+        getBinding().connectDeliveryBudgetText.setText(buildPaymentInfoText(job));
     }
 
     private String buildPaymentInfoText(ConnectJobRecord job) {
@@ -76,12 +72,12 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
                 ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_job_info_download)
                 : R.string.connect_job_info_download;
 
-        binding.cardButtonLayout.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
-        binding.connectDeliveryButton.setText(buttonTextId);
+        getBinding().cardButtonLayout.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
+        getBinding().connectDeliveryButton.setText(buttonTextId);
 
-        binding.connectDeliveryButton.setOnClickListener(v -> {
+        getBinding().connectDeliveryButton.setOnClickListener(v -> {
             if (jobClaimed) {
-                proceedAfterJobClaimed(binding.connectDeliveryButton, job, appInstalled);
+                proceedAfterJobClaimed(getBinding().connectDeliveryButton, job, appInstalled);
             } else {
                 claimJob(job, appInstalled);
             }
@@ -99,7 +95,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
             @Override
             public void onSuccess(Boolean data) {
-                proceedAfterJobClaimed(binding.connectDeliveryButton, job, appInstalled);
+                proceedAfterJobClaimed(getBinding().connectDeliveryButton, job, appInstalled);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(true);
             }
 
@@ -111,7 +107,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
                 } else {
                     message = PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t);
                 }
-                showSnackBarWithDismissAction(binding.getRoot(), message);
+                showSnackBarWithDismissAction(getBinding().getRoot(), message);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());
@@ -136,5 +132,10 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
     private NavDirections navigateToDownloadingPage() {
         return ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(
                 getString(R.string.connect_downloading_delivery), false);
+    }
+
+    @Override
+    protected @NotNull FragmentConnectDeliveryDetailsBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectDeliveryDetailsBinding.inflate(inflater, container, false);
     }
 }
