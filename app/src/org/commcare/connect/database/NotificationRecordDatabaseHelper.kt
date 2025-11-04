@@ -13,8 +13,7 @@ object NotificationRecordDatabaseHelper {
     /**
      * Fetch all notifications
      */
-    fun getAllNotifications(context: Context): List<PushNotificationRecord>? =
-        getStorage(context).getRecordsForValues(arrayOf(), arrayOf())
+    fun getAllNotifications(context: Context): List<PushNotificationRecord>? = getStorage(context).getRecordsForValues(arrayOf(), arrayOf())
 
     /**
      * Fetch a notification from notification_id
@@ -78,7 +77,6 @@ object NotificationRecordDatabaseHelper {
             if (savedRecord != null) {
                 savedNotificationIds.add(incoming.notificationId)
             }
-
         }
         return savedNotificationIds
     }

@@ -30,9 +30,10 @@ import kotlin.coroutines.suspendCoroutine
  * This worker is responsible to sync different API endpoints from Connect and Personal ID server based on the action
  * specified in the input data.
  */
-class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(appContext, workerParams) {
-
+class NotificationsSyncWorker(
+    val appContext: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(appContext, workerParams) {
     private var notificationPayload: HashMap<String, String>? = null
     private var syncAction: SyncAction? = null
 
@@ -51,24 +52,25 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
             SYNC_OPPORTUNITY,
             SYNC_PERSONALID_NOTIFICATIONS,
             SYNC_DELIVERY_PROGRESS,
-            SYNC_LEARNING_PROGRESS
+            SYNC_LEARNING_PROGRESS,
         }
     }
 
-    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        initStateFromInputData()
-        val syncResult = startAppropriateSync()
-        logResult(syncResult)
-        if (syncResult.success) {
-            processAfterSuccessfulSync()
-            Result.success(workDataOf(NOTIFICATION_PAYLOAD to Gson().toJson(notificationPayload)))
-        } else if (syncResult.retry && runAttemptCount < MAX_RETRIES) {
-            Result.retry()
-        } else {
-            processAfterSyncFailed()
-            Result.failure()
+    override suspend fun doWork(): Result =
+        withContext(Dispatchers.IO) {
+            initStateFromInputData()
+            val syncResult = startAppropriateSync()
+            logResult(syncResult)
+            if (syncResult.success) {
+                processAfterSuccessfulSync()
+                Result.success(workDataOf(NOTIFICATION_PAYLOAD to Gson().toJson(notificationPayload)))
+            } else if (syncResult.retry && runAttemptCount < MAX_RETRIES) {
+                Result.retry()
+            } else {
+                processAfterSyncFailed()
+                Result.failure()
+            }
         }
-    }
 
     private fun logResult(syncResult: PNApiResponseStatus) {
         val actionStr = syncAction?.toString()
@@ -93,8 +95,8 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
         }
     }
 
-    private suspend fun startAppropriateSync(): PNApiResponseStatus {
-        return when (syncAction!!) {
+    private suspend fun startAppropriateSync(): PNApiResponseStatus =
+        when (syncAction!!) {
             SyncAction.SYNC_OPPORTUNITY -> {
                 if (cccCheckPassed(appContext)) syncOpportunities() else getFailedResponseWithoutRetry()
             }
@@ -111,18 +113,18 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
                 if (cccCheckPassed(appContext)) syncLearningProgress() else getFailedResponseWithoutRetry()
             }
         }
-    }
 
-    private suspend fun syncOpportunities(): PNApiResponseStatus = suspendCoroutine { continuation ->
-        ConnectJobHelper.retrieveOpportunities(
-            appContext,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(success: Boolean) {
-                    continuation.resume(PNApiResponseStatus(success, !success))
-                }
-            }
-        )
-    }
+    private suspend fun syncOpportunities(): PNApiResponseStatus =
+        suspendCoroutine { continuation ->
+            ConnectJobHelper.retrieveOpportunities(
+                appContext,
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(success: Boolean) {
+                        continuation.resume(PNApiResponseStatus(success, !success))
+                    }
+                },
+            )
+        }
 
     private suspend fun syncPersonalIdNotifications(): PNApiResponseStatus {
         val result = PushNotificationApiHelper.retrieveLatestPushNotifications(appContext)
@@ -134,7 +136,7 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
         if (job == null) {
             Logger.exception(
                 "WorkRequest Failed to complete the task for -$syncAction as connect job not found",
-                Throwable("WorkRequest Failed for $syncAction as connect job not found")
+                Throwable("WorkRequest Failed for $syncAction as connect job not found"),
             )
             return getFailedResponseWithoutRetry()
         }
@@ -146,7 +148,7 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
                     override fun connectActivityComplete(success: Boolean) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
-                }
+                },
             )
         }
     }
@@ -156,7 +158,7 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
         if (job == null) {
             Logger.exception(
                 "WorkRequest Failed to complete the task for -$syncAction as connect job not found",
-                Throwable("WorkRequest Failed for $syncAction as connect job not found")
+                Throwable("WorkRequest Failed for $syncAction as connect job not found"),
             )
             return getFailedResponseWithoutRetry()
         }
@@ -168,7 +170,7 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
                     override fun connectActivityComplete(success: Boolean) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
-                }
+                },
             )
         }
     }
@@ -178,7 +180,7 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
         if (!TextUtils.isEmpty(opportunityId)) {
             return ConnectJobUtils.getCompositeJob(
                 appContext,
-                Integer.parseInt(opportunityId!!)
+                Integer.parseInt(opportunityId!!),
             )
         }
         return null
@@ -193,11 +195,11 @@ class NotificationsSyncWorker(val appContext: Context, workerParams: WorkerParam
     private fun processAfterSyncFailed() {
         Logger.exception(
             "WorkRequest Failed to complete the task for -$syncAction",
-            Throwable("WorkRequest Failed for $syncAction")
+            Throwable("WorkRequest Failed for $syncAction"),
         )
         notificationPayload?.put(
             NOTIFICATION_BODY,
-            appContext.getString(R.string.fcm_sync_failed_body_text)
+            appContext.getString(R.string.fcm_sync_failed_body_text),
         )
         raiseFCMPushNotificationIfApplicable()
     }

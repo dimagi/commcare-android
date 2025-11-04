@@ -34,11 +34,13 @@ object PushNotificationApiHelper {
         CoroutineScope(Dispatchers.IO).launch {
             retrieveLatestPushNotifications(context)
                 .onSuccess {
-                    withContext(Dispatchers.Main) { //  switching to main to touch views
+                    withContext(Dispatchers.Main) {
+                        //  switching to main to touch views
                         listener.connectActivityComplete(true)
                     }
                 }.onFailure {
-                    withContext(Dispatchers.Main) { //  switching to main to touch views
+                    withContext(Dispatchers.Main) {
+                        //  switching to main to touch views
                         listener.connectActivityComplete(false)
                     }
                 }
