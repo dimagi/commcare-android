@@ -9,7 +9,8 @@ sealed class NavDrawerItem {
         val type: BaseDrawerController.NavItemType,
         var isEnabled: Boolean = true,
         var isExpanded: Boolean = false,
-        val children: List<ChildItem> = emptyList()
+        val children: List<ChildItem> = emptyList(),
+        val messageCount: String? = null
     ) : NavDrawerItem()
 
     data class ChildItem(

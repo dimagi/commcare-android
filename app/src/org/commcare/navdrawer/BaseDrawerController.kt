@@ -187,18 +187,15 @@ class BaseDrawerController(
             )
 
             if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
-                val iconId =
-                    if (ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).isNotEmpty()) {
-                        R.drawable.nav_drawer_message_unread_icon
-                    } else {
-                        R.drawable.nav_drawer_message_icon
-                    }
+                val unreadCount = ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).size
+                val messageCount = if (unreadCount > 0) unreadCount.toString() else null
 
                 items.add(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.connect_messaging_title),
-                        iconId,
-                        NavItemType.MESSAGING
+                        R.drawable.nav_drawer_message_icon,
+                        NavItemType.MESSAGING,
+                        messageCount = messageCount
                     )
                 )
             }

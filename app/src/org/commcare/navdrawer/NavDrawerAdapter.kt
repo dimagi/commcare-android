@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -69,6 +70,8 @@ class NavDrawerAdapter(
         private val title = itemView.findViewById<TextView>(R.id.list_title)
         private val icon = itemView.findViewById<ImageView>(R.id.list_icon)
         private val arrow = itemView.findViewById<ImageView>(R.id.arrow_icon)
+        private val messageCount = itemView.findViewById<TextView>(R.id.tvMessageCount)
+        private val flMessageCounter = itemView.findViewById<FrameLayout>(R.id.flMessageCounter)
 
         /**
          * Binds a parent item and sets up click listener to toggle expansion.
@@ -76,6 +79,15 @@ class NavDrawerAdapter(
         fun bind(item: NavDrawerItem.ParentItem) {
             title.text = item.title
             icon.setImageResource(item.iconResId)
+            val countText = item.messageCount?.toIntOrNull()?.let {
+                if (it > 9) "9+" else it.toString()
+            }
+            if (!countText.isNullOrEmpty()) {
+                messageCount.text = countText
+                flMessageCounter.visibility = View.VISIBLE
+            } else {
+                flMessageCounter.visibility = View.GONE
+            }
             if (item.children.isNotEmpty()) {
                 arrow.visibility = View.VISIBLE
                 arrow.setImageResource(
