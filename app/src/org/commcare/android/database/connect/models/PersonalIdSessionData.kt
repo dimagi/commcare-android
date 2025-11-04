@@ -7,24 +7,24 @@ import androidx.annotation.StringDef
  * This includes authentication configuration and account-related metadata.
  */
 data class PersonalIdSessionData(
-        @DeviceAuthType var requiredLock: String? = null, //Tells which device auth is required for the given user
-        var demoUser: Boolean? = null, //states weather it is a demo user or normal user
-        var token: String? = null, // session token
-        var sessionFailureCode: String? = null, // Reason code to tell why user is not allowed to move forward with the flow
-        var sessionFailureSubcode: String? = null, // Sub Reason code to tell why user is not allowed to move forward with the flow
-        var accountExists: Boolean? = null, // Tells weather its new user or old
-        var photoBase64: String? = null, // photo of the user
-        var personalId: String? = null, // username given by server
-        var dbKey: String? = null, // DB Key
-        var oauthPassword: String? = null, // password to verify usser
-        var attemptsLeft: Int? = null, // number of attempts left before the account lock
-        var userName: String? = null, // name of the user
-        var phoneNumber: String? = null, //phone number of the user
-        var backupCode: String? = null, //recovery code of the user
-        var smsMethod: String? = null,
-        var invitedUser: Boolean = false, // indicates if user has has been invited to Connect
-        var otpFallback: Boolean = false,
-        var otpReattempts: Int = 0 // the number of times the user hit the "resend code" button
+    @DeviceAuthType var requiredLock: String? = null, //Tells which device auth is required for the given user
+    var demoUser: Boolean? = null, //states weather it is a demo user or normal user
+    var token: String? = null, // session token
+    var sessionFailureCode: String? = null, // Reason code to tell why user is not allowed to move forward with the flow
+    var sessionFailureSubcode: String? = null, // Sub Reason code to tell why user is not allowed to move forward with the flow
+    var accountExists: Boolean? = null, // Tells weather its new user or old
+    var photoBase64: String? = null, // photo of the user
+    var personalId: String? = null, // username given by server
+    var dbKey: String? = null, // DB Key
+    var oauthPassword: String? = null, // password to verify usser
+    var attemptsLeft: Int? = null, // number of attempts left before the account lock
+    var userName: String? = null, // name of the user
+    var phoneNumber: String? = null, //phone number of the user
+    var backupCode: String? = null, //recovery code of the user
+    var smsMethod: String? = null,
+    var invitedUser: Boolean = false, // indicates if user has has been invited to Connect
+    var otpFallback: Boolean = false,
+    var otpReattempts: Int = 0 // the number of times the user hit the "resend code" button
 ) {
 
     /**
