@@ -73,9 +73,11 @@ class PushNotificationActivity : AppCompatActivity() {
             listener = object :
                 PushNotificationAdapter.OnNotificationClickListener {
                 override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
-                    FirebaseAnalyticsUtil.reportNotificationClicked(
+                    FirebaseAnalyticsUtil.reportNotificationEvent(
+                        AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
+                        AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY,
                         notificationRecord.action,
-                        AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY
+                        notificationRecord.notificationId
                     )
                     val activityIntent = getIntentForPNClick(application, notificationRecord)
                     if (activityIntent != null) {

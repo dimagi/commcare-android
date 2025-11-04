@@ -74,9 +74,11 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         String action = getIntent().getStringExtra(REDIRECT_ACTION);
         if (CCC_MESSAGE.equals(action)) {
             PersonalIdManager.getInstance().init(this);
-            FirebaseAnalyticsUtil.reportNotificationClicked(
+            FirebaseAnalyticsUtil.reportNotificationEvent(
+                    AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
                     action,
-                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY
+                    getIntent().getStringExtra(NOTIFICATION_ID)
             );
             PersonalIdManager.getInstance().unlockConnect(this, success -> {
                 if (success) {

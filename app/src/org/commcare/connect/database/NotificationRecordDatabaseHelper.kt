@@ -61,7 +61,12 @@ object NotificationRecordDatabaseHelper {
 
             // Otherwise, write new record
             storage.write(incoming)
-            FirebaseAnalyticsUtil.reportNotificationReceived(AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API,  incoming.action, incoming.notificationId)
+            FirebaseAnalyticsUtil.reportNotificationEvent(
+                AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_RECEIVED,
+                AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API,
+                incoming.action,
+                incoming.notificationId
+            )
 
             // Verify persistence
             val savedRecord = getNotificationById(context, incoming.notificationId)

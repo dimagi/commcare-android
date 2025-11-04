@@ -4,6 +4,7 @@ import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
@@ -166,11 +167,13 @@ public class DispatchActivity extends AppCompatActivity {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
 
         Intent pnIntent = checkIfAnyPNIntentPresent();
-        if(pnIntent!=null) {
+        if (pnIntent != null) {
             String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
-            FirebaseAnalyticsUtil.reportNotificationClicked(
+            FirebaseAnalyticsUtil.reportNotificationEvent(
+                    AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
                     actionType,
-                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY
+                    pnIntent.getStringExtra(NOTIFICATION_ID)
             );
             startActivity(pnIntent);
         }else if (currentApp == null) {

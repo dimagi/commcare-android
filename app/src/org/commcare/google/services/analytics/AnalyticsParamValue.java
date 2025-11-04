@@ -1,5 +1,7 @@
 package org.commcare.google.services.analytics;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Created by amstone326 on 10/13/17.
  */
@@ -199,4 +201,6 @@ public class AnalyticsParamValue {
 
     public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY = "notification_history";
     public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY = "notification_tray";
+    public static final String NOTIFICATION_EVENT_TYPE_CLICK = "click_notification";
+    public static final String NOTIFICATION_EVENT_TYPE_RECEIVED = "receive_notification";
 }
