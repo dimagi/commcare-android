@@ -16,6 +16,8 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
@@ -72,6 +74,10 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         String action = getIntent().getStringExtra(REDIRECT_ACTION);
         if (CCC_MESSAGE.equals(action)) {
             PersonalIdManager.getInstance().init(this);
+            FirebaseAnalyticsUtil.reportNotificationClicked(
+                    action,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY
+            );
             PersonalIdManager.getInstance().unlockConnect(this, success -> {
                 if (success) {
                     String channelId = getIntent().getStringExtra(

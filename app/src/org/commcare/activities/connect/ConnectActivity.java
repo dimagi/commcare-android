@@ -146,6 +146,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
         if (!TextUtils.isEmpty(notificationId)) {
             NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);
+            FirebaseAnalyticsUtil.reportNotificationClicked(
+                    redirectionAction,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY
+            );
         }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
