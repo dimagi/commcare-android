@@ -70,7 +70,7 @@ class NavDrawerAdapter(
         private val title = itemView.findViewById<TextView>(R.id.list_title)
         private val icon = itemView.findViewById<ImageView>(R.id.list_icon)
         private val arrow = itemView.findViewById<ImageView>(R.id.arrow_icon)
-        private val messageCount = itemView.findViewById<TextView>(R.id.tv_Message_Count)
+        private val messageCount = itemView.findViewById<TextView>(R.id.tv_message_count)
         private val flMessageCounter = itemView.findViewById<FrameLayout>(R.id.badge_layout)
 
         /**
