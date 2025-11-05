@@ -15,6 +15,9 @@ import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.personalId.PersonalIdFeatureFlagChecker
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY_PENDING_TAB
 import org.commcare.utils.MultipleAppsUtil
 import java.util.ArrayList
 
@@ -39,23 +42,27 @@ class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewMode
         viewModelScope.launch(Dispatchers.IO) {
             object : PersonalIdApiHandler<List<PersonalIdWorkHistory>>() {
                 override fun onSuccess(result: List<PersonalIdWorkHistory>) {
-                    val earned = result
+                    val earnedRecords = result
                     _earnedWorkHistory.postValue(
-                        earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+                        earnedRecords.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
                     )
 
+                    if (isFeatureEnabled(WORK_HISTORY_PENDING_TAB)) {
+                        _pendingWorkHistory.postValue(getPendingWorkHistory(earnedRecords))
+                    }
+                }
+
+                private fun getPendingWorkHistory(earned: List<PersonalIdWorkHistory>): List<PersonalIdWorkHistory> {
                     if (!::installedAppsWorkHistory.isInitialized) {
                         installedAppsWorkHistory = evalInstalledAppsWorkHistory()
                     }
-                    val pending = installedAppsWorkHistory.filter { installedWorkHistory ->
+                    return installedAppsWorkHistory.filter { installedWorkHistory ->
                         !earned.any { earnedWorkHistory ->
                             earnedWorkHistory.appId == installedWorkHistory.appId &&
-                            earnedWorkHistory.title == installedWorkHistory.title &&
-                            earnedWorkHistory.level == installedWorkHistory.level
+                                earnedWorkHistory.title == installedWorkHistory.title &&
+                                earnedWorkHistory.level == installedWorkHistory.level
                         }
                     }
-
-                    _pendingWorkHistory.postValue(pending)
                 }
 
 
