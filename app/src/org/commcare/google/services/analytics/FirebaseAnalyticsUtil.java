@@ -583,7 +583,7 @@ public class FirebaseAnalyticsUtil {
         reportEvent(
                 CCAnalyticsEvent.OTP_REQUESTED_EVENT,
                 CCAnalyticsParam.OTP_REATTEMPTS,
-                String.valueOf(numberOfReattempts)
+                String.format("%s reattempt(s)", numberOfReattempts)
         );
     }
 }
