@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.CommCareApp
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
@@ -79,19 +80,30 @@ class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewMode
     }
 
     private fun getWorkHistoryFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdWorkHistory> {
-        return records.flatMap { record ->
-            val commcareApp = CommCareApp(record)
+        val currentSandbox = CommCareApp.currentSandbox
+        try {
+            return records.flatMap { record -> getWorkHistoryForAppRecord(record) }
+        } finally {
+            // Restore the previous sandbox
+            currentSandbox?.setupSandbox()
+        }
+    }
+
+    private fun getWorkHistoryForAppRecord(record: ApplicationRecord): Iterable<PersonalIdWorkHistory> {
+        val commcareApp = CommCareApp(record)
+        try {
             commcareApp.setupSandbox()
             val profile = commcareApp.initApplicationProfile();
-            profile.credentials.map { credential ->
+            return profile.credentials.map { credential ->
                 PersonalIdWorkHistory().apply {
                     appId = record.applicationId
                     title = record.displayName ?: ""
                     level = credential.level
                 }
             }
+        } finally {
+            commcareApp.teardownSandbox()
         }
     }
-
 }
 
