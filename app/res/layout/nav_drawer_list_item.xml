@@ -21,7 +21,6 @@
             android:id="@+id/list_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:contentDescription="@null"
             android:src="@drawable/commcare_actionbar_logo" />
 
         <FrameLayout
@@ -45,7 +44,6 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:includeFontPadding="false"
-                android:contentDescription="@null"
                 android:textColor="@android:color/white"
                 android:textSize="11sp" />
         </FrameLayout>
@@ -64,6 +62,5 @@
         android:layout_height="24dp"
         android:paddingStart="16dp"
         android:src="@drawable/ic_blue_forward"
-        app:tint="@android:color/white"
-        android:contentDescription="@null"/>
+        app:tint="@android:color/white"/>
 </LinearLayout>
