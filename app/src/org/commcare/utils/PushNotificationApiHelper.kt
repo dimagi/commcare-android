@@ -1,6 +1,11 @@
 package org.commcare.utils
 
 import android.content.Context
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,26 +27,33 @@ import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.pn.helper.NotificationBroadcastHelper
+import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
+    const val MESSAGING_CHANNEL_KEYS_SYNC = "MESSAGING_CHANNEL_KEYS_SYNC"
+    const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
 
     fun retrieveLatestPushNotificationsWithCallback(
         context: Context,
-        listener: ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener,
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            retrieveLatestPushNotifications(context).onSuccess {
-                withContext(Dispatchers.Main) { //  switching to main to touch views
-                    listener.connectActivityComplete(true)
+            retrieveLatestPushNotifications(context)
+                .onSuccess {
+                    withContext(Dispatchers.Main) {
+                        //  switching to main to touch views
+                        listener.connectActivityComplete(true)
+                    }
+                }.onFailure {
+                    withContext(Dispatchers.Main) {
+                        //  switching to main to touch views
+                        listener.connectActivityComplete(false)
+                    }
                 }
-            }.onFailure {
-                withContext(Dispatchers.Main) { //  switching to main to touch views
-                    listener.connectActivityComplete(false)
-                }
-            }
         }
     }
 
@@ -56,11 +68,17 @@ object PushNotificationApiHelper {
 
             object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
                 override fun onSuccess(result: List<PushNotificationRecord>) {
+                    scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(Dispatchers.IO).launch {
                         if (result.isNotEmpty()) {
                             NotificationPrefs.setNotificationAsUnread(context)
                             NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
-                            updatePushNotifications(context, result)
+                            val savedNotificationIds =
+                                NotificationRecordDatabaseHelper.storeNotifications(
+                                    context,
+                                    result,
+                                )
+                            acknowledgeNotificationsReceipt(context, savedNotificationIds)
                         }
                     }
                     continuation.resume(Result.success(result))
@@ -68,7 +86,7 @@ object PushNotificationApiHelper {
 
                 override fun onFailure(
                     failureCode: PersonalIdOrConnectApiErrorCodes,
-                    t: Throwable?
+                    t: Throwable?,
                 ) {
                     continuation.resume(
                         Result.failure(
@@ -76,29 +94,27 @@ object PushNotificationApiHelper {
                                 PersonalIdApiErrorHandler.handle(
                                     context,
                                     failureCode,
-                                    t
-                                )
-                            )
-                        )
+                                    t,
+                                ),
+                            ),
+                        ),
                     )
                 }
             }.retrieveNotifications(context, user)
         }
     }
 
-    suspend fun updatePushNotifications(
+    suspend fun acknowledgeNotificationsReceipt(
         context: Context,
-        pushNotificationList: List<PushNotificationRecord>
+        savedNotificationIds: List<String>,
     ): Boolean {
-        val savedNotificationIds =
-            NotificationRecordDatabaseHelper.storeNotifications(context, pushNotificationList)
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
                 override fun onSuccess(result: Boolean) {
                     NotificationRecordDatabaseHelper.updateColumnForNotifications(
                         context,
-                        savedNotificationIds
+                        savedNotificationIds,
                     ) { record ->
                         record.acknowledged = true
                     }
@@ -107,7 +123,7 @@ object PushNotificationApiHelper {
 
                 override fun onFailure(
                     failureCode: PersonalIdOrConnectApiErrorCodes,
-                    t: Throwable?
+                    t: Throwable?,
                 ) {
                     continuation.resumeWith(Result.success(false))
                 }
@@ -138,5 +154,24 @@ object PushNotificationApiHelper {
         pn.put(OPPORTUNITY_ID, "" + pnRecord.opportunityId)
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         return pn
+    }
+
+    fun scheduleMessagingChannelsKeySync(context: Context) {
+        val channelsKeySyncWorkRequest =
+            OneTimeWorkRequest
+                .Builder(MessagingChannelsKeySyncWorker::class.java)
+                .setConstraints(
+                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
+                ).setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    SYNC_BACKOFF_DELAY_IN_MINS,
+                    TimeUnit.MINUTES,
+                ).build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            MESSAGING_CHANNEL_KEYS_SYNC,
+            ExistingWorkPolicy.KEEP,
+            channelsKeySyncWorkRequest,
+        )
     }
 }
