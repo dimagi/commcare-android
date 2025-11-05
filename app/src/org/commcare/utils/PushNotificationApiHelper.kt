@@ -1,6 +1,11 @@
 package org.commcare.utils
 
 import android.content.Context
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,11 +27,16 @@ import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.pn.helper.NotificationBroadcastHelper
+import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
+    const val MESSAGING_CHANNEL_KEYS_SYNC = "MESSAGING_CHANNEL_KEYS_SYNC"
+    const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
+
     fun retrieveLatestPushNotificationsWithCallback(
         context: Context,
         listener: ConnectActivityCompleteListener,
@@ -58,6 +68,7 @@ object PushNotificationApiHelper {
 
             object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
                 override fun onSuccess(result: List<PushNotificationRecord>) {
+                    scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(Dispatchers.IO).launch {
                         if (result.isNotEmpty()) {
                             NotificationPrefs.setNotificationAsUnread(context)
@@ -143,5 +154,24 @@ object PushNotificationApiHelper {
         pn.put(OPPORTUNITY_ID, "" + pnRecord.opportunityId)
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         return pn
+    }
+
+    fun scheduleMessagingChannelsKeySync(context: Context) {
+        val channelsKeySyncWorkRequest =
+            OneTimeWorkRequest
+                .Builder(MessagingChannelsKeySyncWorker::class.java)
+                .setConstraints(
+                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
+                ).setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    SYNC_BACKOFF_DELAY_IN_MINS,
+                    TimeUnit.MINUTES,
+                ).build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            MESSAGING_CHANNEL_KEYS_SYNC,
+            ExistingWorkPolicy.KEEP,
+            channelsKeySyncWorkRequest,
+        )
     }
 }
