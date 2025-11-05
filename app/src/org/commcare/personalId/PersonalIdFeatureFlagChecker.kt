@@ -6,7 +6,6 @@ import androidx.annotation.StringDef
  * Utility class to check for enabled feature flags related to Personal ID functionality.
  */
 class PersonalIdFeatureFlagChecker {
-
     @StringDef
     @Retention(AnnotationRetention.SOURCE)
     annotation class FeatureFlag {
@@ -18,15 +17,15 @@ class PersonalIdFeatureFlagChecker {
     }
 
     companion object {
-
         @JvmStatic
-        fun isFeatureEnabled(@FeatureFlag feature: String): Boolean {
-            return when (feature) {
+        fun isFeatureEnabled(
+            @FeatureFlag feature: String,
+        ): Boolean =
+            when (feature) {
                 FeatureFlag.WORK_HISTORY -> true
                 FeatureFlag.WORK_HISTORY_PENDING_TAB -> false
                 FeatureFlag.NOTIFICATIONS -> true
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
-        }
     }
 }
