@@ -105,7 +105,7 @@ public class ConnectMessageFragment extends Fragment {
 
     private void fetchMessagesFromNetwork() {
         MessageManager.retrieveMessages(requireActivity(), success -> {
-            if (!success) {
+            if (success) {
                 refreshUi();
             } else {
                 Context context = getContext();

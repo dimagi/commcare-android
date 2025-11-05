@@ -26,20 +26,23 @@ object ConnectJobHelper {
         return ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
     }
 
-    fun shouldShowJobStatus(context: Context?, appId: String?): Boolean {
+    fun shouldShowJobStatus(
+        context: Context?,
+        appId: String?,
+    ): Boolean {
         val record = ConnectJobUtils.getAppRecord(context, appId) ?: return false
         val job = ConnectJobUtils.getJobForApp(context, appId) ?: return false
 
-        //Only time not to show is when we're in learn app but job is in delivery state
+        // Only time not to show is when we're in learn app but job is in delivery state
         return !record.isLearning || job.status != ConnectJobRecord.STATUS_DELIVERING
     }
 
     fun updateJobProgress(
         context: Context,
         job: ConnectJobRecord,
-        showLoading: Boolean?=null,
-        baseConnectView: BaseConnectView?=null,
-        listener: ConnectActivityCompleteListener
+        showLoading: Boolean? = null,
+        baseConnectView: BaseConnectView? = null,
+        listener: ConnectActivityCompleteListener,
     ) {
         when (job.status) {
             ConnectJobRecord.STATUS_LEARNING -> {
@@ -47,7 +50,7 @@ object ConnectJobHelper {
             }
 
             ConnectJobRecord.STATUS_DELIVERING -> {
-                updateDeliveryProgress(context, job,showLoading,baseConnectView, listener)
+                updateDeliveryProgress(context, job, showLoading, baseConnectView, listener)
             }
 
             else -> {
@@ -59,7 +62,7 @@ object ConnectJobHelper {
     fun updateLearningProgress(
         context: Context,
         job: ConnectJobRecord,
-        listener: ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
         object : ConnectApiHandler<LearningAppProgressResponseModel>() {
@@ -69,13 +72,16 @@ object ConnectJobHelper {
                     learningAppProgressResponseModel.connectJobLearningRecords.size
                 job.assessments = learningAppProgressResponseModel.connectJobAssessmentRecords
                 ConnectJobUtils.updateJobLearnProgress(context, job)
-                if (job.passedAssessment()){
+                if (job.passedAssessment()) {
                     FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
                 }
                 listener.connectActivityComplete(true)
             }
 
-            override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
+            override fun onFailure(
+                errorCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
                 FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
                 listener.connectActivityComplete(false)
             }
@@ -85,12 +91,12 @@ object ConnectJobHelper {
     fun updateDeliveryProgress(
         context: Context,
         job: ConnectJobRecord,
-        showLoading: Boolean?=null,
-        baseConnectView: BaseConnectView?=null,
-        listener: ConnectActivityCompleteListener
+        showLoading: Boolean? = null,
+        baseConnectView: BaseConnectView? = null,
+        listener: ConnectActivityCompleteListener,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<DeliveryAppProgressResponseModel>(showLoading,baseConnectView) {
+        object : ConnectApiHandler<DeliveryAppProgressResponseModel>(showLoading, baseConnectView) {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
                 val events = mutableSetOf<String?>()
 
@@ -107,7 +113,7 @@ object ConnectJobHelper {
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
-                    if (job.payments.isNotEmpty()){
+                    if (job.payments.isNotEmpty()) {
                         events.add(PAID_DELIVERY)
                     }
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
@@ -120,8 +126,11 @@ object ConnectJobHelper {
                 listener.connectActivityComplete(true)
             }
 
-            override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false,null)
+            override fun onFailure(
+                errorCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false, null)
                 listener.connectActivityComplete(false)
             }
         }.getDeliveries(context, user, job)
@@ -131,39 +140,43 @@ object ConnectJobHelper {
         context: Context,
         payment: ConnectJobPaymentRecord,
         confirmed: Boolean,
-        listener: ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
 
-
         object : ConnectApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
-
                 payment.confirmed = confirmed
                 ConnectJobUtils.storePayment(context, payment)
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(true)
                 listener.connectActivityComplete(true)
             }
 
-            override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                Toast.makeText(
-                    context,
-                    PersonalIdApiErrorHandler.handle(context, errorCode, t),
-                    Toast.LENGTH_LONG
-                ).show()
+            override fun onFailure(
+                errorCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                Toast
+                    .makeText(
+                        context,
+                        PersonalIdApiErrorHandler.handle(context, errorCode, t),
+                        Toast.LENGTH_LONG,
+                    ).show()
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
                 listener.connectActivityComplete(false)
             }
         }.setPaymentConfirmation(context, user, payment.paymentId, confirmed)
     }
 
-    fun retrieveOpportunities(context: Context,
-                              listener: ConnectActivityCompleteListener){
+    fun retrieveOpportunities(
+        context: Context,
+        listener: ConnectActivityCompleteListener,
+    ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
         object : ConnectApiHandler<ConnectOpportunitiesResponseModel?>() {
             override fun onFailure(
                 errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?
+                t: Throwable?,
             ) {
                 listener.connectActivityComplete(false)
             }
@@ -173,6 +186,4 @@ object ConnectJobHelper {
             }
         }.getConnectOpportunities(context, user!!)
     }
-
-
 }
