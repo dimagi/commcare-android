@@ -1,5 +1,7 @@
 package org.commcare.google.services.analytics;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Created by amstone326 on 10/13/17.
  */
@@ -20,6 +22,8 @@ public class AnalyticsParamValue {
     public static final String SWIPE = "swipe";
 
     // Param values for options menu items
+    public static final String ITEM_CONNECT_SYNC = "connect_sync";
+    public static final String ITEM_NOTIFICATIONS_BELL = "notifications_bell";
     public static final String ITEM_SETTINGS = "settings";
     public static final String ITEM_UPDATE_CC = "update_commcare";
     public static final String ITEM_ABOUT_CC = "about_commcare";
@@ -191,4 +195,13 @@ public class AnalyticsParamValue {
     public static final String FAILURE_UNLOCK_FAILED = "failure_unlock_failed";
     public static final String CONTINUE_WITH_FINGERPRINT = "continue_with_fingerprint";
     public static final String CONTINUE_WITH_PIN = "continue_with_pin";
+
+    public static final String REPORT_NOTIFICATION_METHOD_FIREBASE = "firebase";
+    public static final String REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API = "personal_id_api";
+
+    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY = "notification_history";
+    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY = "notification_tray";
+    public static final String NOTIFICATION_EVENT_TYPE_CLICK = "click_notification";
+    public static final String NOTIFICATION_EVENT_TYPE_RECEIVED = "receive_notification";
+    public static final String NOTIFICATION_EVENT_TYPE_SHOW = "show_notification";
 }
