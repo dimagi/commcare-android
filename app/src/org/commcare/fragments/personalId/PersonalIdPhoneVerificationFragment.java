@@ -29,6 +29,7 @@ import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.OtpErrorType;
@@ -296,6 +297,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         clearOtpError();
         otpRequestTime = new DateTime();
         otpManager.requestOtp(primaryPhone);
+        FirebaseAnalyticsUtil.reportOtpRequested(personalIdSessionData.getOtpReattempts());
     }
 
     private void verifyOtp() {

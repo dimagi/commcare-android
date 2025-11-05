@@ -43,4 +43,5 @@ public class CCAnalyticsParam {
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
     public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO = "personal_id_continue_button_clicked_info";
 
+    public static final String OTP_REATTEMPTS = "otp_reattempts";
 }

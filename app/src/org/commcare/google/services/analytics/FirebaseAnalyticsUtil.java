@@ -579,4 +579,11 @@ public class FirebaseAnalyticsUtil {
                 new String[]{selectedItem});
     }
 
+    public static void reportOtpRequested(int numberOfReattempts) {
+        reportEvent(
+                CCAnalyticsEvent.OTP_REQUESTED_EVENT,
+                CCAnalyticsParam.OTP_REATTEMPTS,
+                String.valueOf(numberOfReattempts)
+        );
+    }
 }
