@@ -34,10 +34,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object PushNotificationApiHelper {
-
     const val MESSAGING_CHANNEL_KEYS_SYNC = "MESSAGING_CHANNEL_KEYS_SYNC"
-    const val SYNC_BACKOFF_DELAY_IN_MINS : Long = 3
-  
+    const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
+
     fun retrieveLatestPushNotificationsWithCallback(
         context: Context,
         listener: ConnectActivityCompleteListener,
@@ -159,20 +158,20 @@ object PushNotificationApiHelper {
 
     fun scheduleMessagingChannelsKeySync(context: Context) {
         val channelsKeySyncWorkRequest =
-            OneTimeWorkRequest.Builder(MessagingChannelsKeySyncWorker::class.java)
+            OneTimeWorkRequest
+                .Builder(MessagingChannelsKeySyncWorker::class.java)
                 .setConstraints(
-                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-                )
-                .setBackoffCriteria(
+                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
+                ).setBackoffCriteria(
                     androidx.work.BackoffPolicy.EXPONENTIAL,
                     SYNC_BACKOFF_DELAY_IN_MINS,
-                    TimeUnit.MINUTES
+                    TimeUnit.MINUTES,
                 ).build()
 
         WorkManager.getInstance(context).enqueueUniqueWork(
             MESSAGING_CHANNEL_KEYS_SYNC,
             ExistingWorkPolicy.KEEP,
-            channelsKeySyncWorkRequest
+            channelsKeySyncWorkRequest,
         )
     }
 }

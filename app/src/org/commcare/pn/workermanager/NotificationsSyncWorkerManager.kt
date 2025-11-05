@@ -32,8 +32,9 @@ import java.util.concurrent.TimeUnit
 /**
  * This class is responsible for allocating the work request for each type of push notification
  */
-class NotificationsSyncWorkerManager(val context: Context) {
-
+class NotificationsSyncWorkerManager(
+    val context: Context,
+) {
     companion object {
         private const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
         private const val PERIODIC_NOTIFICATION_WORKER_TAG = "periodic_notification_worker"
@@ -60,34 +61,38 @@ class NotificationsSyncWorkerManager(val context: Context) {
          */
         @JvmStatic
         fun schedulePeriodicPushNotificationRetrieval(context: Context) {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true)
-                .build()
+            val constraints =
+                Constraints
+                    .Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
 
-            val inputData = Data.Builder()
-                .putString(ACTION, SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString())
-                .build()
+            val inputData =
+                Data
+                    .Builder()
+                    .putString(ACTION, SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString())
+                    .build()
 
-            val retrievalRequest = PeriodicWorkRequest.Builder(
-                NotificationsSyncWorker::class.java,
-                PERIODICITY_FOR_NOTIFICATION_RETRIEVAL_IN_HOURS,
-                TimeUnit.HOURS
-            )
-                .setInputData(inputData)
-                .addTag(PERIODIC_NOTIFICATION_WORKER_TAG)
-                .setConstraints(constraints)
-                .setBackoffCriteria(
-                    BackoffPolicy.EXPONENTIAL,
-                    PERIODIC_NOTIFICATION__BACKOFF,
-                    TimeUnit.MINUTES
-                )
-                .build()
+            val retrievalRequest =
+                PeriodicWorkRequest
+                    .Builder(
+                        NotificationsSyncWorker::class.java,
+                        PERIODICITY_FOR_NOTIFICATION_RETRIEVAL_IN_HOURS,
+                        TimeUnit.HOURS,
+                    ).setInputData(inputData)
+                    .addTag(PERIODIC_NOTIFICATION_WORKER_TAG)
+                    .setConstraints(constraints)
+                    .setBackoffCriteria(
+                        BackoffPolicy.EXPONENTIAL,
+                        PERIODIC_NOTIFICATION__BACKOFF,
+                        TimeUnit.MINUTES,
+                    ).build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 PERIODIC_NOTIFICATION_REQUEST_NAME,
                 ExistingPeriodicWorkPolicy.REPLACE,
-                retrievalRequest
+                retrievalRequest,
             )
         }
 
@@ -98,17 +103,20 @@ class NotificationsSyncWorkerManager(val context: Context) {
         @JvmStatic
         fun cancelPeriodicPushNotificationRetrieval(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(
-                PERIODIC_NOTIFICATION_REQUEST_NAME
+                PERIODIC_NOTIFICATION_REQUEST_NAME,
             )
         }
 
-        fun schedulePushNotificationRetrievalWith(context: Context, delay: Long = 0) {
+        fun schedulePushNotificationRetrievalWith(
+            context: Context,
+            delay: Long = 0,
+        ) {
             val notificationSyncWorkerManager =
                 NotificationsSyncWorkerManager(context, null, false, true)
             notificationSyncWorkerManager.startPersonalIdNotificationsWorker(
                 emptyMap(),
                 false,
-                delay
+                delay,
             )
         }
     }
@@ -127,7 +135,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
         context: Context,
         notificationsPayload: ArrayList<Map<String, String>>,
         showNotification: Boolean,
-        syncNotification: Boolean = false
+        syncNotification: Boolean = false,
     ) : this(context) {
         this.notificationsPayload = notificationsPayload
         this.showNotification = showNotification
@@ -138,7 +146,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
         context: Context,
         pnsRecords: List<PushNotificationRecord>?,
         showNotification: Boolean,
-        syncNotification: Boolean = false
+        syncNotification: Boolean = false,
     ) : this(context) {
         this.notificationsPayload = convertPNRecordsToPayload(pnsRecords)
         this.showNotification = showNotification
@@ -149,9 +157,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
      * This method will start Api sync for received PNs either through FCM or notification API
      * @return whether a sync was scheduled as part of this call
      */
-    fun startPNApiSync(): Boolean {
-        return startSyncWorker()
-    }
+    fun startPNApiSync(): Boolean = startSyncWorker()
 
     private fun startSyncWorker(): Boolean {
         var isNotificationSyncScheduled = false
@@ -196,7 +202,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
     private fun startPersonalIdNotificationsWorker(
         notificationPayload: Map<String, String>,
         showNotification: Boolean = this.showNotification,
-        delay:Long=0
+        delay: Long = 0,
     ) {
         if (cccCheckPassed(context)) {
             startWorkRequest(
@@ -204,7 +210,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS,
                 SyncAction.SYNC_PERSONALID_NOTIFICATIONS.toString(),
                 showNotification,
-                delay
+                delay,
             )
         }
     }
@@ -215,7 +221,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_LEARNING_PROGRESS,
-                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-$opportunityId"
+                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-$opportunityId",
             )
         }
     }
@@ -226,7 +232,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_DELIVERY_PROGRESS,
-                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-$opportunityId"
+                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-$opportunityId",
             )
         }
     }
@@ -236,7 +242,7 @@ class NotificationsSyncWorkerManager(val context: Context) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_OPPORTUNITY,
-                SyncAction.SYNC_OPPORTUNITY.toString()
+                SyncAction.SYNC_OPPORTUNITY.toString(),
             )
         }
     }
@@ -246,31 +252,34 @@ class NotificationsSyncWorkerManager(val context: Context) {
         syncAction: SyncAction,
         uniqueWorkName: String,
         showNotification: Boolean = this.showNotification,
-        delay: Long = 0
+        delay: Long = 0,
     ) {
-        val inputDataBuilder = Data.Builder()
-            .putString(ACTION, syncAction.toString())
-            .putBoolean(NotificationsSyncWorker.SHOW_NOTIFICATION_KEY, showNotification)
+        val inputDataBuilder =
+            Data
+                .Builder()
+                .putString(ACTION, syncAction.toString())
+                .putBoolean(NotificationsSyncWorker.SHOW_NOTIFICATION_KEY, showNotification)
 
         if (!notificationPayload.isEmpty()) {
             val pnJsonString = Gson().toJson(notificationPayload)
             inputDataBuilder.putString(NOTIFICATION_PAYLOAD, pnJsonString)
         }
 
-        val syncWorkRequest = OneTimeWorkRequestBuilder<NotificationsSyncWorker>()
-            .setInputData(inputDataBuilder.build())
-            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setBackoffCriteria(
-                androidx.work.BackoffPolicy.EXPONENTIAL,
-                SYNC_BACKOFF_DELAY_IN_MINS,
-                TimeUnit.MINUTES
-            ).build()
+        val syncWorkRequest =
+            OneTimeWorkRequestBuilder<NotificationsSyncWorker>()
+                .setInputData(inputDataBuilder.build())
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    SYNC_BACKOFF_DELAY_IN_MINS,
+                    TimeUnit.MINUTES,
+                ).build()
 
         WorkManager.getInstance(context).enqueueUniqueWork(
             uniqueWorkName,
             ExistingWorkPolicy.KEEP,
-            syncWorkRequest
+            syncWorkRequest,
         )
         signaling = true
     }

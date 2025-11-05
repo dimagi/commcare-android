@@ -13,13 +13,18 @@ import java.io.InputStream
 /**
  * Parser for retrieving notification response
  */
-class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResponseParser<T> {
-
+class RetrieveNotificationsResponseParser<T>(
+    val context: Context,
+) : BaseApiResponseParser<T> {
     val channels: MutableList<ConnectMessagingChannelRecord> = ArrayList()
     val messages: MutableList<ConnectMessagingMessageRecord?> = ArrayList()
     var notificationsJsonArray: JSONArray? = null
 
-    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
+    override fun parse(
+        responseCode: Int,
+        responseData: InputStream,
+        anyInputObject: Any?,
+    ): T {
         val jsonText = responseData.bufferedReader().use { it.readText() }
         val responseJsonObject = JSONObject(jsonText)
         parseNotifications(responseJsonObject)
@@ -61,10 +66,11 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
                 if (isNotificationMessageType(notificationJsonObject) &&
                     notificationJsonObject.getJSONObject("data").has("message_id")
                 ) {
-                    val message = ConnectMessagingMessageRecord.fromJson(
-                        notificationJsonObject.getJSONObject("data"),
-                        existingChannels
-                    )
+                    val message =
+                        ConnectMessagingMessageRecord.fromJson(
+                            notificationJsonObject.getJSONObject("data"),
+                            existingChannels,
+                        )
                     if (message != null) {
                         messages.add(message)
                     }
@@ -90,17 +96,20 @@ class RetrieveNotificationsResponseParser<T>(val context: Context) : BaseApiResp
 
     private fun shouldRemoveChannel(
         notificationJsonObject: JSONObject,
-        channelId: String
+        channelId: String,
     ): Boolean =
-        isNotificationMessageType(notificationJsonObject) && notificationJsonObject.getJSONObject("data")
-            .get("channel") != null && channelId.equals(
-            notificationJsonObject.getJSONObject("data").get("channel")
-        )
+        isNotificationMessageType(notificationJsonObject) && notificationJsonObject
+            .getJSONObject("data")
+            .get("channel") != null &&
+            channelId.equals(
+                notificationJsonObject.getJSONObject("data").get("channel"),
+            )
 
     private fun isNotificationMessageType(notificationJsonObject: JSONObject) =
-        notificationJsonObject.has("notification_type") && "MESSAGING".equals(
-            notificationJsonObject.get(
-                "notification_type"
-            )
-        ) && notificationJsonObject.has("data") && notificationJsonObject.getJSONObject("data") != null
+        notificationJsonObject.has("notification_type") &&
+            "MESSAGING".equals(
+                notificationJsonObject.get(
+                    "notification_type",
+                ),
+            ) && notificationJsonObject.has("data") && notificationJsonObject.getJSONObject("data") != null
 }
