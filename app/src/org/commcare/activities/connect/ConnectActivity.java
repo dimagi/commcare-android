@@ -41,11 +41,15 @@ import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.personalId.PersonalIdFeatureFlagChecker;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -61,6 +65,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private MenuItem notificationsMenuItem = null;
 
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -141,6 +146,12 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
         if (!TextUtils.isEmpty(notificationId)) {
             NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);
+            FirebaseAnalyticsUtil.reportNotificationEvent(
+                    AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
+                    redirectionAction,
+                    notificationId
+            );
         }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
@@ -165,6 +176,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         notificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
         updateNotificationIcon();
 
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         return super.onCreateOptionsMenu(menu);
     }
     private void updateNotificationIcon() {
@@ -178,6 +190,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(R.id.action_sync,
+                AnalyticsParamValue.ITEM_CONNECT_SYNC);
+        menuIdToAnalyticsEvent.put(R.id.action_bell,
+                AnalyticsParamValue.ITEM_NOTIFICATIONS_BELL);
+        return menuIdToAnalyticsEvent;
     }
 
     public ConnectJobRecord getActiveJob() {
@@ -194,6 +215,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
+                menuIdToAnalyticsParam.get(item.getItemId()));
         if (item.getItemId() == R.id.action_bell) {
             updateNotificationIcon();
             ConnectNavHelper.goToNotification(this);
