@@ -89,7 +89,7 @@ class StartConfigurationResponseParserTest {
         // Assert
         assertEquals("biometric", sessionData.requiredLock)
         assertEquals("partial-token", sessionData.token)
-        assertFalse(sessionData.demoUser ?: true)  // Check for nullable Boolean
+        assertFalse(sessionData.demoUser ?: true) // Check for nullable Boolean
         assertNull(sessionData.smsMethod)
         assertNull(sessionData.sessionFailureCode)
         assertNull(sessionData.sessionFailureSubcode)
