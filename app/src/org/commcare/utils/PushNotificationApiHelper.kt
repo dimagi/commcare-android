@@ -87,8 +87,9 @@ object PushNotificationApiHelper {
                                 )
                             acknowledgeNotificationsReceipt(context, savedNotificationIds + messagingNotiIds) // acknowledge all
                         }
+                        continuation.resume(Result.success(newResultWithoutMessaging))
                     }
-                    continuation.resume(Result.success(newResultWithoutMessaging))
+
                 }
 
                 override fun onFailure(
