@@ -98,8 +98,8 @@ class PersonalIdWorkHistoryViewModel(
 
     private fun getWorkHistoryForAppRecord(record: ApplicationRecord): Iterable<PersonalIdWorkHistory> {
         val commcareApp = CommCareApp(record)
+        commcareApp.setupSandbox()
         try {
-            commcareApp.setupSandbox()
             val profile = commcareApp.initApplicationProfile()
             return profile.credentials.map { credential ->
                 PersonalIdWorkHistory().apply {
