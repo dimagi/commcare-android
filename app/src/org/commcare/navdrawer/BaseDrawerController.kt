@@ -120,7 +120,7 @@ class BaseDrawerController(
                 .getInstance()
                 .launchPersonalId(
                     activity,
-                    ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE,
+                    ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH,
                 )
             closeDrawer()
         }

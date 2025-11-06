@@ -391,7 +391,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else if (requestCode == ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE) {
+        } else if (requestCode == ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH) {
             personalIdManager.handleFinishedActivity(this, resultCode);
         }
 
@@ -952,7 +952,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void registerPersonalIdUser() {
-        personalIdManager.launchPersonalId(this, ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE);
+        personalIdManager.launchPersonalId(this, ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH);
     }
 
     protected boolean seatAppIfNeeded(String appId) {
