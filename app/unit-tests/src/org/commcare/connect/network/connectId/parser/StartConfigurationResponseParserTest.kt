@@ -15,9 +15,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/**
- * Unit tests for StartConfigurationResponseParser
- */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class StartConfigurationResponseParserTest {
@@ -68,7 +65,7 @@ class StartConfigurationResponseParserTest {
 
         // Assert
         assertNull(sessionData.requiredLock)
-        assertFalse(sessionData.demoUser ?: true) // Handle nullable Boolean
+        assertFalse(sessionData.demoUser ?: true) // Check for nullable Boolean
         assertNull(sessionData.token)
         assertNull(sessionData.smsMethod)
         assertNull(sessionData.sessionFailureCode)
@@ -92,7 +89,7 @@ class StartConfigurationResponseParserTest {
         // Assert
         assertEquals("biometric", sessionData.requiredLock)
         assertEquals("partial-token", sessionData.token)
-        assertFalse(sessionData.demoUser ?: true) // optBoolean returns false when not set
+        assertFalse(sessionData.demoUser ?: true)  // Check for nullable Boolean
         assertNull(sessionData.smsMethod)
         assertNull(sessionData.sessionFailureCode)
         assertNull(sessionData.sessionFailureSubcode)
@@ -123,19 +120,17 @@ class StartConfigurationResponseParserTest {
     }
 
     @Test
-    fun testParseValidRequiredLockTypes() {
-        // Test PIN
+    fun testParseValidRequiredLockTypeAsPin() {
         val jsonPin =
             JSONObject().apply {
                 put("required_lock", PersonalIdSessionData.PIN)
             }
         parser.parse(jsonPin, sessionData)
         assertEquals(PersonalIdSessionData.PIN, sessionData.requiredLock)
+    }
 
-        // Reset session data
-        sessionData = PersonalIdSessionData()
-
-        // Test BIOMETRIC
+    @Test
+    fun testParseValidRequiredLockTypeAsBiometric() {
         val jsonBiometric =
             JSONObject().apply {
                 put("required_lock", PersonalIdSessionData.BIOMETRIC_TYPE)
@@ -145,25 +140,26 @@ class StartConfigurationResponseParserTest {
     }
 
     @Test
-    fun testParseBooleanValues() {
+    fun testParseTruthyBooleanValues() {
         // Test true values
-        val json1 =
+        val json =
             JSONObject().apply {
                 put("demo_user", true)
                 put("otp_fallback", true)
             }
-        parser.parse(json1, sessionData)
+        parser.parse(json, sessionData)
         assertEquals(true, sessionData.demoUser)
         assertTrue(sessionData.otpFallback)
+    }
 
-        // Reset and test false values
-        sessionData = PersonalIdSessionData()
-        val json2 =
+    @Test
+    fun testParseFalsyBooleanValues() {
+        val json =
             JSONObject().apply {
                 put("demo_user", false)
                 put("otp_fallback", false)
             }
-        parser.parse(json2, sessionData)
+        parser.parse(json, sessionData)
         assertEquals(false, sessionData.demoUser)
         assertFalse(sessionData.otpFallback)
     }
@@ -185,7 +181,7 @@ class StartConfigurationResponseParserTest {
         // Assert - Should only set known fields, ignore extra ones
         assertEquals("pin", sessionData.requiredLock)
         assertEquals("test-token", sessionData.token)
-        assertFalse(sessionData.demoUser ?: true) // optBoolean returns false when not set
+        assertFalse(sessionData.demoUser ?: true) // handle nullable Boolean
         assertNull(sessionData.smsMethod)
     }
 

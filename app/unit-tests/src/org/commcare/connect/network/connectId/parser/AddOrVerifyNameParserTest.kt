@@ -3,7 +3,6 @@ package org.commcare.connect.network.connectId.parser
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -12,9 +11,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/**
- * Unit tests for AddOrVerifyNameParser
- */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class AddOrVerifyNameParserTest {
@@ -30,13 +26,14 @@ class AddOrVerifyNameParserTest {
     @Test
     fun testParseCompleteValidResponse() {
         // Arrange
+        val photoBase64 =
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
         val json =
             JSONObject().apply {
                 put("account_exists", true)
                 put(
                     "photo",
-                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg" +
-                        "==",
+                    photoBase64,
                 )
             }
 
@@ -46,7 +43,7 @@ class AddOrVerifyNameParserTest {
         // Assert
         assertEquals(true, sessionData.accountExists)
         assertEquals(
-            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+            photoBase64,
             sessionData.photoBase64,
         )
     }

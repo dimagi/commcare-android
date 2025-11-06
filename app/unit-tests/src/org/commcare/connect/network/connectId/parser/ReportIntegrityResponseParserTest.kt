@@ -13,9 +13,6 @@ import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 
-/**
- * Unit tests for ReportIntegrityResponseParser
- */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class ReportIntegrityResponseParserTest {

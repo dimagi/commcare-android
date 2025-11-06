@@ -12,9 +12,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/**
- * Unit tests for ConfirmBackupCodeResponseParser
- */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class ConfirmBackupCodeResponseParserTest {
