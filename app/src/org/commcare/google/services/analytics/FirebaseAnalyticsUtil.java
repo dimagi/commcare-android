@@ -1,5 +1,7 @@
 package org.commcare.google.services.analytics;
 
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
+
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -179,7 +181,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportAppInstall(String installMethod) {
-        reportEvent(CCAnalyticsEvent.APP_INSTALL, FirebaseAnalytics.Param.METHOD, installMethod);
+        reportEvent(CCAnalyticsEvent.APP_INSTALL, METHOD, installMethod);
     }
 
     public static void reportAppManagerAction(String action) {
@@ -214,21 +216,21 @@ public class FirebaseAnalyticsUtil {
     public static void reportFormNav(String direction, String method, String formId) {
         if (rateLimitReporting(.1)) {
             reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
-                    new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD,
+                    new String[]{CCAnalyticsParam.DIRECTION, METHOD,
                             CCAnalyticsParam.FORM_ID}, new String[]{direction, method, formId});
         }
     }
 
     public static void reportFormQuitAttempt(String method, String formId) {
         reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT,
-                new String[]{FirebaseAnalytics.Param.METHOD, CCAnalyticsParam.FORM_ID},
+                new String[]{METHOD, CCAnalyticsParam.FORM_ID},
                 new String[]{method, formId});
     }
 
     public static void reportFormFinishAttempt(String saveResult, String formId, boolean userTriggered) {
         String method = userTriggered ? AnalyticsParamValue.USER_TRIGGERED : AnalyticsParamValue.SYSTEM_TRIGGERED;
         reportEvent(CCAnalyticsEvent.FORM_FINISH_ATTEMPT,
-                new String[]{CCAnalyticsParam.FORM_ID, CCAnalyticsParam.RESULT, FirebaseAnalytics.Param.METHOD},
+                new String[]{CCAnalyticsParam.FORM_ID, CCAnalyticsParam.RESULT, METHOD},
                 new String[]{formId, saveResult, method});
     }
 
@@ -251,7 +253,7 @@ public class FirebaseAnalyticsUtil {
                 detailTabCount > 1 ? AnalyticsParamValue.DETAIL_WITH_TABS : AnalyticsParamValue.DETAIL_NO_TABS;
 
         reportEvent(CCAnalyticsEvent.ENTITY_DETAIL_NAVIGATION,
-                new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD,
+                new String[]{CCAnalyticsParam.DIRECTION, METHOD,
                         CCAnalyticsParam.UI_STATE}, new String[]{direction, navMethod, detailUiState});
     }
 
@@ -259,7 +261,7 @@ public class FirebaseAnalyticsUtil {
         Bundle b = new Bundle();
         b.putString(FirebaseAnalytics.Param.SOURCE, trigger);
         b.putLong(FirebaseAnalytics.Param.SUCCESS, result ? 1 : 0);
-        b.putString(FirebaseAnalytics.Param.METHOD, syncMode);
+        b.putString(METHOD, syncMode);
         b.putString(CCAnalyticsParam.REASON, failureReason);
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT, b);
     }
@@ -424,7 +426,7 @@ public class FirebaseAnalyticsUtil {
     public static void reportPersonalIdAccountRecovered(boolean success, String method) {
         Bundle b = new Bundle();
         b.putLong(FirebaseAnalytics.Param.VALUE, success ? 1 : 0);
-        b.putString(FirebaseAnalytics.Param.METHOD, method);
+        b.putString(METHOD, method);
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_RECOVERED, b);
     }
 
@@ -554,10 +556,6 @@ public class FirebaseAnalyticsUtil {
                 new String[]{tabName});
     }
 
-    public static void reportNotificationType(String notificationType) {
-        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
-    }
-
     public static void reportBiometricInvalidated() {
         reportEvent(CCAnalyticsEvent.CCC_BIOMETRIC_INVALIDATED);
     }
@@ -585,5 +583,19 @@ public class FirebaseAnalyticsUtil {
                 CCAnalyticsParam.OTP_REATTEMPTS,
                 String.format("%s reattempt(s)", numberOfReattempts)
         );
+    }
+
+    public static void reportNotificationEvent(String eventType, String method,
+            @Nullable String actionType, @Nullable String notificationId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.NOTIFICATION_EVENT_TYPE, eventType);
+        bundle.putString(METHOD, method);
+        if (actionType != null) {
+            bundle.putString(CCAnalyticsParam.NOTIFICATION_ACTION, actionType);
+        }
+        if (notificationId != null) {
+            bundle.putString(CCAnalyticsParam.NOTIFICATION_ID, notificationId);
+        }
+        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, bundle);
     }
 }

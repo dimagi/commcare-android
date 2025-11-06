@@ -7,6 +7,7 @@ package org.commcare.google.services.analytics;
 public class CCAnalyticsParam {
 
     public static final String USER_CID = "user_cid";
+
     static final String BUILD_NUMBER = "build_number";
     static final String CC_APP_ID = "cc_app_id";
     static final String CC_APP_NAME = "cc_app_name";
@@ -44,4 +45,8 @@ public class CCAnalyticsParam {
     public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO = "personal_id_continue_button_clicked_info";
 
     public static final String OTP_REATTEMPTS = "otp_reattempts";
+    static final String NOTIFICATION_EVENT_TYPE = "event_type";
+    static final String NOTIFICATION_ACTION = "action";
+    static final String NOTIFICATION_ID = "notification_id";
+    static final String NOTIFICATION_CLICK_METHOD = "click_method";
 }

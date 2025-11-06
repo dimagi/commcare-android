@@ -58,4 +58,6 @@ public class CCAnalyticsEvent {
     static final String PERSONAL_ID_MESSAGE_SENT = "personal_id_message_sent";
     static final String PERSONAL_ID_LINKING = "personal_id_linking";
     static final String OTP_REQUESTED_EVENT = "otp_requested_event";
+    static final String PERSONAL_ID_NOTIFICATION_RECEIVED = "personal_id_notification_received";
+    static final String PERSONAL_ID_NOTIFICATION_CLICKED = "personal_id_notification_clicked";
 }
