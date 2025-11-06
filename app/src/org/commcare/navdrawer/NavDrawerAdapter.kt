@@ -107,7 +107,7 @@ class NavDrawerAdapter(
                     ContextCompat.getColor(
                         context,
                         R.color.nav_drawer_disable_color,
-                    )
+                    ),
                 )
             }
 
@@ -119,9 +119,10 @@ class NavDrawerAdapter(
         }
 
         private fun bindBadgeCount(count: Int?) {
-            val countText = count?.let {
-                if (it > 9) "9+" else it.toString()
-            }
+            val countText =
+                count?.let {
+                    if (it > 9) "9+" else it.toString()
+                }
 
             if (!countText.isNullOrEmpty()) {
                 messageCount.text = countText
