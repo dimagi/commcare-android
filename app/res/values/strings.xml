@@ -222,13 +222,13 @@
     <string name="recovery_forms_send_error">Error while sending forms</string>
     <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
-    <string name="recovery_network_outdated">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
-    <string name="recovery_network_token_unavailable">There was a network issue, please try again.</string>
+    <string name="recovery_network_outdated">This app version is outdated. Please update the app on the Google Play Store in order to proceed.</string>
+    <string name="recovery_network_token_unavailable">There was a network issue. Please try again.</string>
     <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover your Personal ID account and retry</string>
     <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
     <string name="recovery_network_server_error">There was an error processing your request.</string>
-    <string name="recovery_network_cooldown">Too many request attempts, try again after an hour.</string>
-    <string name="recovery_network_unknown">Something went wrong, please try again.</string>
+    <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
+    <string name="recovery_network_unknown">Something went wrong. Please try again.</string>
     <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity, please contact an administrator.</string>
     <string name="recovery_app_manager">Go to App Manager</string>
     <string name="recovery_retry">Retry Recovery</string>
@@ -311,16 +311,16 @@
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
 
-    <string name="connect_otp_sent">OTP Sent</string>
-    <string name="connect_otp_verified">OTP Verified</string>
-    <string name="connect_enter_otp">Enter OTP</string>
+    <string name="connect_otp_sent">A 6-digit passcode has been sent to your phone number.</string>
+    <string name="connect_otp_verified">Success! Your phone number has been verified.</string>
+    <string name="connect_enter_otp">Please enter the 6-digit passcode that was sent to your phone number.</string>
 
     <string name="connect_backup_code_title_set">Backup Code</string>
     <string name="connect_backup_code_title_confirm">Confirm Backup Code</string>
     <string name="connect_backup_code_message_title">PersonalId Backup Code</string>
     <string name="connect_backup_code_message">Enter your 6-digit Backup Code</string>
     <string name="connect_backup_code_length">Backup code must be %d digits</string>
-    <string name="connect_backup_code_mismatch">Backup codes must match</string>
+    <string name="connect_backup_code_mismatch">The backup codes you enter must match. Please keep it in a safe place as you will need it to access your account again.</string>
 
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
 
@@ -328,19 +328,19 @@
     <string name="connect_recovery_button_phone">Continue</string>
 
     <string name="connect_recovery_success_title">Account Recovered</string>
-    <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your PersonalId.</string>
+    <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>
     <string name="connect_unlock_message">Please unlock to continue</string>
     <string name="connect_unlock_unavailable">Please configure a screen unlock mechanism</string>
 
     <string name="connect_biometric_enroll_fail_title">Biometric Issue</string>
-    <string name="connect_biometric_enroll_fail_message">You will need to configure this biometric manually in the Android settings.</string>
+    <string name="connect_biometric_enroll_fail_message">PersonalID requires biometrics to be enabled. Please configure biometrics in the Android System Settings before proceeding.</string>
 
     <string name="connect_biometric_enroll_fail_button">Go to Settings</string>
     <string name="connect_register_name">Name</string>
     <string name="connect_register_success_title">Account Created</string>
 
-    <string name="connect_register_success_message">Your PersonalID account has been successfully created and is now ready for you to use!</string>
+    <string name="connect_register_success_message">Your account has been created, and is ready for you to use!</string>
     <string name="connect_register_success_button">OK</string>
     <string name="connect_verify_title">Unlock Options</string>
     <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalID account</string>
@@ -351,7 +351,7 @@
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
     <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
     <string name="connect_verify_pin_configured">Your PIN has already been configured and will be used to unlock PersonalID.</string>
-    <string name="connect_verify_configuration_failed">Configuration failed, please try again. %s</string>
+    <string name="connect_verify_configuration_failed">Configuring the biometrics on your Android device has failed. Please try again %s</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
@@ -606,16 +606,16 @@
     <string name="personalid_name_empty_error">Name field cannot be empty</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
-    <string name="personalid_configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
+    <string name="personalid_configuration_process_failed_subtitle">Unfortunately, this device did not pass the security checks required to sign up for PersonalID. Please try again on a different device.</string>
     <string name="personalid_configuration_process_failed_play_services">Please make sure Play Store is available on your device and is updated.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Temporary error in establishing your device eligibility. Please try again after a day.</string>
     <string name="personalid_configuration_process_failed_network_error">Network error in establishing your device eligibility. Please make sure you have a good network connection and try again.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">Unable to establish device eligibility due to an unexpected error. Please contact customer support if the problem persists</string>
-    <string name="personalid_configuration_process_pin_unavailable_message">The PIN security mechanism is unavailable, please try again later.</string>
-    <string name="personalid_configuration_process_biometric_unavailable_message">The biometric security mechanism is unavailable, please try again later.</string>
-    <string name="personalid_configuration_process_pin_needs_update_message">The PIN security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
-    <string name="personalid_configuration_process_biometric_needs_update_message">The biometric security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
-    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires that your device have a fingerprint scanner. Please try again with a different device.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">The PIN on this device is currently unavailable. Please try again later.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">Biometrics is not currently enabled on this device. Please configure biometrics in the Android System Settings to proceed.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">The PIN on this device requires an update. Please apply any available system updates, or try again on a different device.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">Biometrics on this device is out of date. Please apply any available system updates, or try again with a different device.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires your device to have a fingerprint scanner. Please try again on a different device.</string>
     <string name="personalid_photo_capture_title">Welcome %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
@@ -626,18 +626,16 @@
     <string name="personalid_recovery_failed_title">Recovery failed</string>
     <string name="personalid_recovery_lockout_title">Account Locked</string>
     <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
-    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times and your account has been locked.</string>
-    <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
+    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked.</string>
+    <string name="personalid_wrong_backup_message">YYou have entered the wrong Backup Code. Please try again. You will need to create a new account after %d more incorrect attempts.</string>
     <string name="personalid_camera_permission_title">Permission for camera</string>
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
-    <string name="personalid_incorrect_otp">The OTP entered is incorrect. Please try again.</string>
-    <string name="personalid_too_many_otp_attempts">Too many attempts. Please try again later.</string>
-    <string name="personalid_otp_missing_activity">Something went wrong</string>
-    <string name="personalid_otp_verification_failed_generic">OTP verification failed:</string>
-    <string name="personalid_otp_verification_failed">Verification failed and please try again</string>
-    <string name="personalid_location_permission_error">Location permission denied</string>
-    <string name="personalid_location_service_error">Location service is not available. Please enable it</string>
+    <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
+    <string name="personalid_too_many_otp_attempts">You entered the incorrect 6-digit One Time Passcode too many times. Please try again later.</string>
+    <string name="personalid_otp_verification_failed_generic">Something went wrong verifying your phone number. Please try again.</string>
+    <string name="personalid_otp_verification_failed">Something went wrong. Please try again.</string>
+    <string name="personalid_location_permission_error">PersonalID requires your device to have Location Services enabled. Please enable this in your phone\'s settings before proceeding.</string>
     <string name="personalid_grant_location_permission">Grant Location Permission</string>
     <string name="personalid_grant_location_service">Enable Location Service</string>
     <string name="personalid_messaging_menu_title">Messaging</string>
@@ -678,7 +676,7 @@
     <string name="personalid_notification">Notifications</string>
     <string name="pn_no_notification_found">No notifications found</string>
 
-    <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
+    <string name="play_service_update_error">To use PersonalID, you need to update Google Play Services. Tap here to go to the Google Play Store to check for updates</string>
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>
 
@@ -691,4 +689,6 @@
     <string name="minutes_ago">%1$d minutes ago</string>
     <string name="hours_ago">%1$d hours ago</string>
     <string name="yesterday">Yesterday %1$s</string>
+
+    <string name="personalid_authentication_failed">Authenticating the biometrics on your Android device has failed. Please apply any available system updates, or try again with a different device</string>
 </resources>

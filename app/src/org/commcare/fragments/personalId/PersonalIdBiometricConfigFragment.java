@@ -115,7 +115,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Toast.makeText(requireActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), getString(R.string.personalid_authentication_failed), Toast.LENGTH_SHORT).show();
             }
         };
     }

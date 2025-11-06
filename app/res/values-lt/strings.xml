@@ -82,6 +82,7 @@
     <string name="nav_drawer_work_history">Storico lavorativo</string>
     <string name="nav_drawer_payments">Pagamenti</string>
     <string name="nav_drawer_manage_profile">Gestisci profilo</string>
+    <string name="play_service_update_error">Per utilizzare PersonalID, è necessario aggiornare Google Play Services. Tocca qui per andare sul Google Play Store e verificare la disponibilità di aggiornamenti.</string>
     <string name="nav_drawer_open">Apri il menu di navigazione</string>
     <string name="nav_drawer_close">Chiudi il menu di navigazione</string>
     <string name="connect_message_you">Voi</string>
@@ -95,5 +96,29 @@
     <string name="minutes_ago">Prieš %1$d min.</string>
     <string name="hours_ago">Prieš %1$d val.</string>
     <string name="yesterday">Vakar %1$s</string>
+
+    <string name="personalid_configuration_process_failed_subtitle">Purtroppo, questo dispositivo non ha superato i controlli di sicurezza necessari per la registrazione a PersonalID. Riprova su un dispositivo diverso.</string>
+    <string name="personalid_location_permission_error">PersonalID richiede che i Servizi di localizzazione siano abilitati sul tuo dispositivo. Abilitali nelle impostazioni del telefono prima di procedere.</string>
+    <string name="recovery_network_outdated">Questa versione dell\'app non è aggiornata. Aggiorna l\'app sul Google Play Store per procedere.</string>
+    <string name="recovery_network_cooldown">Troppi tentativi di richiesta. Riprova tra un\'ora.</string>
+    <string name="connect_biometric_enroll_fail_message">PersonalID richiede che i dati biometrici siano abilitati. Configura i dati biometrici nelle Impostazioni di sistema di Android prima di procedere.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">La biometria non è attualmente abilitata su questo dispositivo. Configura la biometria nelle Impostazioni di sistema Android prima di procedere.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">La biometria su questo dispositivo non è aggiornata. Applica gli aggiornamenti di sistema disponibili o riprova con un dispositivo diverso.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">Il PIN su questo dispositivo richiede un aggiornamento. Applica gli aggiornamenti di sistema disponibili o riprova con un dispositivo diverso.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">Il PIN su questo dispositivo non è attualmente disponibile. Riprova più tardi.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID richiede che il tuo dispositivo disponga di uno scanner di impronte digitali. Riprova su un dispositivo diverso.</string>
+    <string name="personalid_authentication_failed">L\'autenticazione dei dati biometrici sul tuo dispositivo Android non è riuscita. Applica gli aggiornamenti di sistema disponibili o riprova con un dispositivo diverso.</string>
+    <string name="connect_verify_configuration_failed">La configurazione dei dati biometrici sul tuo dispositivo Android non è riuscita. Riprova %s.</string>
+    <string name="personalid_otp_verification_failed">Si è verificato un errore. Riprova.</string>
+    <string name="personalid_too_many_otp_attempts">Hai inserito il passcode monouso di 6 cifre errato troppe volte. Riprova più tardi.</string>
+    <string name="connect_enter_otp">Inserisci il passcode di 6 cifre che è stato inviato al tuo numero di telefono.</string>
+    <string name="connect_otp_sent">Un codice di accesso di 6 cifre è stato inviato al tuo numero di telefono.</string>
+    <string name="connect_otp_verified">Ottimo! Il tuo numero di telefono è stato verificato.</string>
+    <string name="personalid_otp_verification_failed_generic">Si è verificato un errore durante la verifica del tuo numero di telefono. Riprova.</string>
+    <string name="personalid_incorrect_otp">Hai inserito il codice di accesso di 6 cifre errato. Per favore, riprova.</string>
+    <string name="personalid_recovery_lockout_message">Hai inserito il codice di backup errato troppe volte. Il tuo account è stato bloccato.</string>
+    <string name="connect_backup_code_mismatch">I codici di backup inseriti devono corrispondere. Conservali in un luogo sicuro perché ne avrai bisogno per accedere nuovamente al tuo account.</string>
+    <string name="connect_recovery_success_message">Il tuo account è stato recuperato! Puoi riprendere a usare PersonalID.</string>
+    <string name="connect_register_success_message">Il tuo account è stato creato ed è pronto per l\'uso!</string>
 
 </resources>
