@@ -89,7 +89,6 @@ object PushNotificationApiHelper {
                         }
                         continuation.resume(Result.success(newResultWithoutMessaging))
                     }
-
                 }
 
                 override fun onFailure(
