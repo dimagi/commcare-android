@@ -168,7 +168,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     private void successFlow(Activity activity) {
-        PersonalIdManager.getInstance().completeSignin();
+        PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
         activity.setResult(RESULT_OK);
         activity.finish();

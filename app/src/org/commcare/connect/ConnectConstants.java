@@ -9,7 +9,6 @@ public class ConnectConstants {
     public static final int PERSONAL_ID_TASK_ID_OFFSET = 1000;
     public final static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final int LOGIN_CONNECT_LAUNCH_REQUEST_CODE = 1050;
-    public static final int COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE = 1051;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
