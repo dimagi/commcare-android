@@ -197,6 +197,7 @@ public class PersonalIdManager {
 
 
     public void completeSignin() {
+        personalIdSatus = PersonalIdStatus.LoggedIn;
         userUnlockedPersonalId();
         if (parentActivity instanceof BaseDrawerActivity) {
             ((BaseDrawerActivity<?>) parentActivity).openDrawer();
@@ -204,7 +205,6 @@ public class PersonalIdManager {
     }
 
     public void userUnlockedPersonalId(){
-        personalIdSatus = PersonalIdStatus.LoggedIn;
         scheduleHeartbeat();
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();

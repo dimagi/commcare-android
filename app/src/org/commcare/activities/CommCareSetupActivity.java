@@ -444,7 +444,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
-            case ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE:
+            case ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH:
                 PersonalIdManager.getInstance().handleFinishedActivity(this, resultCode);
                 return;
             default:
