@@ -9,7 +9,7 @@ import androidx.annotation.StringDef
 data class PersonalIdSessionData(
     // Tells which device auth is required for the given user
     @DeviceAuthType var requiredLock: String? = null,
-    // states weather it is a demo user or normal user
+    // states whether it is a demo user or normal user
     var demoUser: Boolean? = null,
     // session token
     var token: String? = null,
@@ -17,7 +17,7 @@ data class PersonalIdSessionData(
     var sessionFailureCode: String? = null,
     // Sub Reason code to tell why user is not allowed to move forward with the flow
     var sessionFailureSubcode: String? = null,
-    // Tells weather its new user or old
+    // Tells whether its new user or old
     var accountExists: Boolean? = null,
     // photo of the user
     var photoBase64: String? = null,
