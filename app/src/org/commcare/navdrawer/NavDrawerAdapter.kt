@@ -71,7 +71,7 @@ class NavDrawerAdapter(
      * ViewHolder for parent items (top-level drawer entries).
      */
     inner class ParentViewHolder(
-        itemView: View
+        itemView: View,
     ) : RecyclerView.ViewHolder(itemView) {
         private val title = itemView.findViewById<TextView>(R.id.list_title)
         private val icon = itemView.findViewById<ImageView>(R.id.list_icon)
@@ -105,7 +105,8 @@ class NavDrawerAdapter(
                 title.isEnabled = false
                 icon.setColorFilter(
                     ContextCompat.getColor(
-                        context, R.color.nav_drawer_disable_color
+                        context,
+                        R.color.nav_drawer_disable_color,
                     )
                 )
             }
@@ -116,6 +117,7 @@ class NavDrawerAdapter(
                 refreshList(recyclerList)
             }
         }
+
         private fun bindBadgeCount(count: Int?) {
             val countText = count?.let {
                 if (it > 9) "9+" else it.toString()
@@ -133,7 +135,9 @@ class NavDrawerAdapter(
     /**
      * ViewHolder for child items (sub-items under parent).
      */
-    inner class ChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ChildViewHolder(
+        itemView: View,
+    ) : RecyclerView.ViewHolder(itemView) {
         private val childText = itemView.findViewById<TextView>(R.id.sublist_title)
         private val highlight = itemView.findViewById<ImageView>(R.id.sublist_highlight_icon)
 

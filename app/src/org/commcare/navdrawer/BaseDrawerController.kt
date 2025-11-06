@@ -108,7 +108,7 @@ class BaseDrawerController(
                 onChildClick = { parentType, childItem ->
                     FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
                     onItemClicked(parentType, childItem.recordId)
-                }
+                },
             )
         binding.navDrawerRecycler.layoutManager = LinearLayoutManager(activity)
         binding.navDrawerRecycler.adapter = navDrawerAdapter
@@ -116,7 +116,8 @@ class BaseDrawerController(
 
     private fun setupListeners() {
         binding.signInButton.setOnClickListener {
-            PersonalIdManager.getInstance()
+            PersonalIdManager
+                .getInstance()
                 .launchPersonalId(
                     activity,
                     ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE,
@@ -142,10 +143,12 @@ class BaseDrawerController(
 
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
-            Glide.with(binding.imageUserProfile)
+            Glide
+                .with(binding.imageUserProfile)
                 .load(user.photo)
                 .apply(
-                    RequestOptions.circleCropTransform()
+                    RequestOptions
+                        .circleCropTransform()
                         .placeholder(R.drawable.nav_drawer_person_avatar)
                         .error(R.drawable.nav_drawer_person_avatar),
                 ).into(binding.imageUserProfile)
