@@ -363,7 +363,7 @@ public class StandardHomeActivity
     public void fetchJobProgressOverNetwork() {
         ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
+            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, null,null,success -> {
                 if (success) {
                     uiController.updateConnectJobProgress();
                 }
