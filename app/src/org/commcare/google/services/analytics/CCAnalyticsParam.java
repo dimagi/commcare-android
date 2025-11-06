@@ -7,7 +7,6 @@ package org.commcare.google.services.analytics;
 public class CCAnalyticsParam {
 
     public static final String USER_CID = "user_cid";
-
     static final String BUILD_NUMBER = "build_number";
     static final String CC_APP_ID = "cc_app_id";
     static final String CC_APP_NAME = "cc_app_name";
@@ -17,7 +16,6 @@ public class CCAnalyticsParam {
     static final String FREE_DISK = "free_disk";
     static final String CCC_ENABLED = "ccc_enabled";
     static final String DEVICE_ID = "device_id";
-
     static final String ACTION_TYPE = "action_type";
     static final String DIRECTION = "direction";
     static final String TIME_IN_MINUTES = "time_in_minutes";
@@ -30,7 +28,6 @@ public class CCAnalyticsParam {
     static final String REQUEST_ID = "request_id";
     static final String RESULT_CODE = "result_code";
     static final String TRIGGER = "trigger";
-
     static final String USER_RETURNED = "user_returned";
     static final String NOTIFICATION_TYPE = "notification_type";
     static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
@@ -43,7 +40,6 @@ public class CCAnalyticsParam {
     static final String PARAM_API_TOTAL_JOBS = "ccc_api_total_jobs";
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
     public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO = "personal_id_continue_button_clicked_info";
-
     public static final String OTP_REATTEMPTS = "otp_reattempts";
     static final String NOTIFICATION_EVENT_TYPE = "event_type";
     static final String NOTIFICATION_ACTION = "action";
