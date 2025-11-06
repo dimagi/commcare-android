@@ -69,7 +69,7 @@ class BaseDrawerController(
 
                 override fun onDrawerSlide(
                     drawerView: View,
-                    slideOffset: Float
+                    slideOffset: Float,
                 ) {
                     super.onDrawerSlide(drawerView, slideOffset)
                     (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
@@ -97,18 +97,19 @@ class BaseDrawerController(
     }
 
     private fun initializeAdapter() {
-        navDrawerAdapter = NavDrawerAdapter(
-            activity,
-            emptyList(),
-            onParentClick = {
-                FirebaseAnalyticsUtil.reportNavDrawerItemSelected(it.title)
-                onItemClicked(it.type, null)
-            },
-            onChildClick = { parentType, childItem ->
-                FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
-                onItemClicked(parentType, childItem.recordId)
-            }
-        )
+        navDrawerAdapter =
+            NavDrawerAdapter(
+                activity,
+                emptyList(),
+                onParentClick = {
+                    FirebaseAnalyticsUtil.reportNavDrawerItemSelected(it.title)
+                    onItemClicked(it.type, null)
+                },
+                onChildClick = { parentType, childItem ->
+                    FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
+                    onItemClicked(parentType, childItem.recordId)
+                }
+            )
         binding.navDrawerRecycler.layoutManager = LinearLayoutManager(activity)
         binding.navDrawerRecycler.adapter = navDrawerAdapter
     }
@@ -146,25 +147,27 @@ class BaseDrawerController(
                 .apply(
                     RequestOptions.circleCropTransform()
                         .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar)
+                        .error(R.drawable.nav_drawer_person_avatar),
                 ).into(binding.imageUserProfile)
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
-            val seatedApp = if (highlightSeatedApp && appRecords.count() > 1) {
-                CommCareApplication.instance().currentApp.uniqueId
-            } else {
-                null
-            }
+            val seatedApp =
+                if (highlightSeatedApp && appRecords.count() > 1) {
+                    CommCareApplication.instance().currentApp.uniqueId
+                } else {
+                    null
+                }
 
-            val commcareApps = appRecords.map {
-                NavDrawerItem.ChildItem(
-                    it.displayName,
-                    it.uniqueId,
-                    NavItemType.COMMCARE_APPS,
-                    it.uniqueId == seatedApp,
-                )
-            }
+            val commcareApps =
+                appRecords.map {
+                    NavDrawerItem.ChildItem(
+                        it.displayName,
+                        it.uniqueId,
+                        NavItemType.COMMCARE_APPS,
+                        it.uniqueId == seatedApp,
+                    )
+                }
 
             val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
 
@@ -175,7 +178,7 @@ class BaseDrawerController(
                         activity.getString(R.string.nav_drawer_opportunities),
                         R.drawable.nav_drawer_opportunity_icon,
                         NavItemType.OPPORTUNITIES,
-                    )
+                    ),
                 )
             }
 
@@ -187,7 +190,7 @@ class BaseDrawerController(
                     isEnabled = commcareApps.isNotEmpty(),
                     isExpanded = commcareApps.size < 2,
                     children = commcareApps,
-                )
+                ),
             )
 
             if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
@@ -200,7 +203,7 @@ class BaseDrawerController(
                         R.drawable.nav_drawer_message_icon,
                         NavItemType.MESSAGING,
                         badgeCount = messageCount,
-                    )
+                    ),
                 )
             }
 
@@ -210,7 +213,7 @@ class BaseDrawerController(
                         activity.getString(R.string.personalid_work_history),
                         R.drawable.ic_work_history,
                         NavItemType.WORK_HISTORY,
-                    )
+                    ),
                 )
             }
 

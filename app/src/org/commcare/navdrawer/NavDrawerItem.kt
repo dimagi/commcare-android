@@ -10,13 +10,13 @@ sealed class NavDrawerItem {
         var isEnabled: Boolean = true,
         var isExpanded: Boolean = false,
         val children: List<ChildItem> = emptyList(),
-        val badgeCount: Int? = null
+        val badgeCount: Int? = null,
     ) : NavDrawerItem()
 
     data class ChildItem(
         val childTitle: String,
         val recordId: String,
         val parentType: BaseDrawerController.NavItemType,
-        val isHighlighted: Boolean = false
+        val isHighlighted: Boolean = false,
     ) : NavDrawerItem()
 }
