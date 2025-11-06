@@ -37,6 +37,8 @@ object PushNotificationApiHelper {
     const val MESSAGING_CHANNEL_KEYS_SYNC = "MESSAGING_CHANNEL_KEYS_SYNC"
     const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
 
+    const val NOTIFICATION_TYPE_MESSAGING = "MESSAGING"
+
     fun retrieveLatestPushNotificationsWithCallback(
         context: Context,
         listener: ConnectActivityCompleteListener,
@@ -69,19 +71,24 @@ object PushNotificationApiHelper {
             object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
                 override fun onSuccess(result: List<PushNotificationRecord>) {
                     scheduleMessagingChannelsKeySync(context)
+                    var newResultWithoutMessaging: List<PushNotificationRecord> = ArrayList()
                     CoroutineScope(Dispatchers.IO).launch {
                         if (result.isNotEmpty()) {
-                            NotificationPrefs.setNotificationAsUnread(context)
-                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
+                            val messagingNotiIds = getAllMessagingNotiIds(result) //  required to acknowledge server
+                            newResultWithoutMessaging = excludeMessagingFromList(result) // store only without messaging
+                            if (newResultWithoutMessaging.isNotEmpty()) {
+                                NotificationPrefs.setNotificationAsUnread(context)
+                            }
+                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context) // broadcast for any
                             val savedNotificationIds =
                                 NotificationRecordDatabaseHelper.storeNotifications(
                                     context,
-                                    result,
+                                    newResultWithoutMessaging, // store only notification without messaging Id
                                 )
-                            acknowledgeNotificationsReceipt(context, savedNotificationIds)
+                            acknowledgeNotificationsReceipt(context, savedNotificationIds + messagingNotiIds) // acknowledge all
                         }
+                        continuation.resume(Result.success(newResultWithoutMessaging))
                     }
-                    continuation.resume(Result.success(result))
                 }
 
                 override fun onFailure(
@@ -174,4 +181,17 @@ object PushNotificationApiHelper {
             channelsKeySyncWorkRequest,
         )
     }
+
+    private fun getAllMessagingNotiIds(notificationsList: List<PushNotificationRecord>): List<String> =
+        notificationsList
+            .filter {
+                NOTIFICATION_TYPE_MESSAGING.equals(it.notificationType)
+            }.map {
+                it.notificationId
+            }
+
+    private fun excludeMessagingFromList(notificationsList: List<PushNotificationRecord>) =
+        notificationsList.filter {
+            !NOTIFICATION_TYPE_MESSAGING.equals(it.notificationType)
+        }
 }
