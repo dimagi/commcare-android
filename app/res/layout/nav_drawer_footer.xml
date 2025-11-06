@@ -37,8 +37,7 @@
             android:layout_height="wrap_content"
             android:text="@string/personalid_notification"
             android:textAppearance="@style/TextAppearance.NavDrawerItem"
-            android:layout_marginStart="8dp"
-            android:fontFamily="sans-serif-medium" />
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -64,8 +63,7 @@
             android:layout_height="wrap_content"
             android:text="@string/about_cc"
             android:textAppearance="@style/TextAppearance.NavDrawerItem"
-            android:layout_marginStart="8dp"
-            android:fontFamily="sans-serif-medium" />
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -100,8 +98,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.NavDrawerItem.SubTitle"
         android:enabled="false"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"/>
+        android:layout_marginTop="8dp"/>
 
 </LinearLayout>
 </layout>
