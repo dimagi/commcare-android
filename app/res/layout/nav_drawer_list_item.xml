@@ -19,8 +19,8 @@
 
         <ImageView
             android:id="@+id/list_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
             android:src="@drawable/commcare_actionbar_logo" />
 
         <FrameLayout
@@ -58,8 +58,8 @@
 
     <ImageView
         android:id="@+id/arrow_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="19dp"
+        android:layout_height="19dp"
         android:paddingStart="16dp"
         android:src="@drawable/ic_blue_forward"
         app:tint="@android:color/white"/>
