@@ -155,7 +155,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             return false;
         }
 
-        return personalIdSessionData.getOtpFallback() && errorType.isNonRecoverable();
+        return errorType.isNonRecoverable();
     }
 
     @Override
