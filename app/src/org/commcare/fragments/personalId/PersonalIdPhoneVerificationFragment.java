@@ -366,8 +366,11 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void setupOtpManager(Boolean useOtpFallback) {
+        // Check if using the OTP fallback is allowed for the current user.
+        Boolean allowedToFallback = personalIdSessionData.getOtpFallback();
+
         // The fallback for the OTP uses Twilio (via Personal ID) rather than Firebase.
-        if (useOtpFallback) {
+        if (useOtpFallback && allowedToFallback) {
             otpManager = new OtpManager(
                     activity,
                     personalIdSessionData,
