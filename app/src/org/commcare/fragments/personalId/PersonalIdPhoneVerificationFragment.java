@@ -106,8 +106,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 // Auto-switch from Firebase to PersonalId for non-recoverable errors
                 if (shouldAutoSwitchToPersonalIdAuth(errorType)) {
                     Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-switching from Firebase to PersonalId auth due to error: " + errorType);
-                    Boolean useOtpFallback = true;
-                    setupOtpManager(useOtpFallback);
+                    setupOtpManager(true);
                     requestOtp();
                     return;
                 }
@@ -141,8 +140,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-        Boolean useOtpFallback = false;
-        setupOtpManager(useOtpFallback);
+        setupOtpManager(false);
     }
 
     /**
