@@ -10,8 +10,9 @@ import java.io.Serializable
 import java.util.Date
 
 @Table(PushNotificationRecord.STORAGE_KEY)
-class PushNotificationRecord : Persisted(), Serializable {
-
+class PushNotificationRecord :
+    Persisted(),
+    Serializable {
     @Persisting(1)
     @MetaField(META_NOTIFICATION_ID)
     var notificationId: String = ""
@@ -59,6 +60,7 @@ class PushNotificationRecord : Persisted(), Serializable {
     @Persisting(12)
     @MetaField(META_READ_STATUS)
     var readStatus: Boolean = false
+
     @Persisting(13)
     @MetaField(META_ACKNOWLEDGED)
     var acknowledged: Boolean = false
@@ -82,32 +84,27 @@ class PushNotificationRecord : Persisted(), Serializable {
 
         const val META_TIME_STAMP = "timestamp"
 
-
         fun fromJsonArray(jsonArray: JSONArray): List<PushNotificationRecord> {
             val records = mutableListOf<PushNotificationRecord>()
 
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
-                val record = PushNotificationRecord().apply {
-                    notificationId = obj.optString(META_NOTIFICATION_ID,"")
-                    title = obj.optString(META_TITLE,"")
-                    body = obj.optString(META_BODY,"")
-                    notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
-                    confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
-                    paymentId = obj.optString(META_PAYMENT_ID, "")
-                    readStatus = obj.optBoolean(META_READ_STATUS, false)
-
-                    val dateString: String = obj.getString(META_TIME_STAMP)
-                    createdDate = DateUtils.parseDateTime(dateString)
-
-                    val dataObj = obj.optJSONObject("data")
-                    dataObj?.let {
-                        connectMessageId = it.optString(META_MESSAGE_ID, "")
-                        channel = it.optString(META_CHANNEL, "")
-                        action = it.optString(META_ACTION, "")
-                        opportunityId = it.optString(META_OPPORTUNITY_ID, "")
+                val record =
+                    PushNotificationRecord().apply {
+                        notificationId = obj.optString(META_NOTIFICATION_ID, "")
+                        title = obj.optString(META_TITLE, "")
+                        body = obj.optString(META_BODY, "")
+                        notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
+                        confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
+                        paymentId = obj.optString(META_PAYMENT_ID, "")
+                        readStatus = obj.optBoolean(META_READ_STATUS, false)
+                        val dateString: String = obj.getString(META_TIME_STAMP)
+                        createdDate = DateUtils.parseDateTime(dateString)
+                        connectMessageId = obj.optString(META_MESSAGE_ID, "")
+                        channel = obj.optString(META_CHANNEL, "")
+                        action = obj.optString(META_ACTION, "")
+                        opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
                     }
-                }
                 records.add(record)
             }
 
