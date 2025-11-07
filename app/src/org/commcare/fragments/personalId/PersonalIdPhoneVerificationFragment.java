@@ -106,12 +106,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 // Auto-switch from Firebase to PersonalId for non-recoverable errors
                 if (shouldAutoSwitchToPersonalIdAuth(errorType)) {
                     Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-switching from Firebase to PersonalId auth due to error: " + errorType);
-                    otpManager = new OtpManager(
-                            activity,
-                            personalIdSessionData,
-                            otpCallback,
-                            SMS_METHOD_PERSONAL_ID
-                    );
+                    Boolean useOtpFallback = true;
+                    setupOtpManager(useOtpFallback);
                     requestOtp();
                     return;
                 }
@@ -145,7 +141,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-        otpManager = new OtpManager(activity, personalIdSessionData, otpCallback);
+        Boolean useOtpFallback = false;
+        setupOtpManager(useOtpFallback);
     }
 
     /**
@@ -181,8 +178,12 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
     private void setupListeners() {
         binding.connectResendButton.setOnClickListener(v -> {
-            setupOtpManagerForReattempt();
+            int otpReattempts = personalIdSessionData.getOtpReattempts();
+            // Always fallback to Twilio (via Personal ID) if this is the first time the user reattempts to send the OTP.
+            Boolean useOtpFallback = otpReattempts == 0;
+            setupOtpManager(useOtpFallback);
             requestOtp();
+            personalIdSessionData.setOtpReattempts(otpReattempts + 1);
         });
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
@@ -364,11 +365,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         Navigation.findNavController(binding.getRoot()).navigate(directions);
     }
 
-    private void setupOtpManagerForReattempt() {
-        int otpReattempts = personalIdSessionData.getOtpReattempts();
-
-        // Fallback to Twilio (via Personal ID) if this is the first time the user reattempts to send the OTP.
-        if (otpReattempts == 0) {
+    private void setupOtpManager(Boolean useOtpFallback) {
+        // The fallback for the OTP uses Twilio (via Personal ID) rather than Firebase.
+        if (useOtpFallback) {
             otpManager = new OtpManager(
                     activity,
                     personalIdSessionData,
@@ -382,7 +381,5 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     otpCallback
             );
         }
-
-        personalIdSessionData.setOtpReattempts(otpReattempts + 1);
     }
 }
