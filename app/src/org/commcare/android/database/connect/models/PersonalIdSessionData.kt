@@ -41,6 +41,8 @@ data class PersonalIdSessionData(
     var otpFallback: Boolean = false,
     // the number of times the user hit the "resend code" button
     var otpReattempts: Int = 0,
+    // the total number of times we attempted to send the user an OTP
+    var otpAttempts: Int = 0,
 ) {
     /**
      * Annotation to restrict accepted authentication types used by the device.

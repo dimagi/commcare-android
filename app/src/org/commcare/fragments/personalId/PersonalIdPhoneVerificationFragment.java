@@ -298,7 +298,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         clearOtpError();
         otpRequestTime = new DateTime();
         otpManager.requestOtp(primaryPhone);
-        FirebaseAnalyticsUtil.reportOtpRequested(personalIdSessionData.getOtpReattempts());
+        personalIdSessionData.setOtpAttempts(personalIdSessionData.getOtpAttempts() + 1);
+        FirebaseAnalyticsUtil.reportOtpRequested(personalIdSessionData.getOtpAttempts());
     }
 
     private void verifyOtp() {

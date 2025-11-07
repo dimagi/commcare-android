@@ -40,7 +40,7 @@ public class CCAnalyticsParam {
     static final String PARAM_API_TOTAL_JOBS = "ccc_api_total_jobs";
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
     public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO = "personal_id_continue_button_clicked_info";
-    public static final String OTP_REATTEMPTS = "otp_reattempts";
+    public static final String OTP_ATTEMPTS = "otp_attempts";
     static final String NOTIFICATION_EVENT_TYPE = "event_type";
     static final String NOTIFICATION_ACTION = "action";
     static final String NOTIFICATION_ID = "notification_id";
