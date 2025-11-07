@@ -176,12 +176,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
     private void setupListeners() {
         binding.connectResendButton.setOnClickListener(v -> {
-            int otpReattempts = personalIdSessionData.getOtpReattempts();
             // Always fallback to Twilio (via Personal ID) if this is the first time the user reattempts to send the OTP.
-            Boolean useOtpFallback = otpReattempts == 0;
+            Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1;
             setupOtpManager(useOtpFallback);
             requestOtp();
-            personalIdSessionData.setOtpReattempts(otpReattempts + 1);
         });
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
