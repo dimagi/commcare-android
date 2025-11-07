@@ -578,11 +578,9 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportOtpRequested(int numberOfAttempts) {
-        reportEvent(
-                CCAnalyticsEvent.OTP_REQUESTED_EVENT,
-                CCAnalyticsParam.OTP_ATTEMPTS,
-                String.format("%d attempt(s)", numberOfAttempts)
-        );
+        Bundle bundle = new Bundle();
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, numberOfAttempts);
+        reportEvent(CCAnalyticsEvent.OTP_REQUESTED_EVENT, bundle);
     }
 
     public static void reportNotificationEvent(String eventType, String method,
