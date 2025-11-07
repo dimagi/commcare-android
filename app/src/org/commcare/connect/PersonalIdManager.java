@@ -152,7 +152,7 @@ public class PersonalIdManager {
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                completeSignin();
+                userUnlockedPersonalId();
                 callback.connectActivityComplete(true);
             }
 
@@ -198,13 +198,16 @@ public class PersonalIdManager {
 
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
-        scheduleHeartbeat();
-        NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
-        CrashUtil.registerUserData();
-
+        userUnlockedPersonalId();
         if (parentActivity instanceof BaseDrawerActivity) {
             ((BaseDrawerActivity<?>) parentActivity).openDrawer();
         }
+    }
+
+    public void userUnlockedPersonalId(){
+        scheduleHeartbeat();
+        NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
+        CrashUtil.registerUserData();
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {

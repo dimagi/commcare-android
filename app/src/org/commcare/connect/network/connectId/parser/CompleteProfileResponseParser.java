@@ -20,9 +20,21 @@ public class CompleteProfileResponseParser implements PersonalIdApiResponseParse
      */
     @Override
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
-        sessionData.setPersonalId(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "username", null)));
-        sessionData.setDbKey(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "db_key", null)));
-        sessionData.setOauthPassword(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "password", null)));
+        String username = JsonExtensions.optStringSafe(json, "username", null);
+        String dbKey = JsonExtensions.optStringSafe(json, "db_key", null);
+        String password = JsonExtensions.optStringSafe(json, "password", null);
+
+        Objects.requireNonNull(username);
+        Objects.requireNonNull(dbKey);
+        Objects.requireNonNull(password);
+        if (username.isEmpty() || dbKey.isEmpty() || password.isEmpty()) {
+            throw new IllegalStateException(
+                    "Any of the fields amongst username, db_key or password cannot be empty");
+        }
+
+        sessionData.setPersonalId(username);
+        sessionData.setDbKey(dbKey);
+        sessionData.setOauthPassword(password);
         sessionData.setInvitedUser(json.optBoolean("invited_user", false));
     }
 }
