@@ -260,7 +260,7 @@
     <string name="connect_backup_code_title_confirm">Confirmar código de recuperação</string>
     <string name="connect_backup_code_message_title">Código de recuperação PersonalId</string>
     <string name="connect_backup_code_message">Digite seu código de recuperação de 6 dígitos</string>
-    <string name="connect_backup_code_length">O código deve ser %d dígitos</string>
+    <string name="connect_backup_code_length">Certifique-se de que se lembra do seu código de segurança! Tem de ter %d dígitos. Guarde-o num local seguro, pois irá precisar dele para aceder novamente à sua conta.</string>
     <string name="connect_backup_code_mismatch">Os códigos de segurança que introduzir têm de coincidir. Por favor, guarde-o num local seguro, pois irá precisar dele para aceder novamente à sua conta.</string>
     <string name="connect_backup_fail_title">PIN errado</string>
     <string name="connect_recovery_success_title">Conta Recuperada</string>

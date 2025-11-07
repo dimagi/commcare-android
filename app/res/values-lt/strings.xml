@@ -120,5 +120,6 @@
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti. Laikykite juos saugioje vietoje, nes jums jų prireiks norint vėl pasiekti savo paskyrą.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
+    <string name="connect_backup_code_length">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
 
 </resources>

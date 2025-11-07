@@ -120,5 +120,6 @@
     <string name="connect_backup_code_mismatch">De backupkoder, du indtaster, skal stemme overens. Opbevar den et sikkert sted, da du skal bruge den for at få adgang til din konto igen.</string>
     <string name="connect_recovery_success_message">Din konto er blevet gendannet! Du kan genoptage brugen af PersonalID.</string>
     <string name="connect_register_success_message">Din konto er blevet oprettet og er klar til brug</string>
+    <string name="connect_backup_code_length">Sørg for at huske din backup-kode! Den skal være på %d cifre. Opbevar den et sikkert sted, da du skal bruge den for at få adgang til din konto igen.</string>
 
 </resources>
