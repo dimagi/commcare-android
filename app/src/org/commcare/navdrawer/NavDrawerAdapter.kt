@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -25,9 +26,8 @@ class NavDrawerAdapter(
     private val context: Context,
     private var recyclerList: List<NavDrawerItem.ParentItem>,
     private val onParentClick: (NavDrawerItem.ParentItem) -> Unit,
-    private val onChildClick: (BaseDrawerController.NavItemType, NavDrawerItem.ChildItem) -> Unit
+    private val onChildClick: (BaseDrawerController.NavItemType, NavDrawerItem.ChildItem) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
     private var displayList: List<NavDrawerItem> = flattenDrawerItems(recyclerList)
 
     companion object {
@@ -35,14 +35,16 @@ class NavDrawerAdapter(
         private const val TYPE_CHILD = 1
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return when (displayList[position]) {
+    override fun getItemViewType(position: Int): Int =
+        when (displayList[position]) {
             is NavDrawerItem.ParentItem -> TYPE_PARENT
             is NavDrawerItem.ChildItem -> TYPE_CHILD
         }
-    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(context)
         return if (viewType == TYPE_PARENT) {
             val view = inflater.inflate(R.layout.nav_drawer_list_item, parent, false)
@@ -53,7 +55,10 @@ class NavDrawerAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+    ) {
         when (val item = displayList[position]) {
             is NavDrawerItem.ParentItem -> (holder as ParentViewHolder).bind(item)
             is NavDrawerItem.ChildItem -> (holder as ChildViewHolder).bind(item)
@@ -65,10 +70,14 @@ class NavDrawerAdapter(
     /**
      * ViewHolder for parent items (top-level drawer entries).
      */
-    inner class ParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ParentViewHolder(
+        itemView: View,
+    ) : RecyclerView.ViewHolder(itemView) {
         private val title = itemView.findViewById<TextView>(R.id.list_title)
         private val icon = itemView.findViewById<ImageView>(R.id.list_icon)
         private val arrow = itemView.findViewById<ImageView>(R.id.arrow_icon)
+        private val messageCount = itemView.findViewById<TextView>(R.id.tv_message_count)
+        private val flMessageCounter = itemView.findViewById<FrameLayout>(R.id.badge_layout)
 
         /**
          * Binds a parent item and sets up click listener to toggle expansion.
@@ -76,11 +85,15 @@ class NavDrawerAdapter(
         fun bind(item: NavDrawerItem.ParentItem) {
             title.text = item.title
             icon.setImageResource(item.iconResId)
+            bindBadgeCount(item.badgeCount)
             if (item.children.isNotEmpty()) {
                 arrow.visibility = View.VISIBLE
                 arrow.setImageResource(
-                    if (item.isExpanded) R.drawable.nav_drawer_arrow_down
-                    else R.drawable.ic_blue_forward
+                    if (item.isExpanded) {
+                        R.drawable.nav_drawer_arrow_down
+                    } else {
+                        R.drawable.ic_blue_forward
+                    },
                 )
             } else {
                 arrow.visibility = View.GONE
@@ -90,7 +103,12 @@ class NavDrawerAdapter(
                 title.isEnabled = true
             } else {
                 title.isEnabled = false
-                icon.setColorFilter(ContextCompat.getColor(context, R.color.nav_drawer_disable_color))
+                icon.setColorFilter(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.nav_drawer_disable_color,
+                    ),
+                )
             }
 
             itemView.setOnClickListener {
@@ -99,12 +117,28 @@ class NavDrawerAdapter(
                 refreshList(recyclerList)
             }
         }
+
+        private fun bindBadgeCount(count: Int?) {
+            val countText =
+                count?.let {
+                    if (it > 9) "9+" else it.toString()
+                }
+
+            if (!countText.isNullOrEmpty()) {
+                messageCount.text = countText
+                flMessageCounter.visibility = View.VISIBLE
+            } else {
+                flMessageCounter.visibility = View.GONE
+            }
+        }
     }
 
     /**
      * ViewHolder for child items (sub-items under parent).
      */
-    inner class ChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ChildViewHolder(
+        itemView: View,
+    ) : RecyclerView.ViewHolder(itemView) {
         private val childText = itemView.findViewById<TextView>(R.id.sublist_title)
         private val highlight = itemView.findViewById<ImageView>(R.id.sublist_highlight_icon)
 
@@ -124,7 +158,7 @@ class NavDrawerAdapter(
     fun refreshList(newItems: List<NavDrawerItem.ParentItem>) {
         this.recyclerList = newItems
         this.displayList = flattenDrawerItems(newItems)
-         notifyDataSetChanged()
+        notifyDataSetChanged()
     }
 
     /**

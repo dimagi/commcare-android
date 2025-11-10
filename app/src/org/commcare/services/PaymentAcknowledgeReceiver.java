@@ -33,7 +33,7 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
 
     private void updatePayment(Context context, String opportunityId, String paymentId, boolean paymentStatus) {
         ConnectJobRecord job = ConnectJobUtils.getCompositeJob(context, Integer.parseInt(opportunityId));
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(context, job, success -> {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(context, job,null,null, success -> {
             if (success) {
                 List<ConnectJobPaymentRecord> existingPaymentList = ConnectJobUtils.getPayments(context, job.getJobId(), null);
                 getPaymentsFromJobs(context, existingPaymentList,paymentId, paymentStatus);

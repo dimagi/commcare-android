@@ -7,14 +7,47 @@
     android:orientation="horizontal"
     android:padding="16dp"
     android:gravity="center_vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:background="@color/cc_brand_color">
 
-    <ImageView
-        android:id="@+id/list_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/commcare_actionbar_logo"
-        android:contentDescription="@null"/>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <ImageView
+            android:id="@+id/list_icon"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:src="@drawable/commcare_actionbar_logo" />
+
+        <FrameLayout
+            android:id="@+id/badge_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|top"
+            android:background="@drawable/bg_msg_count_red"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:paddingVertical="1dp"
+            android:layout_marginEnd="-6dp"
+            android:layout_marginTop="-6dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_message_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textColor="@android:color/white"
+                android:textSize="11sp" />
+        </FrameLayout>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/list_title"
@@ -25,10 +58,9 @@
 
     <ImageView
         android:id="@+id/arrow_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="19dp"
+        android:layout_height="19dp"
         android:paddingStart="16dp"
         android:src="@drawable/ic_blue_forward"
-        app:tint="@android:color/white"
-        android:contentDescription="@null"/>
+        app:tint="@android:color/white"/>
 </LinearLayout>

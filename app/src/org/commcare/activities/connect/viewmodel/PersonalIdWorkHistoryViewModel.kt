@@ -8,18 +8,23 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.CommCareApp
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.personalId.PersonalIdFeatureFlagChecker
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY_PENDING_TAB
 import org.commcare.utils.MultipleAppsUtil
 import java.util.ArrayList
 
-class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewModel(application) {
-    private val _apiError =
-        MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
+class PersonalIdWorkHistoryViewModel(
+    application: Application,
+) : AndroidViewModel(application) {
+    private val _apiError = MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
     val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> = _apiError
 
     private val _earnedWorkHistory = MutableLiveData<List<PersonalIdWorkHistory>>()
@@ -28,7 +33,7 @@ class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewMode
     private val _pendingWorkHistory = MutableLiveData<List<PersonalIdWorkHistory>>()
     val pendingWorkHistory: LiveData<List<PersonalIdWorkHistory>> = _pendingWorkHistory
 
-    private lateinit var installedAppsWorkHistory : List<PersonalIdWorkHistory>
+    private lateinit var installedAppsWorkHistory: List<PersonalIdWorkHistory>
 
     private val user = ConnectUserDatabaseUtil.getUser(application)
     val userName: String = user.name
@@ -38,29 +43,32 @@ class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewMode
         viewModelScope.launch(Dispatchers.IO) {
             object : PersonalIdApiHandler<List<PersonalIdWorkHistory>>() {
                 override fun onSuccess(result: List<PersonalIdWorkHistory>) {
-                    val earned = result
+                    val earnedRecords = result
                     _earnedWorkHistory.postValue(
-                        earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+                        earnedRecords.sortedByDescending { parseIsoDateForSorting(it.issuedDate) },
                     )
 
+                    if (isFeatureEnabled(WORK_HISTORY_PENDING_TAB)) {
+                        _pendingWorkHistory.postValue(getPendingWorkHistory(earnedRecords))
+                    }
+                }
+
+                private fun getPendingWorkHistory(earned: List<PersonalIdWorkHistory>): List<PersonalIdWorkHistory> {
                     if (!::installedAppsWorkHistory.isInitialized) {
                         installedAppsWorkHistory = evalInstalledAppsWorkHistory()
                     }
-                    val pending = installedAppsWorkHistory.filter { installedWorkHistory ->
+                    return installedAppsWorkHistory.filter { installedWorkHistory ->
                         !earned.any { earnedWorkHistory ->
                             earnedWorkHistory.appId == installedWorkHistory.appId &&
-                            earnedWorkHistory.title == installedWorkHistory.title &&
-                            earnedWorkHistory.level == installedWorkHistory.level
+                                earnedWorkHistory.title == installedWorkHistory.title &&
+                                earnedWorkHistory.level == installedWorkHistory.level
                         }
                     }
-
-                    _pendingWorkHistory.postValue(pending)
                 }
-
 
                 override fun onFailure(
                     failureCode: PersonalIdOrConnectApiErrorCodes,
-                    t: Throwable?
+                    t: Throwable?,
                 ) {
                     _apiError.postValue(failureCode to t)
                 }
@@ -79,19 +87,29 @@ class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewMode
     }
 
     private fun getWorkHistoryFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdWorkHistory> {
-        return records.flatMap { record ->
-            val commcareApp = CommCareApp(record)
-            commcareApp.setupSandbox()
-            val profile = commcareApp.initApplicationProfile();
-            profile.credentials.map { credential ->
+        val currentSandbox = CommCareApp.currentSandbox
+        try {
+            return records.flatMap { record -> getWorkHistoryForAppRecord(record) }
+        } finally {
+            // Restore the previous sandbox
+            currentSandbox?.setupSandbox()
+        }
+    }
+
+    private fun getWorkHistoryForAppRecord(record: ApplicationRecord): Iterable<PersonalIdWorkHistory> {
+        val commcareApp = CommCareApp(record)
+        commcareApp.setupSandbox()
+        try {
+            val profile = commcareApp.initApplicationProfile()
+            return profile.credentials.map { credential ->
                 PersonalIdWorkHistory().apply {
                     appId = record.applicationId
                     title = record.displayName ?: ""
                     level = credential.level
                 }
             }
+        } finally {
+            commcareApp.teardownSandbox()
         }
     }
-
 }
-
