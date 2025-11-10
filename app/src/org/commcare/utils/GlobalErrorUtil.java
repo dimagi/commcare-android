@@ -11,7 +11,7 @@ public class GlobalErrorUtil {
         CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).write(error);
     }
 
-    public static String handleGlobalErrors() {
+    public static String getGlobalErrors() {
         StringBuilder sb = new StringBuilder();
         SqlStorage<GlobalErrorRecord> storage = CommCareApplication.instance()
                 .getGlobalStorage(GlobalErrorRecord.class);
