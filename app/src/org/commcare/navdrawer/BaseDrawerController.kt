@@ -179,7 +179,7 @@ class BaseDrawerController(
                 items.add(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.nav_drawer_opportunities),
-                        R.drawable.nav_drawer_opportunity_icon,
+                        R.drawable.connect_logo,
                         NavItemType.OPPORTUNITIES,
                     ),
                 )
