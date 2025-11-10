@@ -222,7 +222,7 @@
     <string name="recovery_forms_send_error">Error while sending forms</string>
     <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
-    <string name="recovery_network_outdated">This app version is outdated. Please update the app on the Google Play Store in order to proceed.</string>
+    <string name="recovery_network_outdated">This app is outdated. Please update the app on the Google Play Store in order to proceed.</string>
     <string name="recovery_network_token_unavailable">There was a network issue. Please try again.</string>
     <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover your Personal ID account and retry</string>
     <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>

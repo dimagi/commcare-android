@@ -182,7 +182,7 @@
     <string name="recovery_forms_state_unavailable">Os formulários não estão disponíveis. Verifique se o armazenamento do seu telefone está disponível</string>
     <string name="recovery_network_unavailable">Sem conexão de rede. Verifique sua internet e tente novamente.</string>
     <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade, entre em contato com um administrador.</string>
-    <string name="recovery_network_outdated">Esta versão da aplicação está desatualizada. Por favor, atualize a aplicação na Google Play Store para poder continuar.</string>
+    <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
     <string name="recovery_app_manager">Vá para o Gerenciador de aplicativos</string>
     <string name="recovery_retry">Tentar novamente a recuperação</string>
     <string name="notification_channel_errors_title">Erros</string>

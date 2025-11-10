@@ -99,7 +99,7 @@
 
     <string name="personalid_configuration_process_failed_subtitle">Deja, šis įrenginys nepraėjo saugumo patikrų, būtinų registracijai „PersonalID“. Bandykite dar kartą kitame įrenginyje.</string>
     <string name="personalid_location_permission_error">„PersonalID“ reikalauja, kad jūsų įrenginyje būtų įjungtos vietos nustatymo paslaugos. Prieš tęsdami, įjunkite jas telefono nustatymuose.</string>
-    <string name="recovery_network_outdated">Ši programėlės versija pasenusi. Norėdami tęsti, atnaujinkite programėlę „Google Play“ parduotuvėje.</string>
+    <string name="recovery_network_outdated">Questa app non è aggiornata. Per procedere, aggiorna l\'app sul Google Play Store.</string>
     <string name="recovery_network_cooldown">Per daug užklausų. Bandykite dar kartą po valandos.</string>
     <string name="connect_biometric_enroll_fail_message">„PersonalID“ reikalauja įjungti biometrinius duomenis. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Šiuo metu šiame įrenginyje biometriniai duomenys neįjungti. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>
