@@ -19,7 +19,6 @@ import org.commcare.utils.FirebaseMessagingUtil
 import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
-
     private var drawerController: BaseDrawerController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,36 +30,22 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             }
         }
     }
+
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-            messagingUpdateReceiver,
-            IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
-        )
     }
 
     override fun onPause() {
         super.onPause()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver)
     }
 
     fun refreshDrawer() {
         drawerController?.refreshDrawerContent()
     }
 
-    private val messagingUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            drawerController?.refreshDrawerContent()
-        }
-    }
+    protected open fun shouldShowDrawer(): Boolean = false
 
-    protected open fun shouldShowDrawer(): Boolean {
-        return false
-    }
-
-    protected open fun shouldHighlightSeatedApp(): Boolean {
-        return false
-    }
+    protected open fun shouldHighlightSeatedApp(): Boolean = false
 
     fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
@@ -71,23 +56,33 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private fun setupDrawerController() {
         val rootView = findViewById<View>(android.R.id.content)
         val drawerRefs = DrawerViewRefs(rootView)
-        drawerController = BaseDrawerController(
-            this,
-            drawerRefs,
-            shouldHighlightSeatedApp()
-        ) { navItemType: NavItemType, recordId: String? ->
-            handleDrawerItemClick(navItemType, recordId)
-        }
+        drawerController =
+            BaseDrawerController(
+                this,
+                drawerRefs,
+                shouldHighlightSeatedApp(),
+            ) { navItemType: NavItemType, recordId: String? ->
+                handleDrawerItemClick(navItemType, recordId)
+            }
         drawerController!!.setupDrawer()
     }
 
-    protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
+    protected open fun handleDrawerItemClick(
+        itemType: NavItemType,
+        recordId: String?,
+    ) {
         when (itemType) {
-            NavItemType.OPPORTUNITIES -> { navigateToConnectMenu() }
+            NavItemType.OPPORTUNITIES -> {
+                navigateToConnectMenu()
+            }
             NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
             NavItemType.PAYMENTS -> {}
-            NavItemType.MESSAGING -> { navigateToMessaging() }
-            NavItemType.WORK_HISTORY -> { navigateToWorkHistory() }
+            NavItemType.MESSAGING -> {
+                navigateToMessaging()
+            }
+            NavItemType.WORK_HISTORY -> {
+                navigateToWorkHistory()
+            }
         }
     }
 
@@ -108,7 +103,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                         closeDrawer()
                     }
                 }
-            }
+            },
         )
     }
 
@@ -121,7 +116,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                         closeDrawer()
                     }
                 }
-            }
+            },
         )
     }
 
@@ -134,7 +129,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                         closeDrawer()
                     }
                 }
-            }
+            },
         )
     }
 
@@ -142,7 +137,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         if (drawerController == null) {
             Logger.exception(
                 "There was an error closing the app's sidebar.",
-                NullPointerException("The BaseDrawerController is null!")
+                NullPointerException("The BaseDrawerController is null!"),
             )
         }
 
@@ -153,7 +148,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         if (drawerController == null) {
             Logger.exception(
                 "There was an error opening the app's sidebar.",
-                NullPointerException("The BaseDrawerController is null!")
+                NullPointerException("The BaseDrawerController is null!"),
             )
         }
 
