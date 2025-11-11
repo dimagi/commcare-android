@@ -27,6 +27,6 @@ object NotificationPrefs {
     fun removeNotificationReadPref(context: Context) {
         context
             .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            .edit { remove(PREF_NAME) }
+            .edit { remove(KEY_NOTIFICATION_READ_STATUS) }
     }
 }
