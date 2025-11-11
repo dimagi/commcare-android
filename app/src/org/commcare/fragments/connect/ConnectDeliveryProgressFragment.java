@@ -117,9 +117,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     @Override
     public void refresh() {
         setWaitDialogEnabled(false);
-        showLoading();
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
-            hideLoading();
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, success -> {
             if (success) {
                 updateLastUpdatedText(new Date());
                 updateCardMessage();
