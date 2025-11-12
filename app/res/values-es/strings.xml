@@ -511,4 +511,9 @@
     <string name="hours_ago">Hace %1$d horas</string>
     <string name="yesterday">Ayer %1$s</string>
 
+    <string name="personalid_using_your_location">Usando tu ubicación</string>
+    <string name="personalid_no_location_found">No podemos encontrar tu ubicación</string>
+    <string name="personalid_tooltip_location_failure_message">Usamos tu ubicación para [incluir la razón por la que necesitamos la ubicación].\nPor favor, actívalo en los ajustes o inténtalo de nuevo más tarde.</string>
+    <string name="personalid_tooltip_location_success_message">Usamos tu ubicación para [incluir la razón por la que necesitamos la ubicación].\nPuedes desactivarlo en los ajustes, pero esto puede afectar la funcionalidad de la aplicación.</string>
+
 </resources>

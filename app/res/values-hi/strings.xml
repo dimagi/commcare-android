@@ -509,4 +509,9 @@ License.
     <string name="hours_ago">"%1$d घंटे पहले"</string>
     <string name="yesterday">कल %1$s</string>
 
+    <string name="personalid_using_your_location">आपके स्थान का उपयोग कर रहा है</string>
+    <string name="personalid_no_location_found">हमें आपका स्थान नहीं मिल रहा है</string>
+    <string name="personalid_tooltip_location_failure_message">हम आपके स्थान का उपयोग [हमें स्थान की आवश्यकता क्यों है, इसका कारण शामिल करें] के लिए करते हैं।\nकृपया इसे सेटिंग्स में सक्षम करें, या बाद में फिर से प्रयास करें।</string>
+    <string name="personalid_tooltip_location_success_message">हम आपके स्थान का उपयोग [हमें स्थान की आवश्यकता क्यों है, इसका कारण शामिल करें] के लिए करते हैं।\nआप इसे सेटिंग्स में अक्षम कर सकते हैं, लेकिन यह ऐप की कार्यक्षमता को प्रभावित कर सकता है।</string>
+
 </resources>

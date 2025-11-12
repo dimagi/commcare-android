@@ -520,4 +520,9 @@
     <string name="hours_ago">Saa %1$d zilizopita</string>
     <string name="yesterday">Jana %1$s</string>
 
+    <string name="personalid_using_your_location">Inatumia eneo lako</string>
+    <string name="personalid_no_location_found">Hatuwezi kupata eneo lako</string>
+    <string name="personalid_tooltip_location_failure_message">Tunatumia eneo lako kwa [jumuisha sababu kwa nini tunahitaji eneo].\nTafadhali wezesha hili katika mipangilio, au jaribu tena baadaye.</string>
+    <string name="personalid_tooltip_location_success_message">Tunatumia eneo lako kwa [jumuisha sababu kwa nini tunahitaji eneo].\nUnaweza kuzima hili katika mipangilio, lakini hii inaweza kuathiri utendaji wa programu.</string>
+
 </resources>

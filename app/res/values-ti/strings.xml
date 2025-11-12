@@ -502,4 +502,9 @@
     <string name="hours_ago">ቅድሚ %1$d ሰዓታት</string>
     <string name="yesterday">ትማሊ %1$s</string>
 
+    <string name="personalid_using_your_location">ቦታኻ ምጥቃም</string>
+    <string name="personalid_no_location_found">ቦታኻ ክንረክቦ ኣይከኣልናን</string>
+    <string name="personalid_tooltip_location_failure_message">ን[ቦታኻ ንምንታይ ከም እንደልዮ ምኽንያቱ የእትው] ቦታኻ ንጥቀመሉ። በጃኻ ኣብ setting ኣኽእሎ ወይ ድሕሪ ሓጺር ግዜ ደጊምካ ፈትን።</string>
+    <string name="personalid_tooltip_location_success_message">ን[ቦታኻ ንምንታይ ከም እንደልዮ ምኽንያቱ የእትው] ቦታኻ ንጥቀመሉ። ኣብ setting ከተጥፍኦ ትኽእል ኢኻ፣ ግን እዚ ንኣሰራርሓ እቲ ኣፕሊኬሽን ጸገም ክፈጥረሉ ይኽእል እዩ።</string>
+
 </resources>

@@ -691,4 +691,10 @@
     <string name="minutes_ago">%1$d minutes ago</string>
     <string name="hours_ago">%1$d hours ago</string>
     <string name="yesterday">Yesterday %1$s</string>
+
+    <string name="personalid_using_your_location">Using your location</string>
+    <string name="personalid_no_location_found">We can\'t find your location</string>
+    <string name="personalid_tooltip_location_failure_message">We use your location to [include the reason for why we need location].\nPlease enable this in settings, or try again later.</string>
+    <string name="personalid_tooltip_location_success_message">We use your location to [include the reason for why we need location].\nYou can disable this in settings, but this may affect app functionality.</string>
+
 </resources>

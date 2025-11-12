@@ -514,4 +514,9 @@ License.
     <string name="hours_ago">Il y a %1$d heures</string>
     <string name="yesterday">Hier %1$s</string>
 
+    <string name="personalid_using_your_location">Utilisation de votre emplacement</string>
+    <string name="personalid_no_location_found">Nous ne parvenons pas à trouver votre emplacement</string>
+    <string name="personalid_tooltip_location_failure_message">Nous utilisons votre emplacement pour [inclure la raison pour laquelle nous avons besoin de l\'emplacement].\nVeuillez l\'activer dans les paramètres ou réessayer plus tard.</string>
+    <string name="personalid_tooltip_location_success_message">Nous utilisons votre emplacement pour [inclure la raison pour laquelle nous avons besoin de l\'emplacement].\nVous pouvez désactiver cela dans les paramètres, mais cela peut affecter les fonctionnalités de l\'application.</string>
+
 </resources>
