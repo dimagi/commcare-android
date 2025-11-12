@@ -8,17 +8,25 @@ object NotificationPrefs {
     private const val KEY_NOTIFICATION_READ_STATUS = "notification_read_status"
 
     fun setNotificationAsUnread(context: Context) {
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        context
+            .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .edit { putBoolean(KEY_NOTIFICATION_READ_STATUS, false) }
     }
 
     fun setNotificationAsRead(context: Context) {
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        context
+            .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .edit { putBoolean(KEY_NOTIFICATION_READ_STATUS, true) }
     }
 
-    fun getNotificationReadStatus(context: Context): Boolean {
-        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    fun getNotificationReadStatus(context: Context): Boolean =
+        context
+            .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_NOTIFICATION_READ_STATUS, true)
+
+    fun removeNotificationReadPref(context: Context) {
+        context
+            .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit { remove(KEY_NOTIFICATION_READ_STATUS) }
     }
 }
