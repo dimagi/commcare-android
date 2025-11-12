@@ -118,9 +118,6 @@ object CustomMatchers {
                 val pixels = target.textSize
 
                 val actualSize = pixels / target.getResources().displayMetrics.scaledDensity
-                Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "View text size: $pixels")
-                Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "Actual size: $actualSize")
-                Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "Font scale: " + target.resources.configuration.fontScale)
                 val scaledExpectedSize = expectedSize / target.resources.configuration.fontScale
                 return actualSize.compareTo(scaledExpectedSize) == 0
             }
