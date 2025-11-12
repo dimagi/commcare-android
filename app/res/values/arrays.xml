@@ -41,6 +41,14 @@
         <item>13</item>
     </string-array>
     <string-array
+        name="large_font_size_entry_values">
+        <item>28</item>
+        <item>24</item>
+        <item>19</item>
+        <item>16</item>
+        <item>12</item>
+    </string-array>
+    <string-array
         name="button_font_size_entry_values">
         <item>22</item>
         <item>20</item>
