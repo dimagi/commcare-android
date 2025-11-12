@@ -96,9 +96,9 @@
     <string name="hours_ago">Prieš %1$d val.</string>
     <string name="yesterday">Vakar %1$s</string>
 
-    <string name="personalid_using_your_location">Utilizzando la tua posizione</string>
-    <string name="personalid_no_location_found">Non riusciamo a trovare la tua posizione</string>
-    <string name="personalid_tooltip_location_failure_message">Utilizziamo la tua posizione per [includere il motivo per cui abbiamo bisogno della posizione].\nAbilitalo nelle impostazioni o riprova più tardi.</string>
-    <string name="personalid_tooltip_location_success_message">Utilizziamo la tua posizione per [includere il motivo per cui abbiamo bisogno della posizione].\nPuoi disabilitarlo nelle impostazioni, ma ciò potrebbe influire sulla funzionalità dell\'app.</string>
+    <string name="personalid_using_your_location">Naudojama jūsų buvimo vieta</string>
+    <string name="personalid_no_location_found">Nepavyksta rasti jūsų buvimo vietos</string>
+    <string name="personalid_tooltip_location_failure_message">Jūsų buvimo vietą naudojame [įtraukite priežastį, kodėl mums reikia buvimo vietos].\nĮjunkite tai nustatymuose arba bandykite vėliau.</string>
+    <string name="personalid_tooltip_location_success_message">Jūsų buvimo vietą naudojame [įtraukite priežastį, kodėl mums reikia buvimo vietos].\nGalite tai išjungti nustatymuose, bet tai gali paveikti programėlės funkcionalumą.</string>
 
 </resources>
