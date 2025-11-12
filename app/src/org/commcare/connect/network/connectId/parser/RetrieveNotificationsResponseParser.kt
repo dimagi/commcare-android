@@ -97,10 +97,9 @@ class RetrieveNotificationsResponseParser<T>(
         channelId: String,
     ): Boolean =
         isNotificationMessageType(notificationJsonObject) && notificationJsonObject
-            .getJSONObject("data")
             .get("channel") != null &&
             channelId.equals(
-                notificationJsonObject.getJSONObject("data").get("channel"),
+                notificationJsonObject.get("channel"),
             )
 
     private fun isNotificationMessageType(notificationJsonObject: JSONObject) =
