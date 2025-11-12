@@ -13,7 +13,6 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.TypeSafeMatcher
-import org.javarosa.core.services.Logger
 
 /**
  * I would've created a Matchers+Extension file but as of now
