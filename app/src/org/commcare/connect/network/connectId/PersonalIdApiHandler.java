@@ -21,6 +21,7 @@ import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser
 import org.commcare.connect.network.connectId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
+import org.commcare.interfaces.base.BaseConnectView;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -37,6 +38,14 @@ import kotlin.Pair;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
+
+    public PersonalIdApiHandler() {
+        super();
+    }
+
+    public PersonalIdApiHandler(Boolean loading, BaseConnectView baseView) {
+        super(loading, baseView);
+    }
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
                                         PersonalIdApiResponseParser parser) {

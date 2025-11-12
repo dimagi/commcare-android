@@ -60,7 +60,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/connect_side_icon_bg"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:layout_gravity="center">
 
                     <ImageView
                         android:layout_width="42dp"
