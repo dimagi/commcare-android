@@ -121,7 +121,8 @@ object CustomMatchers {
                 Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "View text size: $pixels")
                 Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "Actual size: $actualSize")
                 Logger.log(CustomMatchers::class.simpleName + ".withFontSize()", "Font scale: " + target.resources.configuration.fontScale)
-                return actualSize.compareTo(expectedSize) == 0
+                val scaledExpectedSize = expectedSize / target.resources.configuration.fontScale
+                return actualSize.compareTo(scaledExpectedSize) == 0
             }
 
             override fun describeTo(description: Description) {
