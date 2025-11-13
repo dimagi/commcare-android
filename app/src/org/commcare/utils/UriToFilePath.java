@@ -36,7 +36,6 @@ public class UriToFilePath {
      * @return Filepath string extracted from the Uri argument. Returns the original uri if
      * filepath couldn't be succesfully extracted.
      */
-    @SuppressLint("NewApi")
     public static String getPathFromUri(final Context context, final Uri uri) throws NoDataColumnForUriException {
         String filePath = null;
         if (DocumentsContract.isDocumentUri(context, uri)) {
@@ -73,7 +72,9 @@ public class UriToFilePath {
                 } else if ("audio".equals(type)) {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 } else if ("document".equals(type)) {
-                    contentUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        contentUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+                    }
                 }
 
                 final String selection = "_id=?";
