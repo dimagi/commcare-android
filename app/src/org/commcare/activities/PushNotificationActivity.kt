@@ -15,6 +15,7 @@ import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.CCAnalyticsParam
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.FirebaseMessagingUtil.getIntentForPNClick
 
@@ -30,6 +31,7 @@ class PushNotificationActivity : AppCompatActivity() {
         setContentView(binding.root)
         initViews()
         observeRetrieveNotificationApi()
+        registerForNewNotification()
         pushNotificationViewModel.loadNotifications(isRefreshed = false)
     }
 
@@ -113,4 +115,13 @@ class PushNotificationActivity : AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
+
+    fun registerForNewNotification() {
+        NotificationBroadcastHelper.registerForNotifications(this, this) {
+            // Whenever new notification is received, signalling is calling retrieve_notifications api
+            // so whenever this broadcast is received, new notification is already stored in local DB
+            // that's the reason that isRefreshed = false is required
+            pushNotificationViewModel.loadNotifications(false)
+        }
+    }
 }
