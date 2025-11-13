@@ -6,6 +6,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -31,8 +32,6 @@ class ConfirmBackupCodeResponseParserTest {
             JSONObject().apply {
                 put("username", "test-user-123")
                 put("db_key", "db-key-456")
-                put("attempts_left", 3)
-                put("error_code", "invalid_code")
                 put("password", "test-password")
                 put("invited_user", true)
             }
@@ -43,11 +42,49 @@ class ConfirmBackupCodeResponseParserTest {
         // Assert
         assertEquals("test-user-123", sessionData.personalId)
         assertEquals("db-key-456", sessionData.dbKey)
-        assertEquals(3, sessionData.attemptsLeft)
-        assertEquals("invalid_code", sessionData.sessionFailureCode)
         assertEquals("test-password", sessionData.oauthPassword)
         assertTrue(sessionData.invitedUser)
     }
+
+    @Test
+    fun testParseForWrongBackupCodeResponse() {
+        // Arrange
+        val json =
+            JSONObject().apply {
+                put("attempts_left", 3)
+            }
+
+        // Act
+        parser.parse(json, sessionData)
+
+        // Assert
+        assertEquals(null, sessionData.personalId)
+        assertEquals(null, sessionData.dbKey)
+        assertEquals(null, sessionData.oauthPassword)
+        assertEquals(3, sessionData.attemptsLeft)
+        assertEquals(null, sessionData.sessionFailureCode)
+        assertFalse(sessionData.invitedUser)
+    }
+
+    @Test
+    fun testParseForLockedAccountResponse() {
+        // Arrange
+        val json =
+            JSONObject().apply {
+                put("error_code", "LOCKED_ACCOUNT")
+            }
+
+        // Act
+        parser.parse(json, sessionData)
+
+        // Assert
+        assertEquals(null, sessionData.personalId)
+        assertEquals(null, sessionData.dbKey)
+        assertEquals(null, sessionData.oauthPassword)
+        assertEquals("LOCKED_ACCOUNT", sessionData.sessionFailureCode)
+        assertFalse(sessionData.invitedUser)
+    }
+
 
     @Test(expected = NullPointerException::class)
     fun testParseWithMissingUsername() {
