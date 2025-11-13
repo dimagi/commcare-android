@@ -694,7 +694,7 @@
 
     <string name="personalid_using_your_location">Using your location</string>
     <string name="personalid_no_location_found">We can\'t find your location</string>
-    <string name="personalid_tooltip_location_failure_message">We use your location to [include the reason for why we need location].\nPlease enable this in settings, or try again later.</string>
-    <string name="personalid_tooltip_location_success_message">We use your location to [include the reason for why we need location].\nYou can disable this in settings, but this may affect app functionality.</string>
+    <string name="personalid_tooltip_location_failure_message">We use location data to ensure secure usage of this application.\nPlease enable location permissions in settings, or try again later.</string>
+    <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
 
 </resources>

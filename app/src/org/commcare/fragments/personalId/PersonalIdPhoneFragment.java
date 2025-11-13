@@ -1,6 +1,7 @@
 package org.commcare.fragments.personalId;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -120,12 +121,22 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void setLocationToolTip(Location location) {
-        binding.llLocation.setVisibility(View.VISIBLE);
-        int iconRes = (location == null) ? R.drawable.ic_connect_delivery_rejected : R.drawable.ic_place;
-        int textRes = (location == null) ? R.string.personalid_no_location_found : R.string.personalid_using_your_location;
+        binding.groupTooltip.setVisibility(View.VISIBLE);
 
-        binding.ivLocation.setImageResource(iconRes);
-        binding.tvLocation.setText(textRes);
+        boolean locationFound = (location != null);
+
+        binding.ivLocation.setImageResource(
+                locationFound ? R.drawable.ic_place : R.drawable.ic_connect_delivery_rejected
+        );
+        binding.tvLocation.setText(
+                locationFound ? R.string.personalid_using_your_location : R.string.personalid_no_location_found
+        );
+
+        binding.tooltipText.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.tooltipText.setText(
+                locationFound ? R.string.personalid_tooltip_location_success_message
+                        : R.string.personalid_tooltip_location_failure_message
+        );
     }
 
     @Override
@@ -168,8 +179,23 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         updateContinueButtonState();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setupListeners() {
-        binding.ivLocationInfo.setOnClickListener(v -> showLocationTooltip(v, requireContext()));
+        binding.ivLocationInfo.setOnClickListener(v -> {
+            if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
+                binding.groupTooltipInfo.setVisibility(View.GONE);
+            } else {
+                binding.groupTooltipInfo.setVisibility(View.VISIBLE);
+            }
+        });
+
+        binding.firstLayout.setOnTouchListener((v, event) -> {
+            if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
+                binding.groupTooltipInfo.setVisibility(View.GONE);
+                return true;
+            }
+            return false;
+        });
 
         binding.connectConsentCheck.setOnClickListener(v -> updateContinueButtonState());
         binding.personalidPhoneContinueButton.setOnClickListener(v -> onContinueClicked());
@@ -542,55 +568,5 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
             locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
         }
-    }
-
-    public void showLocationTooltip(View anchorView, Context context) {
-        View popupView = LayoutInflater.from(context).inflate(R.layout.location_tooltip_layout, null);
-
-        AppCompatTextView tooltipText = popupView.findViewById(R.id.tooltipText);
-        if (location == null){
-            tooltipText.setText(R.string.personalid_tooltip_location_failure_message);
-        }else {
-            tooltipText.setText(R.string.personalid_tooltip_location_success_message);
-        }
-
-        final PopupWindow popupWindow = new PopupWindow(
-                popupView,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                true
-        );
-
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setFocusable(true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        int popupWidth = popupView.getMeasuredWidth();
-
-        int[] anchorLocation = new int[2];
-        anchorView.getLocationOnScreen(anchorLocation);
-
-        int anchorCenterX = anchorLocation[0] + (anchorView.getWidth() / 2);
-        int anchorBottomY = anchorLocation[1] + anchorView.getHeight();
-
-        int xPos = anchorCenterX - (popupWidth / 2);
-
-        int yPos = anchorBottomY + 8;
-
-        AppCompatImageView triangle = popupView.findViewById(R.id.iv_triangle);
-        if (triangle != null) {
-            popupView.post(() -> {
-                int tooltipWidth = popupView.getWidth();
-                int triangleCenterX = tooltipWidth / 2;
-
-                int anchorCenterRelativeToTooltip = anchorCenterX - xPos;
-
-                float translationX = anchorCenterRelativeToTooltip - triangleCenterX;
-                triangle.setTranslationX(translationX);
-            });
-        }
-
-        popupWindow.showAtLocation(anchorView.getRootView(), Gravity.NO_GRAVITY, xPos, yPos);
     }
 }

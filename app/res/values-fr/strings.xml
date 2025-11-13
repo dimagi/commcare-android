@@ -520,7 +520,7 @@ License.
 
     <string name="personalid_using_your_location">Utilisation de votre emplacement</string>
     <string name="personalid_no_location_found">Nous ne parvenons pas à trouver votre emplacement</string>
-    <string name="personalid_tooltip_location_failure_message">Nous utilisons votre emplacement pour [inclure la raison pour laquelle nous avons besoin de l\'emplacement].\nVeuillez l\'activer dans les paramètres ou réessayer plus tard.</string>
-    <string name="personalid_tooltip_location_success_message">Nous utilisons votre emplacement pour [inclure la raison pour laquelle nous avons besoin de l\'emplacement].\nVous pouvez désactiver cela dans les paramètres, mais cela peut affecter les fonctionnalités de l\'application.</string>
+    <string name="personalid_tooltip_location_failure_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\nVeuillez activer les autorisations de localisation dans les paramètres ou réessayer plus tard.</string>
+    <string name="personalid_tooltip_location_success_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n<a href="https://www.dimagi.com/terms/latest/privacy/">Cliquez ici pour plus d\'informations.</a></string>
 
 </resources>

@@ -525,7 +525,7 @@
 
     <string name="personalid_using_your_location">Inatumia eneo lako</string>
     <string name="personalid_no_location_found">Hatuwezi kupata eneo lako</string>
-    <string name="personalid_tooltip_location_failure_message">Tunatumia eneo lako kwa [jumuisha sababu kwa nini tunahitaji eneo].\nTafadhali wezesha hili katika mipangilio, au jaribu tena baadaye.</string>
-    <string name="personalid_tooltip_location_success_message">Tunatumia eneo lako kwa [jumuisha sababu kwa nini tunahitaji eneo].\nUnaweza kuzima hili katika mipangilio, lakini hii inaweza kuathiri utendaji wa programu.</string>
+    <string name="personalid_tooltip_location_failure_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\nTafadhali wezesha ruhusa za eneo katika mipangilio, au jaribu tena baadaye.</string>
+    <string name="personalid_tooltip_location_success_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n<a href="https://www.dimagi.com/terms/latest/privacy/">Bofya hapa kwa maelezo zaidi.</a></string>
 
 </resources>

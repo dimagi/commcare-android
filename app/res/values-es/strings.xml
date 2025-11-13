@@ -517,7 +517,7 @@
 
     <string name="personalid_using_your_location">Usando tu ubicación</string>
     <string name="personalid_no_location_found">No podemos encontrar tu ubicación</string>
-    <string name="personalid_tooltip_location_failure_message">Usamos tu ubicación para [incluir la razón por la que necesitamos la ubicación].\nPor favor, actívalo en los ajustes o inténtalo de nuevo más tarde.</string>
-    <string name="personalid_tooltip_location_success_message">Usamos tu ubicación para [incluir la razón por la que necesitamos la ubicación].\nPuedes desactivarlo en los ajustes, pero esto puede afectar la funcionalidad de la aplicación.</string>
+    <string name="personalid_tooltip_location_failure_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\nPor favor, habilite los permisos de ubicación en la configuración o inténtelo de nuevo más tarde.</string>
+    <string name="personalid_tooltip_location_success_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n<a href="https://www.dimagi.com/terms/latest/privacy/">Haga clic aquí para más información.</a></string>
 
 </resources>
