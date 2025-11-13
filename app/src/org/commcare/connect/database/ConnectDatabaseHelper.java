@@ -5,7 +5,9 @@ import android.content.Context;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.SsoToken;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
@@ -50,7 +52,7 @@ public class ConnectDatabaseHelper {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
-                            if(passphrase == null) {
+                            if(passphrase == null || passphrase.length == 0) {
                                 throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
                             }
 
@@ -83,6 +85,7 @@ public class ConnectDatabaseHelper {
 
     public static void crashDb(GlobalErrors error, Exception ex) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
+        PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
         throw new RuntimeException("Connect database crash: " + error.name(), ex);
     }
 
