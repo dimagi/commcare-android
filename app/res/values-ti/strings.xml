@@ -508,7 +508,7 @@
 
     <string name="personalid_using_your_location">ቦታኻ ምጥቃም</string>
     <string name="personalid_no_location_found">ቦታኻ ክንረክቦ ኣይከኣልናን</string>
-    <string name="personalid_tooltip_location_failure_message">ን[ቦታኻ ንምንታይ ከም እንደልዮ ምኽንያቱ የእትው] ቦታኻ ንጥቀመሉ። በጃኻ ኣብ setting ኣኽእሎ ወይ ድሕሪ ሓጺር ግዜ ደጊምካ ፈትን።</string>
-    <string name="personalid_tooltip_location_success_message">ን[ቦታኻ ንምንታይ ከም እንደልዮ ምኽንያቱ የእትው] ቦታኻ ንጥቀመሉ። ኣብ setting ከተጥፍኦ ትኽእል ኢኻ፣ ግን እዚ ንኣሰራርሓ እቲ ኣፕሊኬሽን ጸገም ክፈጥረሉ ይኽእል እዩ።</string>
+    <string name="personalid_tooltip_location_failure_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\nበጃኻ ኣብ setting ናይ ቦታ ፍቓድ ኣኽእል፡ ወይ ድማ ጸኒሕካ ደጊምካ ፈትን።</string>
+    <string name="personalid_tooltip_location_success_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n<a href="https://www.dimagi.com/terms/latest/privacy/">ንተወሳኺ ሓበሬታ ኣብዚ ጠውቕ።</a></string>
 
 </resources>
