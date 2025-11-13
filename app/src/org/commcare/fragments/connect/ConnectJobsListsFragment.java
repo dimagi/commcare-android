@@ -75,21 +75,18 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
     public void refreshData() {
         ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
-        showLoading();
         corruptJobs.clear();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
+        new ConnectApiHandler<ConnectOpportunitiesResponseModel>(true, this) {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                hideLoading();
                 Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 navigateFailure();
             }
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                hideLoading();
                 corruptJobs = data.getCorruptJobs();
                 setJobListData(data.getValidJobs());
             }

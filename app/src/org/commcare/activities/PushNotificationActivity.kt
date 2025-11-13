@@ -12,6 +12,9 @@ import org.commcare.adapters.PushNotificationAdapter
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.CCAnalyticsParam
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.FirebaseMessagingUtil.getIntentForPNClick
 
@@ -40,10 +43,12 @@ class PushNotificationActivity : AppCompatActivity() {
                     binding.rvNotifications.visibility = View.VISIBLE
                     binding.tvNoNotifications.visibility = View.GONE
                 }
+
                 isLoading -> {
                     binding.rvNotifications.visibility = View.GONE
                     binding.tvNoNotifications.visibility = View.GONE
                 }
+
                 else -> {
                     binding.rvNotifications.visibility = View.GONE
                     binding.tvNoNotifications.visibility = View.VISIBLE
@@ -62,21 +67,30 @@ class PushNotificationActivity : AppCompatActivity() {
             setDisplayShowHomeEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
-        pushNotificationViewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[PushNotificationViewModel::class.java]
-        pushNotificationAdapter = PushNotificationAdapter(
-            listener = object :
-                PushNotificationAdapter.OnNotificationClickListener {
-                override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
-                    val activityIntent = getIntentForPNClick(application, notificationRecord)
-                    if (activityIntent != null) {
-                        startActivity(activityIntent)
-                    }
-                }
-            }
-        )
+        pushNotificationViewModel =
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(application),
+            )[PushNotificationViewModel::class.java]
+        pushNotificationAdapter =
+            PushNotificationAdapter(
+                listener =
+                    object :
+                        PushNotificationAdapter.OnNotificationClickListener {
+                        override fun onNotificationClick(notificationRecord: PushNotificationRecord) {
+                            FirebaseAnalyticsUtil.reportNotificationEvent(
+                                AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
+                                AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY,
+                                notificationRecord.action,
+                                notificationRecord.notificationId,
+                            )
+                            val activityIntent = getIntentForPNClick(application, notificationRecord)
+                            if (activityIntent != null) {
+                                startActivity(activityIntent)
+                            }
+                        }
+                    },
+            )
         binding.rvNotifications.adapter = pushNotificationAdapter
     }
 
@@ -85,8 +99,8 @@ class PushNotificationActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
             android.R.id.home -> {
                 onBackPressedDispatcher.onBackPressed()
                 true
@@ -99,5 +113,4 @@ class PushNotificationActivity : AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
-    }
 }

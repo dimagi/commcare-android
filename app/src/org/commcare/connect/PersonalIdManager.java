@@ -39,6 +39,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
+import org.commcare.preferences.NotificationPrefs;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
@@ -152,7 +153,7 @@ public class PersonalIdManager {
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                completeSignin();
+                userUnlockedPersonalId();
                 callback.connectActivityComplete(true);
             }
 
@@ -198,13 +199,16 @@ public class PersonalIdManager {
 
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
-        scheduleHeartbeat();
-        NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
-        CrashUtil.registerUserData();
-
+        userUnlockedPersonalId();
         if (parentActivity instanceof BaseDrawerActivity) {
             ((BaseDrawerActivity<?>) parentActivity).openDrawer();
         }
+    }
+
+    public void userUnlockedPersonalId(){
+        scheduleHeartbeat();
+        NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
+        CrashUtil.registerUserData();
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
@@ -224,6 +228,9 @@ public class PersonalIdManager {
 
         // Cancel periodic push notification retrieval when user logs out
         NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
+
+        // remove notification read / unread preferences
+        NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
     }
 
     public AuthInfo.TokenAuth getConnectToken() {

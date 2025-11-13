@@ -189,7 +189,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             return;
         }
         if (!fromManager) {
-            String errors = GlobalErrorUtil.handleGlobalErrors();
+            String errors = GlobalErrorUtil.getGlobalErrors();
             globalError = errors.length() > 0 ? errors : null;
 
             PersonalIdManager.getInstance().init(this);
@@ -444,7 +444,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
-            case ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE:
+            case ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH:
                 PersonalIdManager.getInstance().handleFinishedActivity(this, resultCode);
                 return;
             default:
