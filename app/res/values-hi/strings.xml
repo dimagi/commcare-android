@@ -182,7 +182,7 @@ License.
     <string name="recovery_forms_send_error">फॉर्म भेजते समय त्रुटि</string>
     <string name="recovery_forms_state_unavailable">फॉर्म उपलब्ध नहीं हैं। जांचें कि आपके फ़ोन का संग्रहण स्थान उपलब्ध है।</string>
     <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</string>
-    <string name="recovery_network_outdated">एप्लिकेशन पुराना है और अब सर्वर के साथ संचार नहीं कर सकता है। कृपया इसे Google Play Store पर अपडेट करें।</string>
+    <string name="recovery_network_outdated">यह ऐप पुराना हो गया है। आगे बढ़ने के लिए कृपया Google Play Store पर ऐप को अपडेट करें।</string>
     <string name="recovery_app_manager">एप्लिकेशन प्रबंधक पर जाएं</string>
     <string name="recovery_retry">पुनर्प्राप्ति का पुनः प्रयास करें</string>
     <string name="notification_channel_errors_title">त्रुटियां</string>
@@ -251,24 +251,24 @@ License.
     <string name="connect_consent_message_1">मैंने डिमागी की <a href="https://www.dimagi.com/terms/latest/privacy/">गोपनीयता नीति</a>, <a href="https://www.dimagi.com/terms/latest/tos/">सेवा की शर्तें</a>, <a href="https://www.dimagi.com/terms/latest/ba/">व्यावसायिक समझौता</a> और <a href="https://www.dimagi.com/terms/latest/aup/">स्वीकार्य उपयोग नीति</a> पढ़ ली है और मैं उनसे सहमत हूं।</string>
     <string name="connect_phone_country_code_default">+91</string>
     <string name="connect_phone_number_hint">0000000000</string>
-    <string name="connect_otp_sent">OTP भेजा गया</string>
-    <string name="connect_otp_verified">OTP सत्यापित</string>
-    <string name="connect_enter_otp">OTP दर्ज करें</string>
+    <string name="connect_otp_sent">आपके फ़ोन नंबर पर 6 अंकों का पासकोड भेजा गया है।</string>
+    <string name="connect_otp_verified">सफलता! आपका फ़ोन नंबर सत्यापित हो गया है।</string>
+    <string name="connect_enter_otp">कृपया 6-अंकीय पासकोड दर्ज करें जो आपके फ़ोन नंबर पर भेजा गया था।</string>
     <string name="connect_backup_code_title_set">पिन चुनें</string>
     <string name="connect_backup_code_title_confirm">पिन की पुष्टि करें</string>
-    <string name="connect_backup_code_length">कोड %d अंकों का होना चाहिए</string>
-    <string name="connect_backup_code_mismatch">पिन मेल खाने चाहिए</string>
+    <string name="connect_backup_code_length">कृपया अपना बैकअप कोड याद रखना सुनिश्चित करें! यह %d अंकों का होना चाहिए। इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते तक दोबारा पहुंचने के लिए इसकी आवश्यकता होगी।</string>
+    <string name="connect_backup_code_mismatch">आपके द्वारा दर्ज किए गए बैकअप कोड मेल खाने चाहिए। कृपया इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते को फिर से एक्सेस करने के लिए इसकी आवश्यकता होगी।</string>
     <string name="connect_backup_fail_title">गलत कोड</string>
     <string name="connect_recovery_success_title">खाता पुनर्प्राप्त किया गया</string>
-    <string name="connect_recovery_success_message">आपने अपना खाता सफलतापूर्वक पुनर्प्राप्त कर लिया है और अब आप अपने PersonalId का उपयोग फिर से शुरू कर सकते हैं।</string>
+    <string name="connect_recovery_success_message">आपका खाता पुनर्प्राप्त कर लिया गया है! आप PersonalID का उपयोग फिर से शुरू कर सकते हैं।</string>
     <string name="connect_unlock_title">PersonalId अनलॉक करें</string>
     <string name="connect_unlock_message">जारी रखने के लिए कृपया अनलॉक करें</string>
     <string name="connect_biometric_enroll_fail_title">बायोमेट्रिक समस्या</string>
-    <string name="connect_biometric_enroll_fail_message">आपको इस बायोमेट्रिक को Android सेटिंग्स में मैन्युअल रूप से कॉन्फ़िगर करना होगा।</string>
+    <string name="connect_biometric_enroll_fail_message">PersonalID के लिए बॉयोमीट्रिक्स का सक्षम होना आवश्यक है। कृपया आगे बढ़ने से पहले एंड्रॉइड सिस्टम सेटिंग्स में बॉयोमीट्रिक्स कॉन्फ़िगर करें।</string>
     <string name="connect_biometric_enroll_fail_button">सेटिंग्स पर जाएं</string>
     <string name="connect_register_name">नाम</string>
     <string name="connect_register_success_title">खाता बनाया गया</string>
-    <string name="connect_register_success_message">आपका PersonalId खाता सफलतापूर्वक बना लिया गया है और अब उपयोग के लिए तैयार है!</string>
+    <string name="connect_register_success_message">आपका खाता बन गया है, और आपके उपयोग के लिए तैयार है!</string>
     <string name="connect_register_success_button">ठीक है</string>
     <string name="connect_verify_title">अनलॉक विकल्प</string>
     <string name="connect_verify_message">कृपया अपने डिवाइस और अपने PersonalID खाते दोनों को अनलॉक करने के लिए नीचे एक विधि कॉन्फ़िगर करें</string>
@@ -424,11 +424,11 @@ License.
     <string name="connect_visit_type_title">%s विज़िट</string>
     <string name="connect_job_tile_daily_visits">दैनिक विज़िट</string>
     <string name="connect_appbar_title_app_lock">ऐप लॉक</string>
-    <string name="personalid_incorrect_otp">दर्ज किया गया वन-टाइम पासवर्ड गलत है। कृपया पुनः प्रयास करें।</string>
-    <string name="personalid_too_many_otp_attempts">बहुत अधिक प्रयास। कृपया बाद में पुनः प्रयास करें।</string>
-    <string name="personalid_otp_missing_activity">कुछ गलत हो गया</string>
-    <string name="personalid_otp_verification_failed_generic">OTP सत्यापन विफल:</string>
-    <string name="personalid_otp_verification_failed">सत्यापन विफल, कृपया पुनः प्रयास करें।</string>
+    <string name="personalid_incorrect_otp">आपने गलत 6-अंकीय पासकोड दर्ज किया है। कृपया पुन: प्रयास करें।</string>
+    <string name="personalid_too_many_otp_attempts">आपने बहुत बार गलत 6-अंकीय वन टाइम पासकोड दर्ज किया है। कृपया बाद में पुन: प्रयास करें।</string>
+    <string name="personalid_otp_verification_failed_generic">आपके फ़ोन नंबर का सत्यापन करते समय कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
+    <string name="personalid_otp_verification_failed">कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
+    <string name="personalid_location_permission_error">PersonalID के लिए आवश्यक है कि आपके डिवाइस पर लोकेशन सेवाएं सक्षम हों। कृपया आगे बढ़ने से पहले इसे अपने फ़ोन की सेटिंग में सक्षम करें।</string>
     <string name="connect_registration_subtitle">अपना फ़ोन नंबर दर्ज करें</string>
     <string name="connect_backup_code_message_title">PersonalId बैकअप कोड</string>
     <string name="connect_backup_code_message">अपना 6 अंकों का बैकअप कोड दर्ज करें</string>
@@ -443,12 +443,12 @@ License.
     <string name="personalid_name_fragment_subtitle">कृपया अपना नाम दर्ज करें जैसा कि आपके सरकार द्वारा जारी आईडी पर दिखाई देता है</string>
     <string name="personalid_name_empty_error">नाम फ़ील्ड खाली नहीं हो सकता</string>
     <string name="personalid_configuration_process_failed_title">प्रक्रिया विफल</string>
-    <string name="personalid_configuration_process_failed_subtitle">आपका डिवाइस अभी PersonalID के साथ संगत नहीं है। कृपया किसी अन्य डिवाइस पर पुनः प्रयास करें।</string>
-    <string name="personalid_configuration_process_pin_unavailable_message">पिन सुरक्षा तंत्र उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें.</string>
-    <string name="personalid_configuration_process_biometric_unavailable_message">बायोमेट्रिक सुरक्षा तंत्र उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें।</string>
-    <string name="personalid_configuration_process_pin_needs_update_message">पिन सुरक्षा तंत्र को सॉफ़्टवेयर अद्यतन की आवश्यकता है, कृपया उपलब्ध सिस्टम अद्यतन लागू करें या किसी अन्य डिवाइस के साथ पुनः प्रयास करें।</string>
-    <string name="personalid_configuration_process_biometric_needs_update_message">बायोमेट्रिक सुरक्षा तंत्र को सॉफ़्टवेयर अपडेट की आवश्यकता है, कृपया उपलब्ध सिस्टम अपडेट लागू करें या किसी अन्य डिवाइस के साथ पुनः प्रयास करें।</string>
-    <string name="personalid_configuration_process_biometric_no_hardware_message">पर्सनल आईडी के लिए आपके डिवाइस में फ़िंगरप्रिंट स्कैनर होना ज़रूरी है। कृपया किसी दूसरे डिवाइस से दोबारा कोशिश करें।</string>
+    <string name="personalid_configuration_process_failed_subtitle">दुर्भाग्य से, यह डिवाइस PersonalID के लिए साइन अप करने हेतु आवश्यक सुरक्षा जांच में विफल रहा। कृपया किसी दूसरे डिवाइस पर पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">इस डिवाइस पर पिन वर्तमान में अनुपलब्ध है। कृपया बाद में पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">इस डिवाइस पर वर्तमान में बॉयोमीट्रिक्स सक्षम नहीं है। कृपया आगे बढ़ने से पहले एंड्रॉइड सिस्टम सेटिंग्स में बॉयोमीट्रिक्स कॉन्फ़िगर करें।</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">इस डिवाइस पर पिन को अपडेट की आवश्यकता है। कृपया कोई भी उपलब्ध सिस्टम अपडेट लागू करें, या किसी दूसरे डिवाइस के साथ पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">इस डिवाइस पर बॉयोमीट्रिक्स पुराना हो गया है। कृपया कोई भी उपलब्ध सिस्टम अपडेट लागू करें, या किसी भिन्न डिवाइस के साथ पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID के लिए आवश्यक है कि आपके डिवाइस में एक फिंगरप्रिंट स्कैनर हो। कृपया किसी भिन्न डिवाइस पर पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_play_services">कृपया सुनिश्चित करें कि Play Store आपके डिवाइस पर उपलब्ध है और यह अद्यतित है।</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">आपके डिवाइस की पात्रता की जांच करते समय अस्थायी त्रुटि। कृपया एक दिन बाद पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_network_error">आपके डिवाइस की पात्रता की जांच करते समय नेटवर्क त्रुटि। कृपया सुनिश्चित करें कि आपके पास एक अच्छा नेटवर्क कनेक्शन है और पुनः प्रयास करें।</string>
@@ -463,7 +463,7 @@ License.
     <string name="personalid_recovery_failed_title">पुनर्प्राप्ति विफल</string>
     <string name="personalid_recovery_lockout_title">खाता बंद</string>
     <string name="personalid_recovery_failed_message">ऐसा लगता है कि आप अपना बैकअप कोड भूल गए हैं, हम आपके लिए एक नया खाता बना रहे हैं</string>
-    <string name="personalid_recovery_lockout_message">आपने कई बार गलत बैकअप कोड दर्ज किया है और आपका खाता बंद कर दिया गया है।</string>
+    <string name="personalid_recovery_lockout_message">आपने बहुत बार गलत बैकअप कोड दर्ज किया है। आपका खाता लॉक कर दिया गया है।</string>
     <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड दर्ज किया है। कृपया पुनः प्रयास करें। %d गलत प्रयासों के बाद आपको एक नया खाता बनाना होगा।</string>
     <string name="personalid_camera_permission_title">कैमरे के लिए अनुमति</string>
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
@@ -496,7 +496,7 @@ License.
     <string name="nav_drawer_work_history">कार्य इतिहास</string>
     <string name="nav_drawer_payments">भुगतान</string>
     <string name="nav_drawer_manage_profile">प्रोफ़ाइल प्रबंधित करें</string>
-    <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
+    <string name="play_service_update_error">PersonalID का उपयोग करने के लिए, आपको Google Play सेवाएं अपडेट करनी होंगी। अपडेट की जांच के लिए Google Play Store पर जाने के लिए यहां टैप करें।</string>
     <string name="nav_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
     <string name="nav_drawer_close">नेविगेशन ड्रॉअर बंद करें</string>
 
@@ -508,6 +508,10 @@ License.
     <string name="minutes_ago">"%1$d मिनट पहले"</string>
     <string name="hours_ago">"%1$d घंटे पहले"</string>
     <string name="yesterday">कल %1$s</string>
+
+    <string name="recovery_network_cooldown">बहुत अधिक अनुरोध प्रयास। कृपया एक घंटे बाद पुनः प्रयास करें।</string>
+    <string name="personalid_authentication_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स का प्रमाणीकरण विफल हो गया है। कृपया कोई भी उपलब्ध सिस्टम अपडेट लागू करें, या किसी दूसरे डिवाइस के साथ पुनः प्रयास करें।</string>
+    <string name="connect_verify_configuration_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स कॉन्फ़िगर करना विफल हो गया है। कृपया %s पुनः प्रयास करें।</string>
 
     <string name="personalid_using_your_location">आपके स्थान का उपयोग कर रहा है</string>
     <string name="personalid_no_location_found">हमें आपका स्थान नहीं मिल रहा है</string>

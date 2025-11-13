@@ -313,7 +313,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                             resolutionLauncher.launch(request);
                         } catch (Exception e) {
                             navigateToPermissionErrorMessageDisplay(
-                                    R.string.personalid_location_service_error,
+                                    R.string.personalid_location_permission_error,
                                     R.string.personalid_grant_location_service
                             );
                         }
@@ -329,7 +329,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private void handleNoLocationServiceProviders() {
         DialogInterface.OnCancelListener onCancelListener = dialog -> {
             location = null;
-            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error,
+            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
                     R.string.personalid_grant_location_service);
         };
 
@@ -340,7 +340,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
                     location = null;
-                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error,
+                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
                             R.string.personalid_grant_location_service);
                     break;
             }
@@ -388,7 +388,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                         setLocationToolTip(location);
                         // User cancelled or failed
                         navigateToPermissionErrorMessageDisplay(
-                                R.string.personalid_location_service_error,
+                                R.string.personalid_location_permission_error,
                                 R.string.personalid_grant_location_service
                         );
                     }

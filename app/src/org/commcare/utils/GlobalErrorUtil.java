@@ -2,8 +2,6 @@ package org.commcare.utils;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
@@ -13,9 +11,8 @@ public class GlobalErrorUtil {
         CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).write(error);
     }
 
-    public static String handleGlobalErrors() {
+    public static String getGlobalErrors() {
         StringBuilder sb = new StringBuilder();
-        boolean deleteConnectStorage = false;
         SqlStorage<GlobalErrorRecord> storage = CommCareApplication.instance()
                 .getGlobalStorage(GlobalErrorRecord.class);
         Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[]{}, new String[]{});
@@ -29,13 +26,6 @@ public class GlobalErrorUtil {
                 GlobalErrors ge = GlobalErrors.values()[error.getErrorCode()];
 
                 sb.append(CommCareApplication.instance().getString(ge.getMessageId()));
-
-                deleteConnectStorage |= ge == GlobalErrors.PERSONALID_GENERIC_ERROR
-                        || ge == GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR;
-            }
-
-            if(deleteConnectStorage) {
-                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
             }
 
             //Clear the errors once retrieved

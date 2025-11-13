@@ -189,7 +189,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             return;
         }
         if (!fromManager) {
-            String errors = GlobalErrorUtil.handleGlobalErrors();
+            String errors = GlobalErrorUtil.getGlobalErrors();
             globalError = errors.length() > 0 ? errors : null;
 
             PersonalIdManager.getInstance().init(this);
