@@ -85,7 +85,6 @@ class ConfirmBackupCodeResponseParserTest {
         assertFalse(sessionData.invitedUser)
     }
 
-
     @Test(expected = NullPointerException::class)
     fun testParseWithMissingUsername() {
         // Arrange - Missing required username field
