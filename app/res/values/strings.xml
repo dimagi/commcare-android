@@ -691,4 +691,5 @@
     <string name="yesterday">Yesterday %1$s</string>
 
     <string name="personalid_authentication_failed">Authenticating the biometrics on your Android device has failed. Please apply any available system updates, or try again with a different device</string>
+    <string name="no_channel_msg">You have no current messaging channels</string>
 </resources>

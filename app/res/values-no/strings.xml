@@ -121,5 +121,5 @@
     <string name="connect_recovery_success_message">Kontoen din er blitt gjenopprettet! Du kan gjenoppta bruken av PersonalID.</string>
     <string name="connect_register_success_message">Kontoen din er blitt opprettet og er klar til bruk</string>
     <string name="connect_backup_code_length">Sørg for å huske reservekoden din! Den må være på %d sifre. Oppbevar den på et trygt sted, da du trenger den for å få tilgang til kontoen din igjen.</string>
-
+    <string name="no_channel_msg">Du har ingen nåværende meldingskanaler</string>
 </resources>
