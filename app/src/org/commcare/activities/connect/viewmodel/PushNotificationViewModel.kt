@@ -1,6 +1,7 @@
 package org.commcare.activities.connect.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +14,9 @@ import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager
 import org.commcare.utils.PushNotificationApiHelper.retrieveLatestPushNotifications
 
-class PushNotificationViewModel(application: Application) : AndroidViewModel(application) {
+class PushNotificationViewModel(
+    application: Application,
+) : AndroidViewModel(application) {
     private val _fetchApiError =
         MutableLiveData<String>()
     val fetchApiError: LiveData<String> =
@@ -23,13 +26,19 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
     val allNotifications: LiveData<List<PushNotificationRecord>> = _allNotifications
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
-    fun loadNotifications(isRefreshed: Boolean) {
+
+    fun loadNotifications(
+        isRefreshed: Boolean,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.postValue(true)
             // Load from DB first
             if (!isRefreshed) {
                 val cachedNotifications =
-                    NotificationRecordDatabaseHelper.getAllNotifications(getApplication()).orEmpty()
+                    NotificationRecordDatabaseHelper
+                        .getAllNotifications(context)
+                        .orEmpty()
                         .sortedByDescending { it.createdDate }
                 if (cachedNotifications.isNotEmpty()) {
                     _isLoading.postValue(false)
@@ -37,22 +46,25 @@ class PushNotificationViewModel(application: Application) : AndroidViewModel(app
                 _allNotifications.postValue(cachedNotifications)
             }
 
-            val latestPushNotificationsFromApi = retrieveLatestPushNotifications(application)
-            latestPushNotificationsFromApi.onSuccess {
-                val currentNotifications = _allNotifications.value.orEmpty()
-                NotificationsSyncWorkerManager(
-                    application,
-                    it,
-                    false
-                ).startPNApiSync()
-                val updatedNotifications = (it + currentNotifications).distinctBy { it.notificationId }
-                    .sortedByDescending { it.createdDate }
-                _isLoading.postValue(false)
-                _allNotifications.postValue(updatedNotifications)
-            }.onFailure {
-                _isLoading.postValue(false)
-                _fetchApiError.postValue(it.message)
-            }
+            val latestPushNotificationsFromApi = retrieveLatestPushNotifications(context)
+            latestPushNotificationsFromApi
+                .onSuccess {
+                    val currentNotifications = _allNotifications.value.orEmpty()
+                    NotificationsSyncWorkerManager(
+                        application,
+                        it,
+                        false,
+                    ).startPNApiSync()
+                    val updatedNotifications =
+                        (it + currentNotifications)
+                            .distinctBy { it.notificationId }
+                            .sortedByDescending { it.createdDate }
+                    _isLoading.postValue(false)
+                    _allNotifications.postValue(updatedNotifications)
+                }.onFailure {
+                    _isLoading.postValue(false)
+                    _fetchApiError.postValue(it.message)
+                }
         }
     }
 }
