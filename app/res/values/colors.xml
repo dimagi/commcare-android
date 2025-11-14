@@ -83,6 +83,7 @@
     <color name="cc_brand_color">#5D70D2</color>
     <color name="cc_brand_bg">#BCDEFF</color>
     <color name="cc_brand_text">#002C5F</color>
+    <color name="cc_side_nav_color">#3A42C7</color>
 
     <!-- Neutral -->
     <color name="cc_neutral_color">#685C53</color>
@@ -221,6 +222,7 @@
     <color name="personal_id_work_history_yellow_pending">#C67E13</color>
     <color name="personal_id_work_history_yellow_pending_bg">#FFF4CD</color>
     <color name="pn_item_grey_color">#E9E9E9</color>
+    <color name="personal_id_profile_bg_color">#262a82</color>
 
 
     <color name="ic_backup">#14006C</color>
