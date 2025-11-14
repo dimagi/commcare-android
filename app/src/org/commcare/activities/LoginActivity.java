@@ -760,6 +760,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         selectedAppIndex = position;
         String appId = appIdDropdownList.get(selectedAppIndex);
+        presetAppId = appId;
         seatAppIfNeeded(appId);
     }
 
@@ -1033,6 +1034,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 if (!appIdDropdownList.isEmpty()) {
                     selectedAppIndex = appIdDropdownList.indexOf(recordId);
                 }
+                presetAppId = recordId;
                 seatAppIfNeeded(recordId);
                 closeDrawer();
             }
