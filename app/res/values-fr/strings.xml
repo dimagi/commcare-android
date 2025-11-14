@@ -518,4 +518,5 @@ License.
     <string name="personalid_authentication_failed">L\'authentification des données biométriques sur votre appareil Android a échoué. Veuillez appliquer les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
     <string name="connect_verify_configuration_failed">La configuration des données biométriques sur votre appareil Android a échoué. Veuillez réessayer %s.</string>
 
+    <string name="no_channel_msg">Vous n\'avez aucun canal de messagerie actif.</string>
 </resources>
