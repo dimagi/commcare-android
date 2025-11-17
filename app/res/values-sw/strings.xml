@@ -522,5 +522,5 @@
 
     <string name="recovery_network_cooldown">Majaribio mengi mno ya ombi. Tafadhali jaribu tena baada ya saa moja.</string>
     <string name="personalid_authentication_failed">Uthibitishaji wa bayometriki kwenye kifaa chako cha Android haukufaulu. Tafadhali weka masasisho yoyote ya mfumo yanayopatikana, au jaribu tena ukitumia kifaa tofauti.</string>
-
+    <string name="no_channel_msg">Huna njia za sasa za kutuma ujumbe</string>
 </resources>

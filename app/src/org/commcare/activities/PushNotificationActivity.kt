@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PushNotificationViewModel
 import org.commcare.adapters.PushNotificationAdapter
@@ -13,13 +12,13 @@ import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
-import org.commcare.google.services.analytics.CCAnalyticsParam
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.FirebaseMessagingUtil.getIntentForPNClick
+import org.commcare.views.dialogs.CustomProgressDialog
 
-class PushNotificationActivity : AppCompatActivity() {
+class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
     private val binding: ActivityPushNotificationBinding by lazy {
         ActivityPushNotificationBinding.inflate(layoutInflater)
     }
@@ -32,7 +31,7 @@ class PushNotificationActivity : AppCompatActivity() {
         initViews()
         observeRetrieveNotificationApi()
         registerForNewNotification()
-        pushNotificationViewModel.loadNotifications(isRefreshed = false)
+        pushNotificationViewModel.loadNotifications(isRefreshed = false, this)
     }
 
     private fun observeRetrieveNotificationApi() {
@@ -109,7 +108,7 @@ class PushNotificationActivity : AppCompatActivity() {
             }
 
             R.id.notification_cloud_sync -> {
-                pushNotificationViewModel.loadNotifications(isRefreshed = true)
+                pushNotificationViewModel.loadNotifications(isRefreshed = true, this)
                 true
             }
 
@@ -121,7 +120,10 @@ class PushNotificationActivity : AppCompatActivity() {
             // Whenever new notification is received, signalling is calling retrieve_notifications api
             // so whenever this broadcast is received, new notification is already stored in local DB
             // that's the reason that isRefreshed = false is required
-            pushNotificationViewModel.loadNotifications(false)
+            pushNotificationViewModel.loadNotifications(false, this)
         }
     }
+
+    override fun generateProgressDialog(taskId: Int): CustomProgressDialog =
+        CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId)
 }

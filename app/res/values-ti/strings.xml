@@ -506,4 +506,5 @@
     <string name="recovery_network_cooldown">ኣዝዩ ብዙሕ ናይ ምሕታት ፈተነታት። በጃኻ ድሕሪ ሓደ ሰዓት እንደገና ፈትን።</string>
     <string name="personalid_authentication_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ዘሎ ባዮሜትሪክስ ምእማት ኣይተዓወተን። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
 
+    <string name="no_channel_msg">ናይ ሕጂ ናይ መልእኽቲ ቻነላት የብልካን።</string>
 </resources>
