@@ -63,12 +63,10 @@ class RetrieveNotificationsResponseParser<T>(
             for (notificationJsonIndex in 0 until notificationsJsonArray!!.length()) {
                 val notificationJsonObject =
                     notificationsJsonArray!!.getJSONObject(notificationJsonIndex)
-                if (isNotificationMessageType(notificationJsonObject) &&
-                    notificationJsonObject.getJSONObject("data").has("message_id")
-                ) {
+                if (isNotificationMessageType(notificationJsonObject)) {
                     val message =
                         ConnectMessagingMessageRecord.fromJson(
-                            notificationJsonObject.getJSONObject("data"),
+                            notificationJsonObject,
                             existingChannels,
                         )
                     if (message != null) {
@@ -99,10 +97,9 @@ class RetrieveNotificationsResponseParser<T>(
         channelId: String,
     ): Boolean =
         isNotificationMessageType(notificationJsonObject) && notificationJsonObject
-            .getJSONObject("data")
             .get("channel") != null &&
             channelId.equals(
-                notificationJsonObject.getJSONObject("data").get("channel"),
+                notificationJsonObject.get("channel"),
             )
 
     private fun isNotificationMessageType(notificationJsonObject: JSONObject) =
@@ -111,5 +108,5 @@ class RetrieveNotificationsResponseParser<T>(
                 notificationJsonObject.get(
                     "notification_type",
                 ),
-            ) && notificationJsonObject.has("data") && notificationJsonObject.getJSONObject("data") != null
+            )
 }

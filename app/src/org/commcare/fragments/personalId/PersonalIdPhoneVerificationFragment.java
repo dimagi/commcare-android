@@ -114,9 +114,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 String userMessage = switch (errorType) {
                     case INVALID_CREDENTIAL -> getString(R.string.personalid_incorrect_otp);
                     case TOO_MANY_REQUESTS -> getString(R.string.personalid_too_many_otp_attempts);
-                    case MISSING_ACTIVITY -> getString(R.string.personalid_otp_missing_activity);
-                    case VERIFICATION_FAILED ->
-                            getString(R.string.personalid_otp_verification_failed);
+                    case MISSING_ACTIVITY -> getString(R.string.personalid_otp_verification_failed_generic);
+                    case VERIFICATION_FAILED -> getString(R.string.personalid_otp_verification_failed);
                     default ->
                             getString(R.string.personalid_otp_verification_failed_generic) + (errorMessage != null ? errorMessage : "Unknown error");
                 };

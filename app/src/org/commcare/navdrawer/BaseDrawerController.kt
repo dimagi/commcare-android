@@ -179,7 +179,7 @@ class BaseDrawerController(
                 items.add(
                     NavDrawerItem.ParentItem(
                         activity.getString(R.string.nav_drawer_opportunities),
-                        R.drawable.nav_drawer_opportunity_icon,
+                        R.drawable.connect_logo,
                         NavItemType.OPPORTUNITIES,
                     ),
                 )
@@ -196,19 +196,22 @@ class BaseDrawerController(
                 ),
             )
 
-            if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
-                val unreadCount = ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).size
-                val messageCount = if (unreadCount > 0) unreadCount else null
+            val unreadCount =
+                if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
+                    ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).size
+                } else {
+                    0
+                }
+            val messageCount = if (unreadCount > 0) unreadCount else null
 
-                items.add(
-                    NavDrawerItem.ParentItem(
-                        activity.getString(R.string.connect_messaging_title),
-                        R.drawable.nav_drawer_message_icon,
-                        NavItemType.MESSAGING,
-                        badgeCount = messageCount,
-                    ),
-                )
-            }
+            items.add(
+                NavDrawerItem.ParentItem(
+                    activity.getString(R.string.connect_messaging_title),
+                    R.drawable.nav_drawer_message_icon,
+                    NavItemType.MESSAGING,
+                    badgeCount = messageCount,
+                ),
+            )
 
             if (shouldShowWorkHistory()) {
                 items.add(

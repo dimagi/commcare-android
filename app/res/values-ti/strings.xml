@@ -170,7 +170,7 @@
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
     <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
-    <string name="recovery_network_outdated">እቲ ኣፕሊኬሽን ግዜኡ ዝሓለፎ ሰለዝኮነ ድሕሪ ሕጂ ምስቲ ሰርቨር ክራኸብ ኣይክእልን እዩ። በይዝኦም ኣብ Google Play Store ብምእታውነቲ ኣፕሊኬሽን የዘምንዎ።</string>
+    <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
     <string name="recovery_retry">ንናይ</string>
     <string name="notification_channel_errors_title">ጌጋታት</string>
@@ -241,27 +241,27 @@
     <string name="connect_consent_message_1">ኣነ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
     <string name="connect_phone_country_code_default">1</string>
     <string name="connect_phone_number_hint">0</string>
-    <string name="connect_otp_sent">ኦቲፒ ተላኢኹ</string>
-    <string name="connect_otp_verified">OTP ተረጋጊጹ</string>
-    <string name="connect_enter_otp">ኣብ ኦቲፒ ኣቲኻ</string>
+    <string name="connect_otp_sent">ናይ 6 ኣሃዛት መሕለፊ ኮድ ናብ ቁጽሪ ስልክኻ ተላኢኹ ኣሎ።</string>
+    <string name="connect_otp_verified">ተዓዊቱ! ቁጽሪ ስልክኻ ተረጋጊጹ ኣሎ።</string>
+    <string name="connect_enter_otp">በጃኻ ናብ ቁጽሪ ስልክኻ ዝተላእኸ ናይ 6 ኣሃዛት መሕለፊ ኮድ ኣእቱ።</string>
     <string name="connect_backup_code_title_set">ናይ ምሕዋይ ሕጊ</string>
     <string name="connect_backup_code_title_confirm">ናይ ምሕዋይ ኮድ ኣረጋግጽ</string>
     <string name="connect_backup_code_message_title">PersonalId ናይ ምሕዋይ ኮድ</string>
     <string name="connect_backup_code_message">6 ኣሃዝ ዘለዎ ናይ ምሕዋይ ኮድካ ኣእቱ</string>
-    <string name="connect_backup_code_length">ኮድ %d ኣሃዝ ክኸውን ኣለዎ።</string>
-    <string name="connect_backup_code_mismatch">ኮዳት ክሰማምዑ ኣለዎም።</string>
+    <string name="connect_backup_code_length">በጃኻ ነቲ ናይ መተካእታ ኮድካ ምዝካርካ ኣረጋግጽ! %d ኣሃዛት ክኸውን ኣለዎ። እንደገና ናብ ሕሳብካ ንምእታው ስለ ዘድልየካ፡ ኣብ ውሑስ ቦታ ኣቐምጦ።</string>
+    <string name="connect_backup_code_mismatch">እቲ እተእትዎ ናይ መተካእታ ኮዳት ክመሳሰል ኣለዎ። እንደገና ናብ ሕሳብካ ንምእታው ስለ ዘድልየካ፡ ኣብ ውሑስ ቦታ ኣቐምጦ።</string>
     <string name="connect_backup_fail_title">ጌጋ ኮድ</string>
     <string name="connect_recovery_success_title">ኣካውንት ናብ ንቡር ተመሊሱ</string>
-    <string name="connect_recovery_success_message">ኣካውንትካ ብዓወት ረኺብካዮ ኣለኻ፡ ሕጂ ድማ PersonalId ምጥቃም ክትጅምር ትኽእል ኢኻ።</string>
+    <string name="connect_recovery_success_message">ሕሳብካ ተመልሱልካ ኣሎ! PersonalID ምጥቃም ክትቅጽል ትኽእል ኢኻ።</string>
     <string name="connect_unlock_title">PersonalId ኽፈት።</string>
     <string name="connect_unlock_message">ንኽትቅጽል በጃኹም ክትከፍቱ ንላቦ</string>
     <string name="connect_unlock_unavailable">በጃኹም ናይ ስክሪን ምኽፋት መካኒዝም ኣዋቕሩ</string>
     <string name="connect_biometric_enroll_fail_title">ባዮሜትሪክ ጉዳይ</string>
-    <string name="connect_biometric_enroll_fail_message">ነዚ ባዮሜትሪክ ኣብ ቅጥዕታት ኣንድሮይድ ክትውቅሮ ከድልየካ እዩ።</string>
+    <string name="connect_biometric_enroll_fail_message">PersonalID ባዮሜትሪክስ ክኽፈት የገድድ እዩ። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ ናይ ኣንድሮይድ ሲስተም ሴቲንግስ ፡ ባዮሜትሪክስ ኣዋቅር።</string>
     <string name="connect_biometric_enroll_fail_button">ናብ ቅጥዕታት ኪድ</string>
     <string name="connect_register_name">ሽም</string>
     <string name="connect_register_success_title">ኣካውንት ተፈጢሩ</string>
-    <string name="connect_register_success_message">ናይ PersonalId ኣካውንትካ ብዓወት ተፈጢሩ ኣሎ፡ ኸዚ ድማ ንኽትጥቀመሉ ድሉው ኮይኑ ኣሎ!</string>
+    <string name="connect_register_success_message">ሕሳብካ ተፈጥሩ ኣሎ፣ ንኽትጥቀሙሉ ድማ ድሉው እዩ!</string>
     <string name="connect_register_success_button">እሺ</string>
     <string name="connect_verify_title">ኣማራፂታት ምኽፋት።</string>
     <string name="connect_verify_message">በይዛኻ ንኽልቲኡ መሳርሒኻን PersonalID ኣካውንትካን ንምኽፋት ኣብ ታሕቲ ዘሎ ሜላ ኣወሃህድ</string>
@@ -272,7 +272,7 @@
     <string name="connect_verify_configure_fingerprint">ኣሰር ኣፃብዕቲ ምውቃር</string>
     <string name="connect_verify_use_pin_long">ንምትእስሳር ፒን ተጠቐም</string>
     <string name="connect_verify_pin_configured">ፒንካ በቃ ተዋቒሩ ኣሎ፡ ንPersonalId ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
-    <string name="connect_verify_configuration_failed">ውቅር ኣይተዓወተን፣ በጃኻ እንደገና ፈትን።  %s</string>
+    <string name="connect_verify_configuration_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ባዮሜትሪክስ ምውቃር ኣይተዓወተን። በጃኻ እንደገና ፈትን %s።</string>
     <string name="connect_verify_configure_pin">ፒን ምውቃር</string>
     <string name="connect_verify_agree">ስምምዕ &amp; ቀፅል</string>
     <string name="connect_verify_phone_title">ናይ ምርግጋፅ ኮድ</string>
@@ -407,11 +407,11 @@
     <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
     <string name="connect_messaging_channel_consent_accept">ተቀበል</string>
     <string name="connect_messaging_channel_consent_decline">ኣውድቅ</string>
-    <string name="personalid_incorrect_otp">እቲ ዝኣተወ OTP ጌጋ እዩ። በጃኹም ደጊምኩም ፈትኑ።</string>
-    <string name="personalid_too_many_otp_attempts">ብዙሕ ፈተነታት። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
-    <string name="personalid_otp_missing_activity">ገለ ነገር ተጋግዩ።</string>
-    <string name="personalid_otp_verification_failed_generic">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
-    <string name="personalid_otp_verification_failed">ምርግጋጽ ኣይተዓወተን በጃኹም ደጊምኩም ፈትኑ</string>
+    <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
+    <string name="personalid_too_many_otp_attempts">ንስኻ ነቲ ናይ 6 ኣሃዛት ሓደ ግዜ ዝውውር ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። በጃኻ ጸኒሕካ እንደገና ፈትን።</string>
+    <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
+    <string name="personalid_otp_verification_failed">ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
+    <string name="personalid_location_permission_error">PersonalID መሳርሒኻ ናይ ኣገልግሎት ኣቀማምጣ ከም ዝተኸፍተ ገይሩ ክህልዎ የገድድ እዩ። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ setting ናይ ተሌፎንካ ኣክቲቭ ግበሮ።</string>
     <string name="personalid_messaging_menu_title">መልእኽቲ ምልውዋጥ</string>
     <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
@@ -441,12 +441,12 @@
     <string name="personalid_name_empty_error">ናይ ስም ዓውዲ ባዶ ክኸውን ኣይክእልን እዩ።</string>
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
-    <string name="personalid_configuration_process_failed_subtitle">መሳርሒኻ ኣብዚ እዋን\'ዚ ን PersonalID ንምምዝጋብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
-    <string name="personalid_configuration_process_pin_unavailable_message">እቲ ናይ ፒን ድሕነት መካኒዝም ኣይርከብን እዩ፣ በጃኻ ድሒርካ ደጊምካ ፈትን።</string>
-    <string name="personalid_configuration_process_biometric_unavailable_message">እቲ ናይ ባዮሜትሪክ ጸጥታ መካኒዝም የለን፣ በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
-    <string name="personalid_configuration_process_pin_needs_update_message">እቲ ናይ ፒን ድሕነት መካኒዝም ሶፍትዌር ምዕባለ የድልዮ፣ በጃኻ ዝኾነ ዝርከብ ናይ ስርዓት ምዕባለታት ተግባራዊ ወይ ብዝተፈለየ መሳርሒ እንደገና ፈትን።</string>
-    <string name="personalid_configuration_process_biometric_needs_update_message">እቲ ናይ ባዮሜትሪክ ድሕነት መካኒዝም ሶፍትዌር ምዕባለ የድልዮ፣ በጃኻ ዝኾነ ዝርከብ ናይ ስርዓት ምዕባለታት ተግባራዊ ወይ ብዝተፈለየ መሳርሒ እንደገና ፈትን።</string>
-    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID መሳርሒኻ ኣሰር ኣጻብዕቲ ስካነር ክህልዎ ይጠልብ። በጃኹም ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
+    <string name="personalid_configuration_process_failed_subtitle">ብ दुर्भाग्य፣ እዚ መሳርሒ\'ዚ ን PersonalID ንምምዝጋብ ዘድልዩ ናይ ጸጥታ መርመራታት ኣይሓለፈን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">ናይዚ መሳርሒ\'ዚ ፒን ሕጂ ኣይርከብን እዩ። በጃኻ ጸኒሕካ እንደገና ፈትን።</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">ኣብዚ መሳርሒ\'ዚ ባዮሜትሪክስ ሕጂ ኣይተኸፍተን። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ ናይ ኣንድሮይድ ሲስተም ሴቲንግስ ፡ ባዮሜትሪክስ ኣዋቅር።</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">ናይዚ መሳርሒ\'ዚ ፒን ምዕዳስ የድልዮ። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">ኣብዚ መሳርሒ\'ዚ ዘሎ ባዮሜትሪክስ ግዜኡ ዝሓለፈ እዩ። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID መሳርሒኻ ናይ ኣጻብዕ ስካነር ክህልዎ የገድድ እዩ። በጃኻ ኣብ ካልእ መሳርሒ እንደገና ፈትን።</string>
     <string name="personalid_configuration_process_failed_play_services">እባኮም ኣረጋግጹ ፡ እቲ ፕሌይ ስቶር ኣብ መሳርሒ እትርከቡ እንተሎ እና ትሓዘ እንተኾነ።</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">ሓፋሽ ጸገብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ኣብ ሓደ መዓልቲ ደጊሞ ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_network_error">ጸገኒ መረብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ዝሓለፈ መርበብ ክርከቡ እንተኾነ ኣረጋግጹ እና ደጊሞ ፈትኑ።</string>
@@ -461,7 +461,7 @@
     <string name="personalid_recovery_failed_title">ምሕዋይ ኣይተዓወተን</string>
     <string name="personalid_recovery_lockout_title">ኣካውንት ተዓጽዩ።</string>
     <string name="personalid_recovery_failed_message">Backup Code ናትካ ዝረሳዕካዮ ይመስል፣ ሓድሽ ኣካውንት ንፈጥር ኣለና።</string>
-    <string name="personalid_recovery_lockout_message">ጌጋ Backup Code ብዙሕ ግዜ ኣእቲኻ ኣካውንትካ ተዓጽዩ ኣሎ።</string>
+    <string name="personalid_recovery_lockout_message">ንስኻ ነቲ ናይ ምትካእ ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። ሕሳብካ ተዓጽዩ ኣሎ።</string>
     <string name="personalid_wrong_backup_message">ጌጋ Backup Code ኣእቲኻ፡ በጃኻ ደጊምካ ፈትን። ድሕሪ %d ዝያዳ ዘይቅኑዕ ፈተነታት ሓድሽ ኣካውንት ክትፈጥር ከድልየካ እዩ።</string>
     <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
@@ -493,6 +493,7 @@
     <string name="nav_drawer_work_history">ታሪኽ ስራሕ</string>
     <string name="nav_drawer_payments">ክፍሊታት</string>
     <string name="nav_drawer_manage_profile">ፕሮፋይል ኣስተዳደር</string>
+    <string name="play_service_update_error">PersonalID ንኽትጥቀም፡ ናይ Google Play ኣገልግሎታት ከተሐድስ የድልየካ። ምዕዳጋት ንምርኣይ ናብ Google Play Store ንምኻድ ኣብዚ ጠውቕ።</string>
     <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>
     <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>
     <string name="personalid_not_login_from_fcm_error">ዝርዝር ንምርኣይ ናብ PersonalId እቶ</string>
@@ -502,4 +503,8 @@
     <string name="hours_ago">ቅድሚ %1$d ሰዓታት</string>
     <string name="yesterday">ትማሊ %1$s</string>
 
+    <string name="recovery_network_cooldown">ኣዝዩ ብዙሕ ናይ ምሕታት ፈተነታት። በጃኻ ድሕሪ ሓደ ሰዓት እንደገና ፈትን።</string>
+    <string name="personalid_authentication_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ዘሎ ባዮሜትሪክስ ምእማት ኣይተዓወተን። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
+
+    <string name="no_channel_msg">ናይ ሕጂ ናይ መልእኽቲ ቻነላት የብልካን።</string>
 </resources>
