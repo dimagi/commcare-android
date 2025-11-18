@@ -23,6 +23,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
+import org.commcare.views.widgets.ComboboxWidget;
 import org.commcare.views.widgets.DateTimeWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
@@ -364,9 +365,17 @@ public class QuestionsView extends ScrollView
         View focusedView = findFocus();
         String focusedViewClassName = "None";
         if (focusedView != null) {
-            focusedViewClassName = focusedView.getClass().toString();
+            focusedViewClassName = focusedView.getClass().getSimpleName();
             if (focusedView.getParent() != null) {
-                focusedViewClassName += "/"+ focusedView.getParent().getClass();
+                String answerValue = null;
+                String questionID = null;
+                if (focusedView.getParent() instanceof ComboboxWidget cbxWidget) {
+                    questionID = (cbxWidget.getPrompt() != null && cbxWidget.getPrompt().getQuestion() != null) ?
+                            cbxWidget.getPrompt().getQuestion().getTextID() : "";
+                    answerValue = cbxWidget.getAnswer() != null ? cbxWidget.getAnswer().getDisplayText() : "";
+                }
+                focusedViewClassName += "/"+ focusedView.getParent().getClass().getSimpleName() +
+                        (questionID != null ? " (" + questionID + "/" + (answerValue != null ? answerValue : "") + ")" : "");
             }
         }
         return focusedViewClassName;
