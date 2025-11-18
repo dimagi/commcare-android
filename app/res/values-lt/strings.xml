@@ -125,7 +125,7 @@
 
     <string name="personalid_using_your_location">Naudojama jūsų buvimo vieta</string>
     <string name="personalid_no_location_found">Nepavyksta rasti jūsų buvimo vietos</string>
-    <string name="personalid_tooltip_location_failure_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programėlės naudojimą.\nĮjunkite vietos leidimus nustatymuose arba bandykite vėliau.</string>
+    <string name="personalid_tooltip_location_failure_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programos naudojimą.\nNorėdami tęsti, įjunkite vietos leidimus nustatymuose arba bandykite dar kartą vėliau.</string>
     <string name="personalid_tooltip_location_success_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programėlės naudojimą.\n<a href="https://www.dimagi.com/terms/latest/privacy/">Spustelėkite čia, jei norite gauti daugiau informacijos.</a></string>
 
 </resources>
