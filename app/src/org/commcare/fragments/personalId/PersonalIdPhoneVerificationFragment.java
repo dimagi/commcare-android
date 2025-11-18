@@ -139,7 +139,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-        setupOtpManager(false);
+        // Always fallback to Twilio (via Personal ID) if this is the second attempt in the session to send the user an OTP.
+        Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1;
+        setupOtpManager(useOtpFallback);
     }
 
     /**
