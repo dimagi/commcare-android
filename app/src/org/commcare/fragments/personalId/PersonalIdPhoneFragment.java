@@ -179,7 +179,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         updateContinueButtonState();
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private void setupListeners() {
         binding.ivLocationInfo.setOnClickListener(v -> {
             if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
@@ -189,14 +188,11 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             }
         });
 
-        binding.firstLayout.setOnTouchListener((v, event) -> {
+        binding.firstLayout.setOnClickListener(v->{
             if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
                 binding.groupTooltipInfo.setVisibility(View.GONE);
-                return true;
             }
-            return false;
         });
-
         binding.connectConsentCheck.setOnClickListener(v -> updateContinueButtonState());
         binding.personalidPhoneContinueButton.setOnClickListener(v -> onContinueClicked());
 
@@ -407,11 +403,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         resolutionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
+                    setLocationToolTip(location);
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // User enabled location settings
-                        setLocationToolTip(location);
                     } else {
-                        setLocationToolTip(location);
                         // User cancelled or failed
                         navigateToPermissionErrorMessageDisplay(
                                 R.string.personalid_location_permission_error,

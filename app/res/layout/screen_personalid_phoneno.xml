@@ -3,14 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
-        android:id="@+id/firstLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
         android:orientation="vertical"
+        android:fillViewport="true"
         tools:context="org.commcare.fragments.personalId.PersonalIdPhoneFragment">
 
         <LinearLayout
+            android:id="@+id/firstLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
