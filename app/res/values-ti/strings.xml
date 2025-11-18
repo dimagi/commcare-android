@@ -506,6 +506,7 @@
     <string name="recovery_network_cooldown">ኣዝዩ ብዙሕ ናይ ምሕታት ፈተነታት። በጃኻ ድሕሪ ሓደ ሰዓት እንደገና ፈትን።</string>
     <string name="personalid_authentication_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ዘሎ ባዮሜትሪክስ ምእማት ኣይተዓወተን። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
 
+    <string name="no_channel_msg">ናይ ሕጂ ናይ መልእኽቲ ቻነላት የብልካን።</string>
     <string name="personalid_using_your_location">ቦታኻ ምጥቃም</string>
     <string name="personalid_no_location_found">ቦታኻ ክንረክቦ ኣይከኣልናን</string>
     <string name="personalid_tooltip_location_failure_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\nበጃኻ ኣብ setting ናይ ቦታ ፍቓድ ኣኽእል፡ ወይ ድማ ጸኒሕካ ደጊምካ ፈትን።</string>
