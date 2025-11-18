@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:layout_gravity="bottom"
-    android:background="@color/cc_side_nav_color">
+    android:background="@color/connect_blue_color">
     <View
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
