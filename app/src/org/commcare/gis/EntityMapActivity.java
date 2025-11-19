@@ -8,6 +8,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,7 +56,17 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
 
+    private static final String KEY_SELECTED_MAP_TYPE = "entity_map_selected_map_type";
+    private static final int[] MAP_TYPES = new int[]{
+            GoogleMap.MAP_TYPE_NORMAL,
+            GoogleMap.MAP_TYPE_SATELLITE,
+            GoogleMap.MAP_TYPE_TERRAIN,
+            GoogleMap.MAP_TYPE_HYBRID,
+    };
+
     private GoogleMap mMap;
+    private Spinner mapTypeSelector;
+    private int selectedMapTypeIndex = 0;
 
     // keeps track of detail field index that should be used to show a custom icon
     private int imageFieldIndex = -1;
@@ -60,7 +74,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            selectedMapTypeIndex = savedInstanceState.getInt(KEY_SELECTED_MAP_TYPE, 0);
+        }
+
         setContentView(R.layout.entity_map_view);
+        setupMapTypeSelector();
 
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -71,6 +90,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         } catch (XPathException xe) {
             new UserfacingErrorHandling<>().logErrorAndShowDialog(this, xe, true);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_SELECTED_MAP_TYPE, selectedMapTypeIndex);
     }
 
 
@@ -109,6 +134,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public void onMapReady(final GoogleMap map) {
         mMap = map;
+        applySelectedMapType();
 
         if (entityLocations.size() > 0) {
             boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
@@ -135,6 +161,40 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         mMap.setOnInfoWindowClickListener(this);
         setMapLocationEnabled(true);
+    }
+
+    private void setupMapTypeSelector() {
+        mapTypeSelector = findViewById(R.id.map_type_selector);
+        if (mapTypeSelector == null) {
+            return;
+        }
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.map_type_labels,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mapTypeSelector.setAdapter(adapter);
+        mapTypeSelector.setSelection(selectedMapTypeIndex, false);
+        mapTypeSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (selectedMapTypeIndex != position) {
+                    selectedMapTypeIndex = position;
+                    applySelectedMapType();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // no-op
+            }
+        });
+    }
+
+    private void applySelectedMapType() {
+        if (mMap != null && selectedMapTypeIndex >= 0 && selectedMapTypeIndex < MAP_TYPES.length) {
+            mMap.setMapType(MAP_TYPES[selectedMapTypeIndex]);
+        }
     }
 
     private BitmapDescriptor getEntityIcon(Entity<TreeReference> entity) {

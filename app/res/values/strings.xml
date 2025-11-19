@@ -175,6 +175,11 @@
     <string name="change_settings">Change Settings</string>
     <string name="finding_location">Finding Location...</string>
     <string name="found_location">Location Found!</string>
+    <string name="map_type_selector_label">Map type</string>
+    <string name="map_type_normal">Default</string>
+    <string name="map_type_satellite">Satellite</string>
+    <string name="map_type_terrain">Terrain</string>
+    <string name="map_type_hybrid">Hybrid</string>
     <string name="preference_help_mode_tray">Display Rich Help Inline</string>
     <string name="reset_image">Reset</string>
     <string name="save_and_close">Save and Close</string>
