@@ -32,7 +32,7 @@ class NetworkSyncGetRequestWorker(appContext: Context, workerParams: WorkerParam
 
         val params: ArrayListMultimap<String, String> = ArrayListMultimap.create()
         inputData.keyValueMap.forEach { (key, value) ->
-            if (paramKeys.contentEquals(key)) {
+            if (paramKeys.contains(key)) {
                 params.put(key, value.toString())
             }
         }
