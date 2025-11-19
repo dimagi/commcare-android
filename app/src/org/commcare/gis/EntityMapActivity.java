@@ -6,11 +6,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,6 +25,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
@@ -66,6 +70,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     private GoogleMap mMap;
     private Spinner mapTypeSelector;
+    private CheckBox markerCheckbox;
     private int selectedMapTypeIndex = 0;
 
     // keeps track of detail field index that should be used to show a custom icon
@@ -85,6 +90,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        markerCheckbox = findViewById(R.id.marker_checkbox);
+        markerCheckbox.setOnClickListener(view -> {
+            updateMap();
+        });
+
         try {
             addEntityData();
         } catch (XPathException xe) {
@@ -103,7 +113,6 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
      * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
      */
     private void addEntityData() {
-
         EntityDatum selectDatum = EntityMapUtils.getNeededEntityDatum();
         if (selectDatum != null) {
             Detail detail = CommCareApplication.instance().getCurrentSession()
@@ -136,6 +145,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         mMap = map;
         applySelectedMapType();
 
+        updateMap();
+
+        mMap.setOnInfoWindowClickListener(this);
+        setMapLocationEnabled(true);
+    }
+
+    private void updateMap() {
+        mMap.clear();
         if (entityLocations.size() > 0) {
             boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -148,19 +165,31 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 if (showCustomMapMarker) {
                     markerOptions.icon(getEntityIcon(entityLocation.first));
                 }
-                Marker marker = mMap.addMarker(markerOptions);
-                markerReferences.put(marker, entityLocation.first.getElement());
+                if(markerCheckbox.isChecked()) {
+                    Marker marker = mMap.addMarker(markerOptions);
+                    markerReferences.put(marker, entityLocation.first.getElement());
+                }
                 builder.include(entityLocation.second);
+
+                LatLng center = entityLocation.second;
+                Polygon poly = mMap.addPolygon(new PolygonOptions()
+                        .add(
+                                new LatLng(center.latitude - 0.001, center.longitude - 0.001),
+                                new LatLng(center.latitude - 0.001, center.longitude + 0.001),
+                                new LatLng(center.latitude + 0.001, center.longitude + 0.001),
+                                new LatLng(center.latitude + 0.001, center.longitude - 0.001)
+                        )
+                        .strokeColor(Color.RED)
+                        .fillColor(Color.argb(50, 255, 255, 0))
+                        .strokeWidth(5));
             }
+            
             final LatLngBounds bounds = builder.build();
 
             // Move camera to be include all markers
             mMap.setOnMapLoadedCallback(
                     () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
         }
-
-        mMap.setOnInfoWindowClickListener(this);
-        setMapLocationEnabled(true);
     }
 
     private void setupMapTypeSelector() {

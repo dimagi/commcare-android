@@ -36,6 +36,11 @@
                 android:layout_height="wrap_content"
                 android:entries="@array/map_type_labels"
                 android:spinnerMode="dropdown" />
+            <CheckBox
+                android:id="@+id/marker_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Markers" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </FrameLayout>
