@@ -175,6 +175,10 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     }
 
     private AuthInfo buildAuth() throws TokenDeniedException, TokenUnavailableException {
+        return buildAuth(username, password);
+    }
+
+    public static AuthInfo buildAuth(String username, String password) throws TokenDeniedException, TokenUnavailableException {
         if (username != null) {
             AuthInfo.TokenAuth tokenAuth = PersonalIdManager.getInstance().getHqTokenIfLinked(username);
             if (tokenAuth != null) {
