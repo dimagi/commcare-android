@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
+
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
@@ -22,10 +26,6 @@ import org.javarosa.core.services.Logger;
 import java.util.Date;
 
 import javax.annotation.Nullable;
-
-import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
-import androidx.navigation.fragment.FragmentNavigator;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
@@ -575,6 +575,12 @@ public class FirebaseAnalyticsUtil {
     public static void reportNavDrawerItemSelected(String selectedItem) {
         reportEvent(CCAnalyticsEvent.NAV_DRAWER_ITEM_SELECTED, new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{selectedItem});
+    }
+
+    public static void reportOtpRequested(int numberOfAttempts) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, numberOfAttempts);
+        reportEvent(CCAnalyticsEvent.OTP_REQUESTED, bundle);
     }
 
     public static void reportNotificationEvent(String eventType, String method,
