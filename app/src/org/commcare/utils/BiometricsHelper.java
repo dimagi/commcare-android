@@ -138,10 +138,17 @@ public class BiometricsHelper {
                     .setTitle(activity.getString(R.string.connect_unlock_title))
                     .setSubtitle(activity.getString(R.string.connect_unlock_message));
 
-            if (allowOtherOptions) {
+
+            BiometricsHelper.ConfigurationStatus fingerprintStatus = BiometricsHelper.checkFingerprintStatus(
+                    activity, biometricManager);
+            boolean hasFingerprintHardware = fingerprintStatus != BiometricsHelper.ConfigurationStatus.NoHardware;
+
+            if (allowOtherOptions && hasFingerprintHardware) {
                 builder.setAllowedAuthenticators(DEVICE_CREDENTIAL |
-                        BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
-            } else {
+                            BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+            } else if(allowOtherOptions){
+                builder.setAllowedAuthenticators(DEVICE_CREDENTIAL);
+            }else if(hasFingerprintHardware) {
                 builder.setAllowedAuthenticators(BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
                 builder.setNegativeButtonText(activity.getString(R.string.cancel));
             }

@@ -138,17 +138,22 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
             message = getString(R.string.connect_verify_fingerprint_configured);
             fingerprintButton = getString(R.string.connect_verify_agree);
         } else {
-            if(hasFingerprintHardware) {
+            if (hasFingerprintHardware) {
                 message = getString(R.string.connect_verify_message_fingerprint);
                 fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
             }
             if (PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {
-                message = hasFingerprintHardware ?
-                        getString(R.string.connect_verify_message) :
-                        getString(R.string.connect_verify_message_pin);
-                pinButton = pinStatus == BiometricsHelper.ConfigurationStatus.Configured ?
-                        getString(R.string.connect_verify_agree) :
-                        getString(R.string.connect_verify_configure_pin);
+
+                if (hasFingerprintHardware && pinStatus != BiometricsHelper.ConfigurationStatus.Configured) {   // both are not configured
+                    message = getString(R.string.connect_verify_message);
+                    pinButton = getString(R.string.connect_verify_configure_pin);
+                } else if (!hasFingerprintHardware && pinStatus != BiometricsHelper.ConfigurationStatus.Configured) {    //  only PIN and that too not configured
+                    message = getString(R.string.connect_verify_message_pin);
+                    pinButton = getString(R.string.connect_verify_configure_pin);
+                } else {  //  PIN and already configured
+                    message = getString(R.string.connect_verify_pin_configured);
+                    pinButton = getString(R.string.connect_verify_agree);
+                }
             }
         }
 
