@@ -2,13 +2,14 @@ package org.commcare.views;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -23,11 +24,10 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
-import org.commcare.views.widgets.DateTimeWidget;
+import org.commcare.views.widgets.ComboboxWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.commcare.views.widgets.StringWidget;
-import org.commcare.views.widgets.TimeWidget;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -353,21 +353,43 @@ public class QuestionsView extends ScrollView
         try {
             super.onSizeChanged(w, h, oldw, oldh);
         } catch (IllegalArgumentException e) {
-            Logger.log(LogTypes.SOFT_ASSERT,
-                    "Resizing from " + oldw + "X" + oldh + " to " + w + "X" + h + " failed with focus on: " + getFocusedViewClassName());
+            Logger.log(LogTypes.SOFT_ASSERT, "Resizing from " + oldw + "X" + oldh + " to " + w + "X" + h +
+                    " failed with focus on: " + getFocusedViewClassName() + "/" + getFocusedViewParentView());
             throw e;
+        }
+    }
+
+    private String getFocusedViewParentView() {
+        View focusedView = findFocus();
+        if (focusedView == null || focusedView.getParent() == null || focusedView.getParent().getParent() == null) {
+            return "None";
+        }
+        ViewParent grandParent = focusedView.getParent().getParent();
+        try {
+            String resourceName = focusedView.getResources().getResourceEntryName(((ViewGroup)grandParent).getId());
+            return grandParent.getClass().getSimpleName() + "/" + resourceName;
+        } catch (Exception e) {
+            return grandParent.getClass().getSimpleName() + "/NoParentViewName";
         }
     }
 
     @NonNull
     private String getFocusedViewClassName() {
         View focusedView = findFocus();
-        String focusedViewClassName = "None";
-        if (focusedView != null) {
-            focusedViewClassName = focusedView.getClass().toString();
-            if (focusedView.getParent() != null) {
-                focusedViewClassName += "/"+ focusedView.getParent().getClass();
+        if (focusedView == null) {
+            return "None";
+        }
+
+        String focusedViewClassName = focusedView.getClass().getSimpleName();
+        if (focusedView.getParent() != null) {
+            if (focusedView.getParent() instanceof ComboboxWidget cbxWidget) {
+                String questionID = (cbxWidget.getPrompt() != null && cbxWidget.getPrompt().getQuestion() != null) ?
+                        cbxWidget.getPrompt().getQuestion().getTextID() : "";
+                String answerValue = cbxWidget.getAnswer() != null ? cbxWidget.getAnswer().getDisplayText() : "";
+                return focusedViewClassName + "/"+ focusedView.getParent().getClass().getSimpleName() +
+                        " (" + questionID + "/" + answerValue + ")";
             }
+            return focusedViewClassName + "/"+ focusedView.getParent().getClass().getSimpleName();
         }
         return focusedViewClassName;
     }
