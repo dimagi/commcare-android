@@ -67,6 +67,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             GoogleMap.MAP_TYPE_SATELLITE,
             GoogleMap.MAP_TYPE_TERRAIN,
             GoogleMap.MAP_TYPE_HYBRID,
+            GoogleMap.MAP_TYPE_NONE,
     };
 
     private GoogleMap mMap;
@@ -155,37 +156,25 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private void updateMap() {
         mMap.clear();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        if (entityLocations.size() > 0) {
-            boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
-
-            // Add markers to map and find bounding region
-            for (Pair<Entity<TreeReference>, LatLng> entityLocation : entityLocations) {
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(entityLocation.second)
-                        .title(entityLocation.first.getFieldString(0))
-                        .snippet(entityLocation.first.getFieldString(1));
-                if (showCustomMapMarker) {
-                    markerOptions.icon(getEntityIcon(entityLocation.first));
-                }
-                if (markerCheckbox.isChecked()) {
-                    Marker marker = mMap.addMarker(markerOptions);
-                    markerReferences.put(marker, entityLocation.first.getElement());
-                }
-                builder.include(entityLocation.second);
-
-                LatLng center = entityLocation.second;
-                Polygon poly = mMap.addPolygon(new PolygonOptions()
-                        .add(
-                                new LatLng(center.latitude - 0.001, center.longitude - 0.001),
-                                new LatLng(center.latitude - 0.001, center.longitude + 0.001),
-                                new LatLng(center.latitude + 0.001, center.longitude + 0.001),
-                                new LatLng(center.latitude + 0.001, center.longitude - 0.001)
-                        )
-                        .strokeColor(Color.RED)
-                        .fillColor(Color.argb(50, 255, 255, 0))
-                        .strokeWidth(5));
-            }
-        }
+//        if (entityLocations.size() > 0) {
+//            boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
+//
+//            // Add markers to map and find bounding region
+//            for (Pair<Entity<TreeReference>, LatLng> entityLocation : entityLocations) {
+//                MarkerOptions markerOptions = new MarkerOptions()
+//                        .position(entityLocation.second)
+//                        .title(entityLocation.first.getFieldString(0))
+//                        .snippet(entityLocation.first.getFieldString(1));
+//                if (showCustomMapMarker) {
+//                    markerOptions.icon(getEntityIcon(entityLocation.first));
+//                }
+//                if (markerCheckbox.isChecked()) {
+//                    Marker marker = mMap.addMarker(markerOptions);
+//                    markerReferences.put(marker, entityLocation.first.getElement());
+//                }
+//                builder.include(entityLocation.second);
+//            }
+//        }
 
         //Add some example DUs for testing
         //Create some sample polygons
@@ -220,7 +209,10 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                     .fillColor(colors.get(i % colors.size()))
                     .strokeWidth(5));
 
-            builder.include(center);
+            builder.include(poly.getPoints().get(0));
+            builder.include(poly.getPoints().get(1));
+            builder.include(poly.getPoints().get(2));
+            builder.include(poly.getPoints().get(3));
 
             if(markerCheckbox.isChecked()) {
                 MarkerOptions markerOptions = new MarkerOptions()

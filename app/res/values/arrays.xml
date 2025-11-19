@@ -92,5 +92,6 @@
         <item>@string/map_type_satellite</item>
         <item>@string/map_type_terrain</item>
         <item>@string/map_type_hybrid</item>
+        <item>@string/map_type_none</item>
     </string-array>
 </resources>
