@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:layout_gravity="bottom"
-    android:background="@color/cc_brand_color">
+    android:background="@color/connect_blue_color">
     <View
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
@@ -98,6 +98,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.NavDrawerItem.SubTitle"
         android:enabled="false"
+        android:textColor="@color/white"
         android:layout_marginTop="8dp"/>
 
 </LinearLayout>

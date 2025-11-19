@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    android:background="@color/cc_brand_color">
+    android:background="@color/connect_blue_color">
     <ImageView
         android:contentDescription="@null"
         android:layout_gravity="center"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         app:cardCornerRadius="8dp"
-        android:backgroundTint="@color/start_sync_dark_button">
+        android:backgroundTint="@color/persian_indigo">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
