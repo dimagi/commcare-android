@@ -45,6 +45,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import androidx.core.content.ContextCompat;
@@ -153,9 +154,10 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     private void updateMap() {
         mMap.clear();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
         if (entityLocations.size() > 0) {
             boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
             // Add markers to map and find bounding region
             for (Pair<Entity<TreeReference>, LatLng> entityLocation : entityLocations) {
                 MarkerOptions markerOptions = new MarkerOptions()
@@ -165,7 +167,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 if (showCustomMapMarker) {
                     markerOptions.icon(getEntityIcon(entityLocation.first));
                 }
-                if(markerCheckbox.isChecked()) {
+                if (markerCheckbox.isChecked()) {
                     Marker marker = mMap.addMarker(markerOptions);
                     markerReferences.put(marker, entityLocation.first.getElement());
                 }
@@ -183,13 +185,57 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         .fillColor(Color.argb(50, 255, 255, 0))
                         .strokeWidth(5));
             }
-            
-            final LatLngBounds bounds = builder.build();
-
-            // Move camera to be include all markers
-            mMap.setOnMapLoadedCallback(
-                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
         }
+
+        //Add some example DUs for testing
+        //Create some sample polygons
+        float boxRadius = 0.0005f;
+        LatLng first = new LatLng(-13.643511, 33.939722);
+        List<Integer> xOffsets = List.of(0, -1, 1, 0, -1, 1, -1, 2, 1, -2, -2);
+        List<Integer> yOffsets = List.of(0, 0, 0, 1, 1, 1, -1, 0, 2, 0, -1);
+        List<Integer> colors = List.of(
+                Color.argb(25, 255, 255, 0),
+                Color.argb(25, 0, 255, 0),
+                Color.argb(25, 255, 0, 0)
+        );
+
+        mMap.setOnPolygonClickListener(
+                polygon -> {
+                });
+
+        for (int i = 0; i < xOffsets.size(); i++) {
+            LatLng center = new LatLng(
+                    first.latitude + 2 * boxRadius * yOffsets.get(i),
+                    first.longitude + 2 * boxRadius * xOffsets.get(i)
+            );
+            Polygon poly = mMap.addPolygon(new PolygonOptions()
+                    .add(
+                            new LatLng(center.latitude - boxRadius, center.longitude - boxRadius),
+                            new LatLng(center.latitude - boxRadius, center.longitude + boxRadius),
+                            new LatLng(center.latitude + boxRadius, center.longitude + boxRadius),
+                            new LatLng(center.latitude + boxRadius, center.longitude - boxRadius)
+                    )
+                    .clickable(true)
+                    .strokeColor(Color.GRAY)
+                    .fillColor(colors.get(i % colors.size()))
+                    .strokeWidth(5));
+
+            builder.include(center);
+
+            if(markerCheckbox.isChecked()) {
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(center)
+                        .title("Center " + (i + 1))
+                        .snippet("Test");
+                mMap.addMarker(markerOptions);
+            }
+        }
+
+        final LatLngBounds bounds = builder.build();
+
+        // Move camera to be include all markers
+        mMap.setOnMapLoadedCallback(
+                () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
     }
 
     private void setupMapTypeSelector() {
