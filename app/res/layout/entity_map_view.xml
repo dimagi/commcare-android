@@ -19,8 +19,7 @@
         android:layout_gravity="top|end"
         android:layout_margin="16dp"
         android:elevation="4dp"
-        app:cardCornerRadius="12dp"
-        app:cardUseCompactPadding="true">
+        app:cardCornerRadius="12dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -30,13 +29,6 @@
             android:paddingTop="8dp"
             android:paddingEnd="12dp"
             android:paddingBottom="8dp">
-
-            <TextView
-                android:id="@+id/map_type_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/map_type_selector_label"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
             <Spinner
                 android:id="@+id/map_type_selector"
