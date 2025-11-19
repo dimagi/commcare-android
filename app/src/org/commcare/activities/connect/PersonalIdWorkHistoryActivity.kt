@@ -6,14 +6,15 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
-import org.commcare.activities.CommonBaseActivity
+import org.commcare.activities.CommCareActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdWorkHistoryBinding
+import org.commcare.views.dialogs.CustomProgressDialog
 
-class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
+class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActivity>() {
     private val binding: ActivityPersonalIdWorkHistoryBinding by lazy {
         ActivityPersonalIdWorkHistoryBinding.inflate(layoutInflater)
     }
@@ -29,17 +30,19 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        personalIdWorkHistoryViewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[PersonalIdWorkHistoryViewModel::class.java]
+        personalIdWorkHistoryViewModel =
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(application),
+            )[PersonalIdWorkHistoryViewModel::class.java]
         userName = personalIdWorkHistoryViewModel.userName
         profilePic = personalIdWorkHistoryViewModel.profilePhoto
-        workHistoryViewPagerAdapter = WorkHistoryViewPagerAdapter(
-            this,
-            userName!!,
-            profilePic ?: ""
-        )
+        workHistoryViewPagerAdapter =
+            WorkHistoryViewPagerAdapter(
+                this,
+                userName!!,
+                profilePic ?: "",
+            )
         observeWorkHistoryApiCall()
         fetchWorkHistoryFromNetwork()
         setUpUi()
@@ -72,7 +75,7 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
     }
 
     private fun fetchWorkHistoryFromNetwork() {
-        personalIdWorkHistoryViewModel.retrieveAndProcessWorkHistory()
+        personalIdWorkHistoryViewModel.retrieveAndProcessWorkHistory(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -80,8 +83,8 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
             android.R.id.home -> {
                 if (!isFinishing) {
                     finish()
@@ -96,5 +99,7 @@ class PersonalIdWorkHistoryActivity : CommonBaseActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
-    }
+
+    override fun generateProgressDialog(taskId: Int): CustomProgressDialog =
+        CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId)
 }

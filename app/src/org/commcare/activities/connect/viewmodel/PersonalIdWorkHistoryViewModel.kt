@@ -1,6 +1,7 @@
 package org.commcare.activities.connect.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.CommCareApp
-import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
@@ -39,7 +39,7 @@ class PersonalIdWorkHistoryViewModel(
     val userName: String = user.name
     val profilePhoto: String? = user.photo
 
-    fun retrieveAndProcessWorkHistory() {
+    fun retrieveAndProcessWorkHistory(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             object : PersonalIdApiHandler<List<PersonalIdWorkHistory>>() {
                 override fun onSuccess(result: List<PersonalIdWorkHistory>) {
@@ -72,7 +72,7 @@ class PersonalIdWorkHistoryViewModel(
                 ) {
                     _apiError.postValue(failureCode to t)
                 }
-            }.retrieveWorkHistory(getApplication(), user.userId, user.password)
+            }.retrieveWorkHistory(context, user.userId, user.password)
         }
     }
 
