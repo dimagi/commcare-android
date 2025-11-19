@@ -353,10 +353,8 @@ public class QuestionsView extends ScrollView
         try {
             super.onSizeChanged(w, h, oldw, oldh);
         } catch (IllegalArgumentException e) {
-            Logger.log(LogTypes.SOFT_ASSERT,
-                    "Resizing from " + oldw + "X" + oldh + " to " + w + "X" + h + " failed with focus on: " + getFocusedViewClassName());
-            Logger.log(LogTypes.SOFT_ASSERT,
-                    "Parent view of the focused view during the resizing: " + getFocusedViewParentView());
+            Logger.log(LogTypes.SOFT_ASSERT, "Resizing from " + oldw + "X" + oldh + " to " + w + "X" + h +
+                    " failed with focus on: " + getFocusedViewClassName() + "/" + getFocusedViewParentView());
             throw e;
         }
     }
