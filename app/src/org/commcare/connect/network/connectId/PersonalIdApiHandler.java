@@ -81,14 +81,17 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     private boolean handleErrorCodeIfPresent(String errorCode, String errorSubCode, PersonalIdSessionData sessionData) {
         try {
             sessionData.setSessionFailureCode(errorCode);
-            if ("LOCKED_ACCOUNT".equalsIgnoreCase(errorCode)) {
-                onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
-                return true;
-            } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + errorSubCode);
-                sessionData.setSessionFailureSubcode(errorSubCode);
-                onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
-                return true;
+            switch (errorCode) {
+                case "LOCKED_ACCOUNT":
+                    onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
+                    return true;
+                case "INTEGRITY_ERROR":
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + errorSubCode);
+                    sessionData.setSessionFailureSubcode(errorSubCode);
+                    onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
+                    return true;
+                default:
+                    return false;
             }
         } catch (Exception e) {
             Logger.exception("Error handling error code", e);
