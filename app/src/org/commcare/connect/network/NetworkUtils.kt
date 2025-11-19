@@ -5,7 +5,6 @@ import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import org.json.JSONObject
 import retrofit2.HttpException
-import retrofit2.Response
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -20,17 +19,15 @@ object NetworkUtils {
                 return String(errorBytes, StandardCharsets.UTF_8)
             }
         } catch (e: Exception) {
-            Logger.exception("Error parsing error_code", e);
+            Logger.exception("Error parsing error_code", e)
         }
         return ""
     }
 
     /**
-     * Extracts error_code and error_sub_code from a JSON error response body.
-     * If the stream is null or parsing fails, returns empty strings for both codes.
+     * Extracts the error code and error subcode from a JSON error response body.
      *
-     * @param stream InputStream of the error response body
-     * @return Pair of error_code and error_sub_code
+     * @return Pair of error code and error subcode
      */
     @JvmStatic
     fun getErrorCodes(errorBody: String): Pair<String, String> {
@@ -38,10 +35,15 @@ object NetworkUtils {
         var errorSubCode = ""
         try {
             val json = JSONObject(errorBody)
-            errorCode = json.optString("error_code", "");
-            errorSubCode = json.optString("error_sub_code", "");
+            errorCode = json.optString("error_code", "")
+            errorSubCode = json.optString("error_sub_code", "")
+
+            // The value may be under "error" in some cases.
+            if (errorCode.isEmpty()) {
+                errorCode = json.optString("error", "")
+            }
         } catch (e: Exception) {
-            Logger.exception("Error parsing error_code", e);
+            Logger.exception("Error parsing error codes from response body", e)
         }
         return Pair(errorCode, errorSubCode)
     }
