@@ -514,4 +514,9 @@ License.
     <string name="connect_verify_configuration_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स कॉन्फ़िगर करना विफल हो गया है। कृपया %s पुनः प्रयास करें।</string>
 
     <string name="no_channel_msg">आपके पास वर्तमान में कोई संदेश चैनल नहीं है</string>
+    <string name="personalid_using_your_location">आपके स्थान का उपयोग कर रहा है</string>
+    <string name="personalid_no_location_found">हमें आपका स्थान नहीं मिल रहा है</string>
+    <string name="personalid_tooltip_location_failure_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए लोकेशन डेटा का उपयोग करते हैं।\n\nजारी रखने के लिए, कृपया सेटिंग्स में लोकेशन अनुमतियों को सक्षम करें, या बाद में फिर से प्रयास करें।</string>
+    <string name="personalid_tooltip_location_success_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए स्थान डेटा का उपयोग करते हैं।\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">अधिक जानकारी के लिए यहां क्लिक करें।</a></string>
+
 </resources>
