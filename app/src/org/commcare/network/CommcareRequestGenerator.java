@@ -20,12 +20,16 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.services.NetworkSyncGetRequestWorker;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.SyncDetailCalculations;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
@@ -33,12 +37,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
+import androidx.work.BackoffPolicy;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
+import static org.commcare.services.NetworkSyncGetRequestWorker.PARAMS_KEYS_KEY;
+import static org.commcare.services.NetworkSyncGetRequestWorker.PASSWORD_KEY;
+import static org.commcare.services.NetworkSyncGetRequestWorker.RESPONSE_BODY_ABS_FILE_KEY;
+import static org.commcare.services.NetworkSyncGetRequestWorker.RESPONSE_CODE_KEY;
+import static org.commcare.services.NetworkSyncGetRequestWorker.URI_KEY;
+import static org.commcare.services.NetworkSyncGetRequestWorker.USERNAME_KEY;
 
 
 /**
@@ -299,24 +318,62 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> simpleGet(String uri, Multimap<String, String> httpParams, Map<String, String> httpHeaders) throws IOException {
-        HashMap<String, String> headers = new HashMap<>(getHeaders(null));
-        headers.putAll(httpHeaders);
-
-        AuthInfo auth = buildAuth();
-        ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
-                CommCareApplication.instance(),
-                uri,
-                httpParams,
-                headers,
-                auth,
-                null);
-
-        Response<ResponseBody> response = requester.makeRequest();
-        checkForTokenError(response, auth);
-        if (response.code() == 404) {
-            throw new FileNotFoundException("No Data available at URL " + uri);
+        Data.Builder params = new Data.Builder();
+        StringBuilder paramKeys = new StringBuilder();
+        for (Map.Entry<String, String> param:httpParams.entries()) {
+            paramKeys.append(param.getKey()).append(",");
+            params.putString(param.getKey(), param.getValue());
         }
-        return response;
+        params.putString(USERNAME_KEY, username)
+                .putString(PASSWORD_KEY, password)
+                .putString(URI_KEY, uri)
+                .putString(PARAMS_KEYS_KEY, paramKeys.toString());
+
+        OneTimeWorkRequest syncGetRequestWork = new OneTimeWorkRequest.Builder(NetworkSyncGetRequestWorker.class)
+                .setInputData(new Data(params.build()))
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 0, TimeUnit.SECONDS)
+                .build();
+
+        WorkManager.getInstance(CommCareApplication.instance()).enqueue(syncGetRequestWork);
+
+        try {
+            WorkInfo workInfo;
+            do {
+                workInfo = WorkManager.getInstance(CommCareApplication.instance())
+                        .getWorkInfoById(syncGetRequestWork.getId()).get();
+
+                // Future.get() doesn't is no blocking, so we need to wait a bit before polling again
+                Thread.sleep(100);
+            } while (!workInfo.getState().isFinished());
+
+            int responseCode = workInfo.getOutputData().getInt(RESPONSE_CODE_KEY, -1);
+            String filePath = workInfo.getOutputData().getString(RESPONSE_BODY_ABS_FILE_KEY);
+            ResponseBody respBody = ResponseBody.create(retrieveReponseBodyFromCache(filePath),
+                    MediaType.parse("application/json"));
+
+            Response<ResponseBody> response = responseCode >= 200 && responseCode <= 300 ?
+                    Response.success(responseCode, respBody) :
+                    Response.error(responseCode, respBody);
+
+            if (response.code() == 404) {
+                throw new FileNotFoundException("No Data available at URL " + uri);
+            }
+            return response;
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private byte[] retrieveReponseBodyFromCache(String filePath) throws IOException {
+        if (filePath == null) {
+            return new byte[0];
+        }
+        try {
+            return StreamsUtil.inputStreamToByteArray(new FileInputStream(filePath));
+        } finally {
+            // Clean up the cached file
+            FileUtil.deleteFileOrDir(filePath);
+        }
     }
 
     @Override
