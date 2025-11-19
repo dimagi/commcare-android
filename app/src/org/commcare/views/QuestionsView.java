@@ -378,20 +378,20 @@ public class QuestionsView extends ScrollView
     @NonNull
     private String getFocusedViewClassName() {
         View focusedView = findFocus();
-        String focusedViewClassName = "None";
-        if (focusedView != null) {
-            focusedViewClassName = focusedView.getClass().getSimpleName();
-            if (focusedView.getParent() != null) {
-                String answerValue = null;
-                String questionID = null;
-                if (focusedView.getParent() instanceof ComboboxWidget cbxWidget) {
-                    questionID = (cbxWidget.getPrompt() != null && cbxWidget.getPrompt().getQuestion() != null) ?
-                            cbxWidget.getPrompt().getQuestion().getTextID() : "";
-                    answerValue = cbxWidget.getAnswer() != null ? cbxWidget.getAnswer().getDisplayText() : "";
-                }
-                focusedViewClassName += "/"+ focusedView.getParent().getClass().getSimpleName() +
-                        (questionID != null ? " (" + questionID + "/" + (answerValue != null ? answerValue : "") + ")" : "");
+        if (focusedView == null) {
+            return "None";
+        }
+
+        String focusedViewClassName = focusedView.getClass().getSimpleName();
+        if (focusedView.getParent() != null) {
+            if (focusedView.getParent() instanceof ComboboxWidget cbxWidget) {
+                String questionID = (cbxWidget.getPrompt() != null && cbxWidget.getPrompt().getQuestion() != null) ?
+                        cbxWidget.getPrompt().getQuestion().getTextID() : "";
+                String answerValue = cbxWidget.getAnswer() != null ? cbxWidget.getAnswer().getDisplayText() : "";
+                return focusedViewClassName + "/"+ focusedView.getParent().getClass().getSimpleName() +
+                        " (" + questionID + "/" + answerValue + ")";
             }
+            return focusedViewClassName + "/"+ focusedView.getParent().getClass().getSimpleName();
         }
         return focusedViewClassName;
     }
