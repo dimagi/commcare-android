@@ -99,7 +99,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         markerCheckbox = findViewById(R.id.marker_checkbox);
         markerCheckbox.setOnClickListener(view -> {
-            updateMap(false);
+            updateMap(true);
         });
 
         try {
@@ -158,11 +158,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             isSimplifiedView = false;
         }
 
-        updateMap(true);
+        mMap.setOnMapLoadedCallback(() ->
+        {
+            updateMap(true);
 
-        mMap.setOnInfoWindowClickListener(this);
-        mMap.setOnCameraIdleListener(this);
-        setMapLocationEnabled(true);
+            mMap.setOnInfoWindowClickListener(this);
+            mMap.setOnCameraIdleListener(this);
+            setMapLocationEnabled(true);
+        });
     }
 
     private void updateMap(boolean zoomToFit) {
@@ -207,12 +210,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 polygon -> {
                 });
 
+        boolean addedShapes = false;
         if(isSimplifiedView) {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(first)
                     .title("Zoom-out Area")
                     .snippet("Test");
             mMap.addMarker(markerOptions);
+            addedShapes = true;
             builder.include(first);
         } else {
             for (int i = 0; i < xOffsets.size(); i++) {
@@ -233,6 +238,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         .fillColor(colors.get(i % colors.size()))
                         .strokeWidth(5));
 
+                addedShapes = true;
                 builder.include(poly.getPoints().get(0));
                 builder.include(poly.getPoints().get(1));
                 builder.include(poly.getPoints().get(2));
@@ -244,16 +250,16 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                             .title("Center " + (i + 1))
                             .snippet("Test");
                     mMap.addMarker(markerOptions);
+                    addedShapes = true;
                 }
             }
         }
 
-        if(zoomToFit) {
+        if(addedShapes && zoomToFit) {
             final LatLngBounds bounds = builder.build();
 
             // Move camera to be include all markers
-            mMap.setOnMapLoadedCallback(
-                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING));
         }
     }
 
