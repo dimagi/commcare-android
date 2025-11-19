@@ -90,6 +90,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                     sessionData.setSessionFailureSubcode(errorSubCode);
                     onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                     return true;
+                case "INVALID_TOKEN":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
+                            new Throwable("Firebase ID token is invalid.")
+                    );
+                    return true;
                 default:
                     return false;
             }

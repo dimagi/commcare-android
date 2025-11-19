@@ -37,6 +37,7 @@ abstract class BaseApiHandler<T>(
         FORBIDDEN_ERROR,
         TOKEN_UNAVAILABLE_ERROR,
         TOKEN_DENIED_ERROR,
+        TOKEN_INVALID_ERROR,
         INVALID_RESPONSE_ERROR,
         JSON_PARSING_ERROR,
         FAILED_AUTH_ERROR,
