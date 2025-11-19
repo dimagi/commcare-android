@@ -21,6 +21,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -54,9 +55,10 @@ import androidx.core.content.ContextCompat;
  * @author Forest Tong (ftong@dimagi.com)
  */
 public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
-        GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnCameraIdleListener {
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
     private static final int DEFAULT_MARKER_SIZE = 120;
+    private static final float ZOOM_THRESHOLD = 15.0f;  // Zoom level threshold for simplified view
 
     private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
@@ -77,6 +79,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     // keeps track of detail field index that should be used to show a custom icon
     private int imageFieldIndex = -1;
+    
+    // tracks whether we're currently in simplified view mode
+    private boolean isSimplifiedView = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +99,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         markerCheckbox = findViewById(R.id.marker_checkbox);
         markerCheckbox.setOnClickListener(view -> {
-            updateMap();
+            updateMap(false);
         });
 
         try {
@@ -147,13 +152,20 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         mMap = map;
         applySelectedMapType();
 
-        updateMap();
+        // Initialize simplified view state based on initial zoom level
+        CameraPosition initialPosition = mMap.getCameraPosition();
+        if (initialPosition != null) {
+            isSimplifiedView = false;
+        }
+
+        updateMap(true);
 
         mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnCameraIdleListener(this);
         setMapLocationEnabled(true);
     }
 
-    private void updateMap() {
+    private void updateMap(boolean zoomToFit) {
         mMap.clear();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 //        if (entityLocations.size() > 0) {
@@ -182,52 +194,67 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         LatLng first = new LatLng(-13.643511, 33.939722);
         List<Integer> xOffsets = List.of(0, -1, 1, 0, -1, 1, -1, 2, 1, -2, -2);
         List<Integer> yOffsets = List.of(0, 0, 0, 1, 1, 1, -1, 0, 2, 0, -1);
+        int alpha = MAP_TYPES[selectedMapTypeIndex] ==  GoogleMap.MAP_TYPE_HYBRID ||
+                MAP_TYPES[selectedMapTypeIndex] ==  GoogleMap.MAP_TYPE_SATELLITE ?
+                128 : 32;
         List<Integer> colors = List.of(
-                Color.argb(25, 255, 255, 0),
-                Color.argb(25, 0, 255, 0),
-                Color.argb(25, 255, 0, 0)
+                Color.argb(alpha, 255, 255, 0),
+                Color.argb(alpha, 0, 255, 0),
+                Color.argb(alpha, 255, 0, 0)
         );
 
         mMap.setOnPolygonClickListener(
                 polygon -> {
                 });
 
-        for (int i = 0; i < xOffsets.size(); i++) {
-            LatLng center = new LatLng(
-                    first.latitude + 2 * boxRadius * yOffsets.get(i),
-                    first.longitude + 2 * boxRadius * xOffsets.get(i)
-            );
-            Polygon poly = mMap.addPolygon(new PolygonOptions()
-                    .add(
-                            new LatLng(center.latitude - boxRadius, center.longitude - boxRadius),
-                            new LatLng(center.latitude - boxRadius, center.longitude + boxRadius),
-                            new LatLng(center.latitude + boxRadius, center.longitude + boxRadius),
-                            new LatLng(center.latitude + boxRadius, center.longitude - boxRadius)
-                    )
-                    .clickable(true)
-                    .strokeColor(Color.GRAY)
-                    .fillColor(colors.get(i % colors.size()))
-                    .strokeWidth(5));
+        if(isSimplifiedView) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(first)
+                    .title("Zoom-out Area")
+                    .snippet("Test");
+            mMap.addMarker(markerOptions);
+            builder.include(first);
+        } else {
+            for (int i = 0; i < xOffsets.size(); i++) {
+                LatLng center = new LatLng(
+                        first.latitude + 2 * boxRadius * yOffsets.get(i),
+                        first.longitude + 2 * boxRadius * xOffsets.get(i)
+                );
 
-            builder.include(poly.getPoints().get(0));
-            builder.include(poly.getPoints().get(1));
-            builder.include(poly.getPoints().get(2));
-            builder.include(poly.getPoints().get(3));
+                Polygon poly = mMap.addPolygon(new PolygonOptions()
+                        .add(
+                                new LatLng(center.latitude - boxRadius, center.longitude - boxRadius),
+                                new LatLng(center.latitude - boxRadius, center.longitude + boxRadius),
+                                new LatLng(center.latitude + boxRadius, center.longitude + boxRadius),
+                                new LatLng(center.latitude + boxRadius, center.longitude - boxRadius)
+                        )
+                        .clickable(true)
+                        .strokeColor(Color.GRAY)
+                        .fillColor(colors.get(i % colors.size()))
+                        .strokeWidth(5));
 
-            if(markerCheckbox.isChecked()) {
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(center)
-                        .title("Center " + (i + 1))
-                        .snippet("Test");
-                mMap.addMarker(markerOptions);
+                builder.include(poly.getPoints().get(0));
+                builder.include(poly.getPoints().get(1));
+                builder.include(poly.getPoints().get(2));
+                builder.include(poly.getPoints().get(3));
+
+                if (markerCheckbox.isChecked()) {
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(center)
+                            .title("Center " + (i + 1))
+                            .snippet("Test");
+                    mMap.addMarker(markerOptions);
+                }
             }
         }
 
-        final LatLngBounds bounds = builder.build();
+        if(zoomToFit) {
+            final LatLngBounds bounds = builder.build();
 
-        // Move camera to be include all markers
-        mMap.setOnMapLoadedCallback(
-                () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
+            // Move camera to be include all markers
+            mMap.setOnMapLoadedCallback(
+                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
+        }
     }
 
     private void setupMapTypeSelector() {
@@ -248,6 +275,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 if (selectedMapTypeIndex != position) {
                     selectedMapTypeIndex = position;
                     applySelectedMapType();
+                    updateMap(false);
                 }
             }
 
@@ -313,5 +341,22 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public boolean shouldListenToSyncComplete() {
         return true;
+    }
+
+    @Override
+    public void onCameraIdle() {
+        if (mMap != null) {
+            CameraPosition cameraPosition = mMap.getCameraPosition();
+            if (cameraPosition != null) {
+                float currentZoom = cameraPosition.zoom;
+                boolean shouldUseSimplifiedView = currentZoom < ZOOM_THRESHOLD;
+                
+                // Only trigger redraw if we've crossed the threshold
+                if (shouldUseSimplifiedView != isSimplifiedView) {
+                    isSimplifiedView = shouldUseSimplifiedView;
+                    updateMap(false);
+                }
+            }
+        }
     }
 }
