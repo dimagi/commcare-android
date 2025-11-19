@@ -8,6 +8,8 @@ import android.text.SpannableStringBuilder;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -353,7 +355,23 @@ public class QuestionsView extends ScrollView
         } catch (IllegalArgumentException e) {
             Logger.log(LogTypes.SOFT_ASSERT,
                     "Resizing from " + oldw + "X" + oldh + " to " + w + "X" + h + " failed with focus on: " + getFocusedViewClassName());
+            Logger.log(LogTypes.SOFT_ASSERT,
+                    "Parent view of the focused view during the resizing: " + getFocusedViewParentView());
             throw e;
+        }
+    }
+
+    private String getFocusedViewParentView() {
+        View focusedView = findFocus();
+        if (focusedView == null || focusedView.getParent() == null || focusedView.getParent().getParent() == null) {
+            return "None";
+        }
+        ViewParent grandParent = focusedView.getParent().getParent();
+        try {
+            String resourceName = focusedView.getResources().getResourceEntryName(((ViewGroup)grandParent).getId());
+            return grandParent.getClass().getSimpleName() + "/" + resourceName;
+        } catch (Exception e) {
+            return grandParent.getClass().getSimpleName() + "/NoParentViewName";
         }
     }
 
