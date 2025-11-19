@@ -526,7 +526,7 @@
 
     <string name="personalid_using_your_location">Usando sua localização</string>
     <string name="personalid_no_location_found">Não conseguimos encontrar a sua localização</string>
-    <string name="personalid_tooltip_location_failure_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\nPara continuar, ative as permissões de localização nas configurações ou tente novamente mais tarde.</string>
-    <string name="personalid_tooltip_location_success_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n<a href="https://www.dimagi.com/terms/latest/privacy/">Clique aqui para mais informações.</a></string>
+    <string name="personalid_tooltip_location_failure_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\nPara continuar, ative as permissões de localização nas configurações ou tente novamente mais tarde.</string>
+    <string name="personalid_tooltip_location_success_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Clique aqui para mais informações.</a></string>
 
 </resources>
