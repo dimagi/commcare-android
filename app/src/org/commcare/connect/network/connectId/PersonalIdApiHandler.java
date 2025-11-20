@@ -143,6 +143,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("There was an issue verifying the firebase ID token.")
                     );
                     return true;
+                case "NAME_REQUIRED":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.NAME_REQUIRED_ERROR,
+                            new Throwable("The user's name is missing.")
+                    );
+                    return true;
                 default:
                     return false;
             }
