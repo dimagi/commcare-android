@@ -149,7 +149,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("The user's name is missing.")
                     );
                     return true;
-                case "PHONE_NOT_VALIDATED":
+                case "PHONE_NOT_VALIDATED", "UNSUPPORTED_COUNTRY":
                     onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
                     return true;
                 default:
