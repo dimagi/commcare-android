@@ -147,7 +147,7 @@ public class BiometricsHelper {
                 builder.setAllowedAuthenticators(DEVICE_CREDENTIAL |
                             BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
             } else if(allowOtherOptions){
-                builder.setAllowedAuthenticators(DEVICE_CREDENTIAL);
+                builder.setAllowedAuthenticators(DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_WEAK);
             }else if(hasFingerprintHardware) {
                 builder.setAllowedAuthenticators(BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
                 builder.setNegativeButtonText(activity.getString(R.string.cancel));
