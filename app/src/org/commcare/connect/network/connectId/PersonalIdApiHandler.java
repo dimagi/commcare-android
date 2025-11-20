@@ -137,6 +137,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("Can't validate the firebase ID token because it is missing.")
                     );
                     return true;
+                case "FAILED_VALIDATING_TOKEN":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.FAILED_VALIDATING_TOKEN_ERROR,
+                            new Throwable("There was an issue verifying the firebase ID token.")
+                    );
+                    return true;
                 default:
                     return false;
             }

@@ -49,7 +49,8 @@ abstract class BaseApiHandler<T>(
         NO_RECOVERY_PIN_SET_ERROR,
         MISSING_DATA_ERROR,
         PHONE_MISMATCH_ERROR,
-        MISSING_TOKEN_ERROR, ;
+        MISSING_TOKEN_ERROR,
+        FAILED_VALIDATING_TOKEN_ERROR, ;
 
         fun shouldAllowRetry(): Boolean =
             this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) || (this == UNKNOWN_ERROR) ||
