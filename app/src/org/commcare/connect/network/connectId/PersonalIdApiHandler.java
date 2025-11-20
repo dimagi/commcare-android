@@ -152,6 +152,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 case "PHONE_NOT_VALIDATED", "UNSUPPORTED_COUNTRY":
                     onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
                     return true;
+                case "ACTIVE_USER_EXISTS":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
+                            new Throwable("The user attempted to create a new profile with a phone number that is already tied to an existing account.")
+                    );
+                    return true;
                 default:
                     return false;
             }
