@@ -106,6 +106,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("Firebase ID token is invalid.")
                     );
                     return true;
+                case "INCORRECT_OTP":
+                    onFailure(PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR, null);
+                    return true;
                 default:
                     return false;
             }
