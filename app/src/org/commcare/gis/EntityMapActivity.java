@@ -13,7 +13,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.text.TextWatcher;
+import android.text.Editable;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -77,7 +81,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private GoogleMap mMap;
     private Spinner mapTypeSelector;
     private CheckBox markerCheckbox;
+    private EditText repeatsInput;
     private int selectedMapTypeIndex = 0;
+    private int repeatCount = 1; // Default repeat count
 
     // keeps track of detail field index that should be used to show a custom icon
     private int imageFieldIndex = -1;
@@ -105,6 +111,44 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         markerCheckbox = findViewById(R.id.marker_checkbox);
         markerCheckbox.setOnClickListener(view -> {
             updateMap(true);
+        });
+
+        repeatsInput = findViewById(R.id.repeats_input);
+        repeatsInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No-op
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // No-op
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    String text = s.toString().trim();
+                    if (!text.isEmpty()) {
+                        int newValue = Integer.parseInt(text);
+                        if (newValue > 0 && newValue != repeatCount) {
+                            repeatCount = newValue;
+                            // Only update map if mMap is ready
+                            if (mMap != null) {
+                                updateMap(false);
+                            }
+                        } else if (newValue <= 0) {
+                            // Reset to 1 if invalid value
+                            repeatCount = 1;
+                            repeatsInput.setText("1");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // Invalid input, reset to 1
+                    repeatCount = 1;
+                    repeatsInput.setText("1");
+                }
+            }
         });
 
         try {
@@ -222,7 +266,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         //Add some example DUs for testing
         //Create some sample polygons
-        int repeats = 64;
+        int repeats = repeatCount;
         int square = (int) Math.sqrt(repeats);
         float repeatJump = 0.005f;
         float boxRadius = 0.0005f;
