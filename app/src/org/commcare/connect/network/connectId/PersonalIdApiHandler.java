@@ -109,6 +109,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 case "INCORRECT_OTP":
                     onFailure(PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR, null);
                     return true;
+                case "NO_RECOVERY_PIN_SET":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.NO_RECOVERY_PIN_SET_ERROR,
+                            new Throwable("This user does not have a backup code setup yet.")
+                    );
+                    return true;
                 default:
                     return false;
             }
