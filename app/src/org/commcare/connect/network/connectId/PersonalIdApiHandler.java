@@ -115,6 +115,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("This user does not have a backup code setup yet.")
                     );
                     return true;
+                case "FAILED_TO_UPLOAD":
+                    onFailure(PersonalIdOrConnectApiErrorCodes.SERVER_ERROR, null);
+                    return true;
                 default:
                     return false;
             }
