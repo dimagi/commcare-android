@@ -125,6 +125,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("API call failed due to missing data with error subcode: " + errorSubCode)
                     );
                     return true;
+                case "PHONE_MISMATCH":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.PHONE_MISMATCH_ERROR,
+                            new Throwable("There was a phone number mismatch when validating the firebase ID token.")
+                    );
+                    return true;
                 default:
                     return false;
             }
