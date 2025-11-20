@@ -131,6 +131,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("There was a phone number mismatch when validating the firebase ID token.")
                     );
                     return true;
+                case "MISSING_TOKEN":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.MISSING_TOKEN_ERROR,
+                            new Throwable("Can't validate the firebase ID token because it is missing.")
+                    );
+                    return true;
                 default:
                     return false;
             }
