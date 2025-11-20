@@ -48,12 +48,16 @@ class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActi
         setUpUi()
     }
 
-    private fun setUpUi() {
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
         supportActionBar!!.apply {
             title = getString(R.string.personalid_work_history_title)
             setDisplayShowHomeEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
+    }
+
+    private fun setUpUi() {
         binding.vpWorkHistory.adapter = workHistoryViewPagerAdapter
 
         // Hide TabLayout when there's only one page
