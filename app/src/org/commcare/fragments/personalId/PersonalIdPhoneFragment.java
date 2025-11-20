@@ -564,4 +564,13 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
         }
     }
+
+    @Override
+    public void onLocationServiceChange(boolean locationServiceEnabled) {
+        if (!locationServiceEnabled) {
+            location = null;
+            setLocationToolTip(location);
+            updateContinueButtonState();
+        }
+    }
 }
