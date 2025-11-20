@@ -119,6 +119,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                     // These error codes relate to uploading user profile photos.
                     onFailure(PersonalIdOrConnectApiErrorCodes.SERVER_ERROR, null);
                     return true;
+                case "MISSING_DATA":
+                    onFailure(
+                            PersonalIdOrConnectApiErrorCodes.MISSING_DATA_ERROR,
+                            new Throwable("API call failed due to missing data with error subcode: " + errorSubCode)
+                    );
+                    return true;
                 default:
                     return false;
             }
