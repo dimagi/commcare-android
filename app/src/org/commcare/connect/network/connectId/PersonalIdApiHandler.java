@@ -149,7 +149,8 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                             new Throwable("The user's name is missing.")
                     );
                     return true;
-                case "PHONE_NOT_VALIDATED", "UNSUPPORTED_COUNTRY":
+                case "PHONE_NOT_VALIDATED", "UNSUPPORTED_COUNTRY", "NOT_ALLOWED":
+                    // The "NOT_ALLOWED" error code relates to an uninvited user receiving an OTP.
                     onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
                     return true;
                 case "ACTIVE_USER_EXISTS":
