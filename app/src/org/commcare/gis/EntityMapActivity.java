@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 /**
@@ -58,10 +59,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         GoogleMap.OnInfoWindowClickListener, GoogleMap.OnCameraIdleListener {
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
     private static final int DEFAULT_MARKER_SIZE = 120;
-    private static final float ZOOM_THRESHOLD = 15.0f;  // Zoom level threshold for simplified view
+    private static final float ZOOM_THRESHOLD = 2.0f;  //15 Zoom level threshold for simplified view
 
     private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
+    private final HashMap<Polygon, Pair<String, String>> polygonInfo = new HashMap<>(); // Polygon -> (title, snippet)
 
     private static final String KEY_SELECTED_MAP_TYPE = "entity_map_selected_map_type";
     private static final int[] MAP_TYPES = new int[]{
@@ -82,6 +84,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     
     // tracks whether we're currently in simplified view mode
     private boolean isSimplifiedView = false;
+    
+    // temporary marker for showing polygon info window
+    private Marker polygonInfoMarker = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,11 +169,35 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             mMap.setOnInfoWindowClickListener(this);
             mMap.setOnCameraIdleListener(this);
+            mMap.setOnMapClickListener(latLng -> {
+                // Close polygon info window when user clicks elsewhere on the map
+                dismissPolygonInfoMarker();
+            });
             setMapLocationEnabled(true);
+
+            mMap.setOnMarkerClickListener(marker -> {
+                // Close polygon info window when user clicks on a marker
+                dismissPolygonInfoMarker();
+                return false; // Allow default behavior (showing info window)
+            });
         });
     }
 
+    public void dismissPolygonInfoMarker() {
+        if (polygonInfoMarker != null) {
+            polygonInfoMarker.remove();
+            polygonInfoMarker = null;
+        }
+    }
+
     private void updateMap(boolean zoomToFit) {
+        // Remove temporary polygon info marker if it exists
+        dismissPolygonInfoMarker();
+        
+        // Clear polygon info when clearing the map
+        polygonInfo.clear();
+        markerReferences.clear();
+        
         mMap.clear();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 //        if (entityLocations.size() > 0) {
@@ -193,10 +222,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         //Add some example DUs for testing
         //Create some sample polygons
+        int repeats = 64;
+        int square = (int) Math.sqrt(repeats);
+        float repeatJump = 0.005f;
         float boxRadius = 0.0005f;
         LatLng first = new LatLng(-13.643511, 33.939722);
-        List<Integer> xOffsets = List.of(0, -1, 1, 0, -1, 1, -1, 2, 1, -2, -2);
-        List<Integer> yOffsets = List.of(0, 0, 0, 1, 1, 1, -1, 0, 2, 0, -1);
+        List<Integer> xOffsets = List.of(0, -1, 1, 0, -1, 1, -1, 2, 1, -2);
+        List<Integer> yOffsets = List.of(0, 0, 0, 1, 1, 1, -1, 0, 2, 0);
         int alpha = MAP_TYPES[selectedMapTypeIndex] ==  GoogleMap.MAP_TYPE_HYBRID ||
                 MAP_TYPES[selectedMapTypeIndex] ==  GoogleMap.MAP_TYPE_SATELLITE ?
                 128 : 32;
@@ -208,49 +240,61 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         mMap.setOnPolygonClickListener(
                 polygon -> {
+                    showPolygonInfo(polygon);
                 });
 
         boolean addedShapes = false;
-        if(isSimplifiedView) {
-            MarkerOptions markerOptions = new MarkerOptions()
-                    .position(first)
-                    .title("Zoom-out Area")
-                    .snippet("Test");
-            mMap.addMarker(markerOptions);
-            addedShapes = true;
-            builder.include(first);
-        } else {
-            for (int i = 0; i < xOffsets.size(); i++) {
-                LatLng center = new LatLng(
-                        first.latitude + 2 * boxRadius * yOffsets.get(i),
-                        first.longitude + 2 * boxRadius * xOffsets.get(i)
-                );
-
-                Polygon poly = mMap.addPolygon(new PolygonOptions()
-                        .add(
-                                new LatLng(center.latitude - boxRadius, center.longitude - boxRadius),
-                                new LatLng(center.latitude - boxRadius, center.longitude + boxRadius),
-                                new LatLng(center.latitude + boxRadius, center.longitude + boxRadius),
-                                new LatLng(center.latitude + boxRadius, center.longitude - boxRadius)
-                        )
-                        .clickable(true)
-                        .strokeColor(Color.GRAY)
-                        .fillColor(colors.get(i % colors.size()))
-                        .strokeWidth(5));
-
+        for(int r = 0; r < repeats; r++) {
+            LatLng newCenter = new LatLng(
+                    first.latitude + (r%square * repeatJump),
+                    first.longitude  + (r/square * repeatJump)
+            );
+            if (isSimplifiedView) {
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(newCenter)
+                        .title("Zoom-out Area")
+                        .snippet("Test");
+                mMap.addMarker(markerOptions);
                 addedShapes = true;
-                builder.include(poly.getPoints().get(0));
-                builder.include(poly.getPoints().get(1));
-                builder.include(poly.getPoints().get(2));
-                builder.include(poly.getPoints().get(3));
+                builder.include(first);
+            } else {
+                for (int i = 0; i < xOffsets.size(); i++) {
+                    LatLng center = new LatLng(
+                            newCenter.latitude + 2 * boxRadius * yOffsets.get(i),
+                            newCenter.longitude + 2 * boxRadius * xOffsets.get(i)
+                    );
 
-                if (markerCheckbox.isChecked()) {
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(center)
-                            .title("Center " + (i + 1))
-                            .snippet("Test");
-                    mMap.addMarker(markerOptions);
+                    Polygon poly = mMap.addPolygon(new PolygonOptions()
+                            .add(
+                                    new LatLng(center.latitude - boxRadius, center.longitude - boxRadius),
+                                    new LatLng(center.latitude - boxRadius, center.longitude + boxRadius),
+                                    new LatLng(center.latitude + boxRadius, center.longitude + boxRadius),
+                                    new LatLng(center.latitude + boxRadius, center.longitude - boxRadius)
+                            )
+                            .clickable(true)
+                            .strokeColor(Color.GRAY)
+                            .fillColor(colors.get(i % colors.size()))
+                            .strokeWidth(5));
+
+                    // Store polygon title and snippet (matching marker format)
+                    String title = "Polygon " + (i + 1);
+                    String snippet = "Test";
+                    polygonInfo.put(poly, new Pair<>(title, snippet));
+
                     addedShapes = true;
+                    builder.include(poly.getPoints().get(0));
+                    builder.include(poly.getPoints().get(1));
+                    builder.include(poly.getPoints().get(2));
+                    builder.include(poly.getPoints().get(3));
+
+                    if (markerCheckbox.isChecked()) {
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(center)
+                                .title("Center " + (i + 1))
+                                .snippet("Test");
+                        mMap.addMarker(markerOptions);
+                        addedShapes = true;
+                    }
                 }
             }
         }
@@ -336,12 +380,19 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     @Override
     public void onInfoWindowClick(Marker marker) {
+        // Don't handle clicks on the temporary polygon info marker
+        if (marker == polygonInfoMarker) {
+            return;
+        }
+        
         Intent i = new Intent(getIntent());
         TreeReference ref = markerReferences.get(marker);
-        SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
+        if(ref != null) {
+            SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
 
-        setResult(RESULT_OK, i);
-        finish();
+            setResult(RESULT_OK, i);
+            finish();
+        }
     }
 
     @Override
@@ -364,5 +415,51 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 }
             }
         }
+    }
+
+    /**
+     * Shows an info window for a clicked polygon by creating a temporary marker at the polygon center,
+     * similar to marker info windows. Centers the map on the polygon and displays the info bubble.
+     */
+    private void showPolygonInfo(Polygon polygon) {
+        Pair<String, String> info = polygonInfo.get(polygon);
+        if (info == null || mMap == null) {
+            return;
+        }
+        
+        // Remove any existing temporary marker
+        dismissPolygonInfoMarker();
+        
+        // Calculate the center of the polygon
+        List<LatLng> points = polygon.getPoints();
+        if (points == null || points.isEmpty()) {
+            return;
+        }
+        
+        double sumLat = 0;
+        double sumLng = 0;
+        int numPoints = points.size() - 1;
+        for (int i=0; i<numPoints; i++) {
+            LatLng point = points.get(i);
+            sumLat += point.latitude;
+            sumLng += point.longitude;
+        }
+        LatLng center = new LatLng(sumLat / numPoints, sumLng / numPoints);
+        
+        // Create a temporary marker at the polygon center with the polygon's info
+        String title = info.first;
+        String snippet = info.second;
+        polygonInfoMarker = mMap.addMarker(new MarkerOptions()
+                .position(center)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .title(title)
+                .snippet(snippet)
+                .visible(true));
+        
+        // Center the map on the polygon center
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(center));
+        
+        // Show the info window
+        polygonInfoMarker.showInfoWindow();
     }
 }
