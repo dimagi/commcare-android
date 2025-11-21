@@ -56,7 +56,7 @@ abstract class BaseApiHandler<T>(
 
         fun shouldAllowRetry(): Boolean =
             this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) || (this == UNKNOWN_ERROR) ||
-                    (this == INTEGRITY_ERROR)
+                (this == INTEGRITY_ERROR)
     }
 
     fun createCallback(
