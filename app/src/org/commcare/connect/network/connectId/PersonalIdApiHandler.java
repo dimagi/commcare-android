@@ -86,86 +86,81 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             String errorSubCode,
             PersonalIdSessionData sessionData
     ) {
-        try {
-            sessionData.setSessionFailureCode(errorCode);
-            switch (errorCode) {
-                case "LOCKED_ACCOUNT":
-                    onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
-                    return true;
-                case "INTEGRITY_ERROR":
-                    Logger.log(
-                            LogTypes.TYPE_MAINTENANCE,
-                            "Integrity error with subcode " + errorSubCode
-                    );
-                    sessionData.setSessionFailureSubcode(errorSubCode);
-                    onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
-                    return true;
-                case "INVALID_TOKEN":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
-                            new Throwable("Firebase ID token is invalid.")
-                    );
-                    return true;
-                case "INCORRECT_OTP":
-                    onFailure(PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR, null);
-                    return true;
-                case "NO_RECOVERY_PIN_SET":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.NO_RECOVERY_PIN_SET_ERROR,
-                            new Throwable("This user does not have a backup code setup yet.")
-                    );
-                    return true;
-                case "FAILED_TO_UPLOAD", "FILE_TOO_LARGE":
-                    // These error codes relate to uploading user profile photos.
-                    onFailure(PersonalIdOrConnectApiErrorCodes.SERVER_ERROR, null);
-                    return true;
-                case "MISSING_DATA":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.MISSING_DATA_ERROR,
-                            new Throwable("API call failed due to missing data with error subcode: " + errorSubCode)
-                    );
-                    return true;
-                case "PHONE_MISMATCH":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.PHONE_MISMATCH_ERROR,
-                            new Throwable("There was a phone number mismatch when validating the firebase ID token.")
-                    );
-                    return true;
-                case "MISSING_TOKEN":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.MISSING_TOKEN_ERROR,
-                            new Throwable("Can't validate the firebase ID token because it is missing.")
-                    );
-                    return true;
-                case "FAILED_VALIDATING_TOKEN":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.FAILED_VALIDATING_TOKEN_ERROR,
-                            new Throwable("There was an issue verifying the firebase ID token.")
-                    );
-                    return true;
-                case "NAME_REQUIRED":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.NAME_REQUIRED_ERROR,
-                            new Throwable("The user's name is missing.")
-                    );
-                    return true;
-                case "PHONE_NOT_VALIDATED", "UNSUPPORTED_COUNTRY", "NOT_ALLOWED":
-                    // The "NOT_ALLOWED" error code relates to an uninvited user receiving an OTP.
-                    onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
-                    return true;
-                case "ACTIVE_USER_EXISTS":
-                    onFailure(
-                            PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
-                            new Throwable("The user attempted to create a new profile with a phone number that is already tied to an existing account.")
-                    );
-                    return true;
-                default:
-                    return false;
-            }
-        } catch (Exception e) {
-            Logger.exception("Error handling error code", e);
+        sessionData.setSessionFailureCode(errorCode);
+        switch (errorCode) {
+            case "LOCKED_ACCOUNT":
+                onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
+                return true;
+            case "INTEGRITY_ERROR":
+                Logger.log(
+                        LogTypes.TYPE_MAINTENANCE,
+                        "Integrity error with subcode " + errorSubCode
+                );
+                sessionData.setSessionFailureSubcode(errorSubCode);
+                onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
+                return true;
+            case "INVALID_TOKEN":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
+                        new Throwable("Firebase ID token is invalid.")
+                );
+                return true;
+            case "INCORRECT_OTP":
+                onFailure(PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR, null);
+                return true;
+            case "NO_RECOVERY_PIN_SET":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.NO_RECOVERY_PIN_SET_ERROR,
+                        new Throwable("This user does not have a backup code setup yet.")
+                );
+                return true;
+            case "FAILED_TO_UPLOAD", "FILE_TOO_LARGE":
+                // These error codes relate to uploading user profile photos.
+                onFailure(PersonalIdOrConnectApiErrorCodes.SERVER_ERROR, null);
+                return true;
+            case "MISSING_DATA":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.MISSING_DATA_ERROR,
+                        new Throwable("API call failed due to missing data with error subcode: " + errorSubCode)
+                );
+                return true;
+            case "PHONE_MISMATCH":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.PHONE_MISMATCH_ERROR,
+                        new Throwable("There was a phone number mismatch when validating the firebase ID token.")
+                );
+                return true;
+            case "MISSING_TOKEN":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.MISSING_TOKEN_ERROR,
+                        new Throwable("Can't validate the firebase ID token because it is missing.")
+                );
+                return true;
+            case "FAILED_VALIDATING_TOKEN":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.FAILED_VALIDATING_TOKEN_ERROR,
+                        new Throwable("There was an issue verifying the firebase ID token.")
+                );
+                return true;
+            case "NAME_REQUIRED":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.NAME_REQUIRED_ERROR,
+                        new Throwable("The user's name is missing.")
+                );
+                return true;
+            case "PHONE_NOT_VALIDATED", "UNSUPPORTED_COUNTRY", "NOT_ALLOWED":
+                // The "NOT_ALLOWED" error code relates to an uninvited user receiving an OTP.
+                onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
+                return true;
+            case "ACTIVE_USER_EXISTS":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
+                        new Throwable("The user attempted to create a new profile with a phone number that is already tied to an existing account.")
+                );
+                return true;
+            default:
+                return false;
         }
-        return false;
     }
 
 
