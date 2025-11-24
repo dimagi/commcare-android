@@ -1235,7 +1235,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             case ON_START, ON_RESUME:
                 isForeground = true;
                 break;
-            case ON_STOP:
+            case ON_STOP, ON_PAUSE:
                 isForeground = false;
                 break;
             case ON_DESTROY:
