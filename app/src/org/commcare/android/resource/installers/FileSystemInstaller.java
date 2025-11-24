@@ -19,6 +19,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.io.StreamsUtil;
@@ -41,6 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -126,9 +128,16 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             throw mURE;
         } catch (IOException e) {
             e.printStackTrace();
-            UnreliableSourceException exception = new UnreliableSourceException(r, e.getMessage());
-            exception.initCause(e);
-            throw exception;
+            if (e instanceof UnknownHostException && !CommCareApplication.instance().isAppInForeground()) {
+                UnresolvedResourceException mURE =
+                        new UnresolvedResourceException(r, e,
+                                "The connection was interrupted because CommCare is in the background", true);
+                throw mURE;
+            } else {
+                UnreliableSourceException exception = new UnreliableSourceException(r, e.getMessage());
+                exception.initCause(e);
+                throw exception;
+            }
         } catch (RateLimitedException e) {
             UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Our servers are unavailable at this time. Please try again later", true);
             mURE.initCause(e);
