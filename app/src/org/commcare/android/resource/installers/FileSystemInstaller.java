@@ -127,7 +127,6 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
             throw mURE;
         } catch (IOException e) {
-            e.printStackTrace();
             if (e instanceof UnknownHostException && !CommCareApplication.instance().isAppInForeground()) {
                 UnresolvedResourceException mURE =
                         new UnresolvedResourceException(r, e,
