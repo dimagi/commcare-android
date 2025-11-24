@@ -212,6 +212,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private CommCareNoficationManager noficationManager;
 
     private boolean backgroundSyncSafe;
+    private boolean isForeground = true;
 
     private int connectJobIdForAnalytics = -1;
 
@@ -1231,10 +1232,20 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
+            case ON_START, ON_RESUME:
+                isForeground = true;
+                break;
+            case ON_STOP:
+                isForeground = false;
+                break;
             case ON_DESTROY:
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
         }
+    }
+
+    public boolean isAppInForeground() {
+        return isForeground;
     }
 
     public IDatabase getGlobalDbOpenHelper() {
