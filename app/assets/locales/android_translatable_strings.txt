@@ -680,7 +680,7 @@ notification.install.rate.limited.action=Our servers are unavailable at this tim
 
 notification.install.connection.interrupted.title=Internet connection was interrupted
 notification.install.connection.interrupted.detail=Installation failed because the internet connection was interrupted, possibly due to moving away from CommCare
-notification.install.connection.interrupted.action=Please try again and keep CommCare open untill the installation is complete. If the issue persists, contact your supervisor.
+notification.install.connection.interrupted.action=Please try again and keep CommCare open until the installation is complete. If the issue persists, contact your supervisor.
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
