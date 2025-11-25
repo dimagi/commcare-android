@@ -25,4 +25,5 @@ class DrawerViewRefs(rootView: View) {
     val ivNotification: ImageView = rootView.findViewById(R.id.ivNotification)
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
+    val navDrawerMainContainer: LinearLayout = rootView.findViewById(R.id.nav_drawer_main_container)
 }

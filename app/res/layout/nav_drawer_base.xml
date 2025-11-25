@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:background="@color/cc_brand_color"
     android:layout_gravity="start"
+    android:id="@+id/nav_drawer_main_container"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
         <androidx.core.widget.NestedScrollView
@@ -27,7 +28,6 @@
                     android:layout_height="0dp"
                     android:orientation="vertical"
                     android:visibility="gone"
-                    android:paddingTop="92dp"
                     android:layout_weight="1">
 
                     <ImageView
