@@ -103,7 +103,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 onFailure(PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR, null);
                 return true;
             case "INCORRECT_OTP":
-                onFailure(PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR, null);
+                onFailure(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, null);
                 return true;
             case "NO_RECOVERY_PIN_SET":
                 onFailure(

@@ -49,8 +49,7 @@ abstract class BaseApiHandler<T>(
         INVALID_RESPONSE_ERROR,
         // There was an issue parsing an API response.
         JSON_PARSING_ERROR,
-        // Examples of this include the user enterring an incorrect OTP, account lockout, or an
-        // expired SSO auth token.
+        // Examples of this include user account lockout or an expired SSO auth token.
         FAILED_AUTH_ERROR,
         // Examples of this include a user profile photo failing to upload or the photo being too
         // large.
@@ -77,7 +76,9 @@ abstract class BaseApiHandler<T>(
         NAME_REQUIRED_ERROR,
         // The user attempted to create a new profile with a phone number that's already tied to an
         // existing account.
-        ACTIVE_USER_EXISTS_ERROR, ;
+        ACTIVE_USER_EXISTS_ERROR,
+        // The OTP the user entered is incorrect.
+        INCORRECT_OTP_ERROR, ;
 
         fun shouldAllowRetry(): Boolean =
             this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) || (this == UNKNOWN_ERROR) ||
