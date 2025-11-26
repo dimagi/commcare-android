@@ -130,7 +130,6 @@ public class ConnectMessageChannelListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
     }
 
     public void refreshUi() {
