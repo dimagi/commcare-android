@@ -42,7 +42,7 @@ data class PersonalIdSessionData(
     var otpFallback: Boolean = false,
     // the total number of times we attempted to send the user an OTP
     var otpAttempts: Int = 0,
-    var otpFallbackUsedBeforeProcessDeath: Boolean = false
+    var otpFallbackUsedBeforeProcessDeath: Boolean = false,
 ) : Serializable {
     /**
      * Annotation to restrict accepted authentication types used by the device.
