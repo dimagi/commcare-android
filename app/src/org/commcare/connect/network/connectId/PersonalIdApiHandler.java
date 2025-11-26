@@ -111,9 +111,16 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         new Throwable("This user does not have a backup code setup yet.")
                 );
                 return true;
-            case "FAILED_TO_UPLOAD", "FILE_TOO_LARGE":
-                // These error codes relate to uploading user profile photos.
+            case "FAILED_TO_UPLOAD":
+                // This error code relates to uploading a user profile photo.
                 onFailure(PersonalIdOrConnectApiErrorCodes.SERVER_ERROR, null);
+                return true;
+            case "FILE_TOO_LARGE":
+                // This error code relates to uploading a user profile photo.
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.FILE_TOO_LARGE_ERROR,
+                        new Throwable("The user's photo is too large for server to handle.")
+                );
                 return true;
             case "MISSING_DATA":
                 onFailure(

@@ -99,7 +99,11 @@ abstract class BaseApiHandler<T>(
         ACTIVE_USER_EXISTS_ERROR,
 
         // The OTP the user entered is incorrect.
-        INCORRECT_OTP_ERROR, ;
+        INCORRECT_OTP_ERROR,
+
+        // The photo uploaded for the user is too large for server to handle. Note that, currently,
+        // the user does not have much control over the photo size.
+        FILE_TOO_LARGE_ERROR, ;
 
         fun shouldAllowRetry(): Boolean =
             this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) || (this == UNKNOWN_ERROR) ||
