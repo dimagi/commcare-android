@@ -140,7 +140,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             }
         };
         // Always fallback to Twilio (via Personal ID) if this is the second attempt in the session to send the user an OTP.
-        Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1;
+        Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1
+                || personalIdSessionData.getOtpFallbackUsedBeforeProcessDeath();
         setupOtpManager(useOtpFallback);
     }
 
@@ -162,7 +163,13 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
-        setupInitialState();
+
+        // If onCreateView() is being called again after process death, the user was already on this
+        // screen and receivied the initial OTP. In that case, we do not want to reset the initial state.
+        if (personalIdSessionData.getOtpAttempts() == 0) {
+            setupInitialState();
+        }
+
         setupListeners();
 
         activity.setTitle(R.string.connect_verify_phone_title);
@@ -375,12 +382,14 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     otpCallback,
                     SMS_METHOD_PERSONAL_ID
             );
+            personalIdSessionData.setOtpFallbackUsedBeforeProcessDeath(true);
         } else {
             otpManager = new OtpManager(
                     activity,
                     personalIdSessionData,
                     otpCallback
             );
+            personalIdSessionData.setOtpFallbackUsedBeforeProcessDeath(false);
         }
     }
 }
