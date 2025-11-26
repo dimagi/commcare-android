@@ -95,25 +95,6 @@ class BaseDrawerController(
 
     private fun setupViews() {
         binding.versionText.text = "v ${BuildConfig.VERSION_NAME}"
-
-        val drawerWidth = activity.resources.getDimensionPixelSize(R.dimen.nav_drawer_width)
-
-        val sidePadding = (drawerWidth * 0.04f).toInt()
-
-        binding.navDrawerMainContainer.setPadding(
-            sidePadding,
-            binding.navDrawerMainContainer.paddingTop,
-            sidePadding,
-            binding.navDrawerMainContainer.paddingBottom
-        )
-        binding.signoutView.post {
-            val drawerHeight = binding.drawerLayout.height
-            val topMargin = (drawerHeight * 0.05f).toInt()
-
-            val params = binding.signoutView.layoutParams as ViewGroup.MarginLayoutParams
-            params.topMargin = topMargin
-            binding.signoutView.layoutParams = params
-        }
     }
 
     private fun initializeAdapter() {

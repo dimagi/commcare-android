@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:background="@color/cc_brand_color"
     android:layout_gravity="start"
-    android:id="@+id/nav_drawer_main_container"
+    android:paddingHorizontal="@dimen/side_nav_horizontal_padding"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
         <androidx.core.widget.NestedScrollView
@@ -27,6 +27,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:orientation="vertical"
+                    android:layout_marginTop="@dimen/side_nav_sign_out_top_margin"
                     android:visibility="gone"
                     android:layout_weight="1">
 
