@@ -1,6 +1,7 @@
 package org.commcare.android.database.connect.models
 
 import androidx.annotation.StringDef
+import java.io.Serializable
 
 /**
  * Data holder for personal identification session state during Personal ID flows.
@@ -41,7 +42,7 @@ data class PersonalIdSessionData(
     var otpFallback: Boolean = false,
     // the total number of times we attempted to send the user an OTP
     var otpAttempts: Int = 0,
-) {
+) : Serializable {
     /**
      * Annotation to restrict accepted authentication types used by the device.
      * Only PIN or BIOMETRIC_TYPE are allowed.
