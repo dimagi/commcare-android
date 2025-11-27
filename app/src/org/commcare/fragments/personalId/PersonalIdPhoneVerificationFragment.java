@@ -46,6 +46,7 @@ import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
 
 public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment {
     private static final String KEY_PHONE = "phone";
+    private static final String KEY_OTP_FALLBACK_USED = "KEY_OTP_FALLBACK_USED";
 
     private Activity activity;
     private String primaryPhone;
@@ -57,6 +58,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
     private ActivityResultLauncher<Intent> smsConsentLauncher;
+    private Boolean otpFallbackUsed;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -76,6 +78,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         primaryPhone = personalIdSessionData.getPhoneNumber();
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
+            otpFallbackUsed = savedInstanceState.getBoolean(KEY_OTP_FALLBACK_USED);
         }
         initOtpManager();
     }
@@ -139,9 +142,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-        // Always fallback to Twilio (via Personal ID) if this is the second attempt in the session to send the user an OTP.
-        Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1
-                || personalIdSessionData.getOtpFallbackUsedBeforeProcessDeath();
+        // Always fallback to Twilio (via Personal ID) if this is the second attempt in the session
+        // to send the user an OTP. Note that "otpFallbackUsed" may be true if this fragment was
+        // restored after process death.
+        Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1 || otpFallbackUsed;
         setupOtpManager(useOtpFallback);
     }
 
@@ -288,6 +292,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PHONE, primaryPhone);
+        outState.putBoolean(KEY_OTP_FALLBACK_USED, otpFallbackUsed);
     }
 
     private void updateVerificationMessage() {
@@ -381,14 +386,14 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     otpCallback,
                     SMS_METHOD_PERSONAL_ID
             );
-            personalIdSessionData.setOtpFallbackUsedBeforeProcessDeath(true);
+            otpFallbackUsed = true;
         } else {
             otpManager = new OtpManager(
                     activity,
                     personalIdSessionData,
                     otpCallback
             );
-            personalIdSessionData.setOtpFallbackUsedBeforeProcessDeath(false);
+            otpFallbackUsed = false;
         }
     }
 }
