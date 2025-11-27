@@ -58,7 +58,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
     private ActivityResultLauncher<Intent> smsConsentLauncher;
-    private Boolean otpFallbackUsed;
+    private Boolean otpFallbackUsed = false;
+    private Boolean fragmentRestored = false;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -79,6 +80,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
             otpFallbackUsed = savedInstanceState.getBoolean(KEY_OTP_FALLBACK_USED);
+            fragmentRestored = true;
         }
         initOtpManager();
     }
@@ -145,7 +147,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         // Always fallback to Twilio (via Personal ID) if this is the second attempt in the session
         // to send the user an OTP. Note that "otpFallbackUsed" may be true if this fragment was
         // restored after process death.
-        Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1 || otpFallbackUsed;
+        Boolean useOtpFallback = (personalIdSessionData.getOtpAttempts() == 1 && !fragmentRestored) || otpFallbackUsed;
         setupOtpManager(useOtpFallback);
     }
 
