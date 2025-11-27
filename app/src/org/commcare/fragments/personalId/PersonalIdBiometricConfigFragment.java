@@ -88,12 +88,6 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         updateUiBasedOnMinSecurityRequired();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
         Context context = requireActivity();
         return new BiometricPrompt.AuthenticationCallback() {

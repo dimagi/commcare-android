@@ -1,18 +1,25 @@
 package org.commcare.fragments.personalId;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,6 +27,8 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -111,6 +120,25 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         }
     }
 
+    private void setLocationToolTip(Location location) {
+        binding.groupTooltip.setVisibility(View.VISIBLE);
+
+        boolean locationFound = (location != null);
+
+        binding.ivLocation.setImageResource(
+                locationFound ? R.drawable.ic_place : R.drawable.ic_connect_delivery_rejected
+        );
+        binding.tvLocation.setText(
+                locationFound ? R.string.personalid_using_your_location : R.string.personalid_no_location_found
+        );
+
+        binding.tooltipText.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.tooltipText.setText(
+                locationFound ? R.string.personalid_tooltip_location_success_message
+                        : R.string.personalid_tooltip_location_failure_message
+        );
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -121,7 +149,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void onDestroyView() {
         super.onDestroyView();
         locationController.destroy();
-        binding = null;
     }
 
     private void checkGooglePlayServices() {
@@ -152,6 +179,19 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void setupListeners() {
+        binding.ivLocationInfo.setOnClickListener(v -> {
+            if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
+                binding.groupTooltipInfo.setVisibility(View.GONE);
+            } else {
+                binding.groupTooltipInfo.setVisibility(View.VISIBLE);
+            }
+        });
+
+        binding.firstLayout.setOnClickListener(v->{
+            if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
+                binding.groupTooltipInfo.setVisibility(View.GONE);
+            }
+        });
         binding.connectConsentCheck.setOnClickListener(v -> updateContinueButtonState());
         binding.personalidPhoneContinueButton.setOnClickListener(v -> onContinueClicked());
 
@@ -278,6 +318,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     @Override
     public void onLocationResult(@NonNull Location result) {
         location = result;
+        setLocationToolTip(location);
         updateContinueButtonState();
     }
 
@@ -361,6 +402,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         resolutionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
+                    setLocationToolTip(location);
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // User enabled location settings
                     } else {
@@ -519,6 +561,15 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void missingPermissions() {
         if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
             locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
+        }
+    }
+
+    @Override
+    public void onLocationServiceChange(boolean locationServiceEnabled) {
+        if (!locationServiceEnabled) {
+            location = null;
+            setLocationToolTip(location);
+            updateContinueButtonState();
         }
     }
 }

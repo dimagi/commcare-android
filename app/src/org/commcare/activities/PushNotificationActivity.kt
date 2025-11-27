@@ -62,12 +62,16 @@ class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
         }
     }
 
-    private fun initViews() {
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
         supportActionBar!!.apply {
             title = getString(R.string.personalid_notification)
             setDisplayShowHomeEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
+    }
+
+    private fun initViews() {
         pushNotificationViewModel =
             ViewModelProvider(
                 this,

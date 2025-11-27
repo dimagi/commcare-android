@@ -262,6 +262,11 @@ public class GeoPointActivity extends CommonBaseActivity implements TimerListene
     }
 
     @Override
+    public void onLocationServiceChange(boolean locationServiceEnabled) {
+
+    }
+
+    @Override
     public void onLocationRequestFailure(@NotNull CommCareLocationListener.Failure failure) {
         if (failure instanceof CommCareLocationListener.Failure.ApiException) {
             Exception exception = ((CommCareLocationListener.Failure.ApiException)failure).getException();
