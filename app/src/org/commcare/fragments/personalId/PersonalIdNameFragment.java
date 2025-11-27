@@ -63,12 +63,6 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
         };
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     private void setListeners() {
         binding.personalidNameContinueButton.setOnClickListener(v -> verifyOrAddName());
     }

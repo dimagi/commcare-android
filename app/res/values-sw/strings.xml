@@ -523,4 +523,10 @@
     <string name="recovery_network_cooldown">Majaribio mengi mno ya ombi. Tafadhali jaribu tena baada ya saa moja.</string>
     <string name="personalid_authentication_failed">Uthibitishaji wa bayometriki kwenye kifaa chako cha Android haukufaulu. Tafadhali weka masasisho yoyote ya mfumo yanayopatikana, au jaribu tena ukitumia kifaa tofauti.</string>
     <string name="no_channel_msg">Huna njia za sasa za kutuma ujumbe</string>
+
+    <string name="personalid_using_your_location">Inatumia eneo lako</string>
+    <string name="personalid_no_location_found">Hatuwezi kupata eneo lako</string>
+    <string name="personalid_tooltip_location_failure_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\nIli kuendelea, tafadhali wezesha ruhusa za eneo katika mipangilio, au jaribu tena baadaye.</string>
+    <string name="personalid_tooltip_location_success_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Bofya hapa kwa maelezo zaidi.</a></string>
+
 </resources>

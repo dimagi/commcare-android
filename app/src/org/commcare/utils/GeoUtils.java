@@ -147,7 +147,7 @@ public class GeoUtils {
         context.startActivity(intent);
     }
 
-    private static boolean locationServicesEnabledGlobally(LocationManager lm) {
+    public static boolean locationServicesEnabledGlobally(LocationManager lm) {
         boolean gpsEnabled = false, networkEnabled = false;
         try {
             gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);

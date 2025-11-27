@@ -1,20 +1,22 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <ScrollView
-            android:id="@+id/firstLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white"
-            android:orientation="vertical"
-            tools:context="org.commcare.fragments.personalId.PersonalIdPhoneFragment">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:fillViewport="true"
+        tools:context="org.commcare.fragments.personalId.PersonalIdPhoneFragment">
 
         <LinearLayout
+            android:id="@+id/firstLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/grid_header_top_banner"/>
+            <include layout="@layout/grid_header_top_banner" />
 
             <View
                 android:id="@+id/divider"
@@ -29,12 +31,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:textStyle="bold"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:text="@string/connect_registration_subtitle"
                 android:textColor="@color/connect_dark_blue_color"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/phone_sub_text"
@@ -43,10 +45,10 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:textStyle="normal"
                 android:text="@string/connect_registration_title"
                 android:textColor="@color/connect_subtext"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="normal" />
 
             <LinearLayout
                 android:id="@+id/phone_layout"
@@ -59,9 +61,9 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:background="@drawable/connect_side_icon_bg"
-                    android:gravity="center"
-                    android:layout_gravity="center">
+                    android:gravity="center">
 
                     <ImageView
                         android:layout_width="42dp"
@@ -116,7 +118,6 @@
                     </LinearLayout>
 
                     <TextView
-                        android:textStyle="bold"
                         android:id="@+id/personalid_phone_error"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -124,56 +125,146 @@
                         android:paddingTop="4dp"
                         android:textColor="@android:color/holo_red_light"
                         android:textSize="14sp"
+                        android:textStyle="bold"
                         android:visibility="gone" />
                 </LinearLayout>
 
 
             </LinearLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ll_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="55dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="20dp"
-                android:gravity="start"
+                android:layout_gravity="center"
+                android:layout_marginTop="13dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
-                <CheckBox
-                    android:id="@+id/connect_consent_check"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:buttonTint="@color/connect_blue_color"
-                    android:padding="1dp"
-                    android:textColor="@color/connect_subtext"
-                    android:textSize="13sp" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_location"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="5dp"
+                    android:src="@drawable/ic_place"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_location"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:textStyle="bold"
-                    android:id="@+id/checkText"
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:text="@string/connect_consent_message_1"
+                    android:layout_marginHorizontal="5dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:textColor="@color/connect_grey"
-                    android:textSize="16sp" />
-            </LinearLayout>
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/personalid_using_your_location" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/personalid_phone_continue_button"
-                style="@style/CustomButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:gravity="start|center"
-                android:text="@string/review"
-                android:drawableEnd="@drawable/connect_right_arrow"
-                />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_location_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:src="@drawable/ic_location_info"
+                    app:layout_constraintStart_toEndOf="@+id/tv_location"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
-        </ScrollView>
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_tooltip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:constraint_referenced_ids="iv_location,tv_location,iv_location_info" />
+
+                <LinearLayout
+                    android:id="@+id/ll_privacy_policy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="55dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="20dp"
+                    android:gravity="start"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_location_info">
+
+                    <CheckBox
+                        android:id="@+id/connect_consent_check"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:buttonTint="@color/connect_blue_color"
+                        android:padding="1dp"
+                        android:textColor="@color/connect_subtext"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/checkText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="@string/connect_consent_message_1"
+                        android:textColor="@color/connect_grey"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_triangle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:rotation="360"
+                    android:src="@drawable/ic_blue_triangle"
+                    app:layout_constraintEnd_toEndOf="@id/iv_location_info"
+                    app:layout_constraintStart_toStartOf="@id/iv_location_info"
+                    app:layout_constraintTop_toBottomOf="@id/iv_location_info" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tooltipText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/bg_location_tooltip"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:linksClickable="true"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorLink="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/iv_triangle" />
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_tooltip_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:constraint_referenced_ids="iv_triangle,tooltipText" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/personalid_phone_continue_button"
+                    style="@style/CustomButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:drawableEnd="@drawable/connect_right_arrow"
+                    android:gravity="start|center"
+                    android:text="@string/review"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/ll_privacy_policy" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+    </ScrollView>
 </layout>

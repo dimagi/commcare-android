@@ -692,4 +692,10 @@
 
     <string name="personalid_authentication_failed">Authenticating the biometrics on your Android device has failed. Please apply any available system updates, or try again with a different device</string>
     <string name="no_channel_msg">You have no current messaging channels</string>
+
+    <string name="personalid_using_your_location">Using your location</string>
+    <string name="personalid_no_location_found">We can\'t find your location</string>
+    <string name="personalid_tooltip_location_failure_message">We use location data to ensure secure usage of this application.\n\nTo continue, please enable location permissions in settings, or try again later.</string>
+    <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
+
 </resources>

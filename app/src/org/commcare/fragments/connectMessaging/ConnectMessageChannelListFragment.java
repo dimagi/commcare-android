@@ -127,12 +127,6 @@ public class ConnectMessageChannelListFragment extends Fragment {
                         channel.getChannelName());
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     public void refreshUi() {
         Context context = getContext();
         if (context != null) {

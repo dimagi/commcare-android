@@ -64,12 +64,6 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         return binding.getRoot();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     private void configureUiByMode() {
         isRecovery = personalIdSessionData.getAccountExists();
         if (isRecovery) {

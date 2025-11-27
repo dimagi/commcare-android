@@ -43,6 +43,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
     public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         setupRecyclerView();
+        updateSummaryView();
         return view;
     }
 
