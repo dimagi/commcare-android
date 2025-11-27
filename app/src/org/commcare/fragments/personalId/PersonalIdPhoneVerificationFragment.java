@@ -268,7 +268,6 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
         otpCallback = null;
     }
 

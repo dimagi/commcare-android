@@ -149,7 +149,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void onDestroyView() {
         super.onDestroyView();
         locationController.destroy();
-        binding = null;
     }
 
     private void checkGooglePlayServices() {

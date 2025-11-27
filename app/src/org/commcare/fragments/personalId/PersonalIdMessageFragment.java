@@ -99,12 +99,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     private void setButton2Text(String buttonText) {
         boolean show = buttonText != null;
         binding.connectMessageButton2.setVisibility(show ? View.VISIBLE : View.GONE);

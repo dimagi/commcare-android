@@ -80,13 +80,6 @@ public class ConnectUnlockFragment extends Fragment {
         new Handler().post(unlockRunnable);
     }
 
-
-    @Override
-    public void onDestroyView() {
-        binding = null;
-        super.onDestroyView();
-    }
-
     private void retrieveOpportunities() {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
