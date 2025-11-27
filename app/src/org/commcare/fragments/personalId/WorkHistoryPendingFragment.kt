@@ -65,9 +65,4 @@ class WorkHistoryPendingFragment : Fragment() {
             return fragment
         }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
-    }
 }
