@@ -62,7 +62,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
     private ActivityResultLauncher<Intent> smsConsentLauncher;
-    private String lastOtpMethod = SMS_METHOD_FIREBASE;
+    private String lastOtpMethod;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
