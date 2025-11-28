@@ -99,6 +99,9 @@ public class ComboboxWidget extends QuestionWidget {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (s != null && "".equals(s.toString())) {
+                    widgetEntryChanged();
+                }
                 clearWarningMessage();
             }
         });
