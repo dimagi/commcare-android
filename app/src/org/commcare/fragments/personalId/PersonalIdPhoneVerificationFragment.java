@@ -46,7 +46,7 @@ import static org.commcare.utils.OtpManager.SMS_METHOD_FIREBASE;
 import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
 
 public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment {
-    private static final String KEY_PHONE = "phone";
+    private static final String KEY_PHONE = "KEY_PHONE";
     private static final String KEY_LAST_OTP_METHOD = "KEY_LAST_OTP_METHOD";
     private static final String KEY_VERIFY_BUTTON_ENABLED = "KEY_VERIFY_BUTTON_ENABLED";
     private static final String KEY_OTP_REQUEST_TIME_STRING = "KEY_OTP_REQUEST_TIME_STRING";
