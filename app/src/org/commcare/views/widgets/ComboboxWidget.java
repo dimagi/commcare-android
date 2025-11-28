@@ -1,13 +1,9 @@
 package org.commcare.views.widgets;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.AdapterView;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.views.Combobox;
