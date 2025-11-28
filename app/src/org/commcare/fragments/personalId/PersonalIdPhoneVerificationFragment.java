@@ -196,7 +196,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         boolean verifyButtonEnabled = savedInstanceState.getBoolean(KEY_VERIFY_BUTTON_ENABLED);
         String otpRequestTimeString = savedInstanceState.getString(KEY_OTP_REQUEST_TIME_STRING);
 
-        otpRequestTime = DateTime.parse(otpRequestTimeString);
+        if (otpRequestTimeString != null) {
+            otpRequestTime = DateTime.parse(otpRequestTimeString);
+        }
+
         binding.connectPhoneVerifyButton.setEnabled(verifyButtonEnabled);
     }
 
