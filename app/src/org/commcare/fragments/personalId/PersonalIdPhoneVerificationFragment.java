@@ -42,10 +42,15 @@ import org.joda.time.DateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.commcare.utils.OtpManager.SMS_METHOD_FIREBASE;
 import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
 
 public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment {
-    private static final String KEY_PHONE = "phone";
+    private static final String KEY_PHONE = "KEY_PHONE";
+    private static final String KEY_LAST_OTP_METHOD = "KEY_LAST_OTP_METHOD";
+    private static final String KEY_VERIFY_BUTTON_ENABLED = "KEY_VERIFY_BUTTON_ENABLED";
+    private static final String KEY_OTP_REQUEST_TIME_STRING = "KEY_OTP_REQUEST_TIME_STRING";
+
 
     private Activity activity;
     private String primaryPhone;
@@ -57,6 +62,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
     private ActivityResultLauncher<Intent> smsConsentLauncher;
+    private String lastOtpMethod;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -73,10 +79,14 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         personalIdSessionData = new ViewModelProvider(requireActivity())
                 .get(PersonalIdSessionDataViewModel.class)
                 .getPersonalIdSessionData();
-        primaryPhone = personalIdSessionData.getPhoneNumber();
+
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
+            lastOtpMethod = savedInstanceState.getString(KEY_LAST_OTP_METHOD);
+        } else {
+            primaryPhone = personalIdSessionData.getPhoneNumber();
         }
+
         initOtpManager();
     }
 
@@ -139,8 +149,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-        // Always fallback to Twilio (via Personal ID) if this is the second attempt in the session to send the user an OTP.
-        Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1;
+
+        // The last OTP method may be Twilio (via Personal ID) after restoring this fragment.
+        Boolean useOtpFallback = SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(lastOtpMethod);
         setupOtpManager(useOtpFallback);
     }
 
@@ -162,17 +173,34 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
-        setupInitialState();
-        setupListeners();
 
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        } else {
+            setupInitialState();
+        }
+
+        setupListeners();
+        updateVerificationMessage();
         activity.setTitle(R.string.connect_verify_phone_title);
+
         return binding.getRoot();
     }
 
     private void setupInitialState() {
         binding.connectPhoneVerifyButton.setEnabled(false);
-        updateVerificationMessage();
         requestOtp();
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        boolean verifyButtonEnabled = savedInstanceState.getBoolean(KEY_VERIFY_BUTTON_ENABLED);
+        String otpRequestTimeString = savedInstanceState.getString(KEY_OTP_REQUEST_TIME_STRING);
+
+        if (otpRequestTimeString != null) {
+            otpRequestTime = DateTime.parse(otpRequestTimeString);
+        }
+
+        binding.connectPhoneVerifyButton.setEnabled(verifyButtonEnabled);
     }
 
     private void setupListeners() {
@@ -281,6 +309,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PHONE, primaryPhone);
+        outState.putString(KEY_LAST_OTP_METHOD, lastOtpMethod);
+        outState.putBoolean(KEY_VERIFY_BUTTON_ENABLED, binding.connectPhoneVerifyButton.isEnabled());
+        outState.putString(KEY_OTP_REQUEST_TIME_STRING, otpRequestTime.toString());
     }
 
     private void updateVerificationMessage() {
@@ -374,12 +405,14 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     otpCallback,
                     SMS_METHOD_PERSONAL_ID
             );
+            lastOtpMethod = SMS_METHOD_PERSONAL_ID;
         } else {
             otpManager = new OtpManager(
                     activity,
                     personalIdSessionData,
                     otpCallback
             );
+            lastOtpMethod = SMS_METHOD_FIREBASE;
         }
     }
 }

@@ -12,6 +12,7 @@ import org.javarosa.core.services.Logger;
 public class OtpManager {
 
     public static final String SMS_METHOD_PERSONAL_ID = "personal_id";
+    public static final String SMS_METHOD_FIREBASE = "firebase";
 
     private final OtpAuthService authService;
 
