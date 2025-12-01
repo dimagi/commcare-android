@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:tag="layout/activity_login_0"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -17,6 +18,20 @@
                 android:layout_height="fill_parent"
                 android:orientation="vertical"
                 tools:viewBindingIgnore="true">
+                <com.google.android.material.appbar.AppBarLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorPrimary">
+
+                    <androidx.appcompat.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="?attr/colorPrimary"
+                        app:titleTextColor="@android:color/white"
+                        android:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+                </com.google.android.material.appbar.AppBarLayout>
 
                 <RelativeLayout
                     android:id="@+id/screen_login_main"

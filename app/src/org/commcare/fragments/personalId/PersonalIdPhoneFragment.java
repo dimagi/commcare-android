@@ -100,7 +100,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false);
         activity = requireActivity();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
-        activity.setTitle(R.string.connect_registration_title);
+        requireActivity().setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class);
@@ -542,7 +542,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     @Override
     protected void navigateToMessageDisplay(String title, String message,  boolean isCancellable, int phase,
-            int buttonText) {
+                                            int buttonText) {
         NavDirections navDirections =
                 PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                         title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);

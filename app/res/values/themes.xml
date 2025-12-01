@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="CommonTheme" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
+    <style name="CommonTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <item name="colorPrimary">@color/cc_brand_color</item>
         <item name="colorPrimaryDark">@color/cc_brand_text</item>
         <item name="colorAccent">@color/cc_dark_cool_accent_color</item>
@@ -32,6 +32,9 @@
         <item name="android:scrollViewStyle">@style/fading_edge</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:dropDownListViewStyle">@style/dropDownListView</item>
+        <item name="toolbarNavigationButtonStyle">@style/WhiteNavIcon</item>
+        <item name="colorControlNormal">@android:color/white</item>
+
 
         <!--  Material Components styling that can be removed when we migrate to a material component theme from the bridge theme-->
         <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
@@ -104,6 +107,10 @@
     </style>
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="colorPrimary">@color/connect_dark_blue_color</item>
+    </style>
+
+    <style name="WhiteNavIcon" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="android:tint">@color/white</item>
     </style>
 
 </resources>

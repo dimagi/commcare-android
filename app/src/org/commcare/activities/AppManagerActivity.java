@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.AppManagerAdapter;
@@ -50,6 +51,9 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         setContentView(R.layout.app_manager);
         ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
         FirebaseAnalyticsUtil.reportAppManagerAction(AnalyticsParamValue.OPEN_APP_MANAGER);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

@@ -9,6 +9,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -17,6 +18,8 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         updateBackButton();
     }
 

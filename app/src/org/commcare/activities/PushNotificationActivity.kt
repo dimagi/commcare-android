@@ -1,6 +1,7 @@
 package org.commcare.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -72,6 +73,12 @@ class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
     }
 
     private fun initViews() {
+        setSupportActionBar(binding.toolbarNotification)
+        supportActionBar!!.apply {
+            title = getString(R.string.personalid_notification)
+            setDisplayShowHomeEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
         pushNotificationViewModel =
             ViewModelProvider(
                 this,

@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -66,10 +67,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        toolbar = findViewById(R.id.toolbar_connect_activity);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle(getString(R.string.connect_title));
 
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
@@ -159,11 +164,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         return R.id.connect_unlock_fragment;
     }
 
-    @Override
+    /*@Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         getSupportActionBar().setTitle(title);
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
