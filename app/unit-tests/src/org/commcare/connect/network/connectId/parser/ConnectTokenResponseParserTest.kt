@@ -20,7 +20,7 @@ class ConnectTokenResponseParserTest {
     private data class TokenTestData(
         val token: String,
         val expiresInSeconds: Int? = null,
-        val expectedTimeDeltaMs: Long? = null,
+        val expectedTimeDeltaSeconds: Long? = null,
     )
 
     private fun createTokenJson(testData: TokenTestData): String =
@@ -86,8 +86,8 @@ class ConnectTokenResponseParserTest {
         val (_, userRecord) = parseTokenAndAssertBasics(jsonResponse, testData.token)
 
         // Assert Expiration
-        if (testData.expectedTimeDeltaMs != null) {
-            assertExpirationTime(userRecord, currentTime, testData.expectedTimeDeltaMs / 1000)
+        if (testData.expectedTimeDeltaSeconds != null) {
+            assertExpirationTime(userRecord, currentTime, testData.expectedTimeDeltaSeconds)
         }
     }
 
@@ -105,7 +105,7 @@ class ConnectTokenResponseParserTest {
             TokenTestData(
                 token = "test_token_123",
                 expiresInSeconds = 3600,
-                expectedTimeDeltaMs = 3600 * 1000L,
+                expectedTimeDeltaSeconds = 3600L,
             ),
         )
     }
@@ -116,7 +116,7 @@ class ConnectTokenResponseParserTest {
             TokenTestData(
                 token = "another_test_token",
                 expiresInSeconds = null,
-                expectedTimeDeltaMs = 0L,
+                expectedTimeDeltaSeconds = 0L,
             ),
         )
     }
@@ -127,7 +127,7 @@ class ConnectTokenResponseParserTest {
             TokenTestData(
                 token = "zero_expiry_token",
                 expiresInSeconds = 0,
-                expectedTimeDeltaMs = 0L,
+                expectedTimeDeltaSeconds = 0L,
             ),
         )
     }
@@ -138,7 +138,7 @@ class ConnectTokenResponseParserTest {
             TokenTestData(
                 token = "",
                 expiresInSeconds = 0,
-                expectedTimeDeltaMs = 0L,
+                expectedTimeDeltaSeconds = 0L,
             ),
         )
     }
