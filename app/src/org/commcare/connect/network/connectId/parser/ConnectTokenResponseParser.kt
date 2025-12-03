@@ -23,15 +23,14 @@ class ConnectTokenResponseParser<T>() : BaseApiResponseParser<T> {
 
                 val json = JSONObject(responseAsString)
                 val token = json.getString(CONNECT_KEY_TOKEN)
-                check(!token.isEmpty() && token != "null") { "$CONNECT_KEY_TOKEN cannot be null or empty" }
+                check(!token.isNullOrEmpty() && token != "null") { "$CONNECT_KEY_TOKEN cannot be null or empty" }
                 val seconds = json.optInt(CONNECT_KEY_EXPIRES, 0)
                 check(seconds >= 0) { "$CONNECT_KEY_EXPIRES cannot be negative" }
                 val expiration = Date()
-                expiration.time = expiration.time + (seconds.toLong() * 1000)
+                expiration.time +=  seconds.toLong() * 1000
                 (anyInputObject as ConnectUserRecord).updateConnectToken(token, expiration)
                 return TokenAuth(token) as T
             }
-
         } catch (e: JSONException) {
             throw RuntimeException(e)
         }
