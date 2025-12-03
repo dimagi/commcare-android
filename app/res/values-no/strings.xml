@@ -128,4 +128,6 @@
     <string name="personalid_tooltip_location_failure_message">Vi bruker posisjonsdata for å sikre trygg bruk av denne applikasjonen.\n\nFor å fortsette, vennligst aktiver posisjonstillatelser i innstillingene, eller prøv igjen senere.</string>
     <string name="personalid_tooltip_location_success_message">Vi bruker posisjonsdata for å sikre trygg bruk av denne applikasjonen.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Klikk her for mer info.</a></string>
 
+    <string name="network_forbidden_error"></string>
+
 </resources>

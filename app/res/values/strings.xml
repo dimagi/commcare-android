@@ -698,4 +698,6 @@
     <string name="personalid_tooltip_location_failure_message">We use location data to ensure secure usage of this application.\n\nTo continue, please enable location permissions in settings, or try again later.</string>
     <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
 
+    <string name="network_forbidden_error"></string>
+
 </resources>

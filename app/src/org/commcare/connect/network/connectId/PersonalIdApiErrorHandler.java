@@ -54,7 +54,7 @@ public class PersonalIdApiErrorHandler {
             case ACCOUNT_LOCKED_ERROR:
                 return context.getString(R.string.personalid_configuration_locked_account);
             case FORBIDDEN_ERROR:
-                return context.getString(R.string.personalid_configuration_process_failed_subtitle);
+                return context.getString(R.string.network_forbidden_error);
             case UNKNOWN_ERROR:
                 return context.getString(R.string.recovery_network_unknown);
             case INCORRECT_OTP_ERROR:

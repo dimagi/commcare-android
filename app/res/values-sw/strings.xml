@@ -529,4 +529,6 @@
     <string name="personalid_tooltip_location_failure_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\nIli kuendelea, tafadhali wezesha ruhusa za eneo katika mipangilio, au jaribu tena baadaye.</string>
     <string name="personalid_tooltip_location_success_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Bofya hapa kwa maelezo zaidi.</a></string>
 
+    <string name="network_forbidden_error"></string>
+
 </resources>

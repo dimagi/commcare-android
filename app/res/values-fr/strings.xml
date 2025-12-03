@@ -524,4 +524,6 @@ License.
     <string name="personalid_tooltip_location_failure_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n\nPour continuer, veuillez activer les autorisations de localisation dans les paramètres, ou réessayez plus tard.</string>
     <string name="personalid_tooltip_location_success_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Cliquez ici pour plus d\'informations.</a></string>
 
+    <string name="network_forbidden_error"></string>
+
 </resources>
