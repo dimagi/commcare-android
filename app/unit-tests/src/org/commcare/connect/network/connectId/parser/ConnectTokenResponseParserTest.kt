@@ -23,32 +23,26 @@ class ConnectTokenResponseParserTest {
         val expectedTimeDeltaSeconds: Long? = null,
     )
 
-    private fun createTokenJson(testData: TokenTestData): String =
-        if (testData.expiresInSeconds != null) {
+    private fun createTokenJson(
+        token: String,
+        expiresValue: Any? = null,
+    ): String =
+        if (expiresValue != null) {
             """
             {
-                "${ConnectConstants.CONNECT_KEY_TOKEN}": "${testData.token}",
-                "${ConnectConstants.CONNECT_KEY_EXPIRES}": ${testData.expiresInSeconds}
+                "${ConnectConstants.CONNECT_KEY_TOKEN}": "$token",
+                "${ConnectConstants.CONNECT_KEY_EXPIRES}": $expiresValue
             }
             """.trimIndent()
         } else {
             """
             {
-                "${ConnectConstants.CONNECT_KEY_TOKEN}": "${testData.token}"
+                "${ConnectConstants.CONNECT_KEY_TOKEN}": "$token"
             }
             """.trimIndent()
         }
 
-    private fun createTokenJsonWithCustomExpires(
-        token: String,
-        expiresValue: Any,
-    ): String =
-        """
-        {
-            "${ConnectConstants.CONNECT_KEY_TOKEN}": "$token",
-            "${ConnectConstants.CONNECT_KEY_EXPIRES}": $expiresValue
-        }
-        """.trimIndent()
+    private fun createTokenJson(testData: TokenTestData): String = createTokenJson(testData.token, testData.expiresInSeconds)
 
     private fun parseTokenAndAssertBasics(
         jsonResponse: String,
@@ -166,7 +160,7 @@ class ConnectTokenResponseParserTest {
     @Test(expected = IllegalStateException::class)
     fun testParseNullTokenField() {
         // Arrange
-        val jsonResponse = createTokenJsonWithCustomExpires("null", 3600)
+        val jsonResponse = createTokenJson("null", 3600)
 
         // Act & Assert
         parseTokenExpectingException(jsonResponse)
@@ -175,7 +169,7 @@ class ConnectTokenResponseParserTest {
     @Test
     fun testParseWithInvalidExpiresInType() {
         // Arrange
-        val jsonResponse = createTokenJsonWithCustomExpires("test_token", "\"not_a_number\"")
+        val jsonResponse = createTokenJson("test_token", "\"not_a_number\"")
 
         // Act & Assert
         // optInt returns 0 for invalid strings, so this should work without throwing exception
@@ -185,7 +179,7 @@ class ConnectTokenResponseParserTest {
     @Test(expected = IllegalStateException::class)
     fun testParseWithNegativeExpiresIn() {
         // Arrange
-        val jsonResponse = createTokenJsonWithCustomExpires("test_toen", -3600)
+        val jsonResponse = createTokenJson("test_token", -3600)
 
         // Act & Assert
         parseTokenExpectingException(jsonResponse)
