@@ -55,10 +55,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
             if (id == R.id.channelListFragment) {
                 getSupportActionBar().setTitle(getString(R.string.connect_messaging_title));
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                return;
-            }
-
-            if (id == R.id.connectMessageFragment) {
+            } else if (id == R.id.connectMessageFragment) {
                 if (arguments != null) {
                     String channelId = arguments.getString("channel_id");
                     if (channelId != null) {
@@ -72,7 +69,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                 }
             }
         });
-
     }
 
     @Override

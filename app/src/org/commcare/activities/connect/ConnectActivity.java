@@ -164,12 +164,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         return R.id.connect_unlock_fragment;
     }
 
-    /*@Override
-    public void setTitle(CharSequence title) {
-        super.setTitle(title);
-        getSupportActionBar().setTitle(title);
-    }*/
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_connect, menu);
