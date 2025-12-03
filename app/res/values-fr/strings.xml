@@ -184,6 +184,7 @@ License.
     <string name="recovery_unable_to_claim_opportunity">Impossible de réclamer l\'opportunité, veuillez contacter un administrateur.</string>
     <string name="recovery_network_outdated">Cette application est obsolète. Veuillez mettre à jour l\'application sur le Google Play Store pour continuer.</string>
     <string name="recovery_network_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
+    <string name="recovery_network_unauthorized">Vous n\'êtes pas autorisé à faire cette demande.</string>
     <string name="recovery_app_manager">Accéder au gestionnaire d\'applications</string>
     <string name="recovery_retry">Réessayer la récupération</string>
     <string name="notification_channel_errors_title">Erreurs</string>

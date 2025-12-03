@@ -121,6 +121,7 @@
     <string name="recovery_network_unavailable">Sin conexión de red. Verifica tu conexión a Internet e inténtalo de nuevo.</string>
     <string name="recovery_network_outdated">Esta aplicación está desactualizada. Por favor, actualice la aplicación en Google Play Store para continuar.</string>
     <string name="recovery_network_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
+    <string name="recovery_network_unauthorized">No está autorizado para realizar esta solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
     <string name="recovery_retry">Reintentar recuperación</string>
     <string name="recovery_unable_to_claim_opportunity">No se puede reclamar la oportunidad, comunícate con un administrador.</string>

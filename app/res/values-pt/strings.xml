@@ -184,6 +184,7 @@
     <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade, entre em contato com um administrador.</string>
     <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
     <string name="recovery_network_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
+    <string name="recovery_network_unauthorized">Você não está autorizado a fazer esta solicitação.</string>
     <string name="recovery_app_manager">Vá para o Gerenciador de aplicativos</string>
     <string name="recovery_retry">Tentar novamente a recuperação</string>
     <string name="notification_channel_errors_title">Erros</string>
