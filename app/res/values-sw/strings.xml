@@ -186,6 +186,7 @@
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
     <string name="recovery_network_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
     <string name="recovery_network_unauthorized">Huna ruhusa ya kufanya ombi hili.</string>
+    <string name="recovery_network_server_error">Kulikuwa na hitilafu katika kushughulikia ombi lako.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
     <string name="recovery_retry">Jaribu Urejeshaji tena</string>
     <string name="notification_channel_errors_title">Makosa</string>

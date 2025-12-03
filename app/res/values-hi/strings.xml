@@ -185,6 +185,7 @@ License.
     <string name="recovery_network_outdated">यह ऐप पुराना हो गया है। आगे बढ़ने के लिए कृपया Google Play Store पर ऐप को अपडेट करें।</string>
     <string name="recovery_network_token_unavailable">नेटवर्क में कोई समस्या थी. कृपया फिर से कोशिश करें.</string>
     <string name="recovery_network_unauthorized">आप यह रिक्वेस्ट करने के लिए ऑथराइज़्ड नहीं हैं।</string>
+    <string name="recovery_network_server_error">आपकी रिक्वेस्ट प्रोसेस करते समय एक एरर आया।</string>
     <string name="recovery_app_manager">एप्लिकेशन प्रबंधक पर जाएं</string>
     <string name="recovery_retry">पुनर्प्राप्ति का पुनः प्रयास करें</string>
     <string name="notification_channel_errors_title">त्रुटियां</string>

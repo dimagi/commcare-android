@@ -102,6 +102,7 @@
     <string name="recovery_network_outdated">Questa app non è aggiornata. Per procedere, aggiorna l\'app sul Google Play Store.</string>
     <string name="recovery_network_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
     <string name="recovery_network_unauthorized">Jūs neturite teisės pateikti šio prašymo.</string>
+    <string name="recovery_network_server_error">Apdorojant jūsų užklausą įvyko klaida.</string>
     <string name="recovery_network_cooldown">Per daug užklausų. Bandykite dar kartą po valandos.</string>
     <string name="connect_biometric_enroll_fail_message">„PersonalID“ reikalauja įjungti biometrinius duomenis. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Šiuo metu šiame įrenginyje biometriniai duomenys neįjungti. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>

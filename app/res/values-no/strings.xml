@@ -102,6 +102,7 @@
     <string name="recovery_network_outdated">Denne appen er utdatert. Oppdater appen i Google Play Store for å fortsette.</string>
     <string name="recovery_network_token_unavailable">Det oppsto et nettverksproblem. Prøv på nytt.</string>
     <string name="recovery_network_unauthorized">Du har ikke tillatelse til å sende inn denne forespørselen.</string>
+    <string name="recovery_network_server_error">Det oppsto en feil under behandling av forespørselen din.</string>
     <string name="recovery_network_cooldown">For mange forespørselsforsøk. Prøv igjen om en time.</string>
     <string name="connect_biometric_enroll_fail_message">PersonalID krever at biometri er aktivert. Konfigurer biometri i Android-systeminnstillingene før du fortsetter.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Biometri er for øyeblikket ikke aktivert på denne enheten. Konfigurer biometri i Android-systeminnstillingene før du fortsetter.</string>
