@@ -515,6 +515,7 @@
     <string name="yesterday">Ayer %1$s</string>
 
     <string name="recovery_network_cooldown">Demasiados intentos de solicitud. Por favor, inténtelo de nuevo después de una hora.</string>
+    <string name="recovery_network_unknown">Algo salió mal. Inténtalo de nuevo.</string>
     <string name="personalid_authentication_failed">La autenticación de la biometría en su dispositivo Android ha fallado. Aplique las actualizaciones de sistema disponibles o inténtelo de nuevo con un dispositivo diferente.</string>
     <string name="connect_verify_configuration_failed">La configuración de la biometría en su dispositivo Android ha fallado. Por favor, inténtelo de nuevo %s.</string>
 

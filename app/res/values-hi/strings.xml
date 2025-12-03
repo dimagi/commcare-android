@@ -513,6 +513,7 @@ License.
     <string name="yesterday">कल %1$s</string>
 
     <string name="recovery_network_cooldown">बहुत अधिक अनुरोध प्रयास। कृपया एक घंटे बाद पुनः प्रयास करें।</string>
+    <string name="recovery_network_unknown">कुछ गड़बड़ हुई है। कृपया दोबारा प्रयास करें।</string>
     <string name="personalid_authentication_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स का प्रमाणीकरण विफल हो गया है। कृपया कोई भी उपलब्ध सिस्टम अपडेट लागू करें, या किसी दूसरे डिवाइस के साथ पुनः प्रयास करें।</string>
     <string name="connect_verify_configuration_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स कॉन्फ़िगर करना विफल हो गया है। कृपया %s पुनः प्रयास करें।</string>
 

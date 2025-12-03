@@ -524,6 +524,7 @@
     <string name="yesterday">Ontem %1$s</string>
 
     <string name="recovery_network_cooldown">Demasiadas tentativas de pedido. Por favor, tente novamente dentro de uma hora.</string>
+    <string name="recovery_network_unknown">Algo deu errado. Por favor, tente novamente.</string>
     <string name="personalid_authentication_failed">A autenticação da biometria no seu dispositivo Android falhou. Por favor, aplique quaisquer atualizações de sistema disponíveis ou tente novamente com um dispositivo diferente.</string>
     <string name="no_channel_msg">Você não possui canais de mensagens ativos.</string>
 
