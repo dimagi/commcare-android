@@ -32,7 +32,6 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
@@ -82,8 +81,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                String errorMessage = handleApiErrorCode(errorCode, t);
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 navigateFailure();
             }
 
@@ -99,24 +97,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), ConnectJobRecord.STATUS_ALL_JOBS, null));
     }
 
-    /**
-     * Handles API error codes and returns a user-friendly message if applicable.
-     *
-     * @param errorCode API error code
-     * @param t Throwable associated with the error, if any
-     * @return User-friendly error message
-     */
-    private String handleApiErrorCode(
-            BaseApiHandler.PersonalIdOrConnectApiErrorCodes errorCode,
-            @Nullable Throwable t
-    ) {
-        if (errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR) {
-            // TODO: Change this to a proper message.
-            return requireContext().getString(R.string.recovery_network_server_error);
-        }
-
-        return PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t);
-    }
 
     private void initRecyclerView() {
         getBinding().connectNoJobsText.setVisibility(corruptJobs.isEmpty() && jobList.isEmpty() ?
@@ -152,8 +132,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections
-                            .actionConnectJobsListFragmentToConnectDownloadingFragment(
-                                    getString(textId), isLearning));
+                    .actionConnectJobsListFragmentToConnectDownloadingFragment(
+                            getString(textId), isLearning));
         }
     }
 
