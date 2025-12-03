@@ -171,6 +171,7 @@
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
     <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
+    <string name="recovery_network_token_unavailable"></string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
     <string name="recovery_retry">ንናይ</string>
     <string name="notification_channel_errors_title">ጌጋታት</string>
