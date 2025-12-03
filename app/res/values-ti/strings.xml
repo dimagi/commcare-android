@@ -516,6 +516,6 @@
     <string name="personalid_tooltip_location_failure_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\nንኽትቅጽል በጃኻ ኣብ setting ናይ ቦታ ፍቓድ ኣኽእል፡ ወይ ድማ ጸኒሕካ ደጊምካ ፈትን።</string>
     <string name="personalid_tooltip_location_success_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">ንተወሳኺ ሓበሬታ ኣብዚ ጠውቕ።</a></string>
 
-    <string name="network_forbidden_error"></string>
+    <string name="network_forbidden_error">ምብጻሕ ተኸልኪሉ። እቲ ጸገም እንተቐጺሉ ንደገፍ ዓማዊል ተወከሱ።</string>
 
 </resources>

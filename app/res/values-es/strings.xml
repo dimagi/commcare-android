@@ -525,6 +525,6 @@
     <string name="personalid_tooltip_location_failure_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\nPara continuar, habilite los permisos de ubicación en la configuración o inténtelo de nuevo más tarde.</string>
     <string name="personalid_tooltip_location_success_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Haga clic aquí para más información.</a></string>
 
-    <string name="network_forbidden_error"></string>
+    <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
 
 </resources>

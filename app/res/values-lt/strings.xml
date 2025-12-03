@@ -132,6 +132,6 @@
     <string name="personalid_tooltip_location_failure_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programos naudojimą.\n\nNorėdami tęsti, įjunkite vietos leidimus nustatymuose arba bandykite dar kartą vėliau.</string>
     <string name="personalid_tooltip_location_success_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programėlės naudojimą.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Spustelėkite čia, jei norite gauti daugiau informacijos.</a></string>
 
-    <string name="network_forbidden_error"></string>
+    <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
 
 </resources>

@@ -523,6 +523,6 @@ License.
     <string name="personalid_tooltip_location_failure_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए लोकेशन डेटा का उपयोग करते हैं।\n\nजारी रखने के लिए, कृपया सेटिंग्स में लोकेशन अनुमतियों को सक्षम करें, या बाद में फिर से प्रयास करें।</string>
     <string name="personalid_tooltip_location_success_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए स्थान डेटा का उपयोग करते हैं।\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">अधिक जानकारी के लिए यहां क्लिक करें।</a></string>
 
-    <string name="network_forbidden_error"></string>
+    <string name="network_forbidden_error">एक्सेस नहीं मिला। अगर समस्या बनी रहती है, तो कृपया कस्टमर सपोर्ट से संपर्क करें।</string>
 
 </resources>

@@ -533,6 +533,6 @@
     <string name="personalid_tooltip_location_failure_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\nPara continuar, ative as permissões de localização nas configurações ou tente novamente mais tarde.</string>
     <string name="personalid_tooltip_location_success_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Clique aqui para mais informações.</a></string>
 
-    <string name="network_forbidden_error"></string>
+    <string name="network_forbidden_error">Acesso negado. Se o problema persistir, entre em contato com o suporte ao cliente.</string>
 
 </resources>
