@@ -11,4 +11,6 @@
     <dimen name="row_padding_horizontal">8sp</dimen>
     <dimen name="rectangle_button_height">60dp</dimen>
     <dimen name="nav_drawer_width">264dp</dimen>
+    <dimen name="side_nav_horizontal_padding">10dp</dimen>
+    <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
 </resources>

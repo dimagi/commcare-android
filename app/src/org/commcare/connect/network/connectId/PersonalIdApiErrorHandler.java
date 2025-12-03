@@ -57,6 +57,8 @@ public class PersonalIdApiErrorHandler {
                 return context.getString(R.string.personalid_configuration_process_failed_subtitle);
             case UNKNOWN_ERROR:
                 return context.getString(R.string.recovery_network_unknown);
+            case INCORRECT_OTP_ERROR:
+                return context.getString(R.string.personalid_incorrect_otp);
             default:
                 if (t != null) {
                     Logger.exception("Unhandled throwable passed with API error code: " + errorCode, t);
