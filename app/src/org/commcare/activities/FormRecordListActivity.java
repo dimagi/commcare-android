@@ -55,10 +55,8 @@ import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 
 
@@ -156,15 +154,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         platform = CommCareApplication.instance().getCommCarePlatform();
         setContentView(R.layout.entity_select_layout);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getActivityTitle());
-        }
-
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
         searchbox = findViewById(R.id.searchbox);
