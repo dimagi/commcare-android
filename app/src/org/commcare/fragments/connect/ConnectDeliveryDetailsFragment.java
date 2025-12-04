@@ -21,7 +21,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDetailsBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -105,7 +105,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
                 if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
                     message = getString(R.string.recovery_unable_to_claim_opportunity);
                 } else {
-                    message = PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t);
+                    message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
                 }
                 showSnackBarWithDismissAction(getBinding().getRoot(), message);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
