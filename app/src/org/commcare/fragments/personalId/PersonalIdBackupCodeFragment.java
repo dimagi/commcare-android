@@ -21,7 +21,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
@@ -207,7 +207,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
-                showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+                showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
                 }

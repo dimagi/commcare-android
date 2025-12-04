@@ -26,7 +26,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.network.base.BaseApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -141,7 +141,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
-                String error = PersonalIdApiErrorHandler.handle(activity, failureCode, t);
+                String error = PersonalIdOrConnectApiErrorHandler.handle(activity, failureCode, t);
                 if (failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
                     error = getString(R.string.personalid_incorrect_otp);
                 }
