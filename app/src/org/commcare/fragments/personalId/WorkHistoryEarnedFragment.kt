@@ -27,23 +27,28 @@ class WorkHistoryEarnedFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentWorkHistoryEarnedBinding.inflate(inflater, container, false)
         return binding!!.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
-        workHistoryEarnedAdapter = WorkHistoryEarnedAdapter(
-            listener = object : WorkHistoryEarnedAdapter.OnWorkHistoryItemClickListener {
-                override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
-
-                }
-            },
-            profilePic = profilePic ?: ""
-        )
+        workHistoryEarnedAdapter =
+            WorkHistoryEarnedAdapter(
+                listener =
+                    object : WorkHistoryEarnedAdapter.OnWorkHistoryItemClickListener {
+                        override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
+                        }
+                    },
+                profilePic = profilePic ?: "",
+            )
         binding!!.rvEarnedWorkHistory.adapter = workHistoryEarnedAdapter
         viewModel = ViewModelProvider(requireActivity())[PersonalIdWorkHistoryViewModel::class.java]
         viewModel.earnedWorkHistory.observe(viewLifecycleOwner) { earnedList ->
@@ -60,7 +65,10 @@ class WorkHistoryEarnedFragment : Fragment() {
         private const val ARG_USERNAME = "username"
         private const val ARG_PROFILE_PIC = "profile_pic"
 
-        fun newInstance(username: String, profilePic: String): WorkHistoryEarnedFragment {
+        fun newInstance(
+            username: String,
+            profilePic: String,
+        ): WorkHistoryEarnedFragment {
             val fragment = WorkHistoryEarnedFragment()
             val args = Bundle()
             args.putString(ARG_USERNAME, username)

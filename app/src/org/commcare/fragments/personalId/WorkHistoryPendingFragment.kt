@@ -13,7 +13,6 @@ import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.dalvik.databinding.FragmentWorkHistoryPendingBinding
 
 class WorkHistoryPendingFragment : Fragment() {
-
     private var binding: FragmentWorkHistoryPendingBinding? = null
     private lateinit var workHistoryPendingAdapter: WorkHistoryPendingAdapter
     private lateinit var viewModel: PersonalIdWorkHistoryViewModel
@@ -27,21 +26,28 @@ class WorkHistoryPendingFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentWorkHistoryPendingBinding.inflate(inflater, container, false)
         return binding!!.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
-        workHistoryPendingAdapter = WorkHistoryPendingAdapter(listener = object :
-            WorkHistoryPendingAdapter.OnWorkHistoryItemClickListener {
-            override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
-
-            }
-        })
+        workHistoryPendingAdapter =
+            WorkHistoryPendingAdapter(
+                listener =
+                    object :
+                        WorkHistoryPendingAdapter.OnWorkHistoryItemClickListener {
+                        override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
+                        }
+                    },
+            )
         binding!!.rvPendingWorkHistory.adapter = workHistoryPendingAdapter
         viewModel = ViewModelProvider(requireActivity())[PersonalIdWorkHistoryViewModel::class.java]
         viewModel.pendingWorkHistory.observe(viewLifecycleOwner) { pendingList ->
