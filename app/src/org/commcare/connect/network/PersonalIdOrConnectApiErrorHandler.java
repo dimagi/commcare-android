@@ -32,8 +32,11 @@ public class PersonalIdOrConnectApiErrorHandler {
      * @param errorCode the specific {@link BaseApiHandler.PersonalIdOrConnectApiErrorCodes} to handle
      * @param t         the exception that was thrown, if any; can be null
      */
-    public static String handle(Context context, BaseApiHandler.PersonalIdOrConnectApiErrorCodes errorCode,
-                                @Nullable Throwable t) {
+    public static String handle(
+            Context context,
+            BaseApiHandler.PersonalIdOrConnectApiErrorCodes errorCode,
+            @Nullable Throwable t
+    ) {
         switch (errorCode) {
             case NETWORK_ERROR:
                 return context.getString(R.string.recovery_network_unavailable);
