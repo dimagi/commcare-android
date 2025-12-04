@@ -163,9 +163,9 @@ dependencies {
 }
 
 ext {
-    // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
-    // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
-    // ~/.gradle/gradle.properties file, or loads default empty strings if neither is present
+    // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your global
+    // user-level ~/.gradle/gradle.properties file, or loads default empty strings if neither is
+    // present
     MAPBOX_SDK_API_KEY = project.properties['MAPBOX_SDK_API_KEY'] ?: ''
     ANALYTICS_TRACKING_ID_DEV = project.properties['ANALYTICS_TRACKING_ID_DEV'] ?: ''
     ANALYTICS_TRACKING_ID_LIVE = project.properties['ANALYTICS_TRACKING_ID_LIVE'] ?: ''
