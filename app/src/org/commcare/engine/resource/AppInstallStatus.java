@@ -38,6 +38,7 @@ public enum AppInstallStatus implements MessageTag {
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
     NoConnection("notification.install.no.connection"),
+    ConnectionInterrupted("notification.install.connection.interrupted"),
     NetworkFailure("notification.install.network.failure"),
     RateLimited("notification.install.rate.limited"),
     BadSslCertificate("notification.install.badcert"),
@@ -76,7 +77,8 @@ public enum AppInstallStatus implements MessageTag {
 
     public boolean shouldRetryUpdate() {
         return (this == NetworkFailure ||
-                this == NoConnection);
+                this == NoConnection ||
+                this == ConnectionInterrupted);
     }
 
     @Override
@@ -91,7 +93,8 @@ public enum AppInstallStatus implements MessageTag {
                 this == NoConnection ||
                 this == CaptivePortal ||
                 this == RateLimited ||
-                this == NetworkFailure);
+                this == NetworkFailure ||
+                this == ConnectionInterrupted);
     }
 
     public boolean isNonPersistentFailure() {
@@ -101,7 +104,8 @@ public enum AppInstallStatus implements MessageTag {
                 this == CaptivePortal ||
                 this == RateLimited ||
                 this == NetworkFailure ||
-                this == NoLocalStorage
+                this == NoLocalStorage ||
+                this == ConnectionInterrupted
         );
     }
 
