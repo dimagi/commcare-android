@@ -132,8 +132,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections
-                            .actionConnectJobsListFragmentToConnectDownloadingFragment(
-                                    getString(textId), isLearning));
+                    .actionConnectJobsListFragmentToConnectDownloadingFragment(
+                            getString(textId), isLearning));
         }
     }
 

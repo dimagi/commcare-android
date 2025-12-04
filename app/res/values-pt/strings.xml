@@ -183,6 +183,9 @@
     <string name="recovery_network_unavailable">Sem conexão de rede. Verifique sua internet e tente novamente.</string>
     <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade, entre em contato com um administrador.</string>
     <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
+    <string name="recovery_network_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
+    <string name="recovery_network_unauthorized">Você não está autorizado a fazer esta solicitação.</string>
+    <string name="recovery_network_server_error">Ocorreu um erro ao processar sua solicitação.</string>
     <string name="recovery_app_manager">Vá para o Gerenciador de aplicativos</string>
     <string name="recovery_retry">Tentar novamente a recuperação</string>
     <string name="notification_channel_errors_title">Erros</string>
@@ -521,6 +524,7 @@
     <string name="yesterday">Ontem %1$s</string>
 
     <string name="recovery_network_cooldown">Demasiadas tentativas de pedido. Por favor, tente novamente dentro de uma hora.</string>
+    <string name="recovery_network_unknown">Algo deu errado. Por favor, tente novamente.</string>
     <string name="personalid_authentication_failed">A autenticação da biometria no seu dispositivo Android falhou. Por favor, aplique quaisquer atualizações de sistema disponíveis ou tente novamente com um dispositivo diferente.</string>
     <string name="no_channel_msg">Você não possui canais de mensagens ativos.</string>
 
@@ -528,5 +532,7 @@
     <string name="personalid_no_location_found">Não conseguimos encontrar a sua localização</string>
     <string name="personalid_tooltip_location_failure_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\nPara continuar, ative as permissões de localização nas configurações ou tente novamente mais tarde.</string>
     <string name="personalid_tooltip_location_success_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Clique aqui para mais informações.</a></string>
+
+    <string name="network_forbidden_error">Acesso negado. Se o problema persistir, entre em contato com o suporte ao cliente.</string>
 
 </resources>

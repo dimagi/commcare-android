@@ -183,6 +183,9 @@ License.
     <string name="recovery_forms_state_unavailable">फॉर्म उपलब्ध नहीं हैं। जांचें कि आपके फ़ोन का संग्रहण स्थान उपलब्ध है।</string>
     <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</string>
     <string name="recovery_network_outdated">यह ऐप पुराना हो गया है। आगे बढ़ने के लिए कृपया Google Play Store पर ऐप को अपडेट करें।</string>
+    <string name="recovery_network_token_unavailable">नेटवर्क में कोई समस्या थी. कृपया फिर से कोशिश करें.</string>
+    <string name="recovery_network_unauthorized">आप यह रिक्वेस्ट करने के लिए ऑथराइज़्ड नहीं हैं।</string>
+    <string name="recovery_network_server_error">आपकी रिक्वेस्ट प्रोसेस करते समय एक एरर आया।</string>
     <string name="recovery_app_manager">एप्लिकेशन प्रबंधक पर जाएं</string>
     <string name="recovery_retry">पुनर्प्राप्ति का पुनः प्रयास करें</string>
     <string name="notification_channel_errors_title">त्रुटियां</string>
@@ -510,6 +513,7 @@ License.
     <string name="yesterday">कल %1$s</string>
 
     <string name="recovery_network_cooldown">बहुत अधिक अनुरोध प्रयास। कृपया एक घंटे बाद पुनः प्रयास करें।</string>
+    <string name="recovery_network_unknown">कुछ गड़बड़ हुई है। कृपया दोबारा प्रयास करें।</string>
     <string name="personalid_authentication_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स का प्रमाणीकरण विफल हो गया है। कृपया कोई भी उपलब्ध सिस्टम अपडेट लागू करें, या किसी दूसरे डिवाइस के साथ पुनः प्रयास करें।</string>
     <string name="connect_verify_configuration_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स कॉन्फ़िगर करना विफल हो गया है। कृपया %s पुनः प्रयास करें।</string>
 
@@ -518,5 +522,7 @@ License.
     <string name="personalid_no_location_found">हमें आपका स्थान नहीं मिल रहा है</string>
     <string name="personalid_tooltip_location_failure_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए लोकेशन डेटा का उपयोग करते हैं।\n\nजारी रखने के लिए, कृपया सेटिंग्स में लोकेशन अनुमतियों को सक्षम करें, या बाद में फिर से प्रयास करें।</string>
     <string name="personalid_tooltip_location_success_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए स्थान डेटा का उपयोग करते हैं।\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">अधिक जानकारी के लिए यहां क्लिक करें।</a></string>
+
+    <string name="network_forbidden_error">एक्सेस नहीं मिला। अगर समस्या बनी रहती है, तो कृपया कस्टमर सपोर्ट से संपर्क करें।</string>
 
 </resources>

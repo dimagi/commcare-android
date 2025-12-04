@@ -183,6 +183,9 @@ License.
     <string name="recovery_network_unavailable">Aucune connexion réseau. Veuillez vérifier votre connexion Internet et réessayer.</string>
     <string name="recovery_unable_to_claim_opportunity">Impossible de réclamer l\'opportunité, veuillez contacter un administrateur.</string>
     <string name="recovery_network_outdated">Cette application est obsolète. Veuillez mettre à jour l\'application sur le Google Play Store pour continuer.</string>
+    <string name="recovery_network_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
+    <string name="recovery_network_unauthorized">Vous n\'êtes pas autorisé à faire cette demande.</string>
+    <string name="recovery_network_server_error">Une erreur s\'est produite lors du traitement de votre demande.</string>
     <string name="recovery_app_manager">Accéder au gestionnaire d\'applications</string>
     <string name="recovery_retry">Réessayer la récupération</string>
     <string name="notification_channel_errors_title">Erreurs</string>
@@ -515,6 +518,7 @@ License.
     <string name="yesterday">Hier %1$s</string>
 
     <string name="recovery_network_cooldown">Trop de tentatives de requête. Veuillez réessayer dans une heure.</string>
+    <string name="recovery_network_unknown">Une erreur s\'est produite. Veuillez réessayer.</string>
     <string name="personalid_authentication_failed">L\'authentification des données biométriques sur votre appareil Android a échoué. Veuillez appliquer les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
     <string name="connect_verify_configuration_failed">La configuration des données biométriques sur votre appareil Android a échoué. Veuillez réessayer %s.</string>
 
@@ -523,5 +527,7 @@ License.
     <string name="personalid_no_location_found">Nous ne parvenons pas à trouver votre emplacement</string>
     <string name="personalid_tooltip_location_failure_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n\nPour continuer, veuillez activer les autorisations de localisation dans les paramètres, ou réessayez plus tard.</string>
     <string name="personalid_tooltip_location_success_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Cliquez ici pour plus d\'informations.</a></string>
+
+    <string name="network_forbidden_error">Accès refusé. Veuillez contacter le service client si le problème persiste.</string>
 
 </resources>
