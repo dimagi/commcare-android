@@ -24,7 +24,7 @@ import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
@@ -98,7 +98,7 @@ object PushNotificationApiHelper {
                     continuation.resume(
                         Result.failure(
                             Exception(
-                                PersonalIdApiErrorHandler.handle(
+                                PersonalIdOrConnectApiErrorHandler.handle(
                                     context,
                                     failureCode,
                                     t,
