@@ -30,10 +30,9 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import androidx.annotation.Nullable;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -74,7 +73,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.security.SignatureException;
@@ -1015,7 +1013,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                String error = PersonalIdApiErrorHandler.handle(activity, errorCode, t);
+                String error = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t);
                 Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
             }
 

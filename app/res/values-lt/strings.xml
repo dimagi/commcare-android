@@ -100,7 +100,11 @@
     <string name="personalid_configuration_process_failed_subtitle">Deja, šis įrenginys nepraėjo saugumo patikrų, būtinų registracijai „PersonalID“. Bandykite dar kartą kitame įrenginyje.</string>
     <string name="personalid_location_permission_error">„PersonalID“ reikalauja, kad jūsų įrenginyje būtų įjungtos vietos nustatymo paslaugos. Prieš tęsdami, įjunkite jas telefono nustatymuose.</string>
     <string name="recovery_network_outdated">Questa app non è aggiornata. Per procedere, aggiorna l\'app sul Google Play Store.</string>
+    <string name="recovery_network_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
+    <string name="recovery_network_unauthorized">Jūs neturite teisės pateikti šio prašymo.</string>
+    <string name="recovery_network_server_error">Apdorojant jūsų užklausą įvyko klaida.</string>
     <string name="recovery_network_cooldown">Per daug užklausų. Bandykite dar kartą po valandos.</string>
+    <string name="recovery_network_unknown">Kažkas nepavyko. Bandykite dar kartą.</string>
     <string name="connect_biometric_enroll_fail_message">„PersonalID“ reikalauja įjungti biometrinius duomenis. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Šiuo metu šiame įrenginyje biometriniai duomenys neįjungti. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">Šiame įrenginyje esantys biometriniai duomenys nėra atnaujinti. Įdiekite visus galimus sistemos atnaujinimus arba bandykite dar kartą su kitu įrenginiu.</string>
@@ -127,5 +131,7 @@
     <string name="personalid_no_location_found">Nepavyksta rasti jūsų buvimo vietos</string>
     <string name="personalid_tooltip_location_failure_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programos naudojimą.\n\nNorėdami tęsti, įjunkite vietos leidimus nustatymuose arba bandykite dar kartą vėliau.</string>
     <string name="personalid_tooltip_location_success_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programėlės naudojimą.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Spustelėkite čia, jei norite gauti daugiau informacijos.</a></string>
+
+    <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
 
 </resources>

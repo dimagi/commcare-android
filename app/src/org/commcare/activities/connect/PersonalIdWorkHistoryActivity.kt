@@ -9,7 +9,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdWorkHistoryBinding
 import org.commcare.views.dialogs.CustomProgressDialog
@@ -79,7 +79,7 @@ class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActi
 
     private fun observeWorkHistoryApiCall() {
         personalIdWorkHistoryViewModel.apiError.observe(this) { (code, throwable) ->
-            val errorMessage = PersonalIdApiErrorHandler.handle(this, code, throwable)
+            val errorMessage = PersonalIdOrConnectApiErrorHandler.handle(this, code, throwable)
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
