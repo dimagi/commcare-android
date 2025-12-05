@@ -10,6 +10,7 @@ import org.commcare.preferences.ServerUrls;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.SessionStateUninitException;
+import org.javarosa.core.services.Logger;
 
 import java.net.URL;
 
@@ -157,5 +158,18 @@ public class ReportingUtils {
         } catch (Exception ignored) {
         }
         return null;
+    }
+
+    public static Boolean getIsDemoUser() {
+        try {
+            CommCareApplication app = CommCareApplication.instance();
+            PersonalIdManager manager = PersonalIdManager.getInstance();
+            return manager.getUser(app).getIsDemo();
+        } catch (Exception e) {
+            String errorMessage =
+                    "Error checking if user is a demo user for Firebase analytics reporting";
+            Logger.exception(errorMessage, e);
+            return null;
+        }
     }
 }

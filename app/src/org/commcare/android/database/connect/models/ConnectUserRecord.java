@@ -236,4 +236,7 @@ public class ConnectUserRecord extends Persisted {
         this.hasConnectAccess = hasConnectAccess;
     }
 
+    public boolean getIsDemo() {
+        return isDemo;
+    }
 }
