@@ -124,9 +124,9 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
 
-        Boolean isDemoUser = ReportingUtils.getIsDemoUser();
-        if (isDemoUser != null) {
-            analyticsInstance.setUserProperty(CCAnalyticsParam.IS_DEMO_USER, String.valueOf(isDemoUser));
+        Boolean isPersonalIDDemoUser = ReportingUtils.getIsPersonalIDDemoUser();
+        if (isPersonalIDDemoUser != null) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isPersonalIDDemoUser));
         }
     }
 

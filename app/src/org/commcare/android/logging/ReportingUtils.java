@@ -160,7 +160,7 @@ public class ReportingUtils {
         return null;
     }
 
-    public static Boolean getIsDemoUser() {
+    public static Boolean getIsPersonalIDDemoUser() {
         try {
             PersonalIdManager manager = PersonalIdManager.getInstance();
             if (manager.isloggedIn()) {
