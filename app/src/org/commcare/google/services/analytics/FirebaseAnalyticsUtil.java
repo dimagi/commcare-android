@@ -124,7 +124,10 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
 
-        analyticsInstance.setUserProperty(CCAnalyticsParam.IS_DEMO_USER, String.valueOf(ReportingUtils.getIsDemoUser()));
+        Boolean isDemoUser = ReportingUtils.getIsDemoUser();
+        if (isDemoUser != null) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.IS_DEMO_USER, String.valueOf(isDemoUser));
+        }
     }
 
     private static String getFreeDiskBucket() {
