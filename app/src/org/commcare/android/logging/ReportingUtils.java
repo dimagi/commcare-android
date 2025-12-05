@@ -162,14 +162,15 @@ public class ReportingUtils {
 
     public static Boolean getIsDemoUser() {
         try {
-            CommCareApplication app = CommCareApplication.instance();
             PersonalIdManager manager = PersonalIdManager.getInstance();
-            return manager.getUser(app).getIsDemo();
+            if (manager.isloggedIn()) {
+                return manager.getUser(CommCareApplication.instance()).getIsDemo();
+            }
         } catch (Exception e) {
             String errorMessage =
                     "Error checking if user is a demo user for Firebase analytics reporting";
             Logger.exception(errorMessage, e);
-            return null;
         }
+        return null;
     }
 }
