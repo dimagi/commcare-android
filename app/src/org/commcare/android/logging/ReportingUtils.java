@@ -167,9 +167,7 @@ public class ReportingUtils {
                 return manager.getUser(CommCareApplication.instance()).getIsDemo();
             }
         } catch (Exception e) {
-            String errorMessage =
-                    "Error checking if user is a demo user for Firebase analytics reporting";
-            Logger.exception(errorMessage, e);
+            Logger.exception("Error checking if Personal ID user is a demo user", e);
         }
         return null;
     }
