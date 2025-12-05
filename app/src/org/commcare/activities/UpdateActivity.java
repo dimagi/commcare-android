@@ -52,7 +52,6 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
 import androidx.work.Data;
 import androidx.work.WorkInfo;
@@ -107,9 +106,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         super.onCreate(savedInstanceState);
 
         uiController.setupUI();
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (getIntent().getBooleanExtra(KEY_PROCEED_AUTOMATICALLY, false)) {
             proceedAutomatically = true;
         } else if (CommCareApplication.instance().isConsumerApp()) {

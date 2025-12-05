@@ -23,7 +23,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
@@ -133,9 +132,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         checkManagedConfiguration();
 
         if (shouldFinish()) {

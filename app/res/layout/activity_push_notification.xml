@@ -7,22 +7,9 @@
     android:layout_height="match_parent"
     tools:context="org.commcare.activities.PushNotificationActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_notification"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:titleTextColor="@android:color/white" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/include_tool_bar"
+        layout="@layout/appbar_layout" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNotifications"
@@ -33,7 +20,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar"
+        app:layout_constraintTop_toBottomOf="@+id/include_tool_bar"
         tools:listitem="@layout/item_push_notification" />
 
     <androidx.appcompat.widget.AppCompatTextView

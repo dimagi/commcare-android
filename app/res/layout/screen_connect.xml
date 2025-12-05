@@ -4,20 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar_connect_activity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="?attr/colorPrimary">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_connect_activity"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:titleTextColor="@android:color/white"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/include_tool_bar"
+        layout="@layout/appbar_layout" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment_connect"
@@ -25,7 +14,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:defaultNavHost="true"
-        app:layout_constraintTop_toBottomOf="@+id/appbar_connect_activity"
+        app:layout_constraintTop_toBottomOf="@+id/include_tool_bar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
+import androidx.annotation.Nullable;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
@@ -27,27 +27,31 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> {
     public static final String CHANNEL_ID = "channel_id";
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
-    Toolbar toolbar;
+    PersonalIdManager personalIdManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);
 
         if(personalIdManager.isloggedIn()){
-            NavigationUI.setupActionBarWithNavController(this, navController);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             handleRedirectIfAny();
         }else{
             Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
             personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
+    }
+
+    @Override
+    public void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (personalIdManager.isloggedIn()){
+            NavigationUI.setupActionBarWithNavController(this, navController);
+        }
+
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
 
             int id = destination.getId();

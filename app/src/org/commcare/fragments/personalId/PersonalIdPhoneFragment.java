@@ -91,7 +91,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false);
         activity = requireActivity();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
-        requireActivity().setTitle(R.string.connect_registration_title);
+        activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class);

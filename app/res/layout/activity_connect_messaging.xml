@@ -8,18 +8,9 @@
     android:orientation="vertical"
     tools:context="org.commcare.activities.connect.ConnectMessagingActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:titleTextColor="@android:color/white" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/include_tool_bar"
+        layout="@layout/appbar_layout" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment_connect_messaging"

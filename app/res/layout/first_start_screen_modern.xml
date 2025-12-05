@@ -13,17 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary" />
-
-        </com.google.android.material.appbar.AppBarLayout>
+        <include
+            android:id="@+id/include_tool_bar"
+            layout="@layout/appbar_layout" />
 
         <FrameLayout
             android:id="@+id/nav_drawer_frame"
