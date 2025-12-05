@@ -132,7 +132,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         checkManagedConfiguration();
 
         if (shouldFinish()) {

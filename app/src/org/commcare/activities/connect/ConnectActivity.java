@@ -70,7 +70,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(getString(R.string.connect_title));
 
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);
@@ -104,6 +103,12 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
 
 
+    }
+
+    @Override
+    public void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        getSupportActionBar().setTitle(getString(R.string.connect_title));
     }
 
     private int getStartDestinationId(Bundle startArgs) {
@@ -157,12 +162,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 
         return R.id.connect_unlock_fragment;
-    }
-
-    @Override
-    public void setTitle(CharSequence title) {
-        super.setTitle(title);
-        getSupportActionBar().setTitle(title);
     }
 
     @Override

@@ -64,11 +64,7 @@ class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        supportActionBar!!.apply {
-            title = getString(R.string.personalid_notification)
-            setDisplayShowHomeEnabled(true)
-            setDisplayHomeAsUpEnabled(true)
-        }
+        supportActionBar?.title = getString(R.string.personalid_notification)
     }
 
     private fun initViews() {

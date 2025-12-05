@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -25,4 +26,6 @@ class DrawerViewRefs(rootView: View) {
     val ivNotification: ImageView = rootView.findViewById(R.id.ivNotification)
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
+    val toolbar: Toolbar = rootView.findViewById(R.id.toolbar)
+    val closeButton: ImageView = rootView.findViewById(R.id.nav_drawer_close)
 }
