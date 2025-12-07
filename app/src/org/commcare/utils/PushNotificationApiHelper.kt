@@ -26,6 +26,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.services.ProcessedNotificationResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
@@ -64,30 +65,23 @@ object PushNotificationApiHelper {
         return pushNotificationListResult
     }
 
-    suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
+    private suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
 
-            object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
-                override fun onSuccess(result: List<PushNotificationRecord>) {
+            object : PersonalIdApiHandler<ProcessedNotificationResult>() {
+                override fun onSuccess(result: ProcessedNotificationResult) {
                     scheduleMessagingChannelsKeySync(context)
-                    var newResultWithoutMessaging: List<PushNotificationRecord> = ArrayList()
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (result.isNotEmpty()) {
-                            val messagingNotiIds = getAllMessagingNotiIds(result) //  required to acknowledge server
-                            newResultWithoutMessaging = excludeMessagingFromList(result) // store only without messaging
-                            if (newResultWithoutMessaging.isNotEmpty()) {
-                                NotificationPrefs.setNotificationAsUnread(context)
-                            }
-                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context) // broadcast for any
-                            val savedNotificationIds =
-                                NotificationRecordDatabaseHelper.storeNotifications(
-                                    context,
-                                    newResultWithoutMessaging, // store only notification without messaging Id
-                                )
-                            acknowledgeNotificationsReceipt(context, savedNotificationIds + messagingNotiIds) // acknowledge all
+                        if (result.savedNotificationIds.isNotEmpty()) {
+                            NotificationPrefs.setNotificationAsUnread(context)
                         }
-                        continuation.resume(Result.success(newResultWithoutMessaging))
+                        if (result.savedNotifications.isNotEmpty() || result.messagingNotificationIds.isNotEmpty()) {
+                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
+                        }
+                        // Acknowledge all notifications (both stored and messaging)
+                        acknowledgeNotificationsReceipt(context, result.savedNotificationIds + result.messagingNotificationIds)
+                        continuation.resume(Result.success(result.savedNotifications))
                     }
                 }
 
@@ -182,16 +176,4 @@ object PushNotificationApiHelper {
         )
     }
 
-    private fun getAllMessagingNotiIds(notificationsList: List<PushNotificationRecord>): List<String> =
-        notificationsList
-            .filter {
-                NOTIFICATION_TYPE_MESSAGING.equals(it.notificationType)
-            }.map {
-                it.notificationId
-            }
-
-    private fun excludeMessagingFromList(notificationsList: List<PushNotificationRecord>) =
-        notificationsList.filter {
-            !NOTIFICATION_TYPE_MESSAGING.equals(it.notificationType)
-        }
 }

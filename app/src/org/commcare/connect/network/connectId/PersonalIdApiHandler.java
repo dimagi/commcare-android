@@ -18,6 +18,9 @@ import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveWorkHistoryResponseParser;
+import org.commcare.connect.network.connectId.parser.NotificationParseResult;
+import org.commcare.connect.services.NotificationService;
+import org.commcare.connect.services.ProcessedNotificationResult;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
 import org.commcare.interfaces.base.BaseConnectView;
 import org.commcare.util.LogTypes;
@@ -299,14 +302,32 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-
     public void retrieveNotifications(Context context, ConnectUserRecord user) {
         ApiPersonalId.retrieveNotifications(
                 context,
                 user.getUserId(),
                 user.getPassword(),
-                createCallback(new RetrieveNotificationsResponseParser<>(context), null)
-        );
+                createNotificationCallback(context));
+    }
+    
+    private IApiCallback createNotificationCallback(Context context) {
+        onStart();
+        return new BaseApiCallback<T>(this) {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    RetrieveNotificationsResponseParser parser = new RetrieveNotificationsResponseParser(context);
+                    NotificationParseResult parseResult = parser.parse(responseCode, responseData, null);
+                    ProcessedNotificationResult processedResult = 
+                        NotificationService.INSTANCE.processNotificationData(context, parseResult);
+                    onSuccess((T) processedResult);
+                    onStop();
+                } catch (Exception e) {
+                    Logger.exception("Error processing notification data", e);
+                    stopLoadingAndInformError(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e);
+                }
+            }
+        };
     }
 
     public void updateNotifications(

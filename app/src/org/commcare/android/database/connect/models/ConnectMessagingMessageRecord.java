@@ -67,6 +67,15 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     @MetaField(META_MESSAGE_USER_VIEWED)
     private boolean userViewed;
 
+    /**
+     * Creates a decrypted message record from encrypted JSON payload by using the channel key
+     *
+     * @param json     JSON data to parse
+     * @param channels List of channels from the Database with keys for decryption
+     * @return ConnectMessagingMessageRecord or null if decryption fails or channel not found
+     * @throws JSONException
+     * @throws ParseException
+     */
     public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
         ConnectMessagingMessageRecord connectMessagingMessageRecord = new ConnectMessagingMessageRecord();
 
