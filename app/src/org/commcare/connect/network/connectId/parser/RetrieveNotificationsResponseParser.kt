@@ -4,6 +4,7 @@ import android.content.Context
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_NOTIFICATION_ID
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.network.base.BaseApiResponseParser
 import org.json.JSONArray
@@ -33,12 +34,13 @@ class RetrieveNotificationsResponseParser(
         }
         
         val channels = parseChannels(responseJsonObject)
-        val (notifications, messages) = parseAndSeparateNotifications()
+        val (nonMessageNotifications, messages, messagesNotificationsIds) = parseAndSeparateNotifications()
         
         return NotificationParseResult(
-            notifications,
+            nonMessageNotifications,
             channels,
-            messages
+            messages,
+            messagesNotificationsIds
         )
     }
 
@@ -61,14 +63,14 @@ class RetrieveNotificationsResponseParser(
      * - Messaging notifications as ConnectMessagingMessageRecord
      * This avoids double parsing and eliminates filtering overhead
      */
-    private fun parseAndSeparateNotifications(): Pair<List<PushNotificationRecord>, List<ConnectMessagingMessageRecord>> {
-        val notifications = mutableListOf<PushNotificationRecord>()
+    private fun parseAndSeparateNotifications(): Triple<MutableList<PushNotificationRecord>, MutableList<ConnectMessagingMessageRecord>, MutableList<String>> {
+        val nonMessageNotifications = mutableListOf<PushNotificationRecord>()
         val messages = mutableListOf<ConnectMessagingMessageRecord>()
+        val messagesNotificationsIds = mutableListOf<String>()
 
         notificationsJsonArray.let { jsonArray ->
             // Get existing channels from database - these have the encryption keys required for message decryption
             val existingChannels = ConnectMessagingDatabaseHelper.getMessagingChannels(context)
-
             for (notificationIndex in 0 until jsonArray.length()) {
                 val notificationJsonObject = jsonArray.getJSONObject(notificationIndex)
 
@@ -80,16 +82,17 @@ class RetrieveNotificationsResponseParser(
                     )
                     if (message != null) {
                         messages.add(message)
+                        messagesNotificationsIds.add(notificationJsonObject.getString(META_NOTIFICATION_ID))
                     }
                 } else {
                     // Handle non-messaging notifications
                     val notification = PushNotificationRecord.fromJson(notificationJsonObject)
-                    notifications.add(notification)
+                    nonMessageNotifications.add(notification)
                 }
             }
         }
         
-        return Pair(notifications, messages)
+        return Triple(nonMessageNotifications, messages, messagesNotificationsIds)
     }
 
     /**

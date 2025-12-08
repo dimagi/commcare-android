@@ -7,7 +7,6 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.json.JSONException
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -161,9 +160,10 @@ class RetrieveNotificationsResponseParserTest {
 
             val result = parseResponse(response)
 
-            assertEquals(0, result.notifications.size)
+            assertEquals(0, result.nonMessagingNotifications.size)
             assertEquals(0, result.channels.size)
             assertEquals(0, result.messages.size)
+            assertEquals(0, result.messagingNotificationIds.size)
         }
     }
 
@@ -180,12 +180,13 @@ class RetrieveNotificationsResponseParserTest {
 
             val result = parseResponse(response)
 
-            assertEquals(2, result.notifications.size)
+            assertEquals(2, result.nonMessagingNotifications.size)
             assertEquals(0, result.channels.size)
             assertEquals(0, result.messages.size)
+            assertEquals(0, result.messagingNotificationIds.size)
 
-            assertEquals("push_001", result.notifications[0].notificationId)
-            assertEquals("push_002", result.notifications[1].notificationId)
+            assertEquals("push_001", result.nonMessagingNotifications[0].notificationId)
+            assertEquals("push_002", result.nonMessagingNotifications[1].notificationId)
         }
     }
 
@@ -198,9 +199,10 @@ class RetrieveNotificationsResponseParserTest {
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use {
             val result = parseResponse(response)
 
-            assertEquals(0, result.notifications.size)
+            assertEquals(0, result.nonMessagingNotifications.size)
             assertEquals(2, result.channels.size)
             assertEquals(0, result.messages.size)
+            assertEquals(0, result.messagingNotificationIds.size)
 
             assertEquals("channel_001", result.channels[0].channelId)
             assertEquals("channel_002", result.channels[1].channelId)
@@ -227,14 +229,15 @@ class RetrieveNotificationsResponseParserTest {
 
             val result = parseResponse(response)
 
-            assertEquals(1, result.notifications.size)
+            assertEquals(1, result.nonMessagingNotifications.size)
             assertEquals(1, result.channels.size)
 
             // no channel associated, so message cannot be decrypted and won't be added to the result
             assertEquals(0, result.messages.size)
+            assertEquals(0, result.messagingNotificationIds.size)
 
             // Verify push notification
-            assertEquals("push_001", result.notifications[0].notificationId)
+            assertEquals("push_001", result.nonMessagingNotifications[0].notificationId)
 
             // Verify channel
             assertEquals("channel_001", result.channels[0].channelId)
@@ -264,8 +267,8 @@ class RetrieveNotificationsResponseParserTest {
 
             val result = parseResponse(response)
 
-            assertEquals(1, result.notifications.size)
-            val notification = result.notifications[0]
+            assertEquals(1, result.nonMessagingNotifications.size)
+            val notification = result.nonMessagingNotifications[0]
 
             assertEquals("push_full", notification.notificationId)
             assertEquals("Full Notification", notification.title)

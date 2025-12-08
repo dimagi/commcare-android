@@ -9,7 +9,8 @@ import org.commcare.android.database.connect.models.PushNotificationRecord
  * Contains three separate, exclusive entities: notifications, channels, and messages
  */
 data class NotificationParseResult(
-    val notifications: List<PushNotificationRecord>,
+    val nonMessagingNotifications: List<PushNotificationRecord>,
     val channels: List<ConnectMessagingChannelRecord>,
-    val messages: List<ConnectMessagingMessageRecord>
+    val messages: List<ConnectMessagingMessageRecord>,
+    val messagingNotificationIds: List<String>
 )

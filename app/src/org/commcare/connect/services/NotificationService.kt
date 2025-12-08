@@ -29,22 +29,15 @@ object NotificationService {
             ConnectMessagingDatabaseHelper.storeMessagingMessages(context, parseResult.messages, false)
         }
 
-        val messagingNotificationIds = parseResult.notifications
-            .filter { it.notificationType == PushNotificationApiHelper.NOTIFICATION_TYPE_MESSAGING }
-            .map { it.notificationId }
-        
-        val nonMessagingNotifications = parseResult.notifications
-            .filter { it.notificationType != PushNotificationApiHelper.NOTIFICATION_TYPE_MESSAGING }
-
-        val savedNotificationIds = if (nonMessagingNotifications.isNotEmpty()) {
-            NotificationRecordDatabaseHelper.storeNotifications(context, nonMessagingNotifications)
+        val savedNotificationIds = if (parseResult.nonMessagingNotifications.isNotEmpty()) {
+            NotificationRecordDatabaseHelper.storeNotifications(context, parseResult.nonMessagingNotifications)
         } else {
             emptyList()
         }
             
         return ProcessedNotificationResult(
-            savedNotifications = nonMessagingNotifications,
-            messagingNotificationIds = messagingNotificationIds,
+            savedNotifications = parseResult.nonMessagingNotifications,
+            messagingNotificationIds = parseResult.messagingNotificationIds,
             savedNotificationIds = savedNotificationIds
         )
     }

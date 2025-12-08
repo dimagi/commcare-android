@@ -76,7 +76,7 @@ object PushNotificationApiHelper {
                         if (result.savedNotificationIds.isNotEmpty()) {
                             NotificationPrefs.setNotificationAsUnread(context)
                         }
-                        if (result.savedNotifications.isNotEmpty() || result.messagingNotificationIds.isNotEmpty()) {
+                        if (result.savedNotificationIds.isNotEmpty() || result.messagingNotificationIds.isNotEmpty()) {
                             NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
                         }
                         // Acknowledge all notifications (both stored and messaging)
