@@ -30,6 +30,7 @@ import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
@@ -117,7 +118,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                     if (showCustomMapMarker) {
                         markerOptions.icon(getEntityIcon(displayInfoPair.first));
                     }
+
                     Marker marker = mMap.addMarker(markerOptions);
+                    if(marker == null) {
+                        Logger.exception("Failed to add marker to map",
+                                new Exception("Marker: " + displayInfoPair.first.getFieldString(0)));
+                        continue;
+                    }
+
                     markerReferences.put(marker, displayInfoPair.first.getElement());
                     builder.include(displayInfoPair.second.getLocation());
                 }
