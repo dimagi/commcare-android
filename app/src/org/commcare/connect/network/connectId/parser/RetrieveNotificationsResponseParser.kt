@@ -18,7 +18,7 @@ class RetrieveNotificationsResponseParser(
     private val context: Context
 ) : BaseApiResponseParser<NotificationParseResult> {
 
-    private var notificationsJsonArray: JSONArray? = null
+    private var notificationsJsonArray: JSONArray = JSONArray()
 
     override fun parse(
         responseCode: Int,
@@ -27,23 +27,19 @@ class RetrieveNotificationsResponseParser(
     ): NotificationParseResult {
         val jsonText = responseData.bufferedReader().use { it.readText() }
         val responseJsonObject = JSONObject(jsonText)
-        val notifications = parseNotifications(responseJsonObject)
+
+        if (responseJsonObject.has("notifications")) {
+            notificationsJsonArray = responseJsonObject.getJSONArray("notifications")
+        }
+        
         val channels = parseChannels(responseJsonObject)
-        val messages = parseMessages()
+        val (notifications, messages) = parseAndSeparateNotifications()
         
         return NotificationParseResult(
             notifications,
             channels,
             messages
         )
-    }
-
-    private fun parseNotifications(responseJsonObject: JSONObject): List<PushNotificationRecord> {
-        if (responseJsonObject.has("notifications")) {
-            notificationsJsonArray = responseJsonObject.getJSONArray("notifications")
-            return PushNotificationRecord.fromJsonArray(notificationsJsonArray ?: JSONArray())
-        }
-        return emptyList()
     }
 
     private fun parseChannels(responseJsonObject: JSONObject): MutableList<ConnectMessagingChannelRecord> {
@@ -60,28 +56,40 @@ class RetrieveNotificationsResponseParser(
     }
 
     /**
-     * Parses messages from messaging notifications using database channels with keys
+     * Parses and separates notifications into two categories in a single pass:
+     * - Non-messaging notifications as PushNotificationRecord
+     * - Messaging notifications as ConnectMessagingMessageRecord
+     * This avoids double parsing and eliminates filtering overhead
      */
-    private fun parseMessages(): List<ConnectMessagingMessageRecord> {
+    private fun parseAndSeparateNotifications(): Pair<List<PushNotificationRecord>, List<ConnectMessagingMessageRecord>> {
+        val notifications = mutableListOf<PushNotificationRecord>()
         val messages = mutableListOf<ConnectMessagingMessageRecord>()
-        notificationsJsonArray?.let { jsonArray ->
-            // Get existing channels from database - these have the encryption keys populated required to decrypt message payload
+
+        notificationsJsonArray.let { jsonArray ->
+            // Get existing channels from database - these have the encryption keys required for message decryption
             val existingChannels = ConnectMessagingDatabaseHelper.getMessagingChannels(context)
-            
+
             for (notificationIndex in 0 until jsonArray.length()) {
                 val notificationJsonObject = jsonArray.getJSONObject(notificationIndex)
+
                 if (isNotificationMessageType(notificationJsonObject)) {
-                        val message = ConnectMessagingMessageRecord.fromJson(
-                            notificationJsonObject,
-                            existingChannels
-                        )
-                        if (message != null) {
-                            messages.add(message)
-                        }
+                    // Handle messaging notifications - parse as ConnectMessagingMessageRecord
+                    val message = ConnectMessagingMessageRecord.fromJson(
+                        notificationJsonObject,
+                        existingChannels
+                    )
+                    if (message != null) {
+                        messages.add(message)
+                    }
+                } else {
+                    // Handle non-messaging notifications
+                    val notification = PushNotificationRecord.fromJson(notificationJsonObject)
+                    notifications.add(notification)
                 }
             }
         }
-        return messages
+        
+        return Pair(notifications, messages)
     }
 
     /**

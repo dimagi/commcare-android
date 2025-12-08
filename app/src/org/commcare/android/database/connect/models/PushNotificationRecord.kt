@@ -5,7 +5,7 @@ import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
 import org.javarosa.core.model.utils.DateUtils
-import org.json.JSONArray
+import org.json.JSONObject
 import java.io.Serializable
 import java.util.Date
 
@@ -84,31 +84,22 @@ class PushNotificationRecord :
 
         const val META_TIME_STAMP = "timestamp"
 
-        fun fromJsonArray(jsonArray: JSONArray): List<PushNotificationRecord> {
-            val records = mutableListOf<PushNotificationRecord>()
-
-            for (i in 0 until jsonArray.length()) {
-                val obj = jsonArray.getJSONObject(i)
-                val record =
-                    PushNotificationRecord().apply {
-                        notificationId = obj.optString(META_NOTIFICATION_ID, "")
-                        title = obj.optString(META_TITLE, "")
-                        body = obj.optString(META_BODY, "")
-                        notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
-                        confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
-                        paymentId = obj.optString(META_PAYMENT_ID, "")
-                        readStatus = obj.optBoolean(META_READ_STATUS, false)
-                        val dateString: String = obj.getString(META_TIME_STAMP)
-                        createdDate = DateUtils.parseDateTime(dateString)
-                        connectMessageId = obj.optString(META_MESSAGE_ID, "")
-                        channel = obj.optString(META_CHANNEL, "")
-                        action = obj.optString(META_ACTION, "")
-                        opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
-                    }
-                records.add(record)
+        fun fromJson(obj: JSONObject): PushNotificationRecord {
+            return PushNotificationRecord().apply {
+                notificationId = obj.optString(META_NOTIFICATION_ID, "")
+                title = obj.optString(META_TITLE, "")
+                body = obj.optString(META_BODY, "")
+                notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
+                confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
+                paymentId = obj.optString(META_PAYMENT_ID, "")
+                readStatus = obj.optBoolean(META_READ_STATUS, false)
+                val dateString: String = obj.getString(META_TIME_STAMP)
+                createdDate = DateUtils.parseDateTime(dateString)
+                connectMessageId = obj.optString(META_MESSAGE_ID, "")
+                channel = obj.optString(META_CHANNEL, "")
+                action = obj.optString(META_ACTION, "")
+                opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
             }
-
-            return records
         }
     }
 }
