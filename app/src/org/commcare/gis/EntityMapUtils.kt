@@ -42,6 +42,7 @@ object EntityMapUtils {
                 return LatLng(data.latitude, data.longitude)
             }
         } catch (ignored: IllegalArgumentException) {
+            Logger.exception("Error parsing entity location for map display", ignored)
         }
         return null
     }
@@ -106,12 +107,6 @@ object EntityMapUtils {
 
         try {
             val parts = boundaryString.trim().split("\\s+".toRegex())
-
-            // Must have even number of values (pairs of lat/lng)
-//            if (parts.size < 2 || parts.size % 2 != 0) {
-//                return null
-//            }
-
             val points = mutableListOf<LatLng>()
 
             for (i in 0 until parts.size step 2) {
