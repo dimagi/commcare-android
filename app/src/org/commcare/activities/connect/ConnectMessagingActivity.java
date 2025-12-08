@@ -51,11 +51,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         if (personalIdManager.isloggedIn()){
             NavigationUI.setupActionBarWithNavController(this, navController);
         }
-
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-
             int id = destination.getId();
-
             if (id == R.id.channelListFragment) {
                 getSupportActionBar().setTitle(getString(R.string.connect_messaging_title));
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);

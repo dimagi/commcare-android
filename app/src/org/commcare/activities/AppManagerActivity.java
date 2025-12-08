@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.AppManagerAdapter;
