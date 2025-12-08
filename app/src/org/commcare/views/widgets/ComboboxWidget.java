@@ -29,6 +29,7 @@ public class ComboboxWidget extends QuestionWidget {
     private Vector<SelectChoice> choices;
     private Vector<String> choiceTexts;
     private Combobox comboBox;
+    private boolean wasWidgetChangedOnTextChanged = false;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxFilterRule filterRule) {
         super(context, prompt);
@@ -95,7 +96,12 @@ public class ComboboxWidget extends QuestionWidget {
 
             @Override
             public void afterTextChanged(Editable s) {
-                widgetEntryChanged();
+                try {
+                    wasWidgetChangedOnTextChanged = true;
+                    widgetEntryChanged();
+                } finally {
+                    wasWidgetChangedOnTextChanged = false;
+                }
             }
         });
     }
@@ -115,7 +121,9 @@ public class ComboboxWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         // So that we can see any error message that gets shown as a result of this
-        comboBox.dismissDropDown();
+        if(!wasWidgetChangedOnTextChanged) {
+            comboBox.dismissDropDown();
+        }
 
         comboBox.autoCorrectCapitalization();
         String enteredText = comboBox.getText().toString();
