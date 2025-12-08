@@ -18,9 +18,16 @@ import javax.annotation.Nullable
 
 object EntityMapUtils {
 
+    // Field template form name constants
+    private const val TEMPLATE_FORM_ADDRESS = "address"
+    private const val TEMPLATE_FORM_GEO_BOUNDARY = "cc_geo_boundary"
+    private const val TEMPLATE_FORM_GEO_BOUNDARY_COLOR = "cc_geo_boundary_color"
+    private const val TEMPLATE_FORM_GEO_POINTS = "cc_geo_points"
+    private const val TEMPLATE_FORM_GEO_POINTS_COLORS = "cc_geo_points_colors"
+
     @JvmStatic
     fun getEntityLocation(entity: Entity<TreeReference>, detail: Detail, fieldIndex: Int): LatLng? {
-        if ("address" == detail.templateForms[fieldIndex]) {
+        if (TEMPLATE_FORM_ADDRESS == detail.templateForms[fieldIndex]) {
             val address = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return getLatLngFromAddress(address)
         }
@@ -45,7 +52,7 @@ object EntityMapUtils {
         detail: Detail,
         fieldIndex: Int
     ): Array<LatLng>? {
-        if ("cc_geo_boundary" == detail.templateForms[fieldIndex]) {
+        if (TEMPLATE_FORM_GEO_BOUNDARY == detail.templateForms[fieldIndex]) {
             val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return parseBoundaryFromString(boundaryString)
         }
@@ -58,7 +65,7 @@ object EntityMapUtils {
         detail: Detail,
         fieldIndex: Int
     ): Int? {
-        if ("cc_geo_boundary_color" == detail.templateForms[fieldIndex]) {
+        if (TEMPLATE_FORM_GEO_BOUNDARY_COLOR == detail.templateForms[fieldIndex]) {
             val colorString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return parseHexColor(colorString)
         }
@@ -71,7 +78,7 @@ object EntityMapUtils {
         detail: Detail,
         fieldIndex: Int
     ): Array<LatLng>? {
-        if ("cc_geo_points" == detail.templateForms[fieldIndex]) {
+        if (TEMPLATE_FORM_GEO_POINTS == detail.templateForms[fieldIndex]) {
             val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return parseBoundaryFromString(boundaryString)
         }
@@ -84,7 +91,7 @@ object EntityMapUtils {
         detail: Detail,
         fieldIndex: Int
     ): Array<Int>? {
-        if ("cc_geo_points_colors" == detail.templateForms[fieldIndex]) {
+        if (TEMPLATE_FORM_GEO_POINTS_COLORS == detail.templateForms[fieldIndex]) {
             val colorsString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return parseHexColorList(colorsString)
         }
