@@ -38,8 +38,6 @@ object PushNotificationApiHelper {
     const val MESSAGING_CHANNEL_KEYS_SYNC = "MESSAGING_CHANNEL_KEYS_SYNC"
     const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
 
-    const val NOTIFICATION_TYPE_MESSAGING = "MESSAGING"
-
     fun retrieveLatestPushNotificationsWithCallback(
         context: Context,
         listener: ConnectActivityCompleteListener,

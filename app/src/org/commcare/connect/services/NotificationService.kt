@@ -34,9 +34,9 @@ object NotificationService {
         } else {
             emptyList()
         }
-            
+
         return ProcessedNotificationResult(
-            savedNotifications = parseResult.nonMessagingNotifications,
+            savedNotifications = parseResult.nonMessagingNotifications.filter { savedNotificationIds.contains(it.notificationId) },
             messagingNotificationIds = parseResult.messagingNotificationIds,
             savedNotificationIds = savedNotificationIds
         )
