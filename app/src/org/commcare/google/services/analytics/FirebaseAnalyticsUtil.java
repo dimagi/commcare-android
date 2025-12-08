@@ -1,7 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
-
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -27,6 +25,7 @@ import java.util.Date;
 
 import javax.annotation.Nullable;
 
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -124,6 +123,11 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
+
+        Boolean isPersonalIDDemoUser = ReportingUtils.getIsPersonalIDDemoUser();
+        if (isPersonalIDDemoUser != null) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isPersonalIDDemoUser));
+        }
     }
 
     private static String getFreeDiskBucket() {
