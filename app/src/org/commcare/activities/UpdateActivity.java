@@ -106,6 +106,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         super.onCreate(savedInstanceState);
 
         uiController.setupUI();
+
         if (getIntent().getBooleanExtra(KEY_PROCEED_AUTOMATICALLY, false)) {
             proceedAutomatically = true;
         } else if (CommCareApplication.instance().isConsumerApp()) {

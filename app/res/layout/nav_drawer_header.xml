@@ -8,14 +8,6 @@
         android:padding="16dp"
         android:background="@color/connect_blue_color">
         <ImageView
-            android:id="@+id/nav_drawer_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_connect_close"
-            app:tint="@color/white"
-            android:layout_gravity="start"
-            android:layout_marginBottom="16dp"/>
-        <ImageView
             android:contentDescription="@null"
             android:layout_gravity="center"
             android:layout_height="32dp"

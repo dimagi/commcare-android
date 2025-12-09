@@ -55,9 +55,6 @@ class BaseDrawerController(
     }
 
     private fun setupActionBarDrawerToggle() {
-        (activity as? AppCompatActivity)?.setSupportActionBar(binding.toolbar)
-        (activity as? AppCompatActivity)?.title = activity.title
-        binding.toolbar.setTitleTextColor(Color.WHITE)
         drawerToggle =
             object : ActionBarDrawerToggle(
                 activity,
@@ -86,8 +83,6 @@ class BaseDrawerController(
             }
         binding.drawerLayout.addDrawerListener(drawerToggle)
         (activity as? AppCompatActivity)?.apply {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeButtonEnabled(true)
             drawerToggle.drawerArrowDrawable.color = Color.WHITE
             drawerToggle.syncState()
         }
@@ -116,7 +111,6 @@ class BaseDrawerController(
     }
 
     private fun setupListeners() {
-        binding.closeButton.setOnClickListener { closeDrawer() }
         binding.signInButton.setOnClickListener {
             PersonalIdManager
                 .getInstance()

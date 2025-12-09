@@ -52,6 +52,8 @@ public class ConnectMessageFragment extends Fragment {
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
 
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+        requireActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
         setChatAdapter();

@@ -27,5 +27,4 @@ class DrawerViewRefs(rootView: View) {
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
     val toolbar: Toolbar = rootView.findViewById(R.id.toolbar)
-    val closeButton: ImageView = rootView.findViewById(R.id.nav_drawer_close)
 }

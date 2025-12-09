@@ -27,13 +27,14 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> {
     public static final String CHANNEL_ID = "channel_id";
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
-    PersonalIdManager personalIdManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        personalIdManager = PersonalIdManager.getInstance();
+        setTitle(R.string.connect_messaging_title);
+
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);
 
         if(personalIdManager.isloggedIn()){
@@ -48,28 +49,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     @Override
     public void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if (personalIdManager.isloggedIn()){
-            NavigationUI.setupActionBarWithNavController(this, navController);
-        }
-        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            int id = destination.getId();
-            if (id == R.id.channelListFragment) {
-                getSupportActionBar().setTitle(getString(R.string.connect_messaging_title));
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            } else if (id == R.id.connectMessageFragment) {
-                if (arguments != null) {
-                    String channelId = arguments.getString("channel_id");
-                    if (channelId != null) {
-                        ConnectMessagingChannelRecord channel =
-                                ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
-                        if (channel != null) {
-                            getSupportActionBar().setTitle(channel.getChannelName());
-                            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                        }
-                    }
-                }
-            }
-        });
+        NavigationUI.setupActionBarWithNavController(this, navController);
     }
 
     @Override
@@ -86,6 +66,15 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     @Override
     protected boolean shouldShowBreadcrumbBar() {
         return false;
+    }
+
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle(title);
+        }
     }
 
     private void handleRedirectIfAny() {

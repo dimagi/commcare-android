@@ -1,146 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
     xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/cc_core_bg"
+    android:scrollbars="none"
+    tools:viewBindingIgnore="true">
 
-    <include
-        android:id="@+id/include_tool_bar"
-        layout="@layout/appbar_layout" />
-
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="none"
-        tools:viewBindingIgnore="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="@color/cc_core_bg">
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginBottom="@dimen/content_min_margin"
+            android:layout_marginLeft="@dimen/content_min_margin"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:layout_marginTop="@dimen/content_min_margin"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginEnd="@dimen/content_min_margin"
+            android:layout_marginStart="@dimen/content_min_margin">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/update_progress_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="@dimen/font_size_medium"/>
+
+            <FrameLayout
+                android:id="@+id/btn_view_errors_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/content_min_margin"
-                android:layout_marginLeft="@dimen/content_min_margin"
-                android:layout_marginRight="@dimen/content_min_margin"
-                android:layout_marginTop="@dimen/content_min_margin"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:layout_marginEnd="@dimen/content_min_margin"
-                android:layout_marginStart="@dimen/content_min_margin">
+                android:background="@drawable/tile_drop_shadow_small_margins"
+                android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/update_progress_text"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textSize="@dimen/font_size_medium" />
-
-                <FrameLayout
-                    android:id="@+id/btn_view_errors_container"
+                <org.commcare.views.RectangleButtonWithText
+                    android:id="@+id/update_btn_view_notifications"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/tile_drop_shadow_small_margins"
-                    android:visibility="gone">
+                    android:layout_height="@dimen/rectangle_button_height"
+                    RectangleButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
+                    RectangleButtonWithText:img="@drawable/ic_list_error"
+                    RectangleButtonWithText:textColor="@color/cc_attention_negative_text"/>
 
-                    <org.commcare.views.RectangleButtonWithText
-                        android:id="@+id/update_btn_view_notifications"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/rectangle_button_height"
-                        RectangleButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
-                        RectangleButtonWithText:img="@drawable/ic_list_error"
-                        RectangleButtonWithText:textColor="@color/cc_attention_negative_text"/>
-                </FrameLayout>
-            </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/update_progress_bar"
-                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/content_min_margin"
-                android:layout_marginLeft="@dimen/content_min_margin"
-                android:layout_marginRight="@dimen/content_min_margin"
-                android:gravity="center"
-                android:progressDrawable="@drawable/progressbar_modern_blue"
-                android:layout_marginStart="@dimen/content_min_margin"
-                android:layout_marginEnd="@dimen/content_min_margin" />
-
-            <TextView
-                android:id="@+id/current_version_text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/content_min_margin"
-                android:layout_marginLeft="@dimen/content_min_margin"
-                android:layout_marginRight="@dimen/content_min_margin"
-                android:layout_marginTop="@dimen/content_min_margin"
-                android:gravity="center"
-                android:textSize="@dimen/font_size_medium"
-                android:layout_marginStart="@dimen/content_min_margin"
-                android:layout_marginEnd="@dimen/content_min_margin" />
-
-            <LinearLayout
-                android:id="@+id/update_check_cancel_buttons"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="@dimen/content_min_margin"
-                android:paddingLeft="100dp"
-                android:paddingRight="100dp"
-                android:paddingTop="@dimen/content_min_margin"
-                android:paddingStart="100dp"
-                android:paddingEnd="100dp">
-
-                <org.commcare.views.SquareButtonWithText
-                    android:id="@+id/check_for_update_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    SquareButtonWithText:backgroundColor="@color/start_home_button"
-                    SquareButtonWithText:img="@drawable/check_update"
-                    SquareButtonWithText:subtitle=""
-                    SquareButtonWithText:textColor="@color/white" />
-
-                <org.commcare.views.SquareButtonWithText
-                    android:id="@+id/stop_update_download_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    SquareButtonWithText:backgroundColor="@color/start_logout_button"
-                    SquareButtonWithText:img="@drawable/install_stop"
-                    SquareButtonWithText:subtitle=""
-                    SquareButtonWithText:textColor="@color/white" />
-
-                <org.commcare.views.SquareButtonWithText
-                    android:id="@+id/install_update_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
-                    SquareButtonWithText:img="@drawable/apply_update"
-                    SquareButtonWithText:subtitle=""
-                    SquareButtonWithText:textColor="@color/white" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/pending_update_text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/content_min_margin"
-                android:layout_marginRight="@dimen/content_min_margin"
-                android:gravity="center"
-                android:textSize="@dimen/font_size_medium"
-                android:layout_marginEnd="@dimen/content_min_margin"
-                android:layout_marginStart="@dimen/content_min_margin" />
-
+            </FrameLayout>
         </LinearLayout>
 
-    </ScrollView>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <ProgressBar
+            android:id="@+id/update_progress_bar"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/content_min_margin"
+            android:layout_marginLeft="@dimen/content_min_margin"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:gravity="center"
+            android:progressDrawable="@drawable/progressbar_modern_blue"
+            android:layout_marginStart="@dimen/content_min_margin"
+            android:layout_marginEnd="@dimen/content_min_margin" />
+
+        <TextView
+            android:id="@+id/current_version_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/content_min_margin"
+            android:layout_marginLeft="@dimen/content_min_margin"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:layout_marginTop="@dimen/content_min_margin"
+            android:gravity="center"
+            android:textSize="@dimen/font_size_medium"
+            android:layout_marginStart="@dimen/content_min_margin"
+            android:layout_marginEnd="@dimen/content_min_margin" />
+
+        <LinearLayout
+            android:id="@+id/update_check_cancel_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="@dimen/content_min_margin"
+            android:paddingLeft="100dp"
+            android:paddingRight="100dp"
+            android:paddingTop="@dimen/content_min_margin"
+            android:paddingStart="100dp"
+            android:paddingEnd="100dp">
+
+            <org.commcare.views.SquareButtonWithText
+                android:id="@+id/check_for_update_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                SquareButtonWithText:backgroundColor="@color/start_home_button"
+                SquareButtonWithText:img="@drawable/check_update"
+                SquareButtonWithText:subtitle=""
+                SquareButtonWithText:textColor="@color/white"/>
+
+            <org.commcare.views.SquareButtonWithText
+                android:id="@+id/stop_update_download_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                SquareButtonWithText:backgroundColor="@color/start_logout_button"
+                SquareButtonWithText:img="@drawable/install_stop"
+                SquareButtonWithText:subtitle=""
+                SquareButtonWithText:textColor="@color/white"/>
+
+            <org.commcare.views.SquareButtonWithText
+                android:id="@+id/install_update_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                SquareButtonWithText:img="@drawable/apply_update"
+                SquareButtonWithText:subtitle=""
+                SquareButtonWithText:textColor="@color/white"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/pending_update_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/content_min_margin"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:gravity="center"
+            android:textSize="@dimen/font_size_medium"
+            android:layout_marginEnd="@dimen/content_min_margin"
+            android:layout_marginStart="@dimen/content_min_margin" />
+    </LinearLayout>
+</ScrollView>

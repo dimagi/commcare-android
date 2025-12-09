@@ -9,9 +9,10 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <include
             android:id="@+id/include_tool_bar"
@@ -34,7 +35,7 @@
 
         </FrameLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </LinearLayout>
 
     <include layout="@layout/nav_drawer_base"/>
 
