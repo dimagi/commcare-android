@@ -430,6 +430,12 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             public void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
+
+                boolean isDemoUser = Boolean.TRUE.equals(sessionData.getDemoUser());
+                if (isDemoUser) {
+                    FirebaseAnalyticsUtil.reportDemoNumberUsedForPersonalIDSession();
+                }
+
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSuccess();
                 } else {

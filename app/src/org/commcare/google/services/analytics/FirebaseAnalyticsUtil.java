@@ -600,4 +600,11 @@ public class FirebaseAnalyticsUtil {
         }
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, bundle);
     }
+
+    public static void reportDemoNumberUsedForPersonalIDSession() {
+        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(true));
+
+        reportEvent(CCAnalyticsEvent.DEMO_NUMBER_USED_FOR_PERSONAL_ID_SESSION);
+    }
 }
