@@ -210,11 +210,16 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         if (displayInfo.getPoints() != null) {
             for(int i=0; i<displayInfo.getPoints().size(); i++) {
                 LatLng coordinate = displayInfo.getPoints().get(i);
+                int color = Color.WHITE;
+                if(displayInfo.getPointColorsHex() != null &&
+                        displayInfo.getPointColorsHex().size() > i) {
+                    color = displayInfo.getPointColorsHex().get(i);
+                }
                 CircleOptions options = new CircleOptions()
                         .center(coordinate)
                         .radius(GEO_POINT_RADIUS_METERS)
-                        .strokeColor(displayInfo.getPointColorsHex().get(i))
-                        .fillColor(displayInfo.getPointColorsHex().get(i));
+                        .strokeColor(color)
+                        .fillColor(color);
 
                 mMap.addCircle(options);
                 builder.include(coordinate);
