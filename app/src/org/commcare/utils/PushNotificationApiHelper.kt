@@ -22,10 +22,12 @@ import org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.network.connectId.parser.NotificationParseResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
@@ -36,8 +38,6 @@ import kotlin.coroutines.suspendCoroutine
 object PushNotificationApiHelper {
     const val MESSAGING_CHANNEL_KEYS_SYNC = "MESSAGING_CHANNEL_KEYS_SYNC"
     const val SYNC_BACKOFF_DELAY_IN_MINS: Long = 3
-
-    const val NOTIFICATION_TYPE_MESSAGING = "MESSAGING"
 
     fun retrieveLatestPushNotificationsWithCallback(
         context: Context,
@@ -64,30 +64,28 @@ object PushNotificationApiHelper {
         return pushNotificationListResult
     }
 
-    suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
+    private suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
 
-            object : PersonalIdApiHandler<List<PushNotificationRecord>>() {
-                override fun onSuccess(result: List<PushNotificationRecord>) {
+            object : PersonalIdApiHandler<NotificationParseResult>() {
+                override fun onSuccess(parseResult: NotificationParseResult) {
                     scheduleMessagingChannelsKeySync(context)
-                    var newResultWithoutMessaging: List<PushNotificationRecord> = ArrayList()
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (result.isNotEmpty()) {
-                            val messagingNotiIds = getAllMessagingNotiIds(result) //  required to acknowledge server
-                            newResultWithoutMessaging = excludeMessagingFromList(result) // store only without messaging
-                            if (newResultWithoutMessaging.isNotEmpty()) {
-                                NotificationPrefs.setNotificationAsUnread(context)
-                            }
-                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context) // broadcast for any
-                            val savedNotificationIds =
-                                NotificationRecordDatabaseHelper.storeNotifications(
-                                    context,
-                                    newResultWithoutMessaging, // store only notification without messaging Id
-                                )
-                            acknowledgeNotificationsReceipt(context, savedNotificationIds + messagingNotiIds) // acknowledge all
+                        val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
+
+                        // Update notification preferences and send broadcasts
+                        if (savedNotificationIds.isNotEmpty()) {
+                            NotificationPrefs.setNotificationAsUnread(context)
                         }
-                        continuation.resume(Result.success(newResultWithoutMessaging))
+                        if (savedNotificationIds.isNotEmpty() || parseResult.messagingNotificationIds.isNotEmpty()) {
+                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
+                        }
+
+                        // Acknowledge all notifications (both stored and messaging)
+                        acknowledgeNotificationsReceipt(context, savedNotificationIds + parseResult.messagingNotificationIds)
+
+                        continuation.resume(Result.success(savedNotifications))
                     }
                 }
 
@@ -111,7 +109,43 @@ object PushNotificationApiHelper {
         }
     }
 
-    suspend fun acknowledgeNotificationsReceipt(
+    /**
+     * Processes parsed notification data into the database
+     * @param context Android context
+     * @param parseResult Result from parsing notification response
+     * @return Pair of (saved notification records, saved notification IDs)
+     */
+    private fun processParsedDataIntoDB(
+        context: Context,
+        parseResult: NotificationParseResult,
+    ): Pair<List<PushNotificationRecord>, List<String>> {
+        // Store messaging channels
+        if (parseResult.channels.isNotEmpty()) {
+            ConnectMessagingDatabaseHelper.storeMessagingChannels(context, parseResult.channels, true)
+        }
+
+        // Store messaging messages
+        if (parseResult.messages.isNotEmpty()) {
+            ConnectMessagingDatabaseHelper.storeMessagingMessages(context, parseResult.messages, false)
+        }
+
+        // Store non-messaging notifications
+        val savedNotificationIds =
+            if (parseResult.nonMessagingNotifications.isNotEmpty()) {
+                NotificationRecordDatabaseHelper.storeNotifications(context, parseResult.nonMessagingNotifications)
+            } else {
+                emptyList()
+            }
+
+        val savedNotifications =
+            parseResult.nonMessagingNotifications.filter {
+                savedNotificationIds.contains(it.notificationId)
+            }
+
+        return Pair(savedNotifications, savedNotificationIds)
+    }
+
+    private suspend fun acknowledgeNotificationsReceipt(
         context: Context,
         savedNotificationIds: List<String>,
     ): Boolean {
@@ -163,7 +197,7 @@ object PushNotificationApiHelper {
         return pn
     }
 
-    fun scheduleMessagingChannelsKeySync(context: Context) {
+    private fun scheduleMessagingChannelsKeySync(context: Context) {
         val channelsKeySyncWorkRequest =
             OneTimeWorkRequest
                 .Builder(MessagingChannelsKeySyncWorker::class.java)
@@ -181,17 +215,4 @@ object PushNotificationApiHelper {
             channelsKeySyncWorkRequest,
         )
     }
-
-    private fun getAllMessagingNotiIds(notificationsList: List<PushNotificationRecord>): List<String> =
-        notificationsList
-            .filter {
-                NOTIFICATION_TYPE_MESSAGING.equals(it.notificationType)
-            }.map {
-                it.notificationId
-            }
-
-    private fun excludeMessagingFromList(notificationsList: List<PushNotificationRecord>) =
-        notificationsList.filter {
-            !NOTIFICATION_TYPE_MESSAGING.equals(it.notificationType)
-        }
 }
