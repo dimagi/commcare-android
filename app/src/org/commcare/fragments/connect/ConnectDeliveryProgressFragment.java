@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -58,6 +59,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
         }
 
+        setUpViewModel();
         setupTabViewPager();
         setupJobCard(job);
         setupRefreshAndConfirmationActions();
@@ -114,17 +116,28 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         });
     }
 
+    private void setUpViewModel() {
+        setBaseNetworkStateViewModel(new ViewModelProvider(this).get(ConnectDeliveryProgressFragmentViewModel.class));
+        startListeningToNetworkState();
+    }
+
+    @Override
+    public void refreshUiWithNetworkData() {
+        updateLastUpdatedText(new Date());
+        updateCardMessage();
+        updatePaymentConfirmationTile(false);
+        viewPagerAdapter.refresh();
+    }
+
+    public void fetchDeliveryProgress() {
+        setWaitDialogEnabled(false);
+        ((ConnectDeliveryProgressFragmentViewModel)getBaseNetworkStateViewModel()).fetchData(requireContext(), job, this);
+    }
+
     @Override
     public void refresh() {
-        setWaitDialogEnabled(false);
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, success -> {
-            if (success) {
-                updateLastUpdatedText(new Date());
-                updateCardMessage();
-                updatePaymentConfirmationTile(false);
-                viewPagerAdapter.refresh();
-            }
-        });
+        ((ConnectDeliveryProgressFragmentViewModel)getBaseNetworkStateViewModel()).setShowLoading(true);
+        fetchDeliveryProgress();
     }
 
     private void setWaitDialogEnabled(boolean enabled) {
@@ -176,7 +189,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refresh();
+            fetchDeliveryProgress();
         }
     }
 
