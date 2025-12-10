@@ -43,8 +43,8 @@ object EntityMapUtils {
                 val data = GeoPointData().cast(UncastData(address))
                 return LatLng(data.latitude, data.longitude)
             }
-        } catch (ignored: IllegalArgumentException) {
-            Logger.exception("Error parsing entity location for map display", ignored)
+        } catch (e: IllegalArgumentException) {
+            Logger.exception("Error parsing entity location for map display", e)
         }
         return null
     }
