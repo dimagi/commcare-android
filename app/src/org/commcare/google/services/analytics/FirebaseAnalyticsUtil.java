@@ -124,6 +124,7 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
 
+        // Track/flag Personal ID demo users after successful account creation/recovery.
         Boolean isPersonalIDDemoUser = ReportingUtils.getIsPersonalIDDemoUser();
         if (isPersonalIDDemoUser != null) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isPersonalIDDemoUser));
@@ -551,6 +552,16 @@ public class FirebaseAnalyticsUtil {
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
             bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+
+            // We want to track/flag demo users, especially when a demo phone number has been
+            // enetered on the Personal ID phone screen as the user is navigating to the biometrics
+            // screen before their account is even recovered/created.
+            if (args != null && args.containsKey("isDemoUser")) {
+                boolean isDemoUser = args.getBoolean("isDemoUser");
+                FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+                analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isDemoUser));
+            }
+
             reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
         };
     }
@@ -599,12 +610,5 @@ public class FirebaseAnalyticsUtil {
             bundle.putString(CCAnalyticsParam.NOTIFICATION_ID, notificationId);
         }
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, bundle);
-    }
-
-    public static void reportDemoNumberUsedForPersonalIDSession() {
-        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
-        analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(true));
-
-        reportEvent(CCAnalyticsEvent.DEMO_NUMBER_USED_FOR_PERSONAL_ID_SESSION);
     }
 }

@@ -431,13 +431,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
-                boolean isDemoUser = Boolean.TRUE.equals(sessionData.getDemoUser());
-                if (isDemoUser) {
-                    FirebaseAnalyticsUtil.reportDemoNumberUsedForPersonalIDSession();
-                }
-
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSuccess();
+                    boolean isDemoUser = Boolean.TRUE.equals(sessionData.getDemoUser());
+                    onConfigurationSuccess(isDemoUser);
                 } else {
                     String failureCode =
                             personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode();
@@ -512,8 +508,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         );
     }
 
-    private void onConfigurationSuccess() {
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
+    private void onConfigurationSuccess(boolean isDemoUser) {
+        Navigation.findNavController(binding.personalidPhoneContinueButton)
+                .navigate(navigateToBiometricSetup(isDemoUser));
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
@@ -533,8 +530,13 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         binding.personalidPhoneError.setText(error);
     }
 
-    private NavDirections navigateToBiometricSetup() {
-        return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
+    private NavDirections navigateToBiometricSetup(boolean isDemoUser) {
+        PersonalIdPhoneFragmentDirections.ActionPersonalidPhoneFragmentToPersonalidBiometricConfig action =
+                PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
+
+        action.setIsDemoUser(isDemoUser);
+
+        return action;
     }
 
     @Override
