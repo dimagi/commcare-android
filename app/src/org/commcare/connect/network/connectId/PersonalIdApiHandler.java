@@ -1,5 +1,7 @@
 package org.commcare.connect.network.connectId;
 
+import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
+
 import android.app.Activity;
 import android.content.Context;
 
@@ -10,6 +12,7 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.NoParsingResponseParser;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
+import org.commcare.connect.network.base.BaseApiResponseParser;
 import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
@@ -18,9 +21,6 @@ import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveWorkHistoryResponseParser;
-import org.commcare.connect.network.connectId.parser.NotificationParseResult;
-import org.commcare.connect.services.NotificationService;
-import org.commcare.connect.services.ProcessedNotificationResult;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
 import org.commcare.interfaces.base.BaseConnectView;
 import org.commcare.util.LogTypes;
@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import kotlin.Pair;
-
-import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
@@ -307,27 +305,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 context,
                 user.getUserId(),
                 user.getPassword(),
-                createNotificationCallback(context));
-    }
-    
-    private IApiCallback createNotificationCallback(Context context) {
-        onStart();
-        return new BaseApiCallback<T>(this) {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    RetrieveNotificationsResponseParser parser = new RetrieveNotificationsResponseParser(context);
-                    NotificationParseResult parseResult = parser.parse(responseCode, responseData, null);
-                    ProcessedNotificationResult processedResult = 
-                        NotificationService.INSTANCE.processNotificationData(context, parseResult);
-                    onSuccess((T) processedResult);
-                    onStop();
-                } catch (Exception e) {
-                    Logger.exception("Error processing notification data", e);
-                    stopLoadingAndInformError(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e);
-                }
-            }
-        };
+                createCallback((BaseApiResponseParser<T>) new RetrieveNotificationsResponseParser(context), null));
     }
 
     public void updateNotifications(

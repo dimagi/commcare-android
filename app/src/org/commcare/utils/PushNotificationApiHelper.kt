@@ -26,7 +26,8 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import org.commcare.connect.services.ProcessedNotificationResult
+import org.commcare.connect.network.connectId.parser.NotificationParseResult
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
@@ -67,19 +68,24 @@ object PushNotificationApiHelper {
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
 
-            object : PersonalIdApiHandler<ProcessedNotificationResult>() {
-                override fun onSuccess(result: ProcessedNotificationResult) {
+            object : PersonalIdApiHandler<NotificationParseResult>() {
+                override fun onSuccess(parseResult: NotificationParseResult) {
                     scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (result.savedNotificationIds.isNotEmpty()) {
+                        val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
+                        
+                        // Update notification preferences and send broadcasts
+                        if (savedNotificationIds.isNotEmpty()) {
                             NotificationPrefs.setNotificationAsUnread(context)
                         }
-                        if (result.savedNotificationIds.isNotEmpty() || result.messagingNotificationIds.isNotEmpty()) {
+                        if (savedNotificationIds.isNotEmpty() || parseResult.messagingNotificationIds.isNotEmpty()) {
                             NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
                         }
+                        
                         // Acknowledge all notifications (both stored and messaging)
-                        acknowledgeNotificationsReceipt(context, result.savedNotificationIds + result.messagingNotificationIds)
-                        continuation.resume(Result.success(result.savedNotifications))
+                        acknowledgeNotificationsReceipt(context, savedNotificationIds + parseResult.messagingNotificationIds)
+                        
+                        continuation.resume(Result.success(savedNotifications))
                     }
                 }
 
@@ -103,7 +109,41 @@ object PushNotificationApiHelper {
         }
     }
 
-    suspend fun acknowledgeNotificationsReceipt(
+    /**
+     * Processes parsed notification data into the database
+     * @param context Android context
+     * @param parseResult Result from parsing notification response
+     * @return Pair of (saved notification records, saved notification IDs)
+     */
+    private fun processParsedDataIntoDB(
+        context: Context,
+        parseResult: NotificationParseResult
+    ): Pair<List<PushNotificationRecord>, List<String>> {
+        // Store messaging channels
+        if (parseResult.channels.isNotEmpty()) {
+            ConnectMessagingDatabaseHelper.storeMessagingChannels(context, parseResult.channels, true)
+        }
+
+        // Store messaging messages
+        if (parseResult.messages.isNotEmpty()) {
+            ConnectMessagingDatabaseHelper.storeMessagingMessages(context, parseResult.messages, false)
+        }
+
+        // Store non-messaging notifications
+        val savedNotificationIds = if (parseResult.nonMessagingNotifications.isNotEmpty()) {
+            NotificationRecordDatabaseHelper.storeNotifications(context, parseResult.nonMessagingNotifications)
+        } else {
+            emptyList()
+        }
+
+        val savedNotifications = parseResult.nonMessagingNotifications.filter {
+            savedNotificationIds.contains(it.notificationId)
+        }
+
+        return Pair(savedNotifications, savedNotificationIds)
+    }
+
+    private suspend fun acknowledgeNotificationsReceipt(
         context: Context,
         savedNotificationIds: List<String>,
     ): Boolean {
@@ -155,7 +195,7 @@ object PushNotificationApiHelper {
         return pn
     }
 
-    fun scheduleMessagingChannelsKeySync(context: Context) {
+    private fun scheduleMessagingChannelsKeySync(context: Context) {
         val channelsKeySyncWorkRequest =
             OneTimeWorkRequest
                 .Builder(MessagingChannelsKeySyncWorker::class.java)
