@@ -7,6 +7,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.json.JSONException
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -106,7 +107,7 @@ class RetrieveNotificationsResponseParserTest {
             assertEquals("channel_001", result.channels[0].channelId)
             assertEquals("channel_002", result.channels[1].channelId)
             assertTrue(result.channels[0].consented)
-            assertTrue(!result.channels[1].consented)
+            assertFalse(result.channels[1].consented)
         }
     }
 
