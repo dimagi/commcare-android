@@ -12,7 +12,9 @@ import org.commcare.utils.AndroidInstanceInitializer
 import org.javarosa.core.model.data.GeoPointData
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.TreeReference
+import org.javarosa.core.model.utils.GeoPointUtils
 import org.javarosa.core.services.Logger
+import org.javarosa.core.model.utils.PolygonUtils
 import java.util.Vector
 import javax.annotation.Nullable
 
@@ -20,10 +22,10 @@ object EntityMapUtils {
 
     // Field template form name constants
     private const val TEMPLATE_FORM_ADDRESS = "address"
-    private const val TEMPLATE_FORM_GEO_BOUNDARY = "cc_geo_boundary"
-    private const val TEMPLATE_FORM_GEO_BOUNDARY_COLOR = "cc_geo_boundary_color"
-    private const val TEMPLATE_FORM_GEO_POINTS = "cc_geo_points"
-    private const val TEMPLATE_FORM_GEO_POINTS_COLORS = "cc_geo_points_colors"
+    private const val TEMPLATE_FORM_GEO_BOUNDARY = "geo_boundary"
+    private const val TEMPLATE_FORM_GEO_BOUNDARY_COLOR = "geo_boundary_color_hex"
+    private const val TEMPLATE_FORM_GEO_POINTS = "geo_points"
+    private const val TEMPLATE_FORM_GEO_POINTS_COLORS = "geo_points_colors_hex"
 
     @JvmStatic
     fun getEntityLocation(entity: Entity<TreeReference>, detail: Detail, fieldIndex: Int): LatLng? {
@@ -52,7 +54,7 @@ object EntityMapUtils {
         entity: Entity<TreeReference>,
         detail: Detail,
         fieldIndex: Int
-    ): Array<LatLng>? {
+    ): List<LatLng>? {
         if (TEMPLATE_FORM_GEO_BOUNDARY == detail.templateForms[fieldIndex]) {
             val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return parseBoundaryFromString(boundaryString)
@@ -78,10 +80,10 @@ object EntityMapUtils {
         entity: Entity<TreeReference>,
         detail: Detail,
         fieldIndex: Int
-    ): Array<LatLng>? {
+    ): List<LatLng>? {
         if (TEMPLATE_FORM_GEO_POINTS == detail.templateForms[fieldIndex]) {
-            val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            return parseBoundaryFromString(boundaryString)
+            val pointListString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
+            return parsePointListFromString(pointListString)
         }
         return null
     }
@@ -91,7 +93,7 @@ object EntityMapUtils {
         entity: Entity<TreeReference>,
         detail: Detail,
         fieldIndex: Int
-    ): Array<Int>? {
+    ): List<Int>? {
         if (TEMPLATE_FORM_GEO_POINTS_COLORS == detail.templateForms[fieldIndex]) {
             val colorsString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return parseHexColorList(colorsString)
@@ -100,28 +102,31 @@ object EntityMapUtils {
     }
 
     @Nullable
-    private fun parseBoundaryFromString(boundaryString: String): Array<LatLng>? {
+    private fun parseBoundaryFromString(boundaryString: String): List<LatLng>? {
         if (boundaryString.isEmpty()) {
             return null
         }
 
         try {
             val parts = boundaryString.trim().split("\\s+".toRegex())
-            val points = mutableListOf<LatLng>()
-
-            for (i in 0 until parts.size step 2) {
-                val lat = parts[i].toDouble()
-                val lng = parts[i + 1].toDouble()
-                points.add(LatLng(lat, lng))
-            }
-
-            return if (points.isNotEmpty()) {
-                points.toTypedArray()
-            } else {
-                null
-            }
-        } catch (e: NumberFormatException) {
+            val polygon = PolygonUtils.createPolygon(parts)
+            return polygon.map { LatLng(it.latitude, it.longitude) }
+                .toMutableList()
+        } catch (e: IllegalArgumentException) {
             Logger.exception("Error parsing entity boundary for map display", e)
+            return null
+        }
+    }
+
+    @Nullable
+    private fun parsePointListFromString(pointListString: String): List<LatLng>? {
+        try {
+            val parts = pointListString.trim().split("\\s+".toRegex())
+            val polygon = GeoPointUtils.createPointList(parts)
+            return polygon.map { LatLng(it.latitude, it.longitude) }
+                .toMutableList()
+        } catch (e: IllegalArgumentException) {
+            Logger.exception("Error parsing entity point list for map display", e)
             return null
         }
     }
@@ -141,7 +146,7 @@ object EntityMapUtils {
     }
 
     @Nullable
-    private fun parseHexColorList(colorsString: String): Array<Int>? {
+    private fun parseHexColorList(colorsString: String): List<Int>? {
         if (colorsString.isEmpty()) {
             return null
         }
@@ -162,7 +167,7 @@ object EntityMapUtils {
             }
 
             return if (colors.isNotEmpty()) {
-                colors.toTypedArray()
+                colors.toMutableList()
             } else {
                 null
             }
@@ -201,10 +206,10 @@ object EntityMapUtils {
         detail: Detail
     ): EntityMapDisplayInfo? {
         var location: LatLng? = null
-        var boundary: Array<LatLng>? = null
+        var boundary: List<LatLng>? = null
         var boundaryColorHex: Int? = null
-        var points: Array<LatLng>? = null
-        var pointColorsHex: Array<Int>? = null
+        var points: List<LatLng>? = null
+        var pointColorsHex: List<Int>? = null
 
         for (i in 0 until detail.headerForms.size) {
             if (location == null) {
