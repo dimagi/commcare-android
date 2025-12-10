@@ -12,5 +12,5 @@ data class NotificationParseResult(
     val nonMessagingNotifications: List<PushNotificationRecord>,
     val channels: List<ConnectMessagingChannelRecord>,
     val messages: List<ConnectMessagingMessageRecord>,
-    val messagingNotificationIds: List<String>
+    val messagingNotificationIds: List<String>,
 )

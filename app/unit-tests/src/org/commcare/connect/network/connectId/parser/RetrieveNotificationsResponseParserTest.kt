@@ -30,7 +30,6 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class RetrieveNotificationsResponseParserTest {
-
     private var context: Context = CommCareTestApplication.instance()
     private lateinit var parser: RetrieveNotificationsResponseParser
 
@@ -54,9 +53,10 @@ class RetrieveNotificationsResponseParserTest {
         val response = NotificationTestUtil.createCompleteResponse()
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
-            mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
-                ConnectMessagingDatabaseHelper.getMessagingChannels(any())
-            }.thenReturn(emptyList())
+            mockedHelper
+                .`when`<List<ConnectMessagingChannelRecord>> {
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(any())
+                }.thenReturn(emptyList())
 
             val result = parseResponse(response)
 
@@ -74,9 +74,10 @@ class RetrieveNotificationsResponseParserTest {
         val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(pushNotification1, pushNotification2))
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
-            mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
-                ConnectMessagingDatabaseHelper.getMessagingChannels(any())
-            }.thenReturn(emptyList())
+            mockedHelper
+                .`when`<List<ConnectMessagingChannelRecord>> {
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(any())
+                }.thenReturn(emptyList())
 
             val result = parseResponse(response)
 
@@ -117,15 +118,17 @@ class RetrieveNotificationsResponseParserTest {
         val messagingNotification = NotificationTestUtil.createMessagingNotificationJson("msg_001", "message_001", "channel_001")
         val channel = NotificationTestUtil.createChannelJson("channel_001", "Test Channel")
 
-        val response = NotificationTestUtil.createCompleteResponse(
-            notifications = listOf(pushNotification, messagingNotification),
-            channels = listOf(channel)
-        )
+        val response =
+            NotificationTestUtil.createCompleteResponse(
+                notifications = listOf(pushNotification, messagingNotification),
+                channels = listOf(channel),
+            )
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
-            mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
-                ConnectMessagingDatabaseHelper.getMessagingChannels(any())
-            }.thenReturn(emptyList())
+            mockedHelper
+                .`when`<List<ConnectMessagingChannelRecord>> {
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(any())
+                }.thenReturn(emptyList())
 
             val result = parseResponse(response)
 
@@ -146,24 +149,26 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun testParseNotificationWithAllOptionalFields() {
-        val pushNotification = NotificationTestUtil.createPushNotificationJson(
-            notificationId = "push_full",
-            title = "Full Notification",
-            body = "Complete body",
-            notificationType = "PAYMENT",
-            messageId = "msg_123",
-            channel = "channel_123",
-            action = "redirect_action",
-            confirmationStatus = "confirmed",
-            opportunityId = "opp_456",
-            paymentId = "pay_789"
-        )
+        val pushNotification =
+            NotificationTestUtil.createPushNotificationJson(
+                notificationId = "push_full",
+                title = "Full Notification",
+                body = "Complete body",
+                notificationType = "PAYMENT",
+                messageId = "msg_123",
+                channel = "channel_123",
+                action = "redirect_action",
+                confirmationStatus = "confirmed",
+                opportunityId = "opp_456",
+                paymentId = "pay_789",
+            )
         val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(pushNotification))
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
-            mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
-                ConnectMessagingDatabaseHelper.getMessagingChannels(any())
-            }.thenReturn(emptyList())
+            mockedHelper
+                .`when`<List<ConnectMessagingChannelRecord>> {
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(any())
+                }.thenReturn(emptyList())
 
             val result = parseResponse(response)
 
@@ -189,19 +194,21 @@ class RetrieveNotificationsResponseParserTest {
         val messageContent = "Hello, this is a test message!"
 
         val pushNotification = NotificationTestUtil.createPushNotificationJson("push_001", "Push Title")
-        val messagingNotification = NotificationTestUtil.createMessagingNotificationWithValidEncryption(
-            "msg_001",
-            "message_001",
-            "channel_001",
-            messageContent,
-            encryptionKey
-        )
+        val messagingNotification =
+            NotificationTestUtil.createMessagingNotificationWithValidEncryption(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                messageContent,
+                encryptionKey,
+            )
         val channel = NotificationTestUtil.createChannelJson("channel_001", "Test Channel")
 
-        val response = NotificationTestUtil.createCompleteResponse(
-            notifications = listOf(pushNotification, messagingNotification),
-            channels = listOf(channel)
-        )
+        val response =
+            NotificationTestUtil.createCompleteResponse(
+                notifications = listOf(pushNotification, messagingNotification),
+                channels = listOf(channel),
+            )
 
         // Create a mock channel with encryption key for decryption
         val mockChannel = mock(ConnectMessagingChannelRecord::class.java)
@@ -211,9 +218,10 @@ class RetrieveNotificationsResponseParserTest {
         `when`(mockChannel.consented).thenReturn(true)
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
-            mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
-                ConnectMessagingDatabaseHelper.getMessagingChannels(any())
-            }.thenReturn(listOf(mockChannel))
+            mockedHelper
+                .`when`<List<ConnectMessagingChannelRecord>> {
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(any())
+                }.thenReturn(listOf(mockChannel))
 
             val result = parseResponse(response)
 
@@ -247,19 +255,21 @@ class RetrieveNotificationsResponseParserTest {
     @Test(expected = JSONException::class)
     fun testParseNotificationMissingRequiredFields() {
         // Test notification without required timestamp field
-        val incompleteNotification = """
-        {
-            "notification_id": "incomplete_001",
-            "title": "Incomplete Notification",
-            "notification_type": "PUSH"
-        }
-        """.trimIndent()
+        val incompleteNotification =
+            """
+            {
+                "notification_id": "incomplete_001",
+                "title": "Incomplete Notification",
+                "notification_type": "PUSH"
+            }
+            """.trimIndent()
         val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(incompleteNotification))
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
-            mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
-                ConnectMessagingDatabaseHelper.getMessagingChannels(any())
-            }.thenReturn(emptyList())
+            mockedHelper
+                .`when`<List<ConnectMessagingChannelRecord>> {
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(any())
+                }.thenReturn(emptyList())
 
             parseResponse(response)
         }

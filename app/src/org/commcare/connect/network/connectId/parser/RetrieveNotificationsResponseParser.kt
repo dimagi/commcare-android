@@ -16,9 +16,8 @@ import java.io.InputStream
  * Parses JSON response into separate notifications, channels, and messages
  */
 class RetrieveNotificationsResponseParser(
-    private val context: Context
+    private val context: Context,
 ) : BaseApiResponseParser<NotificationParseResult> {
-
     private var notificationsJsonArray: JSONArray = JSONArray()
 
     override fun parse(
@@ -32,15 +31,15 @@ class RetrieveNotificationsResponseParser(
         if (responseJsonObject.has("notifications")) {
             notificationsJsonArray = responseJsonObject.getJSONArray("notifications")
         }
-        
+
         val channels = parseChannels(responseJsonObject)
         val (nonMessageNotifications, messages, messagesNotificationsIds) = parseAndSeparateNotifications()
-        
+
         return NotificationParseResult(
             nonMessageNotifications,
             channels,
             messages,
-            messagesNotificationsIds
+            messagesNotificationsIds,
         )
     }
 
@@ -63,7 +62,11 @@ class RetrieveNotificationsResponseParser(
      * - Messaging notifications as ConnectMessagingMessageRecord
      * This avoids double parsing and eliminates filtering overhead
      */
-    private fun parseAndSeparateNotifications(): Triple<MutableList<PushNotificationRecord>, MutableList<ConnectMessagingMessageRecord>, MutableList<String>> {
+    private fun parseAndSeparateNotifications(): Triple<
+        MutableList<PushNotificationRecord>,
+        MutableList<ConnectMessagingMessageRecord>,
+        MutableList<String>,
+    > {
         val nonMessageNotifications = mutableListOf<PushNotificationRecord>()
         val messages = mutableListOf<ConnectMessagingMessageRecord>()
         val messagesNotificationsIds = mutableListOf<String>()
@@ -76,10 +79,11 @@ class RetrieveNotificationsResponseParser(
 
                 if (isNotificationMessageType(notificationJsonObject)) {
                     // Handle messaging notifications - parse as ConnectMessagingMessageRecord
-                    val message = ConnectMessagingMessageRecord.fromJson(
-                        notificationJsonObject,
-                        existingChannels
-                    )
+                    val message =
+                        ConnectMessagingMessageRecord.fromJson(
+                            notificationJsonObject,
+                            existingChannels,
+                        )
                     if (message != null) {
                         messages.add(message)
                         messagesNotificationsIds.add(notificationJsonObject.getString(META_NOTIFICATION_ID))
@@ -91,15 +95,14 @@ class RetrieveNotificationsResponseParser(
                 }
             }
         }
-        
+
         return Triple(nonMessageNotifications, messages, messagesNotificationsIds)
     }
 
     /**
      * Checks if a notification JSON object is of messaging type
      */
-    private fun isNotificationMessageType(notificationJsonObject: JSONObject): Boolean {
-        return notificationJsonObject.has("notification_type") &&
+    private fun isNotificationMessageType(notificationJsonObject: JSONObject): Boolean =
+        notificationJsonObject.has("notification_type") &&
             "MESSAGING" == notificationJsonObject.getString("notification_type")
-    }
 }
