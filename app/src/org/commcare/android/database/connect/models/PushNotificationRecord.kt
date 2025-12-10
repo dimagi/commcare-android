@@ -84,8 +84,8 @@ class PushNotificationRecord :
 
         const val META_TIME_STAMP = "timestamp"
 
-        fun fromJson(obj: JSONObject): PushNotificationRecord {
-            return PushNotificationRecord().apply {
+        fun fromJson(obj: JSONObject): PushNotificationRecord =
+            PushNotificationRecord().apply {
                 notificationId = obj.optString(META_NOTIFICATION_ID, "")
                 title = obj.optString(META_TITLE, "")
                 body = obj.optString(META_BODY, "")
@@ -100,6 +100,5 @@ class PushNotificationRecord :
                 action = obj.optString(META_ACTION, "")
                 opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
             }
-        }
     }
 }
