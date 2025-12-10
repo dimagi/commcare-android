@@ -5,19 +5,18 @@ import java.io.ByteArrayInputStream
 
 /**
  * Test utility class providing builders for creating notification test data.
- * 
+ *
  * Contains helper methods for:
  * - Building JSON notifications (push, messaging, channels)
  * - Creating complete API responses
  * - Generating properly encrypted messaging notifications
  */
 object NotificationTestUtil {
-
     // ========== Constants ==========
-    
+
     /** Valid 256-bit Base64 encoded encryption key for testing */
     const val TEST_ENCRYPTION_KEY = "MTIzNDU2Nzg5MGFiY2RlZmdoaWprbG1ub3BxcnM3dXY="
-    
+
     // ========== JSON Builders ==========
 
     fun createPushNotificationJson(
@@ -31,7 +30,7 @@ object NotificationTestUtil {
         action: String = "",
         confirmationStatus: String = "",
         opportunityId: String = "",
-        paymentId: String = ""
+        paymentId: String = "",
     ): String {
         val parts = mutableListOf<String>()
         parts.add("\"notification_id\": \"$notificationId\"")
@@ -55,9 +54,9 @@ object NotificationTestUtil {
         messageId: String,
         channel: String,
         title: String = "Message Title",
-        timestamp: String = "2023-01-01T12:00:00Z"
-    ): String {
-        return """
+        timestamp: String = "2023-01-01T12:00:00Z",
+    ): String =
+        """
         {
             "notification_id": "$notificationId",
             "message_id": "$messageId",
@@ -70,7 +69,6 @@ object NotificationTestUtil {
             "ciphertext": "encrypted_content"
         }
         """.trimIndent()
-    }
 
     fun createMessagingNotificationWithValidEncryption(
         notificationId: String,
@@ -79,36 +77,36 @@ object NotificationTestUtil {
         messageContent: String,
         encryptionKey: String = TEST_ENCRYPTION_KEY,
         title: String = "Message Title",
-        timestamp: String = "2023-01-01T12:00:00Z"
+        timestamp: String = "2023-01-01T12:00:00Z",
     ): String {
         // Use the actual encryption method from ConnectMessagingMessageRecord
         val encryptionResult = ConnectMessagingMessageRecord.encrypt(messageContent, encryptionKey)
         val cipherText = encryptionResult[0]
-        val nonce = encryptionResult[1] 
+        val nonce = encryptionResult[1]
         val tag = encryptionResult[2]
 
         return """
-        {
-            "notification_id": "$notificationId",
-            "message_id": "$messageId",
-            "channel": "$channel",
-            "title": "$title",
-            "notification_type": "MESSAGING",
-            "timestamp": "$timestamp",
-            "tag": "$tag",
-            "nonce": "$nonce",
-            "ciphertext": "$cipherText"
-        }
-        """.trimIndent()
+            {
+                "notification_id": "$notificationId",
+                "message_id": "$messageId",
+                "channel": "$channel",
+                "title": "$title",
+                "notification_type": "MESSAGING",
+                "timestamp": "$timestamp",
+                "tag": "$tag",
+                "nonce": "$nonce",
+                "ciphertext": "$cipherText"
+            }
+            """.trimIndent()
     }
 
     fun createChannelJson(
         channelId: String,
         channelSource: String = "Test Channel",
         consent: Boolean = true,
-        keyUrl: String = "test_key_url"
-    ): String {
-        return """
+        keyUrl: String = "test_key_url",
+    ): String =
+        """
         {
             "channel_id": "$channelId",
             "channel_source": "$channelSource",
@@ -116,19 +114,24 @@ object NotificationTestUtil {
             "key_url": "$keyUrl"
         }
         """.trimIndent()
-    }
 
     fun createCompleteResponse(
         notifications: List<String> = emptyList(),
-        channels: List<String> = emptyList()
+        channels: List<String> = emptyList(),
     ): String {
-        val notificationArray = if (notifications.isNotEmpty()) {
-            notifications.joinToString(",\n")
-        } else ""
+        val notificationArray =
+            if (notifications.isNotEmpty()) {
+                notifications.joinToString(",\n")
+            } else {
+                ""
+            }
 
-        val channelArray = if (channels.isNotEmpty()) {
-            channels.joinToString(",\n")
-        } else ""
+        val channelArray =
+            if (channels.isNotEmpty()) {
+                channels.joinToString(",\n")
+            } else {
+                ""
+            }
 
         return buildString {
             append("{\n")
@@ -152,7 +155,5 @@ object NotificationTestUtil {
 
     // ========== Parser Helpers ==========
 
-    fun createInputStreamFromResponse(jsonResponse: String): ByteArrayInputStream {
-        return ByteArrayInputStream(jsonResponse.toByteArray())
-    }
+    fun createInputStreamFromResponse(jsonResponse: String): ByteArrayInputStream = ByteArrayInputStream(jsonResponse.toByteArray())
 }

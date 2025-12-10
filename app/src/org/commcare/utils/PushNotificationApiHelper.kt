@@ -22,12 +22,12 @@ import org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.connect.network.connectId.parser.NotificationParseResult
-import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
@@ -73,7 +73,7 @@ object PushNotificationApiHelper {
                     scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(Dispatchers.IO).launch {
                         val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
-                        
+
                         // Update notification preferences and send broadcasts
                         if (savedNotificationIds.isNotEmpty()) {
                             NotificationPrefs.setNotificationAsUnread(context)
@@ -81,10 +81,10 @@ object PushNotificationApiHelper {
                         if (savedNotificationIds.isNotEmpty() || parseResult.messagingNotificationIds.isNotEmpty()) {
                             NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
                         }
-                        
+
                         // Acknowledge all notifications (both stored and messaging)
                         acknowledgeNotificationsReceipt(context, savedNotificationIds + parseResult.messagingNotificationIds)
-                        
+
                         continuation.resume(Result.success(savedNotifications))
                     }
                 }
@@ -117,7 +117,7 @@ object PushNotificationApiHelper {
      */
     private fun processParsedDataIntoDB(
         context: Context,
-        parseResult: NotificationParseResult
+        parseResult: NotificationParseResult,
     ): Pair<List<PushNotificationRecord>, List<String>> {
         // Store messaging channels
         if (parseResult.channels.isNotEmpty()) {
@@ -130,15 +130,17 @@ object PushNotificationApiHelper {
         }
 
         // Store non-messaging notifications
-        val savedNotificationIds = if (parseResult.nonMessagingNotifications.isNotEmpty()) {
-            NotificationRecordDatabaseHelper.storeNotifications(context, parseResult.nonMessagingNotifications)
-        } else {
-            emptyList()
-        }
+        val savedNotificationIds =
+            if (parseResult.nonMessagingNotifications.isNotEmpty()) {
+                NotificationRecordDatabaseHelper.storeNotifications(context, parseResult.nonMessagingNotifications)
+            } else {
+                emptyList()
+            }
 
-        val savedNotifications = parseResult.nonMessagingNotifications.filter {
-            savedNotificationIds.contains(it.notificationId)
-        }
+        val savedNotifications =
+            parseResult.nonMessagingNotifications.filter {
+                savedNotificationIds.contains(it.notificationId)
+            }
 
         return Pair(savedNotifications, savedNotificationIds)
     }
@@ -213,5 +215,4 @@ object PushNotificationApiHelper {
             channelsKeySyncWorkRequest,
         )
     }
-
 }
