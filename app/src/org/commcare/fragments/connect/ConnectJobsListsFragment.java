@@ -132,7 +132,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         boolean deliveryComplete = compositeJob != null &&
                 (compositeJob.isFinished() || compositeJob.getDeliveries().size() >= compositeJob.getMaxVisits());
 
-        if (appInstalled && deliveryComplete) {
+        if (appInstalled && deliveryComplete && !isLearning) {
             ConnectAppUtils.INSTANCE.launchAppForCompletedDelivery(requireActivity(), appId, job);
         } else if (appInstalled) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
