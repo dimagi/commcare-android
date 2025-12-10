@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
-import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.json.JSONException
 import org.junit.Assert.assertEquals
@@ -18,7 +17,6 @@ import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.robolectric.annotation.Config
-import java.io.ByteArrayInputStream
 
 /**
  * Comprehensive test suite for RetrieveNotificationsResponseParser
@@ -41,140 +39,10 @@ class RetrieveNotificationsResponseParserTest {
         parser = RetrieveNotificationsResponseParser(context)
     }
 
-    // ========== Test Data Builders ==========
-
-    private fun createPushNotificationJson(
-        notificationId: String,
-        title: String,
-        body: String = "Test body",
-        notificationType: String = "PUSH",
-        timestamp: String = "2023-01-01T12:00:00Z",
-        messageId: String? = null,
-        channel: String? = null,
-        action: String = "",
-        confirmationStatus: String = "",
-        opportunityId: String = "",
-        paymentId: String = ""
-    ): String {
-        val parts = mutableListOf<String>()
-        parts.add("\"notification_id\": \"$notificationId\"")
-        parts.add("\"title\": \"$title\"")
-        parts.add("\"body\": \"$body\"")
-        parts.add("\"notification_type\": \"$notificationType\"")
-        parts.add("\"timestamp\": \"$timestamp\"")
-
-        messageId?.let { parts.add("\"message_id\": \"$it\"") }
-        channel?.let { parts.add("\"channel\": \"$it\"") }
-        if (action.isNotEmpty()) parts.add("\"action\": \"$action\"")
-        if (confirmationStatus.isNotEmpty()) parts.add("\"confirmation_status\": \"$confirmationStatus\"")
-        if (opportunityId.isNotEmpty()) parts.add("\"opportunity_id\": \"$opportunityId\"")
-        if (paymentId.isNotEmpty()) parts.add("\"payment_id\": \"$paymentId\"")
-
-        return "{\n" + parts.joinToString(",\n") + "\n}"
-    }
-
-    private fun createMessagingNotificationJson(
-        notificationId: String,
-        messageId: String,
-        channel: String,
-        title: String = "Message Title",
-        timestamp: String = "2023-01-01T12:00:00Z"
-    ): String {
-        return """
-        {
-            "notification_id": "$notificationId",
-            "message_id": "$messageId",
-            "channel": "$channel",
-            "title": "$title",
-            "notification_type": "MESSAGING",
-            "timestamp": "$timestamp",
-            "tag": "test_tag",
-            "nonce": "test_nonce",
-            "ciphertext": "encrypted_content"
-        }
-        """.trimIndent()
-    }
-
-    private fun createMessagingNotificationWithValidEncryption(
-        notificationId: String,
-        messageId: String,
-        channel: String,
-        messageContent: String,
-        encryptionKey: String,
-        title: String = "Message Title",
-        timestamp: String = "2023-01-01T12:00:00Z"
-    ): String {
-        // Use the actual encryption method from ConnectMessagingMessageRecord
-        val encryptionResult = ConnectMessagingMessageRecord.encrypt(messageContent, encryptionKey)
-        val cipherText = encryptionResult[0]
-        val nonce = encryptionResult[1] 
-        val tag = encryptionResult[2]
-
-        return """
-        {
-            "notification_id": "$notificationId",
-            "message_id": "$messageId",
-            "channel": "$channel",
-            "title": "$title",
-            "notification_type": "MESSAGING",
-            "timestamp": "$timestamp",
-            "tag": "$tag",
-            "nonce": "$nonce",
-            "ciphertext": "$cipherText"
-        }
-        """.trimIndent()
-    }
-
-    private fun createChannelJson(
-        channelId: String,
-        channelSource: String = "Test Channel",
-        consent: Boolean = true,
-        keyUrl: String = "test_key_url"
-    ): String {
-        return """
-        {
-            "channel_id": "$channelId",
-            "channel_source": "$channelSource",
-            "consent": $consent,
-            "key_url": "$keyUrl"
-        }
-        """.trimIndent()
-    }
-
-    private fun createCompleteResponse(
-        notifications: List<String> = emptyList(),
-        channels: List<String> = emptyList()
-    ): String {
-        val notificationArray = if (notifications.isNotEmpty()) {
-            notifications.joinToString(",\n")
-        } else ""
-
-        val channelArray = if (channels.isNotEmpty()) {
-            channels.joinToString(",\n")
-        } else ""
-
-        return buildString {
-            append("{\n")
-            append("\"notifications\": [")
-            if (notificationArray.isNotEmpty()) {
-                append("\n$notificationArray\n")
-            }
-            append("]")
-
-            if (channels.isNotEmpty()) {
-                append(",\n\"channels\": [")
-                if (channelArray.isNotEmpty()) {
-                    append("\n$channelArray\n")
-                }
-                append("]")
-            }
-
-            append("\n}")
-        }
-    }
+    // ========== Helper Methods ==========
 
     private fun parseResponse(jsonResponse: String): NotificationParseResult {
-        val inputStream = ByteArrayInputStream(jsonResponse.toByteArray())
+        val inputStream = NotificationTestUtil.createInputStreamFromResponse(jsonResponse)
         return parser.parse(200, inputStream, null)
     }
 
@@ -182,7 +50,7 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun testParseEmptyNotificationsArray() {
-        val response = createCompleteResponse()
+        val response = NotificationTestUtil.createCompleteResponse()
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
             mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
@@ -200,9 +68,9 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun testParsePushNotifications() {
-        val pushNotification1 = createPushNotificationJson("push_001", "Title 1")
-        val pushNotification2 = createPushNotificationJson("push_002", "Title 2")
-        val response = createCompleteResponse(notifications = listOf(pushNotification1, pushNotification2))
+        val pushNotification1 = NotificationTestUtil.createPushNotificationJson("push_001", "Title 1")
+        val pushNotification2 = NotificationTestUtil.createPushNotificationJson("push_002", "Title 2")
+        val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(pushNotification1, pushNotification2))
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
             mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
@@ -223,9 +91,9 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun testParseChannels() {
-        val channel1 = createChannelJson("channel_001", "Channel 1")
-        val channel2 = createChannelJson("channel_002", "Channel 2", false)
-        val response = createCompleteResponse(channels = listOf(channel1, channel2))
+        val channel1 = NotificationTestUtil.createChannelJson("channel_001", "Channel 1")
+        val channel2 = NotificationTestUtil.createChannelJson("channel_002", "Channel 2", false)
+        val response = NotificationTestUtil.createCompleteResponse(channels = listOf(channel1, channel2))
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use {
             val result = parseResponse(response)
@@ -244,11 +112,11 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun testParseCompleteResponseWithAllTypes() {
-        val pushNotification = createPushNotificationJson("push_001", "Push Title")
-        val messagingNotification = createMessagingNotificationJson("msg_001", "message_001", "channel_001")
-        val channel = createChannelJson("channel_001", "Test Channel")
+        val pushNotification = NotificationTestUtil.createPushNotificationJson("push_001", "Push Title")
+        val messagingNotification = NotificationTestUtil.createMessagingNotificationJson("msg_001", "message_001", "channel_001")
+        val channel = NotificationTestUtil.createChannelJson("channel_001", "Test Channel")
 
-        val response = createCompleteResponse(
+        val response = NotificationTestUtil.createCompleteResponse(
             notifications = listOf(pushNotification, messagingNotification),
             channels = listOf(channel)
         )
@@ -277,7 +145,7 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun testParseNotificationWithAllOptionalFields() {
-        val pushNotification = createPushNotificationJson(
+        val pushNotification = NotificationTestUtil.createPushNotificationJson(
             notificationId = "push_full",
             title = "Full Notification",
             body = "Complete body",
@@ -289,7 +157,7 @@ class RetrieveNotificationsResponseParserTest {
             opportunityId = "opp_456",
             paymentId = "pay_789"
         )
-        val response = createCompleteResponse(notifications = listOf(pushNotification))
+        val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(pushNotification))
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
             mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
@@ -316,20 +184,20 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun testParseCompleteResponseWithMessagesPopulated() {
-        val encryptionKey = "MTIzNDU2Nzg5MGFiY2RlZmdoaWprbG1ub3BxcnM3dXY=" // base64 encoded "1234567890abcdefghijklmnopqrs7uv" (32 chars)
+        val encryptionKey = NotificationTestUtil.TEST_ENCRYPTION_KEY
         val messageContent = "Hello, this is a test message!"
 
-        val pushNotification = createPushNotificationJson("push_001", "Push Title")
-        val messagingNotification = createMessagingNotificationWithValidEncryption(
+        val pushNotification = NotificationTestUtil.createPushNotificationJson("push_001", "Push Title")
+        val messagingNotification = NotificationTestUtil.createMessagingNotificationWithValidEncryption(
             "msg_001",
             "message_001",
             "channel_001",
             messageContent,
             encryptionKey
         )
-        val channel = createChannelJson("channel_001", "Test Channel")
+        val channel = NotificationTestUtil.createChannelJson("channel_001", "Test Channel")
 
-        val response = createCompleteResponse(
+        val response = NotificationTestUtil.createCompleteResponse(
             notifications = listOf(pushNotification, messagingNotification),
             channels = listOf(channel)
         )
@@ -385,7 +253,7 @@ class RetrieveNotificationsResponseParserTest {
             "notification_type": "PUSH"
         }
         """.trimIndent()
-        val response = createCompleteResponse(notifications = listOf(incompleteNotification))
+        val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(incompleteNotification))
 
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
             mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
