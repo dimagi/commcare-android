@@ -11,7 +11,7 @@ import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
@@ -159,7 +159,7 @@ object ConnectJobHelper {
                 Toast
                     .makeText(
                         context,
-                        PersonalIdApiErrorHandler.handle(context, errorCode, t),
+                        PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t),
                         Toast.LENGTH_LONG,
                     ).show()
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)

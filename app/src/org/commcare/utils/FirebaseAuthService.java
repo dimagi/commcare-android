@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 import androidx.annotation.NonNull;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.base.BaseApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.javarosa.core.services.Logger;
 

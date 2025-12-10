@@ -8,7 +8,6 @@ import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
 import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +33,7 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.base.BaseConnectFragment;
@@ -81,7 +80,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 navigateFailure();
             }
 
@@ -132,8 +131,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections
-                            .actionConnectJobsListFragmentToConnectDownloadingFragment(
-                                    getString(textId), isLearning));
+                    .actionConnectJobsListFragmentToConnectDownloadingFragment(
+                            getString(textId), isLearning));
         }
     }
 
