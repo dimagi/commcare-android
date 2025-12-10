@@ -534,7 +534,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         PersonalIdPhoneFragmentDirections.ActionPersonalidPhoneFragmentToPersonalidBiometricConfig action =
                 PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
 
-        action.setIsDemoUser(isDemoUser);
+        action.setIsPersonalIDDemoUser(isDemoUser);
 
         return action;
     }

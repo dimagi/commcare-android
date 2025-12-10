@@ -556,10 +556,13 @@ public class FirebaseAnalyticsUtil {
             // We want to track/flag demo users, especially when a demo phone number has been
             // entered on the Personal ID phone screen as the user is navigating to the biometrics
             // screen before their account is even recovered/created.
-            if (args != null && args.containsKey("isDemoUser")) {
-                boolean isDemoUser = args.getBoolean("isDemoUser");
+            if (args != null && args.containsKey("isPersonalIDDemoUser")) {
+                boolean isPersonalIDDemoUser = args.getBoolean("isPersonalIDDemoUser");
                 FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
-                analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isDemoUser));
+                analyticsInstance.setUserProperty(
+                        CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
+                        String.valueOf(isPersonalIDDemoUser)
+                );
             }
 
             reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
