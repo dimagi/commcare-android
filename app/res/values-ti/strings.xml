@@ -518,4 +518,12 @@
 
     <string name="network_forbidden_error">ምብጻሕ ተኸልኪሉ። እቲ ጸገም እንተቐጺሉ ንደገፍ ዓማዊል ተወከሱ።</string>
 
+    <string name="personalid_biometric_error_cancelled">ናይ ባዮሜትሪክ ምድላው ተሰሪዙ። በጃኻ እንደገና ፈትን።</string>
+    <string name="personalid_biometric_error_lockout">በዝሒ ፈተነታት። በጃኻ ጽንሕ ኢልካ እንደገና ፈትን።</string>
+    <string name="personalid_biometric_error_lockout_permanent">በዝሒ ዝፈሸለ ፈተነታት። በጃኻ ንመሳርሒኻ ክፈቶ እሞ እንደገና ፈትን።</string>
+    <string name="personalid_biometric_error_hw_not_present">መሳርሒኻ ባዮሜትሪክ ምረጋገጺ ኣይድግፍን እዩ።</string>
+    <string name="personalid_biometric_error_hw_unavailable">ናይ ባዮሜትሪክ ሃርድዌር የለን። በጃኻ ጸኒሕካ እንደገና ፈትን።</string>
+    <string name="personalid_biometric_error_no_biometric">ኣብዚ መሳርሒ ዝተመዝገበ ባዮሜትሪክ የለን።</string>
+    <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። በጃኻ እንደገና ፈትን።</string>
+    <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። በጃኻ እንደገና ፈትን።</string>
 </resources>

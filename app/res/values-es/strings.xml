@@ -527,4 +527,12 @@
 
     <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
 
+    <string name="personalid_biometric_error_cancelled">La configuración biométrica fue cancelada. Por favor, inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_lockout">Demasiados intentos. Por favor, espere e inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Demasiados intentos fallidos. Por favor, desbloquee su dispositivo e inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_hw_not_present">Su dispositivo no es compatible con la autenticación biométrica.</string>
+    <string name="personalid_biometric_error_hw_unavailable">El hardware biométrico no está disponible. Por favor, inténtelo de nuevo más tarde.</string>
+    <string name="personalid_biometric_error_no_biometric">No hay datos biométricos registrados en este dispositivo.</string>
+    <string name="personalid_biometric_error_timeout">La operación biométrica ha expirado. Por favor, inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, inténtelo de nuevo.</string>
 </resources>

@@ -535,4 +535,12 @@
 
     <string name="network_forbidden_error">Ufikiaji umekataliwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
 
+    <string name="personalid_biometric_error_cancelled">Usanidi wa kibayometri ulighairiwa. Tafadhali jaribu tena.</string>
+    <string name="personalid_biometric_error_lockout">Majaribio mengi mno. Tafadhali subiri na ujaribu tena.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Majaribio mengi mno yameshindikana. Tafadhali fungua kifaa chako na ujaribu tena.</string>
+    <string name="personalid_biometric_error_hw_not_present">Kifaa chako hakiauni uthibitishaji wa kibayometri.</string>
+    <string name="personalid_biometric_error_hw_unavailable">Vifaa vya kibayometri havipatikani. Tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_biometric_error_no_biometric">Hakuna bayometriki zilizosajiliwa kwenye kifaa hiki.</string>
+    <string name="personalid_biometric_error_timeout">Muda wa utendakazi wa kibayometri umekwisha. Tafadhali jaribu tena.</string>
+    <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali jaribu tena.</string>
 </resources>

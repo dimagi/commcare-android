@@ -525,4 +525,12 @@ License.
 
     <string name="network_forbidden_error">एक्सेस नहीं मिला। अगर समस्या बनी रहती है, तो कृपया कस्टमर सपोर्ट से संपर्क करें।</string>
 
+    <string name="personalid_biometric_error_cancelled">बायोमेट्रिक सेटअप रद्द कर दिया गया था। कृपया पुन: प्रयास करें।</string>
+    <string name="personalid_biometric_error_lockout">बहुत अधिक प्रयास। कृपया प्रतीक्षा करें और पुनः प्रयास करें।</string>
+    <string name="personalid_biometric_error_lockout_permanent">बहुत अधिक असफल प्रयास। कृपया अपने डिवाइस को अनलॉक करें और पुनः प्रयास करें।</string>
+    <string name="personalid_biometric_error_hw_not_present">आपका उपकरण बायोमेट्रिक प्रमाणीकरण का समर्थन नहीं करता है।</string>
+    <string name="personalid_biometric_error_hw_unavailable">बायोमेट्रिक हार्डवेयर अनुपलब्ध है। कृपया बाद में पुन: प्रयास करें।</string>
+    <string name="personalid_biometric_error_no_biometric">इस उपकरण पर कोई बायोमेट्रिक्स नामांकित नहीं है।</string>
+    <string name="personalid_biometric_error_timeout">बायोमेट्रिक ऑपरेशन का समय समाप्त हो गया। कृपया पुन: प्रयास करें।</string>
+    <string name="personalid_biometric_error_cannot_configure">हम आपके डिवाइस पर बायोमेट्रिक्स कॉन्फ़िगर नहीं कर सके। कृपया पुनः प्रयास करें।</string>
 </resources>

@@ -134,4 +134,12 @@
 
     <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
 
+    <string name="personalid_biometric_error_cancelled">Biometrinis nustatymas buvo atšauktas. Bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_lockout">Per daug bandymų. Palaukite ir bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Per daug nepavykusių bandymų. Atrakinkite įrenginį ir bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_hw_not_present">Jūsų įrenginys nepalaiko biometrinio autentifikavimo.</string>
+    <string name="personalid_biometric_error_hw_unavailable">Biometrinė aparatinė įranga nepasiekiama. Bandykite dar kartą vėliau.</string>
+    <string name="personalid_biometric_error_no_biometric">Šiame įrenginyje nėra užregistruotų biometrinių duomenų.</string>
+    <string name="personalid_biometric_error_timeout">Baigėsi biometrinės operacijos laikas. Bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_cannot_configure">Nepavyko sukonfigūruoti biometrinių duomenų jūsų įrenginyje. Bandykite dar kartą.</string>
 </resources>

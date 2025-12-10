@@ -134,4 +134,12 @@
 
     <string name="network_forbidden_error">Tilgang nektet. Ta kontakt med kundestøtte hvis problemet vedvarer.</string>
 
+    <string name="personalid_biometric_error_cancelled">Biometrisk oppsett ble avbrutt. Prøv igjen.</string>
+    <string name="personalid_biometric_error_lockout">For mange forsøk. Vent og prøv igjen.</string>
+    <string name="personalid_biometric_error_lockout_permanent">For mange mislykkede forsøk. Lås opp enheten og prøv igjen.</string>
+    <string name="personalid_biometric_error_hw_not_present">Enheten din støtter ikke biometrisk autentisering.</string>
+    <string name="personalid_biometric_error_hw_unavailable">Biometrisk maskinvare er utilgjengelig. Prøv igjen senere.</string>
+    <string name="personalid_biometric_error_no_biometric">Ingen biometri er registrert på denne enheten.</string>
+    <string name="personalid_biometric_error_timeout">Biometrisk operasjon ble tidsavbrutt. Prøv igjen.</string>
+    <string name="personalid_biometric_error_cannot_configure">Vi kunne ikke konfigurere biometri på enheten din. Prøv igjen.</string>
 </resources>
