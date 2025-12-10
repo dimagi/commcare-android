@@ -184,6 +184,9 @@
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
     <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa, tafadhali wasiliana na msimamizi.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
+    <string name="recovery_network_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
+    <string name="recovery_network_unauthorized">Huna ruhusa ya kufanya ombi hili.</string>
+    <string name="recovery_network_server_error">Kulikuwa na hitilafu katika kushughulikia ombi lako.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
     <string name="recovery_retry">Jaribu Urejeshaji tena</string>
     <string name="notification_channel_errors_title">Makosa</string>
@@ -521,6 +524,7 @@
     <string name="yesterday">Jana %1$s</string>
 
     <string name="recovery_network_cooldown">Majaribio mengi mno ya ombi. Tafadhali jaribu tena baada ya saa moja.</string>
+    <string name="recovery_network_unknown">Kuna kitu kimeenda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_authentication_failed">Uthibitishaji wa bayometriki kwenye kifaa chako cha Android haukufaulu. Tafadhali weka masasisho yoyote ya mfumo yanayopatikana, au jaribu tena ukitumia kifaa tofauti.</string>
     <string name="no_channel_msg">Huna njia za sasa za kutuma ujumbe</string>
 
@@ -528,5 +532,7 @@
     <string name="personalid_no_location_found">Hatuwezi kupata eneo lako</string>
     <string name="personalid_tooltip_location_failure_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\nIli kuendelea, tafadhali wezesha ruhusa za eneo katika mipangilio, au jaribu tena baadaye.</string>
     <string name="personalid_tooltip_location_success_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Bofya hapa kwa maelezo zaidi.</a></string>
+
+    <string name="network_forbidden_error">Ufikiaji umekataliwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
 
 </resources>

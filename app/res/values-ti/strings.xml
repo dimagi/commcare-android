@@ -171,6 +171,9 @@
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
     <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
+    <string name="recovery_network_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="recovery_network_unauthorized">ነዚ ሕቶ እዚ ከተቕርቡ ፍቓድ የብልኩምን።</string>
+    <string name="recovery_network_server_error">ሕቶኻ ኣብ መስርሕ ጌጋ ኣጋጢሙ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
     <string name="recovery_retry">ንናይ</string>
     <string name="notification_channel_errors_title">ጌጋታት</string>
@@ -504,6 +507,7 @@
     <string name="yesterday">ትማሊ %1$s</string>
 
     <string name="recovery_network_cooldown">ኣዝዩ ብዙሕ ናይ ምሕታት ፈተነታት። በጃኻ ድሕሪ ሓደ ሰዓት እንደገና ፈትን።</string>
+    <string name="recovery_network_unknown">ገለ ነገር ተጋግዩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_authentication_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ዘሎ ባዮሜትሪክስ ምእማት ኣይተዓወተን። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
 
     <string name="no_channel_msg">ናይ ሕጂ ናይ መልእኽቲ ቻነላት የብልካን።</string>
@@ -511,5 +515,7 @@
     <string name="personalid_no_location_found">ቦታኻ ክንረክቦ ኣይከኣልናን</string>
     <string name="personalid_tooltip_location_failure_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\nንኽትቅጽል በጃኻ ኣብ setting ናይ ቦታ ፍቓድ ኣኽእል፡ ወይ ድማ ጸኒሕካ ደጊምካ ፈትን።</string>
     <string name="personalid_tooltip_location_success_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">ንተወሳኺ ሓበሬታ ኣብዚ ጠውቕ።</a></string>
+
+    <string name="network_forbidden_error">ምብጻሕ ተኸልኪሉ። እቲ ጸገም እንተቐጺሉ ንደገፍ ዓማዊል ተወከሱ።</string>
 
 </resources>

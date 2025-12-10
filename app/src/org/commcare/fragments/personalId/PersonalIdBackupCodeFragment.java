@@ -21,7 +21,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
@@ -197,9 +197,6 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
-                } else if (sessionData.getSessionFailureCode() != null &&
-                                sessionData.getSessionFailureCode().equalsIgnoreCase("LOCKED_ACCOUNT")) {
-                    handleAccountLockout();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
@@ -210,7 +207,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
-                showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+                showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
                 }
@@ -248,15 +245,6 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         navigateWithMessage(getString(R.string.connect_backup_fail_title),
                 getString(R.string.personalid_wrong_backup_message, personalIdSessionData.getAttemptsLeft()),
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
-    }
-
-    private void handleAccountLockout() {
-        logRecoveryResult(false);
-        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE);
-        clearBackupCodeFields();
-        navigateWithMessage(getString(R.string.personalid_recovery_lockout_title),
-                getString(R.string.personalid_recovery_lockout_message),
-                ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED);
     }
 
     private void logRecoveryResult(boolean success) {

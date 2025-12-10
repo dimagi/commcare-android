@@ -1,13 +1,9 @@
 package org.commcare.views.widgets;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.AdapterView;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.views.Combobox;
@@ -33,6 +29,7 @@ public class ComboboxWidget extends QuestionWidget {
     private Vector<SelectChoice> choices;
     private Vector<String> choiceTexts;
     private Combobox comboBox;
+    private boolean wasWidgetChangedOnTextChanged = false;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxFilterRule filterRule) {
         super(context, prompt);
@@ -99,7 +96,12 @@ public class ComboboxWidget extends QuestionWidget {
 
             @Override
             public void afterTextChanged(Editable s) {
-                clearWarningMessage();
+                try {
+                    wasWidgetChangedOnTextChanged = true;
+                    widgetEntryChanged();
+                } finally {
+                    wasWidgetChangedOnTextChanged = false;
+                }
             }
         });
     }
@@ -119,7 +121,9 @@ public class ComboboxWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         // So that we can see any error message that gets shown as a result of this
-        comboBox.dismissDropDown();
+        if(!wasWidgetChangedOnTextChanged) {
+            comboBox.dismissDropDown();
+        }
 
         comboBox.autoCorrectCapitalization();
         String enteredText = comboBox.getText().toString();
