@@ -3,6 +3,7 @@ package org.commcare.connect
 import android.app.Activity
 import android.content.Context
 import org.commcare.CommCareApplication
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.commcaresupportlibrary.CommCareLauncher
 import org.commcare.connect.database.ConnectAppDatabaseUtil
@@ -121,6 +122,14 @@ object ConnectAppUtils {
         HashMap<String, Any>().apply {
             put(IS_LAUNCH_FROM_CONNECT, true)
         }.also { CommCareLauncher.launchCommCareForAppId(activity, appId, it) }
+        activity.finish()
+    }
+
+    fun launchAppForCompletedDelivery(activity: Activity, appId: String, job: ConnectJobRecord) {
+        CommCareApplication.instance().closeUserSession()
+        FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", appId)
+        ConnectNavHelper.goToActiveInfoForJob(activity, job, true)
+
         activity.finish()
     }
 }
