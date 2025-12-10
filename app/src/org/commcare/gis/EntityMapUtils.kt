@@ -103,10 +103,6 @@ object EntityMapUtils {
 
     @Nullable
     private fun parseBoundaryFromString(boundaryString: String): List<LatLng>? {
-        if (boundaryString.isEmpty()) {
-            return null
-        }
-
         try {
             val parts = boundaryString.trim().split("\\s+".toRegex())
             val polygon = PolygonUtils.createPolygon(parts)
@@ -133,10 +129,6 @@ object EntityMapUtils {
 
     @Nullable
     private fun parseHexColor(colorString: String): Int? {
-        if (colorString.isEmpty()) {
-            return null
-        }
-
         try {
             return colorString.toColorInt()
         } catch (e: IllegalArgumentException) {
@@ -147,10 +139,6 @@ object EntityMapUtils {
 
     @Nullable
     private fun parseHexColorList(colorsString: String): List<Int>? {
-        if (colorsString.isEmpty()) {
-            return null
-        }
-
         try {
             // Split by either spaces or commas (or both), handling multiple delimiters
             val parts = colorsString.trim()
