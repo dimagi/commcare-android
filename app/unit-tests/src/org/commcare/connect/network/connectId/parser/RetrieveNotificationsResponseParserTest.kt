@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.json.JSONException
 import org.junit.Assert.assertEquals
@@ -90,6 +91,36 @@ class RetrieveNotificationsResponseParserTest {
             "tag": "test_tag",
             "nonce": "test_nonce",
             "ciphertext": "encrypted_content"
+        }
+        """.trimIndent()
+    }
+
+    private fun createMessagingNotificationWithValidEncryption(
+        notificationId: String,
+        messageId: String,
+        channel: String,
+        messageContent: String,
+        encryptionKey: String,
+        title: String = "Message Title",
+        timestamp: String = "2023-01-01T12:00:00Z"
+    ): String {
+        // Use the actual encryption method from ConnectMessagingMessageRecord
+        val encryptionResult = ConnectMessagingMessageRecord.encrypt(messageContent, encryptionKey)
+        val cipherText = encryptionResult[0]
+        val nonce = encryptionResult[1] 
+        val tag = encryptionResult[2]
+
+        return """
+        {
+            "notification_id": "$notificationId",
+            "message_id": "$messageId",
+            "channel": "$channel",
+            "title": "$title",
+            "notification_type": "MESSAGING",
+            "timestamp": "$timestamp",
+            "tag": "$tag",
+            "nonce": "$nonce",
+            "ciphertext": "$cipherText"
         }
         """.trimIndent()
     }
@@ -280,6 +311,53 @@ class RetrieveNotificationsResponseParserTest {
             assertEquals("confirmed", notification.confirmationStatus)
             assertEquals("opp_456", notification.opportunityId)
             assertEquals("pay_789", notification.paymentId)
+        }
+    }
+
+    @Test
+    fun testParseCompleteResponseWithMessagesPopulated() {
+        val encryptionKey = "MTIzNDU2Nzg5MGFiY2RlZmdoaWprbG1ub3BxcnM3dXY=" // base64 encoded "1234567890abcdefghijklmnopqrs7uv" (32 chars)
+        val messageContent = "Hello, this is a test message!"
+
+        val pushNotification = createPushNotificationJson("push_001", "Push Title")
+        val messagingNotification = createMessagingNotificationWithValidEncryption(
+            "msg_001",
+            "message_001",
+            "channel_001",
+            messageContent,
+            encryptionKey
+        )
+        val channel = createChannelJson("channel_001", "Test Channel")
+
+        val response = createCompleteResponse(
+            notifications = listOf(pushNotification, messagingNotification),
+            channels = listOf(channel)
+        )
+
+        // Create a mock channel with encryption key for decryption
+        val mockChannel = mock(ConnectMessagingChannelRecord::class.java)
+        `when`(mockChannel.channelId).thenReturn("channel_001")
+        `when`(mockChannel.channelName).thenReturn("Test Channel")
+        `when`(mockChannel.key).thenReturn(encryptionKey)
+        `when`(mockChannel.consented).thenReturn(true)
+
+        mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
+            mockedHelper.`when`<List<ConnectMessagingChannelRecord>> {
+                ConnectMessagingDatabaseHelper.getMessagingChannels(any())
+            }.thenReturn(listOf(mockChannel))
+
+            val result = parseResponse(response)
+
+            assertEquals(1, result.nonMessagingNotifications.size)
+            assertEquals(1, result.channels.size)
+            assertEquals(1, result.messages.size)
+            assertEquals("message_001", result.messages[0].messageId)
+            assertEquals("channel_001", result.messages[0].channelId)
+            assertEquals(messageContent, result.messages[0].message)
+            assertEquals("push_001", result.nonMessagingNotifications[0].notificationId)
+            assertEquals("channel_001", result.channels[0].channelId)
+            assertEquals(1, result.messagingNotificationIds.size)
+            assertEquals("msg_001", result.messagingNotificationIds[0])
         }
     }
 
