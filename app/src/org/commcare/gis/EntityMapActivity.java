@@ -14,6 +14,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -55,6 +56,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private static final int DEFAULT_MARKER_SIZE = 120;
     private static final int BOUNDARY_POLYGON_ALPHA = 64;
     private static final int BOUNDARY_POLYGON_STROKE_WIDTH = 5;
+    private static final double GEO_POINT_RADIUS_METERS = 3.0;
 
     private final Vector<Pair<Entity<TreeReference>, EntityMapDisplayInfo>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
@@ -122,6 +124,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             for (Pair<Entity<TreeReference>, EntityMapDisplayInfo> displayInfoPair : entityLocations) {
                 addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
                 addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
+                addGeoPoints(builder, displayInfoPair.second);
             }
 
             final LatLngBounds bounds = builder.build();
@@ -197,6 +200,24 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             for (LatLng coord : displayInfo.getBoundary()) {
                 builder.include(coord);
+            }
+        }
+    }
+
+    private void addGeoPoints(LatLngBounds.Builder builder,
+                              EntityMapDisplayInfo displayInfo) {
+        // Add additional display points to map
+        if (displayInfo.getPoints() != null) {
+            for(int i=0; i<displayInfo.getPoints().size(); i++) {
+                LatLng coordinate = displayInfo.getPoints().get(i);
+                CircleOptions options = new CircleOptions()
+                        .center(coordinate)
+                        .radius(GEO_POINT_RADIUS_METERS)
+                        .strokeColor(displayInfo.getPointColorsHex().get(i))
+                        .fillColor(displayInfo.getPointColorsHex().get(i));
+
+                mMap.addCircle(options);
+                builder.include(coordinate);
             }
         }
     }
