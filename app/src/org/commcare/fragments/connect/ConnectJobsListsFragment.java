@@ -133,7 +133,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 (compositeJob.isFinished() || compositeJob.getDeliveries().size() >= compositeJob.getMaxVisits());
 
         if (appInstalled && deliveryComplete && !isLearning) {
-            ConnectAppUtils.INSTANCE.launchAppForCompletedDelivery(requireActivity(), appId, job);
+            navigateToDeliveryProgress();
         } else if (appInstalled) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
@@ -142,6 +142,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     .actionConnectJobsListFragmentToConnectDownloadingFragment(
                             getString(textId), isLearning));
         }
+    }
+
+    private void navigateToDeliveryProgress() {
+        Navigation.findNavController(getBinding().getRoot())
+                .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment());
     }
 
     private void setActiveJob(ConnectJobRecord job) {
