@@ -588,7 +588,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportNotificationEvent(String eventType, String method,
-                                               @Nullable String actionType, @Nullable String notificationId) {
+            @Nullable String actionType, @Nullable String notificationId) {
         Bundle bundle = new Bundle();
         bundle.putString(CCAnalyticsParam.NOTIFICATION_EVENT_TYPE, eventType);
         bundle.putString(METHOD, method);
