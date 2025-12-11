@@ -22,10 +22,6 @@
             android:id="@+id/action_personalid_biometric_config_to_personalid_name"
             app:destination="@id/personalid_name"
             app:popUpTo="@id/personalid_biometric_config" />
-        <argument
-            android:name="isPersonalIDDemoUser"
-            app:argType="boolean"
-            android:defaultValue="false" />
     </fragment>
 
     <fragment

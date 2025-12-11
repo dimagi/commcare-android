@@ -124,7 +124,6 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
 
-        // Track/flag Personal ID demo users after successful account creation/recovery.
         Boolean isPersonalIDDemoUser = ReportingUtils.getIsPersonalIDDemoUser();
         if (isPersonalIDDemoUser != null) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isPersonalIDDemoUser));
@@ -552,19 +551,6 @@ public class FirebaseAnalyticsUtil {
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
             bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
-
-            // We want to track/flag demo users, especially when a demo phone number has been
-            // entered on the Personal ID phone screen as the user is navigating to the biometrics
-            // screen before their account is even recovered/created.
-            if (args != null && args.containsKey("isPersonalIDDemoUser")) {
-                boolean isPersonalIDDemoUser = args.getBoolean("isPersonalIDDemoUser");
-                FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
-                analyticsInstance.setUserProperty(
-                        CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
-                        String.valueOf(isPersonalIDDemoUser)
-                );
-            }
-
             reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
         };
     }
@@ -602,7 +588,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportNotificationEvent(String eventType, String method,
-            @Nullable String actionType, @Nullable String notificationId) {
+                                               @Nullable String actionType, @Nullable String notificationId) {
         Bundle bundle = new Bundle();
         bundle.putString(CCAnalyticsParam.NOTIFICATION_EVENT_TYPE, eventType);
         bundle.putString(METHOD, method);

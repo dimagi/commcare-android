@@ -47,5 +47,5 @@ public class CCAnalyticsParam {
     static final String NOTIFICATION_ACTION = "action";
     static final String NOTIFICATION_ID = "notification_id";
     static final String NOTIFICATION_CLICK_METHOD = "click_method";
-    static final String IS_PERSONAL_ID_DEMO_USER = "is_personal_id_demo_user";
+    public static final String IS_PERSONAL_ID_DEMO_USER = "is_personal_id_demo_user";
 }

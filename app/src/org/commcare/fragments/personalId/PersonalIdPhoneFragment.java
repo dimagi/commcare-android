@@ -32,7 +32,9 @@ import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
@@ -45,6 +47,7 @@ import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.CCAnalyticsParam;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
@@ -431,9 +434,12 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
+                boolean isDemoUser = Boolean.TRUE.equals(sessionData.getDemoUser());
+                FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+                analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isDemoUser));
+
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    boolean isDemoUser = Boolean.TRUE.equals(sessionData.getDemoUser());
-                    onConfigurationSuccess(isDemoUser);
+                    onConfigurationSuccess();
                 } else {
                     String failureCode =
                             personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode();
@@ -508,9 +514,8 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         );
     }
 
-    private void onConfigurationSuccess(boolean isDemoUser) {
-        Navigation.findNavController(binding.personalidPhoneContinueButton)
-                .navigate(navigateToBiometricSetup(isDemoUser));
+    private void onConfigurationSuccess() {
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
@@ -530,13 +535,8 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         binding.personalidPhoneError.setText(error);
     }
 
-    private NavDirections navigateToBiometricSetup(boolean isDemoUser) {
-        PersonalIdPhoneFragmentDirections.ActionPersonalidPhoneFragmentToPersonalidBiometricConfig action =
-                PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
-
-        action.setIsPersonalIDDemoUser(isDemoUser);
-
-        return action;
+    private NavDirections navigateToBiometricSetup() {
+        return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
     @Override
