@@ -221,30 +221,6 @@ object EntityMapUtils {
             }
         }
 
-        if (boundary != null && boundaryColorHex == null) {
-            boundary = null
-            Logger.exception(
-                "Entity has boundary but no boundary color specified for map display",
-                RuntimeException()
-            )
-        }
-
-        if (points != null) {
-            if (pointColorsHex == null) {
-                points = null
-                Logger.exception(
-                    "Entity has points but no point colors specified for map display",
-                    RuntimeException()
-                )
-            } else if (points.size != pointColorsHex.size) {
-                points = null
-                Logger.exception(
-                    "Entity has points and point colors with different lengths for map display",
-                    RuntimeException()
-                )
-            }
-        }
-
         return if (location != null || boundary != null || points != null) {
             EntityMapDisplayInfo(
                 location = location,
