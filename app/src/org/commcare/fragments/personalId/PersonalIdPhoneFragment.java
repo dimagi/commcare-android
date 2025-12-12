@@ -24,30 +24,27 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.Task;
-import com.google.android.play.core.integrity.StandardIntegrityManager;
-import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.CCAnalyticsParam;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
@@ -62,7 +59,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
@@ -435,8 +431,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
                 boolean isDemoUser = Boolean.TRUE.equals(sessionData.getDemoUser());
-                FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
-                analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isDemoUser));
+                FirebaseAnalyticsUtil.flagPersonalIDDemoUser(isDemoUser);
 
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSuccess();

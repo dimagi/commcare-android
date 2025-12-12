@@ -77,6 +77,11 @@ public class FirebaseAnalyticsUtil {
             return;
         }
 
+        Boolean isPersonalIDDemoUser = ReportingUtils.getIsPersonalIDDemoUser();
+        if (isPersonalIDDemoUser != null) {
+            flagPersonalIDDemoUser(isPersonalIDDemoUser);
+        }
+
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
         setUserProperties(analyticsInstance);
         analyticsInstance.logEvent(eventName, params);
@@ -123,11 +128,6 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
-
-        Boolean isPersonalIDDemoUser = ReportingUtils.getIsPersonalIDDemoUser();
-        if (isPersonalIDDemoUser != null) {
-            analyticsInstance.setUserProperty(CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER, String.valueOf(isPersonalIDDemoUser));
-        }
     }
 
     private static String getFreeDiskBucket() {
@@ -599,5 +599,13 @@ public class FirebaseAnalyticsUtil {
             bundle.putString(CCAnalyticsParam.NOTIFICATION_ID, notificationId);
         }
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, bundle);
+    }
+
+    public static void flagPersonalIDDemoUser(boolean isPersonalIDDemoUser) {
+        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        analyticsInstance.setUserProperty(
+                CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
+                String.valueOf(isPersonalIDDemoUser)
+        );
     }
 }
