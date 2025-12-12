@@ -13,8 +13,8 @@ import org.javarosa.core.model.data.GeoPointData
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.utils.GeoPointUtils
-import org.javarosa.core.services.Logger
 import org.javarosa.core.model.utils.PolygonUtils
+import org.javarosa.core.services.Logger
 import java.util.Vector
 import javax.annotation.Nullable
 
@@ -108,7 +108,7 @@ object EntityMapUtils {
 
     @Nullable
     private fun parsePointListFromString(pointListString: String): List<LatLng>? {
-        if(pointListString.isEmpty()) {
+        if (pointListString.isEmpty()) {
             return null
         }
         val parts = pointListString.trim().split("\\s+".toRegex())
@@ -124,7 +124,7 @@ object EntityMapUtils {
 
     @Nullable
     private fun parseHexColorList(colorsString: String): List<Int>? {
-        if(colorsString.isEmpty()) {
+        if (colorsString.isEmpty()) {
             return null
         }
 
@@ -188,7 +188,7 @@ object EntityMapUtils {
             if (location == null) {
                 try {
                     location = getEntityLocation(entity, detail, i)
-                } catch(e: IllegalArgumentException) {
+                } catch (e: IllegalArgumentException) {
                     Logger.exception("Error parsing entity location for map display", e)
                     errorEncountered = true
                 }
@@ -197,7 +197,7 @@ object EntityMapUtils {
             if (boundary == null) {
                 try {
                     boundary = getEntityBoundary(entity, detail, i)
-                } catch(e: IllegalArgumentException) {
+                } catch (e: IllegalArgumentException) {
                     Logger.exception("Error parsing entity boundary for map display", e)
                     errorEncountered = true
                 }
@@ -206,7 +206,7 @@ object EntityMapUtils {
             if (boundaryColorHex == null) {
                 try {
                     boundaryColorHex = getEntityBoundaryColor(entity, detail, i)
-                } catch(e: IllegalArgumentException) {
+                } catch (e: IllegalArgumentException) {
                     Logger.exception("Error parsing entity boundary color for map display", e)
                     errorEncountered = true
                 }
@@ -215,7 +215,7 @@ object EntityMapUtils {
             if (points == null) {
                 try {
                     points = getEntityPoints(entity, detail, i)
-                } catch(e: IllegalArgumentException) {
+                } catch (e: IllegalArgumentException) {
                     Logger.exception("Error parsing entity points for map display", e)
                     errorEncountered = true
                 }
@@ -224,11 +224,22 @@ object EntityMapUtils {
             if (pointColorsHex == null) {
                 try {
                     pointColorsHex = getEntityPointColors(entity, detail, i)
-                } catch(e: IllegalArgumentException) {
+                } catch (e: IllegalArgumentException) {
                     Logger.exception("Error parsing entity point colors for map display", e)
                     errorEncountered = true
                 }
             }
+        }
+
+        if (pointColorsHex != null && points != null && pointColorsHex.size != points.size) {
+            Logger.exception(
+                "Mismatched point colors and points for entity map display",
+                IllegalArgumentException(
+                    "Number of point colors (${pointColorsHex.size}) does not match number of points (${points.size})"
+                )
+            )
+            pointColorsHex = null
+            errorEncountered = true
         }
 
         return if (errorEncountered || location != null || boundary != null || points != null) {
