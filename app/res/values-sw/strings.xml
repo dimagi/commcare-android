@@ -250,6 +250,7 @@
     <string name="choice_or">____________ AU _____________</string>
     <string name="busy_message">Bado tunashughulika kuchakata ombi lako la awali. Tafadhali jaribu tena baada ya muda fulani.</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
+    <string name="entity_map_error_message">Kulikuwa na hitilafu katika usanidi wa programu kutokana na ambayo si alama zote kwenye ramani zimepakiwa ipasavyo</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya PersonalID tena.</string>
     <string name="connect_registration_title">Usajili wa PersonalId</string>
     <string name="connect_consent_message_1">Nimesoma na kukubaliana na <a href="https://www.dimagi.com/terms/latest/privacy/">Sera ya Faragha</a> ya Dimagi, <a href="https://www.dimagi.com/terms/latest/tos/">Sheria na Masharti</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Makubaliano ya Biashara</a> na <a href="https://www.dimagi.com/terms/latest/aup/">Sera ya Matumizi Yanayokubalika</a>.</string>

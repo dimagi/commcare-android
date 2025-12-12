@@ -33,6 +33,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.ViewUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -94,11 +95,18 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             Detail detail = CommCareApplication.instance().getCurrentSession()
                     .getDetail(selectDatum.getShortDetail());
             evalImageFieldIndex(detail);
+            var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
                 EntityMapDisplayInfo displayInfo = EntityMapUtils.getDisplayInfoForEntity(entity, detail);
                 if (displayInfo != null) {
                     entityLocations.add(new Pair<>(entity, displayInfo));
+                    errorEncountered |= displayInfo.getErrorEncountered();
                 }
+            }
+
+            if(errorEncountered) {
+                ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
+                        getString(R.string.entity_map_error_message));
             }
         }
     }

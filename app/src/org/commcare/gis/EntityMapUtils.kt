@@ -38,14 +38,11 @@ object EntityMapUtils {
 
     @Nullable
     private fun getLatLngFromAddress(address: String): LatLng? {
-        try {
-            if (!address.contentEquals("")) {
-                val data = GeoPointData().cast(UncastData(address))
-                return LatLng(data.latitude, data.longitude)
-            }
-        } catch (e: IllegalArgumentException) {
-            Logger.exception("Error parsing entity location for map display", e)
+        if (!address.contentEquals("")) {
+            val data = GeoPointData().cast(UncastData(address))
+            return LatLng(data.latitude, data.longitude)
         }
+
         return null
     }
 
@@ -103,65 +100,52 @@ object EntityMapUtils {
 
     @Nullable
     private fun parseBoundaryFromString(boundaryString: String): List<LatLng>? {
-        try {
-            val parts = boundaryString.trim().split("\\s+".toRegex())
-            val polygon = PolygonUtils.createPolygon(parts)
-            return polygon.map { LatLng(it.latitude, it.longitude) }
-                .toMutableList()
-        } catch (e: IllegalArgumentException) {
-            Logger.exception("Error parsing entity boundary for map display", e)
-            return null
-        }
+        val parts = boundaryString.trim().split("\\s+".toRegex())
+        val polygon = PolygonUtils.createPolygon(parts)
+        return polygon.map { LatLng(it.latitude, it.longitude) }
+            .toMutableList()
     }
 
     @Nullable
     private fun parsePointListFromString(pointListString: String): List<LatLng>? {
-        try {
-            val parts = pointListString.trim().split("\\s+".toRegex())
-            val polygon = GeoPointUtils.createPointList(parts)
-            return polygon.map { LatLng(it.latitude, it.longitude) }
-                .toMutableList()
-        } catch (e: IllegalArgumentException) {
-            Logger.exception("Error parsing entity point list for map display", e)
+        if(pointListString.isEmpty()) {
             return null
         }
+        val parts = pointListString.trim().split("\\s+".toRegex())
+        val polygon = GeoPointUtils.createPointList(parts)
+        return polygon.map { LatLng(it.latitude, it.longitude) }
+            .toMutableList()
     }
 
     @Nullable
     private fun parseHexColor(colorString: String): Int? {
-        try {
-            return colorString.toColorInt()
-        } catch (e: IllegalArgumentException) {
-            Logger.exception("Error parsing hex color: $colorString", e)
-            return null
-        }
+        return colorString.toColorInt()
     }
 
     @Nullable
     private fun parseHexColorList(colorsString: String): List<Int>? {
-        try {
-            // Split by either spaces or commas (or both), handling multiple delimiters
-            val parts = colorsString.trim()
-                .split("[\\s,]+".toRegex())
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-
-            val colors = mutableListOf<Int>()
-            for (part in parts) {
-                val color = parseHexColor(part)
-                if (color != null) {
-                    colors.add(color)
-                }
-            }
-
-            return if (colors.isNotEmpty()) {
-                colors.toMutableList()
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Logger.exception("Error parsing hex color list for map display", e)
+        if(colorsString.isEmpty()) {
             return null
+        }
+
+        // Split by either spaces or commas (or both), handling multiple delimiters
+        val parts = colorsString.trim()
+            .split("[\\s,]+".toRegex())
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
+        val colors = mutableListOf<Int>()
+        for (part in parts) {
+            val color = parseHexColor(part)
+            if (color != null) {
+                colors.add(color)
+            }
+        }
+
+        return if (colors.isNotEmpty()) {
+            colors.toMutableList()
+        } else {
+            null
         }
     }
 
@@ -198,31 +182,58 @@ object EntityMapUtils {
         var boundaryColorHex: Int? = null
         var points: List<LatLng>? = null
         var pointColorsHex: List<Int>? = null
+        var errorEncountered = false
 
         for (i in 0 until detail.headerForms.size) {
             if (location == null) {
-                location = getEntityLocation(entity, detail, i)
+                try {
+                    location = getEntityLocation(entity, detail, i)
+                } catch(e: IllegalArgumentException) {
+                    Logger.exception("Error parsing entity location for map display", e)
+                    errorEncountered = true
+                }
             }
 
             if (boundary == null) {
-                boundary = getEntityBoundary(entity, detail, i)
+                try {
+                    boundary = getEntityBoundary(entity, detail, i)
+                } catch(e: IllegalArgumentException) {
+                    Logger.exception("Error parsing entity boundary for map display", e)
+                    errorEncountered = true
+                }
             }
 
             if (boundaryColorHex == null) {
-                boundaryColorHex = getEntityBoundaryColor(entity, detail, i)
+                try {
+                    boundaryColorHex = getEntityBoundaryColor(entity, detail, i)
+                } catch(e: IllegalArgumentException) {
+                    Logger.exception("Error parsing entity boundary color for map display", e)
+                    errorEncountered = true
+                }
             }
 
             if (points == null) {
-                points = getEntityPoints(entity, detail, i)
+                try {
+                    points = getEntityPoints(entity, detail, i)
+                } catch(e: IllegalArgumentException) {
+                    Logger.exception("Error parsing entity points for map display", e)
+                    errorEncountered = true
+                }
             }
 
             if (pointColorsHex == null) {
-                pointColorsHex = getEntityPointColors(entity, detail, i)
+                try {
+                    pointColorsHex = getEntityPointColors(entity, detail, i)
+                } catch(e: IllegalArgumentException) {
+                    Logger.exception("Error parsing entity point colors for map display", e)
+                    errorEncountered = true
+                }
             }
         }
 
-        return if (location != null || boundary != null || points != null) {
+        return if (errorEncountered || location != null || boundary != null || points != null) {
             EntityMapDisplayInfo(
+                errorEncountered = errorEncountered,
                 location = location,
                 boundary = boundary,
                 boundaryColorHex = boundaryColorHex,
