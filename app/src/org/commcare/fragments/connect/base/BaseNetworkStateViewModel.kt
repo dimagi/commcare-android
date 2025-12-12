@@ -25,7 +25,7 @@ open class BaseNetworkStateViewModel : ViewModel() {
 
     protected val handler =
         CoroutineExceptionHandler { _, exception ->
-            networkStateLiveData.value = NetworkState.Error(exception as Exception)
+            networkStateLiveData.value = NetworkState.Error(if (exception is Exception) exception else Exception(exception))
         }
 
     protected fun launchTask(task: suspend () -> Unit) {
