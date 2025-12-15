@@ -239,6 +239,7 @@
     <string name="choice_or">_____________ ወይ _____________</string>
     <string name="busy_message">ሕጂ ውን ቅድሚ ሕጂ ዝገበርካዮ ሕቶ ኣብ ምስራሕ ተጸሚድና ኣለና። በጃኻ ድሕሪ ውሱን ግዜ ደጊምካ ፈትን።</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
+    <string name="entity_map_error_message">ኣብ ውቅር ኣፕ ጌጋ ኣጋጢሙ ብሰንኪ እዚ ድማ ኩሎም ኣብቲ ካርታ ዘለዉ ማርከራት ብትኽክል ኣይጽዓኑን እዮም።</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">ብ PersonalID ጀምር</string>
     <string name="connect_consent_message_1">ኣነ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
