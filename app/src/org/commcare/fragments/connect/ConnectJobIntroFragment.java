@@ -24,6 +24,7 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.ErrorBottomSheet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -115,7 +116,14 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                String message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
+                if (PersonalIdOrConnectApiErrorHandler.isBlockingError(errorCode)) {
+                    new ErrorBottomSheet(message, getString(R.string.ok),null).show(requireActivity().getSupportFragmentManager(), null);
+                    getBinding().errorTextView.setVisibility(View.GONE);
+                } else {
+                    getBinding().errorTextView.setVisibility(View.VISIBLE);
+                    getBinding().errorTextView.setText(message);
+                }
                 reportApiCall(false);
             }
 

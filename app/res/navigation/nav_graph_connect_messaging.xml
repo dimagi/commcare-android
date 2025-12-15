@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_channelConsent_to_connectMessageFragment"
             app:destination="@id/connectMessageFragment" />
+        <action
+            android:id="@+id/action_channelConsent_to_channelListFragment"
+            app:destination="@id/channelListFragment" />
     </dialog>
 
     <fragment

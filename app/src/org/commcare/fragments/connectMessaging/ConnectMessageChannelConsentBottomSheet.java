@@ -15,6 +15,7 @@ import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelConsentBottomSheetBinding;
+import org.commcare.views.ErrorBottomSheet;
 
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
@@ -49,7 +50,11 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                 } else {
                     Context context = getContext();
                     if(context != null) {
-                        Toast.makeText(context, getString(R.string.connect_messaging_channel_consent_failure_msg), Toast.LENGTH_SHORT).show();
+                        new ErrorBottomSheet(getString(R.string.connect_messaging_channel_consent_failure_msg),
+                                getString(R.string.ok), () -> {
+                            navigateToChannelList();
+                            return kotlin.Unit.INSTANCE;
+                        }).show(requireActivity().getSupportFragmentManager(), null);
                     }
 
                     NavHostFragment.findNavController(this).popBackStack();
@@ -67,5 +72,11 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         });
 
         return binding.getRoot();
+    }
+
+    private void navigateToChannelList() {
+        NavDirections directions = ConnectMessageChannelConsentBottomSheetDirections
+                .actionChannelConsentToChannelListFragment();
+        NavHostFragment.findNavController(this).navigate(directions);
     }
 }

@@ -82,14 +82,6 @@ public class MessageManager {
                 listener.connectActivityComplete(false);
             }
         };
-
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        boolean isBusy = !ApiPersonalId.updateChannelConsent(context, user.getUserId(), user.getPassword(),
-                channel.getChannelId(), channel.getConsented(), callback);
-
-        if (isBusy) {
-            Toast.makeText(context, R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
     }
 
     public static void getChannelEncryptionKey(Context context, ConnectMessagingChannelRecord channel,
