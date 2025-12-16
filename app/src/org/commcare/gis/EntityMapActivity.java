@@ -111,7 +111,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 }
             }
 
-            if(errorEncountered) {
+            if (errorEncountered) {
                 ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
                         getString(R.string.entity_map_error_message));
             }
@@ -188,9 +188,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     }
 
     private boolean addMarker(LatLngBounds.Builder builder,
-                           Entity<TreeReference> entity,
-                           EntityMapDisplayInfo displayInfo,
-                           boolean showCustomMapMarker) {
+                              Entity<TreeReference> entity,
+                              EntityMapDisplayInfo displayInfo,
+                              boolean showCustomMapMarker) {
         // Add markers to map and find bounding region
         if (displayInfo.getLocation() != null) {
             MarkerOptions markerOptions = new MarkerOptions()
@@ -218,8 +218,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     }
 
     private boolean addBoundaryPolygon(LatLngBounds.Builder builder,
-                                     Entity<TreeReference> entity,
-                                     EntityMapDisplayInfo displayInfo) {
+                                       Entity<TreeReference> entity,
+                                       EntityMapDisplayInfo displayInfo) {
         // Add boundary polygon to map
         if (displayInfo.getBoundary() != null) {
             int color = displayInfo.getBoundaryColorHex() != null ?
@@ -249,13 +249,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     }
 
     private int addGeoPoints(LatLngBounds.Builder builder,
-                              EntityMapDisplayInfo displayInfo) {
+                             EntityMapDisplayInfo displayInfo) {
         // Add additional display points to map
         if (displayInfo.getPoints() != null) {
-            for(int i=0; i<displayInfo.getPoints().size(); i++) {
+            for (int i = 0; i < displayInfo.getPoints().size(); i++) {
                 LatLng coordinate = displayInfo.getPoints().get(i);
                 int color = Color.WHITE;
-                if(displayInfo.getPointColorsHex() != null &&
+                if (displayInfo.getPointColorsHex() != null &&
                         displayInfo.getPointColorsHex().size() > i) {
                     color = displayInfo.getPointColorsHex().get(i);
                 }
@@ -276,7 +276,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     }
 
     private void finishPerformanceTrace(int numMarkers, int numPolygons, int numGeoPoints) {
-        if(mapStartupTrace != null) {
+        if (mapStartupTrace != null) {
             Map<String, String> perfMetrics = new HashMap<>();
             perfMetrics.put(CCPerfMonitoring.ATTR_MAP_MARKERS, Integer.toString(numMarkers));
             perfMetrics.put(CCPerfMonitoring.ATTR_MAP_POLYGONS, Integer.toString(numPolygons));
@@ -306,7 +306,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         double sumLat = 0;
         double sumLng = 0;
         int numPoints = points.size() - 1;
-        for (int i=0; i<numPoints; i++) {
+        for (int i = 0; i < numPoints; i++) {
             LatLng point = points.get(i);
             sumLat += point.latitude;
             sumLng += point.longitude;
