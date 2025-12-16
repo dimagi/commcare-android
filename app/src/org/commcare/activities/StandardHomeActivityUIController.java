@@ -8,6 +8,7 @@ import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
+import androidx.appcompat.app.ActionBar;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -61,7 +62,19 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         setupGridView();
         activity.toggleDrawerSetUp(true);
         activity.checkForDrawerSetUp();
+        setUpToolBar();
+    }
 
+    private void setUpToolBar() {
+        androidx.appcompat.widget.Toolbar toolbar = activity.findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            activity.setSupportActionBar(toolbar);
+            ActionBar actionBar = activity.getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setTitle(CommCareActivity.getTopLevelTitleName(activity));
+            }
+        }
     }
 
     private void setupConnectJobTile() {
