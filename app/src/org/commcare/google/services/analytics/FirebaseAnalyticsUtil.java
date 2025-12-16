@@ -77,11 +77,7 @@ public class FirebaseAnalyticsUtil {
             return;
         }
 
-        Boolean isPersonalIDDemoUser = ReportingUtils.getIsPersonalIDDemoUser();
-        if (isPersonalIDDemoUser != null) {
-            flagPersonalIDDemoUser(isPersonalIDDemoUser);
-        }
-
+        flagPersonalIDDemoUser(ReportingUtils.getIsPersonalIDDemoUser());
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
         setUserProperties(analyticsInstance);
         analyticsInstance.logEvent(eventName, params);
@@ -601,7 +597,11 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, bundle);
     }
 
-    public static void flagPersonalIDDemoUser(boolean isPersonalIDDemoUser) {
+    public static void flagPersonalIDDemoUser(Boolean isPersonalIDDemoUser) {
+        if (isPersonalIDDemoUser == null) {
+            return;
+        }
+
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
         analyticsInstance.setUserProperty(
                 CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
