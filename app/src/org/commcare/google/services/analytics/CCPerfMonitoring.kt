@@ -12,7 +12,8 @@ object CCPerfMonitoring {
     const val TRACE_APP_SYNC_DURATION = "app_sync_duration"
     const val TRACE_CASE_SEARCH_TIME = "case_search_time"
     const val TRACE_FORM_LOADING_TIME = "form_loading_time"
-    const val TRACE_ENTITY_MAP_LOADING_TIME = "entity_map_loading_time"
+    const val TRACE_ENTITY_MAP_READY_TIME = "entity_map_ready_time"
+    const val TRACE_ENTITY_MAP_LOADED_TIME = "entity_map_loaded_time"
 
     // Attributes
     const val ATTR_NUM_CASES_LOADED = "number_of_cases_loaded"

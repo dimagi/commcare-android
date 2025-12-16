@@ -72,7 +72,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private int imageFieldIndex = -1;
 
     private Marker polygonInfoMarker = null;
-    private Trace mapStartupTrace = null;
+    private Trace mapReadyTrace = null;
+    private Trace mapLoadedTrace = null;
     private int numMarkers = 0;
     private int numPolygons = 0;
     private int numGeoPoints = 0;
@@ -82,8 +83,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entity_map_view);
 
-        mapStartupTrace = CCPerfMonitoring.INSTANCE.startTracing(
-                CCPerfMonitoring.TRACE_ENTITY_MAP_LOADING_TIME);
+        mapReadyTrace = CCPerfMonitoring.INSTANCE.startTracing(
+                CCPerfMonitoring.TRACE_ENTITY_MAP_READY_TIME);
 
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -135,6 +136,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     public void onMapReady(@NonNull final GoogleMap map) {
         mMap = map;
 
+        CCPerfMonitoring.INSTANCE.stopTracing(mapReadyTrace, new HashMap<>());
+        mapReadyTrace = null;
+
+        mapLoadedTrace = CCPerfMonitoring.INSTANCE.startTracing(
+                CCPerfMonitoring.TRACE_ENTITY_MAP_LOADED_TIME);
+
         if (!entityLocations.isEmpty()) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
@@ -165,16 +172,16 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                     () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
                         @Override
                         public void onCancel() {
-                            finishPerformanceTrace();
+                            finishLoadingPerformanceTrace();
                         }
 
                         @Override
                         public void onFinish() {
-                            finishPerformanceTrace();
+                            finishLoadingPerformanceTrace();
                         }
                     }));
         } else {
-            finishPerformanceTrace();
+            finishLoadingPerformanceTrace();
         }
 
         mMap.setOnInfoWindowClickListener(this);
@@ -260,14 +267,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
     }
 
-    private void finishPerformanceTrace() {
-        if (mapStartupTrace != null) {
+    private void finishLoadingPerformanceTrace() {
+        if (mapLoadedTrace != null) {
             Map<String, String> perfMetrics = new HashMap<>();
             perfMetrics.put(CCPerfMonitoring.ATTR_MAP_MARKERS, Integer.toString(numMarkers));
             perfMetrics.put(CCPerfMonitoring.ATTR_MAP_POLYGONS, Integer.toString(numPolygons));
             perfMetrics.put(CCPerfMonitoring.ATTR_MAP_GEO_POINTS, Integer.toString(numGeoPoints));
-            CCPerfMonitoring.INSTANCE.stopTracing(mapStartupTrace, perfMetrics);
-            mapStartupTrace = null;
+            CCPerfMonitoring.INSTANCE.stopTracing(mapLoadedTrace, perfMetrics);
+            mapLoadedTrace = null;
         }
     }
 
