@@ -705,9 +705,6 @@
     <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please try again.</string>
     <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
     <string name="personalid_biometric_error_lockout_permanent">Too many failed attempts. Please unlock your device and try again.</string>
-    <string name="personalid_biometric_error_hw_not_present">Your device does not support biometric authentication.</string>
-    <string name="personalid_biometric_error_hw_unavailable">Biometric hardware is unavailable. Please try again later.</string>
-    <string name="personalid_biometric_error_no_biometric">No biometrics are enrolled on this device.</string>
     <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please try again.</string>
     <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please try again.</string>
 </resources>

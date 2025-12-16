@@ -534,9 +534,6 @@ License.
     <string name="personalid_biometric_error_cancelled">La configuration biométrique a été annulée. Veuillez réessayer.</string>
     <string name="personalid_biometric_error_lockout">Trop de tentatives. Veuillez patienter et réessayer.</string>
     <string name="personalid_biometric_error_lockout_permanent">Trop de tentatives infructueuses. Veuillez déverrouiller votre appareil et réessayer.</string>
-    <string name="personalid_biometric_error_hw_not_present">Votre appareil ne prend pas en charge l\'authentification biométrique.</string>
-    <string name="personalid_biometric_error_hw_unavailable">Le matériel biométrique n\'est pas disponible. Veuillez réessayer plus tard.</string>
-    <string name="personalid_biometric_error_no_biometric">Aucune donnée biométrique n\'est enregistrée sur cet appareil.</string>
     <string name="personalid_biometric_error_timeout">L\'opération biométrique a expiré. Veuillez réessayer.</string>
     <string name="personalid_biometric_error_cannot_configure">Nous n\'avons pas pu configurer la biométrie sur votre appareil. Veuillez réessayer.</string>
 </resources>
