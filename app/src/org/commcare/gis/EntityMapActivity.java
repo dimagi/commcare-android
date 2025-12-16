@@ -73,6 +73,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     private Marker polygonInfoMarker = null;
     private Trace mapStartupTrace = null;
+    private int numMarkers = 0;
+    private int numPolygons = 0;
+    private int numGeoPoints = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,19 +135,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     public void onMapReady(@NonNull final GoogleMap map) {
         mMap = map;
 
-        int numMarkers = 0;
-        int numPolygons = 0;
-        int numGeoPoints = 0;
         if (!entityLocations.isEmpty()) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
 
             for (Pair<Entity<TreeReference>, EntityMapDisplayInfo> displayInfoPair : entityLocations) {
-                numMarkers += addMarker(builder, displayInfoPair.first, displayInfoPair.second,
-                        showCustomMapMarker) ? 1 : 0;
-                numPolygons += addBoundaryPolygon(builder, displayInfoPair.first,
-                        displayInfoPair.second) ? 1 : 0;
-                numGeoPoints += addGeoPoints(builder, displayInfoPair.second);
+                addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
+                addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
+                addGeoPoints(builder, displayInfoPair.second);
             }
 
             final LatLngBounds bounds = builder.build();
@@ -162,35 +160,31 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 showPolygonInfo(polygon);
             });
 
-            final int finalMarkers = numMarkers;
-            final int finalPolygons = numPolygons;
-            final int finalGeoPoints = numGeoPoints;
-
             // Move camera to be include all markers
             mMap.setOnMapLoadedCallback(
                     () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
                         @Override
                         public void onCancel() {
-                            finishPerformanceTrace(finalMarkers, finalPolygons, finalGeoPoints);
+                            finishPerformanceTrace();
                         }
 
                         @Override
                         public void onFinish() {
-                            finishPerformanceTrace(finalMarkers, finalPolygons, finalGeoPoints);
+                            finishPerformanceTrace();
                         }
                     }));
         } else {
-            finishPerformanceTrace(numMarkers, numPolygons, numGeoPoints);
+            finishPerformanceTrace();
         }
 
         mMap.setOnInfoWindowClickListener(this);
         setMapLocationEnabled(true);
     }
 
-    private boolean addMarker(LatLngBounds.Builder builder,
-                              Entity<TreeReference> entity,
-                              EntityMapDisplayInfo displayInfo,
-                              boolean showCustomMapMarker) {
+    private void addMarker(LatLngBounds.Builder builder,
+                           Entity<TreeReference> entity,
+                           EntityMapDisplayInfo displayInfo,
+                           boolean showCustomMapMarker) {
         // Add markers to map and find bounding region
         if (displayInfo.getLocation() != null) {
             MarkerOptions markerOptions = new MarkerOptions()
@@ -205,22 +199,18 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             if (marker == null) {
                 Logger.exception("Failed to add marker to map",
                         new Exception("Marker: " + entity.getFieldString(0)));
-                return false;
+                return;
             }
 
             markerReferences.put(marker, entity.getElement());
             builder.include(displayInfo.getLocation());
-
-            return true;
+            numMarkers++;
         }
-
-        return false;
     }
 
-    private boolean addBoundaryPolygon(LatLngBounds.Builder builder,
-                                       Entity<TreeReference> entity,
-                                       EntityMapDisplayInfo displayInfo) {
-        // Add boundary polygon to map
+    private void addBoundaryPolygon(LatLngBounds.Builder builder,
+                                    Entity<TreeReference> entity,
+                                    EntityMapDisplayInfo displayInfo) {
         if (displayInfo.getBoundary() != null) {
             int color = displayInfo.getBoundaryColorHex() != null ?
                     displayInfo.getBoundaryColorHex() :
@@ -242,14 +232,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 builder.include(coord);
             }
 
-            return true;
+            numPolygons++;
         }
-
-        return false;
     }
 
-    private int addGeoPoints(LatLngBounds.Builder builder,
-                             EntityMapDisplayInfo displayInfo) {
+    private void addGeoPoints(LatLngBounds.Builder builder,
+                              EntityMapDisplayInfo displayInfo) {
         // Add additional display points to map
         if (displayInfo.getPoints() != null) {
             for (int i = 0; i < displayInfo.getPoints().size(); i++) {
@@ -267,15 +255,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
                 mMap.addCircle(options);
                 builder.include(coordinate);
+                numGeoPoints++;
             }
-
-            return displayInfo.getPoints().size();
         }
-
-        return 0;
     }
 
-    private void finishPerformanceTrace(int numMarkers, int numPolygons, int numGeoPoints) {
+    private void finishPerformanceTrace() {
         if (mapStartupTrace != null) {
             Map<String, String> perfMetrics = new HashMap<>();
             perfMetrics.put(CCPerfMonitoring.ATTR_MAP_MARKERS, Integer.toString(numMarkers));
