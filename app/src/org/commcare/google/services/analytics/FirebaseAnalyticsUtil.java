@@ -77,7 +77,6 @@ public class FirebaseAnalyticsUtil {
             return;
         }
 
-        flagPersonalIDDemoUser(ReportingUtils.getIsPersonalIDDemoUser());
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
         setUserProperties(analyticsInstance);
         analyticsInstance.logEvent(eventName, params);
@@ -124,6 +123,8 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
+
+        flagPersonalIDDemoUser(ReportingUtils.getIsPersonalIDDemoUser());
     }
 
     private static String getFreeDiskBucket() {
