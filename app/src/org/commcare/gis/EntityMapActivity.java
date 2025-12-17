@@ -1,7 +1,6 @@
 package org.commcare.gis;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -25,6 +24,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.common.base.Strings;
 import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
@@ -43,6 +43,7 @@ import org.commcare.utils.ViewUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
 
 import java.util.ArrayList;
@@ -73,6 +74,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private final List<Circle> geoPointCircles = new ArrayList<>();
 
     private GoogleMap mMap;
+    private Switch toggleMarkers;
+    private Switch togglePolygons;
+    private Switch toggleGeoPoints;
 
     // keeps track of detail field index that should be used to show a custom icon
     private int imageFieldIndex = -1;
@@ -91,6 +95,10 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         mapReadyTrace = CCPerfMonitoring.INSTANCE.startTracing(
                 CCPerfMonitoring.TRACE_ENTITY_MAP_READY_TIME);
+
+        toggleMarkers = findViewById(R.id.toggle_markers);
+        togglePolygons = findViewById(R.id.toggle_polygons);
+        toggleGeoPoints = findViewById(R.id.toggle_geopoints);
 
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -112,6 +120,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             Detail detail = CommCareApplication.instance().getCurrentSession()
                     .getDetail(selectDatum.getShortDetail());
             evalImageFieldIndex(detail);
+
+            toggleMarkers.setText(getToggleLabel(EntityMapUtils.getMarkerHeader(detail),
+                    "map.markers"));
+            togglePolygons.setText(getToggleLabel(EntityMapUtils.getBoundaryHeader(detail),
+                    "map.polygons"));
+            toggleGeoPoints.setText(getToggleLabel(EntityMapUtils.getGeopointsHeader(detail),
+                    "map.geopoints"));
+
             var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
                 EntityMapDisplayInfo displayInfo = EntityMapUtils.getDisplayInfoForEntity(entity, detail);
@@ -126,6 +142,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         getString(R.string.entity_map_error_message));
             }
         }
+    }
+
+    private String getToggleLabel(String headerValue, String defaultKey) {
+        if(!Strings.isNullOrEmpty(headerValue)) {
+            return headerValue;
+        }
+
+        return Localization.get(defaultKey);
     }
 
     private void evalImageFieldIndex(Detail detail) {
@@ -173,7 +197,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 showPolygonInfo(polygon);
             });
 
-            // Move camera to be include all markers
+            // Move camera to include all markers
             mMap.setOnMapLoadedCallback(
                     () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
                         @Override
@@ -372,13 +396,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
     }
 
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private void setupMapToggles() {
         View overlay = findViewById(R.id.map_overlay);
-
-        Switch toggleMarkers = findViewById(R.id.toggle_markers);
-        Switch togglePolygons = findViewById(R.id.toggle_polygons);
-        Switch toggleGeopoints = findViewById(R.id.toggle_geopoints);
 
         int visibleToggles = 0;
 
@@ -407,15 +426,15 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
 
         if (numGeoPoints > 1) {
-            toggleGeopoints.setVisibility(View.VISIBLE);
+            toggleGeoPoints.setVisibility(View.VISIBLE);
             visibleToggles++;
-            toggleGeopoints.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            toggleGeoPoints.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 for (Circle circle : geoPointCircles) {
                     circle.setVisible(isChecked);
                 }
             });
         } else {
-            toggleGeopoints.setVisibility(View.GONE);
+            toggleGeoPoints.setVisibility(View.GONE);
         }
 
         overlay.setVisibility(visibleToggles < 2 ? View.GONE : View.VISIBLE);
