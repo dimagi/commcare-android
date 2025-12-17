@@ -13,7 +13,7 @@
 
     <ImageView
         android:background="@color/map_layer_button_color"
-        android:contentDescription="TODO"
+        android:contentDescription="@null"
         android:id="@+id/switch_map_layer"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
