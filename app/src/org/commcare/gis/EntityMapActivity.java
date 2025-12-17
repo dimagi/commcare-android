@@ -189,6 +189,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         mMap.setOnInfoWindowClickListener(this);
         setMapLocationEnabled(true);
+
+        mMap.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
     }
 
     private void addMarker(LatLngBounds.Builder builder,
@@ -390,6 +392,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         if (mMap != null) {
             MapLayer nextMapLayer = MapLayer.values()[mMap.getMapType() % 4];
             mMap.setMapType(nextMapLayer.getValue());
+            HiddenPreferences.setMapsDefaultLayer(nextMapLayer);
         }
     }
 }
