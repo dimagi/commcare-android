@@ -302,6 +302,9 @@
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
 
+    <string name="map_markers">Markers</string>
+    <string name="map_polygons">Polygons</string>
+    <string name="map_geopoints">Geopoints</string>
     <string name="entity_map_error_message">There was an error in app configuration due to which not all markers on the map are loaded correctly</string>
 
     <!-- PersonalID strings -->

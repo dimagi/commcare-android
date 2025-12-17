@@ -39,11 +39,11 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.utils.ViewUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
 
 import java.util.ArrayList;
@@ -122,11 +122,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             evalImageFieldIndex(detail);
 
             toggleMarkers.setText(getToggleLabel(EntityMapUtils.getMarkerHeader(detail),
-                    "map.markers"));
+                    R.string.map_markers));
             togglePolygons.setText(getToggleLabel(EntityMapUtils.getBoundaryHeader(detail),
-                    "map.polygons"));
+                    R.string.map_polygons));
             toggleGeoPoints.setText(getToggleLabel(EntityMapUtils.getGeopointsHeader(detail),
-                    "map.geopoints"));
+                    R.string.map_geopoints));
 
             var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
@@ -144,12 +144,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
     }
 
-    private String getToggleLabel(String headerValue, String defaultKey) {
+    private String getToggleLabel(String headerValue, int defaultKey) {
         if(!Strings.isNullOrEmpty(headerValue)) {
             return headerValue;
         }
 
-        return Localization.get(defaultKey);
+        return StringUtils.getStringRobust(this, defaultKey);
     }
 
     private void evalImageFieldIndex(Detail detail) {

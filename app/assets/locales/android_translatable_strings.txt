@@ -373,9 +373,6 @@ select.list.title=Select
 select.detail.callout.title=Select phone number action
 select.detail.callout.call=Call
 select.detail.callout.sms=Send SMS
-map.markers=Markers
-map.polygons=Polygons
-map.geopoints=Geopoints
 
 
 home.logged.in.message=Logged In: ${0}
