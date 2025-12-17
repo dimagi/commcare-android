@@ -33,6 +33,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.ViewUtils;
@@ -387,8 +388,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     private void changeMapLayer() {
         if (mMap != null) {
-            int nextMapLayer = (mMap.getMapType() % 4) + 1;
-            mMap.setMapType(nextMapLayer);
+            MapLayer nextMapLayer = MapLayer.values()[mMap.getMapType() % 4];
+            mMap.setMapType(nextMapLayer.getValue());
         }
     }
 }
