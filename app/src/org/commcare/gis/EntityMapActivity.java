@@ -1,12 +1,15 @@
 package org.commcare.gis;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.View;
+import android.widget.Switch;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -14,6 +17,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -41,6 +45,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +70,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private final Vector<Pair<Entity<TreeReference>, EntityMapDisplayInfo>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
     private final HashMap<Polygon, Pair<String, String>> polygonInfo = new HashMap<>();
+    private final List<Circle> geoPointCircles = new ArrayList<>();
 
     private GoogleMap mMap;
 
@@ -180,6 +186,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                             finishLoadingPerformanceTrace();
                         }
                     }));
+
+            setupMapToggles();
         } else {
             finishLoadingPerformanceTrace();
         }
@@ -260,7 +268,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         .strokeColor(color)
                         .fillColor(color);
 
-                mMap.addCircle(options);
+                Circle circle = mMap.addCircle(options);
+                geoPointCircles.add(circle);
                 builder.include(coordinate);
                 numGeoPoints++;
             }
@@ -361,6 +370,55 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 mMap.setMyLocationEnabled(enabled);
             }
         }
+    }
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private void setupMapToggles() {
+        View overlay = findViewById(R.id.map_overlay);
+
+        Switch toggleMarkers = findViewById(R.id.toggle_markers);
+        Switch togglePolygons = findViewById(R.id.toggle_polygons);
+        Switch toggleGeopoints = findViewById(R.id.toggle_geopoints);
+
+        int visibleToggles = 0;
+
+        if (numMarkers > 1) {
+            toggleMarkers.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            toggleMarkers.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Marker marker : markerReferences.keySet()) {
+                    marker.setVisible(isChecked);
+                }
+            });
+        } else {
+            toggleMarkers.setVisibility(View.GONE);
+        }
+
+        if (numPolygons > 1) {
+            togglePolygons.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            togglePolygons.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Polygon polygon : polygonInfo.keySet()) {
+                    polygon.setVisible(isChecked);
+                }
+            });
+        } else {
+            togglePolygons.setVisibility(View.GONE);
+        }
+
+        if (numGeoPoints > 1) {
+            toggleGeopoints.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            toggleGeopoints.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Circle circle : geoPointCircles) {
+                    circle.setVisible(isChecked);
+                }
+            });
+        } else {
+            toggleGeopoints.setVisibility(View.GONE);
+        }
+
+        overlay.setVisibility(visibleToggles < 2 ? View.GONE : View.VISIBLE);
     }
 
     @Override
