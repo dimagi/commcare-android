@@ -90,6 +90,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        findViewById(R.id.switch_map_layer).setOnClickListener(v -> changeMapLayer());
+
         try {
             addEntityData();
         } catch (XPathException xe) {
@@ -381,5 +383,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public boolean shouldListenToSyncComplete() {
         return true;
+    }
+
+    private void changeMapLayer() {
+        if (mMap != null) {
+            int nextMapLayer = (mMap.getMapType() % 4) + 1;
+            mMap.setMapType(nextMapLayer);
+        }
     }
 }
