@@ -21,12 +21,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -41,6 +43,7 @@ import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import androidx.annotation.NonNull;
@@ -69,11 +72,19 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private int imageFieldIndex = -1;
 
     private Marker polygonInfoMarker = null;
+    private Trace mapReadyTrace = null;
+    private Trace mapLoadedTrace = null;
+    private int numMarkers = 0;
+    private int numPolygons = 0;
+    private int numGeoPoints = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entity_map_view);
+
+        mapReadyTrace = CCPerfMonitoring.INSTANCE.startTracing(
+                CCPerfMonitoring.TRACE_ENTITY_MAP_READY_TIME);
 
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -104,7 +115,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 }
             }
 
-            if(errorEncountered) {
+            if (errorEncountered) {
                 ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
                         getString(R.string.entity_map_error_message));
             }
@@ -124,6 +135,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public void onMapReady(@NonNull final GoogleMap map) {
         mMap = map;
+
+        CCPerfMonitoring.INSTANCE.stopTracing(mapReadyTrace, new HashMap<>());
+        mapReadyTrace = null;
+
+        mapLoadedTrace = CCPerfMonitoring.INSTANCE.startTracing(
+                CCPerfMonitoring.TRACE_ENTITY_MAP_LOADED_TIME);
 
         if (!entityLocations.isEmpty()) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -152,7 +169,19 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             // Move camera to be include all markers
             mMap.setOnMapLoadedCallback(
-                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
+                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
+                        @Override
+                        public void onCancel() {
+                            finishLoadingPerformanceTrace();
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            finishLoadingPerformanceTrace();
+                        }
+                    }));
+        } else {
+            finishLoadingPerformanceTrace();
         }
 
         mMap.setOnInfoWindowClickListener(this);
@@ -182,13 +211,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             markerReferences.put(marker, entity.getElement());
             builder.include(displayInfo.getLocation());
+            numMarkers++;
         }
     }
 
     private void addBoundaryPolygon(LatLngBounds.Builder builder,
-                                     Entity<TreeReference> entity,
-                                     EntityMapDisplayInfo displayInfo) {
-        // Add boundary polygon to map
+                                    Entity<TreeReference> entity,
+                                    EntityMapDisplayInfo displayInfo) {
         if (displayInfo.getBoundary() != null) {
             int color = displayInfo.getBoundaryColorHex() != null ?
                     displayInfo.getBoundaryColorHex() :
@@ -209,6 +238,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             for (LatLng coord : displayInfo.getBoundary()) {
                 builder.include(coord);
             }
+
+            numPolygons++;
         }
     }
 
@@ -216,10 +247,10 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                               EntityMapDisplayInfo displayInfo) {
         // Add additional display points to map
         if (displayInfo.getPoints() != null) {
-            for(int i=0; i<displayInfo.getPoints().size(); i++) {
+            for (int i = 0; i < displayInfo.getPoints().size(); i++) {
                 LatLng coordinate = displayInfo.getPoints().get(i);
                 int color = Color.WHITE;
-                if(displayInfo.getPointColorsHex() != null &&
+                if (displayInfo.getPointColorsHex() != null &&
                         displayInfo.getPointColorsHex().size() > i) {
                     color = displayInfo.getPointColorsHex().get(i);
                 }
@@ -231,7 +262,19 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
                 mMap.addCircle(options);
                 builder.include(coordinate);
+                numGeoPoints++;
             }
+        }
+    }
+
+    private void finishLoadingPerformanceTrace() {
+        if (mapLoadedTrace != null) {
+            Map<String, String> perfMetrics = new HashMap<>();
+            perfMetrics.put(CCPerfMonitoring.ATTR_MAP_MARKERS, Integer.toString(numMarkers));
+            perfMetrics.put(CCPerfMonitoring.ATTR_MAP_POLYGONS, Integer.toString(numPolygons));
+            perfMetrics.put(CCPerfMonitoring.ATTR_MAP_GEO_POINTS, Integer.toString(numGeoPoints));
+            CCPerfMonitoring.INSTANCE.stopTracing(mapLoadedTrace, perfMetrics);
+            mapLoadedTrace = null;
         }
     }
 
@@ -255,7 +298,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         double sumLat = 0;
         double sumLng = 0;
         int numPoints = points.size() - 1;
-        for (int i=0; i<numPoints; i++) {
+        for (int i = 0; i < numPoints; i++) {
             LatLng point = points.get(i);
             sumLat += point.latitude;
             sumLng += point.longitude;

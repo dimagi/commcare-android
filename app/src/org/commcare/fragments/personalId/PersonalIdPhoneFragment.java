@@ -24,13 +24,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.Task;
-import com.google.android.play.core.integrity.StandardIntegrityManager;
-import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
@@ -39,8 +39,8 @@ import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
@@ -59,7 +59,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
@@ -430,6 +429,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             public void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
+
+                FirebaseAnalyticsUtil.flagPersonalIDDemoUser(sessionData.getDemoUser());
+
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSuccess();
                 } else {
