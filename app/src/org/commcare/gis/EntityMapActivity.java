@@ -125,11 +125,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             evalImageFieldIndex(detail);
 
             toggleMarkers.setText(getToggleLabel(EntityMapUtils.getMarkerHeader(detail),
-                    R.string.map_markers));
+                    R.string.entity_map_markers));
             togglePolygons.setText(getToggleLabel(EntityMapUtils.getBoundaryHeader(detail),
-                    R.string.map_polygons));
+                    R.string.entity_map_polygons));
             toggleGeoPoints.setText(getToggleLabel(EntityMapUtils.getGeopointsHeader(detail),
-                    R.string.map_geopoints));
+                    R.string.entity_map_geopoints));
 
             var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
