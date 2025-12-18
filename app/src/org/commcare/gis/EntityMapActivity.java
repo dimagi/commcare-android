@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
-import android.widget.Switch;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,6 +23,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.common.base.Strings;
 import com.google.firebase.perf.metrics.Trace;
 
@@ -74,9 +74,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private final List<Circle> geoPointCircles = new ArrayList<>();
 
     private GoogleMap mMap;
-    private Switch toggleMarkers;
-    private Switch togglePolygons;
-    private Switch toggleGeoPoints;
+    private SwitchMaterial toggleMarkers;
+    private SwitchMaterial togglePolygons;
+    private SwitchMaterial toggleGeoPoints;
 
     // keeps track of detail field index that should be used to show a custom icon
     private int imageFieldIndex = -1;

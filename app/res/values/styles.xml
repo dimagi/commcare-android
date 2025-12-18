@@ -361,6 +361,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:switchPadding">16dp</item>
         <item name="android:thumbTextPadding">10dp</item>
+        <item name="trackTint">@color/switch_track_tint</item>
         <item name="android:thumb">@drawable/switch_thumb</item>
         <item name="android:track">@drawable/switch_track</item>
     </style>
