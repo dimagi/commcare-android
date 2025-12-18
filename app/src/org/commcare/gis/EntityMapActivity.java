@@ -124,12 +124,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                     .getDetail(selectDatum.getShortDetail());
             evalImageFieldIndex(detail);
 
-            toggleMarkers.setText(getToggleLabel(EntityMapUtils.getMarkerHeader(detail),
-                    R.string.entity_map_markers));
-            togglePolygons.setText(getToggleLabel(EntityMapUtils.getBoundaryHeader(detail),
-                    R.string.entity_map_polygons));
-            toggleGeoPoints.setText(getToggleLabel(EntityMapUtils.getGeopointsHeader(detail),
-                    R.string.entity_map_geopoints));
+            setToggleLabels(detail);
 
             var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
@@ -145,6 +140,15 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         getString(R.string.entity_map_error_message));
             }
         }
+    }
+
+    private void setToggleLabels(Detail detail) {
+        toggleMarkers.setText(getToggleLabel(EntityMapUtils.getMarkerHeader(detail),
+                R.string.entity_map_markers));
+        togglePolygons.setText(getToggleLabel(EntityMapUtils.getBoundaryHeader(detail),
+                R.string.entity_map_polygons));
+        toggleGeoPoints.setText(getToggleLabel(EntityMapUtils.getGeopointsHeader(detail),
+                R.string.entity_map_geopoints));
     }
 
     private String getToggleLabel(String headerValue, int defaultKey) {
