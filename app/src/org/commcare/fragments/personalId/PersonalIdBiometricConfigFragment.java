@@ -97,7 +97,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
                 Logger.exception("Biometric error", new Exception(String.format(Locale.getDefault(),
                         "Biometric error without PIN fallback: %s (%d)", errString, errorCode)));
                 binding.errorTextView.setVisibility(View.VISIBLE);
-                binding.errorTextView.setText(BiometricsHelper.getBiometricError(errorCode,requireActivity()));
+                binding.errorTextView.setText(BiometricsHelper.getBiometricError(errorCode,requireContext()));
             }
 
             @Override

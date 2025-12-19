@@ -254,17 +254,17 @@ public class BiometricsHelper {
         return activity.getString(R.string.personalid_configuration_process_biometric_needs_update_message);
     }
 
-    public static String getBiometricError(int errorCode, Activity activity) {
+    public static String getBiometricError(int errorCode, Context context) {
         return switch (errorCode) {
             case BiometricPrompt.ERROR_NEGATIVE_BUTTON, BiometricPrompt.ERROR_CANCELED ->
-                    activity.getString(R.string.personalid_biometric_error_cancelled);
+                    context.getString(R.string.personalid_biometric_error_cancelled);
             case BiometricPrompt.ERROR_LOCKOUT ->
-                    activity.getString(R.string.personalid_biometric_error_lockout);
+                    context.getString(R.string.personalid_biometric_error_lockout);
             case BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
-                    activity.getString(R.string.personalid_biometric_error_lockout_permanent);
+                    context.getString(R.string.personalid_biometric_error_lockout_permanent);
             case BiometricPrompt.ERROR_TIMEOUT ->
-                    activity.getString(R.string.personalid_biometric_error_timeout);
-            default -> activity.getString(R.string.personalid_biometric_error_cannot_configure);
+                    context.getString(R.string.personalid_biometric_error_timeout);
+            default -> context.getString(R.string.personalid_biometric_error_cannot_configure);
         };
     }
 

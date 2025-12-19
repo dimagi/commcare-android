@@ -98,7 +98,7 @@
                     android:text="@string/connect_verify_configure_pin" />
 
                 <TextView
-                    android:id="@+id/errorTextView"
+                    android:id="@+id/error_text_view"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

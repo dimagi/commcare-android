@@ -536,9 +536,9 @@
 
     <string name="network_forbidden_error">Acesso negado. Se o problema persistir, entre em contato com o suporte ao cliente.</string>
 
-    <string name="personalid_biometric_error_cancelled">A configuração biométrica foi cancelada. Por favor, tente novamente.</string>
+    <string name="personalid_biometric_error_cancelled">A configuração biométrica foi cancelada. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_lockout">Muitas tentativas. Por favor, espere e tente novamente.</string>
     <string name="personalid_biometric_error_lockout_permanent">Muitas tentativas falhadas. Por favor, desbloqueie o seu dispositivo e tente novamente.</string>
-    <string name="personalid_biometric_error_timeout">A operação biométrica expirou. Por favor, tente novamente.</string>
-    <string name="personalid_biometric_error_cannot_configure">Não foi possível configurar a biometria no seu dispositivo. Por favor, tente novamente.</string>
+    <string name="personalid_biometric_error_timeout">A operação biométrica expirou. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
+    <string name="personalid_biometric_error_cannot_configure">Não foi possível configurar a biometria no seu dispositivo. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
 </resources>
