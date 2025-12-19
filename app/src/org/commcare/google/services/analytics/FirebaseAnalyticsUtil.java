@@ -126,7 +126,7 @@ public class FirebaseAnalyticsUtil {
 
         flagPersonalIDDemoUser(ReportingUtils.getIsPersonalIDDemoUser());
 
-        analyticsInstance.setUserProperty(CCAnalyticsParam.CONNECT_SERVER, BuildConfig.CCC_HOST);
+        analyticsInstance.setUserProperty(CCAnalyticsParam.APP_FLAVOR, BuildConfig.FLAVOR);
     }
 
     private static String getFreeDiskBucket() {
