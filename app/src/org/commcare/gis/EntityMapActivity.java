@@ -33,6 +33,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.ViewUtils;
@@ -89,6 +90,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        findViewById(R.id.switch_map_layer).setOnClickListener(v -> changeMapLayer());
 
         try {
             addEntityData();
@@ -186,6 +189,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         mMap.setOnInfoWindowClickListener(this);
         setMapLocationEnabled(true);
+
+        mMap.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
     }
 
     private void addMarker(LatLngBounds.Builder builder,
@@ -381,5 +386,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public boolean shouldListenToSyncComplete() {
         return true;
+    }
+
+    private void changeMapLayer() {
+        if (mMap != null) {
+            MapLayer nextMapLayer = MapLayer.values()[mMap.getMapType() % 4];
+            mMap.setMapType(nextMapLayer.getValue());
+            HiddenPreferences.setMapsDefaultLayer(nextMapLayer);
+        }
     }
 }
