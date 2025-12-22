@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
@@ -37,14 +38,18 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         personalIdManager.init(this);
 
         if(personalIdManager.isloggedIn()){
-            NavigationUI.setupActionBarWithNavController(this, navController);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             handleRedirectIfAny();
         }else{
             Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
             personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
+    }
+
+    @Override
+    public void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        NavigationUI.setupActionBarWithNavController(this, navController);
     }
 
     @Override
@@ -67,7 +72,9 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
-        getSupportActionBar().setTitle(title);
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle(title);
+        }
     }
 
     private void handleRedirectIfAny() {

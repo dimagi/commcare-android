@@ -1,5 +1,6 @@
 package org.commcare.navdrawer
 
+import android.graphics.Color
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -58,6 +59,7 @@ class BaseDrawerController(
             object : ActionBarDrawerToggle(
                 activity,
                 binding.drawerLayout,
+                binding.toolbar,
                 R.string.nav_drawer_open,
                 R.string.nav_drawer_close,
             ) {
@@ -72,22 +74,16 @@ class BaseDrawerController(
                     slideOffset: Float,
                 ) {
                     super.onDrawerSlide(drawerView, slideOffset)
-                    (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
                     if (slideOffset > 0 && !hasRefreshed) {
                         refreshDrawerContent()
                         hasRefreshed = true
                     }
                     if (slideOffset == 0f) hasRefreshed = false
                 }
-
-                override fun onDrawerClosed(drawerView: View) {
-                    (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_bar)
-                }
             }
         binding.drawerLayout.addDrawerListener(drawerToggle)
         (activity as? AppCompatActivity)?.apply {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeButtonEnabled(true)
+            drawerToggle.drawerArrowDrawable.color = Color.WHITE
             drawerToggle.syncState()
         }
     }
