@@ -705,4 +705,9 @@
 
     <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
 
+    <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
+    <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Too many failed attempts. Please unlock your device and try again.</string>
+    <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
+    <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
 </resources>

@@ -96,19 +96,21 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
                 super.onAuthenticationError(errorCode, errString);
                 Logger.exception("Biometric error", new Exception(String.format(Locale.getDefault(),
                         "Biometric error without PIN fallback: %s (%d)", errString, errorCode)));
-                Toast.makeText(context, getString(R.string.connect_verify_configuration_failed, errString),
-                        Toast.LENGTH_SHORT).show();
+                binding.errorTextView.setVisibility(View.VISIBLE);
+                binding.errorTextView.setText(BiometricsHelper.getBiometricError(errorCode,requireContext()));
             }
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
                 navigateForward(false);
+                binding.errorTextView.setVisibility(View.GONE);
             }
 
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
+                binding.errorTextView.setVisibility(View.GONE);
                 Toast.makeText(requireActivity(), getString(R.string.personalid_authentication_failed), Toast.LENGTH_SHORT).show();
             }
         };
