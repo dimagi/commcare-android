@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -14,6 +15,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -21,6 +23,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.common.base.Strings;
 import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
@@ -36,12 +40,14 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.utils.ViewUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +72,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private final Vector<Pair<Entity<TreeReference>, EntityMapDisplayInfo>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
     private final HashMap<Polygon, Pair<String, String>> polygonInfo = new HashMap<>();
+    private final List<Circle> geoPointCircles = new ArrayList<>();
 
     private GoogleMap mMap;
+    private SwitchMaterial toggleMarkers;
+    private SwitchMaterial togglePolygons;
+    private SwitchMaterial toggleGeoPoints;
 
     // keeps track of detail field index that should be used to show a custom icon
     private int imageFieldIndex = -1;
@@ -86,6 +96,10 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         mapReadyTrace = CCPerfMonitoring.INSTANCE.startTracing(
                 CCPerfMonitoring.TRACE_ENTITY_MAP_READY_TIME);
+
+        toggleMarkers = findViewById(R.id.toggle_markers);
+        togglePolygons = findViewById(R.id.toggle_polygons);
+        toggleGeoPoints = findViewById(R.id.toggle_geopoints);
 
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -109,6 +123,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             Detail detail = CommCareApplication.instance().getCurrentSession()
                     .getDetail(selectDatum.getShortDetail());
             evalImageFieldIndex(detail);
+
+            setToggleLabels(detail);
+
             var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
                 EntityMapDisplayInfo displayInfo = EntityMapUtils.getDisplayInfoForEntity(entity, detail);
@@ -123,6 +140,23 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         getString(R.string.entity_map_error_message));
             }
         }
+    }
+
+    private void setToggleLabels(Detail detail) {
+        toggleMarkers.setText(getToggleLabel(EntityMapUtils.getMarkerHeader(detail),
+                R.string.entity_map_markers));
+        togglePolygons.setText(getToggleLabel(EntityMapUtils.getBoundaryHeader(detail),
+                R.string.entity_map_polygons));
+        toggleGeoPoints.setText(getToggleLabel(EntityMapUtils.getGeopointsHeader(detail),
+                R.string.entity_map_geopoints));
+    }
+
+    private String getToggleLabel(String headerValue, int defaultKey) {
+        if(!Strings.isNullOrEmpty(headerValue)) {
+            return headerValue;
+        }
+
+        return StringUtils.getStringRobust(this, defaultKey);
     }
 
     private void evalImageFieldIndex(Detail detail) {
@@ -170,7 +204,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 showPolygonInfo(polygon);
             });
 
-            // Move camera to be include all markers
+            // Move camera to include all markers
             mMap.setOnMapLoadedCallback(
                     () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
                         @Override
@@ -183,6 +217,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                             finishLoadingPerformanceTrace();
                         }
                     }));
+
+            setupMapToggles();
         } else {
             finishLoadingPerformanceTrace();
         }
@@ -265,7 +301,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         .strokeColor(color)
                         .fillColor(color);
 
-                mMap.addCircle(options);
+                Circle circle = mMap.addCircle(options);
+                geoPointCircles.add(circle);
                 builder.include(coordinate);
                 numGeoPoints++;
             }
@@ -366,6 +403,50 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 mMap.setMyLocationEnabled(enabled);
             }
         }
+    }
+
+    private void setupMapToggles() {
+        View overlay = findViewById(R.id.map_overlay);
+
+        int visibleToggles = 0;
+
+        if (numMarkers > 1) {
+            toggleMarkers.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            toggleMarkers.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Marker marker : markerReferences.keySet()) {
+                    marker.setVisible(isChecked);
+                }
+            });
+        } else {
+            toggleMarkers.setVisibility(View.GONE);
+        }
+
+        if (numPolygons > 1) {
+            togglePolygons.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            togglePolygons.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Polygon polygon : polygonInfo.keySet()) {
+                    polygon.setVisible(isChecked);
+                }
+            });
+        } else {
+            togglePolygons.setVisibility(View.GONE);
+        }
+
+        if (numGeoPoints > 1) {
+            toggleGeoPoints.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            toggleGeoPoints.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Circle circle : geoPointCircles) {
+                    circle.setVisible(isChecked);
+                }
+            });
+        } else {
+            toggleGeoPoints.setVisibility(View.GONE);
+        }
+
+        overlay.setVisibility(visibleToggles < 2 ? View.GONE : View.VISIBLE);
     }
 
     @Override

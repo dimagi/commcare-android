@@ -23,4 +23,40 @@
         android:padding="@dimen/map_layer_padding"
         app:srcCompat="@drawable/ic_layers" />
 
+    <LinearLayout
+        android:id="@+id/map_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/map_overlay_bg"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/toggle_markers"
+            style="@style/MapLayerSwitch"
+            android:checked="true"
+            app:useMaterialThemeColors="false" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/toggle_polygons"
+            style="@style/MapLayerSwitch"
+            android:layout_marginTop="8dp"
+            android:checked="true"
+            app:useMaterialThemeColors="false" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/toggle_geopoints"
+            style="@style/MapLayerSwitch"
+            android:layout_marginTop="8dp"
+            android:checked="true"
+            app:useMaterialThemeColors="false" />
+
+    </LinearLayout>
 </RelativeLayout>

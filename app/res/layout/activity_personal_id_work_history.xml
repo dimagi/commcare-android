@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
+    <include
+        android:id="@+id/include_tool_bar"
+        layout="@layout/appbar_layout" />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_work_history"
         android:layout_width="match_parent"
@@ -14,7 +18,7 @@
         android:background="@color/connect_background_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/include_tool_bar"
         app:tabGravity="fill"
         app:tabIconTint="@color/tab_icon_selector"
         app:tabIndicator="@drawable/ic_connect_pager_indicator"
