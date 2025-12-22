@@ -535,7 +535,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     @Override
     protected void navigateToMessageDisplay(String title, String message,  boolean isCancellable, int phase,
-            int buttonText) {
+                                            int buttonText) {
         NavDirections navDirections =
                 PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                         title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
