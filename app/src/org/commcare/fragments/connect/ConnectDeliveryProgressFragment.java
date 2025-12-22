@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -184,6 +186,23 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String messageText = job.getCardMessageText(requireContext());
 
         if (messageText != null) {
+            @ColorRes int textColorRes;
+            @ColorRes int backgroundColorRes;
+
+            if (job.deliveryComplete()) {
+                textColorRes = R.color.connect_blue_color;
+                backgroundColorRes = R.color.porcelain_grey;
+            } else {
+                textColorRes = R.color.connect_warning_color;
+                backgroundColorRes = R.color.connect_light_orange_color;
+            }
+
+            getBinding().tvConnectMessage.setTextColor(
+                    ContextCompat.getColor(requireActivity(), textColorRes)
+            );
+            getBinding().cvConnectMessage.setCardBackgroundColor(
+                    ContextCompat.getColor(requireActivity(), backgroundColorRes)
+            );
             getBinding().tvConnectMessage.setText(messageText);
             getBinding().cvConnectMessage.setVisibility(View.VISIBLE);
         } else {
