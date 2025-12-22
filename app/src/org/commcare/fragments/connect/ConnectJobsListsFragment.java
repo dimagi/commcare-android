@@ -80,6 +80,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                if (!isAdded()) {
+                    return;
+                }
+
                 Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 navigateFailure();
             }
@@ -87,7 +91,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
                 corruptJobs = data.getCorruptJobs();
-                setJobListData(data.getValidJobs());
+
+                if (isAdded()) {
+                    setJobListData(data.getValidJobs());
+                }
             }
         }.getConnectOpportunities(requireContext(), user);
     }
