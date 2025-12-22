@@ -28,6 +28,21 @@ object EntityMapUtils {
     private const val TEMPLATE_FORM_GEO_POINTS_COLORS = "geo_points_colors_hex"
 
     @JvmStatic
+    private fun getHeaderText(detail: Detail, templateFormName: String): String? {
+        for (i in 0 until detail.templateForms.size) {
+            if (templateFormName == detail.templateForms[i]) {
+                return detail.fields[i].header.evaluate()
+            }
+        }
+        return null
+    }
+
+    @JvmStatic
+    fun getMarkerHeader(detail: Detail): String? {
+        return getHeaderText(detail, TEMPLATE_FORM_ADDRESS)
+    }
+
+    @JvmStatic
     fun getEntityLocation(entity: Entity<TreeReference>, detail: Detail, fieldIndex: Int): LatLng? {
         if (TEMPLATE_FORM_ADDRESS == detail.templateForms[fieldIndex]) {
             val address = entity.getFieldString(fieldIndex).trim { it <= ' ' }
@@ -44,6 +59,11 @@ object EntityMapUtils {
         }
 
         return null
+    }
+
+    @JvmStatic
+    fun getBoundaryHeader(detail: Detail): String? {
+        return getHeaderText(detail, TEMPLATE_FORM_GEO_BOUNDARY)
     }
 
     @JvmStatic
@@ -70,6 +90,11 @@ object EntityMapUtils {
             return parseHexColor(colorString)
         }
         return null
+    }
+
+    @JvmStatic
+    fun getGeopointsHeader(detail: Detail): String? {
+        return getHeaderText(detail, TEMPLATE_FORM_GEO_POINTS)
     }
 
     @JvmStatic
