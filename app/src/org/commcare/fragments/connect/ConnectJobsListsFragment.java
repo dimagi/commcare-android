@@ -151,13 +151,16 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         for (ConnectJobRecord job : jobs) {
             int jobStatus = job.getStatus();
-            boolean finished = job.isFinished();
             boolean isLearnAppInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
             boolean isDeliverAppInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
+            // We need the composite job because it has the correct number of deliveries.
+            ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
+            boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
+
             switch (jobStatus) {
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
-                    if (!finished) {
+                    if (!deliveryComplete) {
                         availableNewJobs.add(createJobModel(job,
                                 ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY, NEW_APP,
                                 true, true, false, false));
@@ -169,7 +172,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                             ConnectLoginJobListModel.JobListEntryType.LEARNING, LEARN_APP,
                             isLearnAppInstalled, false, true, false);
 
-                    ArrayList<ConnectLoginJobListModel> learnList = finished ? finishedItems : learnApps;
+                    ArrayList<ConnectLoginJobListModel> learnList = deliveryComplete ? finishedItems : learnApps;
                     learnList.add(model);
 
                     break;
@@ -185,7 +188,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
                     reviewLearnApps.add(learnModel);
 
-                    ArrayList<ConnectLoginJobListModel> deliverList = finished ? finishedItems : deliverApps;
+                    ArrayList<ConnectLoginJobListModel> deliverList = deliveryComplete ? finishedItems : deliverApps;
                     deliverList.add(deliverModel);
 
                     break;
@@ -196,10 +199,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         sortJobListByLastAccessed(deliverApps);
         sortJobListByLastAccessed(reviewLearnApps);
         sortJobListByLastAccessed(finishedItems);
-        jobList.addAll(availableNewJobs);
         jobList.addAll(learnApps);
         jobList.addAll(deliverApps);
         jobList.addAll(reviewLearnApps);
+        jobList.addAll(availableNewJobs);
         jobList.addAll(finishedItems);
         initRecyclerView();
     }
