@@ -40,7 +40,7 @@ import static org.commcare.android.database.connect.models.PersonalIdSessionData
 import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
-import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
+import static org.commcare.utils.ViewUtils.showSnackBarWith;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
@@ -297,7 +297,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
                 } else {
                     View view = getView();
                     if (view != null) {
-                        showSnackBarWithOk(view, getString(R.string.connect_verify_skip_phone_number),
+                        showSnackBarWith(getString(R.string.ok),view, getString(R.string.connect_verify_skip_phone_number),
                                 v -> NavHostFragment.findNavController(this).navigate(navigateToNameScreen()));
                     }
                 }

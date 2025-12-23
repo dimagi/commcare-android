@@ -107,7 +107,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
                 } else {
                     message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
                 }
-                showSnackBarWithDismissAction(getBinding().getRoot(), message);
+                showSnackBarWithDismissAction(getString(R.string.ok),getBinding().getRoot(), message);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());
