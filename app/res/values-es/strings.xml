@@ -471,7 +471,7 @@
     <string name="personalid_recovery_lockout_title">Cuenta bloqueada</string>
     <string name="personalid_recovery_failed_message">Parece que olvidaste tu código de respaldo, estamos creando una nueva cuenta para ti</string>
     <string name="personalid_recovery_lockout_message">Ha ingresado el código de respaldo incorrecto demasiadas veces. Su cuenta ha sido bloqueada.</string>
-    <string name="personalid_wrong_backup_message">Ingresaste un código de respaldo incorrecto. Por favor, inténtalo de nuevo. Deberás crear una nueva cuenta después de %d intentos incorrectos.</string>
+    <string name="personalid_wrong_backup_message">Ha introducido el código de seguridad incorrecto. Inténtelo de nuevo. Su cuenta se bloqueará después de %d intentos incorrectos más.</string>
     <string name="personalid_camera_permission_title">Permiso de cámara</string>
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>

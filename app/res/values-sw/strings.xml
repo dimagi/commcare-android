@@ -480,7 +480,7 @@
     <string name="personalid_recovery_failed_title">Urejeshaji haukufaulu</string>
     <string name="personalid_recovery_lockout_title">Akaunti Imefungwa</string>
     <string name="personalid_recovery_failed_message">Inaonekana umesahau Nambari yako ya Hifadhi Nambari, tunakuundia akaunti mpya</string>
-    <string name="personalid_wrong_backup_message">Umeweka Nambari ya Hifadhi Nambari isiyo sahihi, tafadhali jaribu tena. Utahitaji kuunda akaunti mpya baada ya majaribio %d zaidi yasiyo sahihi.</string>
+    <string name="personalid_wrong_backup_message">Umeingiza Nambari ya Kuhifadhi Nakala Isiyo sahihi. Tafadhali jaribu tena. Akaunti yako itafungwa baada ya majaribio %d zaidi yasiyo sahihi.</string>
     <string name="personalid_recovery_lockout_message">Umeweka msimbo wa akiba usio sahihi mara nyingi sana. Akaunti yako imefungwa.</string>
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
