@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
@@ -24,7 +25,6 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.views.ErrorBottomSheet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -118,7 +118,11 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
                 String message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
                 if (PersonalIdOrConnectApiErrorHandler.isBlockingError(errorCode)) {
-                    new ErrorBottomSheet(message, getString(R.string.ok),null).show(requireActivity().getSupportFragmentManager(), null);
+                    navigateToMessageDisplayDialog(
+                            getString(R.string.failure),
+                            message,
+                            false,
+                            R.string.ok);
                     getBinding().errorTextView.setVisibility(View.GONE);
                 } else {
                     getBinding().errorTextView.setVisibility(View.VISIBLE);
@@ -157,5 +161,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     @Override
     protected @NotNull FragmentConnectJobIntroBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectJobIntroBinding.inflate(inflater, container, false);
+    }
+    private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, int buttonText) {
+        NavDirections navDirections = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
+                title, message,0,getString(buttonText),null).setIsCancellable(isCancellable);
+        Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
     }
 }
