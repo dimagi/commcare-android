@@ -8,6 +8,8 @@ import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 
+import java.util.EnumSet;
+
 /**
  * Utility class for handling standardized API error responses across the configuration flow.
  * <p>
@@ -70,5 +72,24 @@ public class PersonalIdOrConnectApiErrorHandler {
                     return context.getString(R.string.recovery_network_unknown);
                 }
         }
+    }
+
+    /**
+     * Errors for which UI must show a blocking experience.
+     */
+    private static final EnumSet<BaseApiHandler.PersonalIdOrConnectApiErrorCodes> BLOCKING_ERRORS =
+            EnumSet.of(
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR
+            );
+
+    public static boolean isBlockingError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes error) {
+        return BLOCKING_ERRORS.contains(error);
     }
 }

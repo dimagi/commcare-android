@@ -5,19 +5,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelConsentBottomSheetBinding;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import java.util.Objects;
 
@@ -49,7 +48,13 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                 } else {
                     Context context = getContext();
                     if(context != null) {
-                        Toast.makeText(context, getString(R.string.connect_messaging_channel_consent_failure_msg), Toast.LENGTH_SHORT).show();
+                        navigateToMessageDisplayDialog(
+                                getString(R.string.failure),
+                                getString(R.string.connect_messaging_channel_consent_failure_msg),
+                                false,
+                                getString(R.string.ok),
+                                binding.getRoot()
+                        );
                     }
 
                     NavHostFragment.findNavController(this).popBackStack();
@@ -67,5 +72,11 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         });
 
         return binding.getRoot();
+    }
+
+    private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, String buttonText, View root) {
+        NavDirections navDirections = ConnectMessageChannelConsentBottomSheetDirections.actionChannelConsentToPersonalidMessageDisplayDialog(
+                title, message,0, buttonText,null).setIsCancellable(isCancellable);
+        Navigation.findNavController(root).navigate(navDirections);
     }
 }

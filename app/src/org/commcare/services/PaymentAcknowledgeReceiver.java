@@ -66,6 +66,6 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
     private void handlePayment(Context context, ConnectJobPaymentRecord payment, boolean paymentStatus) {
         ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, paymentStatus, success -> {
             //Nothing to do
-        });
+        },null);
     }
 }

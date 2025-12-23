@@ -144,7 +144,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
         private void handleConfirmationDialogResult(PaymentViewHolder holder, ConnectJobPaymentRecord payment,
                                         boolean result) {
             ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, result,
-                    success -> holder.updateConfirmedText(context, payment));
+                    success -> holder.updateConfirmedText(context, payment),null);
         }
 
         @Override
