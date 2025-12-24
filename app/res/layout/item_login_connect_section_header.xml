@@ -3,14 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:layout_marginHorizontal="16dp"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/tv_section_header"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_marginVertical="16dp"
         android:textColor="?android:attr/textColorPrimary"
-        android:textStyle="bold"
+        android:textSize="@dimen/text_large"
         tools:text="In Progress" />
+
+    <View
+        android:background="@color/grey_light"
+        android:id="@+id/v_section_divider"
+        android:layout_gravity="center"
+        android:layout_height="1dp"
+        android:layout_width="100dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="32dp" />
 
 </LinearLayout>

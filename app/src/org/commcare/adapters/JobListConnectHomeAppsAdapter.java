@@ -74,7 +74,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         // Handle the section headers.
         if (holder instanceof SectionHeaderViewHolder sectionHeaderViewHolder) {
             ConnectListItem.SectionHeader header = (ConnectListItem.SectionHeader) displayItem;
-            bind(sectionHeaderViewHolder.binding, header.getTextResID());
+            boolean showSectionDivider = position > 0;
+            bind(sectionHeaderViewHolder.binding, header.getTextResID(), showSectionDivider);
             return;
         }
 
@@ -157,8 +158,13 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         clickListener(binding, connectLoginJobListModel, launcher);
     }
 
-    public void bind(ItemLoginConnectSectionHeaderBinding binding, @StringRes int headerTextResId) {
+    public void bind(
+            ItemLoginConnectSectionHeaderBinding binding,
+            @StringRes int headerTextResId,
+            boolean showSectionDivider
+    ) {
         binding.tvSectionHeader.setText(mContext.getString(headerTextResId));
+        binding.vSectionDivider.setVisibility(showSectionDivider ? View.VISIBLE : View.GONE);
     }
 
     private void clickListener(ItemLoginConnectHomeAppsBinding binding,
