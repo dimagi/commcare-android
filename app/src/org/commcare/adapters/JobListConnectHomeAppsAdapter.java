@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -73,7 +74,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         // Handle the section headers.
         if (holder instanceof SectionHeaderViewHolder sectionHeaderViewHolder) {
             ConnectListItem.SectionHeader header = (ConnectListItem.SectionHeader) displayItem;
-            bind(sectionHeaderViewHolder.binding, header.getText());
+            bind(sectionHeaderViewHolder.binding, header.getTextResID());
             return;
         }
 
@@ -156,8 +157,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         clickListener(binding, connectLoginJobListModel, launcher);
     }
 
-    public void bind(ItemLoginConnectSectionHeaderBinding binding, String headerText) {
-        binding.tvSectionHeader.setText(headerText);
+    public void bind(ItemLoginConnectSectionHeaderBinding binding, @StringRes int headerTextResId) {
+        binding.tvSectionHeader.setText(mContext.getString(headerTextResId));
     }
 
     private void clickListener(ItemLoginConnectHomeAppsBinding binding,
@@ -236,21 +237,21 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             List<ConnectLoginJobListModel> corruptJobs
     ) {
         if (!inProgressJobs.isEmpty()) {
-            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_in_progress)));
+            displayItems.add(new ConnectListItem.SectionHeader(R.string.connect_in_progress));
             for (ConnectLoginJobListModel inProgressJob : inProgressJobs) {
                 displayItems.add(new ConnectListItem.JobItem(inProgressJob, false));
             }
         }
 
         if (!newJobs.isEmpty()) {
-            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_new_opportunities)));
+            displayItems.add(new ConnectListItem.SectionHeader(R.string.connect_new_opportunities));
             for (ConnectLoginJobListModel newJob : newJobs) {
                 displayItems.add(new ConnectListItem.JobItem(newJob, false));
             }
         }
 
         if (!completedJobs.isEmpty()) {
-            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_completed)));
+            displayItems.add(new ConnectListItem.SectionHeader(R.string.connect_completed));
             for (ConnectLoginJobListModel completedJob : completedJobs) {
                 displayItems.add(new ConnectListItem.JobItem(completedJob, false));
             }
