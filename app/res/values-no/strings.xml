@@ -134,4 +134,8 @@
 
     <string name="network_forbidden_error">Tilgang nektet. Ta kontakt med kundestøtte hvis problemet vedvarer.</string>
 
+    <string name="connect_in_progress">Pågår</string>
+    <string name="connect_new_opportunities">Nye muligheter</string>
+    <string name="connect_completed">Fullført</string>
+
 </resources>
