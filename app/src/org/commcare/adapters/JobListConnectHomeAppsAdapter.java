@@ -13,63 +13,99 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeCorruptAppsBinding;
+import org.commcare.dalvik.databinding.ItemLoginConnectSectionHeaderBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
+import org.commcare.models.connect.ConnectListItem;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
-    private final ArrayList<ConnectLoginJobListModel> jobList;
     private final OnJobSelectionClick launcher;
-    private final ArrayList<ConnectLoginJobListModel> corruptJobs;
-    private static final int NON_CORRUPT_JOB_VIEW = 1;
-    private static final int CORRUPT_JOB_VIEW = 2;
 
-    public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList,
-            ArrayList<ConnectLoginJobListModel> corruptJobs, OnJobSelectionClick launcher) {
+    private final ArrayList<ConnectListItem> displayItems = new ArrayList<>();
+
+    private static final int VIEW_TYPE_SECTION_HEADER = 0;
+    private static final int VIEW_TYPE_CORRUPT_JOB = 1;
+    private static final int VIEW_TYPE_NON_CORRUPT_JOB = 2;
+
+    public JobListConnectHomeAppsAdapter(
+            Context context,
+            ArrayList<ConnectLoginJobListModel> inProgressJobs,
+            ArrayList<ConnectLoginJobListModel> newJobs,
+            ArrayList<ConnectLoginJobListModel> completedJobs,
+            ArrayList<ConnectLoginJobListModel> corruptJobs,
+            OnJobSelectionClick launcher
+    ) {
         this.mContext = context;
-        this.jobList = jobList;
-        this.corruptJobs = corruptJobs;
         this.launcher = launcher;
+        buildDisplayList(inProgressJobs, newJobs, completedJobs, corruptJobs);
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the layout for each item using View Binding
-        if (viewType == NON_CORRUPT_JOB_VIEW) {
-            ItemLoginConnectHomeAppsBinding binding = ItemLoginConnectHomeAppsBinding.inflate(
-                    LayoutInflater.from(parent.getContext()), parent, false);
-            return new NonCorruptJobViewHolder(binding);
-        } else {
-            ItemLoginConnectHomeCorruptAppsBinding binding = ItemLoginConnectHomeCorruptAppsBinding.inflate(
-                    LayoutInflater.from(parent.getContext()), parent, false);
-            return new CorruptJobViewHolder(binding);
-        }
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+        return switch (viewType) {
+            case VIEW_TYPE_SECTION_HEADER -> new SectionHeaderViewHolder(
+                    ItemLoginConnectSectionHeaderBinding.inflate(inflater, parent, false)
+            );
+            case VIEW_TYPE_CORRUPT_JOB -> new CorruptJobViewHolder(
+                    ItemLoginConnectHomeCorruptAppsBinding.inflate(inflater, parent, false)
+            );
+            default -> new NonCorruptJobViewHolder(
+                    ItemLoginConnectHomeAppsBinding.inflate(inflater, parent, false)
+            );
+        };
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof NonCorruptJobViewHolder valid) {
-            bind(mContext, valid.binding, jobList.get(position), launcher);
-        } else if (holder instanceof CorruptJobViewHolder corrupt) {
-            bind(corrupt.binding, corruptJobs.get(position - jobList.size()));
+        ConnectListItem displayItem = displayItems.get(position);
+
+        // Handle the section headers.
+        if (holder instanceof SectionHeaderViewHolder sectionHeaderViewHolder) {
+            ConnectListItem.SectionHeader header = (ConnectListItem.SectionHeader) displayItem;
+            bind(sectionHeaderViewHolder.binding, header.getText());
+            return;
+        }
+
+        // Handle the job items.
+        ConnectListItem.JobItem jobItem = (ConnectListItem.JobItem) displayItem;
+        if (holder instanceof CorruptJobViewHolder corruptJobViewHolder) {
+            bind(corruptJobViewHolder.binding, jobItem.getJobModel());
+        } else if (holder instanceof NonCorruptJobViewHolder nonCorruptJobViewHolder) {
+            bind(mContext, nonCorruptJobViewHolder.binding, jobItem.getJobModel(), launcher);
         }
     }
 
     @Override
     public int getItemCount() {
-        return jobList.size() + corruptJobs.size();
+        return displayItems.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position < jobList.size() ? NON_CORRUPT_JOB_VIEW : CORRUPT_JOB_VIEW;
+        ConnectListItem displayItem = displayItems.get(position);
+
+        // Handle the section headers.
+        if (displayItem instanceof ConnectListItem.SectionHeader) {
+            return VIEW_TYPE_SECTION_HEADER;
+        }
+
+        // Handle the job items.
+        if (((ConnectListItem.JobItem) displayItem).isCorrupt()) {
+            return VIEW_TYPE_CORRUPT_JOB;
+        } else {
+            return VIEW_TYPE_NON_CORRUPT_JOB;
+        }
     }
 
     public static class NonCorruptJobViewHolder extends RecyclerView.ViewHolder {
@@ -85,6 +121,15 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         private final ItemLoginConnectHomeCorruptAppsBinding binding;
 
         public CorruptJobViewHolder(ItemLoginConnectHomeCorruptAppsBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    public static class SectionHeaderViewHolder extends RecyclerView.ViewHolder {
+        private final ItemLoginConnectSectionHeaderBinding binding;
+
+        public SectionHeaderViewHolder(ItemLoginConnectSectionHeaderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -109,6 +154,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         configureJobType(mContext, connectLoginJobListModel, binding);
 
         clickListener(binding, connectLoginJobListModel, launcher);
+    }
+
+    public void bind(ItemLoginConnectSectionHeaderBinding binding, String headerText) {
+        binding.tvSectionHeader.setText(headerText);
     }
 
     private void clickListener(ItemLoginConnectHomeAppsBinding binding,
@@ -178,6 +227,44 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
         binding.imgJobType.setImageAlpha(iconAlpha);
         binding.tvJobType.setTextColor(ContextCompat.getColor(context, textColorResId));
+    }
+
+    private void buildDisplayList(
+            List<ConnectLoginJobListModel> inProgressJobs,
+            List<ConnectLoginJobListModel> newJobs,
+            List<ConnectLoginJobListModel> completedJobs,
+            List<ConnectLoginJobListModel> corruptJobs
+    ) {
+        if (!inProgressJobs.isEmpty()) {
+            //TODO: string resource
+            displayItems.add(new ConnectListItem.SectionHeader("Test 1"));
+//            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_in_progress)));
+            for (ConnectLoginJobListModel inProgressJob : inProgressJobs) {
+                displayItems.add(new ConnectListItem.JobItem(inProgressJob, false));
+            }
+        }
+
+        if (!newJobs.isEmpty()) {
+            //TODO: string resource
+            displayItems.add(new ConnectListItem.SectionHeader("Test 2"));
+//            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_new_opportunities)));
+            for (ConnectLoginJobListModel newJob : newJobs) {
+                displayItems.add(new ConnectListItem.JobItem(newJob, false));
+            }
+        }
+
+        if (!completedJobs.isEmpty()) {
+            //TODO: string resource
+            displayItems.add(new ConnectListItem.SectionHeader("Test 3"));
+//            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_completed)));
+            for (ConnectLoginJobListModel completedJob : completedJobs) {
+                displayItems.add(new ConnectListItem.JobItem(completedJob, false));
+            }
+        }
+
+        for (ConnectLoginJobListModel corruptJob : corruptJobs) {
+            displayItems.add(new ConnectListItem.JobItem(corruptJob, true));
+        }
     }
 }
 
