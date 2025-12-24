@@ -236,27 +236,21 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             List<ConnectLoginJobListModel> corruptJobs
     ) {
         if (!inProgressJobs.isEmpty()) {
-            //TODO: string resource
-            displayItems.add(new ConnectListItem.SectionHeader("Test 1"));
-//            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_in_progress)));
+            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_in_progress)));
             for (ConnectLoginJobListModel inProgressJob : inProgressJobs) {
                 displayItems.add(new ConnectListItem.JobItem(inProgressJob, false));
             }
         }
 
         if (!newJobs.isEmpty()) {
-            //TODO: string resource
-            displayItems.add(new ConnectListItem.SectionHeader("Test 2"));
-//            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_new_opportunities)));
+            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_new_opportunities)));
             for (ConnectLoginJobListModel newJob : newJobs) {
                 displayItems.add(new ConnectListItem.JobItem(newJob, false));
             }
         }
 
         if (!completedJobs.isEmpty()) {
-            //TODO: string resource
-            displayItems.add(new ConnectListItem.SectionHeader("Test 3"));
-//            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_completed)));
+            displayItems.add(new ConnectListItem.SectionHeader(mContext.getString(R.string.connect_completed)));
             for (ConnectLoginJobListModel completedJob : completedJobs) {
                 displayItems.add(new ConnectListItem.JobItem(completedJob, false));
             }
