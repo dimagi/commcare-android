@@ -246,6 +246,7 @@
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
     <string name="connect_learn_failed_title">Error en la formación</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
+    <string name="connect_job_ended">La tarea finalizó el %s</string>
     <string name="connect_learn_title">Progreso del aprendizaje</string>
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>
@@ -389,6 +390,8 @@
     <string name="connect_job_info_start_visit">Comenzar visita</string>
     <string name="connect_job_info_download_delivery">Descargar Entrega</string>
     <string name="connect_job_info_download">Descargar</string>
+    <string name="connect_job_info_view_info">Ver información</string>
+    <string name="connect_job_info_view_resume">Reanudar</string>
     <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
     <string name="connect_delivery_progress_description">No has completado ninguna lección. Comienza tu aprendizaje para obtener tu certificado.</string>

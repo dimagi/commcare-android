@@ -20,6 +20,15 @@ object ConnectDateUtils {
         }
     }
 
+    val completedJobDateFormat: DateFormat =
+        SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
+
+    fun formatDateForCompletedJob(date: Date): String {
+        synchronized(completedJobDateFormat) {
+            return completedJobDateFormat.format(date)
+        }
+    }
+
     val paymentDateFormat: DateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
 
     fun paymentDateFormat(date: Date?): String {

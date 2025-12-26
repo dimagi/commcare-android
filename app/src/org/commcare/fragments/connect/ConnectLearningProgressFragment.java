@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
@@ -178,18 +179,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private void configureGoToAssessmentButton() {
         getBinding().connectLearningButton.setText(getString(R.string.connect_learn_go_to_assessment));
-        getBinding().connectLearningButton.setOnClickListener(v -> {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
-        });
+        getBinding().connectLearningButton.setOnClickListener(v -> navigateToLearnAppHome());
     }
 
     private void configureLaunchLearningButton() {
         getBinding().connectLearningButton.setText(getString(R.string.connect_learn_continue));
-        getBinding().connectLearningButton.setOnClickListener(v -> {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
-        });
+        getBinding().connectLearningButton.setOnClickListener(v -> navigateToLearnAppHome());
     }
 
     private void configureDownloadButton() {
@@ -242,15 +237,34 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
-        jobCard.connectJobEndDate.setText(
-                getString(R.string.connect_learn_complete_by,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
+
+        String dateMessage;
+        if (job.deliveryComplete()) {
+            dateMessage = getString(
+                    R.string.connect_job_ended,
+                    ConnectDateUtils.INSTANCE.formatDateForCompletedJob(job.getProjectEndDate())
+            );
+        } else {
+            dateMessage = getString(
+                    R.string.connect_learn_complete_by,
+                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+            );
+        }
+
+        jobCard.connectJobEndDateSubHeading.setText(dateMessage);
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvViewMore.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
+        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
+        jobCard.connectJobEndDate.setVisibility(View.GONE);
+        jobCard.mbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.mbResume.setOnClickListener(v -> navigateToLearnAppHome());
+        jobCard.tvViewMore.setVisibility(View.GONE);
+        jobCard.mbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.mbResume.setVisibility(View.VISIBLE);
 
         if (showHours) {
             jobCard.tvJobTime.setText(hours);
@@ -260,6 +274,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     private void navigateToJobDetailBottomSheet(View view) {
         Navigation.findNavController(view).navigate(
                 ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
+    }
+
+    private void navigateToLearnAppHome() {
+        CommCareApplication.instance().closeUserSession();
+        ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
     }
 
     @Override

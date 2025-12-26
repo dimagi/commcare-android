@@ -18,9 +18,11 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -155,20 +157,40 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void setupJobCard(ConnectJobRecord job) {
-        ViewJobCardBinding jobCard =getBinding().viewJobCard;
-        jobCard.tvViewMore.setOnClickListener(v -> Navigation.findNavController(v)
-                .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()));
+        ViewJobCardBinding jobCard = getBinding().viewJobCard;
+        jobCard.mbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
+                .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment())
+        );
+        jobCard.mbResume.setOnClickListener(v -> navigateToDeliverAppHome());
 
         jobCard.tvJobTitle.setText(job.getTitle());
-        jobCard.tvJobDescription.setText(job.getDescription());
-        jobCard.connectJobEndDate
-                .setText(getString(R.string.connect_learn_complete_by,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
+
+        String dateMessage;
+        if (job.deliveryComplete()) {
+            dateMessage = getString(
+                    R.string.connect_job_ended,
+                    ConnectDateUtils.INSTANCE.formatDateForCompletedJob(job.getProjectEndDate())
+            );
+        } else {
+            dateMessage = getString(
+                    R.string.connect_learn_complete_by,
+                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+            );
+        }
+
+        jobCard.connectJobEndDateSubHeading.setText(dateMessage);
 
         String workingHours = job.getWorkingHours();
         boolean hasHours = workingHours != null;
         jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
+        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
+        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
+        jobCard.connectJobEndDate.setVisibility(View.GONE);
+        jobCard.tvViewMore.setVisibility(View.GONE);
+        jobCard.mbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.mbResume.setVisibility(View.VISIBLE);
+
         if (hasHours) {
             (jobCard.tvJobTime).setText(workingHours);
         }
@@ -205,8 +227,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             );
             getBinding().tvConnectMessage.setText(messageText);
             getBinding().cvConnectMessage.setVisibility(View.VISIBLE);
+            getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
         } else {
             getBinding().cvConnectMessage.setVisibility(View.GONE);
+            getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
         }
     }
 
@@ -240,6 +264,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         getBinding().connectDeliveryLastUpdate.setText(
                 getString(R.string.connect_last_update,
                         ConnectDateUtils.INSTANCE.formatDateTime(lastUpdate)));
+    }
+
+    private void navigateToDeliverAppHome() {
+        CommCareApplication.instance().closeUserSession();
+        String deliverAppId = job.getDeliveryAppInfo().getAppId();
+        ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, deliverAppId);
     }
 
     @Override
