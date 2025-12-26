@@ -246,6 +246,7 @@
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
     <string name="connect_learn_failed_title">Error en la formación</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
+    <string name="connect_job_ended">La tarea finalizó el %s</string>
     <string name="connect_learn_title">Progreso del aprendizaje</string>
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>

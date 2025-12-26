@@ -308,6 +308,7 @@ License.
     <string name="connect_learn_need_assessment_title">प्रशिक्षण लंबित</string>
     <string name="connect_learn_failed_title">प्रशिक्षण विफल</string>
     <string name="connect_learn_complete_by">%s द्वारा परियोजना पूरी की गई</string>
+    <string name="connect_job_ended">कार्य %s को समाप्त हुआ</string>
     <string name="connect_learn_title">सीखने की प्रगति</string>
     <string name="connect_learn_status">आपने %d में से %d पाठ पूरे कर लिए हैं।\nअपना प्रमाण पत्र प्राप्त करने के लिए सीखना पूरा करें।</string>
     <string name="connect_learn_not_started">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए सीखना शुरू करें।</string>

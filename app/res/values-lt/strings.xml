@@ -133,5 +133,5 @@
     <string name="personalid_tooltip_location_success_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programėlės naudojimą.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Spustelėkite čia, jei norite gauti daugiau informacijos.</a></string>
 
     <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
-
+    <string name="connect_job_ended">Užduotis baigėsi %s</string>
 </resources>
