@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-<!---->
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cvConnectMessage"
                 android:layout_width="match_parent"
@@ -82,7 +82,7 @@
                         android:layout_marginEnd="10dp"
                         android:text="@string/connect_job_tile_daily_limit_description"
                         android:textColor="@color/connect_warning_color"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/text_small"
                         app:layout_constraintLeft_toRightOf="@id/ivConnectMessageWarningIcon"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
