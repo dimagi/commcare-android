@@ -149,7 +149,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
             connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, backgroundColorRes));
             connectMessageCard.setVisibility(View.VISIBLE);
-            connectMessageWarningIcon.setVisibility(View.VISIBLE);
+            connectMessageWarningIcon.setVisibility(
+                    job.readyToTransitionToDelivery() ? View.GONE : View.VISIBLE
+            );
         } else {
             connectMessageCard.setVisibility(View.GONE);
             connectMessageWarningIcon.setVisibility(View.GONE);
