@@ -17,7 +17,7 @@
             android:id="@+id/tv_job_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Infant Child Vaccination By Rama"
+            tools:text="Infant Child Vaccination By Rama"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -30,12 +30,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Check vaccine status"
+            tools:text="Check vaccine status"
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_job_title"
             android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/connect_job_end_date_sub_heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="right"
+            tools:text="Complete Project by 01/31/2024"
+            android:textColor="@color/connect_subtext_color"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_title" />
 
         <TextView
             android:id="@+id/tv_view_more"
@@ -48,7 +61,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
             android:textStyle="bold"/>
-
 
         <TextView
             android:id="@+id/tvDailyVisitTitle"
@@ -67,7 +79,7 @@
             android:id="@+id/tv_job_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="8:00 AM - 5:00 PM"
+            tools:text="8:00 AM - 5:00 PM"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp"
             android:layout_marginStart="5dp"
@@ -84,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="right"
-            android:text="Complete Project by 01/31/2024"
+            tools:text="Complete Project by 01/31/2024"
             android:textColor="@color/connect_subtext_color"
             android:textSize="12sp"
             android:layout_marginStart="5dp"

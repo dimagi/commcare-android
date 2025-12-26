@@ -242,14 +242,20 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
-        jobCard.connectJobEndDate.setText(
-                getString(R.string.connect_learn_complete_by,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
+        jobCard.connectJobEndDateSubHeading.setText(
+                getString(
+                        R.string.connect_learn_complete_by,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+                )
+        );
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
+        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
+        jobCard.connectJobEndDate.setVisibility(View.GONE);
         jobCard.tvViewMore.setOnClickListener(this::navigateToJobDetailBottomSheet);
 
         if (showHours) {
