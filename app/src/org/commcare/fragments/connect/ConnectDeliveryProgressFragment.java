@@ -18,9 +18,11 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -156,9 +158,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private void setupJobCard(ConnectJobRecord job) {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
-        jobCard.tvViewMore.setOnClickListener(v -> Navigation.findNavController(v)
+        jobCard.mbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
                 .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment())
         );
+        jobCard.mbResume.setOnClickListener(v -> navigateToDeliverAppHome());
 
         jobCard.tvJobTitle.setText(job.getTitle());
 
@@ -184,6 +187,9 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
         jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
         jobCard.connectJobEndDate.setVisibility(View.GONE);
+        jobCard.tvViewMore.setVisibility(View.GONE);
+        jobCard.mbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.mbResume.setVisibility(View.VISIBLE);
 
         if (hasHours) {
             (jobCard.tvJobTime).setText(workingHours);
@@ -258,6 +264,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         getBinding().connectDeliveryLastUpdate.setText(
                 getString(R.string.connect_last_update,
                         ConnectDateUtils.INSTANCE.formatDateTime(lastUpdate)));
+    }
+
+    private void navigateToDeliverAppHome() {
+        CommCareApplication.instance().closeUserSession();
+        String deliverAppId = job.getDeliveryAppInfo().getAppId();
+        ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, deliverAppId);
     }
 
     @Override

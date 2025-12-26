@@ -23,7 +23,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_job_description"
@@ -34,8 +34,8 @@
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_title"
-            android:textStyle="bold"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_job_title"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/connect_job_end_date_sub_heading"
@@ -48,7 +48,7 @@
             android:textSize="12sp"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_title" />
+            app:layout_constraintTop_toBottomOf="@id/tv_job_title" />
 
         <TextView
             android:id="@+id/tv_view_more"
@@ -59,8 +59,45 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
-            android:textStyle="bold"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mb_view_info"
+            android:layout_height="wrap_content"
+            android:layout_width="120dp"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:layout_marginTop="20dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:backgroundTint="@color/connect_light_grey"
+            android:text="View Info"
+            android:textColor="@color/connect_blue_color"
+            android:textSize="@dimen/text_small"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            app:cornerRadius="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description"
+            app:strokeColor="@color/connect_blue_color" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mb_resume"
+            android:layout_height="wrap_content"
+            android:layout_width="120dp"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/connect_blue_color"
+            android:text="Resume"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_small"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            app:cornerRadius="20dp"
+            app:layout_constraintStart_toEndOf="@id/mb_view_info"
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description" />
 
         <TextView
             android:id="@+id/tvDailyVisitTitle"
@@ -70,10 +107,10 @@
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             android:visibility="visible"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description"
             app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_job_time"
@@ -84,11 +121,10 @@
             android:textSize="16sp"
             android:layout_marginStart="5dp"
             android:gravity="right"
-            app:layout_constraintStart_toEndOf="@+id/tv_view_more"
+            app:layout_constraintStart_toEndOf="@id/tv_view_more"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDailyVisitTitle"
-            android:textStyle="bold"/>
-
+            app:layout_constraintTop_toBottomOf="@id/tvDailyVisitTitle"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/connect_job_end_date"
@@ -100,8 +136,8 @@
             android:textColor="@color/connect_subtext_color"
             android:textSize="12sp"
             android:layout_marginStart="5dp"
-            app:layout_constraintStart_toEndOf="@+id/tv_view_more"
+            app:layout_constraintStart_toEndOf="@id/tv_view_more"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_time" />
+            app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

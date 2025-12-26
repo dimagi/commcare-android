@@ -179,18 +179,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private void configureGoToAssessmentButton() {
         getBinding().connectLearningButton.setText(getString(R.string.connect_learn_go_to_assessment));
-        getBinding().connectLearningButton.setOnClickListener(v -> {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
-        });
+        getBinding().connectLearningButton.setOnClickListener(v -> navigateToLearnAppHome());
     }
 
     private void configureLaunchLearningButton() {
         getBinding().connectLearningButton.setText(getString(R.string.connect_learn_continue));
-        getBinding().connectLearningButton.setOnClickListener(v -> {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
-        });
+        getBinding().connectLearningButton.setOnClickListener(v -> navigateToLearnAppHome());
     }
 
     private void configureDownloadButton() {
@@ -266,7 +260,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
         jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
         jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.tvViewMore.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.mbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.mbResume.setOnClickListener(v -> navigateToLearnAppHome());
+        jobCard.tvViewMore.setVisibility(View.GONE);
+        jobCard.mbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.mbResume.setVisibility(View.VISIBLE);
 
         if (showHours) {
             jobCard.tvJobTime.setText(hours);
@@ -276,6 +274,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     private void navigateToJobDetailBottomSheet(View view) {
         Navigation.findNavController(view).navigate(
                 ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
+    }
+
+    private void navigateToLearnAppHome() {
+        CommCareApplication.instance().closeUserSession();
+        ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
     }
 
     @Override
