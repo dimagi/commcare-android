@@ -3,7 +3,7 @@
     <androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#e1e0e0"
+    android:background="@color/connect_background_color"
     android:fillViewport="true">
 
     <LinearLayout
@@ -14,7 +14,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#fff"
+            android:background="@color/connect_background_color"
             android:orientation="vertical">
 
             <ImageView
@@ -107,6 +107,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="-35dp"
                     android:layout_marginRight="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardBackgroundColor="@color/connect_light_orange_color"
                     app:cardCornerRadius="15dp"
                     app:cardElevation="10dp">
