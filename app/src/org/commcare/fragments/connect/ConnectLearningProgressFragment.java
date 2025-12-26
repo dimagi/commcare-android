@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
@@ -242,12 +243,21 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
-        jobCard.connectJobEndDateSubHeading.setText(
-                getString(
-                        R.string.connect_learn_complete_by,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
-                )
-        );
+
+        String dateMessage;
+        if (job.deliveryComplete()) {
+            dateMessage = getString(
+                    R.string.connect_job_ended,
+                    ConnectDateUtils.INSTANCE.formatDateForCompletedJob(job.getProjectEndDate())
+            );
+        } else {
+            dateMessage = getString(
+                    R.string.connect_learn_complete_by,
+                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+            );
+        }
+
+        jobCard.connectJobEndDateSubHeading.setText(dateMessage);
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;
