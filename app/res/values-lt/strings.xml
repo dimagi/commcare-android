@@ -134,4 +134,6 @@
 
     <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="connect_job_ended">Užduotis baigėsi %s</string>
+    <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
+    <string name="connect_job_info_view_resume">Tęsti</string>
 </resources>

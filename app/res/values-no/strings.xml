@@ -134,4 +134,6 @@
 
     <string name="network_forbidden_error">Tilgang nektet. Ta kontakt med kundestøtte hvis problemet vedvarer.</string>
     <string name="connect_job_ended">Oppgaven ble avsluttet %s</string>
+    <string name="connect_job_info_view_info">Se info</string>
+    <string name="connect_job_info_view_resume">Gjenoppta</string>
 </resources>

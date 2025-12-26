@@ -569,6 +569,8 @@
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
+    <string name="connect_job_info_view_info">View Info</string>
+    <string name="connect_job_info_view_resume">Resume</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>

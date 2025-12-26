@@ -387,6 +387,8 @@ License.
     <string name="connect_job_info_start_visit">विज़िट शुरू करें</string>
     <string name="connect_job_info_download_delivery">वितरण डाउनलोड करें</string>
     <string name="connect_job_info_download">डाउनलोड करें</string>
+    <string name="connect_job_info_view_info">जानकारी देखें</string>
+    <string name="connect_job_info_view_resume">फिर से शुरू करें</string>
     <string name="connect_progress">प्रगति</string>
     <string name="connect_payment">भुगतान</string>
     <string name="connect_delivery_progress_description">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए अपना सीखना शुरू करें।</string>
