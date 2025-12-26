@@ -205,8 +205,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             );
             getBinding().tvConnectMessage.setText(messageText);
             getBinding().cvConnectMessage.setVisibility(View.VISIBLE);
+            getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
         } else {
             getBinding().cvConnectMessage.setVisibility(View.GONE);
+            getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
         }
     }
 

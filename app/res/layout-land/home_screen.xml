@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
+<!---->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cvConnectMessage"
                 android:layout_width="match_parent"
@@ -64,6 +64,17 @@
                     android:paddingTop="35dp"
                     android:paddingEnd="15dp">
 
+                    <ImageView
+                        android:id="@+id/ivConnectMessageWarningIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_connect_warning"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:paddingEnd="10dp"/>
+
                     <TextView
                         android:id="@+id/tvConnectMessage"
                         android:layout_width="0dp"
@@ -72,7 +83,8 @@
                         android:text="@string/connect_job_tile_daily_limit_description"
                         android:textColor="@color/connect_warning_color"
                         android:textSize="14sp"
-                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/ivConnectMessageWarningIcon"
+                        app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         android:textStyle="bold"/>
 

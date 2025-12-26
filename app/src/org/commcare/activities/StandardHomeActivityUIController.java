@@ -5,6 +5,7 @@ import static org.commcare.android.database.connect.models.ConnectJobRecord.STAT
 import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
@@ -45,6 +46,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private final StandardHomeActivity activity;
     private View viewJobCard;
     private CardView connectMessageCard;
+    private ImageView connectMessageWarningIcon;
     private ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter;
 
     private HomeScreenAdapter adapter;
@@ -80,6 +82,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private void setupConnectJobTile() {
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
+        connectMessageWarningIcon = activity.findViewById(R.id.ivConnectMessageWarningIcon);
         connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(new ArrayList<>());
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -146,8 +149,10 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
             connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, backgroundColorRes));
             connectMessageCard.setVisibility(View.VISIBLE);
+            connectMessageWarningIcon.setVisibility(View.VISIBLE);
         } else {
             connectMessageCard.setVisibility(View.GONE);
+            connectMessageWarningIcon.setVisibility(View.GONE);
         }
     }
 
