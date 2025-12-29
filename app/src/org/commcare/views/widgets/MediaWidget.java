@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -41,6 +42,7 @@ import java.security.Key;
 import javax.crypto.spec.SecretKeySpec;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Generic logic for capturing or choosing audio/video/image media
@@ -126,6 +128,7 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     // decrypt the given file to a temp path
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     public static String decryptMedia(File f, Key secretKey) {
         if (!f.getName().endsWith(AES_EXTENSION)) {
             return null;

@@ -1,5 +1,7 @@
 package org.commcare.models.encryption;
 
+import android.os.Build;
+
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -24,6 +26,8 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * Methods for dealing with encrypted input/output.
@@ -77,6 +81,7 @@ public class EncryptionIO {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     public static InputStream getFileInputStream(String filepath,
                                                  Key symetricKey) throws FileNotFoundException {
         final File file = new File(filepath);
