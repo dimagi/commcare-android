@@ -45,7 +45,7 @@ public class EncryptionIO {
             return fos;
         } else {
             try {
-                Cipher cipher = Cipher.getInstance("AES");
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, symetricKey);
                 return new BufferedOutputStream(new CipherOutputStream(fos, cipher));
 
@@ -74,7 +74,7 @@ public class EncryptionIO {
         try {
             is = new FileInputStream(file);
             if (symetricKey != null) {
-                Cipher cipher = Cipher.getInstance("AES");
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
                 cipher.init(Cipher.DECRYPT_MODE, symetricKey);
                 is = new BufferedInputStream(new CipherInputStream(is, cipher));
             }
