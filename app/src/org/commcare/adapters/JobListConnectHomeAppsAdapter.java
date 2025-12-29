@@ -12,9 +12,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ConnectJobListItemSectionHeaderBinding;
-import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
+import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
+import org.commcare.dalvik.databinding.ConnectJobListItemSectionHeaderBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectJobListItem;
 import org.commcare.models.connect.ConnectLoginJobListModel;
@@ -142,13 +142,19 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         return outputFormat.format(date);
     }
 
-    public void bind(ConnectJobListItemCorruptBinding binding,
-            ConnectLoginJobListModel connectLoginJobListModel) {
+    public void bind(
+            ConnectJobListItemCorruptBinding binding,
+            ConnectLoginJobListModel connectLoginJobListModel
+    ) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
     }
 
-    public void bind(Context mContext, ConnectJobListItemBinding binding,
-            ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
+    public void bind(
+            Context mContext,
+            ConnectJobListItemBinding binding,
+            ConnectLoginJobListModel connectLoginJobListModel,
+            OnJobSelectionClick launcher
+    ) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
         binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate()));
         binding.imgDownload.setVisibility(connectLoginJobListModel.isAppInstalled() ? View.GONE : View.VISIBLE);
@@ -167,16 +173,22 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         binding.vSectionDivider.setVisibility(showSectionDivider ? View.VISIBLE : View.GONE);
     }
 
-    private void clickListener(ConnectJobListItemBinding binding,
-            ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
+    private void clickListener(
+            ConnectJobListItemBinding binding,
+            ConnectLoginJobListModel connectLoginJobListModel,
+            OnJobSelectionClick launcher
+    ) {
         binding.rootCardView.setOnClickListener(view -> {
             launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
                     connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
         });
     }
 
-    public void handleProgressBarUI(Context context, ConnectLoginJobListModel item,
-                                    ConnectJobListItemBinding binding) {
+    public void handleProgressBarUI(
+            Context context,
+            ConnectLoginJobListModel item,
+            ConnectJobListItemBinding binding
+    ) {
         int progress = 0;
         int progressColor = 0;
         ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
@@ -198,8 +210,11 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
     }
 
-    private void configureJobType(Context context, ConnectLoginJobListModel item,
-                                  ConnectJobListItemBinding binding) {
+    private void configureJobType(
+            Context context,
+            ConnectLoginJobListModel item,
+            ConnectJobListItemBinding binding
+    ) {
         if (item.isNew()) {
             setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
                     ContextCompat.getString(context, R.string.connect_new_opportunity),
@@ -227,8 +242,15 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
     }
 
-    private void setJobType(Context context, int backgroundResId, String jobTypeText,
-            int iconResId, int iconAlpha, int textColorResId, ConnectJobListItemBinding binding) {
+    private void setJobType(
+            Context context,
+            int backgroundResId,
+            String jobTypeText,
+            int iconResId,
+            int iconAlpha,
+            int textColorResId,
+            ConnectJobListItemBinding binding
+    ) {
         binding.llOpportunity.setBackground(ContextCompat.getDrawable(context, backgroundResId));
         binding.tvJobType.setText(jobTypeText);
         binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
