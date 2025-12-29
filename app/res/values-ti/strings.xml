@@ -406,6 +406,9 @@
     <string name="connect_delivery">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
     <string name="connect_expired">ኣገልግሎቱ ዝወደአ</string>
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
+    <string name="connect_in_progress">ኣብ መስርሕ</string>
+    <string name="connect_new_opportunities">ሓደስቲ ዕድላት</string>
+    <string name="connect_completed">ተዛዚሙ</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="connect_messaging_channel_consent_title">ፍቓድ ንቻነል ሃብ</string>
     <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>

@@ -134,6 +134,10 @@
 
     <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
 
+    <string name="connect_in_progress">Vykdoma</string>
+    <string name="connect_new_opportunities">Naujos galimybės</string>
+    <string name="connect_completed">Užbaigta</string>
+
     <string name="personalid_biometric_error_cancelled">Biometrinis nustatymas buvo atšauktas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="personalid_biometric_error_lockout">Per daug bandymų. Palaukite ir bandykite dar kartą.</string>
     <string name="personalid_biometric_error_lockout_permanent">Per daug nepavykusių bandymų. Atrakinkite įrenginį ir bandykite dar kartą.</string>
