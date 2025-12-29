@@ -83,8 +83,8 @@
                                     android:textColor="@color/connect_warning_color"
                                     android:textSize="@dimen/text_small"
                                     android:textStyle="bold"
-                                    app:layout_constraintLeft_toRightOf="@id/ivConnectMessageWarningIcon"
-                                    app:layout_constraintRight_toRightOf="parent"
+                                    app:layout_constraintStart_toEndOf="@id/ivConnectMessageWarningIcon"
+                                    app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintTop_toTopOf="parent" />
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
