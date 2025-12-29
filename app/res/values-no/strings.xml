@@ -136,4 +136,10 @@
     <string name="connect_job_ended">Oppgaven ble avsluttet %s</string>
     <string name="connect_job_info_view_info">Se info</string>
     <string name="connect_job_info_view_resume">Gjenoppta</string>
+
+    <string name="personalid_biometric_error_cancelled">Biometrisk oppsett ble avbrutt. Kontakt kundestøtte hvis problemet vedvarer.</string>
+    <string name="personalid_biometric_error_lockout">For mange forsøk. Vent og prøv igjen.</string>
+    <string name="personalid_biometric_error_lockout_permanent">For mange mislykkede forsøk. Lås opp enheten og prøv igjen.</string>
+    <string name="personalid_biometric_error_timeout">Biometrisk operasjon ble tidsavbrutt. Kontakt kundestøtte hvis problemet vedvarer.</string>
+    <string name="personalid_biometric_error_cannot_configure">Vi kunne ikke konfigurere biometri på enheten din. Kontakt kundestøtte hvis problemet vedvarer.</string>
 </resources>

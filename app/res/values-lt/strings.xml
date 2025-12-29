@@ -136,4 +136,10 @@
     <string name="connect_job_ended">Užduotis baigėsi %s</string>
     <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
     <string name="connect_job_info_view_resume">Tęsti</string>
+
+    <string name="personalid_biometric_error_cancelled">Biometrinis nustatymas buvo atšauktas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_biometric_error_lockout">Per daug bandymų. Palaukite ir bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Per daug nepavykusių bandymų. Atrakinkite įrenginį ir bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_timeout">Baigėsi biometrinės operacijos laikas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_biometric_error_cannot_configure">Nepavyko sukonfigūruoti biometrinių duomenų jūsų įrenginyje. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
 </resources>
