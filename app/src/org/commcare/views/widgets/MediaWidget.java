@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Key;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -125,7 +126,7 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     // decrypt the given file to a temp path
-    public static String decryptMedia(File f, SecretKeySpec secretKey) {
+    public static String decryptMedia(File f, Key secretKey) {
         if (!f.getName().endsWith(AES_EXTENSION)) {
             return null;
         }

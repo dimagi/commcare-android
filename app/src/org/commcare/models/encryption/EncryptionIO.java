@@ -28,7 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionIO {
 
-    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symetricKey) throws FileNotFoundException,
+    public static void encryptFile(String sourceFilePath, String destPath, Key symetricKey) throws FileNotFoundException,
             StreamsUtil.InputIOException, StreamsUtil.OutputIOException {
         OutputStream os;
         FileInputStream is;
@@ -37,8 +37,7 @@ public class EncryptionIO {
         StreamsUtil.writeFromInputToOutputNew(is, os);
     }
 
-    public static OutputStream createFileOutputStream(String filename,
-                                                      SecretKeySpec symetricKey)
+    public static OutputStream createFileOutputStream(String filename, Key symetricKey)
             throws FileNotFoundException {
         final File path = new File(filename);
         FileOutputStream fos = new FileOutputStream(path);
@@ -69,7 +68,7 @@ public class EncryptionIO {
     }
 
     public static InputStream getFileInputStream(String filepath,
-                                                 SecretKeySpec symetricKey) throws FileNotFoundException {
+                                                 Key symetricKey) throws FileNotFoundException {
         final File file = new File(filepath);
         InputStream is;
         try {
