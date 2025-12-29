@@ -16,7 +16,7 @@ import org.commcare.dalvik.databinding.ConnectJobListItemSectionHeaderBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
-import org.commcare.models.connect.ConnectListItem;
+import org.commcare.models.connect.ConnectJobListItem;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
 import java.text.SimpleDateFormat;
@@ -30,7 +30,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private Context mContext;
     private final OnJobSelectionClick launcher;
 
-    private final ArrayList<ConnectListItem> displayItems = new ArrayList<>();
+    private final ArrayList<ConnectJobListItem> displayItems = new ArrayList<>();
 
     private static final int VIEW_TYPE_SECTION_HEADER = 0;
     private static final int VIEW_TYPE_CORRUPT_JOB = 1;
@@ -69,18 +69,18 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ConnectListItem displayItem = displayItems.get(position);
+        ConnectJobListItem displayItem = displayItems.get(position);
 
         // Handle the section headers.
         if (holder instanceof SectionHeaderViewHolder sectionHeaderViewHolder) {
-            ConnectListItem.SectionHeader header = (ConnectListItem.SectionHeader) displayItem;
+            ConnectJobListItem.SectionHeader header = (ConnectJobListItem.SectionHeader) displayItem;
             boolean showSectionDivider = position > 0;
             bind(sectionHeaderViewHolder.binding, header.getTextResID(), showSectionDivider);
             return;
         }
 
         // Handle the job items.
-        ConnectListItem.JobItem jobItem = (ConnectListItem.JobItem) displayItem;
+        ConnectJobListItem.JobItem jobItem = (ConnectJobListItem.JobItem) displayItem;
         if (holder instanceof CorruptJobViewHolder corruptJobViewHolder) {
             bind(corruptJobViewHolder.binding, jobItem.getJobModel());
         } else if (holder instanceof NonCorruptJobViewHolder nonCorruptJobViewHolder) {
@@ -95,15 +95,15 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
     @Override
     public int getItemViewType(int position) {
-        ConnectListItem displayItem = displayItems.get(position);
+        ConnectJobListItem displayItem = displayItems.get(position);
 
         // Handle the section headers.
-        if (displayItem instanceof ConnectListItem.SectionHeader) {
+        if (displayItem instanceof ConnectJobListItem.SectionHeader) {
             return VIEW_TYPE_SECTION_HEADER;
         }
 
         // Handle the job items.
-        if (((ConnectListItem.JobItem) displayItem).isCorrupt()) {
+        if (((ConnectJobListItem.JobItem) displayItem).isCorrupt()) {
             return VIEW_TYPE_CORRUPT_JOB;
         } else {
             return VIEW_TYPE_NON_CORRUPT_JOB;
@@ -243,28 +243,28 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             List<ConnectLoginJobListModel> corruptJobs
     ) {
         if (!inProgressJobs.isEmpty()) {
-            displayItems.add(new ConnectListItem.SectionHeader(R.string.connect_in_progress));
+            displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_in_progress));
             for (ConnectLoginJobListModel inProgressJob : inProgressJobs) {
-                displayItems.add(new ConnectListItem.JobItem(inProgressJob, false));
+                displayItems.add(new ConnectJobListItem.JobItem(inProgressJob, false));
             }
         }
 
         if (!newJobs.isEmpty()) {
-            displayItems.add(new ConnectListItem.SectionHeader(R.string.connect_new_opportunities));
+            displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
             for (ConnectLoginJobListModel newJob : newJobs) {
-                displayItems.add(new ConnectListItem.JobItem(newJob, false));
+                displayItems.add(new ConnectJobListItem.JobItem(newJob, false));
             }
         }
 
         if (!completedJobs.isEmpty()) {
-            displayItems.add(new ConnectListItem.SectionHeader(R.string.connect_completed));
+            displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed));
             for (ConnectLoginJobListModel completedJob : completedJobs) {
-                displayItems.add(new ConnectListItem.JobItem(completedJob, false));
+                displayItems.add(new ConnectJobListItem.JobItem(completedJob, false));
             }
         }
 
         for (ConnectLoginJobListModel corruptJob : corruptJobs) {
-            displayItems.add(new ConnectListItem.JobItem(corruptJob, true));
+            displayItems.add(new ConnectJobListItem.JobItem(corruptJob, true));
         }
     }
 }
