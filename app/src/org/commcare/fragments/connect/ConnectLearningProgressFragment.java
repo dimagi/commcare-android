@@ -236,21 +236,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
-
-        String dateMessage;
-        if (job.deliveryComplete()) {
-            dateMessage = getString(
-                    R.string.connect_job_ended,
-                    ConnectDateUtils.INSTANCE.formatDateForCompletedJob(job.getProjectEndDate())
-            );
-        } else {
-            dateMessage = getString(
-                    R.string.connect_learn_complete_by,
-                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
-            );
-        }
-
-        jobCard.connectJobEndDateSubHeading.setText(dateMessage);
+        jobCard.connectJobEndDateSubHeading.setText(
+                getString(
+                        R.string.connect_job_ended,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+                )
+        );
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;

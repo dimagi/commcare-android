@@ -160,27 +160,18 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private void setupJobCard(ConnectJobRecord job) {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
+
         jobCard.mbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
                 .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment())
         );
         jobCard.mbResume.setOnClickListener(v -> navigateToDeliverAppHome());
-
         jobCard.tvJobTitle.setText(job.getTitle());
-
-        String dateMessage;
-        if (job.deliveryComplete()) {
-            dateMessage = getString(
-                    R.string.connect_job_ended,
-                    ConnectDateUtils.INSTANCE.formatDateForCompletedJob(job.getProjectEndDate())
-            );
-        } else {
-            dateMessage = getString(
-                    R.string.connect_learn_complete_by,
-                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
-            );
-        }
-
-        jobCard.connectJobEndDateSubHeading.setText(dateMessage);
+        jobCard.connectJobEndDateSubHeading.setText(
+                getString(
+                        R.string.connect_job_ended,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+                )
+        );
 
         String workingHours = job.getWorkingHours();
         boolean hasHours = workingHours != null;

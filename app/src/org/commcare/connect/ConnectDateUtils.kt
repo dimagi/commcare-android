@@ -11,20 +11,11 @@ import java.util.Locale
 import java.util.TimeZone
 
 object ConnectDateUtils {
-    val dateFormat: DateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    val dateFormat: DateFormat = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
 
     fun formatDate(date: Date?): String {
         synchronized(dateFormat) {
             return dateFormat.format(date)
-        }
-    }
-
-    val completedJobDateFormat: DateFormat =
-        SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
-
-    fun formatDateForCompletedJob(date: Date): String {
-        synchronized(completedJobDateFormat) {
-            return completedJobDateFormat.format(date)
         }
     }
 
