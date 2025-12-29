@@ -12,9 +12,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
-import org.commcare.dalvik.databinding.ItemLoginConnectHomeCorruptAppsBinding;
-import org.commcare.dalvik.databinding.ItemLoginConnectSectionHeaderBinding;
+import org.commcare.dalvik.databinding.ConnectJobListItemSectionHeaderBinding;
+import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
+import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectListItem;
 import org.commcare.models.connect.ConnectLoginJobListModel;
@@ -56,13 +56,13 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         return switch (viewType) {
             case VIEW_TYPE_SECTION_HEADER -> new SectionHeaderViewHolder(
-                    ItemLoginConnectSectionHeaderBinding.inflate(inflater, parent, false)
+                    ConnectJobListItemSectionHeaderBinding.inflate(inflater, parent, false)
             );
             case VIEW_TYPE_CORRUPT_JOB -> new CorruptJobViewHolder(
-                    ItemLoginConnectHomeCorruptAppsBinding.inflate(inflater, parent, false)
+                    ConnectJobListItemCorruptBinding.inflate(inflater, parent, false)
             );
             default -> new NonCorruptJobViewHolder(
-                    ItemLoginConnectHomeAppsBinding.inflate(inflater, parent, false)
+                    ConnectJobListItemBinding.inflate(inflater, parent, false)
             );
         };
     }
@@ -111,27 +111,27 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     public static class NonCorruptJobViewHolder extends RecyclerView.ViewHolder {
-        private final ItemLoginConnectHomeAppsBinding binding;
+        private final ConnectJobListItemBinding binding;
 
-        public NonCorruptJobViewHolder(ItemLoginConnectHomeAppsBinding binding) {
+        public NonCorruptJobViewHolder(ConnectJobListItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
     }
 
     public static class CorruptJobViewHolder extends RecyclerView.ViewHolder {
-        private final ItemLoginConnectHomeCorruptAppsBinding binding;
+        private final ConnectJobListItemCorruptBinding binding;
 
-        public CorruptJobViewHolder(ItemLoginConnectHomeCorruptAppsBinding binding) {
+        public CorruptJobViewHolder(ConnectJobListItemCorruptBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
     }
 
     public static class SectionHeaderViewHolder extends RecyclerView.ViewHolder {
-        private final ItemLoginConnectSectionHeaderBinding binding;
+        private final ConnectJobListItemSectionHeaderBinding binding;
 
-        public SectionHeaderViewHolder(ItemLoginConnectSectionHeaderBinding binding) {
+        public SectionHeaderViewHolder(ConnectJobListItemSectionHeaderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -142,12 +142,12 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         return outputFormat.format(date);
     }
 
-    public void bind(ItemLoginConnectHomeCorruptAppsBinding binding,
+    public void bind(ConnectJobListItemCorruptBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
     }
 
-    public void bind(Context mContext, ItemLoginConnectHomeAppsBinding binding,
+    public void bind(Context mContext, ConnectJobListItemBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
         binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate()));
@@ -159,7 +159,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     public void bind(
-            ItemLoginConnectSectionHeaderBinding binding,
+            ConnectJobListItemSectionHeaderBinding binding,
             @StringRes int headerTextResId,
             boolean showSectionDivider
     ) {
@@ -167,7 +167,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         binding.vSectionDivider.setVisibility(showSectionDivider ? View.VISIBLE : View.GONE);
     }
 
-    private void clickListener(ItemLoginConnectHomeAppsBinding binding,
+    private void clickListener(ConnectJobListItemBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.rootCardView.setOnClickListener(view -> {
             launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
@@ -176,7 +176,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     public void handleProgressBarUI(Context context, ConnectLoginJobListModel item,
-            ItemLoginConnectHomeAppsBinding binding) {
+                                    ConnectJobListItemBinding binding) {
         int progress = 0;
         int progressColor = 0;
         ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
@@ -199,7 +199,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     private void configureJobType(Context context, ConnectLoginJobListModel item,
-            ItemLoginConnectHomeAppsBinding binding) {
+                                  ConnectJobListItemBinding binding) {
         if (item.isNew()) {
             setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
                     ContextCompat.getString(context, R.string.connect_new_opportunity),
@@ -228,7 +228,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     private void setJobType(Context context, int backgroundResId, String jobTypeText,
-            int iconResId, int iconAlpha, int textColorResId, ItemLoginConnectHomeAppsBinding binding) {
+            int iconResId, int iconAlpha, int textColorResId, ConnectJobListItemBinding binding) {
         binding.llOpportunity.setBackground(ContextCompat.getDrawable(context, backgroundResId));
         binding.tvJobType.setText(jobTypeText);
         binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
