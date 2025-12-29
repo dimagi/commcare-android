@@ -131,7 +131,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
         boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
 
-        if (appInstalled && deliveryComplete && !isLearning) {
+        if (deliveryComplete && !isLearning) {
             navigateToDeliveryProgress();
         } else if (appInstalled) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
