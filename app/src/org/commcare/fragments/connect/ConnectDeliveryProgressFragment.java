@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -166,9 +167,17 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         );
         jobCard.mbResume.setOnClickListener(v -> navigateToDeliverAppHome());
         jobCard.tvJobTitle.setText(job.getTitle());
+
+        @StringRes int dateMessageStringRes;
+        if (job.deliveryComplete()) {
+            dateMessageStringRes = R.string.connect_job_ended;
+        } else {
+            dateMessageStringRes = R.string.connect_learn_complete_by;
+        }
+
         jobCard.connectJobEndDateSubHeading.setText(
                 getString(
-                        R.string.connect_job_ended,
+                        dateMessageStringRes,
                         ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
                 )
         );

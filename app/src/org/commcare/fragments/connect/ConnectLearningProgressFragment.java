@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.StringRes;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -236,9 +237,17 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
+
+        @StringRes int dateMessageStringRes;
+        if (job.deliveryComplete()) {
+            dateMessageStringRes = R.string.connect_job_ended;
+        } else {
+            dateMessageStringRes = R.string.connect_learn_complete_by;
+        }
+
         jobCard.connectJobEndDateSubHeading.setText(
                 getString(
-                        R.string.connect_job_ended,
+                        dateMessageStringRes,
                         ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
                 )
         );
