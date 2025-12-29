@@ -15,6 +15,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.encryption.EncryptionIO;
@@ -146,8 +147,10 @@ public abstract class MediaWidget extends QuestionWidget {
         return tempMediaPath;
     }
 
-    private SecretKeySpec getSecretKey() {
-        return ((FormEntryActivity)getContext()).getSymetricKey();
+    private Key getSecretKey() {
+        //return ((FormEntryActivity)getContext()).getSymetricKey();
+        // for testing purposes only
+        return new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey();
     }
 
     protected void togglePlayButton(boolean enabled) {
