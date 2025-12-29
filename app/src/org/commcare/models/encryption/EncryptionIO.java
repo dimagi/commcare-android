@@ -10,15 +10,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -47,6 +51,9 @@ public class EncryptionIO {
             try {
                 Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, symetricKey);
+                byte[] iv = cipher.getIV();
+                fos.write(iv.length);
+                fos.write(iv);
                 return new BufferedOutputStream(new CipherOutputStream(fos, cipher));
 
                 //All of these exceptions imply a bad platform and should be irrecoverable (Don't ever
@@ -63,6 +70,9 @@ public class EncryptionIO {
                 e.printStackTrace();
                 Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Bad Padding: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
+            } catch (IOException e) {
+                // for testing purposes only
+                throw new RuntimeException(e);
             }
         }
     }
@@ -73,9 +83,12 @@ public class EncryptionIO {
         InputStream is;
         try {
             is = new FileInputStream(file);
+
+            int ivlength = ((byte[])is.readNBytes(1))[0];
+            byte[] iv = is.readNBytes(ivlength);
             if (symetricKey != null) {
                 Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
-                cipher.init(Cipher.DECRYPT_MODE, symetricKey);
+                cipher.init(Cipher.DECRYPT_MODE, symetricKey, iv != null ? new IvParameterSpec(iv) : null);
                 is = new BufferedInputStream(new CipherInputStream(is, cipher));
             }
 
@@ -90,7 +103,7 @@ public class EncryptionIO {
             //so you can't actually know that's correct. We should be relying on the
             //methods we use to read data to make sure it's all coming out.
         } catch (InvalidKeyException | NoSuchPaddingException
-                | NoSuchAlgorithmException e) {
+                | NoSuchAlgorithmException | InvalidAlgorithmParameterException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
