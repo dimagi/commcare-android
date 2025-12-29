@@ -144,8 +144,8 @@ public class ReportingUtils {
             if (user.isEmpty()) {
                 return getPersonalID();
             }
-        } catch (Exception ignored) {
-        }
+            return user;
+        } catch (Exception ignored) {}
         return null;
     }
 
