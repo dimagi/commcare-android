@@ -126,7 +126,13 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
-        if (AppUtils.isAppInstalled(appId)) {
+        // We need the composite job because it has the correct number of deliveries.
+        ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
+        boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
+
+        if (deliveryComplete && !isLearning) {
+            navigateToDeliveryProgress();
+        } else if (AppUtils.isAppInstalled(appId)) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
@@ -134,6 +140,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     .actionConnectJobsListFragmentToConnectDownloadingFragment(
                             getString(textId), isLearning));
         }
+    }
+
+    private void navigateToDeliveryProgress() {
+        Navigation.findNavController(getBinding().getRoot())
+                .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment());
     }
 
     private void setActiveJob(ConnectJobRecord job) {
