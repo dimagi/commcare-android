@@ -17,6 +17,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -164,7 +165,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     }
     private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, int buttonText) {
         NavDirections navDirections = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
-                title, message,0,getString(buttonText),null).setIsCancellable(isCancellable);
+                title, message, ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED,getString(buttonText),null).setIsCancellable(isCancellable);
         Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
     }
 }

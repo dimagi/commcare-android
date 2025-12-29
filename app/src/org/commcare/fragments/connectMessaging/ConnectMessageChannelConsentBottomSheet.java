@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -76,7 +77,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
 
     private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, String buttonText, View root) {
         NavDirections navDirections = ConnectMessageChannelConsentBottomSheetDirections.actionChannelConsentToPersonalidMessageDisplayDialog(
-                title, message,0, buttonText,null).setIsCancellable(isCancellable);
+                title, message, ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED, buttonText,null).setIsCancellable(isCancellable);
         Navigation.findNavController(root).navigate(navDirections);
     }
 }
