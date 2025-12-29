@@ -27,6 +27,7 @@ import android.widget.EditText;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 /**
  * Helper class for functionality related to phone numbers
@@ -82,14 +83,12 @@ public class PhoneNumberHelper {
      */
     public int getCountryCode(String phone) {
         try {
-            Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
-            if (phoneNumberUtil.isValidNumber(phoneNumber)) {
-                return phoneNumber.getCountryCode();
-            }
+            Phonenumber.PhoneNumber phoneNumber =
+                    phoneNumberUtil.parse(phone, "ZZ");
+            return phoneNumber.getCountryCode();
         } catch (NumberParseException e) {
-            // Ignore
+            return -1;
         }
-        return -1;
     }
 
     /**
@@ -97,15 +96,14 @@ public class PhoneNumberHelper {
      */
     public long getNationalNumber(String phone) {
         try {
-            Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
-            if (phoneNumberUtil.isValidNumber(phoneNumber)) {
-                return phoneNumber.getNationalNumber();
-            }
+            Phonenumber.PhoneNumber phoneNumber =
+                    phoneNumberUtil.parse(phone, "ZZ");
+            return phoneNumber.getNationalNumber();
         } catch (NumberParseException e) {
-            // Ignore
+            return -1;
         }
-        return -1;
     }
+
 
     /**
      * Retrieves the country code for the user's current locale.
@@ -134,9 +132,12 @@ public class PhoneNumberHelper {
                         IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent).build();
                         phoneNumberHintLauncher.launch(intentSenderRequest);
                     } catch (Exception e) {
+                        FirebaseAnalyticsUtil.reportPhoneNumberHintFailure(e.getMessage());
                         e.printStackTrace();
                     }
-                });
+                }
+                ).addOnFailureListener(e -> FirebaseAnalyticsUtil.reportPhoneNumberHintFailure(e.getMessage())
+                );
     }
 
     /**

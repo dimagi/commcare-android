@@ -517,6 +517,11 @@ public class FirebaseAnalyticsUtil {
     public static void reportLoginClicks() {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
+    public static void reportPhoneNumberHintFailure(String reason) {
+        Bundle b = new Bundle();
+        b.putString(CCAnalyticsParam.REASON, reason);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_PHONE_NUMBER_HINT_FAILURE,b);
+    }
 
     public static void reportPersonalIDContinueClicked(String screenName, @Nullable String info) {
         Bundle params = new Bundle();
