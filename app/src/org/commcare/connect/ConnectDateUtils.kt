@@ -1,6 +1,5 @@
 package org.commcare.connect
 
-import android.annotation.SuppressLint
 import android.content.Context
 import org.commcare.dalvik.R
 import java.text.DateFormat

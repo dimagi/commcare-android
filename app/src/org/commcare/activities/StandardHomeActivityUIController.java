@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-
 import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -35,6 +33,8 @@ import org.commcare.suite.model.Profile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
 
 /**
  * Handles UI of the normal home screen
