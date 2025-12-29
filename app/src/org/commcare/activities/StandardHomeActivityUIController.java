@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -103,8 +104,20 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
             tvJobDescription.setText(job.getShortDescription());
-            connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by,
-                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
+
+            @StringRes int dateMessageStringRes;
+            if (job.deliveryComplete()) {
+                dateMessageStringRes = R.string.connect_job_ended;
+            } else {
+                dateMessageStringRes = R.string.connect_learn_complete_by;
+            }
+
+            connectJobEndDate.setText(
+                    activity.getString(
+                            dateMessageStringRes,
+                            ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+                    )
+            );
 
             String workingHours = job.getWorkingHours();
             boolean showHours = workingHours != null;
