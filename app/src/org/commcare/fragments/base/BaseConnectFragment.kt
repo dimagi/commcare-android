@@ -6,9 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.viewbinding.ViewBinding
+import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.LoadingBinding
+import org.commcare.fragments.connect.base.BaseNetworkStateViewModel
+import org.commcare.fragments.connect.base.BaseNetworkStateViewModel.NetworkState.Loading
 import org.commcare.interfaces.base.BaseConnectView
+import org.commcare.utils.ViewUtils
 
 abstract class BaseConnectFragment<B : ViewBinding> :
     Fragment(),
@@ -18,6 +23,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     private lateinit var loadingBinding: LoadingBinding
     private lateinit var rootView: View
+
+    protected var baseNetworkStateViewModel: BaseNetworkStateViewModel? = null
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -75,4 +82,52 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun hideLoading() {
         loadingBinding.root.visibility = View.GONE
     }
+
+    fun startListeningToNetworkState() {
+        baseNetworkStateViewModel?.networkState?.observe(
+            getViewLifecycleOwner(),
+            Observer { networkState: BaseNetworkStateViewModel.NetworkState ->
+                when (networkState) {
+                    is BaseNetworkStateViewModel.NetworkState.Error -> {
+                        showNetworkFailureSnackBar()
+                    }
+                    Loading -> {
+                    }
+                    is BaseNetworkStateViewModel.NetworkState.Success -> {
+                        if (networkState.state) {
+                            showNetworkSuccessSnackBar()
+                        } else {
+                            showNetworkFailureSnackBar()
+                        }
+                    }
+                }
+            },
+        )
+    }
+
+    fun showNetworkSuccessSnackBar() {
+        ViewUtils.showSnackBarWith(
+            getString(R.string.refresh),
+            view,
+            getString(R.string.new_network_data_success),
+            View.OnClickListener { v: View? ->
+                refreshUiWithNetworkData()
+            },
+        )
+    }
+
+    fun showNetworkFailureSnackBar() {
+        ViewUtils.showSnackBarWith(
+            getString(R.string.ok),
+            view,
+            getString(R.string.new_network_data_failure),
+            View.OnClickListener { v: View? ->
+                showOldDataOnUi()
+            },
+        )
+    }
+
+    open fun refreshUiWithNetworkData() {}
+
+    open fun showOldDataOnUi() {}
 }
