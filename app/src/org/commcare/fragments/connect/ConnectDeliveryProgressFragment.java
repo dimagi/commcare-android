@@ -12,12 +12,14 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
@@ -267,9 +269,19 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void navigateToDeliverAppHome() {
-        CommCareApplication.instance().closeUserSession();
-        String deliverAppId = job.getDeliveryAppInfo().getAppId();
-        ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, deliverAppId);
+        String appId = job.getDeliveryAppInfo().getAppId();
+
+        if (AppUtils.isAppInstalled(appId)) {
+            CommCareApplication.instance().closeUserSession();
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, appId);
+        } else {
+            NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
+                    .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
+                            getString(R.string.connect_downloading_delivery),
+                            false
+                    );
+            Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
+        }
     }
 
     @Override

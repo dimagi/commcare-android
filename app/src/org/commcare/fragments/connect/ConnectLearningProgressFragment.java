@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
@@ -275,8 +276,19 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void navigateToLearnAppHome() {
-        CommCareApplication.instance().closeUserSession();
-        ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
+        String appId = job.getLearnAppInfo().getAppId();
+
+        if (AppUtils.isAppInstalled(appId)) {
+            CommCareApplication.instance().closeUserSession();
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, appId);
+        } else {
+            NavDirections navDirections = ConnectLearningProgressFragmentDirections
+                    .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
+                            getString(R.string.connect_downloading_learn),
+                            true
+                    );
+            Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
+        }
     }
 
     @Override
