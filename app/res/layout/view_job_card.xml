@@ -17,25 +17,37 @@
             android:id="@+id/tv_job_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Infant Child Vaccination By Rama"
+            tools:text="Infant Child Vaccination By Rama"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_job_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Check vaccine status"
+            tools:text="Check vaccine status"
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_title"
-            android:textStyle="bold"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_job_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/connect_job_end_date_sub_heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            tools:text="Complete Project by 01/31/2024"
+            android:textColor="@color/connect_subtext_color"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_job_title" />
 
         <TextView
             android:id="@+id/tv_view_more"
@@ -46,9 +58,47 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
-            android:textStyle="bold"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description"
+            android:textStyle="bold" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mb_view_info"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:minWidth="120dp"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:layout_marginTop="20dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:backgroundTint="@color/connect_light_grey"
+            android:text="@string/connect_job_info_view_info"
+            android:textColor="@color/connect_blue_color"
+            android:textSize="@dimen/text_small"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            app:cornerRadius="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description"
+            app:strokeColor="@color/connect_blue_color" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mb_resume"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:minWidth="120dp"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/connect_blue_color"
+            android:text="@string/connect_job_info_view_resume"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_small"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            app:cornerRadius="20dp"
+            app:layout_constraintStart_toEndOf="@id/mb_view_info"
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description" />
 
         <TextView
             android:id="@+id/tvDailyVisitTitle"
@@ -58,38 +108,37 @@
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             android:visibility="visible"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
+            app:layout_constraintTop_toBottomOf="@id/tv_job_description"
             app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_job_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="8:00 AM - 5:00 PM"
+            tools:text="8:00 AM - 5:00 PM"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp"
             android:layout_marginStart="5dp"
-            android:gravity="right"
-            app:layout_constraintStart_toEndOf="@+id/tv_view_more"
+            android:gravity="end"
+            app:layout_constraintStart_toEndOf="@id/tv_view_more"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDailyVisitTitle"
-            android:textStyle="bold"/>
-
+            app:layout_constraintTop_toBottomOf="@id/tvDailyVisitTitle"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/connect_job_end_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:gravity="right"
-            android:text="Complete Project by 01/31/2024"
+            android:gravity="end"
+            tools:text="Complete Project by 01/31/2024"
             android:textColor="@color/connect_subtext_color"
             android:textSize="12sp"
             android:layout_marginStart="5dp"
-            app:layout_constraintStart_toEndOf="@+id/tv_view_more"
+            app:layout_constraintStart_toEndOf="@id/tv_view_more"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_time" />
+            app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

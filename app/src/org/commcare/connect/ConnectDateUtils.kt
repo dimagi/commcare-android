@@ -1,6 +1,5 @@
 package org.commcare.connect
 
-import android.annotation.SuppressLint
 import android.content.Context
 import org.commcare.dalvik.R
 import java.text.DateFormat
@@ -12,7 +11,7 @@ import java.util.Locale
 import java.util.TimeZone
 
 object ConnectDateUtils {
-    val dateFormat: DateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    val dateFormat: DateFormat = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
 
     fun formatDate(date: Date?): String {
         synchronized(dateFormat) {
@@ -28,24 +27,28 @@ object ConnectDateUtils {
         }
     }
 
-    fun formatDateTime(date: Date?): String {
-        return SimpleDateFormat.getDateTimeInstance().format(date)
-    }
+    fun formatDateTime(date: Date?): String = SimpleDateFormat.getDateTimeInstance().format(date)
 
     @Throws(ParseException::class)
-    fun convertIsoDate(inputDate: String, outputPattern: String): String {
+    fun convertIsoDate(
+        inputDate: String,
+        outputPattern: String,
+    ): String {
         require(inputDate.isNotEmpty()) { "Input date string is empty" }
 
-        val cleaned = inputDate
-            .replace(Regex("\\.\\d{1,6}"), "")
-            .replace("+00:00", "Z")
+        val cleaned =
+            inputDate
+                .replace(Regex("\\.\\d{1,6}"), "")
+                .replace("+00:00", "Z")
 
-        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
+        val isoFormat =
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
 
-        val date = isoFormat.parse(cleaned)
-            ?: throw ParseException("Failed to parse ISO date: $cleaned", 0)
+        val date =
+            isoFormat.parse(cleaned)
+                ?: throw ParseException("Failed to parse ISO date: $cleaned", 0)
 
         val outputFormat = SimpleDateFormat(outputPattern, Locale.US)
         return outputFormat.format(date)
@@ -57,12 +60,15 @@ object ConnectDateUtils {
             val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
             isoFormat.timeZone = TimeZone.getTimeZone("UTC")
             isoFormat.parse(dateStr)
-        } catch (e: ParseException) {
+        } catch (_: ParseException) {
             null
         }
     }
 
-    fun formatNotificationTime(context: Context, date: Date): String {
+    fun formatNotificationTime(
+        context: Context,
+        date: Date,
+    ): String {
         val now = Calendar.getInstance()
         val then = Calendar.getInstance().apply { time = date }
 
