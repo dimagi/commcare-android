@@ -148,12 +148,15 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             if (job.readyToTransitionToDelivery()) {
                 textColorRes = R.color.connect_green;
                 backgroundColorRes = R.color.connect_light_green;
+                connectMessageWarningIcon.setVisibility(View.GONE);
             } else if (job.deliveryComplete()) {
                 textColorRes = R.color.connect_blue_color;
                 backgroundColorRes = R.color.porcelain_grey;
+                connectMessageWarningIcon.setVisibility(View.VISIBLE);
             } else {
                 textColorRes = R.color.connect_warning_color;
                 backgroundColorRes = R.color.connect_light_orange_color;
+                connectMessageWarningIcon.setVisibility(View.VISIBLE);
             }
 
             TextView textView = connectMessageCard.findViewById(R.id.tvConnectMessage);
@@ -162,9 +165,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
             connectMessageCard.setCardBackgroundColor(ContextCompat.getColor(activity, backgroundColorRes));
             connectMessageCard.setVisibility(View.VISIBLE);
-            connectMessageWarningIcon.setVisibility(
-                    job.readyToTransitionToDelivery() ? View.GONE : View.VISIBLE
-            );
         } else {
             connectMessageCard.setVisibility(View.GONE);
             connectMessageWarningIcon.setVisibility(View.GONE);
