@@ -93,6 +93,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         boolean show = job != null;
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
+
         if (show) {
             TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             TextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
@@ -105,24 +106,16 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             tvViewMore.setVisibility(View.GONE);
             tvJobDescription.setText(job.getShortDescription());
 
-            @StringRes int dateMessageStringRes;
-            if (job.deliveryComplete()) {
-                dateMessageStringRes = R.string.connect_job_ended;
-            } else {
-                dateMessageStringRes = R.string.connect_learn_complete_by;
-            }
-
-            connectJobEndDate.setText(
-                    activity.getString(
-                            dateMessageStringRes,
-                            ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
-                    )
-            );
+            @StringRes int dateMessageStringRes = job.deliveryComplete()
+                    ? R.string.connect_job_ended : R.string.connect_learn_complete_by;
+            String formattedEndDate = ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate());
+            connectJobEndDate.setText(activity.getString(dateMessageStringRes, formattedEndDate));
 
             String workingHours = job.getWorkingHours();
             boolean showHours = workingHours != null;
             tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
             hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+
             if (showHours) {
                 tv_job_time.setText(workingHours);
             }
