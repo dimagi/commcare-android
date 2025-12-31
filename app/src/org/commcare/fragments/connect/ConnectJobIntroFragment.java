@@ -5,17 +5,19 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -115,7 +117,18 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                String message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
+                if (PersonalIdOrConnectApiErrorHandler.isBlockingError(errorCode)) {
+                    navigateToMessageDisplayDialog(
+                            getString(R.string.failure),
+                            message,
+                            false,
+                            R.string.ok);
+                    getBinding().errorTextView.setVisibility(View.GONE);
+                } else {
+                    getBinding().errorTextView.setVisibility(View.VISIBLE);
+                    getBinding().errorTextView.setText(message);
+                }
                 reportApiCall(false);
             }
 
@@ -149,5 +162,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     @Override
     protected @NotNull FragmentConnectJobIntroBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectJobIntroBinding.inflate(inflater, container, false);
+    }
+    private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, int buttonText) {
+        NavDirections navDirections = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
+                title, message, ConnectConstants.PERSONAL_ID_CANCEL_MESSAGE_BOTTOM_SHEET,getString(buttonText),null).setIsCancellable(isCancellable);
+        NavHostFragment.findNavController(this).navigate(navDirections);
     }
 }
