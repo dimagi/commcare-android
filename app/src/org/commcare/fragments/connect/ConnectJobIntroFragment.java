@@ -5,12 +5,12 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -165,7 +165,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     }
     private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, int buttonText) {
         NavDirections navDirections = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
-                title, message, ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED,getString(buttonText),null).setIsCancellable(isCancellable);
-        Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
+                title, message, ConnectConstants.PERSONAL_ID_CANCEL_MESSAGE_BOTTOM_SHEET,getString(buttonText),null).setIsCancellable(isCancellable);
+        NavHostFragment.findNavController(this).navigate(navDirections);
     }
 }

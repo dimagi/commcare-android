@@ -17,7 +17,6 @@ import org.commcare.dalvik.databinding.FragmentChannelConsentBottomSheetBinding;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import java.util.Objects;
 
@@ -53,8 +52,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                                 getString(R.string.failure),
                                 getString(R.string.connect_messaging_channel_consent_failure_msg),
                                 false,
-                                getString(R.string.ok),
-                                binding.getRoot()
+                                getString(R.string.ok)
                         );
                     }
 
@@ -75,9 +73,9 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         return binding.getRoot();
     }
 
-    private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, String buttonText, View root) {
+    private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, String buttonText) {
         NavDirections navDirections = ConnectMessageChannelConsentBottomSheetDirections.actionChannelConsentToPersonalidMessageDisplayDialog(
-                title, message, ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED, buttonText,null).setIsCancellable(isCancellable);
-        Navigation.findNavController(root).navigate(navDirections);
+                title, message, ConnectConstants.PERSONAL_ID_CANCEL_MESSAGE_BOTTOM_SHEET, buttonText,null).setIsCancellable(isCancellable);
+        NavHostFragment.findNavController(this).navigate(navDirections);
     }
 }
