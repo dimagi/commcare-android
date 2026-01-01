@@ -240,34 +240,12 @@ public class FirebaseMessagingUtil {
 
     private static Intent handleCCCPaymentPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = getConnectActivityNotification(context, fcmMessageData);
-        if(showNotification) {
+
+        if (showNotification) {
             NotificationCompat.Builder fcmNotification = buildNotification(context, intent, fcmMessageData);
-            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                    ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                    : PendingIntent.FLAG_UPDATE_CURRENT;
-
-            // Yes button intent with payment_id from payload
-            Intent yesIntent = new Intent(context, PaymentAcknowledgeReceiver.class);
-            yesIntent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            yesIntent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
-            yesIntent.putExtra(PAYMENT_STATUS, true);
-            PendingIntent yesPendingIntent = PendingIntent.getBroadcast(context, 1,
-                    yesIntent, flags);
-
-            // No button intent with payment_id from payload
-            Intent noIntent = new Intent(context, PaymentAcknowledgeReceiver.class);
-            noIntent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            noIntent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
-            noIntent.putExtra(PAYMENT_STATUS, false);
-            PendingIntent noPendingIntent = PendingIntent.getBroadcast(context, 2,
-                    noIntent, flags);
-
-            // Add Yes & No action button to the notification
-            fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
-            fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
-
             showNotification(context, fcmNotification, fcmMessageData);
         }
+
         return intent;
     }
 
