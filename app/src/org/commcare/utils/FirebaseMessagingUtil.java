@@ -40,7 +40,6 @@ import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.FCMMessageData;
-import org.commcare.services.PaymentAcknowledgeReceiver;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -59,8 +58,6 @@ import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
-import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
-import static org.commcare.connect.ConnectConstants.PAYMENT_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 /**
