@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
