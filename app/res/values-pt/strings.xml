@@ -480,7 +480,7 @@
     <string name="personalid_recovery_failed_title">Falha na recuperação</string>
     <string name="personalid_recovery_lockout_title">Conta Bloqueada</string>
     <string name="personalid_recovery_failed_message">Parece que se esqueceu do seu código de backup, estamos a criar uma nova conta para si</string>
-    <string name="personalid_recovery_lockout_message">Você inseriu o código de backup incorreto muitas vezes. A sua conta foi bloqueada.</string>
+    <string name="personalid_recovery_lockout_message">Você inseriu o código de backup incorreto muitas vezes. A sua conta foi bloqueada. Entre em contacto com o suporte para desbloquear a sua conta.</string>
     <string name="personalid_wrong_backup_message">Introduziu o código de segurança incorretamente. Tente novamente. A sua conta será bloqueada após %d tentativas incorretas.</string>
     <string name="personalid_camera_permission_title">Permissão para câmara</string>
     <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
