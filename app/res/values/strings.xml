@@ -470,7 +470,7 @@
     <string name="connect_results_payment_confirm_undo">Undo confirm</string>
     <string name="connect_results_payment_confirmed">Confirmed</string>
     <string name="connect_results_payment_not_confirmed">Not Confirmed</string>
-    <string name="connect_payment_confirm_text">Have you been paid %s for %s Opportunity?</string>
+    <string name="connect_payment_confirm_text">Have you been paid %d %s for %s Opportunity?</string>
     <string name="connect_payment_confirm_yes">Yes!</string>
     <string name="connect_payment_confirm_no">Ask later</string>
     <string name="connect_payment_confirm_failed">Failed to send confirmation, we will ask again later.</string>
