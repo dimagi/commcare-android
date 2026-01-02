@@ -228,12 +228,13 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         getBinding().connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
 
         if (showTile) {
-            String date = ConnectDateUtils.INSTANCE.formatDate(paymentToConfirm.getDate());
-            getBinding().connectPaymentConfirmLabel.setText(getString(
-                    R.string.connect_payment_confirm_text,
-                    paymentToConfirm.getAmount(),
-                    job.getCurrency(),
-                    date));
+            getBinding().connectPaymentConfirmLabel.setText(
+                    getString(
+                        R.string.connect_payment_confirm_text,
+                        paymentToConfirm.getAmount(),
+                        job.getTitle()
+                    )
+            );
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
         }
     }

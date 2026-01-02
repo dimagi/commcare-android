@@ -347,7 +347,7 @@ License.
     <string name="connect_results_payment_confirm_undo">पुष्टि रद्द करें</string>
     <string name="connect_results_payment_confirmed">पुष्टि की गई</string>
     <string name="connect_results_payment_not_confirmed">पुष्टि नहीं की गई</string>
-    <string name="connect_payment_confirm_text">आपको भुगतान किया गया है!\n%s %s का भुगतान %s।\nक्या आपको भुगतान प्राप्त हुआ?</string>
+    <string name="connect_payment_confirm_text">क्या आपको %s अवसर के लिए %s का भुगतान किया गया है?</string>
     <string name="connect_payment_confirm_yes">हाँ!</string>
     <string name="connect_payment_confirm_no">बाद में</string>
     <string name="connect_payment_confirm_failed">पुष्टि भेजने में विफल, हम आपसे बाद में फिर पूछेंगे।</string>
