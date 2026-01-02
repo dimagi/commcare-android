@@ -19,24 +19,30 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 
 import org.checkerframework.checker.units.qual.A;
+import org.commcare.AndroidPreferenceManager;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
+import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
+import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment<FragmentConnectDeliveryProgressBinding>
         implements RefreshableFragment {
@@ -141,14 +147,21 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void setupRefreshAndConfirmationActions() {
         getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh());
 
-        getBinding().connectPaymentConfirmNoButton.setOnClickListener(v -> {
-            updatePaymentConfirmationTile(true);
-            FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-        });
-
-        getBinding().connectPaymentConfirmYesButton.setOnClickListener(
-                v -> handlePaymentConfirmYesButtonClick()
+        getBinding().connectPaymentConfirmNoButton.setOnClickListener(v ->
+                handlePaymentConfirmationNoClick()
         );
+
+        getBinding().connectPaymentConfirmYesButton.setOnClickListener(v ->
+                handlePaymentConfirmYesButtonClick()
+        );
+    }
+
+    private void handlePaymentConfirmationNoClick() {
+        updatePaymentConfirmationTile(true);
+        FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
+
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, new Date().getTime());
     }
 
     private void handlePaymentConfirmYesButtonClick() {
@@ -256,7 +269,15 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             }
         }
 
-        boolean showTile = !paymentsToConfirm.isEmpty() && ConnectivityStatus.isNetworkAvailable(requireContext());
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        long hiddenSinceTimeMs = preferenceManager.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+        long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
+
+        boolean userHidTileInPast = hiddenSinceTimeMs != -1;
+        boolean showTile = !paymentsToConfirm.isEmpty()
+                && ConnectivityStatus.isNetworkAvailable(requireContext())
+                && (!userHidTileInPast || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
+
         getBinding().connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
 
         if (showTile) {
