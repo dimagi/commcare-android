@@ -53,7 +53,9 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
 
     public void updateView() {
         updateSummaryView();
+
         if (adapter != null) {
+            adapter.rebuildPaymentsDisplayList();
             adapter.notifyDataSetChanged();
         }
     }
@@ -150,10 +152,21 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
             }
         }
 
-        private void handleConfirmationDialogResult(PaymentViewHolder holder, ConnectJobPaymentRecord payment,
-                                        boolean result) {
-            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, result,
-                    success -> holder.updateConfirmedText(context, payment));
+        private void handleConfirmationDialogResult(
+                PaymentViewHolder holder,
+                ConnectJobPaymentRecord payment,
+                boolean result
+        ) {
+            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(
+                    context,
+                    payment,
+                    result,
+                    success -> {
+                        holder.updateConfirmedText(context, payment);
+                        rebuildPaymentsDisplayList();
+                        notifyDataSetChanged();
+                    }
+            );
         }
 
         @Override
@@ -276,6 +289,13 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
                     (payment1, payment2) ->
                             payment2.getDate().compareTo(payment1.getDate())
             );
+        }
+
+        void rebuildPaymentsDisplayList() {
+            if (showPayments) {
+                payments.clear();
+                buildPaymentsDisplayList();
+            }
         }
     }
 
