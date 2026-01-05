@@ -176,7 +176,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private void handlePaymentConfirmYesButtonClick() {
         if (paymentsToConfirm.isEmpty()) {
-            return;
+            throw new IllegalStateException("No payments to confirm but confirmation card was shown.");
         }
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
