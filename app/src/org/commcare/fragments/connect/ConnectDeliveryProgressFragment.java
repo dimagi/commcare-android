@@ -282,17 +282,20 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void updatePaymentConfirmationTile(boolean forceHide) {
+        if (forceHide) {
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.GONE);
+            return;
+        }
+
         paymentsToConfirm.clear();
         totalUnconfirmedPaymentAmount = 0;
         long totalUnconfirmedPayments = 0;
 
-        if (!forceHide) {
-            for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                if (payment.allowConfirm()) {
-                    paymentsToConfirm.add(payment);
-                    totalUnconfirmedPaymentAmount += Integer.parseInt(payment.getAmount());
-                    totalUnconfirmedPayments++;
-                }
+        for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            if (payment.allowConfirm()) {
+                paymentsToConfirm.add(payment);
+                totalUnconfirmedPaymentAmount += Integer.parseInt(payment.getAmount());
+                totalUnconfirmedPayments++;
             }
         }
 
@@ -310,8 +313,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 && (!userHidTileInPast || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7
                 || newUnconfirmedPaymentReceived);
 
-        getBinding().connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
-
         if (showTile) {
             getBinding().connectPaymentConfirmLabel.setText(
                     getString(
@@ -321,7 +322,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                             job.getTitle()
                     )
             );
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.VISIBLE);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
+        } else {
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.GONE);
         }
     }
 
