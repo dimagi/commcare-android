@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.commcare.connect.ConnectConstants.LAST_TOTAL_UNCONFIRMED_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment<FragmentConnectDeliveryProgressBinding>
@@ -162,6 +163,15 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, new Date().getTime());
+
+        long totalUnconfirmedPayments = 0;
+        for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            if (payment.allowConfirm()) {
+                totalUnconfirmedPayments++;
+            }
+        }
+
+        preferenceManager.putLong(LAST_TOTAL_UNCONFIRMED_PAYMENTS, totalUnconfirmedPayments);
     }
 
     private void handlePaymentConfirmYesButtonClick() {
@@ -274,12 +284,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void updatePaymentConfirmationTile(boolean forceHide) {
         paymentsToConfirm.clear();
         totalUnconfirmedPaymentAmount = 0;
+        long totalUnconfirmedPayments = 0;
 
         if (!forceHide) {
             for (ConnectJobPaymentRecord payment : job.getPayments()) {
                 if (payment.allowConfirm()) {
                     paymentsToConfirm.add(payment);
                     totalUnconfirmedPaymentAmount += Integer.parseInt(payment.getAmount());
+                    totalUnconfirmedPayments++;
                 }
             }
         }
@@ -287,11 +299,16 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         long hiddenSinceTimeMs = preferenceManager.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
         long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
+        long lastTotalUnconfirmedPayments = preferenceManager.getLong(LAST_TOTAL_UNCONFIRMED_PAYMENTS, 0);
+
+        // If a new payment was received since the tile was last hidden, we want to show it.
+        boolean newUnconfirmedPaymentReceived = totalUnconfirmedPayments > lastTotalUnconfirmedPayments;
 
         boolean userHidTileInPast = hiddenSinceTimeMs != -1;
         boolean showTile = !paymentsToConfirm.isEmpty()
                 && ConnectivityStatus.isNetworkAvailable(requireContext())
-                && (!userHidTileInPast || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
+                && (!userHidTileInPast || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7
+                || newUnconfirmedPaymentReceived);
 
         getBinding().connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
 
