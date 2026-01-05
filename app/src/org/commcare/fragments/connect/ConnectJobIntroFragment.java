@@ -139,6 +139,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                 ConnectJobUtils.upsertJob(getContext(), job);
 
+                if (!isAdded()) {
+                    return;
+                }
+
                 if (appInstalled) {
                     ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true,
                             job.getLearnAppInfo().getAppId());

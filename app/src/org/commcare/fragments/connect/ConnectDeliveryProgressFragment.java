@@ -120,7 +120,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     public void refresh() {
         setWaitDialogEnabled(false);
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, success -> {
-            if (success) {
+            if (success && isAdded()) {
                 updateLastUpdatedText(new Date());
                 updateCardMessage();
                 updatePaymentConfirmationTile(false);
@@ -151,7 +151,9 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                     updatePaymentConfirmationTile(true);
                 }, (success,msg) ->{
                     if (success){
-                        updatePaymentConfirmationTile(true);
+                        if (isAdded()) {
+                            updatePaymentConfirmationTile(true);
+                        }
                         getBinding().errorTextView.setVisibility(View.GONE);
                     }else {
                         getBinding().errorTextView.setVisibility(View.VISIBLE);
