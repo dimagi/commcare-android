@@ -74,6 +74,7 @@ public class PhoneNumberHelper {
             Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
             return phoneNumberUtil.isValidNumber(phoneNumber);
         } catch (NumberParseException e) {
+            Logger.exception("Exception occurred while verifying phone number", e);
             return false;
         }
     }
@@ -83,13 +84,14 @@ public class PhoneNumberHelper {
      */
     public int getCountryCode(String phone) {
         try {
-            Phonenumber.PhoneNumber phoneNumber =
-                    phoneNumberUtil.parse(phone, "ZZ");
-            return phoneNumber.getCountryCode();
+            Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
+            if (phoneNumberUtil.isValidNumber(phoneNumber)) {
+                return phoneNumber.getCountryCode();
+            }
         } catch (NumberParseException e) {
             Logger.exception("Exception occurred while getting country code", e);
-            return -1;
         }
+        return -1;
     }
 
     /**
@@ -97,15 +99,15 @@ public class PhoneNumberHelper {
      */
     public long getNationalNumber(String phone) {
         try {
-            Phonenumber.PhoneNumber phoneNumber =
-                    phoneNumberUtil.parse(phone, "ZZ");
-            return phoneNumber.getNationalNumber();
+            Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
+            if (phoneNumberUtil.isValidNumber(phoneNumber)) {
+                return phoneNumber.getNationalNumber();
+            }
         } catch (NumberParseException e) {
             Logger.exception("Exception occurred while getting national number", e);
-            return -1;
         }
+        return -1;
     }
-
 
     /**
      * Retrieves the country code for the user's current locale.
