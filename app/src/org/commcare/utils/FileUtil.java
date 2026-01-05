@@ -424,7 +424,7 @@ public class FileUtil {
      * specific path that we're allowed to write to
      */
     @SuppressLint("NewApi")
-    private static String getExternalDirectoryKitKat(Context c) {
+    public static String getDumpDirectory(Context c) {
         File[] extMounts = c.getExternalFilesDirs(null);
         // first entry is emualted storage. Second if it exists is secondary (real) SD.
 
@@ -448,13 +448,6 @@ public class FileUtil {
         }
 
         return sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
-    }
-
-    /*
-     * If we're on KitKat use the new OS path
-     */
-    public static String getDumpDirectory(Context c) {
-        return getExternalDirectoryKitKat(c);
     }
 
     public static Properties loadProperties(File file) throws IOException {
