@@ -39,6 +39,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
@@ -169,24 +171,39 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
 
+        // Disable buttons to prevent duplicate submissions during API calls.
+        getBinding().connectPaymentConfirmYesButton.setEnabled(false);
+        getBinding().connectPaymentConfirmNoButton.setEnabled(false);
+
+        AtomicInteger pendingPaymentsToConfirmCount = new AtomicInteger(paymentsToConfirm.size());
+        AtomicBoolean failureUpdatingPayments = new AtomicBoolean(false);
+
         for (ConnectJobPaymentRecord paymentToConfirm : paymentsToConfirm) {
             ConnectJobHelper.INSTANCE.updatePaymentConfirmed(
                     getContext(),
                     paymentToConfirm,
                     true,
                     success -> {
-                        boolean paymentConfirmationTileVisible =
-                                getBinding().connectDeliveryProgressAlertTile.getVisibility() == View.VISIBLE;
+                        if (!success) {
+                            failureUpdatingPayments.set(true);
+                        }
 
-                        if (isAdded() && paymentConfirmationTileVisible) {
-                            updatePaymentConfirmationTile(true);
+                        boolean allPaymentsUpdated =
+                                pendingPaymentsToConfirmCount.decrementAndGet() == 0;
+
+                        if (allPaymentsUpdated && isAdded()) {
+                            if (!failureUpdatingPayments.get()) {
+                                updatePaymentConfirmationTile(true);
+                                redirectToPaymentTab();
+                            }
+
+                            refresh();
+                            getBinding().connectPaymentConfirmYesButton.setEnabled(true);
+                            getBinding().connectPaymentConfirmNoButton.setEnabled(true);
                         }
                     }
             );
         }
-
-        redirectToPaymentTab();
-        refresh();
     }
 
     private void redirectToPaymentTab() {
