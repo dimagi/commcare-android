@@ -105,20 +105,18 @@
                             android:textColor= "@color/cc_brand_color" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
-
-                <TextView
-                    android:id="@+id/error_text_view"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/activity_horizontal_margin"
-                    android:layout_gravity="center_horizontal"
-                    android:textColor="@android:color/holo_red_light"
-                    android:visibility="gone"
-                    android:textSize="@dimen/font_size_medium" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+        <TextView
+            android:id="@+id/error_text_view"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@android:color/holo_red_light"
+            android:visibility="gone"
+            android:textSize="@dimen/font_size_medium" />
     </LinearLayout>
 
 </ScrollView>
