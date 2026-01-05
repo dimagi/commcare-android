@@ -427,6 +427,9 @@
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
     <string name="connect_job_tile_daily_limit_description">Limite diário atingido. Nenhum pagamento pelo envio de formulários</string>
+    <string name="connect_in_progress">Em andamento</string>
+    <string name="connect_new_opportunities">Novas oportunidades</string>
+    <string name="connect_completed">Concluído</string>
     <string name="connect_job_tile_daily_visits">Visitas diárias</string>
     <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
     <string name="personalid_incorrect_otp">Você digitou o código de 6 dígitos incorreto. Por favor, tente novamente.</string>

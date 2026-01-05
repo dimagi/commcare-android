@@ -408,6 +408,9 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
+    <string name="connect_in_progress">En progreso</string>
+    <string name="connect_new_opportunities">Nuevas oportunidades</string>
+    <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
     <string name="connect_recovery_button_phone">Continuar</string>

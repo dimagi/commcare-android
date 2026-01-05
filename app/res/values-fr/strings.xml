@@ -407,6 +407,9 @@ License.
     <string name="connect_delivery">Livraison</string>
     <string name="connect_expired">Expiré</string>
     <string name="connect_job_tile_daily_limit_description">Limite quotidienne atteinte. Aucun paiement pour l\'envoi des formulaires.</string>
+    <string name="connect_in_progress">En cours</string>
+    <string name="connect_new_opportunities">Nouvelles opportunités</string>
+    <string name="connect_completed">Terminé</string>
 
     <string name="connect_recovery_button_phone">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>

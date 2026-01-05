@@ -125,7 +125,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     public void refresh() {
         setWaitDialogEnabled(false);
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, success -> {
-            if (success) {
+            if (success && isAdded()) {
                 updateLastUpdatedText(new Date());
                 updateCardMessage();
                 updatePaymentConfirmationTile(false);
@@ -153,7 +153,9 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             if (paymentToConfirm != null) {
                 FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
                 ConnectJobHelper.INSTANCE.updatePaymentConfirmed(getContext(), paymentToConfirm, true, success -> {
-                    updatePaymentConfirmationTile(true);
+                    if (isAdded()) {
+                        updatePaymentConfirmationTile(true);
+                    }
                 });
             }
         });
