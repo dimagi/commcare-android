@@ -587,9 +587,6 @@
             </intent-filter>
         </service>
 
-        <receiver
-            android:name="org.commcare.services.PaymentAcknowledgeReceiver"
-            android:exported="false"/>
         <activity android:name="org.commcare.activities.PushNotificationActivity"
             android:theme="@style/CommonTheme.NoActionBar"/>
     </application>
