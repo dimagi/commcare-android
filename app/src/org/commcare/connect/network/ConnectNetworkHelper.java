@@ -76,29 +76,10 @@ public class ConnectNetworkHelper {
         return Loader.INSTANCE;
     }
 
-    public static String getCallInProgress() {
-        return getInstance().callInProgress;
-    }
-
-    public static boolean isBusy() {
-        return getCallInProgress() != null;
-    }
-
     private static void setCallInProgress(String call) {
         getInstance().callInProgress = call;
     }
 
-    public static boolean post(Context context, String url, String version, AuthInfo authInfo,
-                               HashMap<String, Object> params, boolean useFormEncoding,
-                               boolean background, IApiCallback handler) {
-        return getInstance().postInternal(context, url, version, authInfo, params, useFormEncoding,
-                background, handler);
-    }
-
-    public static boolean get(Context context, String url, String version, AuthInfo authInfo,
-                              Multimap<String, String> params, boolean background, IApiCallback handler) {
-        return getInstance().getInternal(context, url, version, authInfo, params, background, handler);
-    }
 
     public static void addVersionHeader(HashMap<String, String> headers, String version) {
         if (version != null) {
@@ -106,6 +87,7 @@ public class ConnectNetworkHelper {
         }
     }
 
+    // this will be removed whenever app has minSDK to 24
     public static PostResult postSync(Context context, String url, String version, AuthInfo authInfo,
                                       HashMap<String, Object> params, boolean useFormEncoding,
                                       boolean background) {
@@ -160,35 +142,6 @@ public class ConnectNetworkHelper {
         }
     }
 
-    private boolean postInternal(Context context, String url, String version, AuthInfo authInfo,
-                                 HashMap<String, Object> params, boolean useFormEncoding,
-                                 boolean background, IApiCallback handler) {
-        if (!background) {
-            if (isBusy()) {
-                return false;
-            }
-            setCallInProgress(url);
-
-            showProgressDialog(context);
-        }
-
-        HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = buildPostFormHeaders(params, useFormEncoding, version, headers);
-
-        ModernHttpTask postTask =
-                new ModernHttpTask(context, url,
-                        ImmutableMultimap.of(),
-                        headers,
-                        requestBody,
-                        HTTPMethod.POST,
-                        authInfo);
-        postTask.connect(getResponseProcessor(context, url, authInfo instanceof AuthInfo.TokenAuth,
-                background, handler));
-        postTask.executeParallel();
-
-        return true;
-    }
-
     public static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
         RequestBody requestBody;
 
@@ -222,215 +175,12 @@ public class ConnectNetworkHelper {
         return headers;
     }
 
-    public PostResult getSync(Context context, String url, AuthInfo authInfo, boolean background,
-                              Multimap<String, String> params) {
-        if (!background) {
-            setCallInProgress(url);
-            showProgressDialog(context);
-        }
-
-        HashMap<String, String> headers = new HashMap<>();
-
-        //TODO: Figure out how to send GET request the right way
-        StringBuilder getUrl = new StringBuilder(url);
-        if (params.size() > 0) {
-            boolean first = true;
-            for (Map.Entry<String, String> entry : params.entries()) {
-                String delim = "&";
-                if (first) {
-                    delim = "?";
-                    first = false;
-                }
-                getUrl.append(delim).append(entry.getKey()).append("=").append(entry.getValue());
-            }
-        }
-
-        ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
-                context,
-                getUrl.toString(),
-                ImmutableMultimap.of(),
-                headers,
-                null,
-                null,
-                HTTPMethod.GET,
-                authInfo,
-                null,
-                true);
-
-        int responseCode = -1;
-        InputStream stream = null;
-        IOException exception = null;
-        try {
-            Response<ResponseBody> response = requester.makeRequest();
-            responseCode = response.code();
-            if (response.isSuccessful()) {
-                stream = requester.getResponseStream(response);
-            }
-        } catch (IOException e) {
-            exception = e;
-        }
-
-        onFinishProcessing(context, background);
-
-        return new PostResult(responseCode, stream, exception);
-    }
-
-    private boolean getInternal(Context context, String url, String version, AuthInfo authInfo,
-                                Multimap<String, String> params, boolean background, IApiCallback handler) {
-        if (!background) {
-            if (isBusy()) {
-                return false;
-            }
-            setCallInProgress(url);
-
-            showProgressDialog(context);
-        }
-
-        //TODO: Figure out how to send GET request the right way
-        StringBuilder getUrl = new StringBuilder(url);
-        if (params.size() > 0) {
-            boolean first = true;
-            for (Map.Entry<String, String> entry : params.entries()) {
-                String delim = "&";
-                if (first) {
-                    delim = "?";
-                    first = false;
-                }
-                getUrl.append(delim).append(entry.getKey()).append("=").append(entry.getValue());
-            }
-        }
-
-        HashMap<String, String> headers = new HashMap<>();
-        addVersionHeader(headers, version);
-
-        ModernHttpTask getTask =
-                new ModernHttpTask(context, getUrl.toString(),
-                        ArrayListMultimap.create(),
-                        headers,
-                        authInfo);
-        getTask.connect(getResponseProcessor(context, url, authInfo instanceof AuthInfo.TokenAuth,
-                background, handler));
-        getTask.executeParallel();
-
-        return true;
-    }
-
-    //Handles async network response from ModernHttpTask
-    private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context, String url, boolean usingTokenAuth, boolean background, IApiCallback handler) {
-        return new ConnectorWithHttpResponseProcessor<>() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
-                onFinishProcessing(context, background);
-                handler.processSuccess(responseCode, responseData);
-            }
-
-            @Override
-            public void processClientError(int responseCode, InputStream errorStream) {
-                onFinishProcessing(context, background);
-
-                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
-                CrashUtil.reportException(new Exception(message));
-
-                if (responseCode == 406) {
-                    //API version is too old, require app update.
-                    handler.processOldApiError();
-                } else {
-                    //400 error
-                    if (responseCode == 401 && usingTokenAuth) {
-                        Logger.exception("Invalid token", new Exception("Invalid token during API call"));
-                        ConnectSsoHelper.discardTokens(context, null);
-                        handler.processTokenUnavailableError();
-                    } else {
-                        String errorBody = NetworkUtils.getErrorBody(errorStream);
-                        NetworkUtils.logFailedResponse("", responseCode, url, errorBody);
-                        handler.processFailure(responseCode, url, errorBody);
-                    }
-                }
-            }
-
-            @Override
-            public void processServerError(int responseCode) {
-                onFinishProcessing(context, background);
-
-                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
-                CrashUtil.reportException(new Exception(message));
-
-                //500 error for internal server error
-                handler.processFailure(responseCode, url, "");
-            }
-
-            @Override
-            public void processOther(int responseCode) {
-                onFinishProcessing(context, background);
-
-                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
-                CrashUtil.reportException(new Exception(message));
-
-                handler.processFailure(responseCode, url, "");
-            }
-
-            @Override
-            public void handleIOException(IOException exception) {
-                onFinishProcessing(context, background);
-                if (exception instanceof UnknownHostException) {
-                    handler.processNetworkFailure();
-                } else {
-                    Logger.exception("IO Exception during API call", exception);
-                    handler.processFailure(-1, url, "");
-                }
-            }
-
-            @Override
-            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {
-            }
-
-            @Override
-            public void startBlockingForTask(int id) {
-            }
-
-            @Override
-            public void stopBlockingForTask(int id) {
-            }
-
-            @Override
-            public void taskCancelled() {
-            }
-
-            @Override
-            public HttpResponseProcessor getReceiver() {
-                return this;
-            }
-
-            @Override
-            public void startTaskTransition() {
-            }
-
-            @Override
-            public void stopTaskTransition(int taskId) {
-            }
-
-            @Override
-            public void hideTaskCancelButton() {
-            }
-        };
-    }
-
+    // this will be removed whenever app has minSDK to 24
     private void onFinishProcessing(Context context, boolean background) {
         if (!background) {
             setCallInProgress(null);
             dismissProgressDialog(context);
         }
-    }
-
-    public static void showNetworkError(Context context) {
-        Toast.makeText(context, context.getString(R.string.recovery_network_unavailable),
-                Toast.LENGTH_SHORT).show();
-    }
-
-    public static void showOutdatedApiError(Context context) {
-        Toast.makeText(context, context.getString(R.string.recovery_network_outdated),
-                Toast.LENGTH_LONG).show();
     }
 
     public static void handleTokenUnavailableException(Context context) {
