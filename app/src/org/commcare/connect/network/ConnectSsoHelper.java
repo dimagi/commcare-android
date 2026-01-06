@@ -228,9 +228,9 @@ public class ConnectSsoHelper {
                 //Retrieve HQ token
                 return ApiPersonalId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
             }
-        }
 
-        throw new TokenUnavailableException();
+            throw new TokenUnavailableException();
+        }
     }
 
     public static void discardTokens(Context context, String username) {
