@@ -161,7 +161,11 @@ public class ConnectSsoHelper {
             try {
                 return completableFuture.get();
             } catch (InterruptedException | ExecutionException e) {
-                throw new TokenUnavailableException();
+                if(e.getCause() instanceof TokenDeniedException){
+                    throw new TokenDeniedException();
+                }else{
+                    throw new TokenUnavailableException();
+                }
             }
 
         }else{  // to be removed when minSdk changed to 24
@@ -194,7 +198,11 @@ public class ConnectSsoHelper {
             try {
                 return completableFuture.get();
             } catch (InterruptedException | ExecutionException e) {
-                throw new TokenUnavailableException();
+                if(e.getCause() instanceof TokenDeniedException){
+                    throw new TokenDeniedException();
+                }else{
+                    throw new TokenUnavailableException();
+                }
             }
 
         }else{  // to be removed when minSdk changed to 24
