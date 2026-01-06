@@ -8,12 +8,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 
+import androidx.annotation.RequiresApi;
 import androidx.exifinterface.media.ExifInterface;
 
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
@@ -48,6 +52,7 @@ import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Vector;
@@ -58,6 +63,8 @@ import javax.crypto.CipherOutputStream;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+
+import static androidx.core.content.ContextCompat.getSystemService;
 
 /**
  * @author ctsims
@@ -359,6 +366,23 @@ public class FileUtil {
             }
         }
         return out;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    private static ArrayList<String> getExternalStorageMounts(Context ctxt) {
+        StorageManager storageManager = getSystemService(ctxt, StorageManager.class);
+        List<StorageVolume> volumes = storageManager.getStorageVolumes();
+        ArrayList<String> extMounts = new ArrayList<>();
+        for (StorageVolume vol :volumes) {
+            if (vol.isPrimary() || !vol.isRemovable() || !vol.getState().equals(Environment.MEDIA_MOUNTED)) {
+                continue;
+            }
+            File volDir = vol.getDirectory();
+            if (volDir != null) {
+                extMounts.add(volDir.getAbsolutePath());
+            }
+        }
+        return extMounts;
     }
 
     /**
