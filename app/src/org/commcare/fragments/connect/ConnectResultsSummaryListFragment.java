@@ -26,6 +26,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
@@ -263,10 +264,11 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
         }
 
         private void buildPaymentsDisplayList() {
-            ArrayList<ConnectJobPaymentRecord> confirmedPayments = new ArrayList<>();
-            ArrayList<ConnectJobPaymentRecord> unconfirmedPayments = new ArrayList<>();
+            List<ConnectJobPaymentRecord> confirmedPayments = new ArrayList<>();
+            List<ConnectJobPaymentRecord> unconfirmedPayments = new ArrayList<>();
+            List<ConnectJobPaymentRecord> sortedPayments = ConnectJobUtils.getPaymentsSortedByDate(job);
 
-            for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            for (ConnectJobPaymentRecord payment : sortedPayments) {
                 boolean paymentConfirmed = payment.getConfirmed();
 
                 if (paymentConfirmed) {
@@ -276,19 +278,8 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
                 }
             }
 
-            sortPaymentsByDate(confirmedPayments);
-            sortPaymentsByDate(unconfirmedPayments);
-
             payments.addAll(unconfirmedPayments);
             payments.addAll(confirmedPayments);
-        }
-
-        private void sortPaymentsByDate(List<ConnectJobPaymentRecord> payments) {
-            Collections.sort(
-                    payments,
-                    (payment1, payment2) ->
-                            payment2.getDate().compareTo(payment1.getDate())
-            );
         }
 
         void rebuildPaymentsDisplayList() {
