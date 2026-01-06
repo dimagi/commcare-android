@@ -133,7 +133,7 @@
     <string name="personalid_tooltip_location_success_message">Vi bruker posisjonsdata for å sikre trygg bruk av denne applikasjonen.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Klikk her for mer info.</a></string>
 
     <string name="network_forbidden_error">Tilgang nektet. Ta kontakt med kundestøtte hvis problemet vedvarer.</string>
-
+    <string name="error">Feil</string>
     <string name="connect_in_progress">Pågår</string>
     <string name="connect_new_opportunities">Nye muligheter</string>
     <string name="connect_completed">Fullført</string>

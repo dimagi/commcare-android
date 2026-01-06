@@ -707,7 +707,7 @@
     <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
 
     <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
-    <string name="failure">Failure</string>
+    <string name="error">Error</string>
 
     <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>

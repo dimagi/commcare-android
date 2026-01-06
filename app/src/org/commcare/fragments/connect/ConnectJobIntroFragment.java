@@ -120,7 +120,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                 String message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
                 if (PersonalIdOrConnectApiErrorHandler.isBlockingError(errorCode)) {
                     navigateToMessageDisplayDialog(
-                            getString(R.string.failure),
+                            getString(R.string.error),
                             message,
                             false,
                             R.string.ok);

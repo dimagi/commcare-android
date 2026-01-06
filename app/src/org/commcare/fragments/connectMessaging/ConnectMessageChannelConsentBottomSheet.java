@@ -49,7 +49,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                     Context context = getContext();
                     if(context != null) {
                         navigateToMessageDisplayDialog(
-                                getString(R.string.failure),
+                                getString(R.string.error),
                                 getString(R.string.connect_messaging_channel_consent_failure_msg),
                                 false,
                                 getString(R.string.ok)
