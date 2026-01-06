@@ -8,19 +8,24 @@ import android.view.ViewGroup;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.commcare.AppUtils;
+import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -157,20 +162,39 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void setupJobCard(ConnectJobRecord job) {
-        ViewJobCardBinding jobCard =getBinding().viewJobCard;
-        jobCard.tvViewMore.setOnClickListener(v -> Navigation.findNavController(v)
-                .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()));
+        ViewJobCardBinding jobCard = getBinding().viewJobCard;
 
+        jobCard.mbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
+                .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment())
+        );
+        jobCard.mbResume.setOnClickListener(v -> navigateToDeliverAppHome());
         jobCard.tvJobTitle.setText(job.getTitle());
-        jobCard.tvJobDescription.setText(job.getDescription());
-        jobCard.connectJobEndDate
-                .setText(getString(R.string.connect_learn_complete_by,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
+
+        @StringRes int dateMessageStringRes;
+        if (job.deliveryComplete()) {
+            dateMessageStringRes = R.string.connect_job_ended;
+        } else {
+            dateMessageStringRes = R.string.connect_learn_complete_by;
+        }
+
+        jobCard.connectJobEndDateSubHeading.setText(
+                getString(
+                        dateMessageStringRes,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+                )
+        );
 
         String workingHours = job.getWorkingHours();
         boolean hasHours = workingHours != null;
         jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
+        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
+        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
+        jobCard.connectJobEndDate.setVisibility(View.GONE);
+        jobCard.tvViewMore.setVisibility(View.GONE);
+        jobCard.mbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.mbResume.setVisibility(View.VISIBLE);
+
         if (hasHours) {
             (jobCard.tvJobTime).setText(workingHours);
         }
@@ -207,8 +231,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             );
             getBinding().tvConnectMessage.setText(messageText);
             getBinding().cvConnectMessage.setVisibility(View.VISIBLE);
+            getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
         } else {
             getBinding().cvConnectMessage.setVisibility(View.GONE);
+            getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
         }
     }
 
@@ -242,6 +268,22 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         getBinding().connectDeliveryLastUpdate.setText(
                 getString(R.string.connect_last_update,
                         ConnectDateUtils.INSTANCE.formatDateTime(lastUpdate)));
+    }
+
+    private void navigateToDeliverAppHome() {
+        String appId = job.getDeliveryAppInfo().getAppId();
+
+        if (AppUtils.isAppInstalled(appId)) {
+            CommCareApplication.instance().closeUserSession();
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, appId);
+        } else {
+            NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
+                    .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
+                            getString(R.string.connect_downloading_delivery),
+                            false
+                    );
+            Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
+        }
     }
 
     @Override
