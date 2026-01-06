@@ -326,14 +326,24 @@ public class FileUtil {
         }
     }
 
+    // Android 15+, mount sources are no longer available via "mount" command. Use StorageManager API to retrieve
+    // external storage volumes
+    public static ArrayList<String> getExternalMounts(Context c) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return getExternalStorageMounts(c);
+        } else {
+            return getAndroidExternalMounts();
+        }
+    }
+
+
     /**
      * http://stackoverflow.com/questions/11281010/how-can-i-get-external-sd-card-path-for-android-4-0
      * <p>
      * Used in SD Card functionality to get the location of the SD card for reads and writes
      * Returns a list of available mounts; for our purposes, we just use the first
      */
-
-    public static ArrayList<String> getExternalMounts() {
+    private static ArrayList<String> getAndroidExternalMounts() {
         final ArrayList<String> out = new ArrayList<>();
         String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|sdfat).*rw.*";
         String s = "";
@@ -368,7 +378,7 @@ public class FileUtil {
         return out;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
+    @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static ArrayList<String> getExternalStorageMounts(Context ctxt) {
         StorageManager storageManager = getSystemService(ctxt, StorageManager.class);
         List<StorageVolume> volumes = storageManager.getStorageVolumes();
