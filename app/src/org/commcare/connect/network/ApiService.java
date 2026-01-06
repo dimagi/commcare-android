@@ -99,4 +99,29 @@ public interface ApiService {
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody updateNotificationRequest);
 
+    @POST(ApiEndPoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL)
+    Call<ResponseBody> updateChannelConsent(@Header("Authorization") String token,
+                                          @HeaderMap Map<String, String> headers,
+                                          @Body RequestBody updateChannelConsentRequest);
+
+    @POST(ApiEndPoints.CONNECT_MESSAGE_SEND_URL)
+    Call<ResponseBody> sendMessagingMessage(@Header("Authorization") String token,
+                                            @HeaderMap Map<String, String> headers,
+                                            @Body RequestBody sendMessagingMessageRequest);
+
+
+    @POST
+    Call<ResponseBody> makePostRequest(
+            @Url String url,
+            @Header("Authorization") String token,
+            @HeaderMap Map<String, String> headers,
+            @Body RequestBody requestBody);
+
+    // This is created if needs to be used in future like above post method
+    @GET
+    Call<ResponseBody> makeGetRequest(
+            @Url String url,
+            @Header("Authorization") String token,
+            @HeaderMap Map<String, String> headers);
+
 }

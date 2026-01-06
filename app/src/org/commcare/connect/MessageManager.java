@@ -9,16 +9,10 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.IApiCallback;
-import org.commcare.dalvik.R;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.utils.PushNotificationApiHelper;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,164 +31,41 @@ public class MessageManager {
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
                                             ConnectActivityCompleteListener listener) {
-        IApiCallback callback = new IApiCallback() {
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
+        new PersonalIdApiHandler<Boolean>() {
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
+            public void onSuccess(Boolean success) {
+                ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
 
-                    ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
-
-                    if (channel.getConsented()) {
-                        getChannelEncryptionKey(context, channel, listener);
-                    } else {
-                        listener.connectActivityComplete(true);
-                    }
-                } catch (Exception e) {
-                    listener.connectActivityComplete(false);
+                if (channel.getConsented()) {
+                    getChannelEncryptionKey(context, channel, listener);
+                } else {
+                    listener.connectActivityComplete(true);
                 }
             }
 
             @Override
-
-            public void processFailure(int responseCode, String url, String errorBody) {
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 listener.connectActivityComplete(false);
             }
-
-            @Override
-            public void processNetworkFailure() {
-                listener.connectActivityComplete(false);
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                listener.connectActivityComplete(false);
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                listener.connectActivityComplete(false);
-            }
-
-            @Override
-            public void processOldApiError() {
-                listener.connectActivityComplete(false);
-            }
-        };
-
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        boolean isBusy = !ApiPersonalId.updateChannelConsent(context, user.getUserId(), user.getPassword(),
-                channel.getChannelId(), channel.getConsented(), callback);
-
-        if (isBusy) {
-            Toast.makeText(context, R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+        }.updateChannelConsent(context, user,channel);
     }
 
     public static void getChannelEncryptionKey(Context context, ConnectMessagingChannelRecord channel,
                                                ConnectActivityCompleteListener listener) {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        ApiPersonalId.retrieveChannelEncryptionKey(context, user, channel.getChannelId(), channel.getKeyUrl(),
-                new IApiCallback() {
-                    @Override
-                    public void processSuccess(int responseCode, InputStream responseData) {
-                        try (InputStream in = responseData) {
-                            ApiPersonalId.handleReceivedChannelEncryptionKey(context, in, channel);
-                            if (listener != null) {
-                                listener.connectActivityComplete(true);
-                            }
-                        } catch (IOException e) {
-                            Logger.exception("Exception occurred while handling received encryption key", e );
-                        }
-                    }
-
-                    @Override
-                    public void processFailure(int responseCode, String url, String errorBody) {
-                        if (listener != null) {
-                            listener.connectActivityComplete(false);
-                        }
-                    }
-
-                    @Override
-                    public void processNetworkFailure() {
-                        if (listener != null) {
-                            listener.connectActivityComplete(false);
-                        }
-                    }
-
-                    @Override
-                    public void processTokenUnavailableError() {
-                        if (listener != null) {
-                            listener.connectActivityComplete(false);
-                        }
-                    }
-
-                    @Override
-                    public void processTokenRequestDeniedError() {
-                        if (listener != null) {
-                            listener.connectActivityComplete(false);
-                        }
-                    }
-
-                    @Override
-                    public void processOldApiError() {
-                        if (listener != null) {
-                            listener.connectActivityComplete(false);
-                        }
-                    }
-                });
-    }
-
-    public static void updateReceivedMessages(Context context, ConnectActivityCompleteListener listener) {
-        List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesAll(context);
-        List<ConnectMessagingMessageRecord> unsent = new ArrayList<>();
-        List<String> unsentIds = new ArrayList<>();
-        for (ConnectMessagingMessageRecord message : messages) {
-            if (!message.getIsOutgoing() && !message.getConfirmed()) {
-                unsent.add(message);
-                unsentIds.add(message.getMessageId());
+        new PersonalIdApiHandler<Boolean>() {
+            @Override
+            public void onSuccess(Boolean success) {
+                listener.connectActivityComplete(success);
             }
-        }
 
-        if (unsentIds.size() > 0) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-            ApiPersonalId.confirmReceivedMessages(context, user.getUserId(), user.getPassword(), unsentIds, new IApiCallback() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    for (ConnectMessagingMessageRecord message : unsent) {
-                        message.setConfirmed(true);
-                        ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
-                    }
-                    listener.connectActivityComplete(true);
-                }
-
-                @Override
-                public void processFailure(int responseCode, String url, String errorBody) {
-                    listener.connectActivityComplete(false);
-                }
-
-                @Override
-                public void processNetworkFailure() {
-                    listener.connectActivityComplete(false);
-                }
-
-                @Override
-                public void processTokenUnavailableError() {
-                    listener.connectActivityComplete(false);
-                }
-
-                @Override
-                public void processTokenRequestDeniedError() {
-                    listener.connectActivityComplete(false);
-                }
-
-                @Override
-                public void processOldApiError() {
-                    listener.connectActivityComplete(false);
-                }
-            });
-        }
+            @Override
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                Logger.log("Messaging", "Failed to retreive encryption key: " + (t!=null ? t.getMessage():""));
+                listener.connectActivityComplete(false);
+            }
+        }.retrieveChannelEncryptionKey(context, user,channel);
     }
 
     public static void sendUnsentMessages(Context context) {
@@ -213,41 +84,22 @@ public class MessageManager {
                                    ConnectActivityCompleteListener listener) {
         ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(context, message.getChannelId());
 
-        if (channel.getKey().length() > 0) {
+        if (channel!=null && !channel.getKey().isEmpty()) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-            ApiPersonalId.sendMessagingMessage(context, user.getUserId(), user.getPassword(), message, channel.getKey(), new IApiCallback() {
+
+            new PersonalIdApiHandler<Boolean>() {
                 @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
+                public void onSuccess(Boolean success) {
                     message.setConfirmed(true);
                     ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
                     listener.connectActivityComplete(true);
                 }
 
                 @Override
-                public void processFailure(int responseCode, String url, String errorBody) {
+                public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                     listener.connectActivityComplete(false);
                 }
-
-                @Override
-                public void processNetworkFailure() {
-                    listener.connectActivityComplete(false);
-                }
-
-                @Override
-                public void processTokenUnavailableError() {
-                    listener.connectActivityComplete(false);
-                }
-
-                @Override
-                public void processTokenRequestDeniedError() {
-                    listener.connectActivityComplete(false);
-                }
-
-                @Override
-                public void processOldApiError() {
-                    listener.connectActivityComplete(false);
-                }
-            });
+            }.sendMessagingMessage(context, user,message,channel);
         } else {
             Logger.log("Messaging", "Tried to send message but no encryption key");
         }

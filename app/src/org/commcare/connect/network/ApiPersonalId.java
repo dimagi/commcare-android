@@ -145,27 +145,47 @@ public class ApiPersonalId {
         throw new TokenUnavailableException();
     }
 
-    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken,IApiCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("token", connectToken);
 
         String url = ServerUrls.getKeyServer().replace("phone/keys/",
                 "settings/users/commcare/link_connectid_user/");
 
-        try {
-            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Link Connect ID result " + postResult.responseCode);
-            if (postResult.e == null && postResult.responseCode == 200) {
-                postResult.responseStream.close();
 
-                //Remember that we linked the user successfully
-                appRecord.setWorkerLinked(true);
-                ConnectAppDatabaseUtil.storeApp(context, appRecord);
-            }
-        } catch (IOException e) {
-            Logger.exception("Linking HQ worker", e);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword());
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.makePostRequest(url,tokenAuth, headers,requestBody);
+        BaseApi.Companion.callApi(context, call, callback,url);
+    }
+
+    public static void retrieveHqTokenASync(Context context, String hqUsername, String connectToken,IApiCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
+        params.put("scope", "mobile_access sync");
+        params.put("grant_type", "password");
+        params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
+        params.put("password", connectToken);
+
+        String host;
+        try {
+            host = (new URL(ServerUrls.getKeyServer())).getHost();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
+
+        String url = "https://" + host + "/oauth/token/";
+
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.makePostRequest(url,null, headers,requestBody);
+        BaseApi.Companion.callApi(context, call, callback,url);
     }
 
     public static AuthInfo.TokenAuth retrieveHqTokenSync(Context context, String hqUsername, String connectToken)
@@ -358,29 +378,21 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.validateSessionOtp);
     }
 
-
-
-    public static void retrieveMessages(Context context, String username, String password,IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-
-        Multimap<String, String> params = ArrayListMultimap.create();
-        ConnectNetworkHelper.get(context,
-                context.getString(R.string.ConnectMessageRetrieveMessagesURL),
-                PersonalIdApiClient.API_VERSION, authInfo, params, true, callback);
-    }
-
-    public static boolean updateChannelConsent(Context context, String username, String password,
+    public static void updateChannelConsent(Context context, String username, String password,
                                                String channel, boolean consented,
                                                IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("channel", channel);
         params.put("consent", consented);
-
-        return ConnectNetworkHelper.post(context,
-                context.getString(R.string.ConnectMessageChannelConsentURL),
-                PersonalIdApiClient.API_VERSION, authInfo, params, false, false, callback);
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, false, PersonalIdApiClient.API_VERSION, headers);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.updateChannelConsent(tokenAuth, headers,requestBody);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL);
     }
 
     private static void handleApiError(Response<?> response) {
@@ -405,13 +417,15 @@ public class ApiPersonalId {
     public static void retrieveChannelEncryptionKey(Context context, @NonNull ConnectUserRecord user, String channelId, String channelUrl, IApiCallback callback) {
         ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
-            public void tokenRetrieved(AuthInfo.TokenAuth token) {
+            public void tokenRetrieved(AuthInfo.TokenAuth tokenAuth) {
                 HashMap<String, Object> params = new HashMap<>();
                 params.put("channel_id", channelId);
-
-                ConnectNetworkHelper.post(context,
-                        channelUrl,
-                        null, token, params, true, true, callback);
+                HashMap<String, String> headers = new HashMap<>();
+                String token = HttpUtils.getCredential(tokenAuth);
+                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
+                ApiService apiService = PersonalIdApiClient.getClientApi();
+                Call<ResponseBody> call = apiService.makePostRequest(channelUrl,token, headers,requestBody);
+                BaseApi.Companion.callApi(context, call, callback,channelUrl);
             }
 
             @Override
@@ -426,38 +440,12 @@ public class ApiPersonalId {
         });
     }
 
-    public static void handleReceivedChannelEncryptionKey(Context context, InputStream stream, ConnectMessagingChannelRecord channel) {
-        try {
-            String responseAsString = new String(
-                    StreamsUtil.inputStreamToByteArray(stream));
-
-            if(responseAsString.length() > 0) {
-                JSONObject json = new JSONObject(responseAsString);
-                channel.setKey(json.getString("key"));
-                ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
-            }
-        } catch(JSONException e) {
-            throw new RuntimeException(e);
-        } catch(IOException e) {
-            Logger.exception("Parsing return from key request", e);
-        }
-    }
-
-    public static void confirmReceivedMessages(Context context, String username, String password,
-                                                  List<String> messageIds, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("messages", messageIds);
-
-        ConnectNetworkHelper.post(context,
-                context.getString(R.string.ConnectMessageConfirmURL),
-                PersonalIdApiClient.API_VERSION, authInfo, params, false, true, callback);
-    }
-
     public static void sendMessagingMessage(Context context, String username, String password,
                                             ConnectMessagingMessageRecord message, String key, IApiCallback callback) {
+
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
 
         String[] parts = ConnectMessagingMessageRecord.encrypt(message.getMessage(), key);
 
@@ -476,8 +464,11 @@ public class ApiPersonalId {
         params.put("timestamp", DateUtils.formatDateTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
         params.put("message_id", message.getMessageId());
 
-        ConnectNetworkHelper.post(context,
-                context.getString(R.string.ConnectMessageSendURL),
-                PersonalIdApiClient.API_VERSION, authInfo, params, false, true, callback);
+
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, false, PersonalIdApiClient.API_VERSION, headers);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.sendMessagingMessage(tokenAuth, headers,requestBody);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.CONNECT_MESSAGE_SEND_URL);
     }
 }
