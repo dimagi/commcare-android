@@ -11,7 +11,9 @@ import java.io.Serializable
 import java.util.Date
 
 @Table(ConnectReleaseToggleRecord.STORAGE_KEY)
-class ConnectReleaseToggleRecord : Persisted(), Serializable {
+class ConnectReleaseToggleRecord :
+    Persisted(),
+    Serializable {
     @Persisting(1)
     @MetaField(META_SLUG)
     var slug: String
