@@ -14,25 +14,27 @@ import java.util.Date
 class ConnectReleaseToggleRecord : Persisted(), Serializable {
     @Persisting(1)
     @MetaField(META_SLUG)
-    var slug: String? = null
+    var slug: String
         private set
 
     @Persisting(2)
     @MetaField(META_ACTIVE)
-    var active: Boolean? = null
+    var active: Boolean
         private set
 
     @Persisting(3)
     @MetaField(META_CREATED_AT)
-    var createdAt: Date? = null
+    var createdAt: Date
         private set
 
     @Persisting(4)
     @MetaField(META_MODIFIED_AT)
-    var modifiedAt: Date? = null
+    var modifiedAt: Date
         private set
 
     init {
+        slug = ""
+        active = false
         createdAt = Date()
         modifiedAt = Date()
     }
@@ -47,18 +49,15 @@ class ConnectReleaseToggleRecord : Persisted(), Serializable {
         const val META_MODIFIED_AT = "modified_at"
 
         @Throws(JSONException::class)
-        fun fromJson(json: JSONObject): ConnectReleaseToggleRecord {
-            val createdAtDateString = json.getString(META_CREATED_AT)
-            val modifiedAtDateString = json.getString(META_MODIFIED_AT)
+        fun fromJson(json: JSONObject): ConnectReleaseToggleRecord  =
+            ConnectReleaseToggleRecord().apply {
+                val createdAtDateString = json.getString(META_CREATED_AT)
+                val modifiedAtDateString = json.getString(META_MODIFIED_AT)
 
-            val relaseToggle = ConnectReleaseToggleRecord().apply {
                 slug = json.getString(META_SLUG)
                 active = json.getBoolean(META_ACTIVE)
                 createdAt = DateUtils.parseDateTime(createdAtDateString)
                 modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
             }
-
-            return relaseToggle
-        }
     }
 }
