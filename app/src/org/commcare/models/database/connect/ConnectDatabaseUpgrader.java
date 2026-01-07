@@ -23,6 +23,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
@@ -45,7 +46,7 @@ public class ConnectDatabaseUpgrader {
         this.c = c;
     }
 
-    public void upgrade(IDatabase db, int oldVersion, int newVersion) {
+    public void upgrade(IDatabase db, int oldVersion) {
         if (oldVersion == 1) {
             upgradeOneTwo(db);
             oldVersion = 2;
@@ -115,25 +116,34 @@ public class ConnectDatabaseUpgrader {
             upgradeFourteenFifteen(db);
             oldVersion = 15;
         }
+
         if (oldVersion == 15) {
             upgradeFifteenSixteen(db);
             oldVersion = 16;
         }
+
         if (oldVersion == 16) {
             upgradeSixteenSeventeen(db);
             oldVersion = 17;
         }
+
         if (oldVersion == 17) {
             upgradeSeventeenEighteen(db);
             oldVersion = 18;
         }
+
         if (oldVersion == 18) {
             upgradeEighteenNineteen(db);
             oldVersion = 19;
         }
+
         if (oldVersion == 19) {
             upgradeNineteenTwenty(db);
             oldVersion = 20;
+        }
+
+        if (oldVersion == 20) {
+            upgradeTwentyTwentyOne(db);
         }
     }
 
@@ -678,6 +688,18 @@ public class ConnectDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(storageKey);
             builder.addData(modelToAdd);
             db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyTwentyOne(IDatabase db) {
+        db.beginTransaction();
+
+        try {
+            SqlStorage.dropTable(db, ConnectReleaseToggleRecord.STORAGE_KEY);
+            addTableForNewModel(db, ConnectReleaseToggleRecord.STORAGE_KEY, new ConnectReleaseToggleRecord());
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

@@ -60,10 +60,11 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.13 - Added ConnectJobDeliveryFlagRecord table
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
      * V.16 - Added  personal_id_credential table
-     * V17  - Added a new column has_connect_access to ConnectUserRecord
-     * V18 - Added new columns to personal_id_credential table (previously the table was unused)
+     * V.17 - Added a new column has_connect_access to ConnectUserRecord
+     * V.18 - Added new columns to personal_id_credential table (previously the table was unused)
      * V.19 - Added push_notification_history
-     * V.20 Added acknowledged column in push_notification_history
+     * V.20 - Added acknowledged column in push_notification_history
+     * V.21 - Added ConnectReleaseToggleRecord table
      */
     private static final int CONNECT_DB_VERSION = 20;
 
@@ -173,7 +174,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("Connect", oldVersion, newVersion));
-        new ConnectDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
+        new ConnectDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Connect", oldVersion, newVersion));
     }
 }
