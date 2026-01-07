@@ -25,13 +25,10 @@ import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
-import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
-import org.commcare.models.database.user.UserSandboxUtils;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
-import org.commcare.util.Base64;
-import org.commcare.util.Base64DecoderException;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
 
