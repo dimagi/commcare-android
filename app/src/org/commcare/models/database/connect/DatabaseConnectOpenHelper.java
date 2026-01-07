@@ -19,6 +19,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
@@ -137,6 +138,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(PushNotificationRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectReleaseToggleRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
