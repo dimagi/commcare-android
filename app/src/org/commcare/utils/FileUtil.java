@@ -378,7 +378,7 @@ public class FileUtil {
         return out;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private static ArrayList<String> getExternalStorageMounts(Context ctxt) {
         StorageManager storageManager = getSystemService(ctxt, StorageManager.class);
         List<StorageVolume> volumes = storageManager.getStorageVolumes();
