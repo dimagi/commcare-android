@@ -49,7 +49,7 @@ class ConnectReleaseToggleRecord : Persisted(), Serializable {
         const val META_MODIFIED_AT = "modified_at"
 
         @Throws(JSONException::class)
-        fun fromJson(json: JSONObject): ConnectReleaseToggleRecord  =
+        fun fromJson(json: JSONObject): ConnectReleaseToggleRecord =
             ConnectReleaseToggleRecord().apply {
                 val createdAtDateString = json.getString(META_CREATED_AT)
                 val modifiedAtDateString = json.getString(META_MODIFIED_AT)
