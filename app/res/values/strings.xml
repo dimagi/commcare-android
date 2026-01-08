@@ -12,7 +12,6 @@
     <string name="ota_restore_url" translatable="false">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
-    <string name="ConnectTokenURL">/o/token/</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="your_comment">Your comment</string>
