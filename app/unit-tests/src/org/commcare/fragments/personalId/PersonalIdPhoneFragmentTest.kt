@@ -31,6 +31,7 @@ import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
+import java.lang.AutoCloseable
 
 /**
  * Unit tests for PersonalIdPhoneFragment using Robolectric to test actual fragment UI and behavior.
@@ -39,6 +40,7 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdPhoneFragmentTest {
+    private lateinit var mocksCloseable: AutoCloseable
     private lateinit var activityController: ActivityController<PersonalIdActivity>
     private lateinit var activity: PersonalIdActivity
     private lateinit var fragment: PersonalIdPhoneFragment
@@ -48,7 +50,7 @@ class PersonalIdPhoneFragmentTest {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
+        mocksCloseable = MockitoAnnotations.openMocks(this)
         mockLocation()
         setUpPersonalIdActivityWithFragment()
     }
@@ -59,8 +61,8 @@ class PersonalIdPhoneFragmentTest {
             activityController
                 .create()
                 .start()
+                .resume()
                 .get()
-        activityController.resume()
 
         val navHostFragment = activity.supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
@@ -71,6 +73,7 @@ class PersonalIdPhoneFragmentTest {
     }
 
     private fun mockLocation() {
+         // Random location data
         `when`(mockLocation.latitude).thenReturn(37.7749)
         `when`(mockLocation.longitude).thenReturn(-122.4194)
         `when`(mockLocation.hasAccuracy()).thenReturn(true)
@@ -80,6 +83,7 @@ class PersonalIdPhoneFragmentTest {
     @After
     fun tearDown() {
         activityController.pause().stop().destroy()
+        mocksCloseable.close()
     }
 
     // ========== UI Initial State Tests ==========
@@ -93,7 +97,7 @@ class PersonalIdPhoneFragmentTest {
     @Test
     fun testInitialState_phoneInputEmpty() {
         val phoneInput = fragment.view?.findViewById<EditText>(R.id.connect_primary_phone_input)
-        assertEquals("Phone input should be empty at start", "", phoneInput!!.text.toString())
+        assertTrue("Phone input should be empty at start", phoneInput!!.text.toString().isEmpty())
     }
 
     @Test
@@ -166,7 +170,7 @@ class PersonalIdPhoneFragmentTest {
     }
 
     @Test
-    fun testLocationCallback_enablesButtonWithAllRequirements() {
+    fun testLocationCallback_togglesButtonWithAllRequirements() {
         // Arrange
         val continueButton = fragment.view?.findViewById<Button>(R.id.personalid_phone_continue_button)
         val phoneInput = fragment.view?.findViewById<EditText>(R.id.connect_primary_phone_input)
@@ -181,6 +185,8 @@ class PersonalIdPhoneFragmentTest {
         }
         ShadowLooper.idleMainLooper()
 
+        assertFalse("Button should be disable without location", continueButton!!.isEnabled)
+
         // Act - Add location (final requirement)
         activity.runOnUiThread {
             fragment.onLocationResult(mockLocation)
@@ -189,25 +195,6 @@ class PersonalIdPhoneFragmentTest {
 
         // Assert - Now with all requirements, button should be enabled
         assertTrue("Button should be enabled with all requirements", continueButton!!.isEnabled)
-    }
-
-    @Test
-    fun testLocationServiceChange_disablesButton() {
-        // Arrange - First set all requirements
-        val continueButton = fragment.view?.findViewById<Button>(R.id.personalid_phone_continue_button)
-        val phoneInput = fragment.view?.findViewById<EditText>(R.id.connect_primary_phone_input)
-        val countryCode = fragment.view?.findViewById<EditText>(R.id.countryCode)
-        val consentCheckbox = fragment.view?.findViewById<CheckBox>(R.id.connect_consent_check)
-
-        activity.runOnUiThread {
-            countryCode?.setText("+91")
-            phoneInput?.setText("9876543210")
-            consentCheckbox?.isChecked = true
-            fragment.onLocationResult(mockLocation)
-        }
-        ShadowLooper.idleMainLooper()
-
-        assertTrue("Button should be enabled initially", continueButton!!.isEnabled)
 
         // Act - Disable location service
         activity.runOnUiThread {
@@ -215,7 +202,7 @@ class PersonalIdPhoneFragmentTest {
         }
         ShadowLooper.idleMainLooper()
 
-        // Assert - Button should now be disabled
+        // Assert - Button should now be disabled again
         assertFalse("Button should be disabled when location service is off", continueButton.isEnabled)
     }
 
