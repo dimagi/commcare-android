@@ -637,8 +637,8 @@
     <string name="personalid_recovery_failed_title">Recovery failed</string>
     <string name="personalid_recovery_lockout_title">Account Locked</string>
     <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
-    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked.</string>
-    <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. You will need to create a new account after %d more incorrect attempts.</string>
+    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked. Please contact support to unlock your account.</string>
+    <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
     <string name="personalid_camera_permission_title">Permission for camera</string>
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
