@@ -146,7 +146,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         String state = Environment.getExternalStorageState();
 
-        ArrayList<String> externalMounts = FileUtil.getExternalMounts();
+        ArrayList<String> externalMounts = FileUtil.getExternalMounts(c);
 
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             // We can read and write the media
