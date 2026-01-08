@@ -102,49 +102,6 @@ public class ApiPersonalId {
         Call<ResponseBody> call = apiService.connectToken(headers,requestBody);
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectTokenURL);
     }
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
-            throws TokenDeniedException, TokenUnavailableException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("client_id", CONNECT_CLIENT_ID);
-        params.put("scope", "openid");
-        params.put("grant_type", "password");
-        params.put("username", user.getUserId());
-        params.put("password", user.getPassword());
-
-        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
-
-        ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                PersonalIdApiClient.API_VERSION, new AuthInfo.NoAuth(), params, true, false);
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result " + postResult.responseCode);
-        if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
-            try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                        postResult.responseStream));
-                postResult.responseStream.close();
-                JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                String token = json.getString(key);
-                Date expiration = new Date();
-                key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                int seconds = json.has(key) ? json.getInt(key) : 0;
-                expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
-                user.updateConnectToken(token, expiration);
-                ConnectUserDatabaseUtil.storeUser(context, user);
-
-                return new AuthInfo.TokenAuth(token);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                Logger.exception("Parsing return from ConnectID token call", e);
-            }
-        } else if (postResult.responseCode == 400) {
-            Logger.exception("Token Request Denied", new Throwable("Encountered 400 while retrieving ConnectID token"));
-            throw new TokenDeniedException();
-        }
-
-        throw new TokenUnavailableException();
-    }
-
     public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken,IApiCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("token", connectToken);
@@ -186,54 +143,6 @@ public class ApiPersonalId {
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.makePostRequest(url,null, headers,requestBody);
         BaseApi.Companion.callApi(context, call, callback,url);
-    }
-
-    public static AuthInfo.TokenAuth retrieveHqTokenSync(Context context, String hqUsername, String connectToken)
-            throws TokenUnavailableException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
-        params.put("scope", "mobile_access sync");
-        params.put("grant_type", "password");
-        params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
-        params.put("password", connectToken);
-
-        String host;
-        try {
-            host = (new URL(ServerUrls.getKeyServer())).getHost();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        String url = "https://" + host + "/oauth/token/";
-
-        ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "OAuth Token Post Result " + postResult.responseCode);
-        if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
-            try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                        postResult.responseStream));
-                JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                String token = json.getString(key);
-                Date expiration = new Date();
-                key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                int seconds = json.has(key) ? json.getInt(key) : 0;
-                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-
-                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                SsoToken ssoToken = new SsoToken(token, expiration);
-                ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
-
-                return new AuthInfo.TokenAuth(token);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                Logger.exception("Parsing return from HQ token call", e);
-            }
-        }
-
-        throw new TokenUnavailableException();
     }
 
     public static void confirmBackupCode(Context context,

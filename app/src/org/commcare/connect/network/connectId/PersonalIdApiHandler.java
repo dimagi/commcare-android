@@ -290,7 +290,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void connectToken(Context context, ConnectUserRecord user) {
+    public void retrievePersonalIdToken(Context context, ConnectUserRecord user) {
         ApiPersonalId.retrievePersonalIdToken(
                 context,
                 user,
@@ -348,14 +348,14 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     public void sendMessagingMessage(
             Context context,
             ConnectUserRecord user,
-            ConnectMessagingMessageRecord messsage,
+            ConnectMessagingMessageRecord message,
             ConnectMessagingChannelRecord channel
     ) {
         ApiPersonalId.sendMessagingMessage(
                 context,
                 user.getUserId(),
                 user.getPassword(),
-                messsage,
+                message,
                 channel.getKey(),
                 createCallback(new NoParsingResponseParser<>(), null)
         );
@@ -391,7 +391,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void retrieveHqTokenASync(Context context, String hqUsername, String connectToken) {
+    public void retrieveHqToken(Context context, String hqUsername, String connectToken) {
         ApiPersonalId.retrieveHqTokenASync(
                 context,
                 hqUsername,

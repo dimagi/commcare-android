@@ -61,84 +61,13 @@ public class ConnectNetworkHelper {
         }
     }
 
-    @Volatile
-    private String callInProgress = null;
-
     private ConnectNetworkHelper() {
         //Private constructor for singleton
     }
 
-    private static class Loader {
-        static final ConnectNetworkHelper INSTANCE = new ConnectNetworkHelper();
-    }
-
-    private static ConnectNetworkHelper getInstance() {
-        return Loader.INSTANCE;
-    }
-
-    private static void setCallInProgress(String call) {
-        getInstance().callInProgress = call;
-    }
-
-
     public static void addVersionHeader(HashMap<String, String> headers, String version) {
         if (version != null) {
             headers.put("Accept", "application/json;version=" + version);
-        }
-    }
-
-    // this will be removed whenever app has minSDK to 24
-    public static PostResult postSync(Context context, String url, String version, AuthInfo authInfo,
-                                      HashMap<String, Object> params, boolean useFormEncoding,
-                                      boolean background) {
-        ConnectNetworkHelper instance = getInstance();
-
-        if (!background) {
-            setCallInProgress(url);
-            instance.showProgressDialog(context);
-        }
-
-        try {
-            HashMap<String, String> headers = new HashMap<>();
-            RequestBody requestBody = buildPostFormHeaders(params, useFormEncoding, version, headers);
-
-            ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
-                    context,
-                    url,
-                    ImmutableMultimap.of(),
-                    headers,
-                    requestBody,
-                    null,
-                    HTTPMethod.POST,
-                    authInfo,
-                    null,
-                    false);
-
-            int responseCode = -1;
-            InputStream stream = null;
-            IOException exception = null;
-            try {
-                Response<ResponseBody> response = requester.makeRequest();
-                responseCode = response.code();
-                if (response.isSuccessful()) {
-                    stream = requester.getResponseStream(response);
-                } else if (response.errorBody() != null) {
-                    String error = response.errorBody().string();
-                    Logger.log("Netowrk Error", error);
-                }
-            } catch (IOException e) {
-                exception = e;
-                Logger.exception("Exception during POST", e);
-            }
-
-            instance.onFinishProcessing(context, background);
-
-            return new PostResult(responseCode, stream, exception);
-        } catch (Exception e) {
-            if (!background) {
-                setCallInProgress(null);
-            }
-            return new PostResult(-1, null, e);
         }
     }
 
@@ -175,14 +104,6 @@ public class ConnectNetworkHelper {
         return headers;
     }
 
-    // this will be removed whenever app has minSDK to 24
-    private void onFinishProcessing(Context context, boolean background) {
-        if (!background) {
-            setCallInProgress(null);
-            dismissProgressDialog(context);
-        }
-    }
-
     public static void handleTokenUnavailableException(Context context) {
         Toast.makeText(context, context.getString(R.string.recovery_network_token_unavailable),
                 Toast.LENGTH_LONG).show();
@@ -190,29 +111,5 @@ public class ConnectNetworkHelper {
 
     public static void handleTokenDeniedException() {
         ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
-    }
-
-    private static final int NETWORK_ACTIVITY_ID = 7000;
-
-    private void showProgressDialog(Context context) {
-        if (context instanceof CommCareActivity<?>) {
-            Handler handler = new Handler(context.getMainLooper());
-            handler.post(() -> {
-                try {
-                    ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
-                } catch (Exception e) {
-                    //Ignore, ok if showing fails
-                }
-            });
-        }
-    }
-
-    private void dismissProgressDialog(Context context) {
-        if (context instanceof CommCareActivity<?>) {
-            Handler handler = new Handler(context.getMainLooper());
-            handler.post(() -> {
-                ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
-            });
-        }
     }
 }

@@ -62,7 +62,7 @@ public class MessageManager {
 
             @Override
             public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-                Logger.log("Messaging", "Failed to retreive encryption key: " + (t!=null ? t.getMessage():""));
+                Logger.log("Messaging", "Failed to retrieve encryption key: " + (t!=null ? t.getMessage():""));
                 listener.connectActivityComplete(false);
             }
         }.retrieveChannelEncryptionKey(context, user,channel);
@@ -84,7 +84,7 @@ public class MessageManager {
                                    ConnectActivityCompleteListener listener) {
         ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(context, message.getChannelId());
 
-        if (channel!=null && !channel.getKey().isEmpty()) {
+        if (!channel.getKey().isEmpty()) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
 
             new PersonalIdApiHandler<Boolean>() {

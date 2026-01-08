@@ -31,11 +31,9 @@ class RetrieveHqTokenResponseParser<T>(
                     ),
                 )
             val json = JSONObject(responseAsString)
-            var key = CONNECT_KEY_TOKEN
-            val token = json.getString(key)
+            val token = json.getString(CONNECT_KEY_TOKEN)
             val expiration = Date()
-            key = CONNECT_KEY_EXPIRES
-            val seconds = if (json.has(key)) json.getInt(key) else 0
+            val seconds = if (json.has(CONNECT_KEY_EXPIRES)) json.getInt(CONNECT_KEY_EXPIRES) else 0
             expiration.setTime(expiration.getTime() + (seconds.toLong() * 1000))
 
             val seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId()
