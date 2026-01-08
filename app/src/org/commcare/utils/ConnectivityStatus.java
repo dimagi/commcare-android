@@ -35,8 +35,6 @@ public class ConnectivityStatus {
     private static final String FOUR_G = "4G";
     private static final String FIVE_G = "5G";
 
-
-
     public static boolean isAirplaneModeOn(Context context) {
         return Settings.Global.getInt(context.getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
     }
@@ -72,9 +70,9 @@ public class ConnectivityStatus {
                 }else if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)){
                     return ETHERNET;
                 }else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                    TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+                    TelephonyManager telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
                     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                        return getNetworkType(tm.getDataNetworkType());
+                        return getNetworkType(telephonyManager.getDataNetworkType());
                     }else{
                         return READ_PHONE_STATE_UNKNOWN_NETWORK;
                     }
@@ -86,16 +84,16 @@ public class ConnectivityStatus {
     }
 
     private static String getNetworkTypeFromBelowAndroid24(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
         if (activeNetwork == null || !activeNetwork.isConnected()) {
             return NO_NETWORK;
         }else if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
             return WIFI;
         } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
-            TelephonyManager teleMan = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                return getNetworkType(teleMan.getNetworkType());
+                return getNetworkType(telephonyManager.getNetworkType());
             }else{
                 return READ_PHONE_STATE_UNKNOWN_NETWORK;
             }
