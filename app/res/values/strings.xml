@@ -716,4 +716,8 @@
     <string name="personalid_biometric_error_lockout_permanent">Too many failed attempts. Please unlock your device and try again.</string>
     <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
+
+    <string name="personalid_resume">Resume</string>
+    <string name="personalid_view_info">View Info</string>
+    <string name="personalid_complete_by">Complete by %s</string>
 </resources>

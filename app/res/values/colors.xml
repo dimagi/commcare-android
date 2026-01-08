@@ -224,6 +224,9 @@
     <color name="pn_item_grey_color">#E9E9E9</color>
     <color name="sapphire_blue">#3843CF</color>
     <color name="persian_indigo">#262a82</color>
+    <color name="dark_red_brick_red">#B3261E</color>
+    <color name="light_lavender">#E7EAF7</color>
+    <color name="dark_silver">#AFAFAF</color>
 
 
     <color name="ic_backup">#14006C</color>
