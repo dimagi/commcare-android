@@ -101,8 +101,8 @@ public class ConnectivityStatus {
         return UNKNOWN_NETWORK;
     }
 
-    private static String getNetworkType(int networkType){
-        return switch (networkType) {
+    private static String getNetworkType(int telephonyManagerNetworkType){
+        return switch (telephonyManagerNetworkType) {
             case TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE,
                  TelephonyManager.NETWORK_TYPE_CDMA, TelephonyManager.NETWORK_TYPE_1xRTT,
                  TelephonyManager.NETWORK_TYPE_IDEN, TelephonyManager.NETWORK_TYPE_GSM -> TWO_G;
