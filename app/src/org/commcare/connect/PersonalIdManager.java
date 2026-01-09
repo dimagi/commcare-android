@@ -29,9 +29,9 @@ import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
@@ -374,12 +374,12 @@ public class PersonalIdManager {
                         }
 
                         public void tokenUnavailable() {
-                            ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                            TokenExceptionHandler.INSTANCE.handleTokenUnavailableException(activity);
                             callback.connectActivityComplete(false);
                         }
 
                         public void tokenRequestDenied() {
-                            ConnectNetworkHelper.handleTokenDeniedException();
+                            TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
                             callback.connectActivityComplete(false);
                         }
                     });
