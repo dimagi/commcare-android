@@ -220,7 +220,6 @@ public class ConnectSsoHelper {
         }
     }
 
-
     public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
         new PersonalIdApiHandler<Boolean>() {
 
