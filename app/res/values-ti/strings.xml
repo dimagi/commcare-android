@@ -530,4 +530,8 @@
     <string name="personalid_biometric_error_lockout_permanent">በዝሒ ዝፈሸለ ፈተነታት። በጃኻ ንመሳርሒኻ ክፈቶ እሞ እንደገና ፈትን።</string>
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
+
+    <string name="personalid_resume">ቀጽል</string>
+    <string name="personalid_view_info">ሓበሬታ ርአ</string>
+    <string name="personalid_complete_by">ክሳብ %s ኣጠናቅቕ</string>
 </resources>
