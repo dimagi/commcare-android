@@ -27,6 +27,7 @@ import android.widget.EditText;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.javarosa.core.services.Logger;
 
 /**
  * Helper class for functionality related to phone numbers
@@ -73,6 +74,7 @@ public class PhoneNumberHelper {
             Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
             return phoneNumberUtil.isValidNumber(phoneNumber);
         } catch (NumberParseException e) {
+            Logger.exception("Exception occurred while verifying phone number", e);
             return false;
         }
     }
@@ -87,7 +89,7 @@ public class PhoneNumberHelper {
                 return phoneNumber.getCountryCode();
             }
         } catch (NumberParseException e) {
-            // Ignore
+            Logger.exception("Exception occurred while getting country code", e);
         }
         return -1;
     }
@@ -102,7 +104,7 @@ public class PhoneNumberHelper {
                 return phoneNumber.getNationalNumber();
             }
         } catch (NumberParseException e) {
-            // Ignore
+            Logger.exception("Exception occurred while getting national number", e);
         }
         return -1;
     }
@@ -134,9 +136,12 @@ public class PhoneNumberHelper {
                         IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent).build();
                         phoneNumberHintLauncher.launch(intentSenderRequest);
                     } catch (Exception e) {
+                        Logger.exception("Exception occurred while showing google phone number picker", e);
                         e.printStackTrace();
                     }
-                });
+                }
+                ).addOnFailureListener(e -> Logger.exception("Exception occurred while showing google phone number picker", e)
+                );
     }
 
     /**
