@@ -115,10 +115,7 @@ public class ApiPersonalId {
         Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
-        ApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.makePostRequest(url,tokenAuth, headers,requestBody);
-        BaseApi.Companion.callApi(context, call, callback,url);
+        makePostRequestWithUrl(context,url,tokenAuth,params,headers,true,callback);
     }
 
     public static void retrieveHqTokenASync(Context context, String hqUsername, String connectToken,IApiCallback callback) {
@@ -139,10 +136,7 @@ public class ApiPersonalId {
         String url = "https://" + host + "/oauth/token/";
 
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
-        ApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.makePostRequest(url,null, headers,requestBody);
-        BaseApi.Companion.callApi(context, call, callback,url);
+        makePostRequestWithUrl(context,url,null,params,headers,true,callback);
     }
 
     public static void confirmBackupCode(Context context,
@@ -331,10 +325,7 @@ public class ApiPersonalId {
                 params.put("channel_id", channelId);
                 HashMap<String, String> headers = new HashMap<>();
                 String token = HttpUtils.getCredential(tokenAuth);
-                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
-                ApiService apiService = PersonalIdApiClient.getClientApi();
-                Call<ResponseBody> call = apiService.makePostRequest(channelUrl,token, headers,requestBody);
-                BaseApi.Companion.callApi(context, call, callback,channelUrl);
+                makePostRequestWithUrl(context,channelUrl,token,params,headers,true,callback);
             }
 
             @Override
@@ -347,6 +338,19 @@ public class ApiPersonalId {
                 callback.processTokenRequestDeniedError();
             }
         });
+    }
+
+    private static void makePostRequestWithUrl(Context context,
+                                               String channelUrl,
+                                               String token,
+                                               HashMap<String, Object> params,
+                                               HashMap<String, String> headers,
+                                               boolean useFormEncoding,
+                                               IApiCallback callback){
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, useFormEncoding, PersonalIdApiClient.API_VERSION, headers);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.makePostRequest(channelUrl,token, headers,requestBody);
+        BaseApi.Companion.callApi(context, call, callback,channelUrl);
     }
 
     public static void sendMessagingMessage(Context context, String username, String password,
