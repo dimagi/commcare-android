@@ -51,15 +51,27 @@ class ConnectReleaseToggleRecord :
         const val META_MODIFIED_AT = "modified_at"
 
         @Throws(JSONException::class)
-        fun fromJson(json: JSONObject): ConnectReleaseToggleRecord =
-            ConnectReleaseToggleRecord().apply {
-                val createdAtDateString = json.getString(META_CREATED_AT)
-                val modifiedAtDateString = json.getString(META_MODIFIED_AT)
+        fun fromJson(json: JSONObject): List<ConnectReleaseToggleRecord> {
+            val releaseToggles = mutableListOf<ConnectReleaseToggleRecord>()
+            val slugKeys = json.keys()
 
-                slug = json.getString(META_SLUG)
-                active = json.getBoolean(META_ACTIVE)
-                createdAt = DateUtils.parseDateTime(createdAtDateString)
-                modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+            while (slugKeys.hasNext()) {
+                val slugKey = slugKeys.next()
+
+                val releaseToggle = ConnectReleaseToggleRecord().apply {
+                    val createdAtDateString = json.getString(META_CREATED_AT)
+                    val modifiedAtDateString = json.getString(META_MODIFIED_AT)
+
+                    slug = slugKey
+                    active = json.getBoolean(META_ACTIVE)
+                    createdAt = DateUtils.parseDateTime(createdAtDateString)
+                    modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+                }
+
+                releaseToggles.add(releaseToggle)
             }
+
+            return releaseToggles
+        }
     }
 }

@@ -139,6 +139,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectReleaseToggleRecord.class);
+            builder.setUnique(ConnectReleaseToggleRecord.META_SLUG);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
