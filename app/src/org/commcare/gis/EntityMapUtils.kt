@@ -87,7 +87,7 @@ object EntityMapUtils {
     ): Int? {
         if (TEMPLATE_FORM_GEO_BOUNDARY_COLOR == detail.templateForms[fieldIndex]) {
             val colorString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            check(!colorString.isEmpty())
+            check(colorString.isNotEmpty())
             return parseHexColor(colorString)
         }
         return null
