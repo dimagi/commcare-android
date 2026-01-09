@@ -107,13 +107,13 @@ public class FirebaseMessagingUtil {
                 if (!StringUtils.isEmpty(token)) {
                     updateFCMToken(token);
                 } else {
-                    Logger.exception("Fetching FCM registration token failed",
+                    Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()) ,
                             new Throwable("FCM registration token is empty"));
                 }
             } else {
                 Throwable throwable = task.getException() != null ? task.getException() : new Throwable(
                         "Task to fetch FCM registration token failed");
-                Logger.exception("Fetching FCM registration token failed", throwable);
+                Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()), throwable);
             }
         };
     }
