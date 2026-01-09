@@ -2,20 +2,10 @@ package org.commcare.android.tests.processing;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
-import org.commcare.CommCareTestApplication;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.javarosa.core.model.FormDef;
@@ -28,6 +18,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
