@@ -162,7 +162,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void initializeUi() {
-        binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
+        binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupListeners();
         updateContinueButtonState();
