@@ -87,6 +87,7 @@ object EntityMapUtils {
     ): Int? {
         if (TEMPLATE_FORM_GEO_BOUNDARY_COLOR == detail.templateForms[fieldIndex]) {
             val colorString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
+            check(!colorString.isEmpty())
             return parseHexColor(colorString)
         }
         return null
@@ -231,7 +232,7 @@ object EntityMapUtils {
             if (boundaryColorHex == null) {
                 try {
                     boundaryColorHex = getEntityBoundaryColor(entity, detail, i)
-                } catch (e: IllegalArgumentException) {
+                } catch (e: Exception) {
                     Logger.exception("Error parsing entity boundary color for map display", e)
                     errorEncountered = true
                 }
@@ -249,7 +250,7 @@ object EntityMapUtils {
             if (pointColorsHex == null) {
                 try {
                     pointColorsHex = getEntityPointColors(entity, detail, i)
-                } catch (e: IllegalArgumentException) {
+                } catch (e: Exception) {
                     Logger.exception("Error parsing entity point colors for map display", e)
                     errorEncountered = true
                 }
