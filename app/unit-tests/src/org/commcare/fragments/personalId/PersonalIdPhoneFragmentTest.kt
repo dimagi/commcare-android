@@ -64,16 +64,18 @@ class PersonalIdPhoneFragmentTest {
                 .resume()
                 .get()
 
-        val navHostFragment = activity.supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
-        fragment = navHostFragment.childFragmentManager
-            .primaryNavigationFragment as PersonalIdPhoneFragment
+        val navHostFragment =
+            activity.supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
+        fragment =
+            navHostFragment.childFragmentManager
+                .primaryNavigationFragment as PersonalIdPhoneFragment
 
         ShadowLooper.idleMainLooper()
     }
 
     private fun mockLocation() {
-         // Random location data
+        // Random location data
         `when`(mockLocation.latitude).thenReturn(37.7749)
         `when`(mockLocation.longitude).thenReturn(-122.4194)
         `when`(mockLocation.hasAccuracy()).thenReturn(true)
