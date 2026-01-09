@@ -681,6 +681,10 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
+    private void upgradeTwentyTwentyOne(IDatabase db) {
+        addTableForNewModel(db, ConnectReleaseToggleRecord.STORAGE_KEY, new ConnectReleaseToggleRecord());
+    }
+
     private static void addTableForNewModel(IDatabase db, String storageKey,
                                             Persistable modelToAdd) {
         db.beginTransaction();
@@ -688,18 +692,6 @@ public class ConnectDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(storageKey);
             builder.addData(modelToAdd);
             db.execSQL(builder.getTableCreateString());
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    private void upgradeTwentyTwentyOne(IDatabase db) {
-        db.beginTransaction();
-
-        try {
-            SqlStorage.dropTable(db, ConnectReleaseToggleRecord.STORAGE_KEY);
-            addTableForNewModel(db, ConnectReleaseToggleRecord.STORAGE_KEY, new ConnectReleaseToggleRecord());
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
