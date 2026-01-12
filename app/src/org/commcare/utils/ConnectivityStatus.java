@@ -13,7 +13,11 @@ import android.telephony.TelephonyManager;
 
 import org.javarosa.core.services.Logger;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringDef;
 import androidx.core.app.ActivityCompat;
 
 import static org.commcare.tasks.ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT;
@@ -34,6 +38,10 @@ public class ConnectivityStatus {
     private static final String THREE_G = "3G";
     private static final String FOUR_G = "4G";
     private static final String FIVE_G = "5G";
+
+    @StringDef({WIFI,ETHERNET,TWO_G,THREE_G,FOUR_G,FIVE_G,UNKNOWN_NETWORK,READ_PHONE_STATE_UNKNOWN_NETWORK,NO_NETWORK})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface networkType {}
 
     public static boolean isAirplaneModeOn(Context context) {
         return Settings.Global.getInt(context.getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
@@ -101,7 +109,7 @@ public class ConnectivityStatus {
         return UNKNOWN_NETWORK;
     }
 
-    private static String getNetworkType(int telephonyManagerNetworkType){
+    private static @networkType String getNetworkType(int telephonyManagerNetworkType){
         return switch (telephonyManagerNetworkType) {
             case TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE,
                  TelephonyManager.NETWORK_TYPE_CDMA, TelephonyManager.NETWORK_TYPE_1xRTT,
