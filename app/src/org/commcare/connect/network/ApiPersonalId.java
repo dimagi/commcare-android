@@ -4,40 +4,23 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 
-import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.base.BaseApi;
 import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
-import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +38,7 @@ public class ApiPersonalId {
 
 
     public static void makeHeartbeatRequest(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
 
@@ -318,7 +301,7 @@ public class ApiPersonalId {
     }
 
     public static void retrieveChannelEncryptionKey(Context context, @NonNull ConnectUserRecord user, String channelId, String channelUrl, IApiCallback callback) {
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth tokenAuth) {
                 HashMap<String, Object> params = new HashMap<>();

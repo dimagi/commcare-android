@@ -35,7 +35,7 @@ public class ConnectSsoHelper {
     }
 
 
-    public static void retrieveConnectIdTokenAsync(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
+    public static void retrievePersonalIdToken(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
 
         AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
         if (connectToken != null) {
@@ -141,7 +141,7 @@ public class ConnectSsoHelper {
 
 
         CompletableFuture<AuthInfo.TokenAuth> completableFuture = new CompletableFuture<>();
-        retrieveConnectIdTokenAsync(context, user, new TokenCallback() {
+        retrievePersonalIdToken(context, user, new TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
                 completableFuture.complete(token);
