@@ -59,15 +59,18 @@ class ConnectReleaseToggleRecord :
                 val slugKey = slugKeys.next()
                 val releaseToggleJson = json.getJSONObject(slugKey)
 
-                val releaseToggle = ConnectReleaseToggleRecord().apply {
-                    val createdAtDateString = releaseToggleJson.getString(META_CREATED_AT)
-                    val modifiedAtDateString = releaseToggleJson.getString(META_MODIFIED_AT)
+                val releaseToggle =
+                    ConnectReleaseToggleRecord().apply {
+                        val createdAtDateString =
+                            releaseToggleJson.getString(META_CREATED_AT)
+                        val modifiedAtDateString =
+                            releaseToggleJson.getString(META_MODIFIED_AT)
 
-                    slug = slugKey
-                    active = releaseToggleJson.getBoolean(META_ACTIVE)
-                    createdAt = DateUtils.parseDateTime(createdAtDateString)
-                    modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
-                }
+                        slug = slugKey
+                        active = releaseToggleJson.getBoolean(META_ACTIVE)
+                        createdAt = DateUtils.parseDateTime(createdAtDateString)
+                        modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+                    }
 
                 releaseToggles.add(releaseToggle)
             }
