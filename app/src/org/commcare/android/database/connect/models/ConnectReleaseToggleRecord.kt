@@ -5,6 +5,7 @@ import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
 import org.javarosa.core.model.utils.DateUtils
+import org.javarosa.core.services.Logger
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.Serializable
@@ -50,32 +51,37 @@ class ConnectReleaseToggleRecord :
         const val META_CREATED_AT = "created_at"
         const val META_MODIFIED_AT = "modified_at"
 
-        @Throws(JSONException::class)
-        fun fromJson(json: JSONObject): List<ConnectReleaseToggleRecord> {
+        fun releaseTogglesFromJson(json: JSONObject): List<ConnectReleaseToggleRecord> {
             val releaseToggles = mutableListOf<ConnectReleaseToggleRecord>()
             val slugKeys = json.keys()
 
             while (slugKeys.hasNext()) {
                 val slugKey = slugKeys.next()
-                val releaseToggleJson = json.getJSONObject(slugKey)
 
-                val releaseToggle =
-                    ConnectReleaseToggleRecord().apply {
-                        val createdAtDateString =
-                            releaseToggleJson.getString(META_CREATED_AT)
-                        val modifiedAtDateString =
-                            releaseToggleJson.getString(META_MODIFIED_AT)
-
-                        slug = slugKey
-                        active = releaseToggleJson.getBoolean(META_ACTIVE)
-                        createdAt = DateUtils.parseDateTime(createdAtDateString)
-                        modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
-                    }
-
-                releaseToggles.add(releaseToggle)
+                try {
+                    val releaseToggleJson = json.getJSONObject(slugKey)
+                    releaseToggles.add(releaseToggleFromJson(slugKey, releaseToggleJson))
+                } catch (e: JSONException) {
+                    Logger.exception("JSONException while retrieving a release toggle", e)
+                }
             }
 
             return releaseToggles
         }
+
+        @Throws(JSONException::class)
+        fun releaseToggleFromJson(
+            slugKey: String,
+            json: JSONObject,
+        ): ConnectReleaseToggleRecord =
+            ConnectReleaseToggleRecord().apply {
+                val createdAtDateString = json.getString(META_CREATED_AT)
+                val modifiedAtDateString = json.getString(META_MODIFIED_AT)
+
+                slug = slugKey
+                active = json.getBoolean(META_ACTIVE)
+                createdAt = DateUtils.parseDateTime(createdAtDateString)
+                modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+            }
     }
 }
