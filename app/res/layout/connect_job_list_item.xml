@@ -64,10 +64,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
                 android:layout_marginStart="4dp"
-                android:fontFamily="sans-serif"
-                app:layout_constraintBottom_toBottomOf="@+id/llOpportunity"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/llOpportunity" />
+                android:fontFamily="sans-serif" />
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -75,11 +72,17 @@
             android:layout_height="30dp"
             android:id="@+id/btn_resume"
             android:textSize="11sp"
-            android:text="@string/personalid_resume"
+            android:text="@string/connect_job_info_view_resume"
             android:clickable="true"
             android:focusable="true"
             android:layout_marginTop="10dp"
             app:textAllCaps="false"
+            android:paddingHorizontal="8dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:drawableStart="@drawable/ic_download_circle"
             app:layout_constraintStart_toStartOf="parent"
             android:background="@drawable/bg_rounded_blue_70"
             app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
@@ -89,26 +92,17 @@
             android:layout_height="30dp"
             android:id="@+id/btn_view_info"
             android:textSize="11sp"
-            android:text="@string/personalid_view_info"
+            android:text="@string/connect_job_info_view_info"
             android:layout_marginTop="10dp"
             app:textAllCaps="false"
             app:backgroundTint="@null"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
             android:textColor="@color/connect_blue_color"
             app:layout_constraintStart_toEndOf="@id/btn_resume"
             android:background="@drawable/bg_rounded_corner_lavender_70"
             android:layout_marginStart="10dp"
             app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
-
-        <ImageView
-            android:id="@+id/imgDownload"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:contentDescription="@null"
-            android:layout_marginTop="5dp"
-            android:src="@drawable/ic_connect_download_green"
-            app:layout_constraintStart_toStartOf="@id/tv_progress_percent"
-            app:layout_constraintEnd_toEndOf="@id/tv_progress_percent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_progress_percent"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
@@ -128,8 +122,8 @@
 
         <ImageView
             android:id="@+id/imgJobType"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:contentDescription="@null"
             android:src="@drawable/ic_connect_new_opportunity"
             app:layout_constraintTop_toTopOf="@id/progressBar"

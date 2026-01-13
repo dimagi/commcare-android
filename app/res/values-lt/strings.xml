@@ -147,7 +147,6 @@
     <string name="personalid_biometric_error_timeout">Baigėsi biometrinės operacijos laikas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="personalid_biometric_error_cannot_configure">Nepavyko sukonfigūruoti biometrinių duomenų jūsų įrenginyje. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
 
-    <string name="personalid_resume">Tęsti</string>
-    <string name="personalid_view_info">Peržiūrėti informaciją</string>
     <string name="personalid_complete_by">Atlikti iki %s</string>
+    <string name="personalid_expired_expired_on">Galiojimas baigėsi: %s</string>
 </resources>

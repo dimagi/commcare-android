@@ -3,6 +3,7 @@ package org.commcare.adapters;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -159,16 +160,27 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     ) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
         if (shouldShowDateInRed(connectLoginJobListModel.getDate())) {
-            binding.tvDate.setTextColor(
-                    ContextCompat.getColor(mContext, R.color.dark_red_brick_red)
-            );
-            binding.ivInfo.setColorFilter(
-                    ContextCompat.getColor(mContext, R.color.dark_red_brick_red),
-                    PorterDuff.Mode.SRC_IN
-            );
+            int redColor = ContextCompat.getColor(mContext, R.color.dark_red_brick_red);
+
+            binding.tvDate.setTextColor(redColor);
+            binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
         }
-        binding.tvDate.setText(mContext.getString(R.string.personalid_complete_by,formatDate(connectLoginJobListModel.getDate())));
-        binding.imgDownload.setVisibility(connectLoginJobListModel.isAppInstalled() ? View.GONE : View.VISIBLE);
+        boolean isCompleted = connectLoginJobListModel.getJob().isFinished();
+        int dateRes = isCompleted
+                ? R.string.personalid_expired_expired_on
+                : R.string.personalid_complete_by;
+        binding.tvDate.setText(
+                mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
+        );
+
+        Drawable startDrawable = connectLoginJobListModel.isAppInstalled()
+                ? null
+                : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle);
+
+        binding.btnResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                startDrawable, null, null, null
+        );
+
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
 
@@ -181,8 +193,9 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
 
-        return daysRemaining <= 5;
+        return daysRemaining >= 0 && daysRemaining <= 5;
     }
+
 
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
@@ -239,25 +252,20 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectJobListItemBinding binding
     ) {
         if (item.isNew()) {
-            setJobType(context, 255, R.color.connect_yellowish_orange_color, binding);
+            setJobType(context, 255, binding);
         } else if (item.isLearningApp()) {
-            boolean passedAssessment = item.getJob().passedAssessment();
-            int iconAlpha = passedAssessment ? 128 : 255;
-            setJobType(context, R.drawable.ic_connect_learning, iconAlpha, binding);
+            setJobType(context, R.drawable.ic_connect_learning, binding);
         } else if (item.isDeliveryApp()) {
             boolean finished = item.getJob().isFinished();
-            int textColorId = finished ? R.color.connect_middle_grey : R.color.connect_green;
             int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
 
-            setJobType(context, iconId,
-                    textColorId, binding);
+            setJobType(context, iconId, binding);
         }
     }
 
     private void setJobType(Context context,
-                            int iconResId, int iconAlpha, ConnectJobListItemBinding binding) {
+                            int iconResId, ConnectJobListItemBinding binding) {
         binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
-        binding.imgJobType.setImageAlpha(iconAlpha);
     }
 
     private void buildDisplayList(

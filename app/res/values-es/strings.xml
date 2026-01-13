@@ -540,7 +540,6 @@
     <string name="personalid_biometric_error_timeout">La operación biométrica ha expirado. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
 
-    <string name="personalid_resume">Reanudar</string>
-    <string name="personalid_view_info">Ver información</string>
     <string name="personalid_complete_by">Completar para el %s</string>
+    <string name="personalid_expired_expired_on">Expirado el: %s</string>
 </resources>

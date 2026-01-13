@@ -548,7 +548,6 @@
     <string name="personalid_biometric_error_timeout">Muda wa utendakazi wa kibayometri umekwisha. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
 
-    <string name="personalid_resume">Endelea</string>
-    <string name="personalid_view_info">Angalia maelezo</string>
     <string name="personalid_complete_by">Kamilisha ifikapo %s</string>
+    <string name="personalid_expired_expired_on">Muda wake umeisha mnamo: %s</string>
 </resources>
