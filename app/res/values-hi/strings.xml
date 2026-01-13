@@ -473,8 +473,8 @@ License.
     <string name="personalid_recovery_failed_title">पुनर्प्राप्ति विफल</string>
     <string name="personalid_recovery_lockout_title">खाता बंद</string>
     <string name="personalid_recovery_failed_message">ऐसा लगता है कि आप अपना बैकअप कोड भूल गए हैं, हम आपके लिए एक नया खाता बना रहे हैं</string>
-    <string name="personalid_recovery_lockout_message">आपने बहुत बार गलत बैकअप कोड दर्ज किया है। आपका खाता लॉक कर दिया गया है।</string>
-    <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड दर्ज किया है। कृपया पुनः प्रयास करें। %d गलत प्रयासों के बाद आपको एक नया खाता बनाना होगा।</string>
+    <string name="personalid_recovery_lockout_message">आपने बहुत बार गलत बैकअप कोड दर्ज किया है। आपका खाता लॉक कर दिया गया है। अपना अकाउंट अनलॉक करने के लिए कृपया सपोर्ट से संपर्क करें।</string>
+    <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड डाला है। कृपया फिर से कोशिश करें। %d और गलत कोशिशों के बाद आपका अकाउंट लॉक हो जाएगा।</string>
     <string name="personalid_camera_permission_title">कैमरे के लिए अनुमति</string>
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
@@ -538,7 +538,6 @@ License.
     <string name="personalid_biometric_error_timeout">बायोमेट्रिक ऑपरेशन का समय समाप्त हो गया। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
     <string name="personalid_biometric_error_cannot_configure">हम आपके डिवाइस पर बायोमेट्रिक्स कॉन्फ़िगर नहीं कर सके। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
 
-    <string name="personalid_resume">फिर से शुरू करें</string>
-    <string name="personalid_view_info">जानकारी देखें</string>
     <string name="personalid_complete_by">%s तक पूरा करें</string>
+    <string name="personalid_expired_expired_on">समय सीमा समाप्त: %s</string>
 </resources>
