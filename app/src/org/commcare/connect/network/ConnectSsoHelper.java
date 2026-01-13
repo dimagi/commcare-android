@@ -131,44 +131,6 @@ public class ConnectSsoHelper {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
-            throws TokenDeniedException, TokenUnavailableException {
-        //See if we already have a valid token
-        AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
-        if (connectToken != null) {
-            return connectToken;
-        }
-
-
-        CompletableFuture<AuthInfo.TokenAuth> completableFuture = new CompletableFuture<>();
-        retrievePersonalIdToken(context, user, new TokenCallback() {
-            @Override
-            public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                completableFuture.complete(token);
-            }
-
-            @Override
-            public void tokenUnavailable() {
-                completableFuture.completeExceptionally(new TokenUnavailableException());
-            }
-
-            @Override
-            public void tokenRequestDenied() {
-                completableFuture.completeExceptionally(new TokenDeniedException());
-            }
-        });
-
-        try {
-            return completableFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            if(e.getCause() instanceof TokenDeniedException){
-                throw new TokenDeniedException();
-            }else{
-                throw new TokenUnavailableException();
-            }
-        }
-    }
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws
             TokenDeniedException, TokenUnavailableException {
         CompletableFuture<AuthInfo.TokenAuth> completableFuture = new CompletableFuture<>();
