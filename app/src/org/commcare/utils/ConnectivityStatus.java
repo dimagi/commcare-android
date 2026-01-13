@@ -41,7 +41,7 @@ public class ConnectivityStatus {
 
     @StringDef({WIFI,ETHERNET,TWO_G,THREE_G,FOUR_G,FIVE_G,UNKNOWN_NETWORK,READ_PHONE_STATE_UNKNOWN_NETWORK,NO_NETWORK})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface networkType {}
+    public @interface NetworkType {}
 
     public static boolean isAirplaneModeOn(Context context) {
         return Settings.Global.getInt(context.getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
@@ -58,7 +58,7 @@ public class ConnectivityStatus {
         return (netInfo != null && netInfo.isConnected());
     }
 
-    public static String getNetworkType(Context context){
+    public static @NetworkType String getNetworkType(Context context){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return getNetworkTypeFromAndroid24(context);
         }else{
@@ -67,7 +67,7 @@ public class ConnectivityStatus {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private static String getNetworkTypeFromAndroid24(Context context){
+    private static @NetworkType String getNetworkTypeFromAndroid24(Context context){
         ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
         Network currentNetwork = connectivityManager.getActiveNetwork();
         if(currentNetwork!=null) {
@@ -91,7 +91,7 @@ public class ConnectivityStatus {
         return NO_NETWORK;
     }
 
-    private static String getNetworkTypeFromBelowAndroid24(Context context) {
+    private static @NetworkType String getNetworkTypeFromBelowAndroid24(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
         if (activeNetwork == null || !activeNetwork.isConnected()) {
@@ -109,7 +109,7 @@ public class ConnectivityStatus {
         return UNKNOWN_NETWORK;
     }
 
-    private static @networkType String getNetworkType(int telephonyManagerNetworkType){
+    private static @NetworkType String getNetworkType(int telephonyManagerNetworkType){
         return switch (telephonyManagerNetworkType) {
             case TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE,
                  TelephonyManager.NETWORK_TYPE_CDMA, TelephonyManager.NETWORK_TYPE_1xRTT,
