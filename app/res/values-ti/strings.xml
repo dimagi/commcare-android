@@ -471,8 +471,8 @@
     <string name="personalid_recovery_failed_title">ምሕዋይ ኣይተዓወተን</string>
     <string name="personalid_recovery_lockout_title">ኣካውንት ተዓጽዩ።</string>
     <string name="personalid_recovery_failed_message">Backup Code ናትካ ዝረሳዕካዮ ይመስል፣ ሓድሽ ኣካውንት ንፈጥር ኣለና።</string>
-    <string name="personalid_recovery_lockout_message">ንስኻ ነቲ ናይ ምትካእ ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። ሕሳብካ ተዓጽዩ ኣሎ።</string>
-    <string name="personalid_wrong_backup_message">ጌጋ Backup Code ኣእቲኻ፡ በጃኻ ደጊምካ ፈትን። ድሕሪ %d ዝያዳ ዘይቅኑዕ ፈተነታት ሓድሽ ኣካውንት ክትፈጥር ከድልየካ እዩ።</string>
+    <string name="personalid_recovery_lockout_message">ንስኻ ነቲ ናይ ምትካእ ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። ሕሳብካ ተዓጽዩ ኣሎ። ኣካውንትኩም ንምኽፋት በጃኹም ምስ ደገፍ ተወከሱ።</string>
+    <string name="personalid_wrong_backup_message">ጌጋ Backup Code ኣእቲኻ ኣለኻ። በጃኹም ደጊምኩም ፈትኑ። ድሕሪ %d ዝያዳ ጌጋ ፈተነታት ኣካውንትካ ክዕጾ እዩ።</string>
     <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
