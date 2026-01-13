@@ -1,5 +1,6 @@
 package org.commcare.location
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -12,6 +13,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
 import org.commcare.utils.GeoUtils.locationServicesEnabledGlobally
 
 /**
@@ -25,15 +27,15 @@ class CommCareFusedLocationController(
     private val settingsClient = LocationServices.getSettingsClient(mContext!!)
     private val mLocationServiceChangeReceiver = LocationChangeReceiverBroadcast()
     private val mLocationRequest =
-        LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = LOCATION_UPDATE_INTERVAL
-        }
+        LocationRequest
+            .Builder(Priority.PRIORITY_HIGH_ACCURACY, LOCATION_UPDATE_INTERVAL)
+            .build()
     private var mCurrentLocation: Location? = null
     private val mLocationCallback =
         object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 result ?: return
+                logStaleLocation(result.lastLocation!!)
                 mCurrentLocation = result.lastLocation
                 mListener?.onLocationResult(mCurrentLocation!!)
             }
@@ -43,6 +45,7 @@ class CommCareFusedLocationController(
         const val LOCATION_UPDATE_INTERVAL = 5000L
     }
 
+    @SuppressLint("MissingPermission")
     private fun requestUpdates() {
         if (isLocationPermissionGranted(mContext)) {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)

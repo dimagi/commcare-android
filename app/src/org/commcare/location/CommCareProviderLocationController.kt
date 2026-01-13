@@ -9,7 +9,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import org.commcare.utils.GeoUtils
 
 /**
@@ -26,6 +25,7 @@ class CommCareProviderLocationController(private var mContext: Context?,
     private val mLocationListener = object: LocationListener {
         override fun onLocationChanged(location: Location) {
             location ?: return
+            logStaleLocation(location)
             mCurrentLocation = location
             mListener?.onLocationResult(mCurrentLocation!!)
         }
