@@ -1,5 +1,9 @@
 package org.commcare.models.encryption;
 
+import com.google.firebase.perf.metrics.Trace;
+
+import org.apache.commons.io.FilenameUtils;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -12,8 +16,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -30,11 +38,22 @@ public class EncryptionIO {
 
     public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symetricKey) throws FileNotFoundException,
             StreamsUtil.InputIOException, StreamsUtil.OutputIOException {
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+
         OutputStream os;
         FileInputStream is;
         os = createFileOutputStream(destPath, symetricKey);
         is = new FileInputStream(sourceFilePath);
         StreamsUtil.writeFromInputToOutputNew(is, os);
+
+        try {
+            Map<String, String> attrs = new HashMap<>();
+            attrs.put(CCPerfMonitoring.ATTR_FILE_SIZE_BYTES, Long.toString(Files.size(Paths.get(sourceFilePath))));
+            attrs.put(CCPerfMonitoring.ATTR_FILE_TYPE, FilenameUtils.getExtension(sourceFilePath));
+            CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+        } catch (Exception e) {
+            Logger.exception("Failed to stop tracing ", e);
+        }
     }
 
     public static OutputStream createFileOutputStream(String filename,
