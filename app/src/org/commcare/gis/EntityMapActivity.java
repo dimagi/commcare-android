@@ -458,8 +458,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         TreeReference ref;
         if (marker.equals(polygonInfoMarker)) {
             ref = polygonInfoMarkerReference;
-        }
-        else {
+        } else {
             ref = markerReferences.get(marker);
         }
         SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
