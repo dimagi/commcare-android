@@ -12,6 +12,7 @@ object CCPerfMonitoring {
     const val TRACE_APP_SYNC_DURATION = "app_sync_duration"
     const val TRACE_CASE_SEARCH_TIME = "case_search_time"
     const val TRACE_FORM_LOADING_TIME = "form_loading_time"
+    const val TRACE_FILE_ENCRYPTION_TIME = "file_encryption_time"
     const val TRACE_ENTITY_MAP_READY_TIME = "entity_map_ready_time"
     const val TRACE_ENTITY_MAP_LOADED_TIME = "entity_map_loaded_time"
 
@@ -27,6 +28,8 @@ object CCPerfMonitoring {
     const val ATTR_MAP_MARKERS = "num_markers"
     const val ATTR_MAP_POLYGONS = "num_polygons"
     const val ATTR_MAP_GEO_POINTS = "num_geo_points"
+    const val ATTR_FILE_SIZE_BYTES = "file_size_bytes"
+    const val ATTR_FILE_TYPE = "file_type"
 
     fun startTracing(traceName: String): Trace? {
         try {
