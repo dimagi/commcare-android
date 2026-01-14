@@ -509,7 +509,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void onConfigurationSuccess() {
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
+//        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
+                PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidName()
+        );
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
