@@ -1,11 +1,14 @@
 package org.commcare.tasks;
 
+import com.google.firebase.perf.metrics.Trace;
+
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.SqlStorage;
@@ -33,8 +36,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.utils.FileUtil.XML_EXTENSION;
 
 /**
  * @author Carl Hartung (carlhartung@gmail.com)
@@ -257,11 +264,21 @@ public class SaveToDiskTask extends
     }
 
     private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+
         try {
             InputStream is = payload.getPayloadStream();
             StreamsUtil.writeFromInputToOutput(is, output);
         } finally {
             output.close();
+            try {
+                Map<String, String> attrs = new HashMap<>();
+                attrs.put(CCPerfMonitoring.ATTR_FILE_SIZE_BYTES, Long.toString(payload.getLength()));
+                attrs.put(CCPerfMonitoring.ATTR_FILE_TYPE, XML_EXTENSION);
+                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+            } catch (Exception e) {
+                Logger.exception("Failed to stop tracing ", e);
+            }
         }
     }
 
