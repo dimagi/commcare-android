@@ -36,11 +36,23 @@ fun shouldDiscardLocation(location: Location): Boolean {
         Logger.exception(
             "Received a stale location",
             Exception(
-                "Received a stale location for location: $location" +
+                "Received a stale location with accuracy ${location.accuracy}"  +
                     " with time ${location.time}" + " and current device time ${System.currentTimeMillis()}"
             )
         )
         return HiddenPreferences.shouldDiscardStaleLocations()
     }
     return false
+}
+
+fun logStaleLocationSaved(location: Location) {
+    if (!isLocationFresh(location, DEFAULT_TIME_THRESHOLD)) {
+        Logger.exception(
+            "Stale location saved in GPS capture",
+            Throwable(
+                "Saved a stale location with accuracy ${location.accuracy}" +
+                    " with time ${location.time}" + " and current device time ${System.currentTimeMillis()}"
+            )
+        )
+    }
 }
