@@ -487,6 +487,8 @@
     <string name="personalid_recovery_lockout_title">Akaunti Imefungwa</string>
     <string name="personalid_recovery_failed_message">Inaonekana umesahau Nambari yako ya Hifadhi Nambari, tunakuundia akaunti mpya</string>
     <string name="personalid_wrong_backup_message">Umeingiza Nambari ya Kuhifadhi Nakala Isiyo sahihi. Tafadhali jaribu tena. Akaunti yako itafungwa baada ya majaribio %d zaidi yasiyo sahihi.</string>
+    <string name="personalid_second_device_login_title">Ingia kwenye Kifaa cha Pili</string>
+    <string name="personalid_second_device_login_message">Umetoka kwenye kipindi chako cha awali kwenye %s, ambacho kilitumika mara ya mwisho %s. Tafadhali kumbuka kuwa Kitambulisho cha Kibinafsi kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
     <string name="personalid_recovery_lockout_message">Umeweka msimbo wa akiba usio sahihi mara nyingi sana. Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi ili kufungua akaunti yako.</string>
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>

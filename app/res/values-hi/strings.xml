@@ -475,6 +475,8 @@ License.
     <string name="personalid_recovery_failed_message">ऐसा लगता है कि आप अपना बैकअप कोड भूल गए हैं, हम आपके लिए एक नया खाता बना रहे हैं</string>
     <string name="personalid_recovery_lockout_message">आपने बहुत बार गलत बैकअप कोड दर्ज किया है। आपका खाता लॉक कर दिया गया है। अपना अकाउंट अनलॉक करने के लिए कृपया सपोर्ट से संपर्क करें।</string>
     <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड डाला है। कृपया फिर से कोशिश करें। %d और गलत कोशिशों के बाद आपका अकाउंट लॉक हो जाएगा।</string>
+    <string name="personalid_second_device_login_title">दूसरे डिवाइस पर लॉग इन करें</string>
+    <string name="personalid_second_device_login_message">आपको %s पर आपके पिछले सेशन से लॉग आउट कर दिया गया है, जिसका इस्तेमाल आखिरी बार %s को किया गया था। कृपया ध्यान दें कि PersonalID से एक समय में सिर्फ़ एक डिवाइस पर लॉग इन किया जा सकता है।</string>
     <string name="personalid_camera_permission_title">कैमरे के लिए अनुमति</string>
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>

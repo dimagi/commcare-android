@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
@@ -29,6 +30,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.NotificationUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -226,6 +229,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 personalIdSessionData.getInvitedUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
+        handleSecondDeviceLogin();
         navigateToSuccess();
     }
 
@@ -249,6 +253,20 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
 
     private void logRecoveryResult(boolean success) {
         FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+    }
+
+    private void handleSecondDeviceLogin() {
+        if(personalIdSessionData.getPreviousDevice() != null && personalIdSessionData.getLastAccessed() != null) {
+            int titleId = R.string.personalid_second_device_login_title;
+            NotificationUtil.showNotification(requireContext(),
+                    CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
+                    titleId,
+                    getString(titleId),
+                    getString(R.string.personalid_second_device_login_message,
+                            personalIdSessionData.getPreviousDevice(),
+                            DateUtils.getShortStringValue(personalIdSessionData.getLastAccessed())),
+                    null);
+        }
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {
