@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.core.content.ContextCompat
 import org.commcare.CommCareApplication
+import org.commcare.preferences.HiddenPreferences
 import org.javarosa.core.services.Logger
 
 /**
@@ -28,11 +29,16 @@ fun isFresh(location: Location, maxAgeMs: Long = 2 * 60 * 1000): Boolean {
     return System.currentTimeMillis() - location.time <= maxAgeMs
 }
 
-fun logStaleLocation(location: Location) {
-    if (!isFresh(location)) {
+fun shouldDiscardLocation(location: Location): Boolean {
+    if(!isFresh(location)) {
         Logger.exception(
             "Received a stale location",
-            Exception("Received a stale location for location: $location" + " with time ${location.time}" + " and current device time ${System.currentTimeMillis()}")
+            Exception(
+                "Received a stale location for location: $location" +
+                    " with time ${location.time}" + " and current device time ${System.currentTimeMillis()}"
+            )
         )
+        return HiddenPreferences.shouldDiscardStaleLocations()
     }
+    return false
 }

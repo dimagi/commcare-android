@@ -14,7 +14,9 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
+import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils.locationServicesEnabledGlobally
+import org.javarosa.core.services.Logger
 
 /**
  * @author $|-|!˅@M
@@ -34,8 +36,11 @@ class CommCareFusedLocationController(
     private val mLocationCallback =
         object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
-                result ?: return
-                logStaleLocation(result.lastLocation!!)
+                result.lastLocation ?: return
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Received location update")
+                if (shouldDiscardLocation(result.lastLocation!!)) {
+                    return
+                }
                 mCurrentLocation = result.lastLocation
                 mListener?.onLocationResult(mCurrentLocation!!)
             }
