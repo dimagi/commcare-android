@@ -19,7 +19,6 @@ import java.util.Vector
 import javax.annotation.Nullable
 
 object EntityMapUtils {
-
     // Field template form name constants
     private const val TEMPLATE_FORM_ADDRESS = "address"
     private const val TEMPLATE_FORM_GEO_BOUNDARY = "geo_boundary"
@@ -28,7 +27,10 @@ object EntityMapUtils {
     private const val TEMPLATE_FORM_GEO_POINTS_COLORS = "geo_points_colors_hex"
 
     @JvmStatic
-    private fun getHeaderText(detail: Detail, templateFormName: String): String? {
+    private fun getHeaderText(
+        detail: Detail,
+        templateFormName: String,
+    ): String? {
         for (i in 0 until detail.templateForms.size) {
             if (templateFormName == detail.templateForms[i]) {
                 return detail.fields[i].header.evaluate()
@@ -38,12 +40,14 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getMarkerHeader(detail: Detail): String? {
-        return getHeaderText(detail, TEMPLATE_FORM_ADDRESS)
-    }
+    fun getMarkerHeader(detail: Detail): String? = getHeaderText(detail, TEMPLATE_FORM_ADDRESS)
 
     @JvmStatic
-    fun getEntityLocation(entity: Entity<TreeReference>, detail: Detail, fieldIndex: Int): LatLng? {
+    fun getEntityLocation(
+        entity: Entity<TreeReference>,
+        detail: Detail,
+        fieldIndex: Int,
+    ): LatLng? {
         if (TEMPLATE_FORM_ADDRESS == detail.templateForms[fieldIndex]) {
             val address = entity.getFieldString(fieldIndex).trim { it <= ' ' }
             return getLatLngFromAddress(address)
@@ -62,15 +66,13 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getBoundaryHeader(detail: Detail): String? {
-        return getHeaderText(detail, TEMPLATE_FORM_GEO_BOUNDARY)
-    }
+    fun getBoundaryHeader(detail: Detail): String? = getHeaderText(detail, TEMPLATE_FORM_GEO_BOUNDARY)
 
     @JvmStatic
     fun getEntityBoundary(
         entity: Entity<TreeReference>,
         detail: Detail,
-        fieldIndex: Int
+        fieldIndex: Int,
     ): List<LatLng>? {
         if (TEMPLATE_FORM_GEO_BOUNDARY == detail.templateForms[fieldIndex]) {
             val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
@@ -83,7 +85,7 @@ object EntityMapUtils {
     fun getEntityBoundaryColor(
         entity: Entity<TreeReference>,
         detail: Detail,
-        fieldIndex: Int
+        fieldIndex: Int,
     ): Int? {
         if (TEMPLATE_FORM_GEO_BOUNDARY_COLOR == detail.templateForms[fieldIndex]) {
             val colorString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
@@ -94,15 +96,13 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getGeopointsHeader(detail: Detail): String? {
-        return getHeaderText(detail, TEMPLATE_FORM_GEO_POINTS)
-    }
+    fun getGeopointsHeader(detail: Detail): String? = getHeaderText(detail, TEMPLATE_FORM_GEO_POINTS)
 
     @JvmStatic
     fun getEntityPoints(
         entity: Entity<TreeReference>,
         detail: Detail,
-        fieldIndex: Int
+        fieldIndex: Int,
     ): List<LatLng>? {
         if (TEMPLATE_FORM_GEO_POINTS == detail.templateForms[fieldIndex]) {
             val pointListString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
@@ -115,7 +115,7 @@ object EntityMapUtils {
     fun getEntityPointColors(
         entity: Entity<TreeReference>,
         detail: Detail,
-        fieldIndex: Int
+        fieldIndex: Int,
     ): List<Int>? {
         if (TEMPLATE_FORM_GEO_POINTS_COLORS == detail.templateForms[fieldIndex]) {
             val colorsString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
@@ -128,7 +128,8 @@ object EntityMapUtils {
     private fun parseBoundaryFromString(boundaryString: String): List<LatLng>? {
         val parts = boundaryString.trim().split("\\s+".toRegex())
         val polygon = PolygonUtils.createPolygon(parts)
-        return polygon.map { LatLng(it.latitude, it.longitude) }
+        return polygon
+            .map { LatLng(it.latitude, it.longitude) }
             .toMutableList()
     }
 
@@ -139,14 +140,13 @@ object EntityMapUtils {
         }
         val parts = pointListString.trim().split("\\s+".toRegex())
         val polygon = GeoPointUtils.createPointList(parts)
-        return polygon.map { LatLng(it.latitude, it.longitude) }
+        return polygon
+            .map { LatLng(it.latitude, it.longitude) }
             .toMutableList()
     }
 
     @Nullable
-    private fun parseHexColor(colorString: String): Int? {
-        return colorString.toColorInt()
-    }
+    private fun parseHexColor(colorString: String): Int? = colorString.toColorInt()
 
     @Nullable
     private fun parseHexColorList(colorsString: String): List<Int>? {
@@ -155,10 +155,12 @@ object EntityMapUtils {
         }
 
         // Split by either spaces or commas (or both), handling multiple delimiters
-        val parts = colorsString.trim()
-            .split("[\\s,]+".toRegex())
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
+        val parts =
+            colorsString
+                .trim()
+                .split("[\\s,]+".toRegex())
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
 
         val colors = mutableListOf<Int>()
         for (part in parts) {
@@ -182,7 +184,10 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getEntities(detail: Detail, nodeset: TreeReference): Vector<Entity<TreeReference>> {
+    fun getEntities(
+        detail: Detail,
+        nodeset: TreeReference,
+    ): Vector<Entity<TreeReference>> {
         val session = CommCareApplication.instance().currentSession
         val evaluationContext = session.getEvaluationContext(AndroidInstanceInitializer(session))
         evaluationContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
@@ -201,7 +206,7 @@ object EntityMapUtils {
     @Nullable
     fun getDisplayInfoForEntity(
         entity: Entity<TreeReference>,
-        detail: Detail
+        detail: Detail,
     ): EntityMapDisplayInfo? {
         var location: LatLng? = null
         var boundary: List<LatLng>? = null
@@ -261,8 +266,8 @@ object EntityMapUtils {
             Logger.exception(
                 "Mismatched point colors and points for entity map display",
                 IllegalArgumentException(
-                    "Number of point colors (${pointColorsHex.size}) does not match number of points (${points.size})"
-                )
+                    "Number of point colors (${pointColorsHex.size}) does not match number of points (${points.size})",
+                ),
             )
             pointColorsHex = null
             errorEncountered = true
@@ -275,7 +280,7 @@ object EntityMapUtils {
                 boundary = boundary,
                 boundaryColorHex = boundaryColorHex,
                 points = points,
-                pointColorsHex = pointColorsHex
+                pointColorsHex = pointColorsHex,
             )
         } else {
             null
