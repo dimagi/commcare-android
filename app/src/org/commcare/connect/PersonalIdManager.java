@@ -355,13 +355,13 @@ public class PersonalIdManager {
 
     private void unlockAndLinkConnect(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp,
             String username, String password, ConnectActivityCompleteListener callback) {
-        unlockConnect(activity, success -> {
-            if (!success) {
-                callback.connectActivityComplete(false);
-                FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_UNLOCK_FAILED);
-                return;
-            }
-
+//        unlockConnect(activity, success -> {
+//            if (!success) {
+//                callback.connectActivityComplete(false);
+//                FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_UNLOCK_FAILED);
+//                return;
+//            }
+//
             linkedApp.linkToPersonalId(password);
             FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), SYNC_SUCCESS);
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
@@ -383,7 +383,7 @@ public class PersonalIdManager {
                             callback.connectActivityComplete(false);
                         }
                     });
-        });
+//        });
     }
 
     private void promptToDelinkPersonalIdApp(CommCareActivity<?> activity, String appId, String username,
@@ -400,17 +400,17 @@ public class PersonalIdManager {
 
         dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
             activity.dismissAlertDialog();
-            unlockConnect(activity, success -> {
-                if (success) {
+//            unlockConnect(activity, success -> {
+//                if (success) {
                     ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity,
                             appId, username);
                     if (linkedApp != null) {
                         linkedApp.severPersonalIdLink();
                         ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
                     }
-                }
-                callback.connectActivityComplete(false);
-            });
+//                }
+//                callback.connectActivityComplete(false);
+//            });
         });
 
         dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
