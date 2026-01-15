@@ -47,10 +47,9 @@ public final class DeviceIdentifier {
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
         if(!Strings.isNullOrEmpty(model)) {
-            if(!Strings.isNullOrEmpty(manufacturer)) {
-                if(!model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
-                    model = String.format("%s %s", manufacturer, model);
-                }
+            if(!Strings.isNullOrEmpty(manufacturer) &&
+                    !model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
+                model = String.format("%s %s", manufacturer, model);
             }
 
             return model;
