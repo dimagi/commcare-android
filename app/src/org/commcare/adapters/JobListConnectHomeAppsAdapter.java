@@ -24,8 +24,10 @@ import org.commcare.models.connect.ConnectLoginJobListModel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -274,30 +276,63 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             List<ConnectLoginJobListModel> completedJobs,
             List<ConnectLoginJobListModel> corruptJobs
     ) {
-        if (!inProgressJobs.isEmpty()) {
+        displayItems.clear();
+
+        Map<String, ConnectLoginJobListModel> opportunityMap = new LinkedHashMap<>();
+        addToMap(opportunityMap, inProgressJobs);
+        addToMap(opportunityMap, newJobs);
+        addToMap(opportunityMap, completedJobs);
+
+        List<ConnectLoginJobListModel> inProgress = new ArrayList<>();
+        List<ConnectLoginJobListModel> completed = new ArrayList<>();
+        List<ConnectLoginJobListModel> newOpps = new ArrayList<>();
+
+        for (ConnectLoginJobListModel item : opportunityMap.values()) {
+            if (shouldBeInCompleted(item)) {
+                completed.add(item);
+            } else if (item.isNew()) {
+                newOpps.add(item);
+            } else {
+                inProgress.add(item);
+            }
+        }
+
+        if (!inProgress.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_in_progress));
-            for (ConnectLoginJobListModel inProgressJob : inProgressJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(inProgressJob, false));
+            for (ConnectLoginJobListModel item : inProgress) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
-        if (!newJobs.isEmpty()) {
+        if (!newOpps.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
-            for (ConnectLoginJobListModel newJob : newJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(newJob, false));
+            for (ConnectLoginJobListModel item : newOpps) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
-        if (!completedJobs.isEmpty()) {
+        if (!completed.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed));
-            for (ConnectLoginJobListModel completedJob : completedJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(completedJob, false));
+            for (ConnectLoginJobListModel item : completed) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
         for (ConnectLoginJobListModel corruptJob : corruptJobs) {
             displayItems.add(new ConnectJobListItem.JobItem(corruptJob, true));
         }
+    }
+    private void addToMap(
+            Map<String, ConnectLoginJobListModel> map,
+            List<ConnectLoginJobListModel> items
+    ) {
+        for (ConnectLoginJobListModel item : items) {
+            map.put(item.getId(), item);
+        }
+    }
+
+    private boolean shouldBeInCompleted(ConnectLoginJobListModel item) {
+        return item.getJob().isFinished();
     }
 }
 
