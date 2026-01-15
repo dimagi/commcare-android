@@ -1,7 +1,5 @@
 package org.commcare.connect.network.connectId;
 
-import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
-
 import android.app.Activity;
 import android.content.Context;
 
@@ -13,6 +11,7 @@ import org.commcare.connect.network.NoParsingResponseParser;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.base.BaseApiResponseParser;
+import org.commcare.connect.network.connect.parser.ConnectReleaseTogglesParser;
 import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
@@ -35,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 import kotlin.Pair;
+
+import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
@@ -323,4 +324,15 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
+    public void getReleaseToggles(Context context, String userId, String password) {
+        ApiPersonalId.getReleaseToggles(
+                context,
+                userId,
+                password,
+                createCallback(
+                        (BaseApiResponseParser<T>) new ConnectReleaseTogglesParser(),
+                        null
+                )
+        );
+    }
 }

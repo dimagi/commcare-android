@@ -3,9 +3,11 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
+import org.javarosa.core.services.Logger;
 
 import java.util.List;
 import java.util.Vector;
@@ -77,4 +79,26 @@ public class ConnectAppDatabaseUtil {
         }
     }
 
+    public static void storeReleaseToggles(
+            Context context,
+            List<ConnectReleaseToggleRecord> toggles
+    ) {
+        try {
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
+            SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
+                    ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
+
+            toggleStorage.removeAll();
+
+            for (ConnectReleaseToggleRecord toggle : toggles) {
+                toggleStorage.write(toggle);
+            }
+
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+        } catch (Exception e) {
+            Logger.exception("There was an error storing release toggles in the DB!", e);
+        } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
+        }
+    }
 }
