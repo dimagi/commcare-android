@@ -2,6 +2,10 @@ package org.commcare.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+
+import com.google.common.base.Strings;
+
 import androidx.preference.PreferenceManager;
 import java.util.UUID;
 
@@ -37,5 +41,21 @@ public final class DeviceIdentifier {
             }
         }
         return uuid;
+    }
+
+    public static String getDeviceModel() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if(!Strings.isNullOrEmpty(model)) {
+            if(!Strings.isNullOrEmpty(manufacturer)) {
+                if(!model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
+                    model = String.format("%s %s", manufacturer, model);
+                }
+            }
+
+            return model;
+        }
+
+        return null;
     }
 }
