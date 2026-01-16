@@ -1,5 +1,9 @@
 package org.commcare.activities;
 
+import static org.commcare.location.CommCareLocationControllerKt.DEFAULT_TIME_THRESHOLD;
+import static org.commcare.location.CommCareLocationControllerKt.isLocationFresh;
+import static org.commcare.location.CommCareLocationControllerKt.logStaleLocationSaved;
+
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +31,7 @@ import org.commcare.utils.TimeoutTimer;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.GeoProgressDialog;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.jetbrains.annotations.NotNull;
 
@@ -182,6 +187,7 @@ public class GeoPointActivity extends CommonBaseActivity implements TimerListene
 
     private void returnLocation() {
         if (location != null) {
+            logStaleLocationSaved(location);
             Intent i = new Intent();
             i.putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
