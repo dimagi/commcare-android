@@ -169,7 +169,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             roots.add(Environment.getExternalStorageDirectory());
         }
 
-        for (String s : FileUtil.getExternalMounts()) {
+        for (String s : FileUtil.getExternalMounts(this)) {
             roots.add(new File(s));
         }
 
