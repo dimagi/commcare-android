@@ -2,6 +2,8 @@ package org.commcare.adapters;
 
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +24,11 @@ import org.commcare.models.connect.ConnectLoginJobListModel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -156,13 +161,43 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             OnJobSelectionClick launcher
     ) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
-        binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate()));
-        binding.imgDownload.setVisibility(connectLoginJobListModel.isAppInstalled() ? View.GONE : View.VISIBLE);
+        if (shouldShowDateInRed(connectLoginJobListModel.getDate())) {
+            int redColor = ContextCompat.getColor(mContext, R.color.dark_red_brick_red);
+
+            binding.tvDate.setTextColor(redColor);
+            binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+        }
+        boolean isCompleted = connectLoginJobListModel.getJob().isFinished();
+        int dateRes = isCompleted
+                ? R.string.personalid_expired_expired_on
+                : R.string.personalid_complete_by;
+        binding.tvDate.setText(
+                mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
+        );
+
+        Drawable startDrawable = connectLoginJobListModel.isAppInstalled()
+                ? null
+                : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle);
+
+        binding.btnResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                startDrawable, null, null, null
+        );
+
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
 
         clickListener(binding, connectLoginJobListModel, launcher);
     }
+
+    private boolean shouldShowDateInRed(Date expiryDate) {
+        long now = System.currentTimeMillis();
+        long diffMillis = expiryDate.getTime() - now;
+
+        long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
+
+        return daysRemaining >= 0 && daysRemaining <= 5;
+    }
+
 
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
@@ -178,7 +213,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectLoginJobListModel connectLoginJobListModel,
             OnJobSelectionClick launcher
     ) {
-        binding.rootCardView.setOnClickListener(view -> {
+        binding.btnResume.setOnClickListener(view -> {
             launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
                     connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
         });
@@ -205,8 +240,11 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.progressBar.setVisibility(View.VISIBLE);
             binding.progressBar.setProgress(progress);
             binding.progressBar.setProgressColor(progressColor);
+            binding.groupProgress.setVisibility(View.VISIBLE);
+            binding.tvProgressPercent.setText(progress +" %");
         } else {
             binding.progressBar.setVisibility(View.GONE);
+            binding.groupProgress.setVisibility(View.GONE);
         }
     }
 
@@ -216,46 +254,20 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectJobListItemBinding binding
     ) {
         if (item.isNew()) {
-            setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
-                    ContextCompat.getString(context, R.string.connect_new_opportunity),
-                    R.drawable.ic_connect_new_opportunity,
-                    255, R.color.connect_yellowish_orange_color, binding);
+            setJobType(context, 255, binding);
         } else if (item.isLearningApp()) {
-            boolean passedAssessment = item.getJob().passedAssessment();
-            int textId = passedAssessment ? R.string.connect_learn_review : R.string.connect_learn;
-            int textColorId = passedAssessment ? R.color.connect_blue_color_50 : R.color.connect_blue_color;
-            int iconAlpha = passedAssessment ? 128 : 255;
-            setJobType(context, R.drawable.connect_rounded_corner_tealish_blue,
-                    ContextCompat.getString(context, textId), R.drawable.ic_connect_learning, iconAlpha,
-                    textColorId, binding);
+            setJobType(context, R.drawable.ic_connect_learning, binding);
         } else if (item.isDeliveryApp()) {
             boolean finished = item.getJob().isFinished();
-            int textId = finished ? R.string.connect_expired : R.string.connect_delivery;
-            int textColorId = finished ? R.color.connect_middle_grey : R.color.connect_green;
-            int drawableId = finished ? R.drawable.connect_rounded_corner_lighter_grey
-                    : R.drawable.connect_rounded_corner_light_green;
             int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
 
-            setJobType(context, drawableId,
-                    ContextCompat.getString(context, textId), iconId, 255,
-                    textColorId, binding);
+            setJobType(context, iconId, binding);
         }
     }
 
-    private void setJobType(
-            Context context,
-            int backgroundResId,
-            String jobTypeText,
-            int iconResId,
-            int iconAlpha,
-            int textColorResId,
-            ConnectJobListItemBinding binding
-    ) {
-        binding.llOpportunity.setBackground(ContextCompat.getDrawable(context, backgroundResId));
-        binding.tvJobType.setText(jobTypeText);
+    private void setJobType(Context context,
+                            int iconResId, ConnectJobListItemBinding binding) {
         binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
-        binding.imgJobType.setImageAlpha(iconAlpha);
-        binding.tvJobType.setTextColor(ContextCompat.getColor(context, textColorResId));
     }
 
     private void buildDisplayList(
@@ -264,30 +276,63 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             List<ConnectLoginJobListModel> completedJobs,
             List<ConnectLoginJobListModel> corruptJobs
     ) {
-        if (!inProgressJobs.isEmpty()) {
+        displayItems.clear();
+
+        Map<String, ConnectLoginJobListModel> opportunityMap = new LinkedHashMap<>();
+        addToMap(opportunityMap, inProgressJobs);
+        addToMap(opportunityMap, newJobs);
+        addToMap(opportunityMap, completedJobs);
+
+        List<ConnectLoginJobListModel> inProgress = new ArrayList<>();
+        List<ConnectLoginJobListModel> completed = new ArrayList<>();
+        List<ConnectLoginJobListModel> newOpps = new ArrayList<>();
+
+        for (ConnectLoginJobListModel item : opportunityMap.values()) {
+            if (shouldBeInCompleted(item)) {
+                completed.add(item);
+            } else if (item.isNew()) {
+                newOpps.add(item);
+            } else {
+                inProgress.add(item);
+            }
+        }
+
+        if (!inProgress.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_in_progress));
-            for (ConnectLoginJobListModel inProgressJob : inProgressJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(inProgressJob, false));
+            for (ConnectLoginJobListModel item : inProgress) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
-        if (!newJobs.isEmpty()) {
+        if (!newOpps.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
-            for (ConnectLoginJobListModel newJob : newJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(newJob, false));
+            for (ConnectLoginJobListModel item : newOpps) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
-        if (!completedJobs.isEmpty()) {
+        if (!completed.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed));
-            for (ConnectLoginJobListModel completedJob : completedJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(completedJob, false));
+            for (ConnectLoginJobListModel item : completed) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
         for (ConnectLoginJobListModel corruptJob : corruptJobs) {
             displayItems.add(new ConnectJobListItem.JobItem(corruptJob, true));
         }
+    }
+    private void addToMap(
+            Map<String, ConnectLoginJobListModel> map,
+            List<ConnectLoginJobListModel> items
+    ) {
+        for (ConnectLoginJobListModel item : items) {
+            map.put(item.getId(), item);
+        }
+    }
+
+    private boolean shouldBeInCompleted(ConnectLoginJobListModel item) {
+        return item.getJob().isFinished();
     }
 }
 
