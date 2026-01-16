@@ -74,7 +74,9 @@ object EntityMapUtils {
     ): List<LatLng>? {
         if (TEMPLATE_FORM_GEO_BOUNDARY == detail.templateForms[fieldIndex]) {
             val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            return parseBoundaryFromString(boundaryString)
+            if(boundaryString.isNotEmpty()) {
+                return parseBoundaryFromString(boundaryString)
+            }
         }
         return null
     }
@@ -87,8 +89,9 @@ object EntityMapUtils {
     ): Int? {
         if (TEMPLATE_FORM_GEO_BOUNDARY_COLOR == detail.templateForms[fieldIndex]) {
             val colorString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            check(colorString.isNotEmpty())
-            return parseHexColor(colorString)
+            if(colorString.isNotEmpty()) {
+                return parseHexColor(colorString)
+            }
         }
         return null
     }
