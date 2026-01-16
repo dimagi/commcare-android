@@ -366,7 +366,7 @@
     <string name="connect_results_payment_confirm_undo">Desfazer confirmação</string>
     <string name="connect_results_payment_confirmed">Confirmado</string>
     <string name="connect_results_payment_not_confirmed">Não confirmado</string>
-    <string name="connect_payment_confirm_text">Você foi pago!\n%s %s pago %s.\nVocê recebeu o pagamento?</string>
+    <string name="connect_payment_confirm_text">Você recebeu o pagamento de %d %s pela oportunidade %s?</string>
     <string name="connect_payment_confirm_yes">Sim!</string>
     <string name="connect_payment_confirm_no">Pergunte mais tarde</string>
     <string name="connect_payment_confirm_failed">Falha ao enviar a confirmação, pediremos novamente mais tarde.</string>
