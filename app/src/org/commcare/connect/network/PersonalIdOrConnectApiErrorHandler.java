@@ -49,7 +49,7 @@ public class PersonalIdOrConnectApiErrorHandler {
             case SERVER_ERROR:
                 return context.getString(R.string.recovery_network_server_error);
             case TOKEN_DENIED_ERROR:
-                ConnectNetworkHelper.handleTokenDeniedException();
+                TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
                 return "";
             case OLD_API_ERROR:
                 return context.getString(R.string.recovery_network_outdated);

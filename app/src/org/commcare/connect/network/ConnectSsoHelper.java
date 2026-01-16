@@ -1,10 +1,11 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -17,7 +18,9 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
-import java.lang.ref.WeakReference;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Helper class for making SSO calls (both to ConnectID and HQ servers)
@@ -31,55 +34,8 @@ public class ConnectSsoHelper {
         void tokenRequestDenied();
     }
 
-    //Used for asynchronously retrieving HQ or SSO token
-    private static class TokenTask extends AsyncTask<Void, Void, AuthInfo.TokenAuth> {
-        private final WeakReference<Context> weakContext;
-        private final ConnectUserRecord user;
-        private final ConnectLinkedAppRecord appRecord;
-        private final String hqUsername; //null for ConnectId
-        private final boolean linkHqUser;
-        final TokenCallback callback;
-        private Exception caughtException;
 
-        TokenTask(Context context, @NonNull ConnectUserRecord user, ConnectLinkedAppRecord appRecord, String hqUsername, boolean linkHqUser, TokenCallback callback) {
-            super();
-            this.weakContext = new WeakReference<>(context);
-            this.user = user;
-            this.appRecord = appRecord;
-            this.hqUsername = hqUsername;
-            this.linkHqUser = linkHqUser;
-            this.callback = callback;
-        }
-
-        @Override
-        protected AuthInfo.TokenAuth doInBackground(Void... voids) {
-            try {
-                Context context = weakContext.get();
-                return retrieveHqSsoTokenSync(context, user, appRecord, hqUsername, linkHqUser);
-            } catch(TokenUnavailableException | TokenDeniedException e) {
-                caughtException = e;
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(AuthInfo.TokenAuth token) {
-            if(caughtException != null) {
-                if(caughtException instanceof TokenUnavailableException) {
-                    Logger.exception("Token unavailable", caughtException);
-                    callback.tokenUnavailable();
-                } else {
-                    Logger.exception("Token request denied", caughtException);
-                    callback.tokenRequestDenied();
-                }
-            } else {
-                callback.tokenRetrieved(token);
-            }
-        }
-    }
-
-
-    public static void retrieveConnectIdTokenAsync(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
+    public static void retrievePersonalIdToken(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
 
         AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
         if (connectToken != null) {
@@ -104,53 +60,106 @@ public class ConnectSsoHelper {
                 ConnectUserDatabaseUtil.storeUser(context, user);
                 callback.tokenRetrieved(tokenAuth);
             }
-        }.connectToken(context, user);
+        }.retrievePersonalIdToken(context, user);
     }
 
     public static void retrieveHqSsoTokenAsync(Context context, @NonNull ConnectUserRecord user,
                                                @NonNull ConnectLinkedAppRecord appRecord, String hqUsername,
                                                boolean linkHqUser, TokenCallback callback) {
-        TokenTask task = new TokenTask(context, user, appRecord, hqUsername, linkHqUser, callback);
 
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
-            throws TokenDeniedException, TokenUnavailableException {
-        //See if we already have a valid token
-        AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
-        if (connectToken != null) {
-            return connectToken;
-        }
-
-        return ApiPersonalId.retrieveConnectIdTokenSync(context, user);
-    }
-
-    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws
-            TokenDeniedException, TokenUnavailableException {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         //See if we already have a valid token
         AuthInfo.TokenAuth hqTokenAuth = PersonalIdManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
         if(hqTokenAuth != null) {
-            return hqTokenAuth;
+            callback.tokenRetrieved(hqTokenAuth);
+            return;
         }
 
         //Need a new token, and may need to perform HQ-ConnectID linking
-        if (performLink || appRecord.getWorkerLinked()) {
-            //First get a valid ConnectId token
-            AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context, user);
+        if (linkHqUser || appRecord.getWorkerLinked()) {
+            //  first get the connect token
+            new PersonalIdApiHandler<AuthInfo.TokenAuth>() {
+                @Override
+                public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                    if(errorCode==PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR){
+                        callback.tokenRequestDenied();
+                    }else{
+                        callback.tokenUnavailable();
+                    }
+                }
+                @Override
+                public void onSuccess(AuthInfo.TokenAuth connectIdToken) {
+                    linkHqUser(context,appRecord,hqUsername,connectIdToken);
+                    //  now get the hq sso token
+                    ConnectSsoHelper.retrieveHqToken(context,hqUsername,connectIdToken,callback);
+                }
+            }.retrievePersonalIdToken(context, user);
+        }else{
+            callback.tokenUnavailable();
+        }
+    }
 
-            if (!appRecord.getWorkerLinked()) {
-                //Link user if necessary
-                ApiPersonalId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
+    private static void linkHqUser(Context context,
+                                   @NonNull ConnectLinkedAppRecord appRecord,
+                                   String hqUsername,
+                                   AuthInfo.TokenAuth connectIdToken){
+        //  link user if not already
+        if (!appRecord.getWorkerLinked()) {
+            ConnectSsoHelper.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
+        }
+    }
+
+    private static void retrieveHqToken(Context context,
+                                        String hqUsername,
+                                        AuthInfo.TokenAuth connectIdToken,
+                                        TokenCallback callback){
+        new PersonalIdApiHandler<AuthInfo.TokenAuth>() {
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                if(errorCode==PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR){
+                    callback.tokenRequestDenied();
+                }else{
+                    callback.tokenUnavailable();
+                }
+            }
+            @Override
+            public void onSuccess(AuthInfo.TokenAuth hqToken) {
+                callback.tokenRetrieved(hqToken);
+            }
+        }.retrieveHqToken(context, hqUsername,connectIdToken.bearerToken);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws
+            TokenDeniedException, TokenUnavailableException {
+        CompletableFuture<AuthInfo.TokenAuth> completableFuture = new CompletableFuture<>();
+        retrieveHqSsoTokenAsync(context, user,appRecord,hqUsername,performLink, new TokenCallback() {
+            @Override
+            public void tokenRetrieved(AuthInfo.TokenAuth token) {
+                completableFuture.complete(token);
             }
 
-            //Retrieve HQ token
-            return ApiPersonalId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
-        }
+            @Override
+            public void tokenUnavailable() {
+                completableFuture.completeExceptionally(new TokenUnavailableException());
+            }
 
-        throw new TokenUnavailableException();
+            @Override
+            public void tokenRequestDenied() {
+                completableFuture.completeExceptionally(new TokenDeniedException());
+            }
+        });
+
+        try {
+            return completableFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            if(e.getCause() instanceof TokenDeniedException){
+                throw new TokenDeniedException();
+            }else{
+                throw new TokenUnavailableException();
+            }
+        }
     }
 
     public static void discardTokens(Context context, String username) {
@@ -171,5 +180,20 @@ public class ConnectSsoHelper {
             user.clearConnectToken();
             ConnectUserDatabaseUtil.storeUser(context, user);
         }
+    }
+
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
+        new PersonalIdApiHandler<Boolean>() {
+
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                Logger.exception("Failed to link HQ worker", Objects.requireNonNullElseGet(t, () -> new Throwable("Failed to link HQ worker")));
+            }
+
+            @Override
+            public void onSuccess(Boolean succes) {
+
+            }
+        }.linkHqWorker(context, hqUsername,appRecord,connectToken);
     }
 }

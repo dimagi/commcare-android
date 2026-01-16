@@ -22,7 +22,7 @@ public class ApiConnect {
 
     public static void getConnectOpportunities(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
 
@@ -49,7 +49,7 @@ public class ApiConnect {
 
     public static void startLearnApp(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
                 HashMap<String, Object> params = new HashMap<>();
@@ -79,7 +79,7 @@ public class ApiConnect {
 
     public static void getLearningAppProgress(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
 
@@ -105,7 +105,7 @@ public class ApiConnect {
     }
 
     public static void claimJob(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
 
@@ -135,7 +135,7 @@ public class ApiConnect {
 
     public static void getDeliveries(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
                 String tokenAuth = HttpUtils.getCredential(token);
@@ -161,7 +161,7 @@ public class ApiConnect {
 
     public static void setPaymentConfirmed(Context context, @NonNull ConnectUserRecord user, String paymentId, boolean confirmed, IApiCallback callback) {
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
                 HashMap<String, Object> params = new HashMap<>();
