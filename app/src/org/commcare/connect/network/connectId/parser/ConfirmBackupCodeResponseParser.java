@@ -1,5 +1,7 @@
 package org.commcare.connect.network.connectId.parser;
 
+import com.google.common.base.Strings;
+
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
@@ -45,10 +47,9 @@ public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponsePar
 
             sessionData.setInvitedUser(json.optBoolean("invited_user", false));
 
-            String previousDevice = JsonExtensions.optStringSafe(json, "previous_device", null);
+            sessionData.setPreviousDevice(JsonExtensions.optStringSafe(json, "previous_device", null));
             String lastAccessedString = JsonExtensions.optStringSafe(json, "last_accessed", null);
-            if(previousDevice != null && lastAccessedString != null) {
-                sessionData.setPreviousDevice(previousDevice);
+            if(!Strings.isNullOrEmpty(lastAccessedString)) {
                 sessionData.setLastAccessed(DateUtils.parseDate(lastAccessedString));
             }
         }

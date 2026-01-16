@@ -256,15 +256,23 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void handleSecondDeviceLogin() {
-        if(personalIdSessionData.getPreviousDevice() != null && personalIdSessionData.getLastAccessed() != null) {
+        if(personalIdSessionData.getPreviousDevice() != null) {
             int titleId = R.string.personalid_second_device_login_title;
+            String message;
+            if (personalIdSessionData.getLastAccessed() != null) {
+                message = getString(R.string.personalid_second_device_login_message,
+                        personalIdSessionData.getPreviousDevice(),
+                        DateUtils.getShortStringValue(personalIdSessionData.getLastAccessed()));
+            } else {
+                message = getString(R.string.personalid_second_device_login_message_no_date,
+                        personalIdSessionData.getPreviousDevice());
+            }
+
             NotificationUtil.showNotification(requireContext(),
                     CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
                     titleId,
                     getString(titleId),
-                    getString(R.string.personalid_second_device_login_message,
-                            personalIdSessionData.getPreviousDevice(),
-                            DateUtils.getShortStringValue(personalIdSessionData.getLastAccessed())),
+                    message,
                     null);
         }
     }
