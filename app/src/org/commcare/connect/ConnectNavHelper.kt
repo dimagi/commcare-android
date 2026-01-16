@@ -15,16 +15,16 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 
 object ConnectNavHelper {
     private fun unlockAndGoTo(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener, navigationAction: (Context) -> Unit) {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
-        personalIdManager.unlockConnect(
-            activity
-        ) { success: Boolean ->
-            if (success) {
+//        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
+//        personalIdManager.init(activity)
+//        personalIdManager.unlockConnect(
+//            activity
+//        ) { success: Boolean ->
+//            if (success) {
                 navigationAction(activity)
-            }
-            listener.connectActivityComplete(success)
-        }
+//            }
+//            listener.connectActivityComplete(success)
+//        }
     }
 
     fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
