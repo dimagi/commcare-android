@@ -39,12 +39,11 @@ fun shouldDiscardLocation(location: Location): Boolean {
     return false
 }
 
-fun getStaleLocationException(location: Location): Throwable {
+fun getStaleLocationException(location: Location): Throwable =
     Exception(
-        "Stale location with accuracy ${location.accuracy}"  +
+        "Stale location with accuracy ${location.accuracy}" +
             " with time ${location.time}" + " and current device time ${System.currentTimeMillis()}"
     )
-}
 
 fun logStaleLocationSaved(location: Location) {
     if (!isLocationFresh(location, DEFAULT_TIME_THRESHOLD)) {
