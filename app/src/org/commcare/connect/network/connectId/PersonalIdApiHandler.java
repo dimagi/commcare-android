@@ -331,7 +331,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 password,
                 createCallback(
                         (BaseApiResponseParser<T>) new ConnectReleaseTogglesParser(),
-                        null
+                        context
                 )
         );
     }
