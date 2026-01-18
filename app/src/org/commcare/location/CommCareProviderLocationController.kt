@@ -9,8 +9,9 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
+import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils
+import org.javarosa.core.services.Logger
 
 /**
  * @author $|-|!˅@M
@@ -25,7 +26,10 @@ class CommCareProviderLocationController(private var mContext: Context?,
     private var mLocationRequestStarted = false
     private val mLocationListener = object: LocationListener {
         override fun onLocationChanged(location: Location) {
-            location ?: return
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Received location update")
+            if (shouldDiscardLocation(location)) {
+                return
+            }
             mCurrentLocation = location
             mListener?.onLocationResult(mCurrentLocation!!)
         }
