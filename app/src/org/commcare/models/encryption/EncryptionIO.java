@@ -14,10 +14,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -36,19 +35,19 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionIO {
 
-    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symetricKey) throws FileNotFoundException,
-            StreamsUtil.InputIOException, StreamsUtil.OutputIOException {
+    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symetricKey) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
         OutputStream os;
         FileInputStream is;
         os = createFileOutputStream(destPath, symetricKey);
         is = new FileInputStream(sourceFilePath);
+        int fileSize = is.available();
         StreamsUtil.writeFromInputToOutputNew(is, os);
 
         try {
             Map<String, String> attrs = new HashMap<>();
-            attrs.put(CCPerfMonitoring.ATTR_FILE_SIZE_BYTES, Long.toString(Files.size(Paths.get(sourceFilePath))));
+            attrs.put(CCPerfMonitoring.ATTR_FILE_SIZE_BYTES, Integer.toString(fileSize));
             attrs.put(CCPerfMonitoring.ATTR_FILE_TYPE, FilenameUtils.getExtension(sourceFilePath));
             CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
         } catch (Exception e) {
