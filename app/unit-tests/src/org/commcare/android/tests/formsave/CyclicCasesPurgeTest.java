@@ -28,6 +28,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Test Scenarios related to cyclic case relationships encountered during the case purge process.
  * These tests are only relevant when the case purge process is enabled with property `cc-auto-purge`
@@ -63,21 +65,31 @@ public class CyclicCasesPurgeTest {
         
         // Retry mechanism to handle async timing issues
         Dialog latestDialog = null;
+        TextView messageView = null;
         for (int attempt = 0; attempt < 5; attempt++) {
             latestDialog = ShadowDialog.getLatestDialog();
-            if (latestDialog != null) {
-                break;
+            if (latestDialog != null && latestDialog.getWindow() != null) {
+                messageView = latestDialog.getWindow().getDecorView().findViewById(R.id.dialog_message);
+                if (messageView != null) {
+                    break;
+                }
             }
             // Run additional looper tasks and wait
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
             ShadowLooper.idleMainLooper();
+            try {
+                Thread.sleep(TimeUnit.MILLISECONDS.toMillis(100));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // verify that form save results into an error
         assertNotNull(latestDialog);
         assertTrue(latestDialog.isShowing());
 
-        String message = ((TextView)latestDialog.findViewById(R.id.dialog_message)).getText().toString();
+        assertNotNull("Dialog message view should be available", messageView);
+        String message = messageView.getText().toString();
         assert message.contentEquals(formEntryActivity.getString(R.string.invalid_case_graph_error));
 
         // Verify that the form record was quarantined
