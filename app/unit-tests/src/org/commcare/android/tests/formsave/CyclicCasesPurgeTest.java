@@ -28,6 +28,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Test Scenarios related to cyclic case relationships encountered during the case purge process.
  * These tests are only relevant when the case purge process is enabled with property `cc-auto-purge`
@@ -75,6 +77,11 @@ public class CyclicCasesPurgeTest {
             // Run additional looper tasks and wait
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
             ShadowLooper.idleMainLooper();
+            try {
+                Thread.sleep(TimeUnit.MILLISECONDS.toMillis(100));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // verify that form save results into an error
