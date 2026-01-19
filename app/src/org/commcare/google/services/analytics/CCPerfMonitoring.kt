@@ -47,7 +47,7 @@ object CCPerfMonitoring {
             attrs?.forEach { (key, value) -> trace?.putAttribute(key, value) }
             trace?.stop()
         } catch (exception: Exception) {
-            Logger.exception("Error stopping perf trace: ${trace?.name}", exception)
+            Logger.exception("Error stopping perf trace: ${trace?.name?: "Unknown trace"}", exception)
         }
     }
 
@@ -58,7 +58,7 @@ object CCPerfMonitoring {
             attrs[ATTR_FILE_TYPE] = FilenameUtils.getExtension(fileName)
             stopTracing(trace, attrs)
         } catch (e: java.lang.Exception) {
-            Logger.exception("Failed to stop tracing: ${trace?.name}", e)
+            Logger.exception("Failed to stop tracing: $TRACE_FILE_ENCRYPTION_TIME", e)
         }
     }
 
