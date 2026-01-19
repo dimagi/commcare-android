@@ -2,7 +2,6 @@ package org.commcare.models.encryption;
 
 import com.google.firebase.perf.metrics.Trace;
 
-import org.apache.commons.io.FilenameUtils;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
@@ -19,8 +18,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -45,14 +42,7 @@ public class EncryptionIO {
         int fileSize = is.available();
         StreamsUtil.writeFromInputToOutputNew(is, os);
 
-        try {
-            Map<String, String> attrs = new HashMap<>();
-            attrs.put(CCPerfMonitoring.ATTR_FILE_SIZE_BYTES, Integer.toString(fileSize));
-            attrs.put(CCPerfMonitoring.ATTR_FILE_TYPE, FilenameUtils.getExtension(sourceFilePath));
-            CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-        } catch (Exception e) {
-            Logger.exception("Failed to stop tracing ", e);
-        }
+        CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, fileSize, sourceFilePath);
     }
 
     public static OutputStream createFileOutputStream(String filename,

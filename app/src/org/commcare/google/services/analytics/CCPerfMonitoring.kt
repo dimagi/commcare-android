@@ -2,6 +2,7 @@ package org.commcare.google.services.analytics
 
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.Trace
+import org.apache.commons.io.FilenameUtils
 import org.commcare.android.logging.ReportingUtils
 import org.javarosa.core.services.Logger
 
@@ -49,4 +50,16 @@ object CCPerfMonitoring {
             Logger.exception("Error stopping perf trace: ${trace.name}", exception)
         }
     }
+
+    fun stopFileEncryptionTracing(trace: Trace, fileSizeBytes: Long, fileName: String) {
+        try {
+            val attrs: MutableMap<String, String> = HashMap()
+            attrs[ATTR_FILE_SIZE_BYTES] = fileSizeBytes.toString()
+            attrs[ATTR_FILE_TYPE] = FilenameUtils.getExtension(fileName)
+            stopTracing(trace, attrs)
+        } catch (e: java.lang.Exception) {
+            Logger.exception("Failed to stop tracing: ${trace.name}", e)
+        }
+    }
+
 }

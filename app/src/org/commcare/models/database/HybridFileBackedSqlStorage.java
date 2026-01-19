@@ -5,7 +5,6 @@ import android.database.Cursor;
 
 import com.google.firebase.perf.metrics.Trace;
 
-import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.AppFilePathBuilder;
@@ -16,7 +15,6 @@ import org.commcare.modern.util.Pair;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -30,9 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -349,14 +345,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     e.printStackTrace();
                 }
             }
-            try {
-                Map<String, String> attrs = new HashMap<>();
-                attrs.put(CCPerfMonitoring.ATTR_FILE_SIZE_BYTES, Integer.toString(bos.size()));
-                attrs.put(CCPerfMonitoring.ATTR_FILE_TYPE, FilenameUtils.getExtension(filename));
-                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-            } catch (Exception e) {
-                Logger.exception("Failed to stop tracing ", e);
-            }
+            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, bos.size(), filename);
         }
     }
 

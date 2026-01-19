@@ -36,8 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -271,14 +269,7 @@ public class SaveToDiskTask extends
             StreamsUtil.writeFromInputToOutput(is, output);
         } finally {
             output.close();
-            try {
-                Map<String, String> attrs = new HashMap<>();
-                attrs.put(CCPerfMonitoring.ATTR_FILE_SIZE_BYTES, Long.toString(payload.getLength()));
-                attrs.put(CCPerfMonitoring.ATTR_FILE_TYPE, XML_EXTENSION);
-                CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
-            } catch (Exception e) {
-                Logger.exception("Failed to stop tracing ", e);
-            }
+            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, payload.getLength(), XML_EXTENSION);
         }
     }
 
