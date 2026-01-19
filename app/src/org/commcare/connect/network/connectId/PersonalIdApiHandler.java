@@ -392,7 +392,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
     public void retrieveHqToken(Context context, String hqUsername, String connectToken) {
-        ApiPersonalId.retrieveHqTokenASync(
+        ApiPersonalId.retrieveHqToken(
                 context,
                 hqUsername,
                 connectToken,

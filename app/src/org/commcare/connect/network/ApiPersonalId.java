@@ -33,7 +33,6 @@ import retrofit2.Response;
 
 
 public class ApiPersonalId {
-    private static final String API_VERSION_NONE = null;
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
 
@@ -85,7 +84,8 @@ public class ApiPersonalId {
         Call<ResponseBody> call = apiService.connectToken(headers,requestBody);
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectTokenURL);
     }
-    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken,IApiCallback callback) {
+
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken, IApiCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("token", connectToken);
 
@@ -98,10 +98,10 @@ public class ApiPersonalId {
         Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> headers = new HashMap<>();
-        makePostRequestWithUrl(context,url,tokenAuth,params,headers,true,callback);
+        makePostRequestWithUrl(context, url, tokenAuth, params, headers, true, callback);
     }
 
-    public static void retrieveHqTokenASync(Context context, String hqUsername, String connectToken,IApiCallback callback) {
+    public static void retrieveHqToken(Context context, String hqUsername, String connectToken, IApiCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
         params.put("scope", "mobile_access sync");
@@ -119,7 +119,7 @@ public class ApiPersonalId {
         String url = "https://" + host + "/oauth/token/";
 
         HashMap<String, String> headers = new HashMap<>();
-        makePostRequestWithUrl(context,url,null,params,headers,true,callback);
+        makePostRequestWithUrl(context, url, null, params, headers, true, callback);
     }
 
     public static void confirmBackupCode(Context context,
@@ -281,25 +281,6 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL);
     }
 
-    private static void handleApiError(Response<?> response) {
-        String message = response.message();
-        if (response.code() == 400) {
-            // Bad request (e.g., validation failed)
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Bad Request: " + message);
-        } else if (response.code() == 401) {
-            // Unauthorized (e.g., invalid credentials)
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Unauthorized: " + message);
-        } else if (response.code() == 404) {
-            // Not found
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Not Found: " + message);
-        } else if (response.code() >= 500) {
-            // Server error
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Server Error: " + message);
-        } else {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "API Error: " + message);
-        }
-    }
-
     public static void retrieveChannelEncryptionKey(Context context, @NonNull ConnectUserRecord user, String channelId, String channelUrl, IApiCallback callback) {
         ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
@@ -308,7 +289,7 @@ public class ApiPersonalId {
                 params.put("channel_id", channelId);
                 HashMap<String, String> headers = new HashMap<>();
                 String token = HttpUtils.getCredential(tokenAuth);
-                makePostRequestWithUrl(context,channelUrl,token,params,headers,true,callback);
+                makePostRequestWithUrl(context, channelUrl, token, params, headers, true, callback);
             }
 
             @Override
@@ -332,7 +313,7 @@ public class ApiPersonalId {
                                                IApiCallback callback){
         RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, useFormEncoding, PersonalIdApiClient.API_VERSION, headers);
         ApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.makePostRequest(channelUrl,token, headers,requestBody);
+        Call<ResponseBody> call = apiService.makePostRequest(channelUrl, token, headers, requestBody);
         BaseApi.Companion.callApi(context, call, callback,channelUrl);
     }
 
@@ -365,6 +346,6 @@ public class ApiPersonalId {
         RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, false, PersonalIdApiClient.API_VERSION, headers);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.sendMessagingMessage(tokenAuth, headers,requestBody);
-        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.CONNECT_MESSAGE_SEND_URL);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.CONNECT_MESSAGE_SEND_URL);
     }
 }

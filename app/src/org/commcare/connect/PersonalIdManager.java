@@ -30,6 +30,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ConnectSsoHelper;
+import org.commcare.connect.network.ConnectSsoSyncHelper;
 import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.network.TokenUnavailableException;
@@ -367,7 +368,7 @@ public class PersonalIdManager {
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-            ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, linkedApp, username, true,
+            ConnectSsoHelper.retrieveHqSsoToken(activity, user, linkedApp, username, true,
                     new ConnectSsoHelper.TokenCallback() {
                         public void tokenRetrieved(AuthInfo.TokenAuth token) {
                             callback.connectActivityComplete(false);
@@ -548,7 +549,7 @@ public class PersonalIdManager {
         ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity,
                 seatedAppId, username);
 
-        return ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
+        return ConnectSsoSyncHelper.INSTANCE.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
                 false);
     }
 
