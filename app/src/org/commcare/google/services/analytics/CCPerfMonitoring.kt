@@ -42,23 +42,23 @@ object CCPerfMonitoring {
         return null
     }
 
-    fun stopTracing(trace: Trace, attrs: MutableMap<String, String>?) {
+    fun stopTracing(trace: Trace?, attrs: MutableMap<String, String>?) {
         try {
-            attrs?.forEach { (key, value) -> trace.putAttribute(key, value) }
-            trace.stop()
+            attrs?.forEach { (key, value) -> trace?.putAttribute(key, value) }
+            trace?.stop()
         } catch (exception: Exception) {
-            Logger.exception("Error stopping perf trace: ${trace.name}", exception)
+            Logger.exception("Error stopping perf trace: ${trace?.name?: "Unknown trace"}", exception)
         }
     }
 
-    fun stopFileEncryptionTracing(trace: Trace, fileSizeBytes: Long, fileName: String) {
+    fun stopFileEncryptionTracing(trace: Trace?, fileSizeBytes: Long, fileName: String) {
         try {
             val attrs: MutableMap<String, String> = HashMap()
             attrs[ATTR_FILE_SIZE_BYTES] = fileSizeBytes.toString()
             attrs[ATTR_FILE_TYPE] = FilenameUtils.getExtension(fileName)
             stopTracing(trace, attrs)
         } catch (e: java.lang.Exception) {
-            Logger.exception("Failed to stop tracing: ${trace.name}", e)
+            Logger.exception("Failed to stop tracing: $TRACE_FILE_ENCRYPTION_TIME", e)
         }
     }
 
