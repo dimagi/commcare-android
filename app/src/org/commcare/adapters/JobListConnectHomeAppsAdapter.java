@@ -24,8 +24,10 @@ import org.commcare.models.connect.ConnectLoginJobListModel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -167,8 +169,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
         boolean isCompleted = connectLoginJobListModel.getJob().isFinished();
         int dateRes = isCompleted
-                ? R.string.personalid_expired_expired_on
-                : R.string.personalid_complete_by;
+                ? R.string.connect_expired_expired_on
+                : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
         );
@@ -195,7 +197,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         return daysRemaining >= 0 && daysRemaining <= 5;
     }
-
 
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
@@ -252,20 +253,14 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectJobListItemBinding binding
     ) {
         if (item.isNew()) {
-            setJobType(context, 255, binding);
+            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_new_opportunity));
         } else if (item.isLearningApp()) {
-            setJobType(context, R.drawable.ic_connect_learning, binding);
+            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
         } else if (item.isDeliveryApp()) {
             boolean finished = item.getJob().isFinished();
             int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
-
-            setJobType(context, iconId, binding);
+            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
         }
-    }
-
-    private void setJobType(Context context,
-                            int iconResId, ConnectJobListItemBinding binding) {
-        binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
     }
 
     private void buildDisplayList(
@@ -274,24 +269,26 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             List<ConnectLoginJobListModel> completedJobs,
             List<ConnectLoginJobListModel> corruptJobs
     ) {
+        displayItems.clear();
+
         if (!inProgressJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_in_progress));
-            for (ConnectLoginJobListModel inProgressJob : inProgressJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(inProgressJob, false));
+            for (ConnectLoginJobListModel item : inProgressJobs) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
         if (!newJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
-            for (ConnectLoginJobListModel newJob : newJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(newJob, false));
+            for (ConnectLoginJobListModel item : newJobs) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
         if (!completedJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed));
-            for (ConnectLoginJobListModel completedJob : completedJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(completedJob, false));
+            for (ConnectLoginJobListModel item : completedJobs) {
+                displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
