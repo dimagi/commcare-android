@@ -95,9 +95,7 @@ public class ConnectAppDatabaseUtil {
             }
 
             ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
-        } catch (Exception e) {
-            Logger.exception("There was an error storing release toggles in the DB!", e);
-        } finally {
+        }  finally {
             ConnectDatabaseHelper.connectDatabase.endTransaction();
         }
     }
