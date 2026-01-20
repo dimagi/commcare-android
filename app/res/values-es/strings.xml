@@ -477,6 +477,9 @@
     <string name="personalid_recovery_failed_message">Parece que olvidaste tu código de respaldo, estamos creando una nueva cuenta para ti</string>
     <string name="personalid_recovery_lockout_message">Ha ingresado el código de respaldo incorrecto demasiadas veces. Su cuenta ha sido bloqueada. Comuníquese con el soporte para desbloquear su cuenta.</string>
     <string name="personalid_wrong_backup_message">Ha introducido el código de seguridad incorrecto. Inténtelo de nuevo. Su cuenta se bloqueará después de %d intentos incorrectos más.</string>
+    <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
+    <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
+    <string name="personalid_second_device_login_message_no_date">Se ha cerrado la sesión en %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
     <string name="personalid_camera_permission_title">Permiso de cámara</string>
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
