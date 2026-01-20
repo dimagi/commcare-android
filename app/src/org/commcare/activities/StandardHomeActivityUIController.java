@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Vector;
 
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+import static org.commcare.connect.ConnectAppUtils.CONNECT_JOB_ID;
 
 /**
  * Handles UI of the normal home screen
@@ -127,7 +128,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private void updateConnectJobMessage() {
         String messageText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
+        ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId, activity.getIntent().getIntExtra(CONNECT_JOB_ID, -1));
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {
@@ -219,7 +220,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectJobHelper.INSTANCE.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+        if (!ConnectJobHelper.INSTANCE.shouldShowJobStatus(activity, ccApp.getUniqueId(), activity.getIntent().getIntExtra(CONNECT_JOB_ID, -1))) {
             hiddenButtons.add("connect");
         }
         return hiddenButtons;

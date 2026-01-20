@@ -132,7 +132,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
                 if (appInstalled) {
                     ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true,
-                            job.getLearnAppInfo().getAppId());
+                            job.getLearnAppInfo().getAppId(),job.getJobId());
                 } else {
                     String title = getString(R.string.connect_downloading_learn);
                     Navigation.findNavController(getBinding().connectJobIntroStartButton).navigate(

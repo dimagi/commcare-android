@@ -280,7 +280,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         if (AppUtils.isAppInstalled(appId)) {
             CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, appId);
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, appId, job.getJobId());
         } else {
             NavDirections navDirections = ConnectLearningProgressFragmentDirections
                     .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(

@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
+import static org.commcare.connect.ConnectAppUtils.CONNECT_JOB_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
@@ -501,7 +502,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
         if (personalIdManager.isloggedIn()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = ConnectJobUtils.getJobForApp(context, appId);
+            ConnectJobRecord job = ConnectJobUtils.getJobForApp(context, getIntent().getIntExtra(CONNECT_JOB_ID, -1));
             CommCareApplication.instance().setConnectJobIdForAnalytics(job);
 
             if (job != null) {
@@ -512,6 +513,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 personalIdManager.checkPersonalIdLink(context,
                         loginManagedByPersonalId(),
                         appId,
+                        getIntent().getIntExtra(CONNECT_JOB_ID, -1),
                         username,
                         enteredPasswordPin,
                         success -> {
@@ -535,6 +537,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         i.putExtra(PERSONALID_MANAGED_LOGIN, appLaunchedFromConnect || loginManagedByPersonalId());
         i.putExtra(CONNECT_MANAGED_LOGIN, appLaunchedFromConnect);
+        i.putExtra(CONNECT_JOB_ID, getIntent().getIntExtra(CONNECT_JOB_ID, -1));
         setResult(RESULT_OK, i);
         finish();
     }
@@ -551,7 +554,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         if (loginManagedByPersonalId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
             PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(this,
-                    record.getUniqueId(), getUniformUsername());
+                    record.getUniqueId(), getIntent().getIntExtra(CONNECT_JOB_ID, -1), getUniformUsername());
             switch (appState) {
                 case Connect -> {
                     FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
@@ -974,7 +977,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         if (personalIdManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(this,
-                    seatedAppId, uiController.getEnteredUsername());
+                    seatedAppId, getIntent().getIntExtra(CONNECT_JOB_ID, -1), uiController.getEnteredUsername());
 
             if (appLaunchedFromConnect && presetAppId != null) {
                 appState = Connect;

@@ -265,8 +265,8 @@ public class PersonalIdManager {
     }
 
     public void checkPersonalIdLink(CommCareActivity<?> activity, boolean personalIdManagedLogin, String appId,
-            String username, String password, ConnectActivityCompleteListener callback) {
-        switch (evaluateAppState(activity, appId, username)) {
+            int jobId, String username, String password, ConnectActivityCompleteListener callback) {
+        switch (evaluateAppState(activity, appId, jobId, username)) {
             case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
             case PersonalId -> promptToDelinkPersonalIdApp(activity, appId, username, personalIdManagedLogin,
                     callback);
@@ -427,8 +427,8 @@ public class PersonalIdManager {
         return auth != null;
     }
 
-    private ConnectAppRecord getAppRecord(Context context, String appId) {
-        return ConnectJobUtils.getAppRecord(context, appId);
+    private ConnectAppRecord getAppRecord(Context context, String appId,int jobId) {
+        return ConnectJobUtils.getAppRecord(context, appId, jobId);
     }
 
     public String getStoredPasswordForApp(String appId, String userId) {
@@ -493,22 +493,14 @@ public class PersonalIdManager {
         return false;
     }
 
-    public ConnectAppMangement evaluateAppState(Context context, String appId, String userId) {
-        ConnectAppRecord record = getAppRecord(context, appId);
+    public ConnectAppMangement evaluateAppState(Context context, String appId, int jobId, String userId) {
+        ConnectAppRecord record = getAppRecord(context, appId,jobId);
         if (record != null) {
             return ConnectAppMangement.Connect;
         }
 
         return getCredentialsForApp(appId, userId) != null ? ConnectAppMangement.PersonalId
                 : ConnectAppMangement.Unmanaged;
-    }
-
-    private boolean isConnectApp(Context context, String appId) {
-        return evaluateAppState(context, appId, "") == PersonalIdManager.ConnectAppMangement.Connect;
-    }
-
-    public boolean isLoggedInWithConnectApp(Context context, String appId) {
-        return isloggedIn() && isConnectApp(context, appId);
     }
 
     private boolean isPersonalIdLinkedApp(String appId, String username) {
