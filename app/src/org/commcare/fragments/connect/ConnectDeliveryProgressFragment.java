@@ -1,6 +1,7 @@
 package org.commcare.fragments.connect;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -186,6 +187,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         String workingHours = job.getWorkingHours();
         boolean hasHours = workingHours != null;
+        boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
+        // TODO: CHANGE DRAWABLE ICON TO ic_download_circle
+        Drawable downloadIcon = ContextCompat.getDrawable(requireContext(), R.drawable.apply_update);
+        jobCard.mbResume.setIcon(appInstalled ? null : downloadIcon);
         jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
         jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
