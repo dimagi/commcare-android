@@ -389,6 +389,11 @@
             <text>
               <locale id="query.date"/>
             </text>
+            <hint>
+              <text>
+                <locale id="query.date.hint"/>
+              </text>
+            </hint>
           </display>
         </prompt>
         <prompt key="invalid" input="foobar">
