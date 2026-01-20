@@ -110,6 +110,7 @@ public class HiddenPreferences {
     private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
     private static final String ENABLE_CUSTOM_MAP_MARKER = "cc-enable-custom-map-marker";
+    private static final String DISCARD_STALE_LOCATIONS = "cc-discard-stale-locations";
 
     /**
      * The domain name in the application profile file comes in the <domain>.commcarehq.org form,
@@ -670,4 +671,10 @@ public class HiddenPreferences {
                 .remove(INTERRUPTED_FORM_INDEX + currentUserId)
                 .apply();
     }
+
+    public static boolean shouldDiscardStaleLocations() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(DISCARD_STALE_LOCATIONS, PrefValues.NO).equals(PrefValues.YES);
+    }
+
 }
