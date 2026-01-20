@@ -7,7 +7,6 @@ import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
-import org.javarosa.core.services.Logger;
 
 import java.util.List;
 import java.util.Vector;
