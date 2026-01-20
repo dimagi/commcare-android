@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.61.3">
+          android:versionName="2.62">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -141,7 +141,8 @@
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="face" />
         <activity
-            android:name="org.commcare.activities.connect.ConnectMessagingActivity">
+            android:name="org.commcare.activities.connect.ConnectMessagingActivity"
+            android:theme="@style/CommonTheme.NoActionBar">
         </activity>
         <activity
             android:label="@string/application_name"
@@ -162,28 +163,33 @@
             android:name="org.commcare.activities.AppManagerActivity"
             android:exported="true"
             android:label="@string/manager_activity_name"
-            android:taskAffinity="org.commcare.Manage">
+            android:taskAffinity="org.commcare.Manage"
+            android:theme="@style/CommonTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
         <activity
             android:name="org.commcare.activities.connect.PersonalIdActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/CommonTheme.NoActionBar"/>
         <activity
             android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/CommonTheme.NoActionBar"/>
         <activity
             android:name="org.commcare.activities.CrashWarningActivity"
             android:label="CommCare Forced Closure" />
-        <activity android:name="org.commcare.activities.StandardHomeActivity" />
+        <activity android:name="org.commcare.activities.StandardHomeActivity"
+            android:theme="@style/CommonTheme.NoActionBar"/>
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/CommonTheme.NoActionBar"/>
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
@@ -245,7 +251,8 @@
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/CommonTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -310,7 +317,7 @@
         </activity>
         <activity
             android:name="org.commcare.activities.UpdateActivity"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name="org.commcare.activities.SingleAppManagerActivity"
             android:windowSoftInputMode="adjustResize" />
@@ -568,7 +575,8 @@
             tools:node="merge" />
 
         <activity
-            android:name="org.commcare.activities.connect.PersonalIdWorkHistoryActivity"/>
+            android:name="org.commcare.activities.connect.PersonalIdWorkHistoryActivity"
+            android:theme="@style/CommonTheme.NoActionBar"/>
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
@@ -578,10 +586,8 @@
             </intent-filter>
         </service>
 
-        <receiver
-            android:name="org.commcare.services.PaymentAcknowledgeReceiver"
-            android:exported="false"/>
-        <activity android:name="org.commcare.activities.PushNotificationActivity" />
+        <activity android:name="org.commcare.activities.PushNotificationActivity"
+            android:theme="@style/CommonTheme.NoActionBar"/>
     </application>
 
 </manifest>

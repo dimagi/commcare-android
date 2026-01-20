@@ -184,6 +184,9 @@
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
     <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa, tafadhali wasiliana na msimamizi.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
+    <string name="recovery_network_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
+    <string name="recovery_network_unauthorized">Huna ruhusa ya kufanya ombi hili.</string>
+    <string name="recovery_network_server_error">Kulikuwa na hitilafu katika kushughulikia ombi lako.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
     <string name="recovery_retry">Jaribu Urejeshaji tena</string>
     <string name="notification_channel_errors_title">Makosa</string>
@@ -247,6 +250,7 @@
     <string name="choice_or">____________ AU _____________</string>
     <string name="busy_message">Bado tunashughulika kuchakata ombi lako la awali. Tafadhali jaribu tena baada ya muda fulani.</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
+    <string name="entity_map_error_message">Kulikuwa na hitilafu katika usanidi wa programu kutokana na ambayo si alama zote kwenye ramani zimepakiwa ipasavyo</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya PersonalID tena.</string>
     <string name="connect_registration_title">Usajili wa PersonalId</string>
     <string name="connect_consent_message_1">Nimesoma na kukubaliana na <a href="https://www.dimagi.com/terms/latest/privacy/">Sera ya Faragha</a> ya Dimagi, <a href="https://www.dimagi.com/terms/latest/tos/">Sheria na Masharti</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Makubaliano ya Biashara</a> na <a href="https://www.dimagi.com/terms/latest/aup/">Sera ya Matumizi Yanayokubalika</a>.</string>
@@ -307,6 +311,7 @@
     <string name="connect_learn_need_assessment_title">Mafunzo Yanasubiri</string>
     <string name="connect_learn_failed_title">Mafunzo Yameshindwa</string>
     <string name="connect_learn_complete_by">Kamilisha Mradi kabla ya %s</string>
+    <string name="connect_job_ended">Kazi ilimalizika mnamo %s</string>
     <string name="connect_learn_error_starting">Imeshindwa kuanza kujifunza, tafadhali wasiliana na msimamizi wa fursa.</string>
     <string name="connect_learn_title">Maendeleo ya Kujifunza</string>
     <string name="connect_learn_status">Umemaliza masomo %d kati ya %d.\nMaliza kujifunza ili ujishindie cheti chako.</string>
@@ -386,6 +391,8 @@
     <string name="connect_job_info_start_visit">Anza Kutembelea</string>
     <string name="connect_job_info_download_delivery">Pakua Uwasilishaji</string>
     <string name="connect_job_info_download">Pakua</string>
+    <string name="connect_job_info_view_info">Angalia Taarifa</string>
+    <string name="connect_job_info_view_resume">Endelea</string>
     <string name="connect_progress">Maendeleo</string>
     <string name="connect_payment">Malipo</string>
     <string name="connect_delivery_progress_description">Hujamaliza masomo yoyote. Anza kujifunza kupata cheti chako.</string>
@@ -403,6 +410,9 @@
     <string name="connect_delivery">Uwasilishaji</string>
     <string name="connect_expired">Muda wake umeisha</string>
     <string name="connect_job_tile_daily_limit_description">Kikomo cha Kila siku kimefikiwa. Hakuna Malipo ya kuwasilisha fomu</string>
+    <string name="connect_in_progress">Inaendelea</string>
+    <string name="connect_new_opportunities">Fursa Mpya</string>
+    <string name="connect_completed">Imekamilika</string>
     <string name="connect_recovery_button_phone">Endelea</string>
     <string name="connect_verify_phone_resend_code">Tuma tena Msimbo</string>
     <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
@@ -476,8 +486,11 @@
     <string name="personalid_recovery_failed_title">Urejeshaji haukufaulu</string>
     <string name="personalid_recovery_lockout_title">Akaunti Imefungwa</string>
     <string name="personalid_recovery_failed_message">Inaonekana umesahau Nambari yako ya Hifadhi Nambari, tunakuundia akaunti mpya</string>
-    <string name="personalid_wrong_backup_message">Umeweka Nambari ya Hifadhi Nambari isiyo sahihi, tafadhali jaribu tena. Utahitaji kuunda akaunti mpya baada ya majaribio %d zaidi yasiyo sahihi.</string>
-    <string name="personalid_recovery_lockout_message">Umeweka msimbo wa akiba usio sahihi mara nyingi sana. Akaunti yako imefungwa.</string>
+    <string name="personalid_wrong_backup_message">Umeingiza Nambari ya Kuhifadhi Nakala Isiyo sahihi. Tafadhali jaribu tena. Akaunti yako itafungwa baada ya majaribio %d zaidi yasiyo sahihi.</string>
+    <string name="personalid_second_device_login_title">Ingia kwenye Kifaa cha Pili</string>
+    <string name="personalid_second_device_login_message">Imetoka kwenye %s, imetumika mara ya mwisho %s. Kitambulisho cha Kibinafsi kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
+    <string name="personalid_second_device_login_message_no_date">Umetoka kwenye %s. Kitambulisho cha Kibinafsi kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
+    <string name="personalid_recovery_lockout_message">Umeweka msimbo wa akiba usio sahihi mara nyingi sana. Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi ili kufungua akaunti yako.</string>
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
@@ -521,6 +534,7 @@
     <string name="yesterday">Jana %1$s</string>
 
     <string name="recovery_network_cooldown">Majaribio mengi mno ya ombi. Tafadhali jaribu tena baada ya saa moja.</string>
+    <string name="recovery_network_unknown">Kuna kitu kimeenda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_authentication_failed">Uthibitishaji wa bayometriki kwenye kifaa chako cha Android haukufaulu. Tafadhali weka masasisho yoyote ya mfumo yanayopatikana, au jaribu tena ukitumia kifaa tofauti.</string>
     <string name="no_channel_msg">Huna njia za sasa za kutuma ujumbe</string>
 
@@ -529,4 +543,11 @@
     <string name="personalid_tooltip_location_failure_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\nIli kuendelea, tafadhali wezesha ruhusa za eneo katika mipangilio, au jaribu tena baadaye.</string>
     <string name="personalid_tooltip_location_success_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Bofya hapa kwa maelezo zaidi.</a></string>
 
+    <string name="network_forbidden_error">Ufikiaji umekataliwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
+
+    <string name="personalid_biometric_error_cancelled">Usanidi wa kibayometri ulighairiwa. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
+    <string name="personalid_biometric_error_lockout">Majaribio mengi mno. Tafadhali subiri na ujaribu tena.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Majaribio mengi mno yameshindikana. Tafadhali fungua kifaa chako na ujaribu tena.</string>
+    <string name="personalid_biometric_error_timeout">Muda wa utendakazi wa kibayometri umekwisha. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
+    <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
 </resources>

@@ -100,7 +100,11 @@
     <string name="personalid_configuration_process_failed_subtitle">Denne enheten besto dessverre ikke sikkerhetssjekkene som kreves for å registrere seg for PersonalID. Prøv igjen på en annen enhet.</string>
     <string name="personalid_location_permission_error">PersonalID krever at enheten din har posisjonstjenester aktivert. Aktiver dette i telefonens innstillinger før du fortsetter.</string>
     <string name="recovery_network_outdated">Denne appen er utdatert. Oppdater appen i Google Play Store for å fortsette.</string>
+    <string name="recovery_network_token_unavailable">Det oppsto et nettverksproblem. Prøv på nytt.</string>
+    <string name="recovery_network_unauthorized">Du har ikke tillatelse til å sende inn denne forespørselen.</string>
+    <string name="recovery_network_server_error">Det oppsto en feil under behandling av forespørselen din.</string>
     <string name="recovery_network_cooldown">For mange forespørselsforsøk. Prøv igjen om en time.</string>
+    <string name="recovery_network_unknown">Noe gikk galt. Prøv igjen.</string>
     <string name="connect_biometric_enroll_fail_message">PersonalID krever at biometri er aktivert. Konfigurer biometri i Android-systeminnstillingene før du fortsetter.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Biometri er for øyeblikket ikke aktivert på denne enheten. Konfigurer biometri i Android-systeminnstillingene før du fortsetter.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">Biometrien på denne enheten er utdatert. Vennligst bruk eventuelle tilgjengelige systemoppdateringer, eller prøv igjen med en annen enhet.</string>
@@ -116,7 +120,7 @@
     <string name="connect_otp_verified">Suksess! Ditt telefonnummer er blitt bekreftet.</string>
     <string name="personalid_otp_verification_failed_generic">Noe gikk galt under bekreftelsen av ditt telefonnummer. Prøv igjen.</string>
     <string name="personalid_incorrect_otp">Du har tastet inn feil 6-sifret adgangskode. Prøv igjen.</string>
-    <string name="personalid_recovery_lockout_message">Du har tastet inn feil reservekode for mange ganger. Kontoen din er blitt låst.</string>
+    <string name="personalid_recovery_lockout_message">Du har tastet inn feil reservekode for mange ganger. Kontoen din er blitt låst. Kontakt kundestøtte for å låse opp kontoen din.</string>
     <string name="connect_backup_code_mismatch">Reservekodene du taster inn, må stemme overens. Oppbevar den på et trygt sted, da du trenger den for å få tilgang til kontoen din igjen.</string>
     <string name="connect_recovery_success_message">Kontoen din er blitt gjenopprettet! Du kan gjenoppta bruken av PersonalID.</string>
     <string name="connect_register_success_message">Kontoen din er blitt opprettet og er klar til bruk</string>
@@ -128,4 +132,18 @@
     <string name="personalid_tooltip_location_failure_message">Vi bruker posisjonsdata for å sikre trygg bruk av denne applikasjonen.\n\nFor å fortsette, vennligst aktiver posisjonstillatelser i innstillingene, eller prøv igjen senere.</string>
     <string name="personalid_tooltip_location_success_message">Vi bruker posisjonsdata for å sikre trygg bruk av denne applikasjonen.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Klikk her for mer info.</a></string>
 
+    <string name="network_forbidden_error">Tilgang nektet. Ta kontakt med kundestøtte hvis problemet vedvarer.</string>
+    <string name="connect_job_ended">Oppgaven ble avsluttet %s</string>
+    <string name="connect_job_info_view_info">Se info</string>
+    <string name="connect_job_info_view_resume">Gjenoppta</string>
+
+    <string name="connect_in_progress">Pågår</string>
+    <string name="connect_new_opportunities">Nye muligheter</string>
+    <string name="connect_completed">Fullført</string>
+
+    <string name="personalid_biometric_error_cancelled">Biometrisk oppsett ble avbrutt. Kontakt kundestøtte hvis problemet vedvarer.</string>
+    <string name="personalid_biometric_error_lockout">For mange forsøk. Vent og prøv igjen.</string>
+    <string name="personalid_biometric_error_lockout_permanent">For mange mislykkede forsøk. Lås opp enheten og prøv igjen.</string>
+    <string name="personalid_biometric_error_timeout">Biometrisk operasjon ble tidsavbrutt. Kontakt kundestøtte hvis problemet vedvarer.</string>
+    <string name="personalid_biometric_error_cannot_configure">Vi kunne ikke konfigurere biometri på enheten din. Kontakt kundestøtte hvis problemet vedvarer.</string>
 </resources>

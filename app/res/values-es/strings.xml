@@ -120,6 +120,9 @@
     <string name="recovery_forms_state_unavailable">Los formularios no están disponibles. Verifica que el espacio de almacenamiento de tu teléfono esté disponible.</string>
     <string name="recovery_network_unavailable">Sin conexión de red. Verifica tu conexión a Internet e inténtalo de nuevo.</string>
     <string name="recovery_network_outdated">Esta aplicación está desactualizada. Por favor, actualice la aplicación en Google Play Store para continuar.</string>
+    <string name="recovery_network_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
+    <string name="recovery_network_unauthorized">No está autorizado para realizar esta solicitud.</string>
+    <string name="recovery_network_server_error">Hubo un error al procesar su solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
     <string name="recovery_retry">Reintentar recuperación</string>
     <string name="recovery_unable_to_claim_opportunity">No se puede reclamar la oportunidad, comunícate con un administrador.</string>
@@ -184,6 +187,7 @@
     <string name="choice_or">_____________    O    _____________</string>
     <string name="busy_message">Todavía estamos procesando tu solicitud anterior. Inténtalo de nuevo más tarde.</string>
     <string name="connect_button_logged_in">Ir al menú Conectar</string>
+    <string name="entity_map_error_message">Se produjo un error en la configuración de la aplicación, por lo que no todos los marcadores del mapa se cargaron correctamente</string>
     <string name="personalid_generic_error">Ocurrió un problema con la base de datos, recupera tu cuenta.</string>
     <string name="connect_registration_title">Comience a usar PersonalID</string>
     <string name="connect_consent_message_1">He leído y acepto la <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidad</a>, los <a href="https://www.dimagi.com/terms/latest/tos/">Términos de Servicio</a>, el <a href="https://www.dimagi.com/terms/latest/ba/">Acuerdo Comercial</a> y la <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceptable</a> de Dimagi.</string>
@@ -242,6 +246,7 @@
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
     <string name="connect_learn_failed_title">Error en la formación</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
+    <string name="connect_job_ended">La tarea finalizó el %s</string>
     <string name="connect_learn_title">Progreso del aprendizaje</string>
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>
@@ -385,6 +390,8 @@
     <string name="connect_job_info_start_visit">Comenzar visita</string>
     <string name="connect_job_info_download_delivery">Descargar Entrega</string>
     <string name="connect_job_info_download">Descargar</string>
+    <string name="connect_job_info_view_info">Ver información</string>
+    <string name="connect_job_info_view_resume">Reanudar</string>
     <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
     <string name="connect_delivery_progress_description">No has completado ninguna lección. Comienza tu aprendizaje para obtener tu certificado.</string>
@@ -401,6 +408,9 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
+    <string name="connect_in_progress">En progreso</string>
+    <string name="connect_new_opportunities">Nuevas oportunidades</string>
+    <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
     <string name="connect_recovery_button_phone">Continuar</string>
@@ -466,8 +476,11 @@
     <string name="personalid_recovery_failed_title">Recuperación fallida</string>
     <string name="personalid_recovery_lockout_title">Cuenta bloqueada</string>
     <string name="personalid_recovery_failed_message">Parece que olvidaste tu código de respaldo, estamos creando una nueva cuenta para ti</string>
-    <string name="personalid_recovery_lockout_message">Ha ingresado el código de respaldo incorrecto demasiadas veces. Su cuenta ha sido bloqueada.</string>
-    <string name="personalid_wrong_backup_message">Ingresaste un código de respaldo incorrecto. Por favor, inténtalo de nuevo. Deberás crear una nueva cuenta después de %d intentos incorrectos.</string>
+    <string name="personalid_recovery_lockout_message">Ha ingresado el código de respaldo incorrecto demasiadas veces. Su cuenta ha sido bloqueada. Comuníquese con el soporte para desbloquear su cuenta.</string>
+    <string name="personalid_wrong_backup_message">Ha introducido el código de seguridad incorrecto. Inténtelo de nuevo. Su cuenta se bloqueará después de %d intentos incorrectos más.</string>
+    <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
+    <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
+    <string name="personalid_second_device_login_message_no_date">Se ha cerrado la sesión en %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
     <string name="personalid_camera_permission_title">Permiso de cámara</string>
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
@@ -512,6 +525,7 @@
     <string name="yesterday">Ayer %1$s</string>
 
     <string name="recovery_network_cooldown">Demasiados intentos de solicitud. Por favor, inténtelo de nuevo después de una hora.</string>
+    <string name="recovery_network_unknown">Algo salió mal. Inténtalo de nuevo.</string>
     <string name="personalid_authentication_failed">La autenticación de la biometría en su dispositivo Android ha fallado. Aplique las actualizaciones de sistema disponibles o inténtelo de nuevo con un dispositivo diferente.</string>
     <string name="connect_verify_configuration_failed">La configuración de la biometría en su dispositivo Android ha fallado. Por favor, inténtelo de nuevo %s.</string>
 
@@ -521,4 +535,11 @@
     <string name="personalid_tooltip_location_failure_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\nPara continuar, habilite los permisos de ubicación en la configuración o inténtelo de nuevo más tarde.</string>
     <string name="personalid_tooltip_location_success_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Haga clic aquí para más información.</a></string>
 
+    <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
+
+    <string name="personalid_biometric_error_cancelled">La configuración biométrica fue cancelada. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
+    <string name="personalid_biometric_error_lockout">Demasiados intentos. Por favor, espere e inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Demasiados intentos fallidos. Por favor, desbloquee su dispositivo e inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_timeout">La operación biométrica ha expirado. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
+    <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
 </resources>
