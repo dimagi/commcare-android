@@ -169,8 +169,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
         boolean isCompleted = connectLoginJobListModel.getJob().isFinished();
         int dateRes = isCompleted
-                ? R.string.personalid_expired_expired_on
-                : R.string.personalid_complete_by;
+                ? R.string.connect_expired_expired_on
+                : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
         );
@@ -197,7 +197,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         return daysRemaining >= 0 && daysRemaining <= 5;
     }
-
 
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
@@ -254,20 +253,14 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectJobListItemBinding binding
     ) {
         if (item.isNew()) {
-            setJobType(context, 255, binding);
+            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_new_opportunity));
         } else if (item.isLearningApp()) {
-            setJobType(context, R.drawable.ic_connect_learning, binding);
+            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
         } else if (item.isDeliveryApp()) {
             boolean finished = item.getJob().isFinished();
             int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
-
-            setJobType(context, iconId, binding);
+            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
         }
-    }
-
-    private void setJobType(Context context,
-                            int iconResId, ConnectJobListItemBinding binding) {
-        binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
     }
 
     private void buildDisplayList(
@@ -278,42 +271,23 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     ) {
         displayItems.clear();
 
-        Map<String, ConnectLoginJobListModel> opportunityMap = new LinkedHashMap<>();
-        addToMap(opportunityMap, inProgressJobs);
-        addToMap(opportunityMap, newJobs);
-        addToMap(opportunityMap, completedJobs);
-
-        List<ConnectLoginJobListModel> inProgress = new ArrayList<>();
-        List<ConnectLoginJobListModel> completed = new ArrayList<>();
-        List<ConnectLoginJobListModel> newOpps = new ArrayList<>();
-
-        for (ConnectLoginJobListModel item : opportunityMap.values()) {
-            if (shouldBeInCompleted(item)) {
-                completed.add(item);
-            } else if (item.isNew()) {
-                newOpps.add(item);
-            } else {
-                inProgress.add(item);
-            }
-        }
-
-        if (!inProgress.isEmpty()) {
+        if (!inProgressJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_in_progress));
-            for (ConnectLoginJobListModel item : inProgress) {
+            for (ConnectLoginJobListModel item : inProgressJobs) {
                 displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
-        if (!newOpps.isEmpty()) {
+        if (!newJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
-            for (ConnectLoginJobListModel item : newOpps) {
+            for (ConnectLoginJobListModel item : newJobs) {
                 displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
 
-        if (!completed.isEmpty()) {
+        if (!completedJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed));
-            for (ConnectLoginJobListModel item : completed) {
+            for (ConnectLoginJobListModel item : completedJobs) {
                 displayItems.add(new ConnectJobListItem.JobItem(item, false));
             }
         }
@@ -321,18 +295,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         for (ConnectLoginJobListModel corruptJob : corruptJobs) {
             displayItems.add(new ConnectJobListItem.JobItem(corruptJob, true));
         }
-    }
-    private void addToMap(
-            Map<String, ConnectLoginJobListModel> map,
-            List<ConnectLoginJobListModel> items
-    ) {
-        for (ConnectLoginJobListModel item : items) {
-            map.put(item.getId(), item);
-        }
-    }
-
-    private boolean shouldBeInCompleted(ConnectLoginJobListModel item) {
-        return item.getJob().isFinished();
     }
 }
 
