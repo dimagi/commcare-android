@@ -50,7 +50,6 @@
     <string name="install_from_list_prompt">Ingia kama mtumiaji wa simu au wavuti ili kuona orodha ya programu unazoweza kusakinisha</string>
     <string name="legacy_failure">CommCare haiauni uboreshaji kutoka kwa toleo la awali la CommCare ulilokuwa ukitumia. Ili kutatua suala hili, tafadhali sanidua CommCare kutoka kwa kifaa chako kisha uisakinishe upya.</string>
     <string name="legacy_failure_title">Uboreshaji wa CommCare Usiooana</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Umeingia kwenye Commcare</string>
     <string name="expirenotification">Muda wa Kuingia kwa CommCare Umekwisha</string>
     <string name="submission_notification_title">Kuwasilisha Data</string>

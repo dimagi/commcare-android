@@ -50,7 +50,6 @@
     <string name="install_from_list_prompt">Inicia sesión como usuario móvil o web para ver una lista de las aplicaciones que puedes instalar</string>
     <string name="legacy_failure">CommCare no admite la actualización desde la versión anterior. Para resolver este problema, desinstala CommCare de tu dispositivo y luego vuelve a instalarlo.</string>
     <string name="legacy_failure_title">Actualización de CommCare incompatible</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Conectado a CommCare</string>
     <string name="expirenotification">Conexión de CommCare caducada</string>
     <string name="submission_notification_title">Envío de datos</string>
