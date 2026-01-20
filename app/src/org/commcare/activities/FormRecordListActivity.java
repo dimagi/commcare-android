@@ -17,12 +17,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -84,7 +81,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private int initialSelection = -1;
 
-    private EditText searchbox;
     private ListView listView;
     private SearchView searchView;
     private MenuItem searchItem;
@@ -156,9 +152,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         setContentView(R.layout.entity_select_layout);
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-        searchbox = findViewById(R.id.searchbox);
         LinearLayout header = findViewById(R.id.entity_select_header);
-        ImageButton barcodeButton = findViewById(R.id.barcodeButton);
 
         Spinner filterSelect = findViewById(R.id.entity_select_filter_dropdown);
 
@@ -166,14 +160,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         listView.setOnItemClickListener(this);
 
         header.setVisibility(View.GONE);
-        barcodeButton.setVisibility(View.GONE);
 
         barcodeScanOnClickListener = v -> callBarcodeScanIntent(FormRecordListActivity.this);
 
-        TextView searchLabel = findViewById(R.id.screen_entity_select_search_label);
-        searchLabel.setText(this.localize("select.search.label"));
-
-        searchbox.addTextChangedListener(this);
         FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class), platform);
         task.addListener(this);
 
@@ -335,8 +324,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private void setSearchEnabled(boolean enabled) {
         if (isUsingActionBar()) {
             searchView.setEnabled(enabled);
-        } else {
-            searchbox.setEnabled(enabled);
         }
     }
 
@@ -495,7 +482,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             MenuItemCompat.expandActionView(searchItem);
             searchView.setQuery(text, false);
         }
-        searchbox.setText(text);
     }
 
     @Override
@@ -625,9 +611,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public void afterTextChanged(Editable s) {
         String filtertext = s.toString();
-        if (searchbox.getText() == s) {
-            adapter.applyTextFilter(filtertext);
-        }
         if (!isUsingActionBar()) {
             lastQueryString = filtertext;
         }
