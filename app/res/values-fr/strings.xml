@@ -50,7 +50,6 @@ License.
     <string name="install_from_list_prompt">Connectez-vous en tant qu\'utilisateur mobile ou Web pour voir une liste des applications que vous pouvez installer</string>
     <string name="legacy_failure">CommCare ne prend pas en charge la mise à niveau depuis la version précédente. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le réinstaller.</string>
     <string name="legacy_failure_title">Mise à niveau CommCare incompatible</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Connecté à Commcare</string>
     <string name="expirenotification">Connexion CommCare expirée</string>
     <string name="submission_notification_title">Soumission de données</string>
@@ -482,6 +481,9 @@ License.
     <string name="personalid_recovery_failed_message">Il semble que vous ayez oublié votre code de sauvegarde, nous créons un nouveau compte pour vous</string>
     <string name="personalid_recovery_lockout_message">Vous avez saisi un code de secours incorrect un trop grand nombre de fois. Votre compte a été bloqué. Veuillez contacter le support pour débloquer votre compte.</string>
     <string name="personalid_wrong_backup_message">Vous avez saisi un code de sauvegarde incorrect. Veuillez réessayer. Votre compte sera bloqué après %d tentatives incorrectes supplémentaires.</string>
+    <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
+    <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
+    <string name="personalid_second_device_login_message_no_date">Vous avez été déconnecté(e) de %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
