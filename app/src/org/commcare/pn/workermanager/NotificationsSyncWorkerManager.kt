@@ -192,11 +192,13 @@ class NotificationsSyncWorkerManager(
                 }
             }
         }
-        if (syncNotification && !isNotificationSyncScheduled) {
+        return if (syncNotification && !isNotificationSyncScheduled) {
             // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
             startPersonalIdNotificationsWorker(emptyMap(), false)
+             false
+        }else{
+            signaling
         }
-        return signaling
     }
 
     private fun startPersonalIdNotificationsWorker(
