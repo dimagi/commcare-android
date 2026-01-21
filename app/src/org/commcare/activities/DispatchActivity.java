@@ -235,8 +235,9 @@ public class DispatchActivity extends AppCompatActivity {
                     ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 } else if(redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this, getIntent().getIntExtra(CONNECT_JOB_ID, -1));
+                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this, connectJobId);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+                    connectJobId=-1;    // reset the variable
                 } else {
                     launchHomeScreen();
                 }
@@ -316,7 +317,6 @@ public class DispatchActivity extends AppCompatActivity {
                 Localization.get("app.storage.missing.title"));
     }
 
-    // TODO: 20/01/26 add job id here 
     private void launchLoginScreen() {
         if (!waitingForActivityResultFromLogin) {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
@@ -501,6 +501,7 @@ public class DispatchActivity extends AppCompatActivity {
             needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
             redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
             redirectToLoginAppId = intent.getStringExtra(EXTRA_APP_ID);
+            connectJobId = intent.getIntExtra(CONNECT_JOB_ID,-1);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
@@ -531,7 +532,6 @@ public class DispatchActivity extends AppCompatActivity {
                     personalIdManagedLogin = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
                     connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
-                    connectJobId = intent.getIntExtra(CONNECT_JOB_ID, -1);
                 }
                 return;
             case HOME_SCREEN:

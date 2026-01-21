@@ -20,10 +20,7 @@ import org.commcare.interfaces.base.BaseConnectView
 
 object ConnectJobHelper {
     fun getJobForSeatedApp(context: Context, jobId : Int): ConnectJobRecord? {
-        val appId = CommCareApplication.instance().currentApp.uniqueId
-        val appRecord = ConnectJobUtils.getAppRecord(context ,appId, jobId) ?: return null
-
-        return ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
+        return ConnectJobUtils.getCompositeJob(context, jobId)
     }
 
     fun shouldShowJobStatus(

@@ -12,6 +12,7 @@ import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
 import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
+import static org.commcare.connect.ConnectAppUtils.CONNECT_JOB_ID;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -580,6 +581,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected void userPressedOpportunityStatus() {
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, true);
+        i.putExtra(CONNECT_JOB_ID,getIntent().getIntExtra(CONNECT_JOB_ID,-1));
         setResult(RESULT_OK, i);
         finish();
     }
