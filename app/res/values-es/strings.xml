@@ -234,7 +234,7 @@
     <string name="connect_messaging_channel_consent_decline">Rechazar</string>
     <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
-    <string name="connect_no_jobs">No has sido invitado a ninguna oportunidad activa. Vuelve más tarde.</string>
+    <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
     <string name="connect_job_intro_title">Oportunidad</string>
     <string name="connect_job_you_will_learn">Completa los siguientes módulos de aprendizaje y obtén un certificado</string>
     <string name="connect_job_no_learning_required">No se requiere aprendizaje</string>
@@ -487,8 +487,7 @@
     <string name="personalid_work_history_title">Mi Historial Laboral</string>
     <string name="personalid_work_history">Historial Laboral</string>
     <string name="personalid_work_history_learn_more">Más Información Sobre las Credenciales</string>
-    <string name="personalid_work_history_no_records_available">No hay registros de historial laboral disponibles actualmente. Haga clic en Actualizar o vuelva a consultar más tarde.</string>
-    <string name="personalid_work_history_earned">Ganado</string>
+    <string name="personalid_work_history_no_records_available">No hay registros de trabajo disponibles actualmente. Haga clic en actualizar o vuelva a consultar más tarde.</string>    <string name="personalid_work_history_earned">Ganado</string>
     <string name="personalid_work_history_pending">Pendiente</string>
     <string name="personalid_work_history_sync">Sincronizar</string>
     <string name="personalid_work_history_level_1_month_active">1 Mes de\nActividad</string>
@@ -500,7 +499,7 @@
     <string name="personalid_work_history_no_pending_records">No hay registros pendientes en este momento</string>
 
     <string name="personalid_notification">Notificaciones</string>
-    <string name="pn_no_notification_found">No se encontraron notificaciones</string>
+    <string name="pn_no_notification_available">No hay notificaciones disponibles</string>
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
@@ -528,7 +527,7 @@
     <string name="personalid_authentication_failed">La autenticación de la biometría en su dispositivo Android ha fallado. Aplique las actualizaciones de sistema disponibles o inténtelo de nuevo con un dispositivo diferente.</string>
     <string name="connect_verify_configuration_failed">La configuración de la biometría en su dispositivo Android ha fallado. Por favor, inténtelo de nuevo %s.</string>
 
-    <string name="no_channel_msg">No tienes canales de mensajería activos.</string>
+    <string name="no_channel_msg">No estás suscrito a ningún canal de mensajería</string>
     <string name="personalid_using_your_location">Usando tu ubicación</string>
     <string name="personalid_no_location_found">No podemos encontrar tu ubicación</string>
     <string name="personalid_tooltip_location_failure_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\nPara continuar, habilite los permisos de ubicación en la configuración o inténtelo de nuevo más tarde.</string>

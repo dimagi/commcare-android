@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         android:gravity="center_horizontal"
-        android:text="@string/pn_no_notification_found"
+        android:text="@string/pn_no_notification_available"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:visibility="gone"

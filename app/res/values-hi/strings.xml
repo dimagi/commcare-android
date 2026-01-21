@@ -296,7 +296,7 @@ License.
     <string name="connect_messaging_channel_consent_decline">अस्वीकार करें</string>
     <string name="connect_last_update">अपडेट किया गया: %s</string>
     <string name="connect_title">कनेक्ट करें</string>
-    <string name="connect_no_jobs">आपको किसी भी सक्रिय अवसर के लिए आमंत्रित नहीं किया गया है। कृपया बाद में वापस देखें।</string>
+    <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
     <string name="connect_job_intro_title">अवसर</string>
     <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल पूरे करें और एक प्रमाण पत्र प्राप्त करें</string>
     <string name="connect_job_no_learning_required">कोई शिक्षण आवश्यक नहीं</string>
@@ -484,8 +484,7 @@ License.
     <string name="personalid_work_history_title">मेरा कार्य इतिहास</string>
     <string name="personalid_work_history">कार्य इतिहास</string>
     <string name="personalid_work_history_learn_more">क्रेडेंशियल्स के बारे में और जानें</string>
-    <string name="personalid_work_history_no_records_available">वर्तमान में कोई कार्य इतिहास रिकॉर्ड उपलब्ध नहीं है। रीफ़्रेश करें पर क्लिक करें या बाद में फिर से देखें</string>
-    <string name="personalid_work_history_earned">अर्जित</string>
+    <string name="personalid_work_history_no_records_available">वर्तमान में कोई कार्य रिकॉर्ड उपलब्ध नहीं है। रीफ़्रेश पर क्लिक करें, या बाद में वापस देखें।</string>    <string name="personalid_work_history_earned">अर्जित</string>
     <string name="personalid_work_history_pending">लंबित</string>
     <string name="personalid_work_history_sync">सिंक</string>
     <string name="personalid_work_history_level_1_month_active">1 महीने की\nगतिविधि</string>
@@ -496,7 +495,7 @@ License.
     <string name="personalid_work_history_level_12_month_active">12 महीने की\nगतिविधि</string>
 
     <string name="personalid_notification">सूचनाएं</string>
-    <string name="pn_no_notification_found">कोई सूचना नहीं मिली</string>
+    <string name="pn_no_notification_available">कोई सूचना उपलब्ध नहीं है</string>
 
     <string name="personalid_work_history_no_pending_records">इस समय कोई लंबित रिकॉर्ड नहीं हैं</string>
 
@@ -526,7 +525,7 @@ License.
     <string name="personalid_authentication_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स का प्रमाणीकरण विफल हो गया है। कृपया कोई भी उपलब्ध सिस्टम अपडेट लागू करें, या किसी दूसरे डिवाइस के साथ पुनः प्रयास करें।</string>
     <string name="connect_verify_configuration_failed">आपके एंड्रॉइड डिवाइस पर बॉयोमीट्रिक्स कॉन्फ़िगर करना विफल हो गया है। कृपया %s पुनः प्रयास करें।</string>
 
-    <string name="no_channel_msg">आपके पास वर्तमान में कोई संदेश चैनल नहीं है</string>
+    <string name="no_channel_msg">आपने किसी भी मैसेजिंग चैनल की सदस्यता नहीं ली है</string>
     <string name="personalid_using_your_location">आपके स्थान का उपयोग कर रहा है</string>
     <string name="personalid_no_location_found">हमें आपका स्थान नहीं मिल रहा है</string>
     <string name="personalid_tooltip_location_failure_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए लोकेशन डेटा का उपयोग करते हैं।\n\nजारी रखने के लिए, कृपया सेटिंग्स में लोकेशन अनुमतियों को सक्षम करें, या बाद में फिर से प्रयास करें।</string>
