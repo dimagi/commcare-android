@@ -150,7 +150,7 @@ object PushNotificationApiHelper {
         savedNotificationIds: List<String>,
     ): Boolean {
         //  don't call server unnecessarily if nothing to update
-        if(savedNotificationIds.isEmpty()){
+        if (savedNotificationIds.isEmpty()) {
             return true
         }
         val user = ConnectUserDatabaseUtil.getUser(context)
