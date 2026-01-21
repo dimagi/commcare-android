@@ -8,6 +8,7 @@ import org.commcare.connect.network.ConnectSsoHelper.TokenCallback
 import org.commcare.core.network.AuthInfo
 import org.commcare.core.network.AuthInfo.TokenAuth
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
@@ -40,15 +41,11 @@ object ConnectSsoSyncHelper {
                     }
 
                     override fun tokenUnavailable() {
-                        // Cannot raise exception as not handled here
-                        // (https://github.com/dimagi/commcare-android/blob/a4062729d1172fb4d710f022edc3670e71031d24/app/src/org/commcare/network/CommcareRequestGenerator.java#L180)
-                        continuation.resume(null)
+                        continuation.resumeWithException(TokenUnavailableException())
                     }
 
                     override fun tokenRequestDenied() {
-                        // Cannot raise exception as not handled here
-                        // (https://github.com/dimagi/commcare-android/blob/a4062729d1172fb4d710f022edc3670e71031d24/app/src/org/commcare/network/CommcareRequestGenerator.java#L180)
-                        continuation.resume(null)
+                        continuation.resumeWithException(TokenDeniedException())
                     }
                 },
             )

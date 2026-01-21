@@ -1,11 +1,9 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -19,8 +17,6 @@ import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Helper class for making SSO calls (both to ConnectID and HQ servers)
@@ -30,7 +26,9 @@ import java.util.concurrent.ExecutionException;
 public class ConnectSsoHelper {
     public interface TokenCallback {
         void tokenRetrieved(AuthInfo.TokenAuth token);
+
         void tokenUnavailable();
+
         void tokenRequestDenied();
     }
 
@@ -47,9 +45,9 @@ public class ConnectSsoHelper {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                if(errorCode==PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR){
+                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
                     callback.tokenRequestDenied();
-                }else{
+                } else {
                     callback.tokenUnavailable();
                 }
 
@@ -71,7 +69,7 @@ public class ConnectSsoHelper {
 
         //See if we already have a valid token
         AuthInfo.TokenAuth hqTokenAuth = PersonalIdManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
-        if(hqTokenAuth != null) {
+        if (hqTokenAuth != null) {
             callback.tokenRetrieved(hqTokenAuth);
             return;
         }
@@ -82,26 +80,27 @@ public class ConnectSsoHelper {
             new PersonalIdApiHandler<AuthInfo.TokenAuth>() {
                 @Override
                 public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                    if(errorCode==PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR){
+                    if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
                         callback.tokenRequestDenied();
-                    }else{
+                    } else {
                         callback.tokenUnavailable();
                     }
                 }
+
                 @Override
                 public void onSuccess(AuthInfo.TokenAuth personalIdToken) {
 
                     if (!appRecord.getWorkerLinked()) {
                         // link hq user first and then retrieve hq token
                         ConnectSsoHelper.linkHqWorker(context, hqUsername, appRecord, personalIdToken.bearerToken, callback);
-                    }else{
+                    } else {
                         //  user already linked, get the hq sso token
-                        ConnectSsoHelper.retrieveHqToken(context,hqUsername,personalIdToken.bearerToken,callback);
+                        ConnectSsoHelper.retrieveHqToken(context, hqUsername, personalIdToken.bearerToken, callback);
                     }
 
                 }
             }.retrievePersonalIdToken(context, user);
-        }else{
+        } else {
             callback.tokenUnavailable();
         }
     }
@@ -109,21 +108,22 @@ public class ConnectSsoHelper {
     private static void retrieveHqToken(Context context,
                                         String hqUsername,
                                         String personalIdToken,
-                                        TokenCallback callback){
+                                        TokenCallback callback) {
         new PersonalIdApiHandler<AuthInfo.TokenAuth>() {
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                if(errorCode==PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR){
+                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
                     callback.tokenRequestDenied();
-                }else{
+                } else {
                     callback.tokenUnavailable();
                 }
             }
+
             @Override
             public void onSuccess(AuthInfo.TokenAuth hqToken) {
                 callback.tokenRetrieved(hqToken);
             }
-        }.retrieveHqToken(context, hqUsername,personalIdToken);
+        }.retrieveHqToken(context, hqUsername, personalIdToken);
     }
 
     public static void discardTokens(Context context, String username) {
@@ -131,7 +131,7 @@ public class ConnectSsoHelper {
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
 
-        if(username != null) {
+        if (username != null) {
             ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, seatedAppId, username);
             if (appRecord != null) {
                 appRecord.clearHqToken();
@@ -140,7 +140,7 @@ public class ConnectSsoHelper {
         }
 
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        if(user != null) {
+        if (user != null) {
             user.clearConnectToken();
             ConnectUserDatabaseUtil.storeUser(context, user);
         }
@@ -157,13 +157,13 @@ public class ConnectSsoHelper {
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
                 Logger.exception("Failed to link HQ worker", Objects.requireNonNullElseGet(t, () -> new Throwable("Failed to link HQ worker")));
                 //  still try to get the Hq token as server sends failure if already linked
-                ConnectSsoHelper.retrieveHqToken(context,hqUsername,personalIdToken,callback);
+                ConnectSsoHelper.retrieveHqToken(context, hqUsername, personalIdToken, callback);
             }
 
             @Override
             public void onSuccess(Boolean succes) {
-                ConnectSsoHelper.retrieveHqToken(context,hqUsername,personalIdToken,callback);
+                ConnectSsoHelper.retrieveHqToken(context, hqUsername, personalIdToken, callback);
             }
-        }.linkHqWorker(context, hqUsername,appRecord,personalIdToken);
+        }.linkHqWorker(context, hqUsername, appRecord, personalIdToken);
     }
 }
