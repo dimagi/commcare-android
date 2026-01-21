@@ -30,6 +30,9 @@ class ConnectReleaseTogglesParserTest {
     fun setUp() {
         parser = ConnectReleaseTogglesParser()
         mockkStatic(ConnectAppDatabaseUtil::class)
+
+        // Mock the DB storage call so it doesn't try to access a real DB.
+        every { ConnectAppDatabaseUtil.storeReleaseToggles(any(), any()) } returns Unit
     }
 
     @After
@@ -62,9 +65,6 @@ class ConnectReleaseTogglesParserTest {
         val expectedDate = DateUtils.parseDateTime(mockDateString)
 
         val inputStream = ByteArrayInputStream(mockJson.toByteArray())
-
-        // Mock the DB storage call so it doesn't try to access a real DB.
-        every { ConnectAppDatabaseUtil.storeReleaseToggles(any(), any()) } returns Unit
 
         // Act
         val result = parser.parse(200, inputStream, context)
@@ -137,9 +137,6 @@ class ConnectReleaseTogglesParserTest {
 
         val inputStream = ByteArrayInputStream(mockJson.toByteArray())
 
-        // Mock the DB storage call so it doesn't try to access a real DB.
-        every { ConnectAppDatabaseUtil.storeReleaseToggles(any(), any()) } returns Unit
-
         // Act
         val result = parser.parse(200, inputStream, context)
 
@@ -166,9 +163,6 @@ class ConnectReleaseTogglesParserTest {
             """.trimIndent()
 
         val inputStream = ByteArrayInputStream(mockJson.toByteArray())
-
-        // Mock the DB storage call so it doesn't try to access a real DB.
-        every { ConnectAppDatabaseUtil.storeReleaseToggles(any(), any()) } returns Unit
 
         // Act
         val result = parser.parse(200, inputStream, context)
