@@ -2,15 +2,16 @@ name: commcare-android PR CI
 
 env:
   PR_NUM: ${{github.event.issue.number || github.event.number }}
+  ghprbPullId: ${{github.event.issue.number || github.event.number }}
 on:
   pull_request:
     types: [opened, edited]
   issue_comment:
 jobs:
-  build-test-assemble:
+  prep-repos:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
-    name: Build
-    runs-on: macos-latest
+    name: Prep repos
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v3
@@ -19,26 +20,65 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.9'
       - name: Download cross request script
         run: |
+          cd ..
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v4
         with:
-          path: "requirements.txt"
-      - name: List python
-        run: |
-          pip list
+          path: "../requirements.txt"
       - name: Run cross request script
         run: |
-          python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
+          cd ..
+          python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core . ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Cache repos
+        uses: actions/cache/save@v3
+        env:
+          cache-name: cache-repos
+        with:
+          path: |
+            /home/runner/work/commcare-android/commcare-android
+            /home/runner/work/commcare-android/commcare-core
+          key: ${{ runner.os }}-gradle-${{ hashFiles('/home/runner/work/commcare-android/commcare-android', '/home/runner/work/commcare-android/commcare-core') }}
+  check-test-build:
+    name: Check, Test and Build LTS and Bundle
+    needs: prep-repos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore repos from cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            /home/runner/work/commcare-android/commcare-android
+            /home/runner/work/commcare-android/commcare-core
+          key: ${{ runner.os }}-gradle-
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Restore Gradle properties file
+        run: |
+          mkdir -p ~/.gradle/
+          cd ~/.gradle
+          CURR_DIR=$(pwd)
+          echo ${{secrets.SIGNING_KEY}} | base64 -d > commcare-odk-keys.keystore
+          echo "RELEASE_KEY_ALIAS= ${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_KEY_PASSWORD= ${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_STORE_PASSWORD= ${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_STORE_FILE= $CURR_DIR/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
+          echo "GOOGLE_PLAY_MAPS_API_KEY= ${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "GOOGLE_SERVICES_API_KEY= ${{ secrets.GOOGLE_SERVICES_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "HQ_API_PASSWORD= ${{ secrets.HQ_API_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "HQ_API_USERNAME= ${{ secrets.HQ_API_USERNAME }}" >> ~/.gradle/gradle.properties
+          echo "TEST_BUILD_TYPE=${{ secrets.TEST_BUILD_TYPE }}" >> ~/.gradle/gradle.properties
+          echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.JVM_ARGS }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
       - name: Clean with Gradle
         uses: gradle/gradle-build-action@v2
         with:
@@ -51,26 +91,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: testCommcareDebug
-      - name: Assemble Debug apk
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareDebug
-      - name: Restore Keystore
-        run: echo $SIGNING_KEY | base64 -d > ˜/.gradle/commcare-odk-keys.keystore
-      - name: Assemble Release apk
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareRelease
-        env:
-          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          RELEASE_STORE_FILE: "˜/.gradle/commcare-odk-keys.keystore"
-      - name: Upload CommCare apk
-        uses: actions/upload-artifact@v3
-        with:
-          name: commcare-arelease-pk
-          path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: Assemble LTS apk
         uses: gradle/gradle-build-action@v2
         with:
@@ -79,7 +99,67 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-lts-release
-          path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
+          path: app/build/outputs/apk/lts/release/app-lts-release.apk
+      - name: Assemble CommCare bundle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: bundleCommcareRelease
+      - name: Generate JaCoCo Report
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: JacocoTestReport
+      - name: Publish JaCoCo report
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.3
+        with:
+          paths: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 40
+          min-coverage-changed-files: 60
+  build-instrumentation-tests:
+    name: Build Release version and Run Instrumentation Tests
+    needs: prep-repos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore repos from cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            /home/runner/work/commcare-android/commcare-android
+            /home/runner/work/commcare-android/commcare-core
+          key: ${{ runner.os }}-gradle-
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Restore Gradle properties file
+        run: |
+          mkdir -p ~/.gradle/
+          cd ~/.gradle
+          CURR_DIR=$(pwd)
+          echo ${{secrets.SIGNING_KEY}} | base64 -d > commcare-odk-keys.keystore
+          echo "RELEASE_KEY_ALIAS= ${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_KEY_PASSWORD= ${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_STORE_PASSWORD= ${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_STORE_FILE= $CURR_DIR/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
+          echo "GOOGLE_PLAY_MAPS_API_KEY= ${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "GOOGLE_SERVICES_API_KEY= ${{ secrets.GOOGLE_SERVICES_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "HQ_API_PASSWORD= ${{ secrets.HQ_API_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "HQ_API_USERNAME= ${{ secrets.HQ_API_USERNAME }}" >> ~/.gradle/gradle.properties
+          echo "TEST_BUILD_TYPE=${{ secrets.TEST_BUILD_TYPE }}" >> ~/.gradle/gradle.properties
+          echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.JVM_ARGS }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
+      - name: Assemble Release apk
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleCommcareRelease
+      - name: Upload CommCare apk
+        uses: actions/upload-artifact@v3
+        with:
+          name: commcare-release-apk
+          path: app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: CommCare apk for Instrumentation Testing
         uses: gradle/gradle-build-action@v2
         with:
@@ -88,15 +168,19 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: commcare-release-androidTest-apk
-          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
-      - name: CommCare apk for Instrumentation Testing
-        uses: gradle/gradle-build-action@v2
+          path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+      - name: Install python
+        uses: actions/setup-python@v4
         with:
-          arguments: JacocoTestReport
-      - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: jacoco-report
-          path: commcare-android/app/build/reports
-
+          python-version: '3.9'
+      - name: Run Instrumentation Tests
+        env:
+          BASE_LOCATION: app/build/outputs/
+          RELEASE_APP_LOCATION: app/build/outputs/apk/commcare/release/app-commcare-release.apk
+          TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
+          BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
+        run: |
+          python3 scripts/browserstack.py
 
