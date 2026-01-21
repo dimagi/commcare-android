@@ -82,20 +82,13 @@ public class ConnectAppDatabaseUtil {
             Context context,
             List<ConnectReleaseToggleRecord> toggles
     ) {
-        try {
-            SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
-                    ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
-            ConnectDatabaseHelper.connectDatabase.beginTransaction();
+        SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
+                ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
 
-            toggleStorage.removeAll();
+        toggleStorage.removeAll();
 
-            for (ConnectReleaseToggleRecord toggle : toggles) {
-                toggleStorage.write(toggle);
-            }
-
-            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
-        }  finally {
-            ConnectDatabaseHelper.connectDatabase.endTransaction();
+        for (ConnectReleaseToggleRecord toggle : toggles) {
+            toggleStorage.write(toggle);
         }
     }
 }
