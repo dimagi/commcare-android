@@ -71,7 +71,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
     @Test
     fun testStartConfiguration_requestPayload_containsAllFields() {
         // Arrange
-        setupFragmentForRequest("+91", "9876543210")
+        setupFragmentForRequest()
         mockWebServer.enqueue(createSuccessResponse())
 
         // Act
@@ -110,7 +110,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
     @Test
     fun testStartConfiguration_requestHeaders_containEssentialValues() {
         // Arrange
-        setupFragmentForRequest("+91", "9876543210")
+        setupFragmentForRequest()
         mockWebServer.enqueue(createSuccessResponse())
 
         // Act
@@ -145,7 +145,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
     @Test
     fun testStartConfiguration_successResponse_moveToBiometric() {
         // Arrange
-        setupFragmentForRequest("+91", "9876543210")
+        setupFragmentForRequest()
         mockWebServer.enqueue(createSuccessResponse())
 
         // Act
@@ -165,7 +165,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
     @Test
     fun testStartConfiguration_forbiddenResponse_showsError() {
         // Arrange
-        setupFragmentForRequest("+91", "9876543210")
+        setupFragmentForRequest()
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(403)
@@ -198,7 +198,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
     @Test
     fun testStartConfiguration_networkError_allowsRetry() {
         // Arrange
-        setupFragmentForRequest("+91", "9876543210")
+        setupFragmentForRequest()
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(500)
@@ -235,7 +235,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
     @Test
     fun testStartConfiguration_accountLockedResponse() {
         // Arrange
-        setupFragmentForRequest("+91", "9876543210")
+        setupFragmentForRequest()
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(401)
@@ -269,15 +269,12 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
     // ========== Helper Methods ==========
 
-    private fun setupFragmentForRequest(
-        countryCode: String,
-        phone: String,
-    ) {
+    private fun setupFragmentForRequest() {
         val phoneInput = fragment.view!!.findViewById<EditText>(R.id.connect_primary_phone_input)
-        phoneInput.setText(phone)
+        phoneInput.setText("9876543210")
 
         val countryCodeInput = fragment.view!!.findViewById<EditText>(R.id.countryCode)
-        countryCodeInput.setText(countryCode)
+        countryCodeInput.setText("+91")
 
         val consentCheckbox = fragment.view!!.findViewById<CheckBox>(R.id.connect_consent_check)
         consentCheckbox!!.isChecked = true
@@ -286,7 +283,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         fragment.onLocationResult(mockLocation)
 
         assertTrue(
-            "Button should be enabled with all requirements (phone: $countryCode$phone, consent: true, location: set)",
+            "Continue button should be enabled with all requirements",
             continueButton!!.isEnabled,
         )
     }
