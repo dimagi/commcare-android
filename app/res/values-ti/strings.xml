@@ -289,7 +289,7 @@
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
     <string name="connect_last_update">ዝተመሓየሸ: %s</string>
     <string name="connect_title">ኣራኽብ</string>
-    <string name="connect_no_jobs">ንሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምካን። ሓንሳብ ናብ ዕድል ምስ ተዓደምካ፡ ኣብዚ ዝርዝር ክปรากฏ እዩ።</string>
+    <string name="connect_no_jobs">ክሳብ ሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምኩምን። ንሓደ ዕድል ምስ ተዓደምካ፡ ኣብ\’ዚ ዝርዝር\’ዚ ክቐርብ\’ዩ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
     <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
