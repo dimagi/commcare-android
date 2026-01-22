@@ -35,6 +35,9 @@ import java.util.Vector;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import static org.commcare.views.widgets.MediaWidget.AES_EXTENSION;
+import static org.commcare.views.widgets.MediaWidget.removeAESExtension;
+
 /**
  * This class transfers all of the FormRecords from form record storage and into our file system,
  * decrypting files as necessary. This task should really be merged with DumpTask.
@@ -90,6 +93,8 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
             // This is not the ideal long term solution for determining whether we need decryption, but works
             if (file.getName().endsWith(".xml")) {
                 FileUtil.copyFile(file, new File(targetDirectory, file.getName()), decryptCipher, null);
+            } else if (file.getName().endsWith(AES_EXTENSION)) {
+                FileUtil.copyFile(file, new File(targetDirectory, removeAESExtension(file.getName())), decryptCipher, null);
             } else {
                 FileUtil.copyFile(file, new File(targetDirectory, file.getName()));
             }
