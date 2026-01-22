@@ -193,7 +193,7 @@ class NotificationsSyncWorkerManager(
             }
         }
         return if (syncNotification && !isNotificationSyncScheduled) {
-            val previousValOfSignaling = signaling  // below method will make signaling true so need to return previous value
+            val previousValOfSignaling = signaling // below method will make signaling true so need to return previous value
             // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
             startPersonalIdNotificationsWorker(emptyMap(), false)
             previousValOfSignaling
