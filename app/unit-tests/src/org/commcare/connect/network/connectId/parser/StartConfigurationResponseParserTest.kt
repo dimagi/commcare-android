@@ -39,13 +39,19 @@ class StartConfigurationResponseParserTest {
                 put("failure_code", "test-failure")
                 put("failure_subcode", "test-subcode")
                 put("otp_fallback", true)
-                put("toggles", JSONObject().apply {
-                    put("feature_a", JSONObject().apply {
-                        put("active", true)
-                        put("created_at", mockDateString)
-                        put("modified_at", mockDateString)
-                    })
-                })
+                put(
+                    "toggles",
+                    JSONObject().apply {
+                        put(
+                            "feature_a",
+                            JSONObject().apply {
+                                put("active", true)
+                                put("created_at", mockDateString)
+                                put("modified_at", mockDateString)
+                            },
+                        )
+                    },
+                )
             }
 
         // Act
