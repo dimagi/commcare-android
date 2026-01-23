@@ -9,10 +9,9 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
@@ -39,9 +38,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.List;
 
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -479,5 +478,18 @@ public class ApiPersonalId {
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageSendURL),
                 PersonalIdApiClient.API_VERSION, authInfo, params, false, true, callback);
+    }
+
+    public static void getReleaseToggles(
+            Context context,
+            String userId,
+            String password,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String authToken = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.getReleaseToggles(authToken);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.RELEASE_TOGGLES);
     }
 }
