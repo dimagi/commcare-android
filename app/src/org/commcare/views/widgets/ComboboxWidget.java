@@ -7,6 +7,7 @@ import android.util.TypedValue;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.views.Combobox;
+import org.javarosa.core.model.ComboItem;
 import org.javarosa.core.model.ComboboxFilterRule;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -27,14 +28,14 @@ import java.util.Vector;
 public class ComboboxWidget extends QuestionWidget {
 
     private Vector<SelectChoice> choices;
-    private Vector<String> choiceTexts;
+    private Vector<ComboItem> choiceComboItems;
     private Combobox comboBox;
     private boolean wasWidgetChangedOnTextChanged = false;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxFilterRule filterRule) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = setUpComboboxForWidget(context, choiceTexts, filterRule, mQuestionFontSize);
+        comboBox = setUpComboboxForWidget(context, choiceComboItems, filterRule, mQuestionFontSize);
         addView(comboBox);
 
         comboBox.setEnabled(!prompt.isReadOnly());
@@ -43,30 +44,37 @@ public class ComboboxWidget extends QuestionWidget {
         fillInPreviousAnswer(prompt);
     }
 
-    private static Combobox setUpComboboxForWidget(Context context, Vector<String> choices,
+    private static Combobox setUpComboboxForWidget(Context context, Vector<ComboItem> choices,
                                              ComboboxFilterRule filterRule, int fontSize) {
         ComboboxAdapter adapter =
-                getAdapterForComboboxWidget(context, choices.toArray(new String[]{}),
+                getAdapterForComboboxWidget(context, choices.toArray(new ComboItem[]{}),
                         filterRule, fontSize);
         Combobox combobox = new Combobox(context, choices, adapter);
         combobox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         return combobox;
     }
 
-    private static ComboboxAdapter getAdapterForComboboxWidget(Context context, String[] choices,
+    private static ComboboxAdapter getAdapterForComboboxWidget(Context context, ComboItem[] choices,
                                                                ComboboxFilterRule filterRule,
                                                                int fontSize) {
-        choices = SpinnerWidget.getChoicesWithEmptyFirstSlot(choices);
+        choices = getComboItemChoicesWithEmptyFirstSlot(choices);
         ComboboxAdapter adapter = new ComboboxAdapter(context, choices, filterRule);
         adapter.setCustomTextSize(fontSize);
         return adapter;
     }
 
+    public static ComboItem[] getComboItemChoicesWithEmptyFirstSlot(ComboItem[] originalChoices) {
+        ComboItem[] newChoicesList = new ComboItem[originalChoices.length+1];
+        newChoicesList[0] = new ComboItem("", "", -1);
+        System.arraycopy(originalChoices, 0, newChoicesList, 1, originalChoices.length);
+        return newChoicesList;
+    }
+
     private void initChoices(FormEntryPrompt prompt) {
         choices = getSelectChoices();
-        choiceTexts = new Vector<>();
+        choiceComboItems = new Vector<>();
         for (int i = 0; i < choices.size(); i++) {
-            choiceTexts.add(prompt.getSelectChoiceText(choices.get(i)));
+            choiceComboItems.add(new ComboItem(prompt.getSelectChoiceText(choices.get(i)),choices.get(i).getValue(),choices.get(i).getIndex()));
         }
     }
 
