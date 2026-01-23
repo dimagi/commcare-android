@@ -75,13 +75,18 @@ class ConnectReleaseToggleRecord :
             json: JSONObject,
         ): ConnectReleaseToggleRecord =
             ConnectReleaseToggleRecord().apply {
-                val createdAtDateString = json.getString(META_CREATED_AT)
-                val modifiedAtDateString = json.getString(META_MODIFIED_AT)
-
                 slug = slugKey
                 active = json.getBoolean(META_ACTIVE)
-                createdAt = DateUtils.parseDateTime(createdAtDateString)
-                modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+
+                if (json.has(META_CREATED_AT)) {
+                    val createdAtDateString = json.getString(META_CREATED_AT)
+                    createdAt = DateUtils.parseDateTime(createdAtDateString)
+                }
+
+                if (json.has(META_MODIFIED_AT)) {
+                    val modifiedAtDateString = json.getString(META_MODIFIED_AT)
+                    modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+                }
             }
     }
 }
