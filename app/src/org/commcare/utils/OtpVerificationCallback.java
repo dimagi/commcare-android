@@ -1,6 +1,9 @@
 package org.commcare.utils;
 
-import com.google.firebase.auth.FirebaseUser;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.commcare.connect.network.base.BaseApiHandler;
 
 /**
  * Callback interface for OTP (One-Time Password) verification operations.
@@ -18,16 +21,31 @@ public interface OtpVerificationCallback {
     void onCodeSent(String verificationId);
 
     /**
-     * Called when OTP verification completes successfully.
+     * Only called when there is an additional verification step locally after receiving the code
+     * Specific to FirebaseAuth at the moment.
      *
-     * @param user The authenticated {@link FirebaseUser}
      */
-    void onSuccess(FirebaseUser user);
+    void onCodeVerified(String code);
+
+
+    /**
+     * Called when the OTP code is successfully verified with our servers and user is authenticated.
+     * This is called when the OTP verification process completes successfully.
+     */
+    void onSuccess();
 
     /**
      * Called when an error occurs during the OTP process.
      *
-     * @param errorMessage A description of the error that occurred
+     * @param message A description of the error that occurred
      */
-    void onFailure(String errorMessage);
+    void onFailure(OtpErrorType errorType, @Nullable String message);
+
+    /**
+     * Called when the PersonalId API request related to OTP verification fails.
+     *
+     * @param failureCode The specific error code indicating the type of failure
+     * @param t          The throwable that caused the failure, if any
+     */
+    void onPersonalIdApiFailure(@NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t);
 }

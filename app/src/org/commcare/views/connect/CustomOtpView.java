@@ -100,7 +100,7 @@ public class CustomOtpView extends LinearLayout {
             if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
                 if (editText.getText().toString().isEmpty() && index > 0) {
                     // Move to previous field and clear it
-                    EditText previousEditText = (EditText) getChildAt(index - 1);
+                    EditText previousEditText = (EditText)getChildAt(index - 1);
                     previousEditText.setText("");
                     previousEditText.requestFocus();
                 } else {

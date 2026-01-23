@@ -1,25 +1,33 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.NavDrawerHelper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ApkDependenciesUtils;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -39,17 +47,23 @@ public class StandardHomeActivity
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
+    private Map<Integer, String> menuIdToAnalyticsParam;
+    private boolean personalIdManagedLogin = false;
+
+    private boolean rootContainerReadyToShowDrawer = false;
+
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+        personalIdManagedLogin = getIntent()
+                .getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
     }
 
     @Override
     public void onResumeSessionSafe() {
         super.onResumeSessionSafe();
-        uiController.updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -108,6 +122,7 @@ public class StandardHomeActivity
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
+        fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
@@ -122,12 +137,13 @@ public class StandardHomeActivity
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
+        uiController.updateConnectJobProgress();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_app_home, menu);
-
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.findItem(R.id.action_update).setTitle(Localization.get("home.menu.update"));
         menu.findItem(R.id.action_saved_forms).setTitle(Localization.get("home.menu.saved.forms"));
         menu.findItem(R.id.action_change_language).setTitle(Localization.get("home.menu.locale.change"));
@@ -143,7 +159,6 @@ public class StandardHomeActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
         menu.findItem(R.id.action_update).setVisible(enableMenus);
@@ -177,11 +192,8 @@ public class StandardHomeActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-
         int itemId = item.getItemId();
         if (itemId == R.id.action_update) {
             launchUpdateActivity(false);
@@ -232,6 +244,49 @@ public class StandardHomeActivity
     }
 
     @Override
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case COMMCARE_APPS -> {
+                if(recordId != null) {
+                    String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    if(!recordId.equals(currentSeatedId)) {
+                        //Navigate to LoginActivity for selected app
+                        CommCareApplication.instance().closeUserSession();
+                        Intent i = new Intent();
+                        i.putExtra(EXTRA_APP_ID, recordId);
+                        setResult(RESULT_OK, i);
+                        finish();
+                    }
+                }
+            }
+            case OPPORTUNITIES -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
+                    closeDrawer();
+                } else {
+                    navigateToConnectMenu();
+                }
+            }
+            case MESSAGING -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToMessaging(this);
+                    closeDrawer();
+                } else {
+                    navigateToMessaging();
+                }
+            }
+            case WORK_HISTORY -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToWorkHistory(this);
+                    closeDrawer();
+                } else {
+                    navigateToWorkHistory();
+                }
+            }
+        }
+    }
+
+    @Override
     public void initUIController() {
         uiController = new StandardHomeActivityUIController(this);
     }
@@ -245,7 +300,8 @@ public class StandardHomeActivity
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend,
                                      boolean usingRemoteKeyManagement) {
-        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
+        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend,
+                usingRemoteKeyManagement);
         uiController.refreshView();
     }
 
@@ -259,6 +315,41 @@ public class StandardHomeActivity
         return false;
     }
 
+
+    /**
+     * Its not good idea to have such patches but its seems like no choice here.
+     * BaseDrawerActivity is trying to add the drawer before root view of this activity is created. Reason for this is
+     * this home activity is going through lot of process for sessions and then creating root view from `home_screen.xml`
+     * @param status
+     */
+    protected void toggleDrawerSetUp(boolean status){
+        this.rootContainerReadyToShowDrawer = status;
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+
+        if(!rootContainerReadyToShowDrawer) return false;   // wait for root content to get load through xml
+
+
+        if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
+            return true;
+        }
+
+        boolean showDrawer = PersonalIdManager.getInstance().isloggedIn();
+
+        if(showDrawer) {
+            NavDrawerHelper.INSTANCE.setDrawerShown();
+        }
+
+        return showDrawer;
+    }
+
+    @Override
+    protected boolean shouldHighlightSeatedApp() {
+        return true;
+    }
+
     @Override
     public void refreshUI() {
         uiController.refreshView();
@@ -269,7 +360,18 @@ public class StandardHomeActivity
         invalidateOptionsMenu();
     }
 
-    public void performSecondaryPhoneVerification() {
-        PersonalIdManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
+    public void fetchJobProgressOverNetwork() {
+        ConnectJobRecord job = getActiveJob();
+        if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, null,null,success -> {
+                if (success) {
+                    uiController.updateConnectJobProgress();
+                }
+            });
+        }
+    }
+
+    public ConnectJobRecord getActiveJob() {
+        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
     }
 }

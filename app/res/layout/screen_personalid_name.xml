@@ -34,7 +34,7 @@
                     android:textStyle="bold"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:text="@string/name_fragment_subtitle"
+                    android:text="@string/personalid_name_fragment_subtitle"
                     android:textColor="@color/connect_dark_blue_color"
                     android:textSize="16sp" />
 
@@ -52,7 +52,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/connect_side_icon_bg"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:layout_gravity="center">
 
                         <ImageView
                             android:layout_width="42dp"
@@ -69,7 +70,7 @@
                         android:layout_marginStart="16dp"
                         android:background="@drawable/connect_edit_text_bg"
                         android:hint="@string/connect_register_name"
-                        android:inputType="textPersonName"
+                        android:inputType="textPersonName|textCapWords"
                         android:imeOptions="actionNext"
                         android:paddingStart="16dp"
                         android:textColorHint="@color/connect_grey"

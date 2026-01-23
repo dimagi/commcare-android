@@ -73,37 +73,30 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:padding="16dp">
 
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/connect_job_intro_start_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/connect_learn_start"
+                            android:textColor="@color/white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/connect_job_intro_learning_summary"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/connect_job_intro_start_label"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/connect_learn_start"
-                                android:textColor="@color/white"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/connect_job_intro_learning_summary"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:textColor="@color/white"
-                                android:textSize="12sp" />
-                        </LinearLayout>
+                            android:layout_marginTop="16dp"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/connect_job_intro_start_button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
+                            android:layout_gravity="end"
                             android:layout_marginStart="20dp"
                             android:gravity="center"
                             android:text="@string/connect_recovery_button_phone"

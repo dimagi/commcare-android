@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/cloud_sync"
+        android:title="@string/personalid_work_history_sync"
+        android:contentDescription="@string/personalid_work_history_sync"
+        android:icon="@drawable/ic_backup"
+        app:iconTint="@color/white"
+        app:showAsAction="always"/>
+</menu>

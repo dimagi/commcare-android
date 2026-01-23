@@ -52,7 +52,7 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
 
     }
 
-    public static ConnectJobAssessmentRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
+    public static ConnectJobAssessmentRecord fromJson(JSONObject json, int jobId) throws JSONException {
         ConnectJobAssessmentRecord record = new ConnectJobAssessmentRecord();
 
         record.lastUpdate = new Date();

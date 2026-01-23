@@ -324,7 +324,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void processClientError(int responseCode) {
+    public void processClientError(int responseCode, InputStream errorStream) {
         handleRequestError(responseCode, true);
     }
 

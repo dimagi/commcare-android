@@ -105,7 +105,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     }
 
     @Override
-    protected void conditionallyHideSpecificPrefs() {
+    protected void updateConditionallyVisibleSpecificPrefs() {
         Preference reportProblemButton = findPreference(REPORT_PROBLEM);
         if (reportProblemButton != null && DeveloperPreferences.shouldHideReportIssue()) {
             getPreferenceScreen().removePreference(reportProblemButton);

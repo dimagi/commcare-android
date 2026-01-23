@@ -10,6 +10,7 @@ import org.commcare.preferences.ServerUrls;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.SessionStateUninitException;
+import org.javarosa.core.services.Logger;
 
 import java.net.URL;
 
@@ -139,16 +140,35 @@ public class ReportingUtils {
     }
 
     public static String getUserForCrashes() {
-        String user = getUser();
-        if(user.isEmpty()) {
-            try {
-                if (PersonalIdManager.getInstance().isloggedIn()) {
-                    return PersonalIdManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
-                }
-            } catch (Exception ignored) {
+        try {
+            String user = getUser();
+            if (user.isEmpty()) {
+                return getPersonalID();
             }
-        }
+            return user;
+        } catch (Exception ignored) {}
+        return null;
+    }
 
+    public static String getPersonalID() {
+        try {
+            if (PersonalIdManager.getInstance().isloggedIn()) {
+                return PersonalIdManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    public static Boolean getIsPersonalIDDemoUser() {
+        try {
+            PersonalIdManager manager = PersonalIdManager.getInstance();
+            if (manager.isloggedIn()) {
+                return manager.getUser(CommCareApplication.instance()).getIsDemo();
+            }
+        } catch (Exception e) {
+            Logger.exception("Error checking if Personal ID user is a demo user", e);
+        }
         return null;
     }
 }

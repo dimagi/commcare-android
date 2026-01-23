@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -20,6 +21,8 @@ import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.GlobalErrors;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -29,6 +32,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import kotlin.Pair;
 import kotlin.jvm.Volatile;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -96,7 +100,7 @@ public class ConnectNetworkHelper {
         return getInstance().getInternal(context, url, version, authInfo, params, background, handler);
     }
 
-    private static void addVersionHeader(HashMap<String, String> headers, String version) {
+    public static void addVersionHeader(HashMap<String, String> headers, String version) {
         if (version != null) {
             headers.put("Accept", "application/json;version=" + version);
         }
@@ -185,7 +189,7 @@ public class ConnectNetworkHelper {
         return true;
     }
 
-    private static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
+    public static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
         RequestBody requestBody;
 
         if (useFormEncoding) {
@@ -322,7 +326,7 @@ public class ConnectNetworkHelper {
             }
 
             @Override
-            public void processClientError(int responseCode) {
+            public void processClientError(int responseCode, InputStream errorStream) {
                 onFinishProcessing(context, background);
 
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
@@ -338,7 +342,9 @@ public class ConnectNetworkHelper {
                         ConnectSsoHelper.discardTokens(context, null);
                         handler.processTokenUnavailableError();
                     } else {
-                        handler.processFailure(responseCode);
+                        String errorBody = NetworkUtils.getErrorBody(errorStream);
+                        NetworkUtils.logFailedResponse("", responseCode, url, errorBody);
+                        handler.processFailure(responseCode, url, errorBody);
                     }
                 }
             }
@@ -351,7 +357,7 @@ public class ConnectNetworkHelper {
                 CrashUtil.reportException(new Exception(message));
 
                 //500 error for internal server error
-                handler.processFailure(responseCode);
+                handler.processFailure(responseCode, url, "");
             }
 
             @Override
@@ -361,7 +367,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                handler.processFailure(responseCode);
+                handler.processFailure(responseCode, url, "");
             }
 
             @Override
@@ -371,7 +377,7 @@ public class ConnectNetworkHelper {
                     handler.processNetworkFailure();
                 } else {
                     Logger.exception("IO Exception during API call", exception);
-                    handler.processFailure(-1);
+                    handler.processFailure(-1, url, "");
                 }
             }
 
@@ -432,9 +438,8 @@ public class ConnectNetworkHelper {
                 Toast.LENGTH_LONG).show();
     }
 
-    public static void handleTokenDeniedException(Context context) {
-        Toast.makeText(context, context.getString(R.string.recovery_network_token_request_rejected),
-                Toast.LENGTH_LONG).show();
+    public static void handleTokenDeniedException() {
+        ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;

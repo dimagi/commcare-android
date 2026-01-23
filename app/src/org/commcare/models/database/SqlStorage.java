@@ -1,11 +1,6 @@
 package org.commcare.models.database;
 
 import android.database.Cursor;
-import android.util.Log;
-
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteQueryBuilder;
-import net.sqlcipher.database.SQLiteStatement;
 
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.modern.database.DatabaseHelper;
@@ -28,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -95,21 +89,21 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet returnSet) {
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
         return getIDsForValuesInner(db, whereClause, returnSet);
     }
 
     @Override
     public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, String[] inverseFieldNames, Object[] inverseValues, LinkedHashSet returnSet) {
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
         Pair<String, String[]> whereClause = DatabaseHelper.createWhere(fieldNames, values, inverseFieldNames, inverseValues, em, null);
         return getIDsForValuesInner(db, whereClause, returnSet);
     }
 
-    private Vector<Integer> getIDsForValuesInner(SQLiteDatabase db, Pair<String, String[]> whereClause, LinkedHashSet returnSet) {
+    private Vector<Integer> getIDsForValuesInner(IDatabase db, Pair<String, String[]> whereClause, LinkedHashSet returnSet) {
         if (STORAGE_OUTPUT_DEBUG) {
-            String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, null, null, null, null);
+            String sql = db.buildQueryString(false, table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, null, null, null, null);
             DbUtil.explainSql(db, sql, whereClause.second);
         }
 
@@ -205,7 +199,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
 
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
-        SQLiteDatabase appDb = helper.getHandle();
+        IDatabase appDb = helper.getHandle();
 
         Pair<String, String[]> whereClause = helper.createWhereAndroid(rawFieldNames, values, em, null);
         Cursor c = appDb.query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
@@ -270,7 +264,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public int add(Externalizable e) {
-        SQLiteDatabase db;
+        IDatabase db;
         db = helper.getHandle();
         int i = -1;
         db.beginTransaction();
@@ -318,7 +312,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public SQLiteDatabase getAccessLock() {
+    public IDatabase getAccessLock() {
         return helper.getHandle();
     }
 
@@ -353,7 +347,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      */
     @Override
     public SqlStorageIterator<T> iterate(boolean includeData) {
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
 
         SqlStorageIterator<T> spanningIterator = getIndexSpanningIteratorOrNull(db, includeData);
         if (spanningIterator != null) {
@@ -363,26 +357,18 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    protected SqlStorageIterator<T> getIndexSpanningIteratorOrNull(SQLiteDatabase db, boolean includeData) {
+    protected SqlStorageIterator<T> getIndexSpanningIteratorOrNull(IDatabase db, boolean includeData) {
         //If we're just iterating over ID's, we may want to use a different, much
         //faster method depending on our stats. This method retrieves the
         //index records that _don't_ exist so we can assume the spans that
         //do.
         if (!includeData && STORAGE_OPTIMIZATIONS_ACTIVE) {
 
-            SQLiteStatement min = db.compileStatement("SELECT MIN(" + DatabaseHelper.ID_COL + ") from " + table);
+            int minValue = (int)db.runCompileStatement("SELECT MIN(" + DatabaseHelper.ID_COL + ") from " + table);
 
-            SQLiteStatement max = db.compileStatement("SELECT MAX(" + DatabaseHelper.ID_COL + ") from " + table);
+            int maxValue = (int)db.runCompileStatement("SELECT MAX(" + DatabaseHelper.ID_COL + ") from " + table) + 1;
 
-            SQLiteStatement count = db.compileStatement("SELECT COUNT(" + DatabaseHelper.ID_COL + ") from " + table);
-
-            int minValue = (int)min.simpleQueryForLong();
-            int maxValue = (int)max.simpleQueryForLong() + 1;
-            int countValue = (int)count.simpleQueryForLong();
-
-            min.close();
-            max.close();
-            count.close();
+            int countValue = (int)db.runCompileStatement("SELECT COUNT(" + DatabaseHelper.ID_COL + ") from " + table);
 
             double density = countValue / (maxValue - minValue * 1.0);
 
@@ -399,7 +385,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return null;
     }
 
-    protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
+    protected Cursor getIterateCursor(IDatabase db, boolean includeData) {
         String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL} : new String[]{DatabaseHelper.ID_COL};
         return db.query(table, projection, null, null, null, null, null);
     }
@@ -476,7 +462,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public void remove(int id) {
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
             db.delete(table, DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
@@ -490,7 +476,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         if (ids.size() == 0) {
             return;
         }
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
             List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
@@ -513,16 +499,16 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         wipeTable(helper.getHandle(), table);
     }
 
-    public static void wipeTableWithoutCommit(SQLiteDatabase db, String table) {
+    public static void wipeTableWithoutCommit(IDatabase db, String table) {
         db.delete(table, null, null);
     }
 
     /**
      * Deletes all records for the given table
-     * @param db SqliteDatabase the table is present in
+     * @param db database the table is present in
      * @param table table name for which we want to delete the records
      */
-    public static void wipeTable(SQLiteDatabase db, String table) {
+    public static void wipeTable(IDatabase db, String table) {
         db.beginTransaction();
         try {
             if (isTableExist(db, table)) {
@@ -536,10 +522,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     /**
      * Drops the given table
-     * @param db SqliteDatabase the table is present in
+     * @param db database the table is present in
      * @param table name of the table we want to drop
      */
-    public static void dropTable(SQLiteDatabase db, String table) {
+    public static void dropTable(IDatabase db, String table) {
         db.beginTransaction();
         try {
             String sqlStatement = "DROP TABLE IF EXISTS " + table;
@@ -556,7 +542,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @param table table name we want to check for
      * @return true if table exists, false otherwise
      */
-    public static boolean isTableExist(SQLiteDatabase db, String table) {
+    public static boolean isTableExist(IDatabase db, String table) {
         Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + table + "'", null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -575,7 +561,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(toRemove);
 
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
             for (Pair<String, String[]> whereParams : whereParamList) {
@@ -611,7 +597,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public void update(int id, Externalizable e) {
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
             db.update(table, helper.getContentValues(e), DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
@@ -627,7 +613,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             update(p.getID(), p);
             return;
         }
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
             long ret = db.insertOrThrow(table, DatabaseHelper.DATA_COL, helper.getContentValues(p));
@@ -648,7 +634,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * @return An iterator which can provide a list of all of the indices in this table.
      */
-    private SqlStorageIterator<T> getCoveringIndexIterator(SQLiteDatabase db, int minValue, int maxValue, int countValue) {
+    private SqlStorageIterator<T> getCoveringIndexIterator(IDatabase db, int minValue, int maxValue, int countValue) {
         //So here's what we're doing:
         //Build a select statement that has all of the numbers from 1 to 100k
         //Filter it to contain our real boundaries

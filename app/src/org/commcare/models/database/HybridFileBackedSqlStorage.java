@@ -3,9 +3,10 @@ package org.commcare.models.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
@@ -92,7 +93,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     @Override
     public Vector<T> getRecordsForValues(String[] fieldNames,
                                          Object[] values) {
-        SQLiteDatabase db = getDbOrThrow();
+        IDatabase db = getDbOrThrow();
 
         Pair<String, String[]> whereClauseAndArgs =
                 helper.createWhereAndroid(fieldNames, values, em, null);
@@ -158,7 +159,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         }
     }
 
-    private SQLiteDatabase getDbOrThrow() {
+    private IDatabase getDbOrThrow() {
         return helper.getHandle();
     }
 
@@ -170,7 +171,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     @Override
     public T getRecordForValues(String[] rawFieldNames, Object[] values)
             throws NoSuchElementException, InvalidIndexException {
-        SQLiteDatabase db = getDbOrThrow();
+        IDatabase db = getDbOrThrow();
 
         Pair<String, String[]> whereArgsAndVals =
                 helper.createWhereAndroid(rawFieldNames, values, em, null);
@@ -251,7 +252,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             update(persistable.getID(), persistable);
             return;
         }
-        SQLiteDatabase db = getDbOrThrow();
+        IDatabase db = getDbOrThrow();
 
         boolean startedTransaction = false;
 
@@ -330,6 +331,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     private void writeStreamToFile(ByteArrayOutputStream bos, String filename,
                                    byte[] key) throws IOException {
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+
         DataOutputStream fileOutputStream = null;
         try {
             fileOutputStream = getOutputFileStream(filename, key);
@@ -342,6 +345,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     e.printStackTrace();
                 }
             }
+            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, bos.size(), filename);
         }
     }
 
@@ -358,7 +362,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     @Override
     public void update(int id, Externalizable extObj) {
-        SQLiteDatabase db = getDbOrThrow();
+        IDatabase db = getDbOrThrow();
 
         ByteArrayOutputStream bos = null;
         boolean startedTransaction = false;
@@ -406,7 +410,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     private void updateEntryToStoreInDb(Externalizable extObj, boolean objectInDb,
                                         String filename, ByteArrayOutputStream bos,
-                                        SQLiteDatabase db, int id) {
+                                        IDatabase db, int id) {
         ContentValues updatedContentValues =
                 helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
         if (!objectInDb) {
@@ -424,7 +428,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                                         String currentFilePath, String newFilePath,
                                         byte[] fileEncryptionKey,
                                         ByteArrayOutputStream bos,
-                                        SQLiteDatabase db,
+                                        IDatabase db,
                                         int id) throws IOException {
         ContentValues updatedContentValues;
         if (objectInDb) {
@@ -449,7 +453,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     @Override
     public void remove(int id) {
-        SQLiteDatabase db = getDbOrThrow();
+        IDatabase db = getDbOrThrow();
 
         String filename = HybridFileBackedSqlHelpers.getEntryFilename(helper, table, id);
         db.beginTransaction();
@@ -469,7 +473,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     @Override
     public void remove(List<Integer> ids) {
         if (ids.size() > 0) {
-            SQLiteDatabase db = getDbOrThrow();
+            IDatabase db = getDbOrThrow();
             List<String> filesToRemove;
             db.beginTransaction();
             try {
@@ -516,7 +520,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             List<Pair<String, String[]>> whereParamList =
                     TableBuilder.sqlList(removed);
 
-            SQLiteDatabase db = getDbOrThrow();
+            IDatabase db = getDbOrThrow();
 
             List<String> filesToRemove;
             db.beginTransaction();
@@ -540,7 +544,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     @Override
     public SqlStorageIterator<T> iterate(boolean includeData) {
-        SQLiteDatabase db = getDbOrThrow();
+        IDatabase db = getDbOrThrow();
 
         SqlStorageIterator<T> spanningIterator =
                 getIndexSpanningIteratorOrNull(db, includeData);
@@ -552,7 +556,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     @Override
-    protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
+    protected Cursor getIterateCursor(IDatabase db, boolean includeData) {
         if (includeData) {
             return db.query(table, dataColumns, null, null, null, null, null);
         } else {

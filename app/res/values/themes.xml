@@ -32,11 +32,20 @@
         <item name="android:scrollViewStyle">@style/fading_edge</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:dropDownListViewStyle">@style/dropDownListView</item>
+        <item name="toolbarNavigationButtonStyle">@style/WhiteNavIcon</item>
+        <item name="colorControlNormal">@android:color/white</item>
+
 
         <!--  Material Components styling that can be removed when we migrate to a material component theme from the bridge theme-->
         <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
         <item name="materialCalendarFullscreenTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar.Fullscreen</item>
         <item name="materialCalendarTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar</item>
+
+    </style>
+
+    <style name="CommonTheme.NoActionBar" parent="CommonTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />
@@ -103,6 +112,10 @@
     </style>
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="colorPrimary">@color/connect_dark_blue_color</item>
+    </style>
+
+    <style name="WhiteNavIcon" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="android:tint">@color/white</item>
     </style>
 
 </resources>

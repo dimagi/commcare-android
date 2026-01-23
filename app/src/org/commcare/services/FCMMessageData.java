@@ -1,5 +1,14 @@
 package org.commcare.services;
 
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+
+import android.graphics.Bitmap;
+
+import org.commcare.CommCareNoficationManager;
+import org.commcare.dalvik.R;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -12,24 +21,51 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
+import androidx.core.app.NotificationCompat;
+
 /**
  * This class is to facilitate handling the FCM Message Data object. It should contain all the
  * necessary checks and transformations
  */
-public class FCMMessageData implements Externalizable{
-    private CommCareFirebaseMessagingService.ActionTypes action;
+public class FCMMessageData implements Externalizable {
+    private ActionTypes actionType;
     private String username;
     private String domain;
     private DateTime creationTime;
+    private String notificationTitle;
+    private String notificationText;
+    private int priority;
+    private Bitmap largeIcon;
+    private int smallIcon;
+    private String action;
+    private String notificationChannel;
+    private Map<String, String> payloadData;
 
-    public FCMMessageData(Map<String, String> payloadData){
-        this.action = getActionType(payloadData.get("action"));
-        this.username = payloadData.get("username");
-        this.domain = payloadData.get("domain");
-        this.creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
+
+    /**
+     * Action Type for data syncer
+     */
+    public enum ActionTypes {
+        SYNC,
+        INVALID
     }
-    
-    public FCMMessageData(){}
+
+    public FCMMessageData(Map<String, String> payloadData) {
+        this.payloadData = payloadData;
+        actionType = getActionType(payloadData.get(REDIRECT_ACTION));
+        username = payloadData.get("username");
+        domain = payloadData.get("domain");
+        creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
+        notificationTitle = payloadData.get(NOTIFICATION_TITLE);
+        notificationText = payloadData.get(NOTIFICATION_BODY);
+        action = payloadData.get(REDIRECT_ACTION);
+        priority = NotificationCompat.PRIORITY_HIGH;
+        notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
+        smallIcon = R.drawable.commcare_actionbar_logo;
+    }
+
+    public FCMMessageData() {
+    }
 
     public String getUsername() {
         return username;
@@ -43,12 +79,12 @@ public class FCMMessageData implements Externalizable{
         return creationTime;
     }
 
-    public CommCareFirebaseMessagingService.ActionTypes getAction() {
-        return action;
+    public ActionTypes getActionType() {
+        return actionType;
     }
 
     private DateTime convertISO8601ToDateTime(String timeInISO8601) {
-        if (timeInISO8601 == null){
+        if (timeInISO8601 == null) {
             return new DateTime();
         }
         try {
@@ -59,24 +95,25 @@ public class FCMMessageData implements Externalizable{
         }
     }
 
-    private CommCareFirebaseMessagingService.ActionTypes getActionType(String action) {
+    private ActionTypes getActionType(String action) {
         if (action == null) {
-            return CommCareFirebaseMessagingService.ActionTypes.INVALID;
+            return ActionTypes.INVALID;
         }
 
         switch (action.toUpperCase()) {
             case "SYNC" -> {
-                return CommCareFirebaseMessagingService.ActionTypes.SYNC;
+                return ActionTypes.SYNC;
             }
             default -> {
-                return CommCareFirebaseMessagingService.ActionTypes.INVALID;
+                return ActionTypes.INVALID;
             }
         }
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        action = CommCareFirebaseMessagingService.ActionTypes.valueOf(ExtUtil.readString(in));
+        actionType = ActionTypes.valueOf(ExtUtil.readString(in));
+        action = ExtUtil.readString(in);
         username = ExtUtil.readString(in);
         domain = ExtUtil.readString(in);
         creationTime = new DateTime(ExtUtil.readLong(in));
@@ -84,10 +121,71 @@ public class FCMMessageData implements Externalizable{
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, action.toString());
+        ExtUtil.writeString(out, actionType.toString());
+        ExtUtil.writeString(out, action);
         ExtUtil.writeString(out, username);
         ExtUtil.writeString(out, domain);
         ExtUtil.writeNumeric(out, creationTime.getMillis());
+    }
+
+    public String getNotificationTitle() {
+        return notificationTitle;
+    }
+
+    public void setNotificationTitle(String notificationTitle) {
+        this.notificationTitle = notificationTitle;
+    }
+
+    public String getNotificationText() {
+        return notificationText;
+    }
+
+    public void setNotificationText(String notificationText) {
+        this.notificationText = notificationText;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public Bitmap getLargeIcon() {
+        return largeIcon;
+    }
+
+    public void setLargeIcon(Bitmap largeIcon) {
+        this.largeIcon = largeIcon;
+    }
+
+    public int getSmallIcon() {
+        return smallIcon;
+    }
+
+    public void setSmallIcon(int smallIcon) {
+        this.smallIcon = smallIcon;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public String getNotificationChannel() {
+        return notificationChannel;
+    }
+
+    public void setNotificationChannel(String notificationChannel) {
+        this.notificationChannel = notificationChannel;
+    }
+
+    public Map<String, String> getPayloadData() {
+        return payloadData;
     }
 }
 

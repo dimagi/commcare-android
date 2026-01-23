@@ -1,29 +1,33 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.os.Handler;
+
+import androidx.annotation.NonNull;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.ConnectConstants;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.ApiClient;
-import org.commcare.connect.network.connectId.ApiService;
+import org.commcare.connect.network.base.BaseApi;
+import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,81 +38,82 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import androidx.annotation.NonNull;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.HttpException;
 import retrofit2.Response;
 
 
 public class ApiPersonalId {
     private static final String API_VERSION_NONE = null;
-    public static final String API_VERSION_PERSONAL_ID = "2.0";
-    private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
-    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("token", connectToken);
 
-        String host;
-        String domain;
-        String url;
-        try {
-            host = (new URL(ServerUrls.getKeyServer())).getHost();
-            domain = HiddenPreferences.getUserDomainWithoutServerUrl();
-            String myStr = "https://%s/a/%s/settings/users/commcare/link_connectid_user/";
-            url = String.format(myStr, host, domain);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+    public static void makeHeartbeatRequest(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+            @Override
+            public void tokenRetrieved(AuthInfo.TokenAuth token) {
 
-        try {
-            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
-            if (postResult.responseCode == 200) {
-                postResult.responseStream.close();
-                appRecord.setWorkerLinked(true);
-                ConnectAppDatabaseUtil.storeApp(context, appRecord);
-            } else {
-                Logger.log("API Error", "API call to link HQ worker failed with code " + postResult.responseCode);
+                HashMap<String, Object> params = new HashMap<>();
+                String firebaseToken = FirebaseMessagingUtil.getFCMToken();
+                if (firebaseToken != null) {
+                    params.put("fcm_token", firebaseToken);
+                }
+
+                String tokenAuth = HttpUtils.getCredential(token);
+                HashMap<String, String> headers = new HashMap<>();
+                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
+                ApiService apiService = PersonalIdApiClient.getClientApi();
+                Call<ResponseBody> call = apiService.connectHeartbeat(tokenAuth,headers, requestBody);
+                BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.connectHeartbeatURL);
             }
-        } catch (IOException e) {
-            CrashUtil.log("Linking HQ worker fails");
-            CrashUtil.reportException(e);
-        }
+
+            @Override
+            public void tokenUnavailable() {
+                callback.processTokenUnavailableError();
+            }
+
+            @Override
+            public void tokenRequestDenied() {
+                callback.processTokenRequestDeniedError();
+            }
+        });
+
+
     }
 
-    public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
-        HashMap<String, Object> params = new HashMap<>();
-        String token = FirebaseMessagingUtil.getFCMToken();
-        if (token != null) {
-            params.put("fcm_token", token);
-            boolean useFormEncoding = true;
-            return ConnectNetworkHelper.postSync(context, url, API_VERSION_PERSONAL_ID, auth, params, useFormEncoding, true);
-        }
+    public static void retrievePersonalIdToken(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
 
-        return new ConnectNetworkHelper.PostResult(-1, null, null);
-    }
-
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user) throws
-            TokenDeniedException, TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+        params.put("client_id", CONNECT_CLIENT_ID);
         params.put("scope", "openid");
         params.put("grant_type", "password");
         params.put("username", user.getUserId());
         params.put("password", user.getPassword());
 
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, PersonalIdApiClient.API_VERSION, headers);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.connectToken(headers,requestBody);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectTokenURL);
+    }
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
+            throws TokenDeniedException, TokenUnavailableException {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("client_id", CONNECT_CLIENT_ID);
+        params.put("scope", "openid");
+        params.put("grant_type", "password");
+        params.put("username", user.getUserId());
+        params.put("password", user.getPassword());
+
+        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                API_VERSION_PERSONAL_ID, new AuthInfo.NoAuth(), params, true, false);
+                PersonalIdApiClient.API_VERSION, new AuthInfo.NoAuth(), params, true, false);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result " + postResult.responseCode);
         if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
             try {
@@ -121,7 +126,7 @@ public class ApiPersonalId {
                 Date expiration = new Date();
                 key = ConnectConstants.CONNECT_KEY_EXPIRES;
                 int seconds = json.has(key) ? json.getInt(key) : 0;
-                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
                 user.updateConnectToken(token, expiration);
                 ConnectUserDatabaseUtil.storeUser(context, user);
 
@@ -132,13 +137,38 @@ public class ApiPersonalId {
                 Logger.exception("Parsing return from ConnectID token call", e);
             }
         } else if (postResult.responseCode == 400) {
+            Logger.exception("Token Request Denied", new Throwable("Encountered 400 while retrieving ConnectID token"));
             throw new TokenDeniedException();
         }
 
         throw new TokenUnavailableException();
     }
 
-    public static AuthInfo.TokenAuth retrieveHqTokenSync(Context context, String hqUsername, String connectToken) throws TokenUnavailableException {
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("token", connectToken);
+
+        String url = ServerUrls.getKeyServer().replace("phone/keys/",
+                "settings/users/commcare/link_connectid_user/");
+
+        try {
+            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Link Connect ID result " + postResult.responseCode);
+            if (postResult.e == null && postResult.responseCode == 200) {
+                postResult.responseStream.close();
+
+                //Remember that we linked the user successfully
+                appRecord.setWorkerLinked(true);
+                ConnectAppDatabaseUtil.storeApp(context, appRecord);
+            }
+        } catch (IOException e) {
+            Logger.exception("Linking HQ worker", e);
+        }
+    }
+
+    public static AuthInfo.TokenAuth retrieveHqTokenSync(Context context, String hqUsername, String connectToken)
+            throws TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
         params.put("scope", "mobile_access sync");
@@ -185,82 +215,8 @@ public class ApiPersonalId {
         throw new TokenUnavailableException();
     }
 
-
-    public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
-        ConnectNetworkHelper.get(context,
-                url,
-                API_VERSION_PERSONAL_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
-                ArrayListMultimap.create(), true, callback);
-    }
-
-    public static void showProgressDialog(Context context) {
-        if (context instanceof CommCareActivity<?>) {
-            Handler handler = new Handler(context.getMainLooper());
-            handler.post(() -> {
-                try {
-                    ((CommCareActivity<?>)context).showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_ID);
-                } catch (Exception e) {
-                    //Ignore, ok if showing fails
-                }
-            });
-        }
-    }
-
-    public static void dismissProgressDialog(Context context) {
-        if (context instanceof CommCareActivity<?>) {
-            Handler handler = new Handler(context.getMainLooper());
-            handler.post(() -> {
-                ((CommCareActivity<?>)context).dismissProgressDialogForTask(ConnectConstants.NETWORK_ACTIVITY_ID);
-            });
-        }
-    }
-
-    private static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback) {
-        showProgressDialog(context);
-        call.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                dismissProgressDialog(context);
-                if (response.isSuccessful() && response.body() != null) {
-                    // Handle success
-                    try (InputStream responseStream = response.body().byteStream()) {
-                        callback.processSuccess(response.code(), responseStream);
-                    } catch (IOException e) {
-                        // Handle error when reading the stream
-                        callback.processFailure(response.code());
-                    }
-                } else {
-                    // Handle validation errors
-                    logNetworkError(response);
-                    callback.processFailure(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                dismissProgressDialog(context);
-                // Handle network errors, etc.
-                handleNetworkError(t);
-                callback.processNetworkFailure();
-            }
-        });
-    }
-
-    public static void resetPassword(Context context, String phoneNumber, String recoverySecret,
-                                     String newPassword, IApiCallback callback) {
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phoneNumber);
-        params.put("secret_key", recoverySecret);
-        params.put("password", newPassword);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.resetPassword(params);
-        callApi(context, call, callback);
-    }
-
     public static void confirmBackupCode(Context context,
-                                String backupCode,String token ,IApiCallback callback) {
+            String backupCode, String token, IApiCallback callback) {
 
         HashMap<String, String> params = new HashMap<>();
         params.put("recovery_pin", backupCode);
@@ -268,43 +224,53 @@ public class ApiPersonalId {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
 
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmPin(tokenAuth, params);
-        callApi(context, call, callback);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.confirmBackupCode);
     }
 
-    public static void setBackupCode(Context context, String username, String password,
-                                     String backupCode, IApiCallback callback) {
-
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", backupCode);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.setBackupCode(token, params);
-        callApi(context, call, callback);
+    public static void reportIntegrity(Context context, Map<String, String> body, String integrityToken,
+                                          String requestHash, IApiCallback callback) {
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.reportIntegrity(integrityToken, requestHash, body);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.reportIntegrity);
     }
 
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
             String requestHash, IApiCallback callback) {
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
-        callApi(context, call, callback);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.startConfiguration);
     }
 
-    public static void addOrVerifyName(Context context, String name, IApiCallback callback) {
+    public static void validateFirebaseIdToken(String token, Context context, String firebaseIdToken,
+            IApiCallback callback) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", firebaseIdToken);
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.validateFirebaseIdToken);
+    }
+
+    public static void addOrVerifyName(Context context, String name, String token, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("name", name);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.checkName(params);
-        callApi(context, call, callback);
+
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.checkName);
     }
 
     public static void updateUserProfile(Context context, String username,
-                                         String password, String displayName,
-                                         String secondaryPhone, IApiCallback callback) {
+            String password, String displayName,
+            String secondaryPhone, IApiCallback callback) {
         //Update the phone number with the server
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
@@ -316,92 +282,107 @@ public class ApiPersonalId {
         if (displayName != null) {
             params.put("name", displayName);
         }
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
-        callApi(context, call, callback);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.updateProfile);
     }
 
-    public static void setPhotoAndCompleteProfile(Context context, String userId, String password, String userName,
-                                                  String photoAsBase64, String backupCode, IApiCallback callback) {
+    public static void setPhotoAndCompleteProfile(Context context, String userName,
+            String photoAsBase64, String backupCode, String token, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-        Objects.requireNonNull(token);
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("photo", photoAsBase64);
         params.put("name", userName);
         params.put("recovery_pin", backupCode);
 
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.completeProfile(token, params);
-        callApi(context, call, callback);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.completeProfile);
     }
 
-    public static void requestRegistrationOtpPrimary(Context context, String username, String password,
-                                                     IApiCallback callback) {
+    public static void retrieveWorkHistory(Context context, String userId, String password,
+            IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.CREDENTIALS);
+    }
+
+    public static void retrieveNotifications(Context context, String userId, String password,
+                                             IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.getAllNotifications(tokenAuth);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.RETRIEVE_NOTIFICATIONS);
+    }
+
+    public static void updateNotifications(Context context, String userId, String password, IApiCallback callback, List<String> notificationId) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("notifications", notificationId);
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, false, PersonalIdApiClient.API_VERSION, headers);
+        Call<ResponseBody> call = apiService.updateNotification(tokenAuth, headers, requestBody);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.UPDATE_NOTIFICATIONS);
+    }
+
+    public static void sendOtp(Context context, String token, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.sendSessionOtp(tokenAuth);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.sendSessionOtp);
+    }
+
+    public static void validateOtp(Context context, String token, String otp, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("otp", otp);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateSessionOtp(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.validateSessionOtp);
+    }
+
+
+
+    public static void retrieveMessages(Context context, String username, String password,IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.validatePhone(token, params);
-        callApi(context, call, callback);
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        ConnectNetworkHelper.get(context,
+                context.getString(R.string.ConnectMessageRetrieveMessagesURL),
+                PersonalIdApiClient.API_VERSION, authInfo, params, true, callback);
     }
 
-    public static void requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.requestOTPPrimary(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmRegistrationOtpPrimary(Context context, String username, String password,
-                                                     String token, IApiCallback callback) {
+    public static boolean updateChannelConsent(Context context, String username, String password,
+                                               String channel, boolean consented,
+                                               IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String basicToken = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("token", token);
 
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmOTP(basicToken, params);
-        callApi(context, call, callback);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("channel", channel);
+        params.put("consent", consented);
+
+        return ConnectNetworkHelper.post(context,
+                context.getString(R.string.ConnectMessageChannelConsentURL),
+                PersonalIdApiClient.API_VERSION, authInfo, params, false, false, callback);
     }
 
-    public static void confirmRecoveryOtpPrimary(Context context, String phone, String secret,
-                                                 String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("token", token);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.recoverConfirmOTP(params);
-        callApi(context, call, callback);
-    }
-
-    public static void requestInitiateAccountDeactivation(Context context, String phone, String secretKey, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("secret_key", secretKey);
-        params.put("phone_number", phone);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.accountDeactivation(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmUserDeactivation(Context context, String phone, String secret,
-                                               String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone_number", phone);
-        params.put("secret_key", secret);
-        params.put("token", token);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmDeactivation(params);
-        callApi(context, call, callback);
-    }
-
-    private static void logNetworkError(Response<?> response) {
+    private static void handleApiError(Response<?> response) {
         String message = response.message();
         if (response.code() == 400) {
             // Bad request (e.g., validation failed)
@@ -420,16 +401,95 @@ public class ApiPersonalId {
         }
     }
 
-    private static void handleNetworkError(Throwable t) {
-        String message = t.getMessage();
-        if (t instanceof IOException) {
-            // IOException is usually a network error (no internet, timeout, etc.)
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Network Error: " + message);
-        } else if (t instanceof HttpException) {
-            // Handle HTTP exceptions separately if needed
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "HTTP Error: " + message);
-        } else {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Unexpected Error: " + message);
+    public static void retrieveChannelEncryptionKey(Context context, @NonNull ConnectUserRecord user, String channelId, String channelUrl, IApiCallback callback) {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+            @Override
+            public void tokenRetrieved(AuthInfo.TokenAuth token) {
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("channel_id", channelId);
+
+                ConnectNetworkHelper.post(context,
+                        channelUrl,
+                        null, token, params, true, true, callback);
+            }
+
+            @Override
+            public void tokenUnavailable() {
+                callback.processTokenUnavailableError();
+            }
+
+            @Override
+            public void tokenRequestDenied() {
+                callback.processTokenRequestDeniedError();
+            }
+        });
+    }
+
+    public static void handleReceivedChannelEncryptionKey(Context context, InputStream stream, ConnectMessagingChannelRecord channel) {
+        try {
+            String responseAsString = new String(
+                    StreamsUtil.inputStreamToByteArray(stream));
+
+            if(responseAsString.length() > 0) {
+                JSONObject json = new JSONObject(responseAsString);
+                channel.setKey(json.getString("key"));
+                ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
+            }
+        } catch(JSONException e) {
+            throw new RuntimeException(e);
+        } catch(IOException e) {
+            Logger.exception("Parsing return from key request", e);
         }
+    }
+
+    public static void confirmReceivedMessages(Context context, String username, String password,
+                                                  List<String> messageIds, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("messages", messageIds);
+
+        ConnectNetworkHelper.post(context,
+                context.getString(R.string.ConnectMessageConfirmURL),
+                PersonalIdApiClient.API_VERSION, authInfo, params, false, true, callback);
+    }
+
+    public static void sendMessagingMessage(Context context, String username, String password,
+                                            ConnectMessagingMessageRecord message, String key, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        String[] parts = ConnectMessagingMessageRecord.encrypt(message.getMessage(), key);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("channel", message.getChannelId());
+
+        HashMap<String, String> content = new HashMap<>();
+        try {
+            content.put("ciphertext", parts[0]);
+            content.put("nonce", parts[1]);
+            content.put("tag", parts[2]);
+        } catch(Exception e) {
+            Logger.exception("Sending message", e);
+        }
+        params.put("content", content);
+        params.put("timestamp", DateUtils.formatDateTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
+        params.put("message_id", message.getMessageId());
+
+        ConnectNetworkHelper.post(context,
+                context.getString(R.string.ConnectMessageSendURL),
+                PersonalIdApiClient.API_VERSION, authInfo, params, false, true, callback);
+    }
+
+    public static void getReleaseToggles(
+            Context context,
+            String userId,
+            String password,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String authToken = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.getReleaseToggles(authToken);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.RELEASE_TOGGLES);
     }
 }

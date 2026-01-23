@@ -39,7 +39,6 @@ import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.gis.EntityMapActivity;
-import org.commcare.gis.EntityMapboxActivity;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
@@ -309,7 +308,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         TextView message = findViewById(R.id.screen_compound_select_prompt);
         //use the old method here because some Android versions don't like Spannables for titles
-        message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+        message.setText(Localization.get("select.placeholder.message",
+                new String[]{Localization.get("cchq.case")}));
     }
 
     @Override
@@ -331,7 +331,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
 
                 // include selected entity in the launching detail intent
-                Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
+                Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef,
+                        null, selectDatum, asw);
 
                 isStartingDetailActivity = true;
                 startActivityForResult(detailIntent, CONFIRM_SELECT);
@@ -418,7 +419,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 //Once we've done the initial dispatch, we don't want to end up triggering it later.
                 this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
 
-                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedEntity, null, selectDatum, asw);
+                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedEntity,
+                        null, selectDatum, asw);
                 if (adapter != null) {
                     i.putExtra("entity_detail_index", adapter.getPosition(selectedEntity));
                     i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
@@ -538,7 +540,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         super.onDestroy();
         if (loader != null) {
             if (isFinishing()) {
-                loader.cancel(false);
+                loader.cancel(true);
             } else {
                 loader.detachActivity();
             }
@@ -762,7 +764,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // before we're ready
             menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
         }
-
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -776,12 +777,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 createSortMenu();
                 return true;
             case MENU_MAP:
-                Intent intent = new Intent(this,
-                        HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
+                Intent intent = new Intent(this, EntityMapActivity.class);
                 this.startActivityForResult(intent, MAP_SELECT);
                 return true;
             // handling click on the barcode scanner's actionbar
-            // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
+            // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work
+            // because it returns null
             case R.id.barcode_scan_action_bar:
                 barcodeScanOnClickListener.onClick(null);
                 return true;
@@ -801,7 +802,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public static void triggerDetailAction(Action action, CommCareActivity activity) {
         try {
-            CommCareApplication.instance().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
+            CommCareApplication.instance().getCurrentSessionWrapper().executeStackActions(
+                    action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
             new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, true);
             return;
@@ -834,11 +836,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 if (currentSort == -1) {
                     for (int j = 0; j < sorts.length; ++j) {
                         if (sorts[j] == i) {
-                            prepend = (j + 1) + " " + (fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ");
+                            prepend = (j + 1) + " " +
+                                    (fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ");
                         }
                     }
                 } else if (currentSort == i) {
-                    prepend = reversed ^ fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ";
+                    prepend = reversed ^
+                            fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ";
                 }
                 namesList.add(prepend + result);
                 keyArray[added] = i;
@@ -924,7 +928,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void updateSelectedItem(boolean forceMove) {
         TreeReference chosen = null;
         if (selectedIntent != null) {
-            chosen = SerializationUtil.deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            chosen = SerializationUtil.deserializeFromIntent(selectedIntent,
+                    EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
         }
         updateSelectedItem(chosen, forceMove);
     }
@@ -974,7 +979,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             detailView.setRoot(detailView);
 
             Detail detail = session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID));
-            factory = new NodeEntityFactory(detail, session.getEvaluationContext(new AndroidInstanceInitializer(session)));
+            factory = new NodeEntityFactory(detail,
+                    session.getEvaluationContext(new AndroidInstanceInitializer(session)));
 
             if (detail.isCompound()) {
                 // border around right panel doesn't look right when there are tabs
@@ -1008,7 +1014,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 EntityLoadingProgressListener.EntityLoadingProgressPhase.fromInt(values[0]);
         int phaseProgress = values[1] * 100 / values[2];
         int totalPhases = 1;
-        if(shortSelect.isCacheEnabled()){
+        if (shortSelect.isCacheEnabled()) {
             // with caching we deliver progress in 3 separate phases
             totalPhases = 3;
         }
@@ -1088,6 +1094,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     public EvaluationContext evalContext() {
-        return asw.getEvaluationContext();
+        EvaluationContext ec = asw.getEvaluationContext();
+        ec.addFunctionHandler(hereFunctionHandler);
+        return ec;
     }
 }

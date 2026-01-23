@@ -1,88 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="20dp">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    android:orientation="vertical"
+    android:padding="10dp">
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:background="@color/white"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        app:cardCornerRadius="20dp"
+        android:padding="10dp">
 
-        <ImageView
-            android:id="@+id/img_payment_status"
-            android:layout_width="33dp"
-            android:layout_height="33dp"
-            android:src="@drawable/ic_connect_payment_status_transferred"
-            android:contentDescription="@null"
-            android:importantForAccessibility="no"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_payment_confirmation_title"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:background="@color/white"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:textColor="@color/grey_dark"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/img_payment_status"
-            app:layout_constraintStart_toEndOf="@+id/img_payment_status"
-            app:layout_constraintTop_toTopOf="@+id/img_payment_status"
-            tools:text="@string/connect_payment_confirm_transferred"
-            android:textStyle="bold"/>
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_payment_amount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textColor="@color/black"
-            android:textSize="26sp"
-            app:layout_constraintStart_toStartOf="@+id/tv_payment_confirmation_title"
-            app:layout_constraintTop_toBottomOf="@+id/tv_payment_confirmation_title"
-            android:textStyle="bold"/>
+            <ImageView
+                android:id="@+id/img_payment_status"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:src="@drawable/ic_connect_payment_status_transferred"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tv_payment_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/grey_dark"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@+id/tv_payment_confirmation_title"
-            app:layout_constraintTop_toBottomOf="@+id/tv_payment_amount" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="15dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_payment_date">
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/NegativeButtonStyle"
-                android:id="@+id/ri_no"
+            <TextView
+                android:id="@+id/tv_payment_confirmation_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="@string/connect_payment_dialog_no"
-                 />
+                android:layout_marginStart="16dp"
+                android:textColor="@color/grey_dark"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/img_payment_status"
+                app:layout_constraintStart_toEndOf="@+id/img_payment_status"
+                app:layout_constraintTop_toTopOf="@+id/img_payment_status"
+                tools:text="@string/connect_payment_confirm_transferred"
+                android:textStyle="bold"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ri_yes"
+            <TextView
+                android:id="@+id/tv_payment_amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/connect_payment_dialog_yes"
-                android:textColor="@color/white"
-                />
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:textSize="26sp"
+                app:layout_constraintStart_toStartOf="@+id/tv_payment_confirmation_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_payment_confirmation_title"
+                android:textStyle="bold"/>
 
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+            <TextView
+                android:id="@+id/tv_payment_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/grey_dark"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/tv_payment_confirmation_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_payment_amount" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="15dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_payment_date">
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/NegativeButtonStyle"
+                    android:id="@+id/ri_no"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/connect_payment_dialog_no"
+                     />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ri_yes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_payment_dialog_yes"
+                    android:textColor="@color/white"
+                    />
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

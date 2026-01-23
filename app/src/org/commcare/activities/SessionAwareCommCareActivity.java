@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.utils.SessionRegistrationHelper;
 
 /**
@@ -10,7 +11,7 @@ import org.commcare.utils.SessionRegistrationHelper;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R> implements SessionAwareInterface {
+public abstract class SessionAwareCommCareActivity<R> extends BaseDrawerActivity<R> implements SessionAwareInterface {
 
     private boolean redirectedInOnCreate;
 

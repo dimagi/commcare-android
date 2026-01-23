@@ -1,7 +1,6 @@
 package org.commcare.fragments.personalId;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,48 +10,44 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import static android.app.Activity.RESULT_OK;
+
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
 import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
  */
-public class PersonalIdBiometricConfigFragment extends Fragment {
-
+public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     private BiometricManager biometricManager;
-    private boolean isAttemptingFingerprint = false;
     private BiometricPrompt.AuthenticationCallback biometricCallback;
-    private static final String KEY_ATTEMPTING_FINGERPRINT = "attempting_fingerprint";
     private ScreenPersonalidVerifyBinding binding;
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
 
@@ -63,16 +58,15 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_ATTEMPTING_FINGERPRINT, isAttemptingFingerprint);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            isAttemptingFingerprint = savedInstanceState.getBoolean(KEY_ATTEMPTING_FINGERPRINT);
-        }
-        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
+        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class);
+        BiometricsHelper.checkForValidSecurityType(personalIdSessionDataViewModel
+                .getPersonalIdSessionData().getRequiredLock());
     }
 
     @Override
@@ -91,13 +85,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        refreshAuthenticationOptions();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+        updateUiBasedOnMinSecurityRequired();
     }
 
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
@@ -106,48 +94,26 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                if (isAttemptingFingerprint) {
-                    isAttemptingFingerprint = false;
-                    if (BiometricsHelper.isPinConfigured(context, biometricManager)) {
-                        initiatePinAuthentication();
-                        return;
-                    }
-                }
                 Logger.exception("Biometric error", new Exception(String.format(Locale.getDefault(),
                         "Biometric error without PIN fallback: %s (%d)", errString, errorCode)));
-                Toast.makeText(context, getString(R.string.connect_verify_configuration_failed, errString),
-                        Toast.LENGTH_SHORT).show();
+                binding.errorTextView.setVisibility(View.VISIBLE);
+                binding.errorTextView.setText(BiometricsHelper.getBiometricError(errorCode,requireContext()));
             }
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                reportAuthSuccess();
                 navigateForward(false);
+                binding.errorTextView.setVisibility(View.GONE);
             }
 
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Toast.makeText(requireActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
+                binding.errorTextView.setVisibility(View.GONE);
+                Toast.makeText(requireActivity(), getString(R.string.personalid_authentication_failed), Toast.LENGTH_SHORT).show();
             }
         };
-    }
-
-    private void reportAuthSuccess() {
-        String method = isAttemptingFingerprint ? AnalyticsParamValue.CCC_SIGN_IN_METHOD_FINGERPRINT
-                : AnalyticsParamValue.CCC_SIGN_IN_METHOD_PIN;
-        FirebaseAnalyticsUtil.reportCccSignIn(method);
-    }
-
-    private void refreshAuthenticationOptions() {
-        String errorMsgForMinHardwareForSecurity = BiometricsHelper.getMinHardwareErrorForSecurityIfAny(biometricManager, getActivity(), personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock());
-        if (errorMsgForMinHardwareForSecurity != null) {
-            Logger.exception("Security configuration failure", new Exception(errorMsgForMinHardwareForSecurity));
-            navigateToMessageDisplayForSecurityConfigurationFailure(errorMsgForMinHardwareForSecurity);
-        } else {
-            updateUiBasedOnMinSecurityRequired();
-        }
     }
 
     private void updateUiBasedOnMinSecurityRequired() {
@@ -157,38 +123,30 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         BiometricsHelper.ConfigurationStatus pinStatus = BiometricsHelper.checkPinStatus(requireContext(),
                 biometricManager);
 
-        String title = "";
+        boolean hasFingerprintHardware = fingerprintStatus != BiometricsHelper.ConfigurationStatus.NoHardware;
+
+        String title;
         String message = "";
         String fingerprintButton = null;
         String pinButton = null;
 
-        if (fingerprintStatus != BiometricsHelper.ConfigurationStatus.Configured
-                && pinStatus != BiometricsHelper.ConfigurationStatus.Configured) {  // nothing is configured
-            title = getString(R.string.connect_verify_title);
-            message = getString(R.string.connect_verify_message);
-            fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
-            if (PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {
-                pinButton = getString(R.string.connect_verify_configure_pin);
-            }
-        } else if (fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {    // Fingerprint is configured so works for both PIN and BIOMETRIC_TYPE
-            title = getString(R.string.connect_verify_use_fingerprint_long);
+        if (fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {    // Fingerprint is configured so works for both PIN and BIOMETRIC_TYPE
             message = getString(R.string.connect_verify_fingerprint_configured);
             fingerprintButton = getString(R.string.connect_verify_agree);
-        } else if (BIOMETRIC_TYPE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {   //Fingerprint not configured but required for BIOMETRIC_TYPE
-            // Need atleast Fingerprint configuration for BIOMETRIC_TYPE
-            title = getString(R.string.connect_verify_title);
-            message = getString(R.string.connect_verify_message);
-            fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
-        } else {   // Only PIN is configure
-            title = getString(R.string.connect_verify_use_pin_long);
-            message = getString(R.string.connect_verify_pin_configured);
-            pinButton = getString(R.string.connect_verify_agree);
-            fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);   // User can configure fingerprint
+        } else {
+            if(hasFingerprintHardware) {
+                message = getString(R.string.connect_verify_message_fingerprint);
+                fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
+            }
+            if (PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {
+                message = hasFingerprintHardware ?
+                        getString(R.string.connect_verify_message) :
+                        getString(R.string.connect_verify_message_pin);
+                pinButton = pinStatus == BiometricsHelper.ConfigurationStatus.Configured ?
+                        getString(R.string.connect_verify_agree) :
+                        getString(R.string.connect_verify_configure_pin);
+            }
         }
-
-
-        binding.connectVerifyTitle.setText(title);
-        binding.connectVerifyMessage.setText(message);
 
         updateFingerprintSection(fingerprintButton);
         updatePinSection(pinButton);
@@ -196,8 +154,20 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         binding.connectVerifyOr.setVisibility(
                 (fingerprintButton != null && pinButton != null) ? View.VISIBLE : View.INVISIBLE);
 
-    }
+        if(fingerprintButton != null && pinButton != null) {
+            title = getString(R.string.connect_verify_title);
+        } else if (fingerprintButton != null) {
+            title = getString(R.string.connect_verify_use_fingerprint_long);
+        } else if (pinButton != null) {
+            title = getString(R.string.connect_verify_use_pin_long);
+        } else {
+            showNoBiometricHardwareError();
+            return;
+        }
 
+        binding.connectVerifyTitle.setText(title);
+        binding.connectVerifyMessage.setText(message);
+    }
 
     private void updateFingerprintSection(String buttonText) {
         boolean visible = buttonText != null;
@@ -216,45 +186,105 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     private void onFingerprintButtonClicked() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),CONTINUE_WITH_FINGERPRINT);
         BiometricsHelper.ConfigurationStatus status = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
-        if (status == BiometricsHelper.ConfigurationStatus.Configured) {
-            isAttemptingFingerprint = true;
-            BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, biometricCallback);
-        } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
-            navigateForward(true);
+
+        switch(status) {
+            case NotAvailable:
+                showBiometricNotAvailableError();
+                break;
+            case NeedsUpdate:
+                showBiometricNeedsUpdateError();
+                break;
+            case Configured:
+                initiateBiometricAuthentication();
+                return;
+            case NotConfigured:
+                if (!BiometricsHelper.configureFingerprint(getActivity())) {
+                    navigateForward(true);
+                }
+                break;
         }
     }
 
+    private void showNoBiometricHardwareError() {
+        String message = BiometricsHelper.getNoBiometricHardwareError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "No biometric hardware during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, false);
+    }
+
+    private void showBiometricNotAvailableError() {
+        String message = BiometricsHelper.getBiometricHardwareUnavailableError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_UNAVAILABLE);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Biometric not available during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
+    }
+
+    private void showBiometricNeedsUpdateError() {
+        String message = BiometricsHelper.getBiometricNeedsUpdateError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_NEEDS_UPDATE);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Biometric requires update during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
+    }
+
+    private void initiateBiometricAuthentication() {
+        BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, biometricCallback,
+                !BIOMETRIC_TYPE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock()));
+    }
+
     private void onPinButtonClicked() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),CONTINUE_WITH_PIN);
         BiometricsHelper.ConfigurationStatus status = BiometricsHelper.checkPinStatus(getActivity(),
                 biometricManager);
-        if (status == BiometricsHelper.ConfigurationStatus.Configured) {
-            initiatePinAuthentication();
-        } else if (!BiometricsHelper.configurePin(getActivity())) {
-            navigateForward(true);
+
+        switch(status) {
+            case NotAvailable:
+                showPinNotAvailableError();
+                break;
+            case NeedsUpdate:
+                showPinNeedsUpdateError();
+                break;
+            case Configured:
+                initiatePinAuthentication();
+                return;
+            case NotConfigured:
+                if (!BiometricsHelper.configurePin(getActivity())) {
+                    navigateForward(true);
+                }
+                break;
         }
+    }
+
+    private void showPinNotAvailableError() {
+        String message = BiometricsHelper.getPinHardwareUnavailableError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "PIN not available during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
+    }
+
+    private void showPinNeedsUpdateError() {
+        String message = BiometricsHelper.getPinNeedsUpdateError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_PIN_NEEDS_UPDATE);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "PIN requires update during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
     }
 
     private void initiatePinAuthentication() {
         BiometricsHelper.authenticatePin(requireActivity(), biometricManager, biometricCallback);
     }
 
-    public void handleFinishedPinActivity(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == ConnectConstants.PERSONALID_UNLOCK_PIN) {
-            PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
-            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
-            requireActivity().setResult(RESULT_OK);
-            requireActivity().finish();
-        }
+    public void handleFinishedPinActivity(int requestCode, int resultCode) {
         if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
-            navigateForward(false);
+            navigateForward(resultCode != RESULT_OK);
         }
     }
 
     private void navigateForward(boolean enrollmentFailed) {
         if (enrollmentFailed) {
-            Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToBiometricEnrollmentFailed());
+            FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.BIOMETRIC_ENROLLMENT_FAILED);
+            navigateToBiometricEnrollmentFailed();
         } else {
             BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(
                     getActivity(), biometricManager);
@@ -263,6 +293,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
+                storeBiometricInvalidationKey();
                 if (Boolean.FALSE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser())) {
                     NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
                 } else {
@@ -276,30 +307,51 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    private NavDirections navigateToBiometricEnrollmentFailed() {
-        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
-                getString(R.string.connect_biometric_enroll_fail_title),
-                getString(R.string.connect_biometric_enroll_fail_message),
-                ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL,
-                getString(R.string.connect_biometric_enroll_fail_button),
-                null, null, null);
+    /**
+     * Generates a biometric linked key in Android Key Store if not already there
+     */
+    private void storeBiometricInvalidationKey() {
+        CommCareActivity<?> activity = (CommCareActivity<?>) requireActivity();
+        if(BiometricsHelper.isFingerprintConfigured(activity,
+                PersonalIdManager.getInstance().getBiometricManager(activity))) {
+            new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
+        }
     }
 
-    private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage) {
-        NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
-                getString(R.string.configuration_process_failed_title),
+    private void navigateToBiometricEnrollmentFailed() {
+        navigateToMessageDisplay(
+                getString(R.string.connect_biometric_enroll_fail_title),
+                getString(R.string.connect_biometric_enroll_fail_message),
+                true,
+                ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL,
+                R.string.connect_biometric_enroll_fail_button);
+    }
+
+    private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage, boolean allowRetry) {
+        int specifier = allowRetry ? ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING
+                : ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED;
+
+        navigateToMessageDisplay(
+                getString(R.string.personalid_configuration_process_failed_title),
                 errorMessage,
-                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, null,
-                null).setIsCancellable(false);
-        Navigation.findNavController(requireView()).navigate(navDirections);
+                false,
+                specifier,
+                R.string.ok);
     }
 
     private NavDirections navigateToOtpScreen() {
-        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
-                ((PersonalIdActivity)requireActivity()).primaryPhone);
+        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage();
     }
 
     private NavDirections navigateToNameScreen() {
         return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidName();
+    }
+
+    @Override
+    protected void navigateToMessageDisplay(@NotNull String title, @Nullable String message, boolean isCancellable,
+            int phase, int buttonText) {
+        NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
+                title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.getRoot()).navigate(navDirections);
     }
 }

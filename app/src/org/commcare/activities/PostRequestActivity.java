@@ -179,7 +179,7 @@ public class PostRequestActivity
     }
 
     @Override
-    public void processClientError(int responseCode) {
+    public void processClientError(int responseCode, InputStream errorStream) {
         String clientErrorMessage;
         switch (responseCode) {
             case 409:

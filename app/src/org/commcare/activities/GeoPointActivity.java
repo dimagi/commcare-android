@@ -1,5 +1,9 @@
 package org.commcare.activities;
 
+import static org.commcare.location.CommCareLocationControllerKt.DEFAULT_TIME_THRESHOLD;
+import static org.commcare.location.CommCareLocationControllerKt.isLocationFresh;
+import static org.commcare.location.CommCareLocationControllerKt.logStaleLocationSaved;
+
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,19 +31,19 @@ import org.commcare.utils.TimeoutTimer;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.GeoProgressDialog;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 /**
  * Activity that blocks user until the current GPS location is captured
  */
-public class GeoPointActivity extends AppCompatActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
+public class GeoPointActivity extends CommonBaseActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
 
     private GeoProgressDialog locationDialog;
     private Location location;
@@ -183,6 +187,7 @@ public class GeoPointActivity extends AppCompatActivity implements TimerListener
 
     private void returnLocation() {
         if (location != null) {
+            logStaleLocationSaved(location);
             Intent i = new Intent();
             i.putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
@@ -260,6 +265,11 @@ public class GeoPointActivity extends AppCompatActivity implements TimerListener
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},
                 LOCATION_PERMISSION_REQ);
+    }
+
+    @Override
+    public void onLocationServiceChange(boolean locationServiceEnabled) {
+
     }
 
     @Override

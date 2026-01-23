@@ -1,9 +1,7 @@
 package org.commcare.models.database;
 
 import android.content.ContentValues;
-
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
+import android.database.Cursor;
 
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.utils.SerializationUtil;
@@ -29,7 +27,7 @@ import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_
  */
 public class IndexedFixturePathUtils {
 
-    public static IndexedFixtureIdentifier lookupIndexedFixturePaths(SQLiteDatabase db,
+    public static IndexedFixtureIdentifier lookupIndexedFixturePaths(IDatabase db,
                                                                      String fixtureName) {
         Cursor c = db.query(INDEXED_FIXTURE_PATHS_TABLE,
                 new String[]{INDEXED_FIXTURE_PATHS_COL_BASE, INDEXED_FIXTURE_PATHS_COL_CHILD, INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES},
@@ -49,7 +47,7 @@ public class IndexedFixturePathUtils {
         }
     }
 
-    public static List<String> getAllIndexedFixtureNames(SQLiteDatabase db) {
+    public static List<String> getAllIndexedFixtureNames(IDatabase db) {
         Cursor c = db.query(INDEXED_FIXTURE_PATHS_TABLE,
                 new String[]{INDEXED_FIXTURE_PATHS_COL_NAME},
                 null, null, null, null, null);
@@ -72,13 +70,13 @@ public class IndexedFixturePathUtils {
         }
     }
 
-    public static Set<String> getAllIndexedFixtureNamesAsSet(SQLiteDatabase db) {
+    public static Set<String> getAllIndexedFixtureNamesAsSet(IDatabase db) {
         Set<String> fixtureNamesAsSet = new HashSet<>();
         fixtureNamesAsSet.addAll(getAllIndexedFixtureNames(db));
         return fixtureNamesAsSet;
     }
 
-    public static void insertIndexedFixturePathBases(SQLiteDatabase db, String fixtureName,
+    public static void insertIndexedFixturePathBases(IDatabase db, String fixtureName,
                                                      String baseName, String childName, TreeElement attrs) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(INDEXED_FIXTURE_PATHS_COL_BASE, baseName);
@@ -92,7 +90,7 @@ public class IndexedFixturePathUtils {
                     INDEXED_FIXTURE_PATHS_TABLE,
                     INDEXED_FIXTURE_PATHS_COL_BASE,
                     contentValues,
-                    SQLiteDatabase.CONFLICT_REPLACE);
+                    db.getConflictReplace());
 
             if (ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
@@ -104,17 +102,17 @@ public class IndexedFixturePathUtils {
         }
     }
 
-    public static void createStorageBackedFixtureIndexTable(SQLiteDatabase db) {
+    public static void createStorageBackedFixtureIndexTable(IDatabase db) {
         db.execSQL(INDEXED_FIXTURE_PATHS_TABLE_STMT);
         db.execSQL(INDEXED_FIXTURE_INDEXING_STMT);
     }
 
-    public static void createStorageBackedFixtureIndexTableV15(SQLiteDatabase db) {
+    public static void createStorageBackedFixtureIndexTableV15(IDatabase db) {
         db.execSQL(INDEXED_FIXTURE_PATHS_TABLE_STMT_V15);
         db.execSQL(INDEXED_FIXTURE_INDEXING_STMT);
     }
 
-    public static void buildFixtureIndices(SQLiteDatabase database,
+    public static void buildFixtureIndices(IDatabase database,
                                            String tableName,
                                            Set<String> indices) {
         database.beginTransaction();

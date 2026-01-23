@@ -50,6 +50,7 @@ public class EntityListCalloutDataTest {
 
     @Before
     public void setup() {
+        ((CommCareTestApplication)CommCareTestApplication.instance()).initWorkManager();
         String appProfileResource =
                 "jr://resource/commcare-apps/case_list_lookup/profile.ccpr";
         TestAppInstaller.installAppAndLogin(appProfileResource, "test", "123");

@@ -4,12 +4,17 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
+
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.EncryptionUtils;
@@ -18,11 +23,11 @@ import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 
-import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
-import androidx.navigation.fragment.FragmentNavigator;
+import javax.annotation.Nullable;
 
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_FULL;
@@ -62,7 +67,7 @@ public class FirebaseAnalyticsUtil {
                 b.putString(paramKeys[i], paramVals[i]);
             }
             reportEvent(eventName, b);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.exception("Error logging analytics event", e);
         }
     }
@@ -79,7 +84,7 @@ public class FirebaseAnalyticsUtil {
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
         String deviceId = ReportingUtils.getDeviceId();
-        if(deviceId.length() > MAX_USER_PROPERTY_VALUE_LENGTH) {
+        if (deviceId.length() > MAX_USER_PROPERTY_VALUE_LENGTH) {
             deviceId = deviceId.substring(deviceId.length() - MAX_USER_PROPERTY_VALUE_LENGTH);
         }
         analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, deviceId);
@@ -111,11 +116,22 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
                 String.valueOf(PersonalIdManager.getInstance().isloggedIn()));
+
+        String personalId = ReportingUtils.getPersonalID();
+        if (!TextUtils.isEmpty(personalId)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.USER_CID, personalId);
+        }
+
+        analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
+
+        flagPersonalIDDemoUser(ReportingUtils.getIsPersonalIDDemoUser());
+
+        analyticsInstance.setUserProperty(CCAnalyticsParam.APP_FLAVOR, BuildConfig.FLAVOR);
     }
 
     private static String getFreeDiskBucket() {
-        long freeDiskInMb = DiskUtils.calculateFreeDiskSpaceInBytes(
-                Environment.getDataDirectory().getPath()) / 1000000;
+        long freeDiskInMb = DiskUtils.calculateFreeDiskSpaceInBytes(Environment.getDataDirectory().getPath())
+                / 1000000;
         if (freeDiskInMb > 1000) {
             return "gt_1000";
         } else if (freeDiskInMb > 500) {
@@ -133,9 +149,12 @@ public class FirebaseAnalyticsUtil {
      * Report a user event of selecting an item within an options menu
      */
     public static void reportOptionsMenuItemClick(Class location, String itemLabel) {
-        reportEvent(CCAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM,
-                FirebaseAnalytics.Param.ITEM_NAME,
+        reportEvent(CCAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM, FirebaseAnalytics.Param.ITEM_NAME,
                 location.getSimpleName() + "_" + itemLabel);
+    }
+
+    public static void reportOptionsMenuOpened(String screenName) {
+        reportEvent(CCAnalyticsEvent.OPTIONS_MENU_OPENED, FirebaseAnalytics.Param.ITEM_NAME, screenName);
     }
 
     /**
@@ -152,29 +171,24 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportHomeButtonClick(String buttonName) {
-        reportEvent(CCAnalyticsEvent.HOME_BUTTON_CLICK,
-                FirebaseAnalytics.Param.ITEM_NAME, buttonName);
+        reportEvent(CCAnalyticsEvent.HOME_BUTTON_CLICK, FirebaseAnalytics.Param.ITEM_NAME, buttonName);
     }
 
     public static void reportViewArchivedFormsList(boolean forIncomplete) {
         String formType = forIncomplete ? AnalyticsParamValue.INCOMPLETE : AnalyticsParamValue.SAVED;
-        reportEvent(CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
-                FirebaseAnalytics.Param.ITEM_LIST, formType);
+        reportEvent(CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST, FirebaseAnalytics.Param.ITEM_LIST, formType);
     }
 
     public static void reportOpenArchivedForm(String formType) {
-        reportEvent(CCAnalyticsEvent.OPEN_ARCHIVED_FORM,
-                FirebaseAnalytics.Param.ITEM_NAME, formType);
+        reportEvent(CCAnalyticsEvent.OPEN_ARCHIVED_FORM, FirebaseAnalytics.Param.ITEM_NAME, formType);
     }
 
     public static void reportAppInstall(String installMethod) {
-        reportEvent(CCAnalyticsEvent.APP_INSTALL,
-                FirebaseAnalytics.Param.METHOD, installMethod);
+        reportEvent(CCAnalyticsEvent.APP_INSTALL, METHOD, installMethod);
     }
 
     public static void reportAppManagerAction(String action) {
-        reportEvent(CCAnalyticsEvent.APP_MANAGER_ACTION,
-                CCAnalyticsParam.ACTION_TYPE, action);
+        reportEvent(CCAnalyticsEvent.APP_MANAGER_ACTION, CCAnalyticsParam.ACTION_TYPE, action);
     }
 
     public static void reportGraphViewAttached() {
@@ -194,35 +208,32 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void reportGraphingAction(String actionType) {
-        reportEvent(CCAnalyticsEvent.GRAPH_ACTION,
-                CCAnalyticsParam.ACTION_TYPE, actionType);
+        reportEvent(CCAnalyticsEvent.GRAPH_ACTION, CCAnalyticsParam.ACTION_TYPE, actionType);
     }
 
     public static void reportFormEntry(String formId) {
-        reportEvent(CCAnalyticsEvent.FORM_ENTRY_ATTEMPT,
-                new String[]{CCAnalyticsParam.FORM_ID},
+        reportEvent(CCAnalyticsEvent.FORM_ENTRY_ATTEMPT, new String[]{CCAnalyticsParam.FORM_ID},
                 new String[]{formId});
     }
 
     public static void reportFormNav(String direction, String method, String formId) {
         if (rateLimitReporting(.1)) {
             reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
-                    new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD, CCAnalyticsParam.FORM_ID},
-                    new String[]{direction, method, formId});
+                    new String[]{CCAnalyticsParam.DIRECTION, METHOD,
+                            CCAnalyticsParam.FORM_ID}, new String[]{direction, method, formId});
         }
     }
 
     public static void reportFormQuitAttempt(String method, String formId) {
         reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT,
-                new String[]{FirebaseAnalytics.Param.METHOD, CCAnalyticsParam.FORM_ID},
+                new String[]{METHOD, CCAnalyticsParam.FORM_ID},
                 new String[]{method, formId});
     }
 
     public static void reportFormFinishAttempt(String saveResult, String formId, boolean userTriggered) {
         String method = userTriggered ? AnalyticsParamValue.USER_TRIGGERED : AnalyticsParamValue.SYSTEM_TRIGGERED;
         reportEvent(CCAnalyticsEvent.FORM_FINISH_ATTEMPT,
-                new String[]{CCAnalyticsParam.FORM_ID, CCAnalyticsParam.RESULT,
-                        FirebaseAnalytics.Param.METHOD},
+                new String[]{CCAnalyticsParam.FORM_ID, CCAnalyticsParam.RESULT, METHOD},
                 new String[]{formId, saveResult, method});
     }
 
@@ -230,37 +241,30 @@ public class FirebaseAnalyticsUtil {
      * Report a user event of navigating backward out of the entity detail screen
      */
     public static void reportEntityDetailExit(String navMethod, int detailTabCount) {
-        reportEntityDetailNavigation(
-                AnalyticsParamValue.DIRECTION_BACKWARD, navMethod, detailTabCount);
+        reportEntityDetailNavigation(AnalyticsParamValue.DIRECTION_BACKWARD, navMethod, detailTabCount);
     }
 
     /**
      * Report a user event of continuing forward past the entity detail screen
      */
     public static void reportEntityDetailContinue(String navMethod, int detailTabCount) {
-        reportEntityDetailNavigation(
-                AnalyticsParamValue.DIRECTION_FORWARD, navMethod, detailTabCount);
+        reportEntityDetailNavigation(AnalyticsParamValue.DIRECTION_FORWARD, navMethod, detailTabCount);
     }
 
-    private static void reportEntityDetailNavigation(String direction, String navMethod,
-                                                     int detailTabCount) {
+    private static void reportEntityDetailNavigation(String direction, String navMethod, int detailTabCount) {
         String detailUiState =
-                detailTabCount > 1 ? AnalyticsParamValue.DETAIL_WITH_TABS :
-                        AnalyticsParamValue.DETAIL_NO_TABS;
+                detailTabCount > 1 ? AnalyticsParamValue.DETAIL_WITH_TABS : AnalyticsParamValue.DETAIL_NO_TABS;
 
         reportEvent(CCAnalyticsEvent.ENTITY_DETAIL_NAVIGATION,
-                new String[]{
-                        CCAnalyticsParam.DIRECTION,
-                        FirebaseAnalytics.Param.METHOD,
-                        CCAnalyticsParam.UI_STATE},
-                new String[]{direction, navMethod, detailUiState});
+                new String[]{CCAnalyticsParam.DIRECTION, METHOD,
+                        CCAnalyticsParam.UI_STATE}, new String[]{direction, navMethod, detailUiState});
     }
 
     public static void reportSyncResult(boolean result, String trigger, String syncMode, String failureReason) {
         Bundle b = new Bundle();
         b.putString(FirebaseAnalytics.Param.SOURCE, trigger);
         b.putLong(FirebaseAnalytics.Param.SUCCESS, result ? 1 : 0);
-        b.putString(FirebaseAnalytics.Param.METHOD, syncMode);
+        b.putString(METHOD, syncMode);
         b.putString(CCAnalyticsParam.REASON, failureReason);
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT, b);
     }
@@ -276,8 +280,7 @@ public class FirebaseAnalyticsUtil {
         if (analyticsDisabled()) {
             return;
         }
-        reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
-                FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
+        reportEvent(CCAnalyticsEvent.FEATURE_USAGE, FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
     }
 
     private static void reportFeatureUsage(String feature, String mode) {
@@ -291,11 +294,9 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportPracticeModeUsage(OfflineUserRestore currentOfflineUserRestoreResource) {
-        reportFeatureUsage(
-                AnalyticsParamValue.FEATURE_PRACTICE_MODE,
-                currentOfflineUserRestoreResource == null ?
-                        AnalyticsParamValue.PRACTICE_MODE_DEFAULT :
-                        AnalyticsParamValue.PRACTICE_MODE_CUSTOM);
+        reportFeatureUsage(AnalyticsParamValue.FEATURE_PRACTICE_MODE,
+                currentOfflineUserRestoreResource == null ? AnalyticsParamValue.PRACTICE_MODE_DEFAULT
+                        : AnalyticsParamValue.PRACTICE_MODE_CUSTOM);
     }
 
     public static void reportPrivilegeEnabled(String privilegeName, String usernameUsedToActivate) {
@@ -371,20 +372,26 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportCorruptAppState() {
-        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
-                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT, new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{CORRUPT_APP_STATE});
     }
 
+    /**
+     * Report when an RSA key is successfully retrieved from the keystore. This is to assess how many devices
+     * are using RSA keys, to then plan the deprecation of the RsaKeyStoreHandler.
+     */
+    public static void reportRsaKeyUse() {
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT, new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{RSA_KEYSTORE_KEY_RETRIEVAL});
+    }
+
     public static void reportFormQuarantined(String quarantineReasonType) {
-        reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
-                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+        reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT, new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{quarantineReasonType});
     }
 
     public static void reportMenuItemClick(String commandId) {
-        reportEvent(CCAnalyticsEvent.MENU_SCREEN_ITEM_CLICK,
-                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+        reportEvent(CCAnalyticsEvent.MENU_SCREEN_ITEM_CLICK, new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{commandId});
     }
 
@@ -394,41 +401,51 @@ public class FirebaseAnalyticsUtil {
                 new String[]{String.valueOf(first), String.valueOf(second)});
     }
 
-    public static void reportCccSignIn(String method) {
-        reportEvent(CCAnalyticsEvent.CCC_SIGN_IN,
-                new String[]{CCAnalyticsParam.PARAM_CCC_SIGN_IN_METHOD},
-                new String[]{method});
+    public static void reportPersonalIdConfigurationIntegritySubmission(String responseCode) {
+        String label = "PersonalID Configuration";
+        reportPersonalIdIntegritySubmission(label, label, responseCode);
     }
 
-    public static void reportCccRecovery(boolean success, String method) {
-        Bundle b = new Bundle();
-        b.putLong(CCAnalyticsParam.PARAM_CCC_RECOVERY_SUCCESS, success ? 1 : 0);
-        b.putString(CCAnalyticsParam.PARAM_CCC_RECOVERY_METHOD, method);
-        reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
+    public static void reportPersonalIdHeartbeatIntegritySubmission(String requestId, String responseCode) {
+        reportPersonalIdIntegritySubmission("Heartbeat", requestId, responseCode);
     }
 
-    public static void reportCccDeconfigure(String reason) {
+    public static void reportPersonalIdIntegritySubmission(String trigger, String requestId, String responseCode) {
+        if (responseCode == null || responseCode.equals("null")) {
+            Logger.exception("Integrity Check", new Exception("Null response code in integrity check: " + responseCode));
+        }
+
         Bundle b = new Bundle();
-        b.putString(CCAnalyticsParam.REASON, reason);
-        reportEvent(CCAnalyticsEvent.CCC_DECONFIGURE, b);
+        b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
+        b.putString(CCAnalyticsParam.TRIGGER, trigger);
+        b.putString(CCAnalyticsParam.RESULT_CODE, responseCode);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_INTEGRITY_REPORTED, b);
+    }
+
+    public static void reportPersonalIdAccountCreated() {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_CREATED);
+    }
+
+    public static void reportPersonalIdAccountRecovered(boolean success, String method) {
+        Bundle b = new Bundle();
+        b.putLong(FirebaseAnalytics.Param.VALUE, success ? 1 : 0);
+        b.putString(METHOD, method);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_RECOVERED, b);
     }
 
     public static void reportCccAppLaunch(String type, String appId) {
         reportEvent(CCAnalyticsEvent.CCC_LAUNCH_APP,
-                new String[]{CCAnalyticsParam.PARAM_CCC_LAUNCH_APP_TYPE,
-                        CCAnalyticsParam.PARAM_CCC_APP_NAME},
+                new String[]{CCAnalyticsParam.PARAM_CCC_LAUNCH_APP_TYPE, CCAnalyticsParam.PARAM_CCC_APP_NAME},
                 new String[]{type, appId});
     }
 
     public static void reportCccAppAutoLoginWithLocalPassphrase(String app) {
         reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_LOCAL_PASSPHRASE,
-                new String[]{CCAnalyticsParam.PARAM_CCC_APP_NAME},
-                new String[]{app});
+                new String[]{CCAnalyticsParam.PARAM_CCC_APP_NAME}, new String[]{app});
     }
 
     public static void reportCccAppFailedAutoLogin(String app) {
-        reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_FAILED,
-                new String[]{CCAnalyticsParam.PARAM_CCC_APP_NAME},
+        reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_FAILED, new String[]{CCAnalyticsParam.PARAM_CCC_APP_NAME},
                 new String[]{app});
     }
 
@@ -458,9 +475,12 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_CLAIM_JOB, b);
     }
 
-    public static void reportCccApiDeliveryProgress(boolean success) {
+    public static void reportCccApiDeliveryProgress(boolean success, @Nullable String deliveryInfo) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
+        if (deliveryInfo != null) {
+            b.putString(CCAnalyticsParam.PARAM_API_SUCCESS_DELIVERY_INFO, deliveryInfo);
+        }
         reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
     }
 
@@ -488,12 +508,34 @@ public class FirebaseAnalyticsUtil {
     }
 
 
-    public static void reportCccForget() {
-        reportEvent(CCAnalyticsEvent.CCC_FORGET);
+    public static void reportPersonalIdAccountForgotten(String reason) {
+        Bundle b = new Bundle();
+        b.putString(CCAnalyticsParam.REASON, reason);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_FORGOTTEN, b);
     }
 
     public static void reportLoginClicks() {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
+    }
+
+    public static void reportPersonalIDContinueClicked(String screenName, @Nullable String info) {
+        Bundle params = new Bundle();
+        params.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
+        if (info != null) {
+            params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO, info);
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
+    }
+
+    public static void reportPersonalIDMessageSent() {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_MESSAGE_SENT);
+    }
+
+    public static void reportPersonalIDLinking(String appId, String result) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.CC_APP_ID, appId);
+        bundle.putString(CCAnalyticsParam.RESULT, result);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING, bundle);
     }
 
     // logs screen view events when set to a navigation controller
@@ -513,17 +555,60 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportConnectTabChange(String tabName) {
-        reportEvent(CCAnalyticsEvent.CCC_TAB_CHANGE,
-                new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME},
+        reportEvent(CCAnalyticsEvent.CCC_TAB_CHANGE, new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME},
                 new String[]{tabName});
     }
 
-    public static void reportNotificationType(String notificationType) {
-        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
-                CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
+    public static void reportBiometricInvalidated() {
+        reportEvent(CCAnalyticsEvent.CCC_BIOMETRIC_INVALIDATED);
     }
 
-    public static void reportRekeyedDatabase() {
-        reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
+    public static void reportPersonalIdConfigurationFailure(String failureCause) {
+        if (failureCause == null) {
+            failureCause = "UNKNOWN_ERROR";
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONFIGURATION_FAILURE, new String[]{CCAnalyticsParam.REASON},
+                new String[]{failureCause});
+    }
+
+    public static void reportNavDrawerOpen() {
+        reportEvent(CCAnalyticsEvent.NAV_DRAWER_OPEN);
+    }
+
+    public static void reportNavDrawerItemSelected(String selectedItem) {
+        reportEvent(CCAnalyticsEvent.NAV_DRAWER_ITEM_SELECTED, new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{selectedItem});
+    }
+
+    public static void reportOtpRequested(int numberOfAttempts) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, numberOfAttempts);
+        reportEvent(CCAnalyticsEvent.OTP_REQUESTED, bundle);
+    }
+
+    public static void reportNotificationEvent(String eventType, String method,
+            @Nullable String actionType, @Nullable String notificationId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.NOTIFICATION_EVENT_TYPE, eventType);
+        bundle.putString(METHOD, method);
+        if (actionType != null) {
+            bundle.putString(CCAnalyticsParam.NOTIFICATION_ACTION, actionType);
+        }
+        if (notificationId != null) {
+            bundle.putString(CCAnalyticsParam.NOTIFICATION_ID, notificationId);
+        }
+        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, bundle);
+    }
+
+    public static void flagPersonalIDDemoUser(Boolean isPersonalIDDemoUser) {
+        if (isPersonalIDDemoUser == null) {
+            return;
+        }
+
+        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        analyticsInstance.setUserProperty(
+                CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
+                String.valueOf(isPersonalIDDemoUser)
+        );
     }
 }

@@ -4,12 +4,20 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
 import com.google.android.play.core.integrity.IntegrityManagerFactory
+import com.google.android.play.core.integrity.StandardIntegrityException
+import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.integrity.StandardIntegrityManager.PrepareIntegrityTokenRequest
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenProvider
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
-import org.commcare.CommCareApplication
+import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.commcare.dalvik.BuildConfig
+import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
 
 class IntegrityTokenViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,7 +25,9 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
     private val _providerState = MutableLiveData<TokenProviderState>()
     val providerState: LiveData<TokenProviderState> = _providerState
 
-    var integrityTokenProvider: StandardIntegrityTokenProvider? = null
+    private var integrityTokenProvider: StandardIntegrityTokenProvider? = null
+
+    val providerStateFlow: Flow<TokenProviderState>  =_providerState.asFlow()
 
     init {
         prepareTokenProvider()
@@ -30,7 +40,7 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
      * that you anticipate will need to get the integrity token down the line.
      * Also note that each app instance can only prepare the integrity token up to 5 times per minute.
      */
-    fun prepareTokenProvider() {
+    private fun prepareTokenProvider() {
         val standardIntegrityManager = IntegrityManagerFactory.createStandard(getApplication())
         val cloudProjectNumber = BuildConfig.GOOGLE_CLOUD_PROJECT_NUMBER
         require(cloudProjectNumber!= -1L) { "Google Cloud Project Number is not defined" }
@@ -42,7 +52,10 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
         ).addOnSuccessListener { tokenProvider ->
             integrityTokenProvider = tokenProvider
             _providerState.postValue(TokenProviderState.Success(tokenProvider))
-        }.addOnFailureListener { exception -> _providerState.postValue(TokenProviderState.Failure(exception)) }
+        }.addOnFailureListener { exception ->
+            _providerState.postValue(TokenProviderState.Failure(exception))
+            Logger.exception("Error preparing Google Play Integrity token provider", exception)
+        }
     }
 
     /**
@@ -50,8 +63,9 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
      *
      * @param requestHash hash of the complete request we are planning to send the token with
      * @param callback A callback function to handle the result
+     * @param hasRetried Indicates if this is a retry attempt after a failure
      */
-    fun requestIntegrityToken(requestHash: String, callback: IntegrityTokenCallback) {
+    fun requestIntegrityToken(requestHash: String, hasRetried: Boolean, callback: IntegrityTokenCallback) {
         require(integrityTokenProvider != null) {"StandardIntegrityTokenProvider is not warmed up yet. Please try again"}
         val integrityTokenResponse = integrityTokenProvider!!.request(
             StandardIntegrityTokenRequest.builder()
@@ -59,11 +73,54 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
                 .build()
         )
         integrityTokenResponse
-            .addOnSuccessListener { response -> callback.onTokenReceived(response.token()) }
+            .addOnSuccessListener { response ->
+                callback.onTokenReceived(requestHash,response) }
             .addOnFailureListener { exception ->
-                Logger.exception("Error retrieving Google Play Integrity token", exception)
-                callback.onTokenReceived(null)
+                handleRequestFailureAndRetry(exception, requestHash, callback, hasRetried)
             }
+    }
+
+    private fun handleRequestFailureAndRetry(
+        exception: java.lang.Exception,
+        requestHash: String,
+        callback: IntegrityTokenCallback,
+        hasRetried: Boolean
+    ) {
+        if (exception is StandardIntegrityException && shouldRetryForIntegrityError(exception) && !hasRetried) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity provider is invalid or outdated, re-preparing and retrying...")
+            prepareTokenProvider()
+
+            // Observe the new preparation and retry once
+            viewModelScope.launch {
+                when (val state = providerStateFlow.first {
+                    it is TokenProviderState.Success || it is TokenProviderState.Failure
+                }) {
+
+                    is TokenProviderState.Success -> {
+                        requestIntegrityToken(requestHash, true, callback)
+                    }
+
+                    is TokenProviderState.Failure -> {
+                        Logger.log(
+                            "Error re-preparing token provider after failure",
+                            state.exception.message
+                        )
+                        callback.onTokenFailure(state.exception)
+                    }
+                }
+            }
+        } else {
+            callback.onTokenFailure(exception)
+        }
+        Logger.exception("Error retrieving Google Play Integrity token", exception)
+    }
+
+    private fun shouldRetryForIntegrityError(exception: StandardIntegrityException): Boolean {
+        return when (exception.errorCode) {
+            StandardIntegrityErrorCode.CLIENT_TRANSIENT_ERROR,
+            StandardIntegrityErrorCode.INTEGRITY_TOKEN_PROVIDER_INVALID -> true
+            else -> false
+        }
     }
 
     sealed class TokenProviderState {
@@ -71,7 +128,8 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
         data class Failure(val exception: Exception) : TokenProviderState()
     }
 
-    fun interface IntegrityTokenCallback {
-        fun onTokenReceived(token: String?)
+    interface IntegrityTokenCallback {
+        fun onTokenReceived(requestHash: String, integrityTokenResponse: StandardIntegrityManager.StandardIntegrityToken)
+        fun onTokenFailure(exception: java.lang.Exception)
     }
 }

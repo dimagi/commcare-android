@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:viewportHeight="24"
+    android:viewportWidth="24"
+    android:width="24dp">
+
+    <!-- Base nav drawer message icon -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M20,2L4,2c-1.1,0 -2,0.9 -2,2v18l4,-4h14c1.1,0 2,-0.9 2,-2L22,4c0,-1.1 -0.9,-2 -2,-2zM20,16L6,16l-2,2L4,4h16v12z" />
+
+    <!-- Red unread badge -->
+    <path
+        android:fillColor="@color/cconnect_message_unread_badge_color"
+        android:pathData="M16,4a4,4 0 1,0 8,0a4,4 0 1,0 -8,0" />
+</vector>

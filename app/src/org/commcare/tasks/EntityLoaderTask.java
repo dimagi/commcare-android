@@ -2,9 +2,12 @@ package org.commcare.tasks;
 
 import android.util.Pair;
 
+import com.google.firebase.perf.metrics.Trace;
+
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntityLoadingProgressListener;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -14,7 +17,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -50,7 +55,25 @@ public class EntityLoaderTask
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
         try {
-            return entityLoaderHelper.loadEntities(nodeset[0], this);
+            // Capture sync_case_list_loading trace for performance monitoring
+            Trace trace = null;
+            if (!entityLoaderHelper.isAsyncNodeEntityFactory()) {
+                trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_SYNC_ENTITY_LIST_LOADING);
+            }
+            Pair<List<Entity<TreeReference>>, List<TreeReference>> entities = entityLoaderHelper.loadEntities(
+                    nodeset[0], this);
+
+            if (!entityLoaderHelper.isAsyncNodeEntityFactory()) {
+                try {
+                    Map<String, String> attrs = new HashMap<>();
+                    attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED,
+                            String.valueOf((entities == null || entities.first == null ? 0 : entities.first.size())));
+                    CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+                } catch (Exception e) {
+                    Logger.exception("Failed to stop tracing ", e);
+                }
+            }
+            return entities;
         } catch (XPathException xe) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);
             Logger.exception("Error during EntityLoaderTask: " + ForceCloseLogger.getStackTrace(xe), xe);

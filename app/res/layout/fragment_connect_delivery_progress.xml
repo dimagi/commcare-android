@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#e1e0e0"
+    android:background="@color/connect_background_color"
     android:fillViewport="true">
 
     <LinearLayout
@@ -14,7 +14,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#fff"
+            android:background="@color/connect_background_color"
             android:orientation="vertical">
 
             <ImageView
@@ -73,10 +73,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/connect_payment_confirm_yes_button"
                         android:layout_width="wrap_content"
-                        android:layout_height="35dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:text="@string/connect_payment_confirm_yes"
-                        android:textColor="@color/blue"
                         android:textSize="18sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label" />
@@ -84,10 +83,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/connect_payment_confirm_no_button"
                         android:layout_width="wrap_content"
-                        android:layout_height="35dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="10dp"
                         android:text="@string/connect_payment_confirm_no"
-                        android:textColor="@color/blue"
                         android:textSize="18sp"
                         style="@style/NegativeButtonStyle"
                         app:layout_constraintEnd_toStartOf="@id/connect_payment_confirm_yes_button"
@@ -109,6 +107,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="-35dp"
                     android:layout_marginRight="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardBackgroundColor="@color/connect_light_orange_color"
                     app:cardCornerRadius="15dp"
                     app:cardElevation="10dp">
@@ -122,6 +121,17 @@
                         android:paddingTop="35dp"
                         android:paddingEnd="15dp">
 
+                        <ImageView
+                            android:id="@+id/ivConnectMessageWarningIcon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_connect_warning"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:paddingEnd="10dp"/>
+
                         <TextView
                             android:id="@+id/tvConnectMessage"
                             android:layout_width="0dp"
@@ -129,9 +139,10 @@
                             android:layout_marginEnd="10dp"
                             android:text="@string/connect_job_tile_daily_limit_description"
                             android:textColor="@color/connect_warning_color"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/text_small"
                             android:textStyle="bold"
-                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/ivConnectMessageWarningIcon"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
@@ -174,3 +185,4 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
+</layout>

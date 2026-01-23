@@ -39,6 +39,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarHelper;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.TaskConnectorViewModel;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
@@ -80,7 +81,7 @@ import io.reactivex.disposables.Disposable;
  * @author ctsims
  */
 
-public abstract class CommCareActivity<R> extends AppCompatActivity
+public abstract class CommCareActivity<R> extends CommonBaseActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener {
 
     private static final String TAG = CommCareActivity.class.getSimpleName();
@@ -246,6 +247,12 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      */
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
 
+    }
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(getClass().getSimpleName());
+        return super.onMenuOpened(featureId, menu);
     }
 
     @Override
@@ -979,4 +986,5 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     protected String getLocalizedString(int stringResource) {
         return StringUtils.getStringRobust(this, stringResource);
     }
+
 }
