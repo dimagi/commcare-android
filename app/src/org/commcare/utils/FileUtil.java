@@ -74,6 +74,7 @@ public class FileUtil {
     private static final int WARNING_SIZE = 3000;
 
     private static final String LOG_TOKEN = "cc-file-util";
+    public static final String XML_EXTENSION = "xml";
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_GPS_LATITUDE,
