@@ -3,6 +3,7 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
@@ -77,4 +78,24 @@ public class ConnectAppDatabaseUtil {
         }
     }
 
+    public static void storeReleaseToggles(
+            Context context,
+            List<ConnectReleaseToggleRecord> toggles
+    ) {
+        try {
+            SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
+                    ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
+
+            toggleStorage.removeAll();
+
+            for (ConnectReleaseToggleRecord toggle : toggles) {
+                toggleStorage.write(toggle);
+            }
+
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+        }  finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
+        }
+    }
 }
