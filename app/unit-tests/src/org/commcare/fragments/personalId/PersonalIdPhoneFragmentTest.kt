@@ -1,37 +1,19 @@
 package org.commcare.fragments.personalId
 
-import android.location.Location
-import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.Navigation
-import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
-import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.dalvik.R
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
-import org.robolectric.Robolectric
-import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
-import java.lang.AutoCloseable
 
 /**
  * Unit tests for PersonalIdPhoneFragment using Robolectric to test actual fragment UI and behavior.
@@ -39,55 +21,7 @@ import java.lang.AutoCloseable
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class PersonalIdPhoneFragmentTest {
-    private lateinit var mocksCloseable: AutoCloseable
-    private lateinit var activityController: ActivityController<PersonalIdActivity>
-    private lateinit var activity: PersonalIdActivity
-    private lateinit var fragment: PersonalIdPhoneFragment
-
-    @Mock
-    private lateinit var mockLocation: Location
-
-    @Before
-    fun setUp() {
-        mocksCloseable = MockitoAnnotations.openMocks(this)
-        mockLocation()
-        setUpPersonalIdActivityWithFragment()
-    }
-
-    private fun setUpPersonalIdActivityWithFragment() {
-        activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
-        activity =
-            activityController
-                .create()
-                .start()
-                .resume()
-                .get()
-
-        val navHostFragment =
-            activity.supportFragmentManager
-                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
-        fragment =
-            navHostFragment.childFragmentManager
-                .primaryNavigationFragment as PersonalIdPhoneFragment
-
-        ShadowLooper.idleMainLooper()
-    }
-
-    private fun mockLocation() {
-        // Random location data
-        `when`(mockLocation.latitude).thenReturn(37.7749)
-        `when`(mockLocation.longitude).thenReturn(-122.4194)
-        `when`(mockLocation.hasAccuracy()).thenReturn(true)
-        `when`(mockLocation.accuracy).thenReturn(10.0f)
-    }
-
-    @After
-    fun tearDown() {
-        activityController.pause().stop().destroy()
-        mocksCloseable.close()
-    }
-
+class PersonalIdPhoneFragmentTest : BasePersonalIdPhoneFragmentTest() {
     // ========== UI Initial State Tests ==========
 
     @Test
