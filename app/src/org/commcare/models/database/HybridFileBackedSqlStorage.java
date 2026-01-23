@@ -3,7 +3,10 @@ package org.commcare.models.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import com.google.firebase.perf.metrics.Trace;
+
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
@@ -328,6 +331,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     private void writeStreamToFile(ByteArrayOutputStream bos, String filename,
                                    byte[] key) throws IOException {
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+
         DataOutputStream fileOutputStream = null;
         try {
             fileOutputStream = getOutputFileStream(filename, key);
@@ -340,6 +345,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     e.printStackTrace();
                 }
             }
+            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, bos.size(), filename);
         }
     }
 
