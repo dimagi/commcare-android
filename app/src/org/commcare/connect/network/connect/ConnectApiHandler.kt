@@ -6,6 +6,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ApiConnect
 import org.commcare.connect.network.NoParsingResponseParser
 import org.commcare.connect.network.base.BaseApiHandler
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
@@ -88,17 +89,15 @@ abstract class ConnectApiHandler<T>(
         )
     }
 
-    fun setPaymentConfirmation(
+    fun setPaymentConfirmations(
         context: Context,
         user: ConnectUserRecord,
-        paymentId: String,
-        confirmation: Boolean,
+        paymentConfirmations: List<ConnectPaymentConfirmationModel>
     ) {
-        ApiConnect.setPaymentConfirmed(
+        ApiConnect.setPaymentsConfirmed(
             context,
             user,
-            paymentId,
-            confirmation,
+            paymentConfirmations,
             createCallback(
                 NoParsingResponseParser<T>(),
             ),

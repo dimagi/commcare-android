@@ -27,6 +27,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ConnectResultsSummaryListFragment extends ConnectJobFragment<FragmentConnectResultsSummaryListBinding> {
@@ -157,10 +159,11 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
                 ConnectJobPaymentRecord payment,
                 boolean result
         ) {
-            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(
+            ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
                     context,
-                    payment,
-                    result,
+                    Collections.singletonList(
+                            new ConnectPaymentConfirmationModel(payment, result)
+                    ),
                     success -> {
                         holder.updateConfirmedText(context, payment);
                         rebuildPaymentsDisplayList();

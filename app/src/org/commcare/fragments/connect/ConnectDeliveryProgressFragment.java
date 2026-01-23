@@ -29,12 +29,16 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
+import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
+import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,13 +46,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.commcare.connect.ConnectConstants.LAST_TOTAL_UNCONFIRMED_PAYMENTS;
+import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
+
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment<FragmentConnectDeliveryProgressBinding>
         implements RefreshableFragment {
     public static final String TAB_POSITION = "tabPosition";
     public static final int TAB_PROGRESS = 0;
     public static final int TAB_PAYMENT = 1;
     private ViewStateAdapter viewPagerAdapter;
-    private ConnectJobPaymentRecord paymentToConfirm = null;
+    private ArrayList<ConnectJobPaymentRecord> paymentsToConfirm = new ArrayList<>();
+    private int totalUnconfirmedPaymentAmount = 0;
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
 
@@ -144,21 +152,66 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void setupRefreshAndConfirmationActions() {
         getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh());
 
-        getBinding().connectPaymentConfirmNoButton.setOnClickListener(v -> {
-            updatePaymentConfirmationTile(true);
-            FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-        });
+        getBinding().connectPaymentConfirmNoButton.setOnClickListener(v ->
+                handlePaymentConfirmationNoClick()
+        );
 
-        getBinding().connectPaymentConfirmYesButton.setOnClickListener(v -> {
-            if (paymentToConfirm != null) {
-                FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-                ConnectJobHelper.INSTANCE.updatePaymentConfirmed(getContext(), paymentToConfirm, true, success -> {
+        getBinding().connectPaymentConfirmYesButton.setOnClickListener(v ->
+                handlePaymentConfirmYesButtonClick()
+        );
+    }
+
+    private void handlePaymentConfirmationNoClick() {
+        updatePaymentConfirmationTile(true);
+        FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
+
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, new Date().getTime());
+
+        long totalUnconfirmedPayments = 0;
+        for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            if (payment.allowConfirm()) {
+                totalUnconfirmedPayments++;
+            }
+        }
+
+        preferenceManager.putLong(LAST_TOTAL_UNCONFIRMED_PAYMENTS, totalUnconfirmedPayments);
+    }
+
+    private void handlePaymentConfirmYesButtonClick() {
+        if (paymentsToConfirm.isEmpty()) {
+            throw new IllegalStateException("No payments to confirm but confirmation card was shown.");
+        }
+
+        FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
+
+        List<ConnectPaymentConfirmationModel> paymentConfirmations = new ArrayList<>();
+        for (ConnectJobPaymentRecord paymentToConfirm : paymentsToConfirm) {
+            paymentConfirmations.add(
+                    new ConnectPaymentConfirmationModel(paymentToConfirm, true)
+            );
+        }
+
+        ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
+                requireContext(),
+                paymentConfirmations,
+                success -> {
                     if (isAdded()) {
                         updatePaymentConfirmationTile(true);
+                        redirectToPaymentTab();
+                        refresh();
                     }
-                });
-            }
-        });
+                }
+        );
+    }
+
+    private void redirectToPaymentTab() {
+        TabLayout tabLayout = getBinding().connectDeliveryProgressTabs;
+        TabLayout.Tab tab = tabLayout.getTabAt(TAB_PAYMENT);
+
+        isProgrammaticTabChange = true;
+        tabLayout.selectTab(tab);
+        getBinding().connectDeliveryProgressViewPager.setCurrentItem(TAB_PAYMENT, true);
     }
 
     private void setupJobCard(ConnectJobRecord job) {
@@ -239,28 +292,50 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void updatePaymentConfirmationTile(boolean forceHide) {
-        paymentToConfirm = null;
+        if (forceHide) {
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.GONE);
+            return;
+        }
 
-        if (!forceHide) {
-            for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                if (payment.allowConfirm()) {
-                    paymentToConfirm = payment;
-                    break;
-                }
+        paymentsToConfirm.clear();
+        totalUnconfirmedPaymentAmount = 0;
+        long totalUnconfirmedPayments = 0;
+
+        for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            if (payment.allowConfirm()) {
+                paymentsToConfirm.add(payment);
+                totalUnconfirmedPaymentAmount += Integer.parseInt(payment.getAmount());
+                totalUnconfirmedPayments++;
             }
         }
 
-        boolean showTile = paymentToConfirm != null && ConnectivityStatus.isNetworkAvailable(requireContext());
-        getBinding().connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        long hiddenSinceTimeMs = preferenceManager.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+        long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
+        long lastTotalUnconfirmedPayments = preferenceManager.getLong(LAST_TOTAL_UNCONFIRMED_PAYMENTS, 0);
+
+        // If a new payment was received since the tile was last hidden, we want to show it.
+        boolean newUnconfirmedPaymentReceived = totalUnconfirmedPayments > lastTotalUnconfirmedPayments;
+
+        boolean userHidTileInPast = hiddenSinceTimeMs != -1;
+        boolean showTile = !paymentsToConfirm.isEmpty()
+                && ConnectivityStatus.isNetworkAvailable(requireContext())
+                && (!userHidTileInPast || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7
+                || newUnconfirmedPaymentReceived);
 
         if (showTile) {
-            String date = ConnectDateUtils.INSTANCE.formatDate(paymentToConfirm.getDate());
-            getBinding().connectPaymentConfirmLabel.setText(getString(
-                    R.string.connect_payment_confirm_text,
-                    paymentToConfirm.getAmount(),
-                    job.getCurrency(),
-                    date));
+            getBinding().connectPaymentConfirmLabel.setText(
+                    getString(
+                            R.string.connect_payment_confirm_text,
+                            totalUnconfirmedPaymentAmount,
+                            job.getCurrency(),
+                            job.getTitle()
+                    )
+            );
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.VISIBLE);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
+        } else {
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.GONE);
         }
     }
 
