@@ -2,6 +2,7 @@ package org.commcare.android.database.connect.models
 
 import androidx.annotation.StringDef
 import java.io.Serializable
+import java.util.Date
 
 /**
  * Data holder for personal identification session state during Personal ID flows.
@@ -42,6 +43,10 @@ data class PersonalIdSessionData(
     var otpFallback: Boolean = false,
     // the total number of times we attempted to send the user an OTP
     var otpAttempts: Int = 0,
+    // identifier of the device that was previously configured for this user
+    var previousDevice: String? = null,
+    // timestamp of the last time this account was accessed from the previous device
+    var lastAccessed: Date? = null,
 ) : Serializable {
     /**
      * Annotation to restrict accepted authentication types used by the device.

@@ -22,4 +22,5 @@ public class ApiEndPoints {
     public static final String CREDENTIALS = "/users/credentials";
     public static final String RETRIEVE_NOTIFICATIONS = "/messaging/retrieve_notifications/";
     public static final String UPDATE_NOTIFICATIONS = "/messaging/update_notification_received/";
+    public static final String RELEASE_TOGGLES = "/toggles";
 }

@@ -50,7 +50,6 @@ License.
     <string name="install_from_list_prompt">उन एप्लिकेशनों की सूची देखने के लिए मोबाइल या वेब उपयोगकर्ता के रूप में लॉग इन करें जिन्हें आप इंस्टॉल कर सकते हैं</string>
     <string name="legacy_failure">CommCare पिछले संस्करण से अपग्रेड का समर्थन नहीं करता है। इस समस्या को हल करने के लिए, कृपया अपने डिवाइस से CommCare को अनइंस्टॉल करें, फिर इसे पुनः इंस्टॉल करें।</string>
     <string name="legacy_failure_title">असंगत CommCare अपग्रेड</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Commcare से जुड़ा है</string>
     <string name="expirenotification">CommCare कनेक्शन समाप्त हो गया है</string>
     <string name="submission_notification_title">डेटा सबमिशन</string>
@@ -308,6 +307,7 @@ License.
     <string name="connect_learn_need_assessment_title">प्रशिक्षण लंबित</string>
     <string name="connect_learn_failed_title">प्रशिक्षण विफल</string>
     <string name="connect_learn_complete_by">%s द्वारा परियोजना पूरी की गई</string>
+    <string name="connect_job_ended">कार्य %s को समाप्त हुआ</string>
     <string name="connect_learn_title">सीखने की प्रगति</string>
     <string name="connect_learn_status">आपने %d में से %d पाठ पूरे कर लिए हैं।\nअपना प्रमाण पत्र प्राप्त करने के लिए सीखना पूरा करें।</string>
     <string name="connect_learn_not_started">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए सीखना शुरू करें।</string>
@@ -386,6 +386,8 @@ License.
     <string name="connect_job_info_start_visit">विज़िट शुरू करें</string>
     <string name="connect_job_info_download_delivery">वितरण डाउनलोड करें</string>
     <string name="connect_job_info_download">डाउनलोड करें</string>
+    <string name="connect_job_info_view_info">जानकारी देखें</string>
+    <string name="connect_job_info_view_resume">फिर से शुरू करें</string>
     <string name="connect_progress">प्रगति</string>
     <string name="connect_payment">भुगतान</string>
     <string name="connect_delivery_progress_description">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए अपना सीखना शुरू करें।</string>
@@ -470,8 +472,11 @@ License.
     <string name="personalid_recovery_failed_title">पुनर्प्राप्ति विफल</string>
     <string name="personalid_recovery_lockout_title">खाता बंद</string>
     <string name="personalid_recovery_failed_message">ऐसा लगता है कि आप अपना बैकअप कोड भूल गए हैं, हम आपके लिए एक नया खाता बना रहे हैं</string>
-    <string name="personalid_recovery_lockout_message">आपने बहुत बार गलत बैकअप कोड दर्ज किया है। आपका खाता लॉक कर दिया गया है।</string>
-    <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड दर्ज किया है। कृपया पुनः प्रयास करें। %d गलत प्रयासों के बाद आपको एक नया खाता बनाना होगा।</string>
+    <string name="personalid_recovery_lockout_message">आपने बहुत बार गलत बैकअप कोड दर्ज किया है। आपका खाता लॉक कर दिया गया है। अपना अकाउंट अनलॉक करने के लिए कृपया सपोर्ट से संपर्क करें।</string>
+    <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड डाला है। कृपया फिर से कोशिश करें। %d और गलत कोशिशों के बाद आपका अकाउंट लॉक हो जाएगा।</string>
+    <string name="personalid_second_device_login_title">दूसरे डिवाइस पर लॉग इन करें</string>
+    <string name="personalid_second_device_login_message">%s से लॉग आउट किया गया, आखिरी बार %s इस्तेमाल किया गया था। PersonalID से एक समय में सिर्फ़ एक डिवाइस पर लॉग इन किया जा सकता है।</string>
+    <string name="personalid_second_device_login_message_no_date">%s से लॉग आउट कर दिया गया है। PersonalID से एक समय में सिर्फ़ एक डिवाइस पर ही लॉग इन किया जा सकता है।</string>
     <string name="personalid_camera_permission_title">कैमरे के लिए अनुमति</string>
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>

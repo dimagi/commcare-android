@@ -120,7 +120,7 @@
     <string name="connect_otp_verified">Suksess! Ditt telefonnummer er blitt bekreftet.</string>
     <string name="personalid_otp_verification_failed_generic">Noe gikk galt under bekreftelsen av ditt telefonnummer. Prøv igjen.</string>
     <string name="personalid_incorrect_otp">Du har tastet inn feil 6-sifret adgangskode. Prøv igjen.</string>
-    <string name="personalid_recovery_lockout_message">Du har tastet inn feil reservekode for mange ganger. Kontoen din er blitt låst.</string>
+    <string name="personalid_recovery_lockout_message">Du har tastet inn feil reservekode for mange ganger. Kontoen din er blitt låst. Kontakt kundestøtte for å låse opp kontoen din.</string>
     <string name="connect_backup_code_mismatch">Reservekodene du taster inn, må stemme overens. Oppbevar den på et trygt sted, da du trenger den for å få tilgang til kontoen din igjen.</string>
     <string name="connect_recovery_success_message">Kontoen din er blitt gjenopprettet! Du kan gjenoppta bruken av PersonalID.</string>
     <string name="connect_register_success_message">Kontoen din er blitt opprettet og er klar til bruk</string>
@@ -134,6 +134,9 @@
     <string name="personalid_tooltip_location_success_message">Vi bruker posisjonsdata for å sikre trygg bruk av denne applikasjonen.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Klikk her for mer info.</a></string>
 
     <string name="network_forbidden_error">Tilgang nektet. Ta kontakt med kundestøtte hvis problemet vedvarer.</string>
+    <string name="connect_job_ended">Oppgaven ble avsluttet %s</string>
+    <string name="connect_job_info_view_info">Se info</string>
+    <string name="connect_job_info_view_resume">Gjenoppta</string>
 
     <string name="connect_in_progress">Pågår</string>
     <string name="connect_new_opportunities">Nye muligheter</string>
