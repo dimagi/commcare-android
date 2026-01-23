@@ -35,6 +35,8 @@ public class StartConfigurationResponseParser implements PersonalIdApiResponsePa
             List<ConnectReleaseToggleRecord> featureReleaseToggles =
                     ConnectReleaseToggleRecord.Companion.releaseTogglesFromJson(featureReleaseTogglesJson);
             sessionData.setFeatureReleaseToggles(featureReleaseToggles);
+        } else {
+            sessionData.setFeatureReleaseToggles(null);
         }
     }
 }
