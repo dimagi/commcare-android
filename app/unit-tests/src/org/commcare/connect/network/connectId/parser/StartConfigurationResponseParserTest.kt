@@ -95,7 +95,7 @@ class StartConfigurationResponseParserTest {
         assertFalse(sessionData.otpFallback)
         assertEquals(
             emptyList<ConnectReleaseToggleRecord>(),
-            sessionData.featureReleaseToggles
+            sessionData.featureReleaseToggles,
         )
     }
 
@@ -122,7 +122,7 @@ class StartConfigurationResponseParserTest {
         assertFalse(sessionData.otpFallback)
         assertEquals(
             emptyList<ConnectReleaseToggleRecord>(),
-            sessionData.featureReleaseToggles
+            sessionData.featureReleaseToggles,
         )
     }
 
