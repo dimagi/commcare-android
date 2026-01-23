@@ -47,6 +47,7 @@ data class PersonalIdSessionData(
     var previousDevice: String? = null,
     // timestamp of the last time this account was accessed from the previous device
     var lastAccessed: Date? = null,
+    var featureReleaseToggles: List<ConnectReleaseToggleRecord>? = null
 ) : Serializable {
     /**
      * Annotation to restrict accepted authentication types used by the device.
