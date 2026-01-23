@@ -17,11 +17,9 @@ import androidx.navigation.Navigation;
 
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
-import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
@@ -38,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
-import java.util.List;
 
 public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private static final int BACKUP_CODE_LENGTH = 6;
@@ -223,25 +220,14 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
 
     private void handleSuccessfulRecovery() {
         ConnectDatabaseHelper.handleReceivedDbPassphrase(activity, personalIdSessionData.getDbKey());
-        ConnectUserRecord user = new ConnectUserRecord(
-                personalIdSessionData.getPhoneNumber(),
+        ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
-                personalIdSessionData.getOauthPassword(),
-                personalIdSessionData.getUserName(),
-                String.valueOf(binding.connectBackupCodeInput.getText()),
-                new Date(),
+                personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
+                String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
                 personalIdSessionData.getPhotoBase64(),
-                personalIdSessionData.getDemoUser(),
-                personalIdSessionData.getRequiredLock(),
+                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
                 personalIdSessionData.getInvitedUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
-
-        List<ConnectReleaseToggleRecord> featureReleaseToggles =
-                personalIdSessionData.getFeatureReleaseToggles();
-        if (featureReleaseToggles != null) {
-            ConnectAppDatabaseUtil.storeReleaseToggles(requireContext(), featureReleaseToggles);
-        }
-
         logRecoveryResult(true);
         handleSecondDeviceLogin();
         navigateToSuccess();
