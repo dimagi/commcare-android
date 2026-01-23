@@ -30,10 +30,9 @@ public class StartConfigurationResponseParser implements PersonalIdApiResponsePa
         sessionData.setSessionFailureSubcode(JsonExtensions.optStringSafe(json, "failure_subcode", null));
         sessionData.setOtpFallback(json.optBoolean("otp_fallback", false));
 
-        JSONObject featureReleaseTogglesJson = json.optJSONObject("toggles");
-        if (featureReleaseTogglesJson != null) {
+        if (json.has("toggles")) {
             List<ConnectReleaseToggleRecord> featureReleaseToggles =
-                    ConnectReleaseToggleRecord.Companion.releaseTogglesFromJson(featureReleaseTogglesJson);
+                    ConnectReleaseToggleRecord.Companion.releaseTogglesFromJson(json);
             sessionData.setFeatureReleaseToggles(featureReleaseToggles);
         } else {
             sessionData.setFeatureReleaseToggles(null);

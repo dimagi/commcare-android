@@ -53,13 +53,14 @@ class ConnectReleaseToggleRecord :
 
         fun releaseTogglesFromJson(json: JSONObject): List<ConnectReleaseToggleRecord> {
             val releaseToggles = mutableListOf<ConnectReleaseToggleRecord>()
-            val slugKeys = json.keys()
+            val togglesJson = json.getJSONObject("toggles")
+            val slugKeys = togglesJson.keys()
 
             while (slugKeys.hasNext()) {
                 val slugKey = slugKeys.next()
 
                 try {
-                    val releaseToggleJson = json.getJSONObject(slugKey)
+                    val releaseToggleJson = togglesJson.getJSONObject(slugKey)
                     releaseToggles.add(releaseToggleFromJson(slugKey, releaseToggleJson))
                 } catch (e: JSONException) {
                     Logger.exception("JSONException while retrieving a release toggle", e)
