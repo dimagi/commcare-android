@@ -193,6 +193,7 @@ class ConnectReleaseTogglesParserTest {
 
         // Assert
         assertEquals(1, result.size)
+        assertTrue(result[0].active)
         assertTrue(result[0].createdAt.time >= testStartTime)
         assertTrue(result[0].modifiedAt.time >= testStartTime)
     }
