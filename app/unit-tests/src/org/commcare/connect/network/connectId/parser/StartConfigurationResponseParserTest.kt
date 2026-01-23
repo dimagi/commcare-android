@@ -3,13 +3,12 @@ package org.commcare.connect.network.connectId.parser
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.json.JSONException
+import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,6 +29,7 @@ class StartConfigurationResponseParserTest {
     @Test
     fun testParseCompleteValidResponse() {
         // Arrange
+        val mockDateString = "2026-01-26T00:00:00Z"
         val json =
             JSONObject().apply {
                 put("required_lock", "pin")
@@ -39,6 +39,13 @@ class StartConfigurationResponseParserTest {
                 put("failure_code", "test-failure")
                 put("failure_subcode", "test-subcode")
                 put("otp_fallback", true)
+                put("toggles", JSONObject().apply {
+                    put("feature_a", JSONObject().apply {
+                        put("active", true)
+                        put("created_at", mockDateString)
+                        put("modified_at", mockDateString)
+                    })
+                })
             }
 
         // Act
@@ -52,6 +59,14 @@ class StartConfigurationResponseParserTest {
         assertEquals("test-failure", sessionData.sessionFailureCode)
         assertEquals("test-subcode", sessionData.sessionFailureSubcode)
         assertTrue(sessionData.otpFallback)
+
+        val expectedDateForToggle = DateUtils.parseDateTime(mockDateString)
+        val actualReleaseToggle = sessionData.featureReleaseToggles!![0]
+        assertEquals(1, sessionData.featureReleaseToggles!!.size)
+        assertEquals("feature_a", actualReleaseToggle.slug)
+        assertTrue(actualReleaseToggle.active)
+        assertEquals(expectedDateForToggle, actualReleaseToggle.createdAt)
+        assertEquals(expectedDateForToggle, actualReleaseToggle.modifiedAt)
     }
 
     @Test
@@ -71,6 +86,7 @@ class StartConfigurationResponseParserTest {
         assertNull(sessionData.sessionFailureCode)
         assertNull(sessionData.sessionFailureSubcode)
         assertFalse(sessionData.otpFallback)
+        assertNull(sessionData.featureReleaseToggles)
     }
 
     @Test
@@ -94,6 +110,7 @@ class StartConfigurationResponseParserTest {
         assertNull(sessionData.sessionFailureCode)
         assertNull(sessionData.sessionFailureSubcode)
         assertFalse(sessionData.otpFallback)
+        assertNull(sessionData.featureReleaseToggles)
     }
 
     @Test

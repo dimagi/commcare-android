@@ -17,6 +17,7 @@ import androidx.navigation.Navigation;
 
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
+import java.util.List;
 
 public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private static final int BACKUP_CODE_LENGTH = 6;
@@ -233,10 +235,13 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 personalIdSessionData.getRequiredLock(),
                 personalIdSessionData.getInvitedUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
-        ConnectAppDatabaseUtil.storeReleaseToggles(
-                requireContext(),
-                personalIdSessionData.getFeatureReleaseToggles()
-        );
+
+        List<ConnectReleaseToggleRecord> featureReleaseToggles =
+                personalIdSessionData.getFeatureReleaseToggles();
+        if (featureReleaseToggles != null) {
+            ConnectAppDatabaseUtil.storeReleaseToggles(requireContext(), featureReleaseToggles);
+        }
+
         logRecoveryResult(true);
         handleSecondDeviceLogin();
         navigateToSuccess();
