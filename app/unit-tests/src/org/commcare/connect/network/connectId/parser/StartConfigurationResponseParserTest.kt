@@ -2,6 +2,7 @@ package org.commcare.connect.network.connectId.parser
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONObject
@@ -92,7 +93,10 @@ class StartConfigurationResponseParserTest {
         assertNull(sessionData.sessionFailureCode)
         assertNull(sessionData.sessionFailureSubcode)
         assertFalse(sessionData.otpFallback)
-        assertNull(sessionData.featureReleaseToggles)
+        assertEquals(
+            emptyList<ConnectReleaseToggleRecord>(),
+            sessionData.featureReleaseToggles
+        )
     }
 
     @Test
@@ -116,7 +120,10 @@ class StartConfigurationResponseParserTest {
         assertNull(sessionData.sessionFailureCode)
         assertNull(sessionData.sessionFailureSubcode)
         assertFalse(sessionData.otpFallback)
-        assertNull(sessionData.featureReleaseToggles)
+        assertEquals(
+            emptyList<ConnectReleaseToggleRecord>(),
+            sessionData.featureReleaseToggles
+        )
     }
 
     @Test

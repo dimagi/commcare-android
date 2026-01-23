@@ -52,6 +52,10 @@ class ConnectReleaseToggleRecord :
         const val META_MODIFIED_AT = "modified_at"
 
         fun releaseTogglesFromJson(json: JSONObject): List<ConnectReleaseToggleRecord> {
+            if (!json.has("toggles")) {
+                return emptyList()
+            }
+
             val releaseToggles = mutableListOf<ConnectReleaseToggleRecord>()
             val togglesJson = json.getJSONObject("toggles")
             val slugKeys = togglesJson.keys()
