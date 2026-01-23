@@ -296,7 +296,7 @@ License.
     <string name="connect_messaging_channel_consent_decline">Déclin</string>
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_title">Connecter</string>
-    <string name="connect_no_jobs">Vous n\’avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
+    <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
     <string name="connect_job_intro_title">Opportunité</string>
     <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
     <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
