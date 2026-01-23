@@ -74,12 +74,10 @@ public interface ApiService {
                                                      @Path("id") int id,
                                                      @HeaderMap Map<String, String> headers);
 
-    @POST(ApiEndPoints.connectPaymentConfirmationURL)
-    Call<ResponseBody> connectPaymentConfirmation(@Header("Authorization") String token,
-                                       @Path("id") String id,
+    @POST(ApiEndPoints.PAYMENT_CONFIRMAITONS)
+    Call<ResponseBody> connectPaymentConfirmations(@Header("Authorization") String token,
                                        @HeaderMap Map<String, String> headers,
-                                       @Body RequestBody connectPaymentConfirmationRequest);
-
+                                       @Body RequestBody connectPaymentConfirmationsRequest);
 
     @POST(ApiEndPoints.sendSessionOtp)
     Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);

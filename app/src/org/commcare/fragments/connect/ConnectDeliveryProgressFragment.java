@@ -29,6 +29,7 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
@@ -44,8 +45,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.commcare.connect.ConnectConstants.LAST_TOTAL_UNCONFIRMED_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
@@ -186,39 +185,24 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
 
-        // Disable buttons to prevent duplicate submissions during API calls.
-        getBinding().connectPaymentConfirmYesButton.setEnabled(false);
-        getBinding().connectPaymentConfirmNoButton.setEnabled(false);
-
-        AtomicInteger pendingPaymentsToConfirmCount = new AtomicInteger(paymentsToConfirm.size());
-        AtomicBoolean failureUpdatingPayments = new AtomicBoolean(false);
-
+        List<ConnectPaymentConfirmationModel> paymentConfirmations = new ArrayList<>();
         for (ConnectJobPaymentRecord paymentToConfirm : paymentsToConfirm) {
-            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(
-                    getContext(),
-                    paymentToConfirm,
-                    true,
-                    success -> {
-                        if (!success) {
-                            failureUpdatingPayments.set(true);
-                        }
-
-                        boolean allPaymentsUpdated =
-                                pendingPaymentsToConfirmCount.decrementAndGet() == 0;
-
-                        if (allPaymentsUpdated && isAdded()) {
-                            if (!failureUpdatingPayments.get()) {
-                                updatePaymentConfirmationTile(true);
-                                redirectToPaymentTab();
-                            }
-
-                            refresh();
-                            getBinding().connectPaymentConfirmYesButton.setEnabled(true);
-                            getBinding().connectPaymentConfirmNoButton.setEnabled(true);
-                        }
-                    }
+            paymentConfirmations.add(
+                    new ConnectPaymentConfirmationModel(paymentToConfirm, true)
             );
         }
+
+        ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
+                requireContext(),
+                paymentConfirmations,
+                success -> {
+                    if (isAdded()) {
+                        updatePaymentConfirmationTile(true);
+                        redirectToPaymentTab();
+                        refresh();
+                    }
+                }
+        );
     }
 
     private void redirectToPaymentTab() {
