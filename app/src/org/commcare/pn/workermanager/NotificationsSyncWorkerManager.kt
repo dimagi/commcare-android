@@ -11,7 +11,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.google.gson.Gson
-import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
@@ -26,7 +25,6 @@ import org.commcare.pn.workers.NotificationsSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.NotificationsSyncWorker.Companion.NOTIFICATION_PAYLOAD
 import org.commcare.pn.workers.NotificationsSyncWorker.Companion.SyncAction
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
-import org.commcare.utils.PushNotificationApiHelper.convertPNRecordsToPayload
 import java.util.concurrent.TimeUnit
 
 /**
@@ -112,91 +110,100 @@ class NotificationsSyncWorkerManager(
             delay: Long = 0,
         ) {
             val notificationSyncWorkerManager =
-                NotificationsSyncWorkerManager(context, null, false, true)
-            notificationSyncWorkerManager.startPersonalIdNotificationsWorker(
-                emptyMap(),
-                false,
-                delay,
-            )
+                NotificationsSyncWorkerManager(
+                    context,
+                    showNotification = false,
+                    syncNotification = true,
+                )
+            notificationSyncWorkerManager.startPersonalIdNotificationsWorker(emptyMap(), false, delay)
         }
     }
 
-    lateinit var notificationsPayload: ArrayList<Map<String, String>>
-
     private var showNotification = false
     private var syncNotification = false
-
-    var signaling = false
+    private var isNotificationSyncScheduled = false
 
     /**
      * This can receive the push notification data payload from FCM and notification API.
      */
     constructor(
         context: Context,
-        notificationsPayload: ArrayList<Map<String, String>>,
         showNotification: Boolean,
-        syncNotification: Boolean = false,
+        syncNotification: Boolean,
     ) : this(context) {
-        this.notificationsPayload = notificationsPayload
-        this.showNotification = showNotification
         this.syncNotification = syncNotification
+        this.showNotification = showNotification
     }
 
-    constructor(
-        context: Context,
-        pnsRecords: List<PushNotificationRecord>?,
-        showNotification: Boolean,
-        syncNotification: Boolean = false,
-    ) : this(context) {
-        this.notificationsPayload = convertPNRecordsToPayload(pnsRecords)
-        this.showNotification = showNotification
-        this.syncNotification = syncNotification
-    }
-
-    /**
-     * This method will start Api sync for received PNs either through FCM or notification API
-     * @return whether a sync was scheduled as part of this call
-     */
-    fun startPNApiSync(): Boolean = startSyncWorker()
-
-    private fun startSyncWorker(): Boolean {
-        var isNotificationSyncScheduled = false
-        for (notificationPayload in notificationsPayload) {
+    private fun parseAndStartNotificationWorker(notificationPayload: Map<String, String>?): Boolean {
+        var notificationHandled = false
+        notificationPayload?.let {
             when (notificationPayload[REDIRECT_ACTION]) {
                 CCC_MESSAGE -> {
                     startPersonalIdNotificationsWorker(notificationPayload)
+                    notificationHandled = true
                     isNotificationSyncScheduled = true
                 }
 
                 CCC_DEST_PAYMENTS -> {
                     startOpportunitiesSyncWorker(notificationPayload)
                     startDeliverySyncWorker(notificationPayload)
+                    notificationHandled = true
                 }
 
                 CCC_PAYMENT_INFO_CONFIRMATION -> {
                     startOpportunitiesSyncWorker(notificationPayload)
+                    notificationHandled = true
                 }
 
                 CCC_DEST_OPPORTUNITY_SUMMARY_PAGE -> {
                     startOpportunitiesSyncWorker(notificationPayload)
+                    notificationHandled = true
                 }
 
                 CCC_DEST_LEARN_PROGRESS -> {
                     startOpportunitiesSyncWorker(notificationPayload)
                     startLearningSyncWorker(notificationPayload)
+                    notificationHandled = true
                 }
 
                 CCC_DEST_DELIVERY_PROGRESS -> {
                     startOpportunitiesSyncWorker(notificationPayload)
                     startDeliverySyncWorker(notificationPayload)
+                    notificationHandled = true
                 }
             }
         }
+        return notificationHandled
+    }
+
+    /**
+     * This method will start sync for received payload from FCM
+     * @return whether the notification was handled in this call
+     */
+    fun startSyncWorker(notificationPayload: Map<String, String>?): Boolean {
+        val notificationHandled = parseAndStartNotificationWorker(notificationPayload)
+        syncNotificationIfRequired()
+        return notificationHandled
+    }
+
+    /**
+     * This method will start sync for received payloads from notification API
+     */
+    fun startSyncWorkers(notificationsPayload: ArrayList<Map<String, String>>?) {
+        notificationsPayload?.let {
+            for (notificationPayload in notificationsPayload) {
+                parseAndStartNotificationWorker(notificationPayload) //  syncNotification is false always as this method will check for sync
+            }
+        }
+        syncNotificationIfRequired()
+    }
+
+    // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
+    private fun syncNotificationIfRequired() {
         if (syncNotification && !isNotificationSyncScheduled) {
-            // we want to get info on pending notifications irrespective of whether there are notification related FCMs or not
             startPersonalIdNotificationsWorker(emptyMap(), false)
         }
-        return signaling
     }
 
     private fun startPersonalIdNotificationsWorker(
@@ -281,6 +288,5 @@ class NotificationsSyncWorkerManager(
             ExistingWorkPolicy.KEEP,
             syncWorkRequest,
         )
-        signaling = true
     }
 }
