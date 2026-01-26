@@ -4,7 +4,6 @@
           android:versionCode="106"
           android:versionName="2.62">
 
-
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -587,9 +586,6 @@
             </intent-filter>
         </service>
 
-        <receiver
-            android:name="org.commcare.services.PaymentAcknowledgeReceiver"
-            android:exported="false"/>
         <activity android:name="org.commcare.activities.PushNotificationActivity"
             android:theme="@style/CommonTheme.NoActionBar"/>
     </application>

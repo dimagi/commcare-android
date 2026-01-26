@@ -50,7 +50,6 @@ License.
     <string name="install_from_list_prompt">Connectez-vous en tant qu\'utilisateur mobile ou Web pour voir une liste des applications que vous pouvez installer</string>
     <string name="legacy_failure">CommCare ne prend pas en charge la mise à niveau depuis la version précédente. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le réinstaller.</string>
     <string name="legacy_failure_title">Mise à niveau CommCare incompatible</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Connecté à Commcare</string>
     <string name="expirenotification">Connexion CommCare expirée</string>
     <string name="submission_notification_title">Soumission de données</string>
@@ -308,6 +307,7 @@ License.
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
     <string name="connect_learn_failed_title">Échec de la formation</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
+    <string name="connect_job_ended">Tâche terminée le %s</string>
     <string name="connect_learn_error_starting">Impossible de commencer l\'apprentissage, veuillez contacter l\'administrateur de l\'opportunité.</string>
     <string name="connect_learn_title">Progrès d\'apprentissage</string>
     <string name="connect_learn_status">Vous avez terminé %d des %d leçons.\nTerminez l\'apprentissage pour obtenir votre certificat.</string>
@@ -387,6 +387,8 @@ License.
     <string name="connect_job_info_start_visit">Commencer la visite</string>
     <string name="connect_job_info_download_delivery">Télécharger Livraison</string>
     <string name="connect_job_info_download">Télécharger</string>
+    <string name="connect_job_info_view_info">Voir les informations</string>
+    <string name="connect_job_info_view_resume">Reprendre</string>
     <string name="connect_progress">Progrès</string>
     <string name="connect_payment">Paiement</string>
     <string name="connect_delivery_progress_description">Vous n\'avez terminé aucune leçon. Commencez votre apprentissage pour obtenir votre certificat.</string>
@@ -404,6 +406,9 @@ License.
     <string name="connect_delivery">Livraison</string>
     <string name="connect_expired">Expiré</string>
     <string name="connect_job_tile_daily_limit_description">Limite quotidienne atteinte. Aucun paiement pour l\'envoi des formulaires.</string>
+    <string name="connect_in_progress">En cours</string>
+    <string name="connect_new_opportunities">Nouvelles opportunités</string>
+    <string name="connect_completed">Terminé</string>
 
     <string name="connect_recovery_button_phone">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
@@ -474,8 +479,11 @@ License.
     <string name="personalid_recovery_failed_title">La récupération a échoué</string>
     <string name="personalid_recovery_lockout_title">Compte Verrouillé</string>
     <string name="personalid_recovery_failed_message">Il semble que vous ayez oublié votre code de sauvegarde, nous créons un nouveau compte pour vous</string>
-    <string name="personalid_recovery_lockout_message">Vous avez saisi un code de secours incorrect un trop grand nombre de fois. Votre compte a été bloqué.</string>
-    <string name="personalid_wrong_backup_message">Vous avez saisi un code de secours erroné. Veuillez réessayer. Vous devrez créer un nouveau compte après %d tentatives incorrectes.</string>
+    <string name="personalid_recovery_lockout_message">Vous avez saisi un code de secours incorrect un trop grand nombre de fois. Votre compte a été bloqué. Veuillez contacter le support pour débloquer votre compte.</string>
+    <string name="personalid_wrong_backup_message">Vous avez saisi un code de sauvegarde incorrect. Veuillez réessayer. Votre compte sera bloqué après %d tentatives incorrectes supplémentaires.</string>
+    <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
+    <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
+    <string name="personalid_second_device_login_message_no_date">Vous avez été déconnecté(e) de %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>

@@ -50,7 +50,6 @@
     <string name="install_from_list_prompt">Inicia sesión como usuario móvil o web para ver una lista de las aplicaciones que puedes instalar</string>
     <string name="legacy_failure">CommCare no admite la actualización desde la versión anterior. Para resolver este problema, desinstala CommCare de tu dispositivo y luego vuelve a instalarlo.</string>
     <string name="legacy_failure_title">Actualización de CommCare incompatible</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Conectado a CommCare</string>
     <string name="expirenotification">Conexión de CommCare caducada</string>
     <string name="submission_notification_title">Envío de datos</string>
@@ -246,6 +245,7 @@
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
     <string name="connect_learn_failed_title">Error en la formación</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
+    <string name="connect_job_ended">La tarea finalizó el %s</string>
     <string name="connect_learn_title">Progreso del aprendizaje</string>
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>
@@ -389,6 +389,8 @@
     <string name="connect_job_info_start_visit">Comenzar visita</string>
     <string name="connect_job_info_download_delivery">Descargar Entrega</string>
     <string name="connect_job_info_download">Descargar</string>
+    <string name="connect_job_info_view_info">Ver información</string>
+    <string name="connect_job_info_view_resume">Reanudar</string>
     <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
     <string name="connect_delivery_progress_description">No has completado ninguna lección. Comienza tu aprendizaje para obtener tu certificado.</string>
@@ -405,6 +407,9 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
+    <string name="connect_in_progress">En progreso</string>
+    <string name="connect_new_opportunities">Nuevas oportunidades</string>
+    <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
     <string name="connect_recovery_button_phone">Continuar</string>
@@ -470,8 +475,11 @@
     <string name="personalid_recovery_failed_title">Recuperación fallida</string>
     <string name="personalid_recovery_lockout_title">Cuenta bloqueada</string>
     <string name="personalid_recovery_failed_message">Parece que olvidaste tu código de respaldo, estamos creando una nueva cuenta para ti</string>
-    <string name="personalid_recovery_lockout_message">Ha ingresado el código de respaldo incorrecto demasiadas veces. Su cuenta ha sido bloqueada.</string>
-    <string name="personalid_wrong_backup_message">Ingresaste un código de respaldo incorrecto. Por favor, inténtalo de nuevo. Deberás crear una nueva cuenta después de %d intentos incorrectos.</string>
+    <string name="personalid_recovery_lockout_message">Ha ingresado el código de respaldo incorrecto demasiadas veces. Su cuenta ha sido bloqueada. Comuníquese con el soporte para desbloquear su cuenta.</string>
+    <string name="personalid_wrong_backup_message">Ha introducido el código de seguridad incorrecto. Inténtelo de nuevo. Su cuenta se bloqueará después de %d intentos incorrectos más.</string>
+    <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
+    <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
+    <string name="personalid_second_device_login_message_no_date">Se ha cerrado la sesión en %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
     <string name="personalid_camera_permission_title">Permiso de cámara</string>
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>

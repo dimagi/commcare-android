@@ -40,7 +40,6 @@ import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.FCMMessageData;
-import org.commcare.services.PaymentAcknowledgeReceiver;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -59,8 +58,6 @@ import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
-import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
-import static org.commcare.connect.ConnectConstants.PAYMENT_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 /**
@@ -110,13 +107,13 @@ public class FirebaseMessagingUtil {
                 if (!StringUtils.isEmpty(token)) {
                     updateFCMToken(token);
                 } else {
-                    Logger.exception("Fetching FCM registration token failed",
+                    Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()) ,
                             new Throwable("FCM registration token is empty"));
                 }
             } else {
                 Throwable throwable = task.getException() != null ? task.getException() : new Throwable(
                         "Task to fetch FCM registration token failed");
-                Logger.exception("Fetching FCM registration token failed", throwable);
+                Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()), throwable);
             }
         };
     }
@@ -240,34 +237,12 @@ public class FirebaseMessagingUtil {
 
     private static Intent handleCCCPaymentPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = getConnectActivityNotification(context, fcmMessageData);
-        if(showNotification) {
+
+        if (showNotification) {
             NotificationCompat.Builder fcmNotification = buildNotification(context, intent, fcmMessageData);
-            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                    ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                    : PendingIntent.FLAG_UPDATE_CURRENT;
-
-            // Yes button intent with payment_id from payload
-            Intent yesIntent = new Intent(context, PaymentAcknowledgeReceiver.class);
-            yesIntent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            yesIntent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
-            yesIntent.putExtra(PAYMENT_STATUS, true);
-            PendingIntent yesPendingIntent = PendingIntent.getBroadcast(context, 1,
-                    yesIntent, flags);
-
-            // No button intent with payment_id from payload
-            Intent noIntent = new Intent(context, PaymentAcknowledgeReceiver.class);
-            noIntent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            noIntent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
-            noIntent.putExtra(PAYMENT_STATUS, false);
-            PendingIntent noPendingIntent = PendingIntent.getBroadcast(context, 2,
-                    noIntent, flags);
-
-            // Add Yes & No action button to the notification
-            fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
-            fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
-
             showNotification(context, fcmNotification, fcmMessageData);
         }
+
         return intent;
     }
 

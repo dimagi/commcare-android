@@ -410,6 +410,7 @@
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
+    <string name="connect_job_ended">Task ended on %s</string>
     <string name="connect_learn_error_starting">Unable to begin learning, please contact the opportunity administrator.</string>
 
     <string name="connect_learn_title">Learning Progress</string>
@@ -566,6 +567,8 @@
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
+    <string name="connect_job_info_view_info">View Info</string>
+    <string name="connect_job_info_view_resume">Resume</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
@@ -590,6 +593,9 @@
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_in_progress">In Progress</string>
+    <string name="connect_new_opportunities">New Opportunities</string>
+    <string name="connect_completed">Completed</string>
 
     <!--    Entity List Progresss Indicators-->
 
@@ -624,8 +630,11 @@
     <string name="personalid_recovery_failed_title">Recovery failed</string>
     <string name="personalid_recovery_lockout_title">Account Locked</string>
     <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
-    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked.</string>
-    <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. You will need to create a new account after %d more incorrect attempts.</string>
+    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked. Please contact support to unlock your account.</string>
+    <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
+    <string name="personalid_second_device_login_title">Login on Second Device</string>
+    <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>
+    <string name="personalid_second_device_login_message_no_date">Logged out of %s. PersonalID can only be logged in on one device at a time.</string>
     <string name="personalid_camera_permission_title">Permission for camera</string>
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
