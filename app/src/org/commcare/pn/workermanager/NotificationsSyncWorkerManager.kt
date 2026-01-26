@@ -125,6 +125,9 @@ class NotificationsSyncWorkerManager(
 
     /**
      * This can receive the push notification data payload from FCM and notification API.
+     * @param context - android context
+     * @param showNotification - decide whether to show a notification or not after sync is successful.
+     * @param syncNotification - decide to pull / sync any pending notifications or not.
      */
     constructor(
         context: Context,
@@ -193,7 +196,7 @@ class NotificationsSyncWorkerManager(
     fun startSyncWorkers(notificationsPayload: ArrayList<Map<String, String>>?) {
         notificationsPayload?.let {
             for (notificationPayload in notificationsPayload) {
-                parseAndStartNotificationWorker(notificationPayload) //  syncNotification is false always as this method will check for sync
+                parseAndStartNotificationWorker(notificationPayload)
             }
         }
         syncNotificationIfRequired()
