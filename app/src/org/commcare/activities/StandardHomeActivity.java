@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.CONNECT_JOB_ID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 
 import android.content.Intent;
@@ -372,6 +373,6 @@ public class StandardHomeActivity
     }
 
     public ConnectJobRecord getActiveJob() {
-        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this, getIntent().getIntExtra(CONNECT_JOB_ID, -1));
     }
 }
