@@ -3,7 +3,8 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
 
@@ -66,15 +67,35 @@ public class ConnectAppDatabaseUtil {
         ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void storeCredentialDataInTable(Context context, List<PersonalIdCredential> validCredentials) {
-        SqlStorage<PersonalIdCredential> storage =
-                ConnectDatabaseHelper.getConnectStorage(context, PersonalIdCredential.class);
+    public static void storeCredentialDataInTable(Context context, List<PersonalIdWorkHistory> validCredentials) {
+        SqlStorage<PersonalIdWorkHistory> storage =
+                ConnectDatabaseHelper.getConnectStorage(context, PersonalIdWorkHistory.class);
 
         storage.removeAll();
 
-        for (PersonalIdCredential credential : validCredentials) {
+        for (PersonalIdWorkHistory credential : validCredentials) {
             storage.write(credential);
         }
     }
 
+    public static void storeReleaseToggles(
+            Context context,
+            List<ConnectReleaseToggleRecord> toggles
+    ) {
+        try {
+            SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
+                    ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
+
+            toggleStorage.removeAll();
+
+            for (ConnectReleaseToggleRecord toggle : toggles) {
+                toggleStorage.write(toggle);
+            }
+
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+        }  finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
+        }
+    }
 }

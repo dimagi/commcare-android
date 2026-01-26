@@ -9,47 +9,58 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
+import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils
+import org.javarosa.core.services.Logger
 
 /**
  * @author $|-|!˅@M
  */
-class CommCareProviderLocationController(private var mContext: Context?,
-                                         private var mListener: CommCareLocationListener?): CommCareLocationController {
-
-    private val mLocationManager = mContext?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+class CommCareProviderLocationController(
+    private var mContext: Context?,
+    private var mListener: CommCareLocationListener?,
+) : CommCareLocationController {
+    private val mLocationManager =
+        mContext?.getSystemService(
+            Context.LOCATION_SERVICE,
+        ) as LocationManager
     private var mCurrentLocation: Location? = null
     private var mProviders = GeoUtils.evaluateProviders(mLocationManager)
     private val mReceiver = ProviderChangedReceiver()
     private var mLocationRequestStarted = false
-    private val mLocationListener = object: LocationListener {
-        override fun onLocationChanged(location: Location) {
-            location ?: return
-            mCurrentLocation = location
-            mListener?.onLocationResult(mCurrentLocation!!)
+
+    private val mLocationListener =
+        object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Received location update")
+                if (shouldDiscardLocation(location)) {
+                    return
+                }
+                mCurrentLocation = location
+                mListener?.onLocationResult(mCurrentLocation!!)
+            }
+
+            override fun onStatusChanged(
+                provider: String?,
+                status: Int,
+                extras: Bundle?,
+            ) {
+                // This callback will never be invoked.
+            }
+
+            override fun onProviderEnabled(provider: String) {
+            }
+
+            override fun onProviderDisabled(provider: String) {
+            }
         }
-
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-            //This callback will never be invoked.
-        }
-
-        override fun onProviderEnabled(provider: String) {
-
-        }
-
-        override fun onProviderDisabled(provider: String) {
-
-        }
-
-    }
 
     override fun start() {
         if (!isLocationPermissionGranted(mContext)) {
             mListener?.missingPermissions()
             return
         }
-        val intentFilter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+        val intentFilter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mContext?.registerReceiver(mReceiver, intentFilter, Context.RECEIVER_EXPORTED)
         } else {
@@ -69,9 +80,7 @@ class CommCareProviderLocationController(private var mContext: Context?,
         }
     }
 
-    override fun getLocation(): Location? {
-        return mCurrentLocation
-    }
+    override fun getLocation(): Location? = mCurrentLocation
 
     private fun checkProviderAndRequestLocation() {
         mProviders = GeoUtils.evaluateProviders(mLocationManager)
@@ -99,10 +108,12 @@ class CommCareProviderLocationController(private var mContext: Context?,
         mListener = null
     }
 
-    inner class ProviderChangedReceiver: BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+    inner class ProviderChangedReceiver : BroadcastReceiver() {
+        override fun onReceive(
+            context: Context?,
+            intent: Intent?,
+        ) {
             checkProviderAndRequestLocation()
         }
     }
-
 }

@@ -30,6 +30,8 @@ import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.List;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.commcare.activities.connect.ConnectMessagingActivity.CHANNEL_ID;
 
 public class ConnectMessageChannelListFragment extends Fragment {
@@ -125,17 +127,18 @@ public class ConnectMessageChannelListFragment extends Fragment {
                         channel.getChannelName());
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     public void refreshUi() {
         Context context = getContext();
         if (context != null) {
             List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
-            channelAdapter.setChannels(channels);
+            if (!channels.isEmpty()) {
+                channelAdapter.setChannels(channels);
+                binding.rvChannel.setVisibility(VISIBLE);
+                binding.tvNoChannelMsg.setVisibility(GONE);
+            } else {
+                binding.rvChannel.setVisibility(GONE);
+                binding.tvNoChannelMsg.setVisibility(VISIBLE);
+            }
         }
     }
 }

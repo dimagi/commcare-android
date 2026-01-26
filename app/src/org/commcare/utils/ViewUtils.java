@@ -1,8 +1,11 @@
 package org.commcare.utils;
 
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import org.commcare.dalvik.R;
 
 public class ViewUtils {
     /**
@@ -17,5 +20,18 @@ public class ViewUtils {
         Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
                 .setAction("OK", okClickListener)
                 .show();
+    }
+    public static void showSnackBarWithDismissAction(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(view.getContext().getString(R.string.ok),v -> snackbar.dismiss());
+        snackbar.show();
+    }
+
+    public static void showSnackBarWithNoDismissAction(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
+        TextView tv = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
+        tv.setMaxLines(5);
+
+        snackbar.show();
     }
 }

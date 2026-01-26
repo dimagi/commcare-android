@@ -5,7 +5,13 @@ import java.util.Map;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.*;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.HeaderMap;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Url;
 
 public interface ApiService {
 
@@ -91,4 +97,31 @@ public interface ApiService {
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody connectTokenRequest);
 
+    @GET(ApiEndPoints.RETRIEVE_NOTIFICATIONS)
+    Call<ResponseBody> getAllNotifications(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.UPDATE_NOTIFICATIONS)
+    Call<ResponseBody> updateNotification(@Header("Authorization") String token,
+                                        @HeaderMap Map<String, String> headers,
+                                        @Body RequestBody updateNotificationRequest);
+
+    @POST(ApiEndPoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL)
+    Call<ResponseBody> updateChannelConsent(@Header("Authorization") String token,
+                                          @HeaderMap Map<String, String> headers,
+                                          @Body RequestBody updateChannelConsentRequest);
+
+    @POST(ApiEndPoints.CONNECT_MESSAGE_SEND_URL)
+    Call<ResponseBody> sendMessagingMessage(@Header("Authorization") String token,
+                                            @HeaderMap Map<String, String> headers,
+                                            @Body RequestBody sendMessagingMessageRequest);
+
+    @POST
+    Call<ResponseBody> makePostRequest(
+            @Url String url,
+            @Header("Authorization") String token,
+            @HeaderMap Map<String, String> headers,
+            @Body RequestBody requestBody);
+
+    @GET(ApiEndPoints.RELEASE_TOGGLES)
+    Call<ResponseBody> getReleaseToggles(@Header("Authorization") String token);
 }

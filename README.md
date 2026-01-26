@@ -8,21 +8,21 @@ This repository represents the Android version of CommCare. It depends on the [C
 
 CommCare Android is a mobile CommCare Platform client runtime, and requires a backend environment for full end-to-end usage and to test platform development.
 
-If you don't have an access to another backend, or if you will be doing full platform development, after completing this setup you can follow [the end-to-end development guide](https://github.com/dimagi/commcare-hq/blob/master/local_dev_guide.rst) which explains how to establish a local environment for CommCare's full client/server software. 
+If you don't have an access to another backend, or if you will be doing full platform development, after completing this setup you can follow [the end-to-end development guide](https://github.com/dimagi/commcare-hq/blob/master/local_dev_guide.rst) which explains how to establish a local environment for CommCare's full client/server software.
 
 ## Setup
 
 To set up an Android dev environment for commcare-android, do the following:
 
 - Install [Android Studio](https://developer.android.com/sdk/index.html).
-- Install Java 17 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java. 
+- Install Java 17 if you don't have it yet. For ease of test suite setup ([see below](#unit-tests)) OpenJDK is preferred over Oracle's version of Java.
 
 Go ahead and open Android Studio if this is your first time using it;
 it may take you through some sort of setup wizard, and it's nice to get that out of the way. If it's not the first time, ensure that there are no references to [removed Java options](https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html#removed-java-options) in your environment, most commonly found are *MaxPermSize* and *PermSize*
 
 Android Studio's default project space is `~/AndroidStudioProjects` so I'm going to use that in the example.
 CommCare Android depends on CommCare Core, and CommCare Android expects the core directory to live side by side
-in your directory structure. You can acheive this with the following commands (in bash):
+in your directory structure. You can acheive this with the following commands (in Bash):
 
 ```bash
 cd ~/AndroidStudioProjects
@@ -41,12 +41,20 @@ git clone https://github.com/dimagi/commcare-core.git
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
 
-Note: If you are using any functionality that depends on the Google Cloud Project (like [Google Integrity APIs](https://developer.android.com/google/play/integrity/standard)), you will need to define `GOOGLE_CLOUD_PROJECT_NUMBER` in your local `gradle.properties` file otherwise relevant parts of the application will crash for you with `Caused by: java.lang.IllegalArgumentException: Google Cloud Project Number is not defined`. You should be able to locate the project number in Google cloud console in the "settings" for "IAM and admin" menu. 
+Note: If you are using any functionality that depends on the Google Cloud Project (like
+[Google Integrity APIs](https://developer.android.com/google/play/integrity/standard)), you will need to
+define `GOOGLE_CLOUD_PROJECT_NUMBER` in your local `gradle.properties` file otherwise relevant parts of the
+application will crash for you with
+`Caused by: java.lang.IllegalArgumentException: Google Cloud Project Number is not defined`.
+
+You should be able to locate the project number in Google cloud console in the "settings" for "IAM and admin" menu.
+
+Note: In order to test locally with the Google Integrity APIs, you will also need to add the SHA fingerprint for your development computer to the CommCare Debug Build project in Firebase.
 
 ## Building
 
 Now you're basically ready to go. To build CommCare Android and get it running on your phone,
-plug in an android phone that
+plug in an Android phone that
 
 - is [in developer mode has USB debugging enabled](https://developer.android.com/tools/device.html#setting-up)
 - doesn't have CommCare Android installed on it
@@ -85,25 +93,15 @@ and view the results from the output file generated.
 
 ### Run unit-tests from Android Studio
 
-Create a new Android Studio JUnit Build configuration using the following steps.
+Unit tests can be ran from Android Studio via an auto-configured Gradle task by right-clicking on the test folder in the file explorer and then clicking on "Run 'org.commcare.tests'".
 
-- Click _Run -> Edit Configruations_ and create a new JUnit configuration by pressing the green plus button.
-- Set _Name_ to "commcare android test suite"
-- Set _Test kind_ to "All in directory"
-- set _Directory_ to `/absolute/path/to/commcare-android/app/unit-tests/src/`
-- Right click on this directory and click the "Create 'All Tests'" option that should be listed more than half-way down the list.
-- Set _VM options_ to `-ea -noverify`
-- Set _Working directory_ to `/absolute/path/to/commcare-android/app/`
-- Set _Use classpath of module_ to *app*
-- Click `OK` to finish creating the configuration.
-- Select the "commcare android test suite" under the configuration drop down to the left of the green play button.
-- Press the green play button to run the tests.
+You may also run individual unit tests, via auto-configured Gradle tasks, by clicking on the green play button in the editor gutter (on the left-hand side of the editor window) of the unit test class.
 
 ## Instrumentation Tests
 
 The commcare-android repository uses [Espresso](https://developer.android.com/training/testing/espresso/) to write UI tests.
-You need to have two keys in your `gradle.properties` before being able to run any instrumentation tests. **But make sure you never commit these keys to github.**
-```
+You need to have two keys in your `gradle.properties` before being able to run any instrumentation tests. **But make sure you never commit these keys to GitHub.**
+```properties
 HQ_API_USERNAME=<ASK_ANOTHER_DEV_FOR_KEY>
 HQ_API_PASSWORD=<ASK_ANOTHER_DEV_FOR_KEY>
 ```
@@ -115,7 +113,7 @@ cd commcare-android
 ./gradlew connectedCommcareDebugAndroidTest
 ```
 
-It's also a common requirement to run a particular test, such as when you’re fixing a bug or developing a new test. You can achieve the same in command-line using: 
+It's also a common requirement to run a particular test, such as when you're fixing a bug or developing a new test. You can achieve the same in command-line using:
 
 ```bash
 ./gradlew connectedCommcareDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=<FULLY_QUALIFIED_NAME_OF_YOUR_TEST>
@@ -125,8 +123,8 @@ You can view the results from the output file generated.
 
 ### Run instrumentation-tests from Android Studio
 
-Before running tests from Android-Studio make sure you've disabled animations in your device. Note, this is only required when you're running tests from Android Studio 
-```
+Before running tests from Android-Studio make sure you've disabled animations in your device. Note, this is only required when you're running tests from Android Studio
+```text
 Go to Setting -> Developer Options, and under the Drawing section, switch all of the following options:
 
 Window animation scale -> off
@@ -134,17 +132,17 @@ Transition animation scale -> off
 Animator duration scale -> off
 ```
 
-Create a new Android Studio _Android Instrumented Test_ Build configuration using the following steps.
+Create a new Android Studio *Android Instrumented Test* Build configuration using the following steps.
 
-- Click _Run -> Edit Configruations_ and create a new _Android Instrumented Test_ configuration by pressing the green plus button.
-- Set _Name_ to "commcare android instrumentation tests"
-- Set _Test kind_ to "All in Package"
-- set _Package_ to `org.commcare.androidTests`
+- Click *Run -> Edit Configruations* and create a new *Android Instrumented Test* configuration by pressing the green plus button.
+- Set *Name* to "commcare Android instrumentation tests"
+- Set *Test kind* to "All in Package"
+- set *Package* to `org.commcare.androidTests`
 - Click `OK` to finish creating the configuration.
-- Select the "commcare android instrumentation tests" under the configuration drop down to the left of the green play button.
+- Select the "commcare Android instrumentation tests" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.
 
-### Run instrumentation-tests skipped on browserstack
+### Run instrumentation-tests skipped on BrowserStack
 
 ```bash
 cd commcare-android
@@ -153,34 +151,40 @@ cd commcare-android
 
 ### Code Style Settings
 
-In order to comply with code style guidelines we follow, please use [Commcare Coding Style file](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/codestyles/CommCare%20Coding%20Style.xml) and [Commcare Inspection Profile](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/inspection/CommCare%20Inpsection%20Profile.xml) as your respective code style and inpection profile in Android Studio. To do so follow these instructions 
+In order to comply with code style guidelines we follow, please use
+[Commcare Coding Style file](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/codestyles/CommCare%20Coding%20Style.xml)
+and
+[Commcare Inspection Profile](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/inspection/CommCare%20Inpsection%20Profile.xml)
+as your respective code style and inpection profile in Android Studio.
 
-1. Copy the config files to your Android Studio installation as follows (Replace AndroidStudio3.0 with the respective directory for the AS version you are using) - 
+To do so follow these instructions
 
-```
+1. Copy the config files to your Android Studio installation as follows (Replace AndroidStudio3.0 with the
+respective directory for the AS version you are using) -
+
+```bash
 cp .android_studio_settings/inspection/CommCare\ Inpsection\ Profile.xml ~/Library/Preferences/AndroidStudio3.0/inspection/.
 
-cp .android_studio_settings/codestyles/CommCare\ Coding\ Style.xml ~/Library/Preferences/AndroidStudio3.0/codestyles/.  
-
+cp .android_studio_settings/codestyles/CommCare\ Coding\ Style.xml ~/Library/Preferences/AndroidStudio3.0/codestyles/.
 ```
 
-2.  Restart Android Studio
+2. Restart Android Studio
 
-3.  Go to AS preferences -> Editor -> Code Style  and select Scheme as 'Commcare Coding Style' and to AS preferences -> Editor -> Inspections and select Profile as 'Commcare Inspection Profile'
+3. Go to AS preferences -> Editor -> Code Style and select Scheme as 'Commcare Coding Style' and to AS preferences -> Editor -> Inspections and select Profile as 'Commcare Inspection Profile'
 
 ### Common Errors
 
 #### If you experience the following exception when running individual tests from Android Studio Editor on Mac
 
-```
+```text
 No such manifest file: build/intermediates/bundles/debug/AndroidManifest.xml
 ```
 If you are on a Mac, you will probably need to configure the default JUnit test runner configuration in order to work around a bug where IntelliJ / Android Studio does not set the working directory to the module being tested. This can be accomplished by editing the run configurations, Defaults -> JUnit and changing the working directory value to $MODULE_DIR$
 
-#### Error on attempt to install CommCare app on phone: _Unknown failure during app install_
+#### Error on attempt to install CommCare app on phone: *Unknown failure during app install*
 
 Android Monitor in Android Studio shows the following exceptions:
-```
+```java
 java.lang.RuntimeException: CommCare ran into an issue deserializing data while inflating type
     ...
 Caused by: org.javarosa.core.util.externalizable.DeserializationException:
@@ -189,12 +193,14 @@ No datatype registered to serialization code [4b a9 e5 89]
 
 Resolution:
 
-- Disable _Instant Run_ found in Settings > Build, Execution, Deployment > Instant Run.
+- Disable *Instant Run* found in Settings > Build, Execution, Deployment > Instant Run.
 - Maybe also edit ~/.gradle/gradle.properties (may not exist) and add a line like `org.gradle.jvmargs=-Xmx1536M` if the build fails due to OOM or you see a message like the following during the build:
 
-      To run dex in process, the Gradle daemon needs a larger heap.
-      It currently has 1024 MB.
-      For faster builds, increase the maximum heap size for the Gradle daemon to at least 1536 MB.
-      To do this set org.gradle.jvmargs=-Xmx1536M in the project gradle.properties.
+```text
+To run dex in process, the Gradle daemon needs a larger heap.
+It currently has 1024 MB.
+For faster builds, increase the maximum heap size for the Gradle daemon to at least 1536 MB.
+To do this set org.gradle.jvmargs=-Xmx1536M in the project gradle.properties.
+```
 
-- Click _Run 'app'_ to rebuid and run on phone.
+- Click *Run 'app'* to rebuid and run on phone.

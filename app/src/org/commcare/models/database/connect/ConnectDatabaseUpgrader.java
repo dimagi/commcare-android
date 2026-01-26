@@ -23,12 +23,14 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
-import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -44,7 +46,7 @@ public class ConnectDatabaseUpgrader {
         this.c = c;
     }
 
-    public void upgrade(IDatabase db, int oldVersion, int newVersion) {
+    public void upgrade(IDatabase db, int oldVersion) {
         if (oldVersion == 1) {
             upgradeOneTwo(db);
             oldVersion = 2;
@@ -114,17 +116,34 @@ public class ConnectDatabaseUpgrader {
             upgradeFourteenFifteen(db);
             oldVersion = 15;
         }
+
         if (oldVersion == 15) {
             upgradeFifteenSixteen(db);
             oldVersion = 16;
         }
+
         if (oldVersion == 16) {
             upgradeSixteenSeventeen(db);
             oldVersion = 17;
         }
+
         if (oldVersion == 17) {
             upgradeSeventeenEighteen(db);
             oldVersion = 18;
+        }
+
+        if (oldVersion == 18) {
+            upgradeEighteenNineteen(db);
+            oldVersion = 19;
+        }
+
+        if (oldVersion == 19) {
+            upgradeNineteenTwenty(db);
+            oldVersion = 20;
+        }
+
+        if (oldVersion == 20) {
+            upgradeTwentyTwentyOne(db);
         }
     }
 
@@ -599,7 +618,7 @@ public class ConnectDatabaseUpgrader {
 
 
     private void upgradeFifteenSixteen(IDatabase db) {
-        addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
+        addTableForNewModel(db, PersonalIdWorkHistory.STORAGE_KEY, new PersonalIdWorkHistory());
     }
 
     private void upgradeSixteenSeventeen(IDatabase db) {
@@ -610,7 +629,7 @@ public class ConnectDatabaseUpgrader {
                     ConnectJobRecord.STORAGE_KEY,
                     ConnectJobRecord.class,
                     new ConcreteAndroidDbHelper(c, db));
-            
+
             boolean hasConnectAccess = jobStorage.getNumRecords() > 0;
 
             SqlStorage<ConnectUserRecordV16> oldStorage = new SqlStorage<>(
@@ -639,11 +658,31 @@ public class ConnectDatabaseUpgrader {
         db.beginTransaction();
         try {
             // We have not been populating this table yet, so just drop and recreate
-            SqlStorage.dropTable(db, PersonalIdCredential.STORAGE_KEY);
-            addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
+            SqlStorage.dropTable(db, PersonalIdWorkHistory.STORAGE_KEY);
+            addTableForNewModel(db, PersonalIdWorkHistory.STORAGE_KEY, new PersonalIdWorkHistory());
+            db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void upgradeEighteenNineteen(IDatabase db) {
+        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+    }
+
+    private void upgradeNineteenTwenty(IDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage.dropTable(db, PushNotificationRecord.STORAGE_KEY);
+            addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyTwentyOne(IDatabase db) {
+        addTableForNewModel(db, ConnectReleaseToggleRecord.STORAGE_KEY, new ConnectReleaseToggleRecord());
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
@@ -653,7 +692,6 @@ public class ConnectDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(storageKey);
             builder.addData(modelToAdd);
             db.execSQL(builder.getTableCreateString());
-
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

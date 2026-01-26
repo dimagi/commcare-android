@@ -12,9 +12,6 @@
     <string name="ota_restore_url" translatable="false">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
-    <string name="ConnectFetchDbKeyURL">/users/fetch_db_key</string>
-    <string name="ConnectTokenURL">/o/token/</string>
-    <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="your_comment">Your comment</string>
@@ -223,13 +220,14 @@
     <string name="recovery_forms_send_error">Error while sending forms</string>
     <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
-    <string name="recovery_network_outdated">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
-    <string name="recovery_network_token_unavailable">There was a network issue, please try again.</string>
+    <string name="recovery_network_outdated">This app is outdated. Please update the app on the Google Play Store in order to proceed.</string>
+    <string name="recovery_network_token_unavailable">There was a network issue. Please try again.</string>
     <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover your Personal ID account and retry</string>
     <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
     <string name="recovery_network_server_error">There was an error processing your request.</string>
-    <string name="recovery_network_cooldown">Too many request attempts, try again after an hour.</string>
-    <string name="recovery_network_unknown">Something went wrong, please try again.</string>
+    <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
+    <string name="recovery_network_unknown">Something went wrong. Please try again.</string>
+    <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity, please contact an administrator.</string>
     <string name="recovery_app_manager">Go to App Manager</string>
     <string name="recovery_retry">Retry Recovery</string>
     <string name="notification_channel_errors_title">Errors</string>
@@ -302,6 +300,11 @@
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
 
+    <string name="entity_map_markers">Markers</string>
+    <string name="entity_map_polygons">Polygons</string>
+    <string name="entity_map_geopoints">Geopoints</string>
+    <string name="entity_map_error_message">There was an error in app configuration due to which not all markers on the map are loaded correctly</string>
+
     <!-- PersonalID strings -->
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
@@ -311,16 +314,16 @@
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
 
-    <string name="connect_otp_sent">OTP Sent</string>
-    <string name="connect_otp_verified">OTP Verified</string>
-    <string name="connect_enter_otp">Enter OTP</string>
+    <string name="connect_otp_sent">A 6-digit passcode has been sent to your phone number.</string>
+    <string name="connect_otp_verified">Success! Your phone number has been verified.</string>
+    <string name="connect_enter_otp">Please enter the 6-digit passcode that was sent to your phone number.</string>
 
     <string name="connect_backup_code_title_set">Backup Code</string>
     <string name="connect_backup_code_title_confirm">Confirm Backup Code</string>
     <string name="connect_backup_code_message_title">PersonalId Backup Code</string>
     <string name="connect_backup_code_message">Enter your 6-digit Backup Code</string>
-    <string name="connect_backup_code_length">Backup code must be %d digits</string>
-    <string name="connect_backup_code_mismatch">Backup codes must match</string>
+    <string name="connect_backup_code_length">Please be sure to remember your backup code! It must be %d digits. Keep it in a safe place as you will need it to access your account again.</string>
+    <string name="connect_backup_code_mismatch">The backup codes you enter must match. Please keep it in a safe place as you will need it to access your account again.</string>
 
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
 
@@ -328,28 +331,30 @@
     <string name="connect_recovery_button_phone">Continue</string>
 
     <string name="connect_recovery_success_title">Account Recovered</string>
-    <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your PersonalId.</string>
+    <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>
     <string name="connect_unlock_message">Please unlock to continue</string>
     <string name="connect_unlock_unavailable">Please configure a screen unlock mechanism</string>
 
     <string name="connect_biometric_enroll_fail_title">Biometric Issue</string>
-    <string name="connect_biometric_enroll_fail_message">You will need to configure this biometric manually in the Android settings.</string>
+    <string name="connect_biometric_enroll_fail_message">PersonalID requires biometrics to be enabled. Please configure biometrics in the Android System Settings before proceeding.</string>
 
     <string name="connect_biometric_enroll_fail_button">Go to Settings</string>
     <string name="connect_register_name">Name</string>
     <string name="connect_register_success_title">Account Created</string>
 
-    <string name="connect_register_success_message">Your PersonalID account has been successfully created and is now ready for you to use!</string>
+    <string name="connect_register_success_message">Your account has been created, and is ready for you to use!</string>
     <string name="connect_register_success_button">OK</string>
     <string name="connect_verify_title">Unlock Options</string>
-    <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalId account</string>
+    <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalID account</string>
+    <string name="connect_verify_message_pin">Please configure a PIN or pattern below to unlock both your device and PersonalID account</string>
+    <string name="connect_verify_message_fingerprint">Please configure your fingerprint below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_use_fingerprint_long">Use Fingerprint to Connect</string>
     <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock PersonalID.</string>
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
     <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
     <string name="connect_verify_pin_configured">Your PIN has already been configured and will be used to unlock PersonalID.</string>
-    <string name="connect_verify_configuration_failed">Configuration failed, please try again. %s</string>
+    <string name="connect_verify_configuration_failed">Configuring the biometrics on your Android device has failed. Please try again %s</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
@@ -385,6 +390,7 @@
     <string name="connect_messaging_pn_wrong_channel">Sorry, something went wrong, showing all available messaging channels</string>
     <string name="connect_message_you">You</string>
     <string name="connect_message_them">Them</string>
+    <string name="fcm_sync_failed_body_text">Click here to know more</string>
 
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>
@@ -404,6 +410,7 @@
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
+    <string name="connect_job_ended">Task ended on %s</string>
     <string name="connect_learn_error_starting">Unable to begin learning, please contact the opportunity administrator.</string>
 
     <string name="connect_learn_title">Learning Progress</string>
@@ -422,7 +429,7 @@
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_learn_review">Review Learning</string>
-    <string name="connect_learn_view_details">View Job Details</string>
+    <string name="connect_learn_view_details">View Opportunity Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
     <string name="connect_learn_try_again">Try Again</string>
     <string name="connect_learn_start">Start Learning</string>
@@ -560,6 +567,8 @@
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
+    <string name="connect_job_info_view_info">View Info</string>
+    <string name="connect_job_info_view_resume">Resume</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
@@ -584,6 +593,9 @@
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_in_progress">In Progress</string>
+    <string name="connect_new_opportunities">New Opportunities</string>
+    <string name="connect_completed">Completed</string>
 
     <!--    Entity List Progresss Indicators-->
 
@@ -592,27 +604,22 @@
     <string name="entity_list_finishing">Finishing list calculations…</string>
 
     <string name="personalid_generic_error">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
-    <string name="ConnectMessageRetrieveMessagesURL" translatable="false">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
-    <string name="ConnectMessageChannelConsentURL" translatable="false">https://connectid.dimagi.com/messaging/update_consent/</string>
-    <string name="ConnectMessageSendURL" translatable="false">https://connectid.dimagi.com/messaging/send_message/</string>
-    <string name="ConnectMessageConfirmURL" translatable="false">https://connectid.dimagi.com/messaging/update_received/</string>
-
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_name_empty_error">Name field cannot be empty</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
-    <string name="personalid_configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
+    <string name="personalid_configuration_process_failed_subtitle">Unfortunately, this device did not pass the security checks required to sign up for PersonalID. Please try again on a different device.</string>
     <string name="personalid_configuration_process_failed_play_services">Please make sure Play Store is available on your device and is updated.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Temporary error in establishing your device eligibility. Please try again after a day.</string>
     <string name="personalid_configuration_process_failed_network_error">Network error in establishing your device eligibility. Please make sure you have a good network connection and try again.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">Unable to establish device eligibility due to an unexpected error. Please contact customer support if the problem persists</string>
-    <string name="personalid_configuration_process_pin_unavailable_message">The PIN security mechanism is unavailable, please try again later.</string>
-    <string name="personalid_configuration_process_biometric_unavailable_message">The biometric security mechanism is unavailable, please try again later.</string>
-    <string name="personalid_configuration_process_pin_needs_update_message">The PIN security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
-    <string name="personalid_configuration_process_biometric_needs_update_message">The biometric security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
-    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires that your device have a fingerprint scanner. Please try again with a different device.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">The PIN on this device is currently unavailable. Please try again later.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">Biometrics is not currently enabled on this device. Please configure biometrics in the Android System Settings to proceed.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">The PIN on this device requires an update. Please apply any available system updates, or try again on a different device.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">Biometrics on this device is out of date. Please apply any available system updates, or try again with a different device.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires your device to have a fingerprint scanner. Please try again on a different device.</string>
     <string name="personalid_photo_capture_title">Welcome %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
@@ -623,18 +630,19 @@
     <string name="personalid_recovery_failed_title">Recovery failed</string>
     <string name="personalid_recovery_lockout_title">Account Locked</string>
     <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
-    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times and your account has been locked.</string>
-    <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
+    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked. Please contact support to unlock your account.</string>
+    <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
+    <string name="personalid_second_device_login_title">Login on Second Device</string>
+    <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>
+    <string name="personalid_second_device_login_message_no_date">Logged out of %s. PersonalID can only be logged in on one device at a time.</string>
     <string name="personalid_camera_permission_title">Permission for camera</string>
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
-    <string name="personalid_incorrect_otp">The OTP entered is incorrect. Please try again.</string>
-    <string name="personalid_too_many_otp_attempts">Too many attempts. Please try again later.</string>
-    <string name="personalid_otp_missing_activity">Something went wrong</string>
-    <string name="personalid_otp_verification_failed_generic">OTP verification failed:</string>
-    <string name="personalid_otp_verification_failed">Verification failed and please try again</string>
-    <string name="personalid_location_permission_error">Location permission denied</string>
-    <string name="personalid_location_service_error">Location service is not available. Please enable it</string>
+    <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
+    <string name="personalid_too_many_otp_attempts">You entered the incorrect 6-digit One Time Passcode too many times. Please try again later.</string>
+    <string name="personalid_otp_verification_failed_generic">Something went wrong verifying your phone number. Please try again.</string>
+    <string name="personalid_otp_verification_failed">Something went wrong. Please try again.</string>
+    <string name="personalid_location_permission_error">PersonalID requires your device to have Location Services enabled. Please enable this in your phone\'s settings before proceeding.</string>
     <string name="personalid_grant_location_permission">Grant Location Permission</string>
     <string name="personalid_grant_location_service">Enable Location Service</string>
     <string name="personalid_messaging_menu_title">Messaging</string>
@@ -644,23 +652,16 @@
     <string name="capture_photo">Capture Photo</string>
     <string name="connect_claim_job_error">Error claiming job</string>
 
-    <string name="personalid_credential_my_worker_history">My Work History</string>
-    <string name="personalid_credential">Credential</string>
-    <string name="personalid_credential_worked_on">Worked On:</string>
-    <string name="personalid_credential_earned_on">Earned On:</string>
-    <string name="personalid_credential_view_credential">View Credential</string>
-    <string name="personalid_credential_active_for">Active For:</string>
-    <string name="personalid_credential_learn_more_about_credentials">Learn More About Credentials</string>
-    <string name="personalid_credential_no_credentials_currently_available">No credentials are currently available. Click Refresh or check back later</string>
-    <string name="personalid_credential_earned">Earned</string>
-    <string name="personalid_credential_pending">Pending</string>
-    <string name="personalid_credential_cloud_sync">CloudSync</string>
-    <string name="personalid_credential_connect_certified_learner">Connect Certified Learner</string>
-    <string name="personalid_credential_connect_delivery_worker">Connect Delivery Worker</string>
+    <string name="personalid_work_history_title">My Work History</string>
+    <string name="personalid_work_history">Work History</string>
+    <string name="personalid_work_history_learn_more">Learn More About Work History</string>
+    <string name="personalid_work_history_no_records_available">No records are currently available. Click Refresh or check back later</string>
+    <string name="personalid_work_history_earned">Earned</string>
+    <string name="personalid_work_history_pending">Pending</string>
+    <string name="personalid_work_history_sync">Sync</string>
+
     <string name="commcarehq_worker">CommCareHQ Worker</string>
-    <string name="my_credentials">My Credentials</string>
-    <string name="credential">Credential</string>
-    <string name="nav_drawer_signin_register">Sign in / Register</string>
+    <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
@@ -669,20 +670,46 @@
     <string name="nav_drawer_payments">Payments</string>
     <string name="nav_drawer_manage_profile">Manage Profile</string>
     <string name="user_name_placeholder">User Name</string>
-    <string name="personalid_credential_level_1_month_active">1 Month of\nActivity</string>
-    <string name="personalid_credential_level_2_month_active">2 Months of\nActivity</string>
-    <string name="personalid_credential_level_3_month_active">3 Months of\nActivity</string>
-    <string name="personalid_credential_level_6_month_active">6 Months of\nActivity</string>
-    <string name="personalid_credential_level_9_month_active">9 Months of\nActivity</string>
-    <string name="personalid_credential_level_12_month_active">12 Months of\nActivity</string>
-    <string name="personalid_credential_no_pending_credential">There are no pending credentials</string>
+
+
+    <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
+    <string name="personalid_work_history_level_2_month_active">2 Months of\nActivity</string>
+    <string name="personalid_work_history_level_3_month_active">3 Months of\nActivity</string>
+    <string name="personalid_work_history_level_6_month_active">6 Months of\nActivity</string>
+    <string name="personalid_work_history_level_9_month_active">9 Months of\nActivity</string>
+    <string name="personalid_work_history_level_12_month_active">12 Months of\nActivity</string>
+    <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
     <string name="personalid_notification">Notifications</string>
+    <string name="pn_no_notification_found">No notifications found</string>
 
-    <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
+    <string name="play_service_update_error">To use PersonalID, you need to update Google Play Services. Tap here to go to the Google Play Store to check for updates</string>
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>
 
     <string name="setup_refresh_opportunities_no_jobs">No Opportunities found</string>
     <string name="setup_refresh_opportunities_with_jobs">New opportunities found, click on Opportunities to learn more.</string>
+
+    <string name="personalid_not_login_from_fcm_error">Please login to PersonalId to view the details</string>
+
+    <string name="just_now">Just now</string>
+    <string name="minutes_ago">%1$d minutes ago</string>
+    <string name="hours_ago">%1$d hours ago</string>
+    <string name="yesterday">Yesterday %1$s</string>
+
+    <string name="personalid_authentication_failed">Authenticating the biometrics on your Android device has failed. Please apply any available system updates, or try again with a different device</string>
+    <string name="no_channel_msg">You have no current messaging channels</string>
+
+    <string name="personalid_using_your_location">Using your location</string>
+    <string name="personalid_no_location_found">We can\'t find your location</string>
+    <string name="personalid_tooltip_location_failure_message">We use location data to ensure secure usage of this application.\n\nTo continue, please enable location permissions in settings, or try again later.</string>
+    <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
+
+    <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
+
+    <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
+    <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Too many failed attempts. Please unlock your device and try again.</string>
+    <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
+    <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
 </resources>

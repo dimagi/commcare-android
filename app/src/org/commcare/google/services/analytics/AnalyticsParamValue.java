@@ -1,5 +1,7 @@
 package org.commcare.google.services.analytics;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Created by amstone326 on 10/13/17.
  */
@@ -20,6 +22,8 @@ public class AnalyticsParamValue {
     public static final String SWIPE = "swipe";
 
     // Param values for options menu items
+    public static final String ITEM_CONNECT_SYNC = "connect_sync";
+    public static final String ITEM_NOTIFICATIONS_BELL = "notifications_bell";
     public static final String ITEM_SETTINGS = "settings";
     public static final String ITEM_UPDATE_CC = "update_commcare";
     public static final String ITEM_ABOUT_CC = "about_commcare";
@@ -148,6 +152,7 @@ public class AnalyticsParamValue {
     public static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
     public static final String UPDATE_RESET = "update_reset";
     public static final String CORRUPT_APP_STATE = "corrupt_app_state";
+    public static final String RSA_KEYSTORE_KEY_RETRIEVAL = "rsa_keystore_key_retrieval";
 
     public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
     public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
@@ -183,4 +188,20 @@ public class AnalyticsParamValue {
     public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE = "min_biometric_hardware_unavailable";
     public static final String MIN_BIOMETRIC_NEEDS_UPDATE = "min_biometric_needs_update";
     public static final String MIN_BIOMETRIC_PIN_NEEDS_UPDATE = "min_biometric_pin_needs_update";
+    public static final String START_DELIVERY = "start_delivery";
+    public static final String FINISH_DELIVERY = "finish_delivery";
+    public static final String PAID_DELIVERY = "paid_delivery";
+    public static final String FAILURE_USER_DENIED = "failure_user_denied";
+    public static final String FAILURE_UNLOCK_FAILED = "failure_unlock_failed";
+    public static final String CONTINUE_WITH_FINGERPRINT = "continue_with_fingerprint";
+    public static final String CONTINUE_WITH_PIN = "continue_with_pin";
+
+    public static final String REPORT_NOTIFICATION_METHOD_FIREBASE = "firebase";
+    public static final String REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API = "personal_id_api";
+
+    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY = "notification_history";
+    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY = "notification_tray";
+    public static final String NOTIFICATION_EVENT_TYPE_CLICK = "click_notification";
+    public static final String NOTIFICATION_EVENT_TYPE_RECEIVED = "receive_notification";
+    public static final String NOTIFICATION_EVENT_TYPE_SHOW = "show_notification";
 }

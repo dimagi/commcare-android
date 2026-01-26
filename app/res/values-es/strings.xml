@@ -50,7 +50,6 @@
     <string name="install_from_list_prompt">Inicia sesión como usuario móvil o web para ver una lista de las aplicaciones que puedes instalar</string>
     <string name="legacy_failure">CommCare no admite la actualización desde la versión anterior. Para resolver este problema, desinstala CommCare de tu dispositivo y luego vuelve a instalarlo.</string>
     <string name="legacy_failure_title">Actualización de CommCare incompatible</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Conectado a CommCare</string>
     <string name="expirenotification">Conexión de CommCare caducada</string>
     <string name="submission_notification_title">Envío de datos</string>
@@ -119,9 +118,13 @@
     <string name="recovery_forms_send_error">Error al enviar los formularios</string>
     <string name="recovery_forms_state_unavailable">Los formularios no están disponibles. Verifica que el espacio de almacenamiento de tu teléfono esté disponible.</string>
     <string name="recovery_network_unavailable">Sin conexión de red. Verifica tu conexión a Internet e inténtalo de nuevo.</string>
-    <string name="recovery_network_outdated">La aplicación está desactualizada y ya no puede comunicarse con el servidor. Actualízala en Google Play Store.</string>
+    <string name="recovery_network_outdated">Esta aplicación está desactualizada. Por favor, actualice la aplicación en Google Play Store para continuar.</string>
+    <string name="recovery_network_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
+    <string name="recovery_network_unauthorized">No está autorizado para realizar esta solicitud.</string>
+    <string name="recovery_network_server_error">Hubo un error al procesar su solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
     <string name="recovery_retry">Reintentar recuperación</string>
+    <string name="recovery_unable_to_claim_opportunity">No se puede reclamar la oportunidad, comunícate con un administrador.</string>
     <string name="notification_channel_errors_title">Errores</string>
     <string name="notification_channel_errors_description">Notificaciones para mensajes de error cuando algo sucede, por ejemplo, al instalar una aplicación de CommCare o al sincronizar formularios con el servidor</string>
     <string name="notification_channel_user_session_title">Sesión de usuario</string>
@@ -183,32 +186,35 @@
     <string name="choice_or">_____________    O    _____________</string>
     <string name="busy_message">Todavía estamos procesando tu solicitud anterior. Inténtalo de nuevo más tarde.</string>
     <string name="connect_button_logged_in">Ir al menú Conectar</string>
+    <string name="entity_map_error_message">Se produjo un error en la configuración de la aplicación, por lo que no todos los marcadores del mapa se cargaron correctamente</string>
     <string name="personalid_generic_error">Ocurrió un problema con la base de datos, recupera tu cuenta.</string>
     <string name="connect_registration_title">Comience a usar PersonalID</string>
     <string name="connect_consent_message_1">He leído y acepto la <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidad</a>, los <a href="https://www.dimagi.com/terms/latest/tos/">Términos de Servicio</a>, el <a href="https://www.dimagi.com/terms/latest/ba/">Acuerdo Comercial</a> y la <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceptable</a> de Dimagi.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
-    <string name="connect_otp_sent">OTP enviado</string>
-    <string name="connect_otp_verified">OTP verificado</string>
-    <string name="connect_enter_otp">Ingresar OTP</string>
+    <string name="connect_otp_sent">Se ha enviado un código de acceso de 6 dígitos a su número de teléfono.</string>
+    <string name="connect_otp_verified">¡Éxito! Su número de teléfono ha sido verificado.</string>
+    <string name="connect_enter_otp">Por favor, ingrese el código de acceso de 6 dígitos que se envió a su número de teléfono.</string>
     <string name="connect_backup_code_title_set">Elegir PIN</string>
     <string name="connect_backup_code_title_confirm">Confirmar PIN</string>
-    <string name="connect_backup_code_length">El código debe tener %d dígitos</string>
-    <string name="connect_backup_code_mismatch">Los PIN deben coincidir</string>
+    <string name="connect_backup_code_length"> ¡Asegúrese de recordar su código de respaldo! Debe tener %d dígitos. Guárdelo en un lugar seguro, ya que lo necesitará para acceder a su cuenta de nuevo.</string>
+    <string name="connect_backup_code_mismatch">Los códigos de respaldo que ingrese deben coincidir. Por favor, guárdelo en un lugar seguro, ya que lo necesitará para acceder a su cuenta de nuevo.</string>
     <string name="connect_backup_fail_title">Código incorrecto</string>
     <string name="connect_recovery_success_title">Cuenta recuperada</string>
-    <string name="connect_recovery_success_message">Has recuperado tu cuenta con éxito y ahora puedes reanudar el uso de tu PersonalId.</string>
+    <string name="connect_recovery_success_message">¡Su cuenta ha sido recuperada! Puede reanudar el uso de PersonalID.</string>
     <string name="connect_unlock_title">Desbloquear PersonalId</string>
     <string name="connect_unlock_message">Desbloquea para continuar</string>
     <string name="connect_biometric_enroll_fail_title">Problema biométrico</string>
-    <string name="connect_biometric_enroll_fail_message">Deberás configurar esta biometría manualmente en la configuración de Android.</string>
+    <string name="connect_biometric_enroll_fail_message">PersonalID requiere que la biometría esté habilitada. Por favor, configure la biometría en los Ajustes del sistema Android antes de continuar.</string>
     <string name="connect_biometric_enroll_fail_button">Ir a la configuración</string>
     <string name="connect_register_name">Nombre</string>
     <string name="connect_register_success_title">Cuenta creada</string>
-    <string name="connect_register_success_message">¡Tu cuenta de PersonalId se ha creado con éxito y ahora está lista para usar!</string>
+    <string name="connect_register_success_message">¡Su cuenta ha sido creada y está lista para que la use!</string>
     <string name="connect_register_success_button">DE ACUERDO</string>
     <string name="connect_verify_title">Opciones de desbloqueo</string>
-    <string name="connect_verify_message">Configura un método a continuación para desbloquear tanto tu dispositivo como tu cuenta de PersonalId</string>
+    <string name="connect_verify_message">Configura un método a continuación para desbloquear tanto tu dispositivo como tu cuenta de PersonalID</string>
+    <string name="connect_verify_message_pin">Configure un PIN o patrón a continuación para desbloquear su dispositivo y su cuenta PersonalID</string>
+    <string name="connect_verify_message_fingerprint">Configure su huella digital a continuación para desbloquear tanto su dispositivo como su cuenta PersonalID</string>
     <string name="connect_verify_use_fingerprint_long">Usar huella digital para iniciar sesión</string>
     <string name="connect_verify_fingerprint_configured">Tu huella digital ya se ha configurado y se utilizará para desbloquear PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Configurar huella digital</string>
@@ -239,6 +245,7 @@
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
     <string name="connect_learn_failed_title">Error en la formación</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
+    <string name="connect_job_ended">La tarea finalizó el %s</string>
     <string name="connect_learn_title">Progreso del aprendizaje</string>
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>
@@ -253,7 +260,7 @@
     <string name="connect_learn_completed">Completado el: %s</string>
     <string name="connect_learn_warning_ended">El trabajo ha terminado. No progresarás si realizas tareas adicionales.</string>
     <string name="connect_learn_review">Revisión del aprendizaje</string>
-    <string name="connect_learn_view_details">Ver detalles del puesto</string>
+    <string name="connect_learn_view_details">Ver detalles de la oportunidad</string>
     <string name="connect_learn_go_to_assessment">Ir a la evaluación</string>
     <string name="connect_learn_try_again">Intentar de nuevo</string>
     <string name="connect_learn_start">Comenzar a aprender</string>
@@ -329,6 +336,7 @@
     <string name="change_settings">Change Settings</string>
     <string name="connect_message_you">Tú</string>
     <string name="connect_message_them">Ellos</string>
+    <string name="fcm_sync_failed_body_text">Haga clic aquí para saber más</string>
     <string name="connect_progress_warning_max_reached_single">Has alcanzado el número máximo de visitas. No podrás progresar en trabajos adicionales.</string>
     <string name="connect_progress_warning_daily_max_reached_single">Has alcanzado el número máximo de visitas de hoy. Es posible que no obtengas progreso por trabajo adicional.</string>
     <string name="connect_progress_warning_max_reached_multi">Has alcanzado el número máximo de visitas para %s.</string>
@@ -361,7 +369,6 @@
     <string name="app_with_id_not_found">La aplicación CommCare requerida no está instalada en el dispositivo</string>
     <string name="audio_recording_notification">Notificación de grabación de audio</string>
     <string name="user_suspended">El usuario está suspendido. Por favor, contacta al administrador.</string>
-    <string name="connect_job_list_api_failure">Ocurrió un error al conectar con el servidor.</string>
     <string name="connect_payment_acknowledge_notification_yes">Sí</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
     <string name="enter_otp">Ingresa el código SMS</string>
@@ -382,6 +389,8 @@
     <string name="connect_job_info_start_visit">Comenzar visita</string>
     <string name="connect_job_info_download_delivery">Descargar Entrega</string>
     <string name="connect_job_info_download">Descargar</string>
+    <string name="connect_job_info_view_info">Ver información</string>
+    <string name="connect_job_info_view_resume">Reanudar</string>
     <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
     <string name="connect_delivery_progress_description">No has completado ninguna lección. Comienza tu aprendizaje para obtener tu certificado.</string>
@@ -398,6 +407,9 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
+    <string name="connect_in_progress">En progreso</string>
+    <string name="connect_new_opportunities">Nuevas oportunidades</string>
+    <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
     <string name="connect_recovery_button_phone">Continuar</string>
@@ -424,11 +436,11 @@
     <string name="connect_visit_type_title">%s Visitas</string>
     <string name="connect_job_tile_daily_visits">Visitas diarias</string>
     <string name="connect_appbar_title_app_lock">Bloqueo de aplicación</string>
-    <string name="personalid_incorrect_otp">El OTP ingresado es incorrecto. Por favor, inténtalo de nuevo.</string>
-    <string name="personalid_too_many_otp_attempts">Demasiados intentos. Por favor, inténtalo de nuevo más tarde.</string>
-    <string name="personalid_otp_missing_activity">Algo salió mal</string>
-    <string name="personalid_otp_verification_failed_generic">Verificación de OTP fallida:</string>
-    <string name="personalid_otp_verification_failed">La verificación falló, por favor inténtalo de nuevo.</string>
+    <string name="personalid_incorrect_otp">Ha introducido el código de acceso de 6 dígitos incorrecto. Por favor, inténtelo de nuevo.</string>
+    <string name="personalid_too_many_otp_attempts">Ingresó el código de acceso único de 6 dígitos incorrecto demasiadas veces. Por favor, inténtelo de nuevo más tarde.</string>
+    <string name="personalid_otp_verification_failed_generic">Algo salió mal al verificar su número de teléfono. Por favor, inténtelo de nuevo.</string>
+    <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
+    <string name="personalid_location_permission_error">PersonalID requiere que su dispositivo tenga los Servicios de ubicación habilitados. Por favor, actívelos en la configuración de su teléfono antes de continuar.</string>
     <string name="connect_registration_subtitle">Ingresa tu número de teléfono</string>
     <string name="connect_backup_code_message_title">Código de respaldo de PersonalId</string>
     <string name="connect_backup_code_message">Ingresa tu código de respaldo de 6 dígitos</string>
@@ -443,12 +455,12 @@
     <string name="personalid_name_fragment_subtitle">Por favor, ingresa tu nombre tal como aparece en tu identificación emitida por el gobierno</string>
     <string name="personalid_name_empty_error">El campo Nombre no puede estar vacío</string>
     <string name="personalid_configuration_process_failed_title">Proceso fallido</string>
-    <string name="personalid_configuration_process_failed_subtitle">Tu dispositivo no es compatible con PersonalID en este momento. Por favor, inténtalo de nuevo en otro dispositivo.</string>
-    <string name="personalid_configuration_process_pin_unavailable_message">El mecanismo de seguridad del PIN no está disponible, inténtelo nuevamente más tarde.</string>
-    <string name="personalid_configuration_process_biometric_unavailable_message">El mecanismo de seguridad biométrica no está disponible, inténtelo nuevamente más tarde.</string>
-    <string name="personalid_configuration_process_pin_needs_update_message">El mecanismo de seguridad del PIN requiere una actualización de software; aplique cualquier actualización de sistema disponible o intente nuevamente con un dispositivo diferente.</string>
-    <string name="personalid_configuration_process_biometric_needs_update_message">El mecanismo de seguridad biométrica requiere una actualización de software; aplique cualquier actualización de sistema disponible o intente nuevamente con un dispositivo diferente.</string>
-    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requiere que su dispositivo tenga un lector de huellas dactilares. Inténtelo de nuevo con otro dispositivo.</string>
+    <string name="personalid_configuration_process_failed_subtitle">Lamentablemente, este dispositivo no pasó las comprobaciones de seguridad necesarias para registrarse en PersonalID. Por favor, inténtalo de nuevo en un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">El PIN de este dispositivo no está disponible actualmente. Por favor, inténtelo de nuevo más tarde.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">La biometría no está habilitada actualmente en este dispositivo. Por favor, configure la biometría en los Ajustes del sistema Android antes de continuar.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">El PIN de este dispositivo requiere una actualización. Aplique las actualizaciones de sistema disponibles o inténtelo de nuevo con un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">La biometría en este dispositivo no está actualizada. Aplique las actualizaciones de sistema disponibles o inténtelo de nuevo con un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requiere que su dispositivo tenga un escáner de huellas dactilares. Por favor, inténtelo de nuevo en un dispositivo diferente.</string>
     <string name="personalid_configuration_process_failed_play_services">Asegúrate de que Play Store esté disponible en tu dispositivo y que esté actualizado.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Error temporal al verificar la elegibilidad de tu dispositivo. Por favor, inténtalo de nuevo después de un día.</string>
     <string name="personalid_configuration_process_failed_network_error">Error de red al verificar la elegibilidad de tu dispositivo. Asegúrate de tener una buena conexión de red e inténtalo de nuevo.</string>
@@ -463,32 +475,32 @@
     <string name="personalid_recovery_failed_title">Recuperación fallida</string>
     <string name="personalid_recovery_lockout_title">Cuenta bloqueada</string>
     <string name="personalid_recovery_failed_message">Parece que olvidaste tu código de respaldo, estamos creando una nueva cuenta para ti</string>
-    <string name="personalid_recovery_lockout_message">Ingresaste el código de respaldo incorrecto demasiadas veces y tu cuenta ha sido bloqueada.</string>
-    <string name="personalid_wrong_backup_message">Ingresaste un código de respaldo incorrecto. Por favor, inténtalo de nuevo. Deberás crear una nueva cuenta después de %d intentos incorrectos.</string>
+    <string name="personalid_recovery_lockout_message">Ha ingresado el código de respaldo incorrecto demasiadas veces. Su cuenta ha sido bloqueada. Comuníquese con el soporte para desbloquear su cuenta.</string>
+    <string name="personalid_wrong_backup_message">Ha introducido el código de seguridad incorrecto. Inténtelo de nuevo. Su cuenta se bloqueará después de %d intentos incorrectos más.</string>
+    <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
+    <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
+    <string name="personalid_second_device_login_message_no_date">Se ha cerrado la sesión en %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
     <string name="personalid_camera_permission_title">Permiso de cámara</string>
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
-    <string name="personalid_credential_my_worker_history">Mi Historial Laboral</string>
-    <string name="personalid_credential">Credencial</string>
-    <string name="personalid_credential_worked_on">Trabajado en:</string>
-    <string name="personalid_credential_earned_on">Obtenido el:</string>
-    <string name="personalid_credential_active_for">Activo durante:</string>
-    <string name="personalid_credential_learn_more_about_credentials">Más Información Sobre las Credenciales</string>
-    <string name="personalid_credential_view_credential">Ver Credencial</string>
-    <string name="personalid_credential_no_credentials_currently_available">No hay credenciales disponibles actualmente. Haga clic en Actualizar o vuelva a consultar más tarde.</string>
-    <string name="personalid_credential_earned">Ganado</string>
-    <string name="personalid_credential_pending">Pendiente</string>
-    <string name="personalid_credential_cloud_sync">Sincronización en la Nube</string>
-    <string name="personalid_credential_level_1_month_active">1 Mes de\nActividad</string>
-    <string name="personalid_credential_level_2_month_active">2 Meses de\nActividad</string>
-    <string name="personalid_credential_level_3_month_active">3 Meses de\nActividad</string>
-    <string name="personalid_credential_level_6_month_active">6 Meses de\nActividad</string>
-    <string name="personalid_credential_level_9_month_active">9 Meses de\nActividad</string>
-    <string name="personalid_credential_level_12_month_active">12 Meses de\nActividad</string>
-    <string name="personalid_credential_no_pending_credential">No hay credenciales pendientes</string>
+    <string name="personalid_work_history_title">Mi Historial Laboral</string>
+    <string name="personalid_work_history">Historial Laboral</string>
+    <string name="personalid_work_history_learn_more">Más Información Sobre las Credenciales</string>
+    <string name="personalid_work_history_no_records_available">No hay registros de historial laboral disponibles actualmente. Haga clic en Actualizar o vuelva a consultar más tarde.</string>
+    <string name="personalid_work_history_earned">Ganado</string>
+    <string name="personalid_work_history_pending">Pendiente</string>
+    <string name="personalid_work_history_sync">Sincronizar</string>
+    <string name="personalid_work_history_level_1_month_active">1 Mes de\nActividad</string>
+    <string name="personalid_work_history_level_2_month_active">2 Meses de\nActividad</string>
+    <string name="personalid_work_history_level_3_month_active">3 Meses de\nActividad</string>
+    <string name="personalid_work_history_level_6_month_active">6 Meses de\nActividad</string>
+    <string name="personalid_work_history_level_9_month_active">9 Meses de\nActividad</string>
+    <string name="personalid_work_history_level_12_month_active">12 Meses de\nActividad</string>
+    <string name="personalid_work_history_no_pending_records">No hay registros pendientes en este momento</string>
 
     <string name="personalid_notification">Notificaciones</string>
+    <string name="pn_no_notification_found">No se encontraron notificaciones</string>
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
@@ -498,10 +510,35 @@
     <string name="nav_drawer_work_history">Historial de trabajo</string>
     <string name="nav_drawer_payments">Pagos</string>
     <string name="nav_drawer_manage_profile">Administrar perfil</string>
-    <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
+    <string name="play_service_update_error">Para usar PersonalID, necesita actualizar los servicios de Google Play. Toque aquí para ir a Google Play Store y buscar actualizaciones.</string>
     <string name="nav_drawer_open">Abrir el panel de navegación</string>
     <string name="nav_drawer_close">Cerrar el panel de navegación</string>
 
     <string name="setup_refresh_opportunities_no_jobs">No se encontraron oportunidades</string>
     <string name="setup_refresh_opportunities_with_jobs">Nuevas oportunidades encontradas, haz clic en Oportunidades para obtener más información.</string>
+    <string name="personalid_not_login_from_fcm_error">Inicie sesión en PersonalId para ver los detalles.</string>
+
+    <string name="just_now">Ahora mismo</string>
+    <string name="minutes_ago">Hace %1$d minutos</string>
+    <string name="hours_ago">Hace %1$d horas</string>
+    <string name="yesterday">Ayer %1$s</string>
+
+    <string name="recovery_network_cooldown">Demasiados intentos de solicitud. Por favor, inténtelo de nuevo después de una hora.</string>
+    <string name="recovery_network_unknown">Algo salió mal. Inténtalo de nuevo.</string>
+    <string name="personalid_authentication_failed">La autenticación de la biometría en su dispositivo Android ha fallado. Aplique las actualizaciones de sistema disponibles o inténtelo de nuevo con un dispositivo diferente.</string>
+    <string name="connect_verify_configuration_failed">La configuración de la biometría en su dispositivo Android ha fallado. Por favor, inténtelo de nuevo %s.</string>
+
+    <string name="no_channel_msg">No tienes canales de mensajería activos.</string>
+    <string name="personalid_using_your_location">Usando tu ubicación</string>
+    <string name="personalid_no_location_found">No podemos encontrar tu ubicación</string>
+    <string name="personalid_tooltip_location_failure_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\nPara continuar, habilite los permisos de ubicación en la configuración o inténtelo de nuevo más tarde.</string>
+    <string name="personalid_tooltip_location_success_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Haga clic aquí para más información.</a></string>
+
+    <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
+
+    <string name="personalid_biometric_error_cancelled">La configuración biométrica fue cancelada. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
+    <string name="personalid_biometric_error_lockout">Demasiados intentos. Por favor, espere e inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Demasiados intentos fallidos. Por favor, desbloquee su dispositivo e inténtelo de nuevo.</string>
+    <string name="personalid_biometric_error_timeout">La operación biométrica ha expirado. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
+    <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
 </resources>

@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,11 +11,9 @@ import org.commcare.logging.DataChangeLogger;
 import org.commcare.views.CommCareShareActionProvider;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 
-public class DataChangeLogsActivity extends AppCompatActivity {
+public class DataChangeLogsActivity extends CommonBaseActivity {
 
 
     private CommCareShareActionProvider mShareActionProvider;

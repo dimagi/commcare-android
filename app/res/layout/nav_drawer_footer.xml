@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:layout_gravity="bottom"
-    android:background="@color/cc_brand_color">
+    android:background="@color/connect_blue_color">
     <View
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
@@ -17,7 +17,6 @@
         android:id="@+id/notification_view"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:paddingStart="16dp"
         android:clickable="true"
         android:visibility="gone"
         android:focusable="true"
@@ -38,15 +37,13 @@
             android:layout_height="wrap_content"
             android:text="@string/personalid_notification"
             android:textAppearance="@style/TextAppearance.NavDrawerItem"
-            android:layout_marginStart="8dp"
-            android:fontFamily="sans-serif-medium" />
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/about_view"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:paddingStart="16dp"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -66,15 +63,13 @@
             android:layout_height="wrap_content"
             android:text="@string/about_cc"
             android:textAppearance="@style/TextAppearance.NavDrawerItem"
-            android:layout_marginStart="8dp"
-            android:fontFamily="sans-serif-medium" />
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/help_view"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:paddingStart="16dp"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -103,8 +98,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.NavDrawerItem.SubTitle"
         android:enabled="false"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"/>
+        android:textColor="@color/white"
+        android:layout_marginTop="8dp"/>
 
 </LinearLayout>
 </layout>

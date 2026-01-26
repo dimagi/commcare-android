@@ -407,7 +407,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void checkForGlobalErrors() {
-        String errors = GlobalErrorUtil.handleGlobalErrors();
+        String errors = GlobalErrorUtil.getGlobalErrors();
         if(errors.length() > 0) {
             errorMessage.setVisibility(View.VISIBLE);
             errorMessage.setText(errors);

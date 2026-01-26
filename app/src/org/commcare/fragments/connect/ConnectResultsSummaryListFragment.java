@@ -26,12 +26,17 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
-    private FragmentConnectResultsSummaryListBinding binding;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ConnectResultsSummaryListFragment extends ConnectJobFragment<FragmentConnectResultsSummaryListBinding> {
     private ResultsAdapter adapter;
 
     public static ConnectResultsSummaryListFragment newInstance() {
@@ -39,49 +44,55 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectResultsSummaryListBinding.inflate(inflater, container, false);
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         setupRecyclerView();
-        updateView();
-        return binding.getRoot();
+        updateSummaryView();
+        return view;
     }
 
     public void updateView() {
         updateSummaryView();
+
         if (adapter != null) {
+            adapter.rebuildPaymentsDisplayList();
             adapter.notifyDataSetChanged();
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;        // prevent view-leak
-    }
-
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        binding.resultsList.setLayoutManager(layoutManager);
+        getBinding().resultsList.setLayoutManager(layoutManager);
         adapter = new ResultsAdapter(requireContext(), job, true);
-        binding.resultsList.setAdapter(adapter);
-        binding.resultsList.addItemDecoration(
+        getBinding().resultsList.setAdapter(adapter);
+        getBinding().resultsList.addItemDecoration(
                 new DividerItemDecoration(requireContext(), layoutManager.getOrientation()));
     }
 
     private void updateSummaryView() {
-        binding.paymentEarnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
-        binding.paymentTransferredAmount.setText(job.getMoneyString(job.getPaymentTotal()));
+        getBinding().paymentEarnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
+        getBinding().paymentTransferredAmount.setText(job.getMoneyString(job.getPaymentTotal()));
+    }
+
+    @Override
+    protected @NotNull FragmentConnectResultsSummaryListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectResultsSummaryListBinding.inflate(inflater, container, false);
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final ConnectJobRecord job;
         private final boolean showPayments;
         private final Context context;
+        private final ArrayList<ConnectJobPaymentRecord> payments = new ArrayList<>();
 
         public ResultsAdapter(Context context, ConnectJobRecord job, boolean showPayments) {
             this.context = context;
             this.job = job;
             this.showPayments = showPayments;
+
+            if (showPayments) {
+                buildPaymentsDisplayList();
+            }
         }
 
         @NonNull
@@ -97,7 +108,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
             if (holder instanceof VerificationViewHolder vh) {
                 bindVerificationItem(vh, job.getDeliveries().get(position));
             } else if (holder instanceof PaymentViewHolder ph) {
-                bindPaymentItem(ph, job.getPayments().get(position), job);
+                bindPaymentItem(ph, payments.get(position), job);
             }
         }
 
@@ -141,15 +152,26 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
             }
         }
 
-        private void handleConfirmationDialogResult(PaymentViewHolder holder, ConnectJobPaymentRecord payment,
-                                        boolean result) {
-            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, result,
-                    success -> holder.updateConfirmedText(context, payment));
+        private void handleConfirmationDialogResult(
+                PaymentViewHolder holder,
+                ConnectJobPaymentRecord payment,
+                boolean result
+        ) {
+            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(
+                    context,
+                    payment,
+                    result,
+                    success -> {
+                        holder.updateConfirmedText(context, payment);
+                        rebuildPaymentsDisplayList();
+                        notifyDataSetChanged();
+                    }
+            );
         }
 
         @Override
         public int getItemCount() {
-            return showPayments ? job.getPayments().size() : job.getDeliveries().size();
+            return showPayments ? payments.size() : job.getDeliveries().size();
         }
 
         public static class VerificationViewHolder extends RecyclerView.ViewHolder {
@@ -238,6 +260,32 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
 
             binding.riNo.setOnClickListener(view -> dialog.dismiss());
             dialog.show();
+        }
+
+        private void buildPaymentsDisplayList() {
+            List<ConnectJobPaymentRecord> confirmedPayments = new ArrayList<>();
+            List<ConnectJobPaymentRecord> unconfirmedPayments = new ArrayList<>();
+            List<ConnectJobPaymentRecord> sortedPayments = ConnectJobUtils.getPaymentsSortedByDate(job);
+
+            for (ConnectJobPaymentRecord payment : sortedPayments) {
+                boolean paymentConfirmed = payment.getConfirmed();
+
+                if (paymentConfirmed) {
+                    confirmedPayments.add(payment);
+                } else {
+                    unconfirmedPayments.add(payment);
+                }
+            }
+
+            payments.addAll(unconfirmedPayments);
+            payments.addAll(confirmedPayments);
+        }
+
+        void rebuildPaymentsDisplayList() {
+            if (showPayments) {
+                payments.clear();
+                buildPaymentsDisplayList();
+            }
         }
     }
 

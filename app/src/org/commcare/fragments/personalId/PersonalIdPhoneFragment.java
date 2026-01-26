@@ -24,13 +24,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.Task;
-import com.google.android.play.core.integrity.StandardIntegrityManager;
-import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
@@ -39,8 +39,8 @@ import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.base.BaseApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
@@ -51,6 +51,7 @@ import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
 import org.commcare.location.LocationRequestFailureHandler;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.PhoneNumberHelper;
@@ -59,9 +60,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
-import static org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections.*;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements CommCareLocationListener {
@@ -112,6 +111,25 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         }
     }
 
+    private void setLocationToolTip(Location location) {
+        binding.groupTooltip.setVisibility(View.VISIBLE);
+
+        boolean locationFound = (location != null);
+
+        binding.ivLocation.setImageResource(
+                locationFound ? R.drawable.ic_place : R.drawable.ic_connect_delivery_rejected
+        );
+        binding.tvLocation.setText(
+                locationFound ? R.string.personalid_using_your_location : R.string.personalid_no_location_found
+        );
+
+        binding.tooltipText.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.tooltipText.setText(
+                locationFound ? R.string.personalid_tooltip_location_success_message
+                        : R.string.personalid_tooltip_location_failure_message
+        );
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -122,7 +140,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void onDestroyView() {
         super.onDestroyView();
         locationController.destroy();
-        binding = null;
     }
 
     private void checkGooglePlayServices() {
@@ -146,13 +163,26 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void initializeUi() {
-        binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
+        binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupListeners();
         updateContinueButtonState();
     }
 
     private void setupListeners() {
+        binding.ivLocationInfo.setOnClickListener(v -> {
+            if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
+                binding.groupTooltipInfo.setVisibility(View.GONE);
+            } else {
+                binding.groupTooltipInfo.setVisibility(View.VISIBLE);
+            }
+        });
+
+        binding.firstLayout.setOnClickListener(v->{
+            if (binding.groupTooltipInfo.getVisibility() == View.VISIBLE) {
+                binding.groupTooltipInfo.setVisibility(View.GONE);
+            }
+        });
         binding.connectConsentCheck.setOnClickListener(v -> updateContinueButtonState());
         binding.personalidPhoneContinueButton.setOnClickListener(v -> onContinueClicked());
 
@@ -236,6 +266,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void onContinueClicked() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
         enableContinueButton(false);
         startConfigurationRequest();
     }
@@ -256,6 +287,11 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
         body.put("cc_device_id", ReportingUtils.getDeviceId());
+
+        String model = DeviceIdentifier.getDeviceModel();
+        if(model != null) {
+            body.put("device", model);
+        }
 
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {
@@ -278,6 +314,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     @Override
     public void onLocationResult(@NonNull Location result) {
         location = result;
+        setLocationToolTip(location);
         updateContinueButtonState();
     }
 
@@ -293,7 +330,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                             resolutionLauncher.launch(request);
                         } catch (Exception e) {
                             navigateToPermissionErrorMessageDisplay(
-                                    R.string.personalid_location_service_error,
+                                    R.string.personalid_location_permission_error,
                                     R.string.personalid_grant_location_service
                             );
                         }
@@ -309,7 +346,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private void handleNoLocationServiceProviders() {
         DialogInterface.OnCancelListener onCancelListener = dialog -> {
             location = null;
-            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error,
+            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
                     R.string.personalid_grant_location_service);
         };
 
@@ -320,7 +357,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
                     location = null;
-                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error,
+                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
                             R.string.personalid_grant_location_service);
                     break;
             }
@@ -361,12 +398,13 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         resolutionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
+                    setLocationToolTip(location);
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // User enabled location settings
                     } else {
                         // User cancelled or failed
                         navigateToPermissionErrorMessageDisplay(
-                                R.string.personalid_location_service_error,
+                                R.string.personalid_location_permission_error,
                                 R.string.personalid_grant_location_service
                         );
                     }
@@ -397,6 +435,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             public void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
+
+                FirebaseAnalyticsUtil.flagPersonalIDDemoUser(sessionData.getDemoUser());
+
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSuccess();
                 } else {
@@ -478,7 +519,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+        showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
@@ -500,7 +541,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     @Override
     protected void navigateToMessageDisplay(String title, String message,  boolean isCancellable, int phase,
-            int buttonText) {
+                                            int buttonText) {
         NavDirections navDirections =
                 PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                         title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
@@ -519,6 +560,15 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void missingPermissions() {
         if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
             locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
+        }
+    }
+
+    @Override
+    public void onLocationServiceChange(boolean locationServiceEnabled) {
+        if (!locationServiceEnabled) {
+            location = null;
+            setLocationToolTip(location);
+            updateContinueButtonState();
         }
     }
 }

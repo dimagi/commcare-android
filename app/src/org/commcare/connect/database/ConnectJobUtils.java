@@ -380,4 +380,14 @@ public class ConnectJobUtils {
         return null;
     }
 
+    public static List<ConnectJobPaymentRecord> getPaymentsSortedByDate(ConnectJobRecord job) {
+        List<ConnectJobPaymentRecord> payments = job.getPayments();
+        Collections.sort(
+                payments,
+                (payment1, payment2) ->
+                        payment2.getDate().compareTo(payment1.getDate())
+        );
+
+        return payments;
+    }
 }

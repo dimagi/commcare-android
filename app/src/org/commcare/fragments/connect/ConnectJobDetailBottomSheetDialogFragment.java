@@ -82,10 +82,4 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         }
         return paymentTextBuilder.toString();
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
 }

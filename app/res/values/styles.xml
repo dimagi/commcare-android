@@ -351,4 +351,19 @@
         <item name="android:textColor">@color/nav_drawer_text</item>
     </style>
 
+    <style name="TranslucentScreenTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="MapLayerSwitch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:switchPadding">16dp</item>
+        <item name="android:thumbTextPadding">10dp</item>
+        <item name="trackTint">@color/switch_track_tint</item>
+        <item name="android:thumb">@drawable/switch_thumb</item>
+        <item name="android:track">@drawable/switch_track</item>
+    </style>
+
 </resources>

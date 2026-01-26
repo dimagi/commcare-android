@@ -26,7 +26,7 @@ import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
-
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.ArrayList;
@@ -108,7 +108,14 @@ public class ConnectMessageFragment extends Fragment {
             if (success) {
                 refreshUi();
             } else {
-                Toast.makeText(requireContext(), getString(R.string.connect_messaging_retrieve_messages_fail), Toast.LENGTH_SHORT).show();
+                Context context = getContext();
+                if (context != null) {
+                    Toast.makeText(
+                            context,
+                            getString(R.string.connect_messaging_retrieve_messages_fail),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
             }
         });
     }
@@ -176,6 +183,7 @@ public class ConnectMessageFragment extends Fragment {
                 chat.setMessageRead(success);
                 adapter.updateMessageReadStatus(chat);
                 scrollToLatestMessage();
+                FirebaseAnalyticsUtil.reportPersonalIDMessageSent();
             }
         });
     }

@@ -1,5 +1,9 @@
 package org.commcare.services;
 
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+
 import android.graphics.Bitmap;
 
 import org.commcare.CommCareNoficationManager;
@@ -38,10 +42,6 @@ public class FCMMessageData implements Externalizable {
     private Map<String, String> payloadData;
 
 
-    public static String NOTIFICATION_TITLE = "title";
-    public static String NOTIFICATION_BODY = "body";
-
-
     /**
      * Action Type for data syncer
      */
@@ -52,13 +52,13 @@ public class FCMMessageData implements Externalizable {
 
     public FCMMessageData(Map<String, String> payloadData) {
         this.payloadData = payloadData;
-        actionType = getActionType(payloadData.get("action"));
+        actionType = getActionType(payloadData.get(REDIRECT_ACTION));
         username = payloadData.get("username");
         domain = payloadData.get("domain");
         creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
         notificationTitle = payloadData.get(NOTIFICATION_TITLE);
         notificationText = payloadData.get(NOTIFICATION_BODY);
-        action = payloadData.get("action");
+        action = payloadData.get(REDIRECT_ACTION);
         priority = NotificationCompat.PRIORITY_HIGH;
         notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
         smallIcon = R.drawable.commcare_actionbar_logo;
@@ -113,6 +113,7 @@ public class FCMMessageData implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         actionType = ActionTypes.valueOf(ExtUtil.readString(in));
+        action = ExtUtil.readString(in);
         username = ExtUtil.readString(in);
         domain = ExtUtil.readString(in);
         creationTime = new DateTime(ExtUtil.readLong(in));
@@ -120,7 +121,8 @@ public class FCMMessageData implements Externalizable {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, action.toString());
+        ExtUtil.writeString(out, actionType.toString());
+        ExtUtil.writeString(out, action);
         ExtUtil.writeString(out, username);
         ExtUtil.writeString(out, domain);
         ExtUtil.writeNumeric(out, creationTime.getMillis());

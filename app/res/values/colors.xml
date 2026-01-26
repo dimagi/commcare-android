@@ -8,11 +8,13 @@
     <color name="grey">#A3A3A3</color>
     <color name="grey_light">#D3D3D3</color>
     <color name="grey_lighter">#EBEBEB</color>
+    <color name="porcelain_grey">#F1F1F1</color>
     <color name="white">#FFFFFF</color>
     <color name="translucent_grey_dark">#20959699</color>
     <color name="translucent_grey">#80D3D3D3</color>
     <color name="translucent_grey_light">#A0D3D3D3</color>
     <color name="blue">#3867AD</color>
+    <color name="palatinate_blue">#3843D0</color>
     <color name="blue_grey">#6884AD</color>
     <color name="blue_light">#7FA1D4</color>
     <color name="translucent_blue">#903867AD</color>
@@ -155,7 +157,6 @@
     <color name="start_sync_button">@color/cc_brand_color</color>
     <color name="start_sync_dark_button">#3b4fb6</color>
     <color name="start_logout_button">#373534</color>
-    <color name="barcode_button_color">#3843D0</color>
     <color name="url_button_color">#8EA1FF</color>
     <color name="square_button_icon_color">#FFFFFF</color>
 
@@ -214,12 +215,15 @@
     <color name="connect_yellow_dot">#EABA13</color>
     <color name="connect_message_read">#3A42C7</color>
     <color name="connect_delivery_approved">#16A085</color>
-    <color name="personal_id_credentials_earned">#FCEFCC</color>
-    <color name="personal_id_credential_earned_activity">#90A1B9</color>
-    <color name="personal_id_credential_earned_grey">#4DFFFFFF</color>
-    <color name="personal_id_credential_grey_pending">#F3F4F6</color>
-    <color name="personal_id_credential_yellow_pending">#C67E13</color>
-    <color name="personal_id_credential_yellow_pending_bg">#FFF4CD</color>
+    <color name="personal_id_work_history_earned">#FCEFCC</color>
+    <color name="personal_id_work_history_earned_activity">#90A1B9</color>
+    <color name="personal_id_work_history_earned_grey">#4DFFFFFF</color>
+    <color name="personal_id_work_history_grey_pending">#F3F4F6</color>
+    <color name="personal_id_work_history_yellow_pending">#C67E13</color>
+    <color name="personal_id_work_history_yellow_pending_bg">#FFF4CD</color>
+    <color name="pn_item_grey_color">#E9E9E9</color>
+    <color name="sapphire_blue">#3843CF</color>
+    <color name="persian_indigo">#262a82</color>
 
 
     <color name="ic_backup">#14006C</color>

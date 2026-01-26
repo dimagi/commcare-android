@@ -191,11 +191,8 @@ public class BiometricsHelper {
         if (authenticator == DEVICE_CREDENTIAL && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
 
-            boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                    manager.isDeviceSecure() :
-                    manager.isKeyguardSecure();
-
-            return isSecure ? BiometricManager.BIOMETRIC_SUCCESS : BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
+            return manager.isDeviceSecure() ? BiometricManager.BIOMETRIC_SUCCESS :
+                    BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
         }
 
         return biometricManager.canAuthenticate(authenticator);
@@ -255,6 +252,20 @@ public class BiometricsHelper {
 
     public static String getBiometricNeedsUpdateError(Activity activity) {
         return activity.getString(R.string.personalid_configuration_process_biometric_needs_update_message);
+    }
+
+    public static String getBiometricError(int errorCode, Context context) {
+        return switch (errorCode) {
+            case BiometricPrompt.ERROR_NEGATIVE_BUTTON, BiometricPrompt.ERROR_CANCELED ->
+                    context.getString(R.string.personalid_biometric_error_cancelled);
+            case BiometricPrompt.ERROR_LOCKOUT ->
+                    context.getString(R.string.personalid_biometric_error_lockout);
+            case BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
+                    context.getString(R.string.personalid_biometric_error_lockout_permanent);
+            case BiometricPrompt.ERROR_TIMEOUT ->
+                    context.getString(R.string.personalid_biometric_error_timeout);
+            default -> context.getString(R.string.personalid_biometric_error_cannot_configure);
+        };
     }
 
     //// end: min security requirements

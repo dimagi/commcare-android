@@ -5,8 +5,6 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
-import kotlin.Metadata;
-
 /**
  * DB model for storing the encrypted/encoded Connect DB passphrase
  *
@@ -19,6 +17,7 @@ public class ConnectKeyRecord extends Persisted {
     @Persisting(1)
     String encryptedPassphrase;
 
+    @Deprecated
     @Persisting(2)
     @MetaField(IS_LOCAL)
     boolean isLocal;
@@ -26,9 +25,8 @@ public class ConnectKeyRecord extends Persisted {
     public ConnectKeyRecord() {
     }
 
-    public ConnectKeyRecord(String encryptedPassphrase, boolean isLocal) {
+    public ConnectKeyRecord(String encryptedPassphrase) {
         this.encryptedPassphrase = encryptedPassphrase;
-        this.isLocal = isLocal;
     }
 
     public String getEncryptedPassphrase() {
@@ -37,11 +35,8 @@ public class ConnectKeyRecord extends Persisted {
     public void setEncryptedPassphrase(String passphrase) {
         encryptedPassphrase = passphrase;
     }
-    public boolean getIsLocal() {
-        return isLocal;
-    }
 
     public static ConnectKeyRecord fromV6(ConnectKeyRecordV6 oldVersion) {
-        return new ConnectKeyRecord(oldVersion.getEncryptedPassphrase(), true);
+        return new ConnectKeyRecord(oldVersion.getEncryptedPassphrase());
     }
 }

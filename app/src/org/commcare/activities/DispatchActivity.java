@@ -4,7 +4,9 @@ import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,11 +22,14 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
@@ -104,6 +109,11 @@ public class DispatchActivity extends AppCompatActivity {
         }
     }
 
+
+    private Intent checkIfAnyPNIntentPresent(){
+        return FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
+    }
+
     /**
      * A workaround required by Android Bug #2373 -- An app launched from the Google Play store
      * has different intent flags than one launched from the App launcher, which ruins the back
@@ -155,7 +165,18 @@ public class DispatchActivity extends AppCompatActivity {
         }
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (currentApp == null) {
+
+        Intent pnIntent = checkIfAnyPNIntentPresent();
+        if (pnIntent != null) {
+            String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
+            FirebaseAnalyticsUtil.reportNotificationEvent(
+                    AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
+                    actionType,
+                    pnIntent.getStringExtra(NOTIFICATION_ID)
+            );
+            startActivity(pnIntent);
+        }else if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state

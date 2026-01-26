@@ -1,11 +1,12 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.utils.ViewUtils.showSnackBarWithDismissAction;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,44 +18,36 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDetailsBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.MultipleAppsUtil;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
-
-public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
-
-    private FragmentConnectDeliveryDetailsBinding binding;
+public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentConnectDeliveryDetailsBinding> {
 
     public static ConnectDeliveryDetailsFragment newInstance() {
         return new ConnectDeliveryDetailsFragment();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectDeliveryDetailsBinding.inflate(inflater, container, false);
-
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
-
         requireActivity().setTitle(getString(R.string.connect_job_info_title));
         setupJobDetailsUI(job);
         setupButtonBehavior(job, args.getIsButtonVisible());
-
-        return binding.getRoot();
+        return view;
     }
 
     private void setupJobDetailsUI(ConnectJobRecord job) {
-        binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit, job.getMaxPossibleVisits()));
-        binding.connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days, job.getDaysRemaining()));
-        binding.connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits()));
-        binding.connectDeliveryBudgetText.setText(buildPaymentInfoText(job));
+        getBinding().connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit, job.getMaxPossibleVisits()));
+        getBinding().connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days, job.getDaysRemaining()));
+        getBinding().connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits()));
+        getBinding().connectDeliveryBudgetText.setText(buildPaymentInfoText(job));
     }
 
     private String buildPaymentInfoText(ConnectJobRecord job) {
@@ -79,12 +72,12 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
                 ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_job_info_download)
                 : R.string.connect_job_info_download;
 
-        binding.cardButtonLayout.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
-        binding.connectDeliveryButton.setText(buttonTextId);
+        getBinding().cardButtonLayout.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
+        getBinding().connectDeliveryButton.setText(buttonTextId);
 
-        binding.connectDeliveryButton.setOnClickListener(v -> {
+        getBinding().connectDeliveryButton.setOnClickListener(v -> {
             if (jobClaimed) {
-                proceedAfterJobClaimed(binding.connectDeliveryButton, job, appInstalled);
+                proceedAfterJobClaimed(getBinding().connectDeliveryButton, job, appInstalled);
             } else {
                 claimJob(job, appInstalled);
             }
@@ -102,13 +95,25 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
             @Override
             public void onSuccess(Boolean data) {
-                proceedAfterJobClaimed(binding.connectDeliveryButton, job, appInstalled);
+                if (isAdded()) {
+                    proceedAfterJobClaimed(getBinding().connectDeliveryButton, job, appInstalled);
+                }
+
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(true);
             }
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t), Toast.LENGTH_LONG).show();
+                if (isAdded()) {
+                    String message;
+                    if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
+                        message = getString(R.string.recovery_unable_to_claim_opportunity);
+                    } else {
+                        message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
+                    }
+                    showSnackBarWithDismissAction(getBinding().getRoot(), message);
+                }
+
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());
@@ -133,5 +138,10 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
     private NavDirections navigateToDownloadingPage() {
         return ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(
                 getString(R.string.connect_downloading_delivery), false);
+    }
+
+    @Override
+    protected @NotNull FragmentConnectDeliveryDetailsBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectDeliveryDetailsBinding.inflate(inflater, container, false);
     }
 }

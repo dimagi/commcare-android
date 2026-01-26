@@ -50,10 +50,14 @@ public class CCAnalyticsEvent {
     static final String CCC_PAYMENT_CONFIRMATION_DISPLAY = "ccc_payment_confirmation_display";
     static final String CCC_PAYMENT_CONFIRMATION_INTERACT = "ccc_payment_confirmation_interact";
     static final String CCC_NOTIFICATION_TYPE = "ccc_notification_type";
-    static final String CCC_REKEYED_DB = "ccc_rekeyed_db";
     static final String CCC_BIOMETRIC_INVALIDATED = "ccc_biometric_invalidated";
     static final String PERSONAL_ID_CONFIGURATION_FAILURE = "personal_id_configuration_failure";
     static final String NAV_DRAWER_OPEN = "nav_drawer_open";
     static final String NAV_DRAWER_ITEM_SELECTED = "nav_drawer_item_selected";
-
+    static final String PERSONAL_ID_CONTINUE_CLICKED = "personal_id_continue_clicked";
+    static final String PERSONAL_ID_MESSAGE_SENT = "personal_id_message_sent";
+    static final String PERSONAL_ID_LINKING = "personal_id_linking";
+    static final String OTP_REQUESTED = "otp_requested";
+    static final String PERSONAL_ID_NOTIFICATION_RECEIVED = "personal_id_notification_received";
+    static final String PERSONAL_ID_NOTIFICATION_CLICKED = "personal_id_notification_clicked";
 }

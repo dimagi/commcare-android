@@ -1,7 +1,5 @@
 package org.commcare.android.database.connect.models;
 
-import static org.commcare.connect.ConnectConstants.STATUS_APPROVED;
-
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -80,8 +78,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_UNIT = "payment_unit";
     public static final String META_MAX_VISITS = "max_visits";
 
-    private static final String WORKING_HOURS_SOURCE_FORMAT ="HH:mm:ss";
-    private static final String WORKING_HOURS_TARGET_FORMAT ="h:mm a";
+    private static final String WORKING_HOURS_SOURCE_FORMAT = "HH:mm:ss";
+    private static final String WORKING_HOURS_TARGET_FORMAT = "h:mm a";
     private static final String WORKING_HOURS_PATTERN = "%s - %s";
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
@@ -186,7 +184,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dailyFinishTime = "";
     }
 
-    public static ConnectJobRecord corruptJobFromJson(JSONObject json)throws JSONException{
+    public static ConnectJobRecord corruptJobFromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
@@ -238,7 +236,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.paymentUnits = new ArrayList<>();
         for (int i = 0; i < unitsJson.length(); i++) {
             ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId());
-            if(payment != null) {
+            if (payment != null) {
                 job.paymentUnits.add(payment);
             }
         }
@@ -352,11 +350,18 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getPaymentAccrued() {
         return paymentAccrued == null || paymentAccrued.isEmpty() ? 0 : Integer.parseInt(paymentAccrued);
     }
+
     public int getLearningPercentComplete() {
         return numLearningModules > 0 ? (100 * learningModulesCompleted / numLearningModules) : 100;
     }
-    public String getDailyStartTime() { return dailyStartTime; }
-    public String getDailyFinishTime() { return dailyFinishTime; }
+
+    public String getDailyStartTime() {
+        return dailyStartTime;
+    }
+
+    public String getDailyFinishTime() {
+        return dailyFinishTime;
+    }
 
     public void setPaymentAccrued(int paymentAccrued) {
         this.paymentAccrued = Integer.toString(paymentAccrued);
@@ -487,6 +492,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return numLearning > 0 ? (100 * getCompletedLearningModules() / numLearning) : 100;
     }
 
+    public int getDeliveryProgressPercentage() {
+        int completed = getCompletedVisits();
+        int total = getMaxVisits();
+        return total > 0 ? (100 * completed / total) : 100;
+    }
+
     public boolean attemptedAssessment() {
         return getLearningCompletePercentage() >= 100 && assessments != null && !assessments.isEmpty();
     }
@@ -561,7 +572,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         int dailyVisitCount = 0;
         Date today = new Date();
         for (ConnectJobDeliveryRecord record : deliveries) {
-            if(DateUtils.dateDiff(today, record.getDate()) == 0 && record.getStatus().equals(STATUS_APPROVED)) {
+            if (DateUtils.dateDiff(today, record.getDate()) == 0) {
                 dailyVisitCount++;
             }
         }
@@ -582,7 +593,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         HashMap<String, Integer> paymentCounts = new HashMap<>();
         for (int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
-            if(!todayOnly || DateUtils.dateDiff(new Date(), delivery.getDate()) == 0) {
+            if (!todayOnly || DateUtils.dateDiff(new Date(), delivery.getDate()) == 0) {
                 int oldCount = 0;
                 if (paymentCounts.containsKey(delivery.getSlug())) {
                     oldCount = paymentCounts.get(delivery.getSlug());
@@ -604,7 +615,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     @Nullable
-    public String getWarningMessages(Context context) {
+    public String getCardMessageText(Context context) {
         if (isFinished()) {
             return context.getString(R.string.connect_progress_warning_ended);
         } else if (getIsUserSuspended()) {
@@ -691,10 +702,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.dateClaimed = oldRecord.getDateClaimed();
         newRecord.projectStartDate = oldRecord.getProjectStartDate();
         newRecord.isActive = oldRecord.getIsActive();
-        newRecord.isUserSuspended= oldRecord.getIsUserSuspended();
+        newRecord.isUserSuspended = oldRecord.getIsUserSuspended();
         newRecord.dailyStartTime = "";
         newRecord.dailyFinishTime = "";
 
         return newRecord;
+    }
+
+    public boolean deliveryComplete() {
+        return isFinished() || getDeliveries().size() >= getMaxVisits();
     }
 }

@@ -1,18 +1,13 @@
 package org.commcare.connect.database;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.Toast;
-
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.SsoToken;
-import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
@@ -22,10 +17,8 @@ import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
-import android.util.Base64;
 import java.util.Date;
 
 
@@ -39,22 +32,8 @@ public class ConnectDatabaseHelper {
     public static IDatabase connectDatabase;
     static boolean dbBroken = false;
 
-    public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
-        ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, false);
-        try {
-            //Rekey the DB if the remote passphrase is different than local
-            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
-            if (connectDatabase != null && connectDatabase.isOpen() && !remotePassphrase.equals(localPassphrase)) {
-                DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
-                FirebaseAnalyticsUtil.reportRekeyedDatabase();
-            }
-
-            //Store the received passphrase as what's in use locally
-            ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
-        } catch (Exception e) {
-            Logger.exception("Handling received DB passphrase", e);
-            crashDb();
-        }
+    public static void handleReceivedDbPassphrase(Context context, String passphrase) {
+        ConnectDatabaseUtils.storeConnectDbPassphrase(context, passphrase);
     }
 
     public static boolean dbExists() {
@@ -72,28 +51,17 @@ public class ConnectDatabaseHelper {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
-                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
-
-                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
-                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
-                            DatabaseConnectOpenHelper dbConnectOpenHelper;
-                            if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
-                                //Using the UserSandboxUtils helper method to align with other code
-                                dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
-                                        UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
-                            } else {
-                                //LEGACY: Used to open the DB using the byte[], not String overload
-                                String encrypted = passphrase != null ? "(encrypted)" : "(unencrypted)";
-                                Logger.exception("Legacy DB Usage", new Exception("Accessing Connect DB via legacy code " + encrypted));
-                                dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
-                                        Base64.encodeToString(passphrase, Base64.NO_WRAP));
+                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
+                            if(passphrase == null || passphrase.length == 0) {
+                                throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
                             }
-                            connectDatabase = new EncryptedDatabaseAdapter(dbConnectOpenHelper);
+
+                            connectDatabase = new EncryptedDatabaseAdapter(new DatabaseConnectOpenHelper(
+                                    this.c, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            Logger.exception("Corrupt Connect DB", e);
-                            crashDb();
+                            crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR, e);
                         }
                     }
                     return connectDatabase;
@@ -111,13 +79,14 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void crashDb() {
-        crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR);
+    public static void crashDb(GlobalErrors error) {
+        crashDb(error, null);
     }
 
-    public static void crashDb(GlobalErrors error) {
+    public static void crashDb(GlobalErrors error, Exception ex) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
-        throw new RuntimeException("Connect database crash");
+        PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
+        throw new RuntimeException("Connect database crash: " + error.name(), ex);
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {

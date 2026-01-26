@@ -17,7 +17,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -61,10 +63,15 @@ public class EntityLoaderTask
             Pair<List<Entity<TreeReference>>, List<TreeReference>> entities = entityLoaderHelper.loadEntities(
                     nodeset[0], this);
 
-            if (trace != null && !entityLoaderHelper.isAsyncNodeEntityFactory()) {
-                trace.putAttribute(CCPerfMonitoring.ATTR_NUM_CASES_LOADED,
-                        String.valueOf((entities == null || entities.first == null ? 0 : entities.first.size())));
-                CCPerfMonitoring.INSTANCE.stopTracing(trace);
+            if (!entityLoaderHelper.isAsyncNodeEntityFactory()) {
+                try {
+                    Map<String, String> attrs = new HashMap<>();
+                    attrs.put(CCPerfMonitoring.ATTR_NUM_CASES_LOADED,
+                            String.valueOf((entities == null || entities.first == null ? 0 : entities.first.size())));
+                    CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+                } catch (Exception e) {
+                    Logger.exception("Failed to stop tracing ", e);
+                }
             }
             return entities;
         } catch (XPathException xe) {
