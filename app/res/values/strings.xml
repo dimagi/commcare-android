@@ -12,8 +12,6 @@
     <string name="ota_restore_url" translatable="false">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
-    <string name="ConnectTokenURL">/o/token/</string>
-    <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="your_comment">Your comment</string>
@@ -607,11 +605,6 @@
     <string name="entity_list_finishing">Finishing list calculations…</string>
 
     <string name="personalid_generic_error">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
-    <string name="ConnectMessageRetrieveMessagesURL" translatable="false">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
-    <string name="ConnectMessageChannelConsentURL" translatable="false">https://connectid.dimagi.com/messaging/update_consent/</string>
-    <string name="ConnectMessageSendURL" translatable="false">https://connectid.dimagi.com/messaging/send_message/</string>
-    <string name="ConnectMessageConfirmURL" translatable="false">https://connectid.dimagi.com/messaging/update_received/</string>
-
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>

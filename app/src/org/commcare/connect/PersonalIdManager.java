@@ -29,8 +29,9 @@ import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
+import org.commcare.connect.network.ConnectSsoSyncHelper;
+import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
@@ -366,19 +367,19 @@ public class PersonalIdManager {
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-            ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, linkedApp, username, true,
+            ConnectSsoHelper.retrieveHqSsoToken(activity, user, linkedApp, username, true,
                     new ConnectSsoHelper.TokenCallback() {
                         public void tokenRetrieved(AuthInfo.TokenAuth token) {
                             callback.connectActivityComplete(false);
                         }
 
                         public void tokenUnavailable() {
-                            ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                            TokenExceptionHandler.INSTANCE.handleTokenUnavailableException(activity);
                             callback.connectActivityComplete(false);
                         }
 
                         public void tokenRequestDenied() {
-                            ConnectNetworkHelper.handleTokenDeniedException();
+                            TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
                             callback.connectActivityComplete(false);
                         }
                     });
@@ -527,8 +528,7 @@ public class PersonalIdManager {
         return false;
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username)
-            throws TokenUnavailableException {
+    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) {
         if (!manager.isloggedIn()) {
             return null;
         }
@@ -547,7 +547,7 @@ public class PersonalIdManager {
         ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity,
                 seatedAppId, username);
 
-        return ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
+        return ConnectSsoSyncHelper.INSTANCE.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
                 false);
     }
 

@@ -50,7 +50,6 @@ License.
     <string name="install_from_list_prompt">Connectez-vous en tant qu\'utilisateur mobile ou Web pour voir une liste des applications que vous pouvez installer</string>
     <string name="legacy_failure">CommCare ne prend pas en charge la mise à niveau depuis la version précédente. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le réinstaller.</string>
     <string name="legacy_failure_title">Mise à niveau CommCare incompatible</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Connecté à Commcare</string>
     <string name="expirenotification">Connexion CommCare expirée</string>
     <string name="submission_notification_title">Soumission de données</string>

@@ -50,7 +50,6 @@ License.
     <string name="install_from_list_prompt">उन एप्लिकेशनों की सूची देखने के लिए मोबाइल या वेब उपयोगकर्ता के रूप में लॉग इन करें जिन्हें आप इंस्टॉल कर सकते हैं</string>
     <string name="legacy_failure">CommCare पिछले संस्करण से अपग्रेड का समर्थन नहीं करता है। इस समस्या को हल करने के लिए, कृपया अपने डिवाइस से CommCare को अनइंस्टॉल करें, फिर इसे पुनः इंस्टॉल करें।</string>
     <string name="legacy_failure_title">असंगत CommCare अपग्रेड</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Commcare से जुड़ा है</string>
     <string name="expirenotification">CommCare कनेक्शन समाप्त हो गया है</string>
     <string name="submission_notification_title">डेटा सबमिशन</string>
