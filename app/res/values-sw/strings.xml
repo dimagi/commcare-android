@@ -185,6 +185,8 @@
     <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa, tafadhali wasiliana na msimamizi.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
     <string name="recovery_network_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
+    <string name="recovery_network_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>
+    <string name="recovery_network_login_from_different_device">Akaunti yako ya PersonalID inaweza kusanidiwa kwenye kifaa kimoja kwa wakati mmoja na imesanidiwa kwenye kifaa kingine. Tafadhali endelea kwenye kifaa kipya au usanidi akaunti yako kwenye kifaa hiki tena ili kuendelea kutumia PersonalID hapa.</string>
     <string name="recovery_network_unauthorized">Huna ruhusa ya kufanya ombi hili.</string>
     <string name="recovery_network_server_error">Kulikuwa na hitilafu katika kushughulikia ombi lako.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
@@ -278,8 +280,8 @@
     <string name="connect_register_success_button">Sawa</string>
     <string name="connect_verify_title">Fungua Chaguzi</string>
     <string name="connect_verify_message">Tafadhali sanidi mbinu iliyo hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
-    <string name="connect_verify_message_pin">Tafadhali sanidi PIN au mchoro hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
-    <string name="connect_verify_message_fingerprint">Tafadhali sanidi alama ya kidole chako hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
+    <string name="connect_verify_message_pin">Tafadhali sanidi PIN au mchoro hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
+    <string name="connect_verify_message_fingerprint">Tafadhali sanidi alama ya kidole chako hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
     <string name="connect_verify_use_fingerprint_long">Tumia Alama ya Kidole Kuunganisha</string>
     <string name="connect_verify_fingerprint_configured">Alama yako ya kidole tayari imesanidiwa na itatumika kufungua PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Sanidi Alama ya Kidole</string>
@@ -488,8 +490,8 @@
     <string name="personalid_recovery_failed_message">Inaonekana umesahau Nambari yako ya Hifadhi Nambari, tunakuundia akaunti mpya</string>
     <string name="personalid_wrong_backup_message">Umeingiza Nambari ya Kuhifadhi Nakala Isiyo sahihi. Tafadhali jaribu tena. Akaunti yako itafungwa baada ya majaribio %d zaidi yasiyo sahihi.</string>
     <string name="personalid_second_device_login_title">Ingia kwenye Kifaa cha Pili</string>
-    <string name="personalid_second_device_login_message">Imetoka kwenye %s, imetumika mara ya mwisho %s. Kitambulisho cha Kibinafsi kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
-    <string name="personalid_second_device_login_message_no_date">Umetoka kwenye %s. Kitambulisho cha Kibinafsi kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
+    <string name="personalid_second_device_login_message">Imetoka kwenye %s, imetumika mara ya mwisho %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
+    <string name="personalid_second_device_login_message_no_date">Umetoka kwenye %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
     <string name="personalid_recovery_lockout_message">Umeweka msimbo wa akiba usio sahihi mara nyingi sana. Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi ili kufungua akaunti yako.</string>
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
@@ -526,7 +528,7 @@
 
     <string name="setup_refresh_opportunities_no_jobs">Hakuna fursa zilizopatikana</string>
     <string name="setup_refresh_opportunities_with_jobs">Fursa mpya zimepatikana, bofya Fursa kujifunza zaidi.</string>
-    <string name="personalid_not_login_from_fcm_error">Tafadhali ingia kwenye Kitambulisho cha Kibinafsi ili kuona maelezo</string>
+    <string name="personalid_not_login_from_fcm_error">Tafadhali ingia kwenye PersonalID ili kuona maelezo</string>
 
     <string name="just_now">Muda mfupi uliopita</string>
     <string name="minutes_ago">Dakika %1$d zilizopita</string>

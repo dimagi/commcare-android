@@ -5,7 +5,10 @@ import android.content.Intent;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CrashWarningActivity;
+import org.commcare.activities.DispatchActivity;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -14,6 +17,8 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.NonNull;
 
 /**
  * Report unrecoverable exception to servers and shows user crash message
@@ -35,11 +40,19 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     }
 
     @Override
-    public void uncaughtException(Thread thread, Throwable ex) {
+    public void uncaughtException(@NonNull Thread thread, @NonNull Throwable ex) {
         // Always report to HQ device logs
         ForceCloseLogger.reportExceptionInBg(ex);
 
-        if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
+        LoginInvalidatedException loginInvalidated = findRootLoginInvalidatedException(ex);
+        if(loginInvalidated != null) {
+            CrashUtil.reportException(ex.getCause());
+            GlobalErrors reason = loginInvalidated.reason != null ? loginInvalidated.reason :
+                    GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR;
+            ConnectDatabaseHelper.crashDb(reason);
+            startDispatchActivity();
+            System.exit(0);
+        } else if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
             startRecoveryMeasureActivity();
             CrashUtil.reportException(ex);
 
@@ -56,10 +69,28 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         }
     }
 
+    private static LoginInvalidatedException findRootLoginInvalidatedException(Throwable ex) {
+        while(ex != null) {
+            if(ex instanceof LoginInvalidatedException lie) {
+                return lie;
+            }
+            ex = ex.getCause();
+        }
+
+        return null;
+    }
+
     private void startRecoveryMeasureActivity() {
         System.out.println("Executing recovery measures for app " +
                 CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName());
         Intent i = new Intent(ctx, ExecuteRecoveryMeasuresActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        ctx.startActivity(i);
+    }
+
+    private void startDispatchActivity() {
+        Intent i = new Intent(ctx, DispatchActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         ctx.startActivity(i);

@@ -1,5 +1,6 @@
 package org.commcare.connect.network
 
+import org.commcare.utils.GlobalErrors
 import java.io.IOException
 
 /**
@@ -11,7 +12,7 @@ import java.io.IOException
  * Trying again will not solve the problem in this case, as a new password must be established with the server.
  * Corrective action is to recover the ConnectID account on the device.
  */
-class TokenDeniedException(val errorCode: String?): IOException() {
+class LoginInvalidatedException(@JvmField var reason: GlobalErrors?): IOException() {
     override val message: String
         get() = "Token request denied"
 }

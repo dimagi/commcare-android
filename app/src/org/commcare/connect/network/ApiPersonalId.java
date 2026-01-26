@@ -24,6 +24,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
+import org.commcare.utils.GlobalErrors;
 import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
@@ -103,7 +104,7 @@ public class ApiPersonalId {
     }
 
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
-            throws TokenDeniedException, TokenUnavailableException {
+            throws TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", CONNECT_CLIENT_ID);
         params.put("scope", "openid");
@@ -138,23 +139,24 @@ public class ApiPersonalId {
                 Logger.exception("Parsing return from ConnectID token call", e);
             }
         } else if (postResult.responseCode == 400) {
-            String errorCode = null;
-            try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                        postResult.responseStream));
-                postResult.responseStream.close();
-                JSONObject json = new JSONObject(responseAsString);
-                errorCode = JsonExtensions.optStringSafe(json, "error_code", null);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                Logger.exception("Parsing failure return from ConnectID token call", e);
+            String errorResponse = null;
+            if(postResult.responseStream != null) {
+                try {
+                    errorResponse = new String(StreamsUtil.inputStreamToByteArray(
+                            postResult.responseStream));
+                    postResult.responseStream.close();
+                } catch (IOException e) {
+                    Logger.exception("Parsing failure return from ConnectID token call", e);
+                }
             }
 
-            String reason = errorCode != null ? String.format(" (error code: %s)", errorCode) : "";
-            Logger.exception("Token Request Denied", new Throwable(
-                    "Encountered 400 while retrieving ConnectID token" + reason));
-            throw new TokenDeniedException(errorCode);
+            GlobalErrors reason = ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorResponse) ?
+                    GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR :
+                    GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR;
+
+            Logger.exception("Token Request Denied",
+                    new Throwable("Encountered 400 while retrieving ConnectID token: " + reason));
+            ConnectDatabaseHelper.triggerGlobalError(reason);
         }
 
         throw new TokenUnavailableException();

@@ -31,7 +31,6 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
-import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
@@ -117,7 +116,7 @@ public class PersonalIdManager {
                 CrashUtil.registerUserData();
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
+                ConnectDatabaseHelper.triggerGlobalError(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
             }
         }
     }
@@ -529,7 +528,7 @@ public class PersonalIdManager {
     }
 
     public static AuthInfo.TokenAuth getHqTokenIfLinked(String username)
-            throws TokenDeniedException, TokenUnavailableException {
+            throws TokenUnavailableException {
         if (!manager.isloggedIn()) {
             return null;
         }

@@ -22,8 +22,11 @@ import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.GlobalErrors;
+import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -439,7 +442,23 @@ public class ConnectNetworkHelper {
     }
 
     public static void handleTokenDeniedException() {
-        ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
+        ConnectDatabaseHelper.triggerGlobalError(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
+    }
+
+    public static boolean checkForLoginFromDifferentDevice(String errorBody) {
+        if(errorBody == null) {
+            return false;
+        }
+
+        String errorCode;
+        try {
+            JSONObject json = new JSONObject(errorBody);
+            errorCode = JsonExtensions.optStringSafe(json, "error_code", null);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        return "LOGIN_FROM_DIFFERENT_DEVICE".equals(errorCode);
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;

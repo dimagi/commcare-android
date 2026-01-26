@@ -1,13 +1,11 @@
 package org.commcare.connect.network.base
 
-import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
-import org.commcare.util.LogTypes
-import org.javarosa.core.io.StreamsUtil
+import org.commcare.utils.GlobalErrors
 import org.javarosa.core.services.Logger
-import org.json.JSONObject
-import java.io.InputStream
 
 /**
  * This is base class for all API callbacks. It by default handles all error messages, no need
@@ -41,12 +39,17 @@ abstract class BaseApiCallback<T>(
                     null,
                 )
 
-            400 ->
+            400 -> {
+                if (ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody)) {
+                    ConnectDatabaseHelper.triggerGlobalError(
+                        GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR
+                    )
+                }
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,
                     null,
                 )
-
+            }
             in 500..509 ->
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,

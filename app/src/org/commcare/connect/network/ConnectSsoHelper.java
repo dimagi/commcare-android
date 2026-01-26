@@ -11,10 +11,12 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 
 import java.lang.ref.WeakReference;
@@ -56,7 +58,7 @@ public class ConnectSsoHelper {
             try {
                 Context context = weakContext.get();
                 return retrieveHqSsoTokenSync(context, user, appRecord, hqUsername, linkHqUser);
-            } catch(TokenUnavailableException | TokenDeniedException e) {
+            } catch(TokenUnavailableException e) {
                 caughtException = e;
                 return null;
             }
@@ -70,7 +72,9 @@ public class ConnectSsoHelper {
                     callback.tokenUnavailable();
                 } else {
                     Logger.exception("Token request denied", caughtException);
-                    callback.tokenRequestDenied();
+                    ConnectDatabaseHelper.triggerGlobalError(
+                            GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR
+                    );
                 }
             } else {
                 callback.tokenRetrieved(token);
@@ -92,11 +96,12 @@ public class ConnectSsoHelper {
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
                 if(errorCode==PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR){
-                    callback.tokenRequestDenied();
+                    ConnectDatabaseHelper.triggerGlobalError(
+                            GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR
+                    );
                 }else{
                     callback.tokenUnavailable();
                 }
-
             }
 
             @Override
@@ -116,7 +121,7 @@ public class ConnectSsoHelper {
     }
 
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
-            throws TokenDeniedException, TokenUnavailableException {
+            throws TokenUnavailableException {
         //See if we already have a valid token
         AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
         if (connectToken != null) {
@@ -126,8 +131,8 @@ public class ConnectSsoHelper {
         return ApiPersonalId.retrieveConnectIdTokenSync(context, user);
     }
 
-    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws
-            TokenDeniedException, TokenUnavailableException {
+    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink)
+            throws TokenUnavailableException {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         //See if we already have a valid token
