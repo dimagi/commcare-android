@@ -60,7 +60,7 @@ public class FCMMessageData implements Externalizable {
         notificationText = payloadData.get(NOTIFICATION_BODY);
         action = payloadData.get(REDIRECT_ACTION);
         priority = NotificationCompat.PRIORITY_MAX;
-        notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
+        notificationChannel = CommCareNoficationManager.NEW_HIGH_PRIORITY_NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
         smallIcon = R.drawable.commcare_actionbar_logo;
     }
 
