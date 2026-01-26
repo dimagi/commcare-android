@@ -362,7 +362,6 @@ public class FirebaseMessagingUtil {
     private static Intent handleCCCMessageChannelPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = null;
         fcmMessageData.setNotificationChannel(CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID);
-        fcmMessageData.setPriority(NotificationCompat.PRIORITY_MAX);
         fcmMessageData.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_connect_message_large));
 
         boolean isMessage = fcmMessageData.getPayloadData().containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);

@@ -115,6 +115,10 @@ object PushNotificationApiHelper {
         context: Context,
         savedNotificationIds: List<String>,
     ): Boolean {
+        //  don't call server unnecessarily if nothing to update
+        if (savedNotificationIds.isEmpty()) {
+            return true
+        }
         val user = ConnectUserDatabaseUtil.getUser(context)
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
