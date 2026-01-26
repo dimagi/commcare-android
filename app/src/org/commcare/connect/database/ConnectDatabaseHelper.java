@@ -10,8 +10,8 @@ import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
@@ -54,7 +54,7 @@ public class ConnectDatabaseHelper {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
-                            if(passphrase == null || passphrase.length == 0) {
+                            if (passphrase == null || passphrase.length == 0) {
                                 throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
                             }
 

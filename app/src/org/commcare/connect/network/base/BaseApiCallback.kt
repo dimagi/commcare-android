@@ -50,6 +50,7 @@ abstract class BaseApiCallback<T>(
                     null,
                 )
             }
+
             in 500..509 ->
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,

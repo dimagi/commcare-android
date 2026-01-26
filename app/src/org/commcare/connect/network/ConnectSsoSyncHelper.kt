@@ -5,7 +5,6 @@ import kotlinx.coroutines.runBlocking
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ConnectSsoHelper.TokenCallback
-import org.commcare.core.network.AuthInfo
 import org.commcare.core.network.AuthInfo.TokenAuth
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -26,7 +25,7 @@ object ConnectSsoSyncHelper {
         appRecord: ConnectLinkedAppRecord,
         hqUsername: String?,
         performLink: Boolean,
-    ): AuthInfo.TokenAuth? =
+    ): TokenAuth? =
         suspendCoroutine { continuation ->
 
             ConnectSsoHelper.retrieveHqSsoToken(
@@ -45,7 +44,6 @@ object ConnectSsoSyncHelper {
                     }
 
                     override fun tokenRequestDenied() {
-                        //TODO DAV: This should change still
                         continuation.resumeWithException(TokenUnavailableException())
                     }
                 },
@@ -58,7 +56,7 @@ object ConnectSsoSyncHelper {
         appRecord: ConnectLinkedAppRecord,
         hqUsername: String?,
         performLink: Boolean,
-    ): AuthInfo.TokenAuth? =
+    ): TokenAuth? =
         runBlocking {
             retrieveHqSsoTokenASync(context, user, appRecord, hqUsername, performLink)
         }
