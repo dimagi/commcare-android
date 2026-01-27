@@ -50,7 +50,6 @@ License.
     <string name="install_from_list_prompt">Connectez-vous en tant qu\'utilisateur mobile ou Web pour voir une liste des applications que vous pouvez installer</string>
     <string name="legacy_failure">CommCare ne prend pas en charge la mise à niveau depuis la version précédente. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le réinstaller.</string>
     <string name="legacy_failure_title">Mise à niveau CommCare incompatible</string>
-    <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Connecté à Commcare</string>
     <string name="expirenotification">Connexion CommCare expirée</string>
     <string name="submission_notification_title">Soumission de données</string>
@@ -183,6 +182,9 @@ License.
     <string name="recovery_network_unavailable">Aucune connexion réseau. Veuillez vérifier votre connexion Internet et réessayer.</string>
     <string name="recovery_unable_to_claim_opportunity">Impossible de réclamer l\'opportunité, veuillez contacter un administrateur.</string>
     <string name="recovery_network_outdated">Cette application est obsolète. Veuillez mettre à jour l\'application sur le Google Play Store pour continuer.</string>
+    <string name="recovery_network_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
+    <string name="recovery_network_unauthorized">Vous n\'êtes pas autorisé à faire cette demande.</string>
+    <string name="recovery_network_server_error">Une erreur s\'est produite lors du traitement de votre demande.</string>
     <string name="recovery_app_manager">Accéder au gestionnaire d\'applications</string>
     <string name="recovery_retry">Réessayer la récupération</string>
     <string name="notification_channel_errors_title">Erreurs</string>
@@ -246,6 +248,7 @@ License.
     <string name="choice_or">_____________    OU    _____________</string>
     <string name="busy_message">Nous sommes encore en train de traiter votre demande précédente. Veuillez réessayer plus tard.</string>
     <string name="connect_button_logged_in">Accéder au menu Connecter</string>
+    <string name="entity_map_error_message">Une erreur s\'est produite dans la configuration de l\'application, ce qui a empêché le chargement correct de tous les marqueurs sur la carte</string>
     <string name="personalid_generic_error">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
     <string name="connect_registration_title">Démarrer avec PersonalID</string>
     <string name="connect_consent_message_1">J\'ai lu et j\'accepte la <a href="https://www.dimagi.com/terms/latest/privacy/">politique de confidentialité</a>, les <a href="https://www.dimagi.com/terms/latest/tos/">conditions de service</a>, l\'<a href="https://www.dimagi.com/terms/latest/ba/">accord commercial</a> et la <a href="https://www.dimagi.com/terms/latest/aup/">politique d\'utilisation acceptable</a> de Dimagi.</string>
@@ -304,6 +307,7 @@ License.
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
     <string name="connect_learn_failed_title">Échec de la formation</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
+    <string name="connect_job_ended">Tâche terminée le %s</string>
     <string name="connect_learn_error_starting">Impossible de commencer l\'apprentissage, veuillez contacter l\'administrateur de l\'opportunité.</string>
     <string name="connect_learn_title">Progrès d\'apprentissage</string>
     <string name="connect_learn_status">Vous avez terminé %d des %d leçons.\nTerminez l\'apprentissage pour obtenir votre certificat.</string>
@@ -383,6 +387,8 @@ License.
     <string name="connect_job_info_start_visit">Commencer la visite</string>
     <string name="connect_job_info_download_delivery">Télécharger Livraison</string>
     <string name="connect_job_info_download">Télécharger</string>
+    <string name="connect_job_info_view_info">Voir les informations</string>
+    <string name="connect_job_info_view_resume">Reprendre</string>
     <string name="connect_progress">Progrès</string>
     <string name="connect_payment">Paiement</string>
     <string name="connect_delivery_progress_description">Vous n\'avez terminé aucune leçon. Commencez votre apprentissage pour obtenir votre certificat.</string>
@@ -400,6 +406,9 @@ License.
     <string name="connect_delivery">Livraison</string>
     <string name="connect_expired">Expiré</string>
     <string name="connect_job_tile_daily_limit_description">Limite quotidienne atteinte. Aucun paiement pour l\'envoi des formulaires.</string>
+    <string name="connect_in_progress">En cours</string>
+    <string name="connect_new_opportunities">Nouvelles opportunités</string>
+    <string name="connect_completed">Terminé</string>
 
     <string name="connect_recovery_button_phone">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
@@ -470,8 +479,11 @@ License.
     <string name="personalid_recovery_failed_title">La récupération a échoué</string>
     <string name="personalid_recovery_lockout_title">Compte Verrouillé</string>
     <string name="personalid_recovery_failed_message">Il semble que vous ayez oublié votre code de sauvegarde, nous créons un nouveau compte pour vous</string>
-    <string name="personalid_recovery_lockout_message">Vous avez saisi un code de secours incorrect un trop grand nombre de fois. Votre compte a été bloqué.</string>
-    <string name="personalid_wrong_backup_message">Vous avez saisi un code de secours erroné. Veuillez réessayer. Vous devrez créer un nouveau compte après %d tentatives incorrectes.</string>
+    <string name="personalid_recovery_lockout_message">Vous avez saisi un code de secours incorrect un trop grand nombre de fois. Votre compte a été bloqué. Veuillez contacter le support pour débloquer votre compte.</string>
+    <string name="personalid_wrong_backup_message">Vous avez saisi un code de sauvegarde incorrect. Veuillez réessayer. Votre compte sera bloqué après %d tentatives incorrectes supplémentaires.</string>
+    <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
+    <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
+    <string name="personalid_second_device_login_message_no_date">Vous avez été déconnecté(e) de %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
@@ -515,6 +527,7 @@ License.
     <string name="yesterday">Hier %1$s</string>
 
     <string name="recovery_network_cooldown">Trop de tentatives de requête. Veuillez réessayer dans une heure.</string>
+    <string name="recovery_network_unknown">Une erreur s\'est produite. Veuillez réessayer.</string>
     <string name="personalid_authentication_failed">L\'authentification des données biométriques sur votre appareil Android a échoué. Veuillez appliquer les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
     <string name="connect_verify_configuration_failed">La configuration des données biométriques sur votre appareil Android a échoué. Veuillez réessayer %s.</string>
 
@@ -524,4 +537,11 @@ License.
     <string name="personalid_tooltip_location_failure_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n\nPour continuer, veuillez activer les autorisations de localisation dans les paramètres, ou réessayez plus tard.</string>
     <string name="personalid_tooltip_location_success_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Cliquez ici pour plus d\'informations.</a></string>
 
+    <string name="network_forbidden_error">Accès refusé. Veuillez contacter le service client si le problème persiste.</string>
+
+    <string name="personalid_biometric_error_cancelled">La configuration biométrique a été annulée. Veuillez contacter le support client si le problème persiste.</string>
+    <string name="personalid_biometric_error_lockout">Trop de tentatives. Veuillez patienter et réessayer.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Trop de tentatives infructueuses. Veuillez déverrouiller votre appareil et réessayer.</string>
+    <string name="personalid_biometric_error_timeout">L\'opération biométrique a expiré. Veuillez contacter le support client si le problème persiste.</string>
+    <string name="personalid_biometric_error_cannot_configure">Nous n\'avons pas pu configurer la biométrie sur votre appareil. Veuillez contacter le support client si le problème persiste.</string>
 </resources>

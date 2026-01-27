@@ -14,7 +14,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -25,7 +24,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
@@ -107,7 +106,7 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
             return;
         }
 
-        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+        showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));
 
         if (failureCode.shouldAllowRetry()) {
             enableTakePhotoButton();

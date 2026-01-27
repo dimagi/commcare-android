@@ -1,10 +1,12 @@
 package org.commcare.google.services.analytics;
 
-import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
-
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
+
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -23,10 +25,7 @@ import java.util.Date;
 
 import javax.annotation.Nullable;
 
-import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
-import androidx.navigation.fragment.FragmentNavigator;
-
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -124,6 +123,10 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
+
+        flagPersonalIDDemoUser(ReportingUtils.getIsPersonalIDDemoUser());
+
+        analyticsInstance.setUserProperty(CCAnalyticsParam.APP_FLAVOR, BuildConfig.FLAVOR);
     }
 
     private static String getFreeDiskBucket() {
@@ -577,6 +580,12 @@ public class FirebaseAnalyticsUtil {
                 new String[]{selectedItem});
     }
 
+    public static void reportOtpRequested(int numberOfAttempts) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, numberOfAttempts);
+        reportEvent(CCAnalyticsEvent.OTP_REQUESTED, bundle);
+    }
+
     public static void reportNotificationEvent(String eventType, String method,
             @Nullable String actionType, @Nullable String notificationId) {
         Bundle bundle = new Bundle();
@@ -589,5 +598,17 @@ public class FirebaseAnalyticsUtil {
             bundle.putString(CCAnalyticsParam.NOTIFICATION_ID, notificationId);
         }
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE, bundle);
+    }
+
+    public static void flagPersonalIDDemoUser(Boolean isPersonalIDDemoUser) {
+        if (isPersonalIDDemoUser == null) {
+            return;
+        }
+
+        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        analyticsInstance.setUserProperty(
+                CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
+                String.valueOf(isPersonalIDDemoUser)
+        );
     }
 }

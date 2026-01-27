@@ -12,8 +12,6 @@
     <string name="ota_restore_url" translatable="false">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
-    <string name="ConnectTokenURL">/o/token/</string>
-    <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="your_comment">Your comment</string>
@@ -302,6 +300,11 @@
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
 
+    <string name="entity_map_markers">Markers</string>
+    <string name="entity_map_polygons">Polygons</string>
+    <string name="entity_map_geopoints">Geopoints</string>
+    <string name="entity_map_error_message">There was an error in app configuration due to which not all markers on the map are loaded correctly</string>
+
     <!-- PersonalID strings -->
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
@@ -407,6 +410,7 @@
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
+    <string name="connect_job_ended">Task ended on %s</string>
     <string name="connect_learn_error_starting">Unable to begin learning, please contact the opportunity administrator.</string>
 
     <string name="connect_learn_title">Learning Progress</string>
@@ -563,6 +567,8 @@
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
+    <string name="connect_job_info_view_info">View Info</string>
+    <string name="connect_job_info_view_resume">Resume</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
@@ -587,6 +593,9 @@
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_in_progress">In Progress</string>
+    <string name="connect_new_opportunities">New Opportunities</string>
+    <string name="connect_completed">Completed</string>
 
     <!--    Entity List Progresss Indicators-->
 
@@ -595,11 +604,6 @@
     <string name="entity_list_finishing">Finishing list calculations…</string>
 
     <string name="personalid_generic_error">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
-    <string name="ConnectMessageRetrieveMessagesURL" translatable="false">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
-    <string name="ConnectMessageChannelConsentURL" translatable="false">https://connectid.dimagi.com/messaging/update_consent/</string>
-    <string name="ConnectMessageSendURL" translatable="false">https://connectid.dimagi.com/messaging/send_message/</string>
-    <string name="ConnectMessageConfirmURL" translatable="false">https://connectid.dimagi.com/messaging/update_received/</string>
-
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
@@ -626,8 +630,11 @@
     <string name="personalid_recovery_failed_title">Recovery failed</string>
     <string name="personalid_recovery_lockout_title">Account Locked</string>
     <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
-    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked.</string>
-    <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. You will need to create a new account after %d more incorrect attempts.</string>
+    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked. Please contact support to unlock your account.</string>
+    <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
+    <string name="personalid_second_device_login_title">Login on Second Device</string>
+    <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>
+    <string name="personalid_second_device_login_message_no_date">Logged out of %s. PersonalID can only be logged in on one device at a time.</string>
     <string name="personalid_camera_permission_title">Permission for camera</string>
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
@@ -698,4 +705,11 @@
     <string name="personalid_tooltip_location_failure_message">We use location data to ensure secure usage of this application.\n\nTo continue, please enable location permissions in settings, or try again later.</string>
     <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
 
+    <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
+
+    <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
+    <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Too many failed attempts. Please unlock your device and try again.</string>
+    <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
+    <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
 </resources>

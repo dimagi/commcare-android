@@ -1,13 +1,14 @@
 package org.commcare.activities;
 
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-
 import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+
 /**
  * Handles UI of the normal home screen
  *
@@ -44,6 +47,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private final StandardHomeActivity activity;
     private View viewJobCard;
     private CardView connectMessageCard;
+    private ImageView connectMessageWarningIcon;
     private ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter;
 
     private HomeScreenAdapter adapter;
@@ -61,12 +65,25 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         setupGridView();
         activity.toggleDrawerSetUp(true);
         activity.checkForDrawerSetUp();
+        setUpToolBar();
+    }
 
+    private void setUpToolBar() {
+        androidx.appcompat.widget.Toolbar toolbar = activity.findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            activity.setSupportActionBar(toolbar);
+            ActionBar actionBar = activity.getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setTitle(CommCareActivity.getTopLevelTitleName(activity));
+            }
+        }
     }
 
     private void setupConnectJobTile() {
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
+        connectMessageWarningIcon = activity.findViewById(R.id.ivConnectMessageWarningIcon);
         connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(new ArrayList<>());
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -76,6 +93,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         boolean show = job != null;
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
+
         if (show) {
             TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             TextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
@@ -87,13 +105,17 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
             tvJobDescription.setText(job.getShortDescription());
-            connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by,
-                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
+
+            @StringRes int dateMessageStringRes = job.deliveryComplete()
+                    ? R.string.connect_job_ended : R.string.connect_learn_complete_by;
+            String formattedEndDate = ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate());
+            connectJobEndDate.setText(activity.getString(dateMessageStringRes, formattedEndDate));
 
             String workingHours = job.getWorkingHours();
             boolean showHours = workingHours != null;
             tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
             hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+
             if (showHours) {
                 tv_job_time.setText(workingHours);
             }
@@ -119,9 +141,15 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             if (job.readyToTransitionToDelivery()) {
                 textColorRes = R.color.connect_green;
                 backgroundColorRes = R.color.connect_light_green;
+                connectMessageWarningIcon.setVisibility(View.GONE);
+            } else if (job.deliveryComplete()) {
+                textColorRes = R.color.connect_blue_color;
+                backgroundColorRes = R.color.porcelain_grey;
+                connectMessageWarningIcon.setVisibility(View.VISIBLE);
             } else {
                 textColorRes = R.color.connect_warning_color;
                 backgroundColorRes = R.color.connect_light_orange_color;
+                connectMessageWarningIcon.setVisibility(View.VISIBLE);
             }
 
             TextView textView = connectMessageCard.findViewById(R.id.tvConnectMessage);
@@ -132,6 +160,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             connectMessageCard.setVisibility(View.VISIBLE);
         } else {
             connectMessageCard.setVisibility(View.GONE);
+            connectMessageWarningIcon.setVisibility(View.GONE);
         }
     }
 

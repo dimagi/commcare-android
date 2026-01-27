@@ -19,17 +19,13 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -119,7 +115,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 reportApiCall(false);
             }
 
@@ -129,6 +125,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                 ConnectJobUtils.upsertJob(getContext(), job);
+
+                if (!isAdded()) {
+                    return;
+                }
 
                 if (appInstalled) {
                     ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true,
