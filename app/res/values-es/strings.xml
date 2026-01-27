@@ -527,7 +527,7 @@
     <string name="personalid_authentication_failed">La autenticación de la biometría en su dispositivo Android ha fallado. Aplique las actualizaciones de sistema disponibles o inténtelo de nuevo con un dispositivo diferente.</string>
     <string name="connect_verify_configuration_failed">La configuración de la biometría en su dispositivo Android ha fallado. Por favor, inténtelo de nuevo %s.</string>
 
-    <string name="no_channel_msg">No estás suscrito a ningún canal de mensajería</string>
+    <string name="no_channel_msg">No estás suscrito a ningún canal de mensajería. Una vez que te hayan agregado a un canal, aparecerá en esta lista.</string>
     <string name="personalid_using_your_location">Usando tu ubicación</string>
     <string name="personalid_no_location_found">No podemos encontrar tu ubicación</string>
     <string name="personalid_tooltip_location_failure_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\nPara continuar, habilite los permisos de ubicación en la configuración o inténtelo de nuevo más tarde.</string>

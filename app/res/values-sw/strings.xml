@@ -534,7 +534,7 @@
     <string name="recovery_network_cooldown">Majaribio mengi mno ya ombi. Tafadhali jaribu tena baada ya saa moja.</string>
     <string name="recovery_network_unknown">Kuna kitu kimeenda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_authentication_failed">Uthibitishaji wa bayometriki kwenye kifaa chako cha Android haukufaulu. Tafadhali weka masasisho yoyote ya mfumo yanayopatikana, au jaribu tena ukitumia kifaa tofauti.</string>
-    <string name="no_channel_msg">Haujasajiliwa kwa njia zozote za utumaji ujumbe</string>
+    <string name="no_channel_msg">Haujasajiliwa kwa Idhaa zozote za kutuma ujumbe. Ukishaongezwa kwenye Idhaa, itaonekana katika orodha hii.</string>
 
     <string name="personalid_using_your_location">Inatumia eneo lako</string>
     <string name="personalid_no_location_found">Hatuwezi kupata eneo lako</string>
