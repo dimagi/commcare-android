@@ -170,4 +170,31 @@ class ConnectReleaseTogglesParserTest {
         // Assert
         assertTrue(result.isEmpty())
     }
+
+    @Test
+    fun testParseWithMissingDateFieldsUsesDefaults() {
+        // Arrange
+        val mockJson =
+            """
+            {
+                "toggles": {
+                    "feature_a": {
+                        "active": true
+                    }
+                }
+            }
+            """.trimIndent()
+
+        val inputStream = ByteArrayInputStream(mockJson.toByteArray())
+        val testStartTime = System.currentTimeMillis()
+
+        // Act
+        val result = parser.parse(200, inputStream, context)
+
+        // Assert
+        assertEquals(1, result.size)
+        assertTrue(result[0].active)
+        assertTrue(result[0].createdAt.time >= testStartTime)
+        assertTrue(result[0].modifiedAt.time >= testStartTime)
+    }
 }

@@ -1,8 +1,13 @@
 package org.commcare.connect.network.connectId;
 
+import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
+
 import android.app.Activity;
 import android.content.Context;
 
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.ApiPersonalId;
@@ -16,8 +21,11 @@ import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.connectId.parser.ConnectTokenResponseParser;
+import org.commcare.connect.network.connectId.parser.LinkHqWorkerResponseParser;
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
+import org.commcare.connect.network.connectId.parser.RetrieveChannelEncryptionKeyResponseParser;
+import org.commcare.connect.network.connectId.parser.RetrieveHqTokenResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveWorkHistoryResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
@@ -34,8 +42,6 @@ import java.util.List;
 import java.util.Map;
 
 import kotlin.Pair;
-
-import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
@@ -285,7 +291,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void connectToken(Context context, ConnectUserRecord user) {
+    public void retrievePersonalIdToken(Context context, ConnectUserRecord user) {
         ApiPersonalId.retrievePersonalIdToken(
                 context,
                 user,
@@ -324,6 +330,77 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
+
+    public void updateChannelConsent(
+            Context context,
+            ConnectUserRecord user,
+            ConnectMessagingChannelRecord channel
+    ) {
+        ApiPersonalId.updateChannelConsent(
+                context,
+                user.getUserId(),
+                user.getPassword(),
+                channel.getChannelId(),
+                channel.getConsented(),
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
+    public void sendMessagingMessage(
+            Context context,
+            ConnectUserRecord user,
+            ConnectMessagingMessageRecord message,
+            ConnectMessagingChannelRecord channel
+    ) {
+        ApiPersonalId.sendMessagingMessage(
+                context,
+                user.getUserId(),
+                user.getPassword(),
+                message,
+                channel.getKey(),
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
+
+    public void retrieveChannelEncryptionKey(
+            Context context,
+            ConnectUserRecord user,
+            ConnectMessagingChannelRecord channel
+    ) {
+        ApiPersonalId.retrieveChannelEncryptionKey(
+                context,
+                user,
+                channel.getChannelId(),
+                channel.getKeyUrl(),
+                createCallback(new RetrieveChannelEncryptionKeyResponseParser<>(context), channel)
+        );
+    }
+
+    public void linkHqWorker(
+            Context context,
+            String hqUsername,
+            ConnectLinkedAppRecord appRecord,
+            String connectToken
+    ){
+        ApiPersonalId.linkHqWorker(
+                context,
+                hqUsername,
+                appRecord,
+                connectToken,
+                createCallback(new LinkHqWorkerResponseParser<>(context), appRecord)
+        );
+    }
+
+    public void retrieveHqToken(Context context, String hqUsername, String connectToken) {
+        ApiPersonalId.retrieveHqToken(
+                context,
+                hqUsername,
+                connectToken,
+                createCallback(new RetrieveHqTokenResponseParser<>(context), hqUsername)
+        );
+    }
+
     public void getReleaseToggles(Context context, String userId, String password) {
         ApiPersonalId.getReleaseToggles(
                 context,
@@ -335,4 +412,5 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 )
         );
     }
+
 }
