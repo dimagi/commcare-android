@@ -6,7 +6,6 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.models.database.AndroidDbHelper;
@@ -64,7 +63,7 @@ public class ConnectDatabaseHelper {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
                             Logger.exception("Error opening Connect DB", e);
-                            triggerGlobalError(GlobalErrors.PERSONALID_GENERIC_ERROR);
+                            GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_GENERIC_ERROR);
                         }
                     }
                     return connectDatabase;
@@ -82,11 +81,7 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void triggerGlobalError(GlobalErrors error) {
-        throw new RuntimeException(new LoginInvalidatedException(error));
-    }
-
-    public static void crashDb(GlobalErrors error) {
+    public static void handleGlobalError(GlobalErrors error) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
         PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
     }

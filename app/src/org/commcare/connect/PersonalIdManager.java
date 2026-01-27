@@ -31,6 +31,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyProvider;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
@@ -116,7 +117,7 @@ public class PersonalIdManager {
                 CrashUtil.registerUserData();
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.triggerGlobalError(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
+                GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
             }
         }
     }

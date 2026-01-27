@@ -72,7 +72,8 @@ public class ConnectNetworkHelper {
             JSONObject json = new JSONObject(errorBody);
             errorCode = JsonExtensions.optStringSafe(json, "error_code", null);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            //It's okay for the error body not to be JSON
+            return false;
         }
 
         return "LOGIN_FROM_DIFFERENT_DEVICE".equals(errorCode);

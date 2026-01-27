@@ -12,6 +12,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 
@@ -48,9 +49,7 @@ public class ConnectSsoHelper {
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
                 if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
-                    ConnectDatabaseHelper.triggerGlobalError(
-                            GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR
-                    );
+                    GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
                 } else {
                     callback.tokenUnavailable();
                 }

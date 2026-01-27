@@ -17,6 +17,6 @@ object TokenExceptionHandler {
     }
 
     fun handleTokenDeniedException() {
-        ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR)
+        ConnectDatabaseHelper.handleGlobalError(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR)
     }
 }

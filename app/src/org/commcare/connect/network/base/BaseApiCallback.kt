@@ -4,6 +4,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.GlobalErrors
 import org.javarosa.core.services.Logger
 
@@ -41,7 +42,7 @@ abstract class BaseApiCallback<T>(
 
             400 -> {
                 if (ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody)) {
-                    ConnectDatabaseHelper.triggerGlobalError(
+                    GlobalErrorUtil.triggerGlobalError(
                         GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR
                     )
                 }

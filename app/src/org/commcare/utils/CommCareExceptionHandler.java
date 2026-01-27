@@ -47,9 +47,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         LoginInvalidatedException loginInvalidated = findRootLoginInvalidatedException(ex);
         if(loginInvalidated != null) {
             CrashUtil.reportException(ex.getCause());
-            GlobalErrors reason = loginInvalidated.reason != null ? loginInvalidated.reason :
-                    GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR;
-            ConnectDatabaseHelper.crashDb(reason);
+            ConnectDatabaseHelper.handleGlobalError(loginInvalidated.reason);
             startDispatchActivity();
             System.exit(0);
         } else if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
