@@ -87,8 +87,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     action,
                     getIntent().getStringExtra(NOTIFICATION_ID)
             );
-            PersonalIdManager.getInstance().unlockConnect(this, success -> {
-                if (success) {
+//            PersonalIdManager.getInstance().unlockConnect(this, success -> {
+//                if (success) {
                     String channelId = getIntent().getStringExtra(
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
                     String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
@@ -100,8 +100,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     } else {
                         handleChannelForValidity(channelId);
                     }
-                }
-            });
+//                }
+//            });
         }
     }
 
