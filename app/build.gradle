@@ -376,6 +376,7 @@ android {
         test {
             java.srcDirs = ['unit-tests/src/']
             resources.srcDirs = ['unit-tests/resources/']
+            manifest.srcFile 'unit-tests/AndroidManifest.xml'
         }
 
         androidTest {
