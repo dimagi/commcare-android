@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -99,6 +100,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 if (isAdded()) {
                     setJobListData(data.getValidJobs());
                 }
+
+                ConnectJobHelper.INSTANCE.fetchReleaseTogglesIfNewJobsExist(
+                        requireContext(),
+                        data.getValidJobs()
+                );
             }
         }.getConnectOpportunities(requireContext(), user);
     }
