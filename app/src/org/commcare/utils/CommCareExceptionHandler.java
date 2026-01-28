@@ -45,7 +45,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         ForceCloseLogger.reportExceptionInBg(ex);
 
         LoginInvalidatedException loginInvalidated = findRootLoginInvalidatedException(ex);
-        if(loginInvalidated != null) {
+        if (loginInvalidated != null) {
             CrashUtil.reportException(ex.getCause());
             ConnectDatabaseHelper.handleGlobalError(loginInvalidated.reason);
             startDispatchActivity();
@@ -68,8 +68,8 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     }
 
     private static LoginInvalidatedException findRootLoginInvalidatedException(Throwable ex) {
-        while(ex != null) {
-            if(ex instanceof LoginInvalidatedException lie) {
+        while (ex != null) {
+            if (ex instanceof LoginInvalidatedException lie) {
                 return lie;
             }
             ex = ex.getCause();
