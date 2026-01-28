@@ -182,8 +182,8 @@ License.
     <string name="recovery_network_unavailable">Aucune connexion réseau. Veuillez vérifier votre connexion Internet et réessayer.</string>
     <string name="recovery_unable_to_claim_opportunity">Impossible de réclamer l\'opportunité, veuillez contacter un administrateur.</string>
     <string name="recovery_network_outdated">Cette application est obsolète. Veuillez mettre à jour l\'application sur le Google Play Store pour continuer.</string>
-    <string name="recovery_network_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
-    <string name="recovery_network_token_request_rejected">Configuration PersonalID perdue sur le serveur. Veuillez récupérer votre compte PersonalID et réessayer.</string>
+    <string name="personalid_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
+    <string name="personalid_token_request_rejected">Configuration PersonalID perdue sur le serveur. Veuillez récupérer votre compte PersonalID et réessayer.</string>
     <string name="recovery_network_login_from_different_device">Votre compte PersonalID ne peut être configuré que sur un seul appareil à la fois et a déjà été configuré sur un autre appareil. Veuillez poursuivre la configuration sur le nouvel appareil ou reconfigurer votre compte sur cet appareil pour continuer à utiliser PersonalID ici.</string>
     <string name="recovery_network_unauthorized">Vous n\'êtes pas autorisé à faire cette demande.</string>
     <string name="recovery_network_server_error">Une erreur s\'est produite lors du traitement de votre demande.</string>

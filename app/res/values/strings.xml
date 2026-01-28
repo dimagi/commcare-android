@@ -221,8 +221,8 @@
     <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated">This app is outdated. Please update the app on the Google Play Store in order to proceed.</string>
-    <string name="recovery_network_token_unavailable">There was a network issue. Please try again.</string>
-    <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
+    <string name="personalid_token_unavailable">There was a network issue. Please try again.</string>
+    <string name="personalid_token_request_rejected">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
     <string name="recovery_network_login_from_different_device">Your PersonalID account can only be configured on one device at a time and has been configured on another device. Please continue on the new device or configure your account on this device again to continue using PersonalID here.</string>
     <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
     <string name="recovery_network_server_error">There was an error processing your request.</string>

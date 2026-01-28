@@ -183,8 +183,8 @@
     <string name="recovery_network_unavailable">Sem conexão de rede. Verifique sua internet e tente novamente.</string>
     <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade, entre em contato com um administrador.</string>
     <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
-    <string name="recovery_network_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
-    <string name="recovery_network_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
+    <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
+    <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
     <string name="recovery_network_login_from_different_device">A sua conta PersonalID só pode ser configurada num dispositivo de cada vez e já foi configurada noutro dispositivo. Por favor, continue no novo dispositivo ou configure novamente a sua conta neste dispositivo para continuar a utilizar o PersonalID aqui.</string>
     <string name="recovery_network_unauthorized">Você não está autorizado a fazer esta solicitação.</string>
     <string name="recovery_network_server_error">Ocorreu um erro ao processar sua solicitação.</string>
