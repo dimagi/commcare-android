@@ -1,27 +1,10 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
-
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
-import org.javarosa.core.services.Logger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +12,21 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
+
+import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
+import org.javarosa.core.services.Logger;
+
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
@@ -95,7 +93,10 @@ public class ConnectUnlockFragment extends Fragment {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
                 setFragmentRedirection();
-
+                ConnectJobHelper.INSTANCE.fetchReleaseTogglesIfNewJobsExist(
+                        requireContext(),
+                        data.getValidJobs()
+                );
             }
         }.getConnectOpportunities(requireContext(), user);
     }

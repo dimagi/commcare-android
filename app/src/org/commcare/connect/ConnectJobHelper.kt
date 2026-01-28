@@ -7,11 +7,12 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.workers.ConnectReleaseTogglesWorker
 import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
@@ -183,7 +184,31 @@ object ConnectJobHelper {
 
             override fun onSuccess(data: ConnectOpportunitiesResponseModel?) {
                 listener.connectActivityComplete(true)
+                fetchReleaseTogglesIfNewJobsExist(context, data!!.validJobs)
             }
         }.getConnectOpportunities(context, user!!)
+    }
+
+    fun fetchReleaseTogglesIfNewJobsExist(
+        context: Context,
+        jobs: List<ConnectJobRecord>,
+    ) {
+        if (newJobExistsForOpportunities(jobs)) {
+            ConnectReleaseTogglesWorker.scheduleOneTimeFetch(context)
+        }
+    }
+
+    fun newJobExistsForOpportunities(jobs: List<ConnectJobRecord>): Boolean {
+        for (job in jobs) {
+            val jobIsNew =
+                job.status == ConnectJobRecord.STATUS_AVAILABLE_NEW ||
+                    job.status == ConnectJobRecord.STATUS_AVAILABLE
+
+            if (jobIsNew) {
+                return true
+            }
+        }
+
+        return false
     }
 }
