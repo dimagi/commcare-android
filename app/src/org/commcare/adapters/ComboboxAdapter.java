@@ -11,9 +11,6 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.ComboItem;
 import org.javarosa.core.model.ComboboxFilterRule;
-import org.javarosa.core.model.FuzzyMatchFilterRule;
-import org.javarosa.core.model.MultiWordFilterRule;
-import org.javarosa.core.model.StandardFilterRule;
 
 import java.util.ArrayList;
 
