@@ -31,6 +31,7 @@ public class ComboboxWidget extends QuestionWidget {
     private Vector<ComboItem> choiceComboItems;
     private Combobox comboBox;
     private boolean wasWidgetChangedOnTextChanged = false;
+    private ComboItem selectedComboItem = null;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxFilterRule filterRule) {
         super(context, prompt);
@@ -79,7 +80,10 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private void addListeners() {
-        comboBox.setOnItemClickListener((parent, view, position, id) -> widgetEntryChanged());
+        comboBox.setOnItemClickListener((parent, view, position, id) -> {
+            selectedComboItem = (ComboItem) parent.getItemAtPosition(position);
+            widgetEntryChanged();}
+        );
 
         // Note that Combobox has an OnFocusChangeListener defined in its own class, so when
         // re-setting it here we have to make sure to do all of the same things that the original
@@ -117,13 +121,22 @@ public class ComboboxWidget extends QuestionWidget {
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {
         if (prompt.getAnswerValue() != null) {
             String previousAnswerValue = ((Selection)prompt.getAnswerValue().getValue()).getValue();
-            for (int i = 0; i < choices.size(); i++) {
-                if (choices.get(i).getValue().equals(previousAnswerValue)) {
-                    comboBox.setText(choiceTexts.get(i));
-                    break;
+            if (previousAnswerValue != null) {
+                selectedComboItem = getComboItemFromSelectionValue(previousAnswerValue);
+                if (selectedComboItem != null) {
+                    comboBox.setText(selectedComboItem.getDisplayText());
                 }
             }
         }
+    }
+
+    private ComboItem getComboItemFromSelectionValue(String selectionValue) {
+        for (ComboItem cboIt: choiceComboItems) {
+            if (cboIt.getValue().equals(selectionValue)) {
+                return cboIt;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -135,20 +148,25 @@ public class ComboboxWidget extends QuestionWidget {
 
         comboBox.autoCorrectCapitalization();
         String enteredText = comboBox.getText().toString();
-        if (choiceTexts.contains(enteredText)) {
-            int i = choiceTexts.indexOf(enteredText);
-            return new SelectOneData(new Selection(choices.elementAt(i)));
-        } else if ("".equals(enteredText)) {
-            return null;
+        if (selectedComboItem != null && selectedComboItem.getDisplayText().equals(enteredText) &&
+                choiceComboItems.contains(selectedComboItem)) {
+            int selectChoiceIndex = selectedComboItem.getSelectChoiceIndex();
+            return new SelectOneData(new Selection(choices.elementAt(selectChoiceIndex)));
         } else {
-            return new InvalidData("The text entered is not a valid answer choice",
-                    new SelectOneData(new Selection(enteredText)));
+            selectedComboItem = null;
+            if ("".equals(enteredText)) {
+                return null;
+            } else {
+                return new InvalidData("The text entered is not a valid answer choice",
+                        new SelectOneData(new Selection(enteredText)));
+            }
         }
     }
 
     @Override
     public void clearAnswer() {
         comboBox.setText("");
+        selectedComboItem = null;
     }
 
     @Override
