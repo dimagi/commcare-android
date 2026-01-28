@@ -3,8 +3,8 @@ package org.commcare.tasks.templates;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.logging.UserCausedRuntimeException;
-import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -39,7 +39,10 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         try {
             return doTaskBackground(params);
         } catch (Exception e) {
-            if (!(e instanceof UserCausedRuntimeException)) {
+            if (e.getCause() instanceof LoginInvalidatedException) {
+                //Rethrow so global exception handler can handle it
+                throw e;
+            } else if (!(e instanceof UserCausedRuntimeException)) {
                 // Report crashes we know weren't caused by user misconfiguration
                 Logger.exception("Error during task execution: ", e);
             } else {
@@ -101,7 +104,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     protected abstract void deliverError(Receiver receiver, Exception e);
 
-    protected void handleCancellation(Receiver receiver){
+    protected void handleCancellation(Receiver receiver) {
         // Do nothing by default
     }
 
@@ -130,7 +133,6 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     /**
      * Adjust the time that the task will wait for a connector before cancelling
      * or proceeding (if headless)
-     *
      */
     protected void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimout = connectionTimeout;
