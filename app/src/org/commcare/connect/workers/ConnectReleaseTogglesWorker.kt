@@ -3,6 +3,7 @@ package org.commcare.connect.workers
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -44,6 +45,8 @@ class ConnectReleaseTogglesWorker(
     }
 
     companion object {
+        private const val WORK_NAME = "connect_release_toggles_fetch_worker"
+
         fun scheduleOneTimeFetch(context: Context) {
             val constraints =
                 Constraints
@@ -58,7 +61,11 @@ class ConnectReleaseTogglesWorker(
                     .setConstraints(constraints)
                     .build()
 
-            WorkManager.getInstance(context).enqueue(workRequest)
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                workRequest,
+            )
         }
     }
 }
