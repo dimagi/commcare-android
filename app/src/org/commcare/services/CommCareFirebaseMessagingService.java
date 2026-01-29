@@ -56,11 +56,8 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private Boolean startSyncForNotification(RemoteMessage remoteMessage) {
-        ArrayList<Map<String, String>> pns = new ArrayList<>();
-        pns.add(remoteMessage.getData());
-        NotificationsSyncWorkerManager notificationsSyncWorkerManager = new NotificationsSyncWorkerManager(
-                getApplicationContext(), pns, true, true);
-        return notificationsSyncWorkerManager.startPNApiSync();
+        return new NotificationsSyncWorkerManager(getApplicationContext(), true, true).
+                startSyncWorker(remoteMessage.getData());
     }
 
     @Override
