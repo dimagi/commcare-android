@@ -137,6 +137,7 @@
     <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
     <string name="connect_job_info_view_resume">Tęsti</string>
 
+    <string name="error">Klaida</string>
     <string name="connect_in_progress">Vykdoma</string>
     <string name="connect_new_opportunities">Naujos galimybės</string>
     <string name="connect_completed">Užbaigta</string>

@@ -148,13 +148,22 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             updatePaymentConfirmationTile(true);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
         });
+        getBinding().includeErrorLayout.ivClose.setOnClickListener(v -> getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE));
 
         getBinding().connectPaymentConfirmYesButton.setOnClickListener(v -> {
             if (paymentToConfirm != null) {
                 FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
                 ConnectJobHelper.INSTANCE.updatePaymentConfirmed(getContext(), paymentToConfirm, true, success -> {
-                    if (isAdded()) {
-                        updatePaymentConfirmationTile(true);
+                    updatePaymentConfirmationTile(true);
+                }, (success,msg) ->{
+                    if (success){
+                        if (isAdded()) {
+                            updatePaymentConfirmationTile(true);
+                        }
+                        getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE);
+                    }else {
+                        getBinding().includeErrorLayout.getRoot().setVisibility(View.VISIBLE);
+                        getBinding().includeErrorLayout.tvErrorMessage.setText(msg);
                     }
                 });
             }
