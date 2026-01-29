@@ -158,11 +158,12 @@ object ConnectJobHelper {
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                Toast.makeText(
-                    context,
-                    PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t),
-                    Toast.LENGTH_LONG,
-                ).show()
+                Toast
+                    .makeText(
+                        context,
+                        PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t),
+                        Toast.LENGTH_LONG,
+                    ).show()
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
                 listener.connectActivityComplete(false)
             }

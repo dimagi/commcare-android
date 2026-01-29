@@ -92,14 +92,14 @@ abstract class ConnectApiHandler<T>(
     fun setPaymentConfirmations(
         context: Context,
         user: ConnectUserRecord,
-        paymentConfirmations: List<ConnectPaymentConfirmationModel>
+        paymentConfirmations: List<ConnectPaymentConfirmationModel>,
     ) {
         ApiConnect.setPaymentsConfirmed(
             context,
             user,
             paymentConfirmations,
             createCallback(
-                NoParsingResponseParser<T>(),
+                NoParsingResponseParser(),
             ),
         )
     }
