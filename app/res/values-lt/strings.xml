@@ -125,7 +125,7 @@
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_length">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
-    <string name="no_channel_msg">Jūs neturite jokių dabartinių susirašinėjimo kanalų</string>
+    <string name="no_channel_msg">Jūs neprenumeruojate jokių susirašinėjimo kanalų. Kai būsite pridėtas prie kanalo, jis pasirodys šiame sąraše.</string>
     <string name="connect_payment_confirm_text">Ar gavote %d %s už %s galimybę?</string>
 
     <string name="personalid_using_your_location">Naudojama jūsų buvimo vieta</string>
@@ -147,4 +147,7 @@
     <string name="personalid_biometric_error_lockout_permanent">Per daug nepavykusių bandymų. Atrakinkite įrenginį ir bandykite dar kartą.</string>
     <string name="personalid_biometric_error_timeout">Baigėsi biometrinės operacijos laikas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="personalid_biometric_error_cannot_configure">Nepavyko sukonfigūruoti biometrinių duomenų jūsų įrenginyje. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_work_history_no_records_available">Šiuo metu nėra jokių darbo įrašų. Spustelėkite atnaujinti arba patikrinkite vėliau.</string>
+    <string name="pn_no_notification_available">Pranešimų nėra</string>
+    <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
 </resources>
