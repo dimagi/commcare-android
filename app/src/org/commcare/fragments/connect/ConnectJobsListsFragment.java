@@ -174,14 +174,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         inProgressJobs = new ArrayList<>();
         newJobs = new ArrayList<>();
         completedJobs = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> availableNewJobs = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> learnApps = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> deliverApps = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> reviewLearnApps = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> finishedItems = new ArrayList<>();
 
         for (ConnectJobRecord job : jobs) {
-            int jobStatus = job.getStatus();
             boolean isLearnAppInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
             boolean isDeliverAppInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
@@ -189,52 +183,54 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
             boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
 
-            switch (jobStatus) {
-                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+            switch (job.getStatus()) {
+
+                case STATUS_AVAILABLE_NEW,STATUS_AVAILABLE:
                     if (!deliveryComplete) {
-                        availableNewJobs.add(createJobModel(job,
+                        newJobs.add(createJobModel(job,
                                 ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY, NEW_APP,
                                 true, true, false, false));
+                    } else {
+                        completedJobs.add(createJobModel(job,
+                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                                DELIVERY_APP,
+                                isDeliverAppInstalled, false, false, true));
                     }
                     break;
 
                 case STATUS_LEARNING:
-                    ConnectLoginJobListModel model = createJobModel(job,
-                            ConnectLoginJobListModel.JobListEntryType.LEARNING, LEARN_APP,
-                            isLearnAppInstalled, false, true, false);
-
-                    ArrayList<ConnectLoginJobListModel> learnList = deliveryComplete ? finishedItems : learnApps;
-                    learnList.add(model);
-
+                    if (deliveryComplete) {
+                        completedJobs.add(createJobModel(job,
+                                ConnectLoginJobListModel.JobListEntryType.LEARNING,
+                                LEARN_APP,
+                                isLearnAppInstalled, false, true, false));
+                    } else {
+                        inProgressJobs.add(createJobModel(job,
+                                ConnectLoginJobListModel.JobListEntryType.LEARNING,
+                                LEARN_APP,
+                                isLearnAppInstalled, false, true, false));
+                    }
                     break;
 
                 case STATUS_DELIVERING:
-                    ConnectLoginJobListModel learnModel = createJobModel(job,
-                            ConnectLoginJobListModel.JobListEntryType.LEARNING, LEARN_APP,
-                            isLearnAppInstalled, false, true, false);
-
-                    ConnectLoginJobListModel deliverModel = createJobModel(job,
-                            ConnectLoginJobListModel.JobListEntryType.DELIVERY, DELIVERY_APP,
-                            isDeliverAppInstalled, false, false, true);
-
-                    reviewLearnApps.add(learnModel);
-
-                    ArrayList<ConnectLoginJobListModel> deliverList = deliveryComplete ? finishedItems : deliverApps;
-                    deliverList.add(deliverModel);
-
+                    if (deliveryComplete) {
+                        completedJobs.add(createJobModel(job,
+                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                                DELIVERY_APP,
+                                isDeliverAppInstalled, false, false, true));
+                    } else {
+                        inProgressJobs.add(createJobModel(job,
+                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                                DELIVERY_APP,
+                                isDeliverAppInstalled, false, false, true));
+                    }
                     break;
             }
         }
 
-        sortJobListByLastAccessed(learnApps);
-        sortJobListByLastAccessed(deliverApps);
-        sortJobListByLastAccessed(reviewLearnApps);
-        sortJobListByLastAccessed(finishedItems);
-        inProgressJobs.addAll(learnApps);
-        inProgressJobs.addAll(deliverApps);
-        inProgressJobs.addAll(reviewLearnApps);
-        newJobs.addAll(availableNewJobs);
-        completedJobs.addAll(finishedItems);
+        sortJobListByLastAccessed(inProgressJobs);
+        sortJobListByLastAccessed(newJobs);
+        sortJobListByLastAccessed(completedJobs);
         initRecyclerView();
     }
 
