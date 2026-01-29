@@ -28,6 +28,7 @@ class CommCareProviderLocationController(
     private var mProviders = GeoUtils.evaluateProviders(mLocationManager)
     private val mReceiver = ProviderChangedReceiver()
     private var mLocationRequestStarted = false
+
     private val mLocationListener =
         object : LocationListener {
             override fun onLocationChanged(location: Location) {
