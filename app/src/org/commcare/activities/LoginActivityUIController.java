@@ -235,8 +235,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
 
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        boolean noApps = readyApps.isEmpty();
-        if (readyApps.size() == 1 || presetAppRecord != null) {
+        if (readyApps.size() == 1) {
             // Set this app as the last selected app, for use in choosing what app to initialize on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
