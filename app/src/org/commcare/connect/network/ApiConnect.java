@@ -14,6 +14,7 @@ import org.commcare.network.HttpUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -170,10 +171,10 @@ public class ApiConnect {
         ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                List<Object> paymentConfirmationsMap = new ArrayList<>();
+                List<Map<String, Object>> paymentConfirmationsMap = new ArrayList<>();
                 for (ConnectPaymentConfirmationModel paymentConfirmation : paymentConfirmations) {
-                    HashMap<String, String> paymentMap = new HashMap<>();
-                    paymentMap.put("id", paymentConfirmation.getPayment().getPaymentId());
+                    HashMap<String, Object> paymentMap = new HashMap<>();
+                    paymentMap.put("id", Integer.valueOf(paymentConfirmation.getPayment().getPaymentId()));
                     paymentMap.put("confirmed", paymentConfirmation.getToConfirm() ? "true" : "false");
                     paymentConfirmationsMap.add(paymentMap);
                 }
@@ -182,7 +183,7 @@ public class ApiConnect {
                 params.put("payments", paymentConfirmationsMap);
 
                 HashMap<String, String> headers = new HashMap<>();
-                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, API_VERSION_CONNECT, headers);
+                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, false, API_VERSION_CONNECT, headers);
 
                 String tokenAuth = HttpUtils.getCredential(token);
                 ApiService apiService = ConnectApiClient.Companion.getClientApi();
