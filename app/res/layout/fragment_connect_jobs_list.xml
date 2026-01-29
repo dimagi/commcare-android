@@ -12,14 +12,16 @@
         android:id="@+id/connect_no_jobs_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="40dp"
         android:text="@string/connect_no_jobs"
         android:textAlignment="center"
-        android:textColor="@color/blue"
+        android:textColor="@color/sonic_silver"
         android:textSize="18sp"
+        android:layout_marginHorizontal="10dp"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        android:textStyle="bold"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvJobList"
