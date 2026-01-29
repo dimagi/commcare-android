@@ -64,6 +64,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
             //First, need to tell Connect we're starting learning so it can create a user on HQ
             startLearning(appInstalled);
         });
+        getBinding().includeErrorLayout.ivClose.setOnClickListener(v -> getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE));
 
         setupJobCard(job);
         return view;
@@ -124,10 +125,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                             message,
                             false,
                             R.string.ok);
-                    getBinding().errorTextView.setVisibility(View.GONE);
+                    getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE);
                 } else {
-                    getBinding().errorTextView.setVisibility(View.VISIBLE);
-                    getBinding().errorTextView.setText(message);
+                    getBinding().includeErrorLayout.getRoot().setVisibility(View.VISIBLE);
+                    getBinding().includeErrorLayout.tvErrorMessage.setText(message);
                 }
                 reportApiCall(false);
             }

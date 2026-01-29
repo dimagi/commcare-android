@@ -10,6 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <include
+            android:id="@+id/include_error_layout"
+            layout="@layout/inline_error_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -183,17 +189,6 @@
             android:id="@+id/connect_delivery_progress_view_pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/error_text_view"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@android:color/holo_red_light"
-            android:visibility="gone"
-            android:textSize="@dimen/font_size_medium" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
 </layout>

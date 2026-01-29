@@ -165,7 +165,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
                         holder.updateConfirmedText(context, payment);
                         rebuildPaymentsDisplayList();
                         notifyDataSetChanged();
-                    }
+                    },null
             );
         }
 

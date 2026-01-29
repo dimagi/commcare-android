@@ -77,6 +77,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> onFingerprintButtonClicked());
         binding.connectVerifyPinButton.setOnClickListener(v -> onPinButtonClicked());
+        binding.includeErrorLayout.ivClose.setOnClickListener(v -> binding.includeErrorLayout.getRoot().setVisibility(View.GONE));
 
         requireActivity().setTitle(R.string.connect_appbar_title_app_lock);
         return binding.getRoot();
@@ -96,21 +97,21 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
                 super.onAuthenticationError(errorCode, errString);
                 Logger.exception("Biometric error", new Exception(String.format(Locale.getDefault(),
                         "Biometric error without PIN fallback: %s (%d)", errString, errorCode)));
-                binding.errorTextView.setVisibility(View.VISIBLE);
-                binding.errorTextView.setText(BiometricsHelper.getBiometricError(errorCode,requireContext()));
+                binding.includeErrorLayout.getRoot().setVisibility(View.VISIBLE);
+                binding.includeErrorLayout.tvErrorMessage.setText(BiometricsHelper.getBiometricError(errorCode,requireContext()));
             }
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
                 navigateForward(false);
-                binding.errorTextView.setVisibility(View.GONE);
+                binding.includeErrorLayout.getRoot().setVisibility(View.GONE);
             }
 
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                binding.errorTextView.setVisibility(View.GONE);
+                binding.includeErrorLayout.getRoot().setVisibility(View.GONE);
                 Toast.makeText(requireActivity(), getString(R.string.personalid_authentication_failed), Toast.LENGTH_SHORT).show();
             }
         };
