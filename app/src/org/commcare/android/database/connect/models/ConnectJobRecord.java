@@ -84,6 +84,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
 
+    public static final String META_OPPOTUNITY_UUID = "opportunity_uuid";
+
     @Persisting(1)
     @MetaField(META_JOB_ID)
     private int jobId;
@@ -163,6 +165,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_DAILY_FINISH_TIME)
     private String dailyFinishTime;
 
+    @Persisting(27)
+    @MetaField(META_OPPOTUNITY_UUID)
+    private String opportunityUUID;
+
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
     private List<ConnectJobLearningRecord> learnings;
@@ -196,6 +202,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);
+        job.opportunityUUID = json.optString(META_OPPOTUNITY_UUID,"");
+        if(job.opportunityUUID.isEmpty()){
+            job.opportunityUUID = String.valueOf(job.jobId);
+        }
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
@@ -712,4 +722,137 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public boolean deliveryComplete() {
         return isFinished() || getDeliveries().size() >= getMaxVisits();
     }
+
+    //// getter / setter for kotlin compatibility
+
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
+
+    public int getBudgetPerVisit() {
+        return budgetPerVisit;
+    }
+
+    public void setBudgetPerVisit(int budgetPerVisit) {
+        this.budgetPerVisit = budgetPerVisit;
+    }
+
+    public int getTotalBudget() {
+        return totalBudget;
+    }
+
+    public void setTotalBudget(int totalBudget) {
+        this.totalBudget = totalBudget;
+    }
+
+    public void setMaxDailyVisits(int maxDailyVisits) {
+        this.maxDailyVisits = maxDailyVisits;
+    }
+
+    public void setCompletedVisits(int completedVisits) {
+        this.completedVisits = completedVisits;
+    }
+
+    public Date getLastWorkedDate() {
+        return lastWorkedDate;
+    }
+
+    public void setLastWorkedDate(Date lastWorkedDate) {
+        this.lastWorkedDate = lastWorkedDate;
+    }
+
+    public void setNumLearningModules(int numLearningModules) {
+        this.numLearningModules = numLearningModules;
+    }
+
+    public int getLearningModulesCompleted() {
+        return learningModulesCompleted;
+    }
+
+    public void setLearningModulesCompleted(int learningModulesCompleted) {
+        this.learningModulesCompleted = learningModulesCompleted;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public void setPaymentAccrued(String paymentAccrued) {
+        this.paymentAccrued = paymentAccrued;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public Date getLastLearnUpdate() {
+        return lastLearnUpdate;
+    }
+
+    public Date getDateClaimed() {
+        return dateClaimed;
+    }
+
+    public void setDateClaimed(Date dateClaimed) {
+        this.dateClaimed = dateClaimed;
+    }
+
+    public void setProjectStartDate(Date projectStartDate) {
+        this.projectStartDate = projectStartDate;
+    }
+
+    public void setIsActive(boolean active) {
+        isActive = active;
+    }
+
+    public void setDailyStartTime(String dailyStartTime) {
+        this.dailyStartTime = dailyStartTime;
+    }
+
+    public void setDailyFinishTime(String dailyFinishTime) {
+        this.dailyFinishTime = dailyFinishTime;
+    }
+
+    public String getOpportunityUUID() {
+        return opportunityUUID;
+    }
+
+    public void setOpportunityUUID(String modelId) {
+        this.opportunityUUID = modelId;
+    }
+
+    public static Date getStartDate() {
+        return startDate;
+    }
+
+    public static void setStartDate(Date startDate) {
+        ConnectJobRecord.startDate = startDate;
+    }
+
+    public boolean isClaimed() {
+        return claimed;
+    }
+
+    public void setClaimed(boolean claimed) {
+        this.claimed = claimed;
+    }
+    //// getter / setter ends
+
+
 }
