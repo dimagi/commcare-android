@@ -272,9 +272,7 @@
     <string name="image_download_prompt" cc:translatable="true">Image file is missing for this question, Click the download button above to download</string>
     <string name="audio_download_prompt" cc:translatable="true">Audio file is missing for this question, click the download button above to download</string>
     <string name="media_not_found_error" cc:translatable="true">Media not found in the application</string>
-    <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
 
-    <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
     <string name="wait_for_location_fix" cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
     <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
     <string name="invalid_case_graph_error" cc:translatable="true">This form introduces an invalid case relationship</string>
@@ -306,9 +304,7 @@
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
 
     <string name="personalid_welcome_user">Welcome %s!</string>
-    <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using PersonalID.</string>
     <string name="personalid_choice_or">___________    OR    ___________</string>
-    <string name="personakid_busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
 
@@ -354,8 +350,6 @@
     <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock PersonalID.</string>
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
     <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
-    <string name="connect_verify_pin_configured">Your PIN has already been configured and will be used to unlock PersonalID.</string>
-    <string name="connect_verify_configuration_failed">Configuring the biometrics on your Android device has failed. Please try again %s</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
@@ -412,15 +406,12 @@
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
     <string name="connect_job_ended">Task ended on %s</string>
-    <string name="connect_learn_error_starting">Unable to begin learning, please contact the opportunity administrator.</string>
 
     <string name="connect_learn_title">Learning Progress</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_fetch_learning_progress_error">Failed to fetch the learning progress</string>
-    <string name="connect_fetch_delivery_progress_error">Failed to fetch the delivery progress</string>
-    <string name="your_score">Score: %d</string>
 
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
     <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.\nYour score: %d\nPassing score: %d</string>
@@ -432,7 +423,6 @@
     <string name="connect_learn_review">Review Learning</string>
     <string name="connect_learn_view_details">View Opportunity Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
-    <string name="connect_learn_try_again">Try Again</string>
     <string name="connect_learn_start">Start Learning</string>
     <string name="connect_learn_continue">Continue Learning</string>
     <string name="connect_delivery_earn_multi">Pay per visit:</string>
@@ -466,14 +456,9 @@
 
     <string name="connect_results_summary_transferred">Transferred</string>
 
-    <string name="connect_results_payment_confirm">Confirm</string>
-    <string name="connect_results_payment_confirm_undo">Undo confirm</string>
-    <string name="connect_results_payment_confirmed">Confirmed</string>
-    <string name="connect_results_payment_not_confirmed">Not Confirmed</string>
     <string name="connect_payment_confirm_text">You got paid!\n%s %s paid %s.\nHave you received the payment?</string>
     <string name="connect_payment_confirm_yes">Yes!</string>
     <string name="connect_payment_confirm_no">Ask later</string>
-    <string name="connect_payment_confirm_failed">Failed to send confirmation, we will ask again later.</string>
     <string name="personalid_login_with">Login with PersonalId</string>
     <string name="personalid_link_app_title">Link to PersonalId?</string>
     <string name="personalid_link_app_message">Do you want to link this login to your PersonalId account? You will not need to type your password in the future.</string>
@@ -493,8 +478,6 @@
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
 
-    <string name="connect_payment_acknowledge_notification_yes">Yes</string>
-    <string name="connect_payment_acknowledge_notification_no">No</string>
 
     <string name="enter_otp">Enter One Time Password</string>
     <string name="create_a_new_recovery_code">Create a new Backup Code</string>
@@ -608,7 +591,6 @@
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
-    <string name="personalid_name_empty_error">Name field cannot be empty</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
     <string name="personalid_configuration_process_failed_subtitle">Unfortunately, this device did not pass the security checks required to sign up for PersonalID. Please try again on a different device.</string>
@@ -625,13 +607,8 @@
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
     <string name="personalid_photo_capture_save_photo_button">Save Photo</string>
-    <string name="personalid_photo_upload_failure">"Failed to save photo. Please check your internet and try again. "</string>
     <string name="personalid_this_is_not_me"><u>This is not me</u></string>
     <string name="personalid_welcome_back_msg">Welcome back %s</string>
-    <string name="personalid_recovery_failed_title">Recovery failed</string>
-    <string name="personalid_recovery_lockout_title">Account Locked</string>
-    <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
-    <string name="personalid_recovery_lockout_message">You have entered the wrong Backup Code too many times. Your account has been locked. Please contact support to unlock your account.</string>
     <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
     <string name="personalid_second_device_login_title">Login on Second Device</string>
     <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>
@@ -646,12 +623,10 @@
     <string name="personalid_location_permission_error">PersonalID requires your device to have Location Services enabled. Please enable this in your phone\'s settings before proceeding.</string>
     <string name="personalid_grant_location_permission">Grant Location Permission</string>
     <string name="personalid_grant_location_service">Enable Location Service</string>
-    <string name="personalid_messaging_menu_title">Messaging</string>
     <string name="personalid_sync_menu_title">Sync</string>
     <string name="camera_permission_title">Permission for camera</string>
     <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="capture_photo">Capture Photo</string>
-    <string name="connect_claim_job_error">Error claiming job</string>
 
     <string name="personalid_work_history_title">My Work History</string>
     <string name="personalid_work_history">Work History</string>
@@ -661,16 +636,13 @@
     <string name="personalid_work_history_pending">Pending</string>
     <string name="personalid_work_history_sync">Sync</string>
 
-    <string name="commcarehq_worker">CommCareHQ Worker</string>
     <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
-    <string name="nav_drawer_work_history">Work History</string>
     <string name="nav_drawer_payments">Payments</string>
     <string name="nav_drawer_manage_profile">Manage Profile</string>
-    <string name="user_name_placeholder">User Name</string>
 
 
     <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
