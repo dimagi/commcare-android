@@ -555,9 +555,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         } else {
-            loginButton.setText(activity.getString(R.string.login_button_connectid));
+            loginButton.setText(activity.getString(R.string.personalid_login_with));
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.grey_light));
-            passwordOrPin.setText(R.string.login_password_by_connect);
+            passwordOrPin.setText(R.string.personalid_login_via);
             passwordOrPin.clearFocus();
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
@@ -570,7 +570,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     private void setWelcomeMessage() {
-        String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
+        String welcomeText = activity.getString(R.string.personalid_welcome_user,
                 ConnectUserDatabaseUtil.getUser(activity).getName());
         welcomeMessage.setText(welcomeText);
     }

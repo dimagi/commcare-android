@@ -293,22 +293,22 @@
 
     <string name="fcm_notification">FCM Notification</string>
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
-    <string name="login_password_by_connect">Via PersonalID (or press here)</string>
-    <string name="login_welcome_connect_signed_in">Welcome %s!</string>
-    <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using PersonalID.</string>
-    <string name="choice_or">___________    OR    ___________</string>
-    <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
-    <string name="connect_button_logged_in">Go to Connect menu</string>
-
-    <string name="entity_map_markers">Markers</string>
-    <string name="entity_map_polygons">Polygons</string>
-    <string name="entity_map_geopoints">Geopoints</string>
-    <string name="entity_map_error_message">There was an error in app configuration due to which not all markers on the map are loaded correctly</string>
+    <string name="entity_map_markers" cc:translatable="true">Markers</string>
+    <string name="entity_map_polygons" cc:translatable="true">Polygons</string>
+    <string name="entity_map_geopoints" cc:translatable="true">Geopoints</string>
+    <string name="entity_map_error_message" cc:translatable="true">There was an error in app configuration due to which not all markers on the map are loaded correctly</string>
 
     <!-- PersonalID strings -->
+    <string name="personalid_login_via">Via PersonalID (or press here)</string>
+    <string name="connect_button_logged_in">Go to Connect menu</string>
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
+
+    <string name="personalid_welcome_user">Welcome %s!</string>
+    <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using PersonalID.</string>
+    <string name="personalid_choice_or">___________    OR    ___________</string>
+    <string name="personakid_busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
 
@@ -474,17 +474,17 @@
     <string name="connect_payment_confirm_yes">Yes!</string>
     <string name="connect_payment_confirm_no">Ask later</string>
     <string name="connect_payment_confirm_failed">Failed to send confirmation, we will ask again later.</string>
-    <string name="login_button_connectid">Login with PersonalId</string>
-    <string name="login_link_connectid_title">Link to PersonalId?</string>
-    <string name="login_link_connectid_message">Do you want to link this login to your PersonalId account? You will not need to type your password in the future.</string>
-    <string name="login_unlink_connectid_title">Unlink PersonalId?</string>
-    <string name="login_unlink_connectid_message">I see you logged in with your password although PersonalId was configured for auto-login. Would you like to sever this login from PersonalId?</string>
-    <string name="login_link_connectid_yes">Yes</string>
-    <string name="login_link_connectid_no">No</string>
-    <string name="login_menu_connect_sign_in">Sign up for PersonalID</string>
+    <string name="personalid_login_with">Login with PersonalId</string>
+    <string name="personalid_link_app_title">Link to PersonalId?</string>
+    <string name="personalid_link_app_message">Do you want to link this login to your PersonalId account? You will not need to type your password in the future.</string>
+    <string name="personalid_unlink_app_title">Unlink PersonalId?</string>
+    <string name="personalid_unlink_app_message">I see you logged in with your password although PersonalId was configured for auto-login. Would you like to sever this login from PersonalId?</string>
+    <string name="personaid_link_app_yes">Yes</string>
+    <string name="personaid_link_app_no">No</string>
+    <string name="personalid_signup">Sign up for PersonalID</string>
+    <string name="personalid_forget_user">Forget PersonalID user</string>
 
-    <string name="login_menu_connect_forget">Forget PersonalID user</string>
-    <string name="menu_refresh_opportunities">Refresh Opportunities</string>
+    <string name="connect_refresh_opportunities">Refresh Opportunities</string>
 
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
     <string name="connect_app_installed">App installed</string>
