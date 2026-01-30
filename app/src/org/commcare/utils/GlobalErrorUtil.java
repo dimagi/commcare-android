@@ -2,11 +2,16 @@ package org.commcare.utils;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
+import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
 
 public class GlobalErrorUtil {
+    public static void triggerGlobalError(GlobalErrors error) {
+        throw new LoginInvalidatedException(error);
+    }
+
     public static void addError(GlobalErrorRecord error) {
         CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).write(error);
     }

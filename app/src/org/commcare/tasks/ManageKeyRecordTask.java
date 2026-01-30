@@ -8,8 +8,6 @@ import org.commcare.activities.DataPullController;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.connect.network.TokenDeniedException;
-import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.UserSandboxUtils;
@@ -346,7 +344,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
     @Override
-    protected Response<ResponseBody> doHttpRequest() throws IOException, TokenDeniedException, TokenUnavailableException {
+    protected Response<ResponseBody> doHttpRequest() throws IOException {
         CommcareRequestGenerator requestor = new CommcareRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }

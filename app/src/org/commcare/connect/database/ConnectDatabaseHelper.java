@@ -9,14 +9,15 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Date;
@@ -52,7 +53,7 @@ public class ConnectDatabaseHelper {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
-                            if(passphrase == null || passphrase.length == 0) {
+                            if (passphrase == null || passphrase.length == 0) {
                                 throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
                             }
 
@@ -61,7 +62,8 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR, e);
+                            Logger.exception("Error opening Connect DB", e);
+                            GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_GENERIC_ERROR);
                         }
                     }
                     return connectDatabase;
@@ -79,14 +81,9 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void crashDb(GlobalErrors error) {
-        crashDb(error, null);
-    }
-
-    public static void crashDb(GlobalErrors error, Exception ex) {
+    public static void handleGlobalError(GlobalErrors error) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
         PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
-        throw new RuntimeException("Connect database crash: " + error.name(), ex);
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
