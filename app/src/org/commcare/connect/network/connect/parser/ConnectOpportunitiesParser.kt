@@ -15,17 +15,19 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.InputStream
 
-class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
-
-
-    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
+class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
+    override fun parse(
+        responseCode: Int,
+        responseData: InputStream,
+        anyInputObject: Any?,
+    ): T {
         val corruptJobs: ArrayList<ConnectLoginJobListModel> = ArrayList()
         val jobs: ArrayList<ConnectJobRecord> = ArrayList()
         try {
             responseData.use { `in` ->
                 val responseAsString = String(StreamsUtil.inputStreamToByteArray(`in`))
                 if (!responseAsString.isEmpty()) {
-                    //Parse the JSON
+                    // Parse the JSON
                     val json = JSONArray(responseAsString)
                     for (i in 0 until json.length()) {
                         var obj: JSONObject? = null
@@ -54,15 +56,20 @@ class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
             throw RuntimeException(e)
         }
         return ConnectOpportunitiesResponseModel(jobs, corruptJobs) as T
-
     }
 
-
-    private fun reportApiCall(success: Boolean, totalJobs: Int, newJobs: Int) {
+    private fun reportApiCall(
+        success: Boolean,
+        totalJobs: Int,
+        newJobs: Int,
+    ) {
         FirebaseAnalyticsUtil.reportCccApiJobs(success, totalJobs, newJobs)
     }
 
-    private fun handleCorruptJob(obj: JSONObject?,corruptJobs: ArrayList<ConnectLoginJobListModel>) {
+    private fun handleCorruptJob(
+        obj: JSONObject?,
+        corruptJobs: ArrayList<ConnectLoginJobListModel>,
+    ) {
         if (obj != null) {
             try {
                 corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobFromJson(obj)))
@@ -72,7 +79,5 @@ class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
         }
     }
 
-    private fun createJobModel(job: ConnectJobRecord): ConnectLoginJobListModel {
-        return ConnectLoginJobListModel(job.title, job)
-    }
+    private fun createJobModel(job: ConnectJobRecord): ConnectLoginJobListModel = ConnectLoginJobListModel(job.title, job)
 }
