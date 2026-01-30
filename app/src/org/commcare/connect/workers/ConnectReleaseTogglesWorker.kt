@@ -34,7 +34,12 @@ class ConnectReleaseTogglesWorker(
                     t: Throwable?,
                 ) {
                     Logger.exception("Failed to get feature release toggles in background!", t)
-                    continuation.resume(Result.failure())
+
+                    if (errorCode == PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR) {
+                        continuation.resume(Result.retry())
+                    } else {
+                        continuation.resume(Result.failure())
+                    }
                 }
 
                 override fun onSuccess(data: List<ConnectReleaseToggleRecord>) {
