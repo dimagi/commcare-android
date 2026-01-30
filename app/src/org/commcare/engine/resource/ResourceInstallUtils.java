@@ -35,6 +35,7 @@ import org.javarosa.core.util.PropertyUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import javax.net.ssl.SSLException;
@@ -143,6 +144,9 @@ public class ResourceInstallUtils {
                 break;
             case CaptivePortal:
                 receiver.failWithNotification(AppInstallStatus.CaptivePortal);
+                break;
+            case ConnectionInterrupted:
+                receiver.failWithNotification(AppInstallStatus.ConnectionInterrupted);
                 break;
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
@@ -266,6 +270,10 @@ public class ResourceInstallUtils {
         if(exception.getCause() instanceof SSLException){
             Logger.exception("Encountered SSLException while trying to install a resource", exception);
             return AppInstallStatus.BadSslCertificate;
+        }
+        if (exception.getCause() instanceof UnknownHostException) {
+            Logger.exception("Encountered UnknownHostException while trying to install a resource", exception);
+            return AppInstallStatus.ConnectionInterrupted;
         }
 
         if(exception.getCause() instanceof RateLimitedException){
