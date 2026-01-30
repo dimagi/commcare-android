@@ -3,15 +3,18 @@ package org.commcare.connect.workers
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.javarosa.core.services.Logger
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -53,17 +56,10 @@ class ConnectReleaseTogglesWorker(
         private const val WORK_NAME = "connect_release_toggles_fetch_worker"
 
         fun scheduleOneTimeFetch(context: Context) {
-            val constraints =
-                Constraints
-                    .Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-
             val workRequest =
                 OneTimeWorkRequest
                     .Builder(ConnectReleaseTogglesWorker::class.java)
-                    .setConstraints(constraints)
+                    .setConstraints(getWorkConstraints())
                     .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
@@ -72,5 +68,33 @@ class ConnectReleaseTogglesWorker(
                 workRequest,
             )
         }
+
+        fun schedulePeriodicFetch(context: Context) {
+            val workRequest =
+                PeriodicWorkRequest
+                    .Builder(
+                        ConnectReleaseTogglesWorker::class.java,
+                        4,
+                        TimeUnit.HOURS,
+                    ).setConstraints(getWorkConstraints())
+                    .build()
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest,
+            )
+        }
+
+        fun cancelPeriodicFetch(context: Context) {
+            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+        }
+
+        private fun getWorkConstraints() =
+            Constraints
+                .Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
     }
 }
