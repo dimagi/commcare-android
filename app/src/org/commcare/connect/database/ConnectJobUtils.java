@@ -228,17 +228,21 @@ public class ConnectJobUtils {
         }
 
         //Now insert/update deliveries
+        boolean newPaymentReceived = false;
         for (ConnectJobPaymentRecord incomingRecord : payments) {
             storage.write(incomingRecord);
 
-            // Check if there is a brand new payment so that we can reset the timer for the payment
-            // confirmation tile.
-            boolean receivedNewPayment = !matchedIncomingIds.contains(incomingRecord.getPaymentId());
-            if (receivedNewPayment) {
-                ICommCarePreferenceManager preferenceManager =
-                        CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-                preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+            if (!matchedIncomingIds.contains(incomingRecord.getPaymentId())) {
+                newPaymentReceived = true;
             }
+        }
+
+        // Check if there is a brand new payment so that we can reset the timer for the payment
+        // confirmation tile.
+        if (newPaymentReceived) {
+            ICommCarePreferenceManager preferenceManager =
+                    CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+            preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
         }
     }
 
