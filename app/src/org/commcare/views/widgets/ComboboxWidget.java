@@ -131,9 +131,9 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private ComboItem getComboItemFromSelectionValue(String selectionValue) {
-        for (ComboItem cboIt: choiceComboItems) {
-            if (cboIt.getValue().equals(selectionValue)) {
-                return cboIt;
+        for (ComboItem comboItem: choiceComboItems) {
+            if (comboItem.getValue().equals(selectionValue)) {
+                return comboItem;
             }
         }
         return null;
