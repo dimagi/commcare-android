@@ -6,16 +6,10 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.services.Logger;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 public class JobStoreManager {
 
@@ -41,12 +35,6 @@ public class JobStoreManager {
             }
             int newJob = processAndStoreJobs(existingList, jobs);
             ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
-
-            // Fetch feature release toggles if there is a new job.
-            if (newJob > 0) {
-                ConnectReleaseTogglesWorker.Companion.scheduleOneTimeFetch(context);
-            }
-
             return newJob;
         } catch(Exception e) {
             Logger.exception("Error storing jobs", e);

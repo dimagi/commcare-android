@@ -5,6 +5,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.BaseApiResponseParser
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
+import org.commcare.connect.workers.ConnectReleaseTogglesWorker
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.models.connect.ConnectLoginJobListModel
 import org.javarosa.core.io.StreamsUtil
@@ -37,7 +38,14 @@ class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
                         }
                     }
 
-                    val newJobs = ConnectJobUtils.storeJobs(anyInputObject as Context, jobs, true)
+                    val context = anyInputObject as Context
+                    val newJobs = ConnectJobUtils.storeJobs(context, jobs, true)
+
+                    // Fetch feature release toggles if there is a new job.
+                    if (newJobs > 0) {
+                        ConnectReleaseTogglesWorker.scheduleOneTimeFetch(context)
+                    }
+
                     reportApiCall(true, jobs.size, newJobs)
                 }
             }
