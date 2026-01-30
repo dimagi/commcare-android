@@ -44,9 +44,8 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         // Always report to HQ device logs
         ForceCloseLogger.reportExceptionInBg(ex);
 
-        LoginInvalidatedException loginInvalidated = findRootLoginInvalidatedException(ex);
-        if (loginInvalidated != null) {
-            CrashUtil.reportException(ex.getCause());
+        if (ex instanceof LoginInvalidatedException loginInvalidated) {
+            CrashUtil.reportException(loginInvalidated);
             ConnectDatabaseHelper.handleGlobalError(loginInvalidated.reason);
             startDispatchActivity();
             System.exit(0);
@@ -65,17 +64,6 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
             // Default error handling, which includes reporting to Crashlytics
             parent.uncaughtException(thread, ex);
         }
-    }
-
-    private static LoginInvalidatedException findRootLoginInvalidatedException(Throwable ex) {
-        while (ex != null) {
-            if (ex instanceof LoginInvalidatedException lie) {
-                return lie;
-            }
-            ex = ex.getCause();
-        }
-
-        return null;
     }
 
     private void startRecoveryMeasureActivity() {

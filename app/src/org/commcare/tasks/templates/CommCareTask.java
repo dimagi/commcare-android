@@ -3,7 +3,6 @@ package org.commcare.tasks.templates;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.javarosa.core.services.Logger;
 
@@ -39,10 +38,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         try {
             return doTaskBackground(params);
         } catch (Exception e) {
-            if (e.getCause() instanceof LoginInvalidatedException) {
-                //Rethrow so global exception handler can handle it
-                throw e;
-            } else if (!(e instanceof UserCausedRuntimeException)) {
+            if (!(e instanceof UserCausedRuntimeException)) {
                 // Report crashes we know weren't caused by user misconfiguration
                 Logger.exception("Error during task execution: ", e);
             } else {
