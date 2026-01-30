@@ -141,6 +141,7 @@ object ConnectJobHelper {
         payment: ConnectJobPaymentRecord,
         confirmed: Boolean,
         listener: ConnectActivityCompleteListener,
+        listenerWithMsg: ConnectActivityCompleteWithMsgListener? = null,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
 
@@ -150,20 +151,17 @@ object ConnectJobHelper {
                 ConnectJobUtils.storePayment(context, payment)
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(true)
                 listener.connectActivityComplete(true)
+                listenerWithMsg?.connectActivityCompleteWithMsg(true, null)
             }
 
             override fun onFailure(
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                Toast
-                    .makeText(
-                        context,
-                        PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t),
-                        Toast.LENGTH_LONG,
-                    ).show()
+                val msg = PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t)
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
                 listener.connectActivityComplete(false)
+                listenerWithMsg?.connectActivityCompleteWithMsg(false, msg)
             }
         }.setPaymentConfirmation(context, user, payment.paymentId, confirmed)
     }

@@ -1,10 +1,17 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -149,6 +156,9 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 NavHostFragment.findNavController(this).navigateUp();
                 GeoUtils.goToProperLocationSettingsScreen(activity);
                 activity.finish();
+                break;
+            case ConnectConstants.PERSONAL_ID_CANCEL_MESSAGE_BOTTOM_SHEET:
+                NavHostFragment.findNavController(this).popBackStack();
                 break;
 
         }
