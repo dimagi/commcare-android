@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.commcare.connect.ConnectConstants.LAST_TOTAL_UNCONFIRMED_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment<FragmentConnectDeliveryProgressBinding>
@@ -163,18 +162,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void handlePaymentConfirmationNoClick() {
         updatePaymentConfirmationTile(true);
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, new Date().getTime());
-
-        long totalUnconfirmedPayments = 0;
-        for (ConnectJobPaymentRecord payment : job.getPayments()) {
-            if (payment.allowConfirm()) {
-                totalUnconfirmedPayments++;
-            }
-        }
-
-        preferenceManager.putLong(LAST_TOTAL_UNCONFIRMED_PAYMENTS, totalUnconfirmedPayments);
     }
 
     private void handlePaymentConfirmYesButtonClick() {
@@ -294,29 +283,21 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         paymentsToConfirm.clear();
         int totalUnconfirmedPaymentAmount = 0;
-        long totalUnconfirmedPayments = 0;
 
         for (ConnectJobPaymentRecord payment : job.getPayments()) {
             if (payment.allowConfirm()) {
                 paymentsToConfirm.add(new ConnectPaymentConfirmationModel(payment, true));
                 totalUnconfirmedPaymentAmount += Integer.parseInt(payment.getAmount());
-                totalUnconfirmedPayments++;
             }
         }
 
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         long hiddenSinceTimeMs = preferenceManager.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
         long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
-        long lastTotalUnconfirmedPayments = preferenceManager.getLong(LAST_TOTAL_UNCONFIRMED_PAYMENTS, 0);
 
-        // If a new payment was received since the tile was last hidden, we want to show it.
-        boolean newUnconfirmedPaymentReceived = totalUnconfirmedPayments > lastTotalUnconfirmedPayments;
-
-        boolean userHidTileInPast = hiddenSinceTimeMs != -1;
         boolean showTile = !paymentsToConfirm.isEmpty()
                 && ConnectivityStatus.isNetworkAvailable(requireContext())
-                && (!userHidTileInPast || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7
-                || newUnconfirmedPaymentReceived);
+                && (hiddenSinceTimeMs == -1 || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
 
         if (showTile) {
             getBinding().connectPaymentConfirmLabel.setText(
