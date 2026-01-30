@@ -95,6 +95,7 @@ public class ConnectUnlockFragment extends Fragment {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
                 setFragmentRedirection();
+
             }
         }.getConnectOpportunities(requireContext(), user);
     }
