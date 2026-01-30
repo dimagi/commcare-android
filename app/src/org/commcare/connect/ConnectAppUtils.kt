@@ -16,6 +16,7 @@ import java.security.SecureRandom
 object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
     const val IS_LAUNCH_FROM_CONNECT = "is_launch_from_connect"
+    const val CONNECT_JOB_ID = "CONNECT_JOB_ID"
 
     @Volatile
     private var isAppDownloading = false
@@ -114,12 +115,13 @@ object ConnectAppUtils {
             .joinToString("")
     }
 
-    fun launchApp(activity: Activity, isLearning: Boolean, appId: String) {
+    fun launchApp(activity: Activity, isLearning: Boolean, appId: String, connectJobId: Int) {
         CommCareApplication.instance().closeUserSession()
         val appType = if (isLearning) "Learn" else "Deliver"
         FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId)
         HashMap<String, Any>().apply {
             put(IS_LAUNCH_FROM_CONNECT, true)
+            put(CONNECT_JOB_ID,connectJobId)
         }.also { CommCareLauncher.launchCommCareForAppId(activity, appId, it) }
         activity.finish()
     }

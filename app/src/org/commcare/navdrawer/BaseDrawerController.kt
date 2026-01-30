@@ -149,6 +149,7 @@ class BaseDrawerController(
                         .error(R.drawable.nav_drawer_person_avatar),
                 ).into(binding.imageUserProfile)
 
+            // TODO: Need to change for adding jobId
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
             val seatedApp =

@@ -151,7 +151,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         if (deliveryComplete && !isLearning) {
             navigateToDeliveryProgress();
         } else if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId,job.getJobId());
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             Navigation.findNavController(getBinding().getRoot()).navigate(ConnectJobsListsFragmentDirections

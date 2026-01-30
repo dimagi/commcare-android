@@ -19,19 +19,22 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.interfaces.base.BaseConnectView
 
 object ConnectJobHelper {
-    fun getJobForSeatedApp(context: Context): ConnectJobRecord? {
-        val appId = CommCareApplication.instance().currentApp.uniqueId
-        val appRecord = ConnectJobUtils.getAppRecord(context, appId) ?: return null
-
-        return ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
+    fun getJobForSeatedApp(context: Context, jobId : Int): ConnectJobRecord? {
+        return ConnectJobUtils.getCompositeJob(context, jobId)
     }
 
     fun shouldShowJobStatus(
         context: Context?,
         appId: String?,
+        jobId: Int?
     ): Boolean {
-        val record = ConnectJobUtils.getAppRecord(context, appId) ?: return false
-        val job = ConnectJobUtils.getJobForApp(context, appId) ?: return false
+
+        if(appId==null || jobId==null){
+            return false
+        }
+
+        val record = ConnectJobUtils.getAppRecord(context, appId, jobId) ?: return false
+        val job = ConnectJobUtils.getJobForApp(context, jobId) ?: return false
 
         // Only time not to show is when we're in learn app but job is in delivery state
         return !record.isLearning || job.status != ConnectJobRecord.STATUS_DELIVERING
