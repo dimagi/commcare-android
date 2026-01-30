@@ -351,7 +351,7 @@
     <string name="connect_results_payment_confirm_undo">Tendua uthibitisho</string>
     <string name="connect_results_payment_confirmed">Imethibitishwa</string>
     <string name="connect_results_payment_not_confirmed">Haijathibitishwa</string>
-    <string name="connect_payment_confirm_text">Umelipwa!\n%s %s imelipwa %s.\nJe, umepokea malipo?</string>
+    <string name="connect_payment_confirm_text">Je, umelipwa %d %s kwa ajili ya fursa ya %s?</string>
     <string name="connect_payment_confirm_yes">Ndiyo!</string>
     <string name="connect_payment_confirm_no">Uliza baadaye</string>
     <string name="connect_payment_confirm_failed">Imeshindwa kutuma uthibitisho, tutauliza tena baadaye.</string>
