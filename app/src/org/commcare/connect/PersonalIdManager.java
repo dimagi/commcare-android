@@ -336,15 +336,15 @@ public class PersonalIdManager {
     private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username,
             String password, ConnectActivityCompleteListener callback) {
         StandardAlertDialog dialog = new StandardAlertDialog(
-                activity.getString(R.string.login_link_connectid_title),
-                activity.getString(R.string.login_link_connectid_message));
+                activity.getString(R.string.personalid_link_app_title),
+                activity.getString(R.string.personalid_link_app_message));
 
-        dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
+        dialog.setPositiveButton(activity.getString(R.string.personaid_link_app_yes), (d, w) -> {
             activity.dismissAlertDialog();
             unlockAndLinkConnect(activity, linkedApp, username, password, callback);
         });
 
-        dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
+        dialog.setNegativeButton(activity.getString(R.string.personaid_link_app_no), (d, w) -> {
             activity.dismissAlertDialog();
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
             FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_USER_DENIED);
@@ -396,10 +396,10 @@ public class PersonalIdManager {
         }
 
         StandardAlertDialog dialog = new StandardAlertDialog(
-                activity.getString(R.string.login_unlink_connectid_title),
-                activity.getString(R.string.login_unlink_connectid_message));
+                activity.getString(R.string.personalid_unlink_app_title),
+                activity.getString(R.string.personalid_unlink_app_message));
 
-        dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
+        dialog.setPositiveButton(activity.getString(R.string.personaid_link_app_yes), (d, w) -> {
             activity.dismissAlertDialog();
             unlockConnect(activity, success -> {
                 if (success) {
@@ -414,7 +414,7 @@ public class PersonalIdManager {
             });
         });
 
-        dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
+        dialog.setNegativeButton(activity.getString(R.string.personaid_link_app_no), (d, w) -> {
             activity.dismissAlertDialog();
             callback.connectActivityComplete(false);
         });
