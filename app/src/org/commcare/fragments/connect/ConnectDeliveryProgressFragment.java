@@ -55,8 +55,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     public static final int TAB_PROGRESS = 0;
     public static final int TAB_PAYMENT = 1;
     private ViewStateAdapter viewPagerAdapter;
-    private ArrayList<ConnectJobPaymentRecord> paymentsToConfirm = new ArrayList<>();
-    private int totalUnconfirmedPaymentAmount = 0;
+    private final ArrayList<ConnectPaymentConfirmationModel> paymentsToConfirm = new ArrayList<>();
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
 
@@ -184,17 +183,9 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-
-        List<ConnectPaymentConfirmationModel> paymentConfirmations = new ArrayList<>();
-        for (ConnectJobPaymentRecord paymentToConfirm : paymentsToConfirm) {
-            paymentConfirmations.add(
-                    new ConnectPaymentConfirmationModel(paymentToConfirm, true)
-            );
-        }
-
         ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
                 requireContext(),
-                paymentConfirmations,
+                paymentsToConfirm,
                 success -> {
                     if (isAdded()) {
                         updatePaymentConfirmationTile(true);
@@ -302,12 +293,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         paymentsToConfirm.clear();
-        totalUnconfirmedPaymentAmount = 0;
+        int totalUnconfirmedPaymentAmount = 0;
         long totalUnconfirmedPayments = 0;
 
         for (ConnectJobPaymentRecord payment : job.getPayments()) {
             if (payment.allowConfirm()) {
-                paymentsToConfirm.add(payment);
+                paymentsToConfirm.add(new ConnectPaymentConfirmationModel(payment, true));
                 totalUnconfirmedPaymentAmount += Integer.parseInt(payment.getAmount());
                 totalUnconfirmedPayments++;
             }
