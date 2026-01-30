@@ -206,6 +206,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void redirectToPaymentTab() {
+        if (getBinding().connectDeliveryProgressViewPager.getCurrentItem() == TAB_PAYMENT) {
+            return;
+        }
+
         TabLayout tabLayout = getBinding().connectDeliveryProgressTabs;
         TabLayout.Tab tab = tabLayout.getTabAt(TAB_PAYMENT);
 
