@@ -152,15 +152,31 @@ public class ComboboxWidget extends QuestionWidget {
                 choiceComboItems.contains(selectedComboItem)) {
             int selectChoiceIndex = selectedComboItem.getSelectChoiceIndex();
             return new SelectOneData(new Selection(choices.elementAt(selectChoiceIndex)));
-        } else {
-            selectedComboItem = null;
-            if ("".equals(enteredText)) {
-                return null;
-            } else {
-                return new InvalidData("The text entered is not a valid answer choice",
-                        new SelectOneData(new Selection(enteredText)));
+        } else if (selectedComboItem == null && !"".equals(enteredText)) {
+            // User may have typed in text that matches one of the choices, even if they didn't
+            // explicitly select it from the dropdown
+            ComboItem matchingItem = getComboItemFromDisplayText(enteredText);
+            if (matchingItem != null) {
+                int selectChoiceIndex = matchingItem.getSelectChoiceIndex();
+                return new SelectOneData(new Selection(choices.elementAt(selectChoiceIndex)));
             }
         }
+        selectedComboItem = null;
+        if ("".equals(enteredText)) {
+            return null;
+        } else {
+            return new InvalidData("The text entered is not a valid answer choice",
+                    new SelectOneData(new Selection(enteredText)));
+        }
+    }
+
+    private ComboItem getComboItemFromDisplayText(String displayText) {
+        for (ComboItem comboItem: choiceComboItems) {
+            if (comboItem.getDisplayText().equals(displayText)) {
+                return comboItem;
+            }
+        }
+        return null;
     }
 
     @Override
