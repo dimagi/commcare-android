@@ -125,7 +125,7 @@
     <string name="connect_recovery_success_message">Kontoen din er blitt gjenopprettet! Du kan gjenoppta bruken av PersonalID.</string>
     <string name="connect_register_success_message">Kontoen din er blitt opprettet og er klar til bruk</string>
     <string name="connect_backup_code_length">Sørg for å huske reservekoden din! Den må være på %d sifre. Oppbevar den på et trygt sted, da du trenger den for å få tilgang til kontoen din igjen.</string>
-    <string name="no_channel_msg">Du har ingen nåværende meldingskanaler</string>
+    <string name="no_channel_msg">Du abonnerer ikke på noen meldingskanaler. Når du er lagt til i en kanal, vil den vises i denne listen.</string>
 
     <string name="personalid_using_your_location">Bruker posisjonen din</string>
     <string name="personalid_no_location_found">Vi kan ikke finne posisjonen din</string>
@@ -147,4 +147,7 @@
     <string name="personalid_biometric_error_lockout_permanent">For mange mislykkede forsøk. Lås opp enheten og prøv igjen.</string>
     <string name="personalid_biometric_error_timeout">Biometrisk operasjon ble tidsavbrutt. Kontakt kundestøtte hvis problemet vedvarer.</string>
     <string name="personalid_biometric_error_cannot_configure">Vi kunne ikke konfigurere biometri på enheten din. Kontakt kundestøtte hvis problemet vedvarer.</string>
+    <string name="personalid_work_history_no_records_available">Ingen arbeidslogger er tilgjengelige for øyeblikket. Klikk på Oppdater, eller kom tilbake senere.</string>
+    <string name="pn_no_notification_available">Ingen varsler tilgjengelig</string>
+    <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
 </resources>
