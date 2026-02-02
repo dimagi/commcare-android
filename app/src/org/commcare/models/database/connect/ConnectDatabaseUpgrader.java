@@ -152,6 +152,7 @@ public class ConnectDatabaseUpgrader {
 
         if (oldVersion == 20) {
             upgradeTwentyTwentyOne(db);
+            oldVersion = 21;
         }
 
         if(oldVersion == 21){
