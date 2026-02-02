@@ -347,8 +347,8 @@ License.
     <string name="personalid_link_app_message">Souhaitez-vous associer cet identifiant à votre compte PersonalId? Vous n\'aurez plus besoin de saisir votre mot de passe à l\'avenir.</string>
     <string name="personalid_unlink_app_title">Dissocier PersonalId?</string>
     <string name="personalid_unlink_app_message">Je vois que vous vous êtes connecté avec votre mot de passe, bien que PersonalId ait été configuré pour la connexion automatique. Souhaitez-vous dissocier cette connexion de PersonalId?</string>
-    <string name="personaid_link_app_yes">Oui</string>
-    <string name="personaid_link_app_no">Non</string>
+    <string name="personalid_link_app_yes">Oui</string>
+    <string name="personalid_link_app_no">Non</string>
     <string name="personalid_signup">Inscrivez-vous à PersonalId</string>
     <string name="personalid_forget_user">Oublier l\'utilisateur PersonalId</string>
     <string name="connect_refresh_opportunities">Actualiser les Opportunités</string>

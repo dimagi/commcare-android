@@ -348,8 +348,8 @@
     <string name="personalid_link_app_message">ነዚ መእተዊ ምስ ናይ ምትእስሳር መለለዪ ኣካውንትካ ከተተሓሕዞ ትደሊ ዲኻ? ኣብ መጻኢ ፓስዎርድካ ምጽሓፍ ኣየድልየካን እዩ።</string>
     <string name="personalid_unlink_app_title">Unlink ናይ ምትእስሳር መለለዪ?</string>
     <string name="personalid_unlink_app_message">PersonalId ንኣውቶ-ሎጊን ተባሂሉ ዝተዋቕረ እኳ እንተነበረ፡ ብፓስዎርድካ ከም ዝኣተኻ ይርእየካ ኣለኹ። ነዚ መእተዊ ካብ PersonalId ክትቆርጾ ትደሊ ዲኻ?</string>
-    <string name="personaid_link_app_yes">እወ</string>
-    <string name="personaid_link_app_no">አይኮንን</string>
+    <string name="personalid_link_app_yes">እወ</string>
+    <string name="personalid_link_app_no">አይኮንን</string>
     <string name="personalid_signup">ኣብ PersonalId ተመዝገቡ</string>
     <string name="personalid_forget_user">ተጠቃሚ PersonalId ረሲዕካዮ</string>
     <string name="connect_app_install_unknown_error">ናይ ኣፕሊኬሽን ምፅዓን ብሰንኪ ዘይተፈልጠ ጌጋ ኣይተዓወተን</string>

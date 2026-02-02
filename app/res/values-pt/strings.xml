@@ -364,8 +364,8 @@
     <string name="personalid_link_app_message">Deseja vincular este login à sua conta PersonalId? Você não precisará digitar sua senha no futuro.</string>
     <string name="personalid_unlink_app_title">Desvincular o PersonalId?</string>
     <string name="personalid_unlink_app_message">Vejo que você fez login com sua senha, embora o PersonalId tenha sido configurado para login automático. Gostaria de cortar este login do PersonalId?</string>
-    <string name="personaid_link_app_yes">Sim</string>
-    <string name="personaid_link_app_no">Não</string>
+    <string name="personalid_link_app_yes">Sim</string>
+    <string name="personalid_link_app_no">Não</string>
     <string name="personalid_signup">Inscreva-se no PersonalId</string>
     <string name="personalid_forget_user">Esqueça o usuário do PersonalId</string>
     <string name="connect_refresh_opportunities">Atualizar Oportunidades</string>

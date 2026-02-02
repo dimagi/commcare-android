@@ -467,8 +467,8 @@
     <string name="personalid_link_app_message">Do you want to link this login to your PersonalId account? You will not need to type your password in the future.</string>
     <string name="personalid_unlink_app_title">Unlink PersonalId?</string>
     <string name="personalid_unlink_app_message">I see you logged in with your password although PersonalId was configured for auto-login. Would you like to sever this login from PersonalId?</string>
-    <string name="personaid_link_app_yes">Yes</string>
-    <string name="personaid_link_app_no">No</string>
+    <string name="personalid_link_app_yes">Yes</string>
+    <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Sign up for PersonalID</string>
     <string name="personalid_forget_user">Forget PersonalID user</string>
 

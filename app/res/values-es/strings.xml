@@ -350,8 +350,8 @@
     <string name="personalid_link_app_message">¿Te gustaría vincular este inicio de sesión con tu cuenta de PersonalId? No necesitarás ingresar tu contraseña en el futuro.</string>
     <string name="personalid_unlink_app_title">¿Desvincular PersonalId?</string>
     <string name="personalid_unlink_app_message">Veo que has iniciado sesión con tu contraseña, aunque PersonalId estaba configurado para el inicio de sesión automático. ¿Te gustaría desvincular este inicio de sesión de PersonalId?</string>
-    <string name="personaid_link_app_yes">Sí</string>
-    <string name="personaid_link_app_no">No</string>
+    <string name="personalid_link_app_yes">Sí</string>
+    <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Registrarse en PersonalId</string>
     <string name="personalid_forget_user">Olvidar usuario de PersonalId</string>
     <string name="connect_refresh_opportunities">Actualizar Oportunidades</string>

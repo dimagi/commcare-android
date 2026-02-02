@@ -349,8 +349,8 @@
     <string name="personalid_link_app_message">Je, ungependa kuunganisha kuingia huku kwa akaunti yako ya PersonalId? Hutahitaji kuandika nenosiri lako katika siku zijazo.</string>
     <string name="personalid_unlink_app_title">Je, ungependa kutenganisha PersonalId?</string>
     <string name="personalid_unlink_app_message">Naona umeingia na nenosiri lako ingawa PersonalId ilisanidiwa kwa ajili ya kuingia kiotomatiki. Je, ungependa kutenganisha kuingia huku kutoka kwa PersonalId?</string>
-    <string name="personaid_link_app_yes">Ndiyo</string>
-    <string name="personaid_link_app_no">Hapana</string>
+    <string name="personalid_link_app_yes">Ndiyo</string>
+    <string name="personalid_link_app_no">Hapana</string>
     <string name="personalid_signup">Jisajili kwa PersonalId</string>
     <string name="personalid_forget_user">Sahau mtumiaji wa PersonalId</string>
     <string name="connect_refresh_opportunities">Onyesha Fursa</string>

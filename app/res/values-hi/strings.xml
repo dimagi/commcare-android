@@ -347,8 +347,8 @@ License.
     <string name="personalid_link_app_message">क्या आप इस आईडी को अपने PersonalId खाते से लिंक करना चाहेंगे? आपको भविष्य में अपना पासवर्ड दर्ज करने की आवश्यकता नहीं होगी।</string>
     <string name="personalid_unlink_app_title">PersonalId को अनलिंक करें?</string>
     <string name="personalid_unlink_app_message">मैं देख रहा हूं कि आपने अपने पासवर्ड से लॉग इन किया है, हालांकि PersonalId को स्वचालित लॉगिन के लिए कॉन्फ़िगर किया गया था। क्या आप इस लॉगिन को PersonalId से अनलिंक करना चाहेंगे?</string>
-    <string name="personaid_link_app_yes">हाँ</string>
-    <string name="personaid_link_app_no">नहीं</string>
+    <string name="personalid_link_app_yes">हाँ</string>
+    <string name="personalid_link_app_no">नहीं</string>
     <string name="personalid_signup">PersonalId के लिए साइन अप करें</string>
     <string name="personalid_forget_user">PersonalId उपयोगकर्ता को भूल जाएं</string>
     <string name="connect_refresh_opportunities">अवसर रीफ्रेश करें</string>
