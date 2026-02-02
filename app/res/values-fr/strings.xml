@@ -335,7 +335,11 @@ License.
     <string name="connect_downloading_delivery">Téléchargement de l\'application de livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>
     <string name="connect_results_summary_transferred">Transféré</string>
-    <string name="connect_payment_confirm_text">Vous avez été payé!\n%s %s payé %s.\nAvez-vous reçu le paiement?</string>
+    <string name="connect_results_payment_confirm">Confirmer</string>
+    <string name="connect_results_payment_confirm_undo">Annuler confirmer</string>
+    <string name="connect_results_payment_confirmed">Confirmé</string>
+    <string name="connect_results_payment_not_confirmed">Non confirmé</string>
+    <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
     <string name="connect_payment_confirm_yes">Oui!</string>
     <string name="connect_payment_confirm_no">Plus tard</string>
     <string name="personalid_login_with">Connectez-vous avec PersonalId</string>

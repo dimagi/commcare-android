@@ -338,7 +338,11 @@
     <string name="connect_downloading_delivery">Descargando la aplicación de Entrega</string>
     <string name="connect_results_summary_earned">Ganado</string>
     <string name="connect_results_summary_transferred">Transferido</string>
-    <string name="connect_payment_confirm_text">¡Te han pagado!\n%s %s pagó %s.\n¿Recibiste el pago?</string>
+    <string name="connect_results_payment_confirm">Confirmar</string>
+    <string name="connect_results_payment_confirm_undo">Deshacer confirmación</string>
+    <string name="connect_results_payment_confirmed">Confirmado</string>
+    <string name="connect_results_payment_not_confirmed">No confirmado</string>
+    <string name="connect_payment_confirm_text">¿Ha recibido el pago de %d %s por la oportunidad de %s?</string>
     <string name="connect_payment_confirm_yes">¡Sí!</string>
     <string name="connect_payment_confirm_no">Más tarde</string>
     <string name="personalid_login_with">Iniciar sesión con PersonalId</string>
