@@ -249,25 +249,18 @@ static def getDate() {
 android {
     namespace 'org.commcare.dalvik'
     compileSdk 36
-
-    lintOptions {
-        abortOnError false
-        disable 'MissingTranslation'
-        disable 'ResourceType'
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
     }
+
 
     // Espresso requires us to disable animations on device.
     testOptions {
         animationsDisabled = true
     }
 
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-    }
 
     buildFeatures {
         buildConfig true
@@ -383,6 +376,7 @@ android {
         test {
             java.srcDirs = ['unit-tests/src/']
             resources.srcDirs = ['unit-tests/resources/']
+            manifest.srcFile 'unit-tests/AndroidManifest.xml'
         }
 
         androidTest {
@@ -497,9 +491,6 @@ android {
     }
 
     // Ignore un-minified graphing files
-    aaptOptions {
-        ignoreAssetsPattern '!*.max.js:!*.max.css'
-    }
 
     testOptions {
         unitTests.all {
@@ -515,6 +506,13 @@ android {
 
     // Needed to run espresso tests on release build.
     testBuildType project.ext.TEST_BUILD_TYPE
+    androidResources {
+        ignoreAssetsPattern '!*.max.js:!*.max.css'
+    }
+    lint {
+        abortOnError false
+        disable 'MissingTranslation', 'ResourceType'
+    }
 }
 
 /**
