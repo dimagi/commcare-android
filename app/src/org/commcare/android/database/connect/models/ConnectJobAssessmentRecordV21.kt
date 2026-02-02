@@ -12,7 +12,7 @@ import org.commcare.modern.models.MetaField
 import java.io.Serializable
 import java.util.Date
 
-@Table(ConnectJobLearningRecordV21.STORAGE_KEY)
+@Table(ConnectJobAssessmentRecordV21.STORAGE_KEY)
 class ConnectJobAssessmentRecordV21 :
     Persisted(),
     Serializable {

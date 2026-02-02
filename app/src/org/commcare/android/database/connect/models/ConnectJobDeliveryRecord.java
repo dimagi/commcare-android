@@ -88,7 +88,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public static ConnectJobDeliveryRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
-        int deliveryId = -1;
         ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
         delivery.jobId = job.getJobId();
         if (job.getJobUUID().isEmpty()) {
@@ -96,13 +95,13 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         } else {
             delivery.jobUUID = job.getJobUUID();
         }
+
+
+        delivery.deliveryId = json.getInt(META_ID);
         String deliveryUUID = json.optString(META_DELIVERY_UUID, "");
-        delivery.deliveryUUID = deliveryUUID.isEmpty() ? Integer.toString(job.getJobId()) : deliveryUUID;
+        delivery.deliveryUUID = deliveryUUID.isEmpty() ? Integer.toString(delivery.deliveryId) : deliveryUUID;
 
         delivery.lastUpdate = new Date();
-
-        deliveryId = json.getInt(META_ID);
-        delivery.deliveryId = deliveryId;
         String dateString = json.getString(META_DATE);
         delivery.date = DateUtils.parseDateTime(dateString);
         delivery.status = json.getString(META_STATUS);

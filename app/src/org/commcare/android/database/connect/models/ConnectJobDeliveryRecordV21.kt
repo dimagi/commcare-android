@@ -8,7 +8,7 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord.MET
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord.META_REASON
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord.META_STATUS
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord.META_UNIT_NAME
-import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord.Companion.META_SLUG
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord.META_SLUG
 import org.commcare.android.storage.framework.Persisted
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
@@ -16,7 +16,7 @@ import org.commcare.modern.models.MetaField
 import java.io.Serializable
 import java.util.Date
 
-@Table(ConnectJobDeliveryRecordV2.STORAGE_KEY)
+@Table(ConnectJobDeliveryRecordV21.STORAGE_KEY)
 class ConnectJobDeliveryRecordV21 :
     Persisted(),
     Serializable {
