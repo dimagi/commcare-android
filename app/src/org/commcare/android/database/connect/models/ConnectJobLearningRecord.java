@@ -30,6 +30,7 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     public static final String META_DATE = "date";
     public static final String META_MODULE = "module";
     public static final String META_DURATION = "duration";
+    public static final String META_LEARNING_UUID = "learning_id";  // todo The server needs to confirm this learning UUID field name.
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
@@ -47,6 +48,9 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     @Persisting(5)
     private Date lastUpdate;
     @Persisting(6)
+    @MetaField(META_LEARNING_UUID)
+    private String learningUUID;
+    @Persisting(7)
     @MetaField(META_JOB_UUID)
     private String jobUUID;
 
@@ -65,6 +69,7 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
             record.jobUUID = job.getJobUUID();
         }
 
+        record.learningUUID = json.optString(META_LEARNING_UUID,"");
 
         record.date = DateUtils.parseDateTime(json.getString(META_DATE));
         record.moduleId = json.getInt(META_MODULE);
@@ -121,5 +126,14 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     public void setJobUUID(String jobUUID) {
         this.jobUUID = jobUUID;
     }
+
+    public String getLearningUUID() {
+        return learningUUID;
+    }
+
+    public void setLearningUUID(String learningUUID) {
+        this.learningUUID = learningUUID;
+    }
+
     ///
 }

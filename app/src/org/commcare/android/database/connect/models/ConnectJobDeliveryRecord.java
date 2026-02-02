@@ -36,7 +36,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static final String META_ENTITY_ID = "entity_id";
     public static final String META_ENTITY_NAME = "entity_name";
     public static final String META_FLAGS = "flags";
-    public static final String META_DELIVERY_UUID = "delivery_id";  // todo The server needs to provide the delivery UUID field name.
+    public static final String META_DELIVERY_UUID = "delivery_id";  // todo The server needs to confirm this delivery UUID field name.
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)

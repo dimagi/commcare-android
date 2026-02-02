@@ -48,7 +48,7 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
     private boolean passed;
     @Persisting(6)
     private Date lastUpdate;
-    @Persisting(8)
+    @Persisting(7)
     @MetaField(META_JOB_UUID)
     private String jobUUID;
 

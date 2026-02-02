@@ -27,7 +27,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_CONFIRMED_DATE = "date_confirmed";
     private static final long CONFIRMATION_WINDOW_DAYS = 7;
     private static final long UNDO_WINDOW_DAYS = 1;
-    public static final String META_PAYMENT_UUID = "payment_uuid";    // todo: The server needs to confirm the payment UUID field name.
+    public static final String META_PAYMENT_UUID = "payment_uuid";    // todo: The server needs to confirm this payment UUID field name.
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)

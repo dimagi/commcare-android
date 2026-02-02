@@ -26,7 +26,7 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     public static final String META_DAILY = "max_daily";
     public static final String META_AMOUNT = "amount";
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
-    public static final String META_PAYMENT_UNIT_UUID = "payment_unit_uuid";  // todo: The server needs to provide the unit UUID field name.
+    public static final String META_PAYMENT_UNIT_UUID = "payment_unit_uuid";  // todo: The server needs to provide this payment unit UUID field name.
 
     @Persisting(1)
     @MetaField(META_JOB_ID)

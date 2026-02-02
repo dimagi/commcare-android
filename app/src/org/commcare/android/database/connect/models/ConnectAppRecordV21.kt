@@ -67,7 +67,6 @@ class ConnectAppRecordV21 :
             app.domain = connectAppRecordV21.domain
             app.appId = connectAppRecordV21.appId
             app.jobUUID = "${connectAppRecordV21.jobId}"
-            app.appUUID = "${connectAppRecordV21.appId}"
             app.name = connectAppRecordV21.name
             app.description = connectAppRecordV21.description
             app.organization = connectAppRecordV21.organization

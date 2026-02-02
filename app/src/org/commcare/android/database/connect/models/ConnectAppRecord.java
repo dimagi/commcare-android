@@ -30,7 +30,6 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public static final String META_PASSING_SCORE = "passing_score";
     public static final String META_INSTALL_URL = "install_url";
     public static final String META_MODULES = "learn_modules";
-    public static final String META_APP_UUID = "cc_app_uuid"; // todo: The server needs to provide the app UUID field name.
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
@@ -67,10 +66,6 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     @MetaField(META_JOB_UUID)
     private String jobUUID;
 
-    @Persisting(12)
-    @MetaField(META_APP_UUID)
-    private String appUUID;
-
     private List<ConnectLearnModuleSummaryRecord> learnModules;
 
     public ConnectAppRecord() {
@@ -91,9 +86,6 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         } else {
             app.jobUUID = job.getJobUUID();
         }
-
-        String appUUID = json.optString(META_APP_UUID, "");
-        app.appUUID = appUUID.isEmpty() ? app.appId : appUUID;
 
         app.name = json.getString(META_NAME);
         app.description = json.getString(META_DESCRIPTION);
@@ -195,13 +187,4 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public void setJobUUID(String jobUUID) {
         this.jobUUID = jobUUID;
     }
-
-    public String getAppUUID() {
-        return appUUID;
-    }
-
-    public void setAppUUID(String appUUID) {
-        this.appUUID = appUUID;
-    }
-
 }

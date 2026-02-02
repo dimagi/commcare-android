@@ -777,6 +777,11 @@ public class ConnectDatabaseUpgrader {
                 ConnectJobLearningRecord.META_JOB_UUID,
                 "TEXT"));
 
+        db.execSQL(DbUtil.addColumnToTable(
+                ConnectJobLearningRecord.STORAGE_KEY,
+                ConnectJobLearningRecord.META_LEARNING_UUID,
+                "TEXT"));
+
         SqlStorage<Persistable> oldStorage = new SqlStorage<>(
                 ConnectJobLearningRecordV21.STORAGE_KEY,
                 ConnectJobLearningRecordV21.class,
@@ -855,11 +860,6 @@ public class ConnectDatabaseUpgrader {
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectAppRecord.STORAGE_KEY,
                 ConnectAppRecord.META_JOB_UUID,
-                "TEXT"));
-
-        db.execSQL(DbUtil.addColumnToTable(
-                ConnectAppRecord.STORAGE_KEY,
-                ConnectAppRecord.META_APP_UUID,
                 "TEXT"));
 
         SqlStorage<Persistable> oldStorage = new SqlStorage<>(
