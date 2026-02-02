@@ -350,7 +350,7 @@
     <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
     <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
     <string name="connect_results_payment_not_confirmed">ኣይተረጋገፀን።</string>
-    <string name="connect_payment_confirm_text">ክፍሊት ረኺብካ!\n%s %s ተኸፊሉ %s.\nእቲ ክፍሊት ተቐቢልካዮ ዲኻ?</string>
+    <string name="connect_payment_confirm_text">ን%d %s ዕድል ዝኸውን %s ተኸፊልካዶ?</string>
     <string name="connect_payment_confirm_yes">እወ!</string>
     <string name="connect_payment_confirm_no">ፀኒሕኻ ሕተት።</string>
     <string name="connect_payment_confirm_failed">መረጋገፂ ምልኣኽ ስለዘይከኣለ፡ ፀኒሕና እንደገና ክንሓትት ኢና።</string>
