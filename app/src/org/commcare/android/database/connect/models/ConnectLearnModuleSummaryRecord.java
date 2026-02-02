@@ -24,6 +24,8 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     public static final String META_JOB_ID = "job_id";
     public static final String META_INDEX = "module_index";
 
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
+
     @Persisting(1)
     @MetaField(META_SLUG)
     private String slug;
@@ -51,11 +53,14 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     @Persisting(7)
     private Date lastUpdate;
 
+    @Persisting(8)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
     public ConnectLearnModuleSummaryRecord() {
 
     }
 
-    public static ConnectLearnModuleSummaryRecord fromJson(JSONObject json, int moduleIndex) throws JSONException {
+    public static ConnectLearnModuleSummaryRecord fromJson(JSONObject json, int moduleIndex, ConnectJobRecord job) throws JSONException {
         ConnectLearnModuleSummaryRecord info = new ConnectLearnModuleSummaryRecord();
         info.moduleIndex = moduleIndex;
         info.slug = json.getString(META_SLUG);
@@ -63,6 +68,13 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         info.description = json.getString(META_DESCRIPTION);
         info.timeEstimate = json.getInt(META_ESTIMATE);
         info.lastUpdate = new Date();
+
+        info.jobId = job.getJobId();
+        if (job.getJobUUID().isEmpty()) {
+            info.jobUUID = Integer.toString(job.getJobId());
+        } else {
+            info.jobUUID = job.getJobUUID();
+        }
 
         return info;
     }
@@ -89,5 +101,46 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
 
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setTimeEstimate(int timeEstimate) {
+        this.timeEstimate = timeEstimate;
+    }
+
+    public int getJobId() {
+        return jobId;
+    }
+
+    public void setModuleIndex(int moduleIndex) {
+        this.moduleIndex = moduleIndex;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
     }
 }

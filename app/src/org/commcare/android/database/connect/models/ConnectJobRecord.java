@@ -84,7 +84,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
 
-    public static final String META_OPPOTUNITY_UUID = "opportunity_uuid";
+    public static final String META_JOB_UUID = "opportunity_id";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -166,8 +166,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private String dailyFinishTime;
 
     @Persisting(27)
-    @MetaField(META_OPPOTUNITY_UUID)
-    private String opportunityUUID;
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
 
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
@@ -202,9 +202,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);
-        job.opportunityUUID = json.optString(META_OPPOTUNITY_UUID,"");
-        if(job.opportunityUUID.isEmpty()){
-            job.opportunityUUID = String.valueOf(job.jobId);
+        job.jobUUID = json.optString(META_JOB_UUID, "");
+        if (job.jobUUID.isEmpty()) {
+            job.jobUUID = String.valueOf(job.jobId);
         }
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
@@ -245,7 +245,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
         for (int i = 0; i < unitsJson.length(); i++) {
-            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId());
+            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job);
             if (payment != null) {
                 job.paymentUnits.add(payment);
             }
@@ -287,8 +287,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
         job.learningModulesCompleted = learning.getInt(META_COMPLETED_MODULES);
 
-        job.learnAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_LEARN_APP), job.jobId, true);
-        job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId, false);
+        job.learnAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_LEARN_APP), job, true);
+        job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job, false);
 
         job.status = STATUS_AVAILABLE;
         if (job.getLearningCompletePercentage() > 0) {
@@ -829,12 +829,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.dailyFinishTime = dailyFinishTime;
     }
 
-    public String getOpportunityUUID() {
-        return opportunityUUID;
+    public String getJobUUID() {
+        return jobUUID;
     }
 
-    public void setOpportunityUUID(String modelId) {
-        this.opportunityUUID = modelId;
+    public void setJobUUID(String modelId) {
+        this.jobUUID = modelId;
     }
 
     public static Date getStartDate() {

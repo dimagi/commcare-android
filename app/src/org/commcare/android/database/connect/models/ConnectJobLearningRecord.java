@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -31,6 +30,7 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     public static final String META_DATE = "date";
     public static final String META_MODULE = "module";
     public static final String META_DURATION = "duration";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -46,16 +46,26 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     private String duration;
     @Persisting(5)
     private Date lastUpdate;
+    @Persisting(6)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
 
     public ConnectJobLearningRecord() {
     }
 
-    public static ConnectJobLearningRecord fromJson(JSONObject json, int jobId) throws JSONException {
+    public static ConnectJobLearningRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
         ConnectJobLearningRecord record = new ConnectJobLearningRecord();
 
         record.lastUpdate = new Date();
 
-        record.jobId = jobId;
+        record.jobId = job.getJobId();
+        if (job.getJobUUID().isEmpty()) {
+            record.jobUUID = Integer.toString(job.getJobId());
+        } else {
+            record.jobUUID = job.getJobUUID();
+        }
+
+
         record.date = DateUtils.parseDateTime(json.getString(META_DATE));
         record.moduleId = json.getInt(META_MODULE);
         record.duration = json.getString(META_DURATION);
@@ -74,4 +84,42 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     public void setLastUpdate(Date date) {
         lastUpdate = date;
     }
+
+    /// getter setter for kolin
+    public int getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public void setModuleId(int moduleId) {
+        this.moduleId = moduleId;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
+    ///
 }

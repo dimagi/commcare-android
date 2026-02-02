@@ -25,6 +25,8 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     public static final String META_TOTAL = "max_total";
     public static final String META_DAILY = "max_daily";
     public static final String META_AMOUNT = "amount";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
+    public static final String META_PAYMENT_UNIT_UUID = "payment_unit_uuid";  // todo: The server needs to provide the unit UUID field name.
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -50,16 +52,34 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     @MetaField(META_AMOUNT)
     private int amount;
 
+    @Persisting(7)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
+
+    @Persisting(8)
+    @MetaField(META_PAYMENT_UNIT_UUID)
+    private String unitUUID;
+
     public ConnectPaymentUnitRecord() {
 
     }
 
-    public static ConnectPaymentUnitRecord fromJson(JSONObject json, int jobId) {
+    public static ConnectPaymentUnitRecord fromJson(JSONObject json, ConnectJobRecord job) {
         try {
         ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
 
-            paymentUnit.jobId = jobId;
+            paymentUnit.jobId = job.getJobId();
+
+            if (job.getJobUUID().isEmpty()) {
+                paymentUnit.jobUUID = Integer.toString(job.getJobId());
+            } else {
+                paymentUnit.jobUUID = job.getJobUUID();
+            }
+
             paymentUnit.unitId = json.getInt(META_ID);
+            String unitUUID = json.optString(META_PAYMENT_UNIT_UUID, "");
+            paymentUnit.unitUUID = unitUUID.isEmpty() ? Integer.toString(paymentUnit.unitId) : unitUUID;
+
             paymentUnit.name = json.getString(META_NAME);
             paymentUnit.maxTotal = json.getInt(META_TOTAL);
             paymentUnit.maxDaily = json.getInt(META_DAILY);
@@ -102,5 +122,38 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
     public int getAmount() {
         return amount;
+    }
+
+
+    public void setUnitId(int unitId) {
+        this.unitId = unitId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setMaxDaily(int maxDaily) {
+        this.maxDaily = maxDaily;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
+
+    public String getUnitUUID() {
+        return unitUUID;
+    }
+
+    public void setUnitUUID(String unitUUID) {
+        this.unitUUID = unitUUID;
     }
 }

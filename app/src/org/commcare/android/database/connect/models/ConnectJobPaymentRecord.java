@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Table(ConnectJobPaymentRecord.STORAGE_KEY)
@@ -28,6 +27,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_CONFIRMED_DATE = "date_confirmed";
     private static final long CONFIRMATION_WINDOW_DAYS = 7;
     private static final long UNDO_WINDOW_DAYS = 1;
+    public static final String META_PAYMENT_UUID = "payment_uuid";    // todo: The server needs to confirm the payment UUID field name.
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -57,6 +58,15 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_CONFIRMED_DATE)
     private Date confirmedDate;
 
+    @Persisting(7)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
+
+    @Persisting(8)
+    @MetaField(META_PAYMENT_UUID)
+    private String paymentUUID;
+
+
     public ConnectJobPaymentRecord() {
     }
 
@@ -74,13 +84,21 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         return newRecord;
     }
 
-    public static ConnectJobPaymentRecord fromJson(JSONObject json, int jobId) throws JSONException {
+    public static ConnectJobPaymentRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
-        payment.jobId = jobId;
+        payment.jobId = job.getJobId();
+        if (job.getJobUUID().isEmpty()) {
+            payment.jobUUID = Integer.toString(job.getJobId());
+        } else {
+            payment.jobUUID = job.getJobUUID();
+        }
+        payment.paymentId = json.getString("id");
+        String paymentUUID = json.optString(META_PAYMENT_UUID, "");
+        payment.paymentUUID = paymentUUID.isEmpty() ? payment.paymentId : paymentUUID;
+
         payment.date = DateUtils.parseDateTime(json.getString(META_DATE));
         payment.amount = String.valueOf(json.getInt(META_AMOUNT));
-        payment.paymentId = json.getString("id");
         payment.confirmed = json.optBoolean(META_CONFIRMED, false);
         try {
             payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ?
@@ -149,4 +167,53 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
         return days < UNDO_WINDOW_DAYS;
     }
+
+
+    /// / For kotlin getter and setter
+    public int getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmedDate(Date confirmedDate) {
+        this.confirmedDate = confirmedDate;
+    }
+
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
+
+    public String getPaymentUUID() {
+        return paymentUUID;
+    }
+
+    public void setPaymentUUID(String paymentUUID) {
+        this.paymentUUID = paymentUUID;
+    }
+
+
+    /// /
 }

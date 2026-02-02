@@ -29,6 +29,7 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
     public static final String META_SCORE = "score";
     public static final String META_PASSING_SCORE = "passing_score";
     public static final String META_PASSED = "passed";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -47,17 +48,25 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
     private boolean passed;
     @Persisting(6)
     private Date lastUpdate;
+    @Persisting(8)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
 
     public ConnectJobAssessmentRecord() {
 
     }
 
-    public static ConnectJobAssessmentRecord fromJson(JSONObject json, int jobId) throws JSONException {
+    public static ConnectJobAssessmentRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
         ConnectJobAssessmentRecord record = new ConnectJobAssessmentRecord();
 
         record.lastUpdate = new Date();
 
-        record.jobId = jobId;
+        record.jobId = job.getJobId();
+        if (job.getJobUUID().isEmpty()) {
+            record.jobUUID = Integer.toString(job.getJobId());
+        } else {
+            record.jobUUID = job.getJobUUID();
+        }
         record.date = DateUtils.parseDateTime(json.getString(META_DATE));
         record.score = json.getInt(META_SCORE);
         record.passingScore = json.getInt(META_PASSING_SCORE);
@@ -81,4 +90,47 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
     public void setLastUpdate(Date date) {
         lastUpdate = date;
     }
+
+
+    /// / for kotlin getter and setter
+    public int getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void setPassingScore(int passingScore) {
+        this.passingScore = passingScore;
+    }
+
+    public boolean getPassed() {
+        return passed;
+    }
+
+    public void setPassed(boolean passed) {
+        this.passed = passed;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
+    /// /
 }

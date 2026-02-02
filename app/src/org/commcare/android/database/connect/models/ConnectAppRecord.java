@@ -30,6 +30,8 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public static final String META_PASSING_SCORE = "passing_score";
     public static final String META_INSTALL_URL = "install_url";
     public static final String META_MODULES = "learn_modules";
+    public static final String META_APP_UUID = "cc_app_uuid"; // todo: The server needs to provide the app UUID field name.
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -61,20 +63,38 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     @Persisting(10)
     private Date lastUpdate;
 
+    @Persisting(11)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
+
+    @Persisting(12)
+    @MetaField(META_APP_UUID)
+    private String appUUID;
+
     private List<ConnectLearnModuleSummaryRecord> learnModules;
 
     public ConnectAppRecord() {
 
     }
 
-    public static ConnectAppRecord fromJson(JSONObject json, int jobId, boolean isLearning) throws JSONException {
+    public static ConnectAppRecord fromJson(JSONObject json, ConnectJobRecord job, boolean isLearning) throws JSONException {
         ConnectAppRecord app = new ConnectAppRecord();
 
-        app.jobId = jobId;
+        app.jobId = job.getJobId();
         app.isLearning = isLearning;
 
         app.domain = json.getString(META_DOMAIN);
         app.appId = json.getString(META_APP_ID);
+
+        if (job.getJobUUID().isEmpty()) {
+            app.jobUUID = Integer.toString(job.getJobId());
+        } else {
+            app.jobUUID = job.getJobUUID();
+        }
+
+        String appUUID = json.optString(META_APP_UUID, "");
+        app.appUUID = appUUID.isEmpty() ? app.appId : appUUID;
+
         app.name = json.getString(META_NAME);
         app.description = json.getString(META_DESCRIPTION);
         app.organization = json.getString(META_ORGANIZATION);
@@ -85,7 +105,7 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         app.learnModules = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             JSONObject obj = (JSONObject)array.get(i);
-            app.learnModules.add(ConnectLearnModuleSummaryRecord.fromJson(obj, i));
+            app.learnModules.add(ConnectLearnModuleSummaryRecord.fromJson(obj, i, job));
         }
 
         return app;
@@ -142,6 +162,46 @@ public class ConnectAppRecord extends Persisted implements Serializable {
 
     public int getPassingScore() {
         return passingScore;
+    }
+
+    public void setIsLearning(boolean learning) {
+        isLearning = learning;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public void setPassingScore(int passingScore) {
+        this.passingScore = passingScore;
+    }
+
+    public void setInstallUrl(String installUrl) {
+        this.installUrl = installUrl;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
+
+    public String getAppUUID() {
+        return appUUID;
+    }
+
+    public void setAppUUID(String appUUID) {
+        this.appUUID = appUUID;
     }
 
 }
