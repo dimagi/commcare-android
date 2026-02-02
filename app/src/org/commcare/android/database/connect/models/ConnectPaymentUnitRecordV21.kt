@@ -8,8 +8,8 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord.MET
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord.META_UNIT_ID
 import org.commcare.android.storage.framework.Persisted
 import org.commcare.models.framework.Persisting
-import org.commcare.modern.models.MetaField
 import org.commcare.modern.database.Table
+import org.commcare.modern.models.MetaField
 import java.io.Serializable
 
 @Table(ConnectPaymentUnitRecordV21.STORAGE_KEY)

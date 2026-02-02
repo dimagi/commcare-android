@@ -7,11 +7,11 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY

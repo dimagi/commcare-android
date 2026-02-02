@@ -45,7 +45,7 @@ class ConnectJobLearningRecordV21 :
             record.duration = connectJobLearningRecordV21.duration
             record.lastUpdate = connectJobLearningRecordV21.lastUpdate
             record.jobUUID = "${connectJobLearningRecordV21.jobId}"
-            record.learningUUID = ""    // learning id is not used anywhere but adding to migration if needed in future
+            record.learningUUID = "" // learning id is not used anywhere but adding to migration if needed in future
             return record
         }
     }

@@ -32,23 +32,24 @@ import java.util.Date
 import kotlin.math.ceil
 
 @Table(ConnectJobRecordV21.STORAGE_KEY)
-class ConnectJobRecordV21 : Persisted(), Serializable {
-
+class ConnectJobRecordV21 :
+    Persisted(),
+    Serializable {
     @Persisting(1)
     @MetaField(META_JOB_ID)
     var jobId = 0
 
     @Persisting(2)
     @MetaField(META_NAME)
-    var title: String =  ""
+    var title: String = ""
 
     @Persisting(3)
     @MetaField(META_DESCRIPTION)
-    var description: String =  ""
+    var description: String = ""
 
     @Persisting(4)
     @MetaField(META_ORGANIZATION)
-    var organization: String =  ""
+    var organization: String = ""
 
     @Persisting(5)
     @MetaField(META_END_DATE)
@@ -76,7 +77,7 @@ class ConnectJobRecordV21 : Persisted(), Serializable {
 
     @Persisting(11)
     @MetaField(META_LAST_WORKED_DATE)
-    var lastWorkedDate: Date =  Date()
+    var lastWorkedDate: Date = Date()
 
     @Persisting(12)
     @MetaField(META_STATUS)
@@ -92,32 +93,32 @@ class ConnectJobRecordV21 : Persisted(), Serializable {
 
     @Persisting(15)
     @MetaField(META_CURRENCY)
-    var currency: String =  ""
+    var currency: String = ""
 
     @Persisting(16)
     @MetaField(META_ACCRUED)
-    var paymentAccrued: String =  ""
+    var paymentAccrued: String = ""
 
     @Persisting(17)
     @MetaField(META_SHORT_DESCRIPTION)
-    var shortDescription: String =  ""
+    var shortDescription: String = ""
 
     @Persisting(18)
     var lastUpdate: Date = Date()
 
     @Persisting(19)
-    var lastLearnUpdate: Date =  Date()
+    var lastLearnUpdate: Date = Date()
 
     @Persisting(20)
-    var lastDeliveryUpdate: Date =  Date()
+    var lastDeliveryUpdate: Date = Date()
 
     @Persisting(21)
     @MetaField(META_CLAIM_DATE)
-    var dateClaimed: Date =  Date()
+    var dateClaimed: Date = Date()
 
     @Persisting(22)
     @MetaField(META_START_DATE)
-    var projectStartDate: Date =  Date()
+    var projectStartDate: Date = Date()
 
     @Persisting(23)
     @MetaField(META_IS_ACTIVE)
@@ -129,15 +130,15 @@ class ConnectJobRecordV21 : Persisted(), Serializable {
 
     @Persisting(25)
     @MetaField(META_DAILY_START_TIME)
-    var dailyStartTime: String =  ""
+    var dailyStartTime: String = ""
 
     @Persisting(26)
     @MetaField(META_DAILY_FINISH_TIME)
-    var dailyFinishTime: String =  ""
-
+    var dailyFinishTime: String = ""
 
     companion object {
         const val STORAGE_KEY = ConnectJobRecord.STORAGE_KEY
+
         fun fromV21(oldRecord: ConnectJobRecordV21): ConnectJobRecord {
             val newRecord = ConnectJobRecord()
             newRecord.jobId = oldRecord.jobId
@@ -170,6 +171,4 @@ class ConnectJobRecordV21 : Persisted(), Serializable {
             return newRecord
         }
     }
-    
-    
 }
