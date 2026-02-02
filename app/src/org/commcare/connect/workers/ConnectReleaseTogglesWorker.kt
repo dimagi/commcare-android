@@ -53,7 +53,8 @@ class ConnectReleaseTogglesWorker(
     }
 
     companion object {
-        private const val WORK_NAME = "connect_release_toggles_fetch_worker"
+        private const val ONE_TIME_FETCH_WORK_NAME = "connect_release_toggles_one_time_fetch_worker"
+        private const val PERIODIC_FETCH_WORK_NAME = "connect_release_toggles_periodic_fetch_worker"
 
         fun scheduleOneTimeFetch(context: Context) {
             val workRequest =
@@ -63,7 +64,7 @@ class ConnectReleaseTogglesWorker(
                     .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                WORK_NAME,
+                ONE_TIME_FETCH_WORK_NAME,
                 ExistingWorkPolicy.KEEP,
                 workRequest,
             )
@@ -80,17 +81,19 @@ class ConnectReleaseTogglesWorker(
                     .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                WORK_NAME,
+                PERIODIC_FETCH_WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
                 workRequest,
             )
         }
 
         fun cancelPeriodicFetch(context: Context) {
-            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+            WorkManager
+                .getInstance(context)
+                .cancelUniqueWork(PERIODIC_FETCH_WORK_NAME)
         }
 
-        private fun getWorkConstraints() =
+        private fun getWorkConstraints(): Constraints =
             Constraints
                 .Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
