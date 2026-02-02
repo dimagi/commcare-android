@@ -1,5 +1,7 @@
 package org.commcare;
 
+import static org.commcare.AppUtils.getCurrentAppId;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -45,7 +47,6 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -153,8 +154,6 @@ import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-
-import static org.commcare.AppUtils.getCurrentAppId;
 
 public class CommCareApplication extends Application implements LifecycleEventObserver {
 
@@ -279,8 +278,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrievalChecked(
                 CommCareApplication.instance());
-
-        ConnectReleaseTogglesWorker.Companion.schedulePeriodicFetch(CommCareApplication.instance());
     }
 
     protected void loadSqliteLibs() {
