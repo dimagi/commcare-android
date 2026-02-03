@@ -63,6 +63,20 @@
                         app:iconGravity="end" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/tv_test_toggle_active"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TEST TOGGLE ACTIVE"
+                    android:textColor="@color/red"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:layout_margin="20dp"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:background="@drawable/tile_drop_shadow_small_margins"
+                    android:visibility="gone" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/nav_drawer_recycler"
                     android:layout_width="match_parent"

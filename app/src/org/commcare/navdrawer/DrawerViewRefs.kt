@@ -27,4 +27,5 @@ class DrawerViewRefs(rootView: View) {
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
     val toolbar: Toolbar = rootView.findViewById(R.id.toolbar)
+    val tvTestToggleActive: TextView = rootView.findViewById(R.id.tv_test_toggle_active)
 }

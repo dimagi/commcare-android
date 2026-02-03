@@ -14,11 +14,13 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.models.database.connect.DatabaseConnectOpenHelper
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
@@ -230,6 +232,8 @@ class BaseDrawerController(
 //            }
 
             navDrawerAdapter.refreshList(items)
+
+            handleTestToggle()
         } else {
             setSignedInState(false)
         }
@@ -259,4 +263,16 @@ class BaseDrawerController(
     }
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
+
+    private fun handleTestToggle() {
+        val toggles = ConnectAppDatabaseUtil.getReleaseToggles(activity)
+
+        for (toggle in toggles) {
+            // There currently exists two toggles for QA testing: "Test" (on PersonalID) and "Test-Connect" (on Connect)
+            if (toggle.slug == "Test" || toggle.slug == "Test-Connect") {
+                binding.tvTestToggleActive.visibility =
+                    if (toggle.active) View.VISIBLE else View.GONE
+            }
+        }
+    }
 }
