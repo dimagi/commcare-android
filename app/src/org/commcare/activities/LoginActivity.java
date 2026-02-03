@@ -572,8 +572,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         menu.add(0, MENU_ACQUIRE_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_FORGOT_PIN, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
-        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.login_menu_connect_sign_in));
-        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.login_menu_connect_forget));
+        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.personalid_signup));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.personalid_forget_user));
         return true;
     }
 

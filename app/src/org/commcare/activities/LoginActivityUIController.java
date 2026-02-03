@@ -235,8 +235,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
 
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        boolean noApps = readyApps.isEmpty();
-        if (readyApps.size() == 1 || presetAppRecord != null) {
+        if (readyApps.size() == 1) {
             // Set this app as the last selected app, for use in choosing what app to initialize on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -555,9 +554,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         } else {
-            loginButton.setText(activity.getString(R.string.login_button_connectid));
+            loginButton.setText(activity.getString(R.string.personalid_login_with));
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.grey_light));
-            passwordOrPin.setText(R.string.login_password_by_connect);
+            passwordOrPin.setText(R.string.personalid_login_via);
             passwordOrPin.clearFocus();
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
@@ -570,7 +569,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     private void setWelcomeMessage() {
-        String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
+        String welcomeText = activity.getString(R.string.personalid_welcome_user,
                 ConnectUserDatabaseUtil.getUser(activity).getName());
         welcomeMessage.setText(welcomeText);
     }

@@ -29,9 +29,10 @@ import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
+import org.commcare.connect.network.ConnectSsoSyncHelper;
 import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
@@ -335,15 +336,15 @@ public class PersonalIdManager {
     private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username,
             String password, ConnectActivityCompleteListener callback) {
         StandardAlertDialog dialog = new StandardAlertDialog(
-                activity.getString(R.string.login_link_connectid_title),
-                activity.getString(R.string.login_link_connectid_message));
+                activity.getString(R.string.personalid_link_app_title),
+                activity.getString(R.string.personalid_link_app_message));
 
-        dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
+        dialog.setPositiveButton(activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
             activity.dismissAlertDialog();
             unlockAndLinkConnect(activity, linkedApp, username, password, callback);
         });
 
-        dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
+        dialog.setNegativeButton(activity.getString(R.string.personalid_link_app_no), (d, w) -> {
             activity.dismissAlertDialog();
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
             FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_USER_DENIED);
@@ -367,19 +368,19 @@ public class PersonalIdManager {
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-            ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, linkedApp, username, true,
+            ConnectSsoHelper.retrieveHqSsoToken(activity, user, linkedApp, username, true,
                     new ConnectSsoHelper.TokenCallback() {
                         public void tokenRetrieved(AuthInfo.TokenAuth token) {
                             callback.connectActivityComplete(false);
                         }
 
                         public void tokenUnavailable() {
-                            ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                            TokenExceptionHandler.INSTANCE.handleTokenUnavailableException(activity);
                             callback.connectActivityComplete(false);
                         }
 
                         public void tokenRequestDenied() {
-                            ConnectNetworkHelper.handleTokenDeniedException();
+                            TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
                             callback.connectActivityComplete(false);
                         }
                     });
@@ -395,10 +396,10 @@ public class PersonalIdManager {
         }
 
         StandardAlertDialog dialog = new StandardAlertDialog(
-                activity.getString(R.string.login_unlink_connectid_title),
-                activity.getString(R.string.login_unlink_connectid_message));
+                activity.getString(R.string.personalid_unlink_app_title),
+                activity.getString(R.string.personalid_unlink_app_message));
 
-        dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
+        dialog.setPositiveButton(activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
             activity.dismissAlertDialog();
             unlockConnect(activity, success -> {
                 if (success) {
@@ -413,7 +414,7 @@ public class PersonalIdManager {
             });
         });
 
-        dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
+        dialog.setNegativeButton(activity.getString(R.string.personalid_link_app_no), (d, w) -> {
             activity.dismissAlertDialog();
             callback.connectActivityComplete(false);
         });
@@ -548,7 +549,7 @@ public class PersonalIdManager {
         ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity,
                 seatedAppId, username);
 
-        return ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
+        return ConnectSsoSyncHelper.INSTANCE.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
                 false);
     }
 
