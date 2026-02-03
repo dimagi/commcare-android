@@ -27,11 +27,11 @@ class NetworkNotificationService: Service() {
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
-                NETWORK_NOTIFICATION_ID, buildNotification(0,0),
+                NETWORK_NOTIFICATION_ID, buildNotification("network.requests.starting",0,0),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         } else {
-            startForeground(NETWORK_NOTIFICATION_ID, buildNotification(0,0))
+            startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.requests.starting",0,0))
         }
         isServiceRunning = true
     }
@@ -40,7 +40,7 @@ class NetworkNotificationService: Service() {
         return null
     }
 
-    private fun buildNotification(progress: Int, total: Int): Notification {
+    private fun buildNotification(notificationTitleKey: String, progress: Int, total: Int): Notification {
         val activityToLaunch = Intent(this, DispatchActivity::class.java)
         activityToLaunch.setAction("android.intent.action.MAIN")
         activityToLaunch.addCategory("android.intent.category.LAUNCHER")
@@ -50,7 +50,7 @@ class NetworkNotificationService: Service() {
 
         return NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
             .setContentText(getProgressText(progress,total))
-            .setContentTitle(Localization.get("network.requests.starting"))
+            .setContentTitle(Localization.get(notificationTitleKey))
             .setOnlyAlertOnce(true)
             .setProgress(total, progress, false)
             .setSmallIcon(R.drawable.commcare_actionbar_logo)
