@@ -72,6 +72,7 @@ class ConnectAppRecordV21 :
             app.organization = connectAppRecordV21.organization
             app.passingScore = connectAppRecordV21.passingScore
             app.installUrl = connectAppRecordV21.installUrl
+            app.lastUpdate = connectAppRecordV21.lastUpdate
             return app
         }
     }
