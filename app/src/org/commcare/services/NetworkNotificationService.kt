@@ -46,7 +46,7 @@ class NetworkNotificationService: Service() {
                     ?.let {
                         notificationManager.notify(
                             NETWORK_NOTIFICATION_ID,
-                            buildNotification("network.requests.runnning", it[0], it[1])
+                            buildNotification("network.requests.running", it[0], it[1])
                         )
                     }
             }
