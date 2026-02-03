@@ -19,6 +19,7 @@ class NetworkNotificationService: Service() {
     lateinit var notificationManager: NotificationManager
     companion object {
         const val NETWORK_NOTIFICATION_ID = R.string.network_notification_service_id
+        var isServiceRunning = false
     }
 
     override fun onCreate() {
@@ -32,6 +33,7 @@ class NetworkNotificationService: Service() {
         } else {
             startForeground(NETWORK_NOTIFICATION_ID, buildNotification(0,0))
         }
+        isServiceRunning = true
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -64,6 +66,7 @@ class NetworkNotificationService: Service() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
+        isServiceRunning = false
         super.onDestroy()
     }
 }
