@@ -9,6 +9,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 object ConnectDateUtils {
     val dateFormat: DateFormat = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
@@ -94,5 +95,21 @@ object ConnectDateUtils {
                 dateFormat.format(date)
             }
         }
+    }
+
+    @JvmStatic
+    fun formatDateDayMonthYear(date: Date): String {
+        val outputFormat = SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH)
+        return outputFormat.format(date)
+    }
+
+    @JvmStatic
+    fun shouldShowDateInRed(expiryDate: Date): Boolean {
+        val now = System.currentTimeMillis()
+        val diffMillis = expiryDate.time - now
+
+        val daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis)
+
+        return daysRemaining in 0..5
     }
 }

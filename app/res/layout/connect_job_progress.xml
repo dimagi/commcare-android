@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/white">
+
+    <org.commcare.views.connect.CircleProgressBar
+        android:id="@+id/pb_new_opp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        app:layout_constraintBottom_toBottomOf="@id/iv_new_opp"
+        app:layout_constraintEnd_toStartOf="@id/iv_first_line"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_new_opp"
+        app:strokeWidth="2dp" />
+
+    <ImageView
+        android:id="@+id/iv_new_opp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_disabled_new_opportunity"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/pb_new_opp"
+        app:layout_constraintStart_toStartOf="@id/pb_new_opp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_first_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_horizontal_line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/pb_learn"
+        app:layout_constraintStart_toEndOf="@+id/pb_new_opp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <org.commcare.views.connect.CircleProgressBar
+        android:id="@+id/pb_learn"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_second_line"
+        app:layout_constraintStart_toEndOf="@id/iv_first_line"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="2dp" />
+
+    <ImageView
+        android:id="@+id/iv_learn"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_disabled_learn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/pb_learn"
+        app:layout_constraintStart_toStartOf="@id/pb_learn"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_learn_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:barrierDirection="end"
+        app:constraint_referenced_ids="pb_learn,iv_learn" />
+
+    <ImageView
+        android:id="@+id/iv_second_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_horizontal_line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/barrier_review_start"
+        app:layout_constraintStart_toEndOf="@id/barrier_learn_end"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_review_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="pb_review,iv_review" />
+
+    <org.commcare.views.connect.CircleProgressBar
+        android:id="@+id/pb_review"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/iv_third_line"
+        app:layout_constraintStart_toEndOf="@id/iv_second_line"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="2dp" />
+
+    <ImageView
+        android:id="@+id/iv_review"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_disabled_review"
+        app:layout_constraintBottom_toBottomOf="@id/pb_review"
+        app:layout_constraintEnd_toEndOf="@id/pb_review"
+        app:layout_constraintStart_toStartOf="@id/pb_review"
+        app:layout_constraintTop_toTopOf="@id/pb_review" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_review_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:barrierDirection="end"
+        app:constraint_referenced_ids="pb_review,iv_review" />
+
+    <ImageView
+        android:id="@+id/iv_third_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_horizontal_line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/barrier_delivery_start"
+        app:layout_constraintStart_toEndOf="@id/barrier_review_end"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <org.commcare.views.connect.CircleProgressBar
+        android:id="@+id/pb_delivery"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_third_line"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="2dp" />
+
+    <ImageView
+        android:id="@+id/iv_delivery"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_disabled_delivery"
+        app:layout_constraintBottom_toBottomOf="@id/pb_delivery"
+        app:layout_constraintEnd_toEndOf="@id/pb_delivery"
+        app:layout_constraintStart_toStartOf="@id/pb_delivery"
+        app:layout_constraintTop_toTopOf="@id/pb_delivery" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_delivery_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="pb_delivery,iv_delivery" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

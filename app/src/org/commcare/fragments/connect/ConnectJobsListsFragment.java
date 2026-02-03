@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -30,6 +31,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.fragments.base.BaseConnectFragment;
+import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -119,7 +121,13 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 newJobs,
                 completedJobs,
                 corruptJobs,
-                (job, isLearning, appId, jobType) -> {
+                (job, isLearning, appId, jobType,action) -> {
+                    if (action == OnJobSelectionClick.Action.VIEW_INFO) {
+                        setActiveJob(job);
+                        navigateToJobDetailBottomSheet(getView());
+                        return;
+                    }
+
                     if (jobType == ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY) {
                         launchJobInfo(job);
                     } else {
@@ -132,6 +140,18 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         getBinding().rvJobList.setNestedScrollingEnabled(true);
         getBinding().rvJobList.setAdapter(adapter);
     }
+
+    private void navigateToJobDetailBottomSheet(View view) {
+        NavController navController = Navigation.findNavController(view);
+        if (navController.getCurrentDestination() != null &&
+                navController.getCurrentDestination().getId()
+                        == R.id.connect_job_detail_bottom_sheet_dialog_fragment) {
+            return;
+        }
+
+        navController.navigate(R.id.connect_job_detail_bottom_sheet_dialog_fragment);
+    }
+
 
     private void launchJobInfo(ConnectJobRecord job) {
         setActiveJob(job);

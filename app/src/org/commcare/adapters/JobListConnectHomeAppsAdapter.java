@@ -212,10 +212,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectLoginJobListModel connectLoginJobListModel,
             OnJobSelectionClick launcher
     ) {
-        binding.btnResume.setOnClickListener(view -> {
-            launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
-                    connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
-        });
+        binding.btnResume.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(),OnJobSelectionClick.Action.RESUME));
+        binding.btnViewInfo.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(),OnJobSelectionClick.Action.VIEW_INFO));
     }
 
     public void handleProgressBarUI(
