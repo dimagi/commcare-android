@@ -35,6 +35,7 @@ import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
+import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -210,6 +211,7 @@ public class PersonalIdManager {
         scheduleHeartbeat();
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();
+        ConnectReleaseTogglesWorker.Companion.schedulePeriodicFetch(CommCareApplication.instance());
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
@@ -218,7 +220,6 @@ public class PersonalIdManager {
             completeSignin();
         }
     }
-
 
     public void forgetUser(String reason) {
         if (ConnectDatabaseHelper.dbExists()) {
@@ -232,6 +233,8 @@ public class PersonalIdManager {
 
         // remove notification read / unread preferences
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
+
+        ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
