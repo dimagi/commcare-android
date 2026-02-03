@@ -79,14 +79,11 @@ public class PersonalIdOrConnectApiErrorHandler {
      */
     private static final EnumSet<BaseApiHandler.PersonalIdOrConnectApiErrorCodes> BLOCKING_ERRORS =
             EnumSet.of(
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
                     BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
                     BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR,
                     BaseApiHandler.PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OLD_API_ERROR
             );
 
     public static boolean isBlockingError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes error) {

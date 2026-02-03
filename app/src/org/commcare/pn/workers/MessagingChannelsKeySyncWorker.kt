@@ -22,7 +22,7 @@ class MessagingChannelsKeySyncWorker(
                     it,
                     object :
                         ConnectActivityCompleteListener {
-                        override fun connectActivityComplete(success: Boolean) {
+                        override fun connectActivityComplete(success: Boolean, error:String?) {
                             if (success)schedulePushNotificationRetrievalWith(context, 3000)
                         }
                     },

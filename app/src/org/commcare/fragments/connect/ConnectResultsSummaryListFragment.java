@@ -164,11 +164,11 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
                     Collections.singletonList(
                             new ConnectPaymentConfirmationModel(payment, result)
                     ),
-                    success -> {
+                    (success,error) -> {
                         holder.updateConfirmedText(context, payment);
                         rebuildPaymentsDisplayList();
                         notifyDataSetChanged();
-                    },null
+                    }
             );
         }
 

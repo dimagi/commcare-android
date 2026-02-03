@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/connect_payment_revert"
+    android:background="@color/connect_warning_color"
     android:padding="5dp">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -24,7 +24,7 @@
         android:layout_marginHorizontal="10dp"
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
-        android:text="This is the error message shown"
+        tools:text="This is the error message shown"
         android:textColor="@color/white"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,11 +35,12 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/iv_close"
         android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
         android:includeFontPadding="false"
         android:text="x"
+        android:paddingBottom="2dp"
         android:layout_marginEnd="10dp"
         android:textAlignment="center"
         android:textColor="@color/white"

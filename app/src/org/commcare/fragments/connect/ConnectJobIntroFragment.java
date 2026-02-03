@@ -64,8 +64,6 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
             //First, need to tell Connect we're starting learning so it can create a user on HQ
             startLearning(appInstalled);
         });
-        getBinding().includeErrorLayout.ivClose.setOnClickListener(v -> getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE));
-
         setupJobCard(job);
         return view;
     }
@@ -118,17 +116,16 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                String message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
+                String error = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
                 if (PersonalIdOrConnectApiErrorHandler.isBlockingError(errorCode)) {
                     navigateToMessageDisplayDialog(
                             getString(R.string.error),
-                            message,
+                            error,
                             false,
                             R.string.ok);
-                    getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE);
+                    hideError();
                 } else {
-                    getBinding().includeErrorLayout.getRoot().setVisibility(View.VISIBLE);
-                    getBinding().includeErrorLayout.tvErrorMessage.setText(message);
+                    showError(error);
                 }
                 reportApiCall(false);
             }

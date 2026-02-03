@@ -40,7 +40,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         binding.acceptButton.setOnClickListener(v -> {
             channel.setAnsweredConsent(true);
             channel.setConsented(true);
-            MessageManager.updateChannelConsent(requireContext(), channel, success -> {
+            MessageManager.updateChannelConsent(requireContext(), channel, (success,error) -> {
                 if(success) {
                     NavDirections directions = ConnectMessageChannelConsentBottomSheetDirections
                             .actionChannelConsentToConnectMessageFragment(channel.getChannelId());
@@ -55,8 +55,6 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                                 getString(R.string.ok)
                         );
                     }
-
-                    NavHostFragment.findNavController(this).popBackStack();
                 }
             });
         });
@@ -64,7 +62,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         binding.declineButton.setOnClickListener(v -> {
             channel.setAnsweredConsent(true);
             channel.setConsented(false);
-            MessageManager.updateChannelConsent(requireContext(), channel, success -> {
+            MessageManager.updateChannelConsent(requireContext(), channel, (success,error) -> {
 
             });
             NavHostFragment.findNavController(this).popBackStack();
