@@ -124,7 +124,6 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
         return amount;
     }
 
-
     public void setUnitId(int unitId) {
         this.unitId = unitId;
     }

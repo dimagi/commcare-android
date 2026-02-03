@@ -103,7 +103,6 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         this.lastUpdate = lastUpdate;
     }
 
-
     public void setSlug(String slug) {
         this.slug = slug;
     }

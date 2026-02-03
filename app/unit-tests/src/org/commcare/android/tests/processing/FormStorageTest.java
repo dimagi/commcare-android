@@ -405,7 +405,15 @@ public class FormStorageTest {
             "org.commcare.suite.model.Credential",
 
             // Added in 2.62
-            "org.commcare.android.database.connect.models.ConnectReleaseToggleRecord"
+            "org.commcare.android.database.connect.models.ConnectReleaseToggleRecord",
+            "org.commcare.android.database.connect.models.ConnectJobRecordV21",
+            "org.commcare.android.database.connect.models.ConnectAppRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobLearningRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobPaymentRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobAssessmentRecordV21",
+            "org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecordV21",
+            "org.commcare.android.database.connect.models.ConnectPaymentUnitRecordV21"
     );
 
 

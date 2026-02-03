@@ -698,8 +698,7 @@ public class ConnectDatabaseUpgrader {
         addTableForNewModel(db, ConnectReleaseToggleRecord.STORAGE_KEY, new ConnectReleaseToggleRecord());
     }
 
-
-    /// Twenty One to Twenty Two migrations starts
+    //region Twenty One to Twenty Two migrations
     private void upgradeTwentyOneTwentyTwo(IDatabase db) {
         db.beginTransaction();
         try {
@@ -742,7 +741,6 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeConnectJobDeliveryRecordToV22(IDatabase db) {
-
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectJobDeliveryRecord.STORAGE_KEY,
                 ConnectJobDeliveryRecord.META_JOB_UUID,
@@ -772,7 +770,6 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeConnectJobLearningRecordToV22(IDatabase db) {
-
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectJobLearningRecord.STORAGE_KEY,
                 ConnectJobLearningRecord.META_JOB_UUID,
@@ -802,7 +799,6 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeConnectJobAssessmentRecordToV22(IDatabase db) {
-
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectJobAssessmentRecord.STORAGE_KEY,
                 ConnectJobAssessmentRecord.META_JOB_UUID,
@@ -827,7 +823,6 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeConnectJobPaymentRecordToV22(IDatabase db) {
-
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectJobPaymentRecord.STORAGE_KEY,
                 ConnectJobPaymentRecord.META_JOB_UUID,
@@ -857,7 +852,6 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeConnectAppRecordToV22(IDatabase db) {
-
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectAppRecord.STORAGE_KEY,
                 ConnectAppRecord.META_JOB_UUID,
@@ -882,7 +876,6 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeConnectLearnModuleSummaryRecordToV22(IDatabase db) {
-
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectLearnModuleSummaryRecord.STORAGE_KEY,
                 ConnectLearnModuleSummaryRecord.META_JOB_UUID,
@@ -907,7 +900,6 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeConnectPaymentUnitRecordToV22(IDatabase db) {
-
         db.execSQL(DbUtil.addColumnToTable(
                 ConnectPaymentUnitRecord.STORAGE_KEY,
                 ConnectPaymentUnitRecord.META_JOB_UUID,
@@ -935,9 +927,7 @@ public class ConnectDatabaseUpgrader {
             newStorage.write(newRecord);
         }
     }
-
-    /// Twenty One to Twenty Two migrations ends
-
+    //endregion
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
                                             Persistable modelToAdd) {

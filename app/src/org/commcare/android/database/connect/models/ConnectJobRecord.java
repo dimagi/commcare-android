@@ -723,8 +723,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return isFinished() || getDeliveries().size() >= getMaxVisits();
     }
 
-    //// getter / setter for kotlin compatibility
-
+    //  getter and setter for kotlin
     public void setJobId(int jobId) {
         this.jobId = jobId;
     }
@@ -852,7 +851,4 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setClaimed(boolean claimed) {
         this.claimed = claimed;
     }
-    //// getter / setter ends
-
-
 }

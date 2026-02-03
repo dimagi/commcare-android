@@ -91,8 +91,7 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
         lastUpdate = date;
     }
 
-
-    /// / for kotlin getter and setter
+    //  for kotlin getter and setter
     public int getJobId() {
         return jobId;
     }
@@ -132,5 +131,4 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
     public void setJobUUID(String jobUUID) {
         this.jobUUID = jobUUID;
     }
-    /// /
 }

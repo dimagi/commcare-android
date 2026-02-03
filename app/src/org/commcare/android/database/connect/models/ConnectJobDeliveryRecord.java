@@ -78,7 +78,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     @MetaField(META_JOB_UUID)
     private String jobUUID;
 
-
     private List<ConnectJobDeliveryFlagRecord> flags;
 
     public ConnectJobDeliveryRecord() {
@@ -95,7 +94,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         } else {
             delivery.jobUUID = job.getJobUUID();
         }
-
 
         delivery.deliveryId = json.getInt(META_ID);
         String deliveryUUID = json.optString(META_DELIVERY_UUID, "");
@@ -189,7 +187,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
 
-    ///  setter for Kotlin
+    //  getter and setter for kotlin
     public void setJobId(int jobId) {
         this.jobId = jobId;
     }
@@ -237,6 +235,4 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public void setJobUUID(String jobUUID) {
         this.jobUUID = jobUUID;
     }
-
-    /// /
 }

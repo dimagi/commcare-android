@@ -66,7 +66,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_PAYMENT_UUID)
     private String paymentUUID;
 
-
     public ConnectJobPaymentRecord() {
     }
 
@@ -169,7 +168,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     }
 
 
-    /// / For kotlin getter and setter
+    //  getter and setter for kotlin
     public int getJobId() {
         return jobId;
     }
@@ -213,7 +212,4 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public void setPaymentUUID(String paymentUUID) {
         this.paymentUUID = paymentUUID;
     }
-
-
-    /// /
 }

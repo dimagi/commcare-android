@@ -90,7 +90,7 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
         lastUpdate = date;
     }
 
-    /// getter setter for kolin
+    //  getter and setter for kotlin
     public int getJobId() {
         return jobId;
     }
@@ -134,6 +134,4 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     public void setLearningUUID(String learningUUID) {
         this.learningUUID = learningUUID;
     }
-
-    ///
 }
