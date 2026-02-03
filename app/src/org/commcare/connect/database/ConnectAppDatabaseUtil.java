@@ -97,17 +97,17 @@ public class ConnectAppDatabaseUtil {
             for (ConnectReleaseToggleRecord incomingToggle : incomingToggles) {
                 toggleStorage.write(incomingToggle);
 
-                boolean toggleIsChangedOrModified = true;
+                boolean toggleIsNewOrModified = true;
                 for (ConnectReleaseToggleRecord existingToggle : existingToggles) {
                     boolean slugsMatch = existingToggle.getSlug().equals(incomingToggle.getSlug());
                     boolean activeStatusesMatch = existingToggle.getActive() == incomingToggle.getActive();
                     if (slugsMatch && activeStatusesMatch) {
-                        toggleIsChangedOrModified = false;
+                        toggleIsNewOrModified = false;
                         break;
                     }
                 }
 
-                if (toggleIsChangedOrModified) {
+                if (toggleIsNewOrModified) {
                     changedToggles.add(incomingToggle);
                 }
             }
