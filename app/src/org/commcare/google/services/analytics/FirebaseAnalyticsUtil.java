@@ -620,7 +620,7 @@ public class FirebaseAnalyticsUtil {
         Bundle bundle = new Bundle();
 
         for (ConnectReleaseToggleRecord toggle : toggles) {
-            bundle.putBoolean(toggle.getSlug(), toggle.getActive());
+            bundle.putLong(toggle.getSlug(), toggle.getActive() ? 1 : 0);
         }
 
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_RELEASE_TOGGLES, bundle);
