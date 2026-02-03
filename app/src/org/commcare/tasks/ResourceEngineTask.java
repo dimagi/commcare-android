@@ -69,6 +69,7 @@ public abstract class ResourceEngineTask<R>
         this.shouldSleep = shouldSleep;
         this.reinstall = reinstall;
         TAG = ResourceEngineTask.class.getSimpleName();
+        this.runNotificationService = true;
     }
 
     @Override
