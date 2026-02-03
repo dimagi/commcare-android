@@ -12,6 +12,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
@@ -22,6 +23,7 @@ import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -610,5 +612,17 @@ public class FirebaseAnalyticsUtil {
                 CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
                 String.valueOf(isPersonalIDDemoUser)
         );
+    }
+
+    public static void reportPersonalIdReleaseTogglesChanged(
+            List<ConnectReleaseToggleRecord> toggles
+    ) {
+        Bundle bundle = new Bundle();
+
+        for (ConnectReleaseToggleRecord toggle : toggles) {
+            bundle.putBoolean(toggle.getSlug(), toggle.getActive());
+        }
+
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_RELEASE_TOGGLES, bundle);
     }
 }
