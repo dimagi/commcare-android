@@ -69,7 +69,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
-            android:layout_height="30sp"
+            android:layout_height="30dp"
             android:id="@+id/btn_resume"
             android:textSize="11sp"
             android:text="@string/connect_job_info_view_resume"
@@ -89,7 +89,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
-            android:layout_height="30sp"
+            android:layout_height="30dp"
             android:id="@+id/btn_view_info"
             android:textSize="11sp"
             android:text="@string/connect_job_info_view_info"
