@@ -3,6 +3,7 @@ package org.commcare.connect.network;
 import android.content.Context;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.PersonalIdManager;
@@ -48,7 +49,8 @@ public class ConnectSsoHelper {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
+                if (FormEntryActivity.mFormController == null &&
+                        errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
                     GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
                 } else {
                     callback.tokenUnavailable();

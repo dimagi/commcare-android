@@ -1,5 +1,6 @@
 package org.commcare.connect.network.base
 
+import org.commcare.activities.FormEntryActivity
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.IApiCallback
@@ -41,7 +42,9 @@ abstract class BaseApiCallback<T>(
                 )
 
             400 -> {
-                if (ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody)) {
+                if (FormEntryActivity.mFormController == null &&
+                    ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody))
+                {
                     GlobalErrorUtil.triggerGlobalError(
                         GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR
                     )
