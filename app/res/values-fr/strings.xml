@@ -298,7 +298,7 @@ License.
     <string name="connect_messaging_channel_consent_decline">Déclin</string>
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_title">Connecter</string>
-    <string name="connect_no_jobs">Vous n\'avez été invité à aucune opportunité active. Veuillez revenir plus tard.</string>
+    <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
     <string name="connect_job_intro_title">Opportunité</string>
     <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
     <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
@@ -350,7 +350,7 @@ License.
     <string name="connect_results_payment_confirm_undo">Annuler confirmer</string>
     <string name="connect_results_payment_confirmed">Confirmé</string>
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
-    <string name="connect_payment_confirm_text">Vous avez été payé!\n%s %s payé %s.\nAvez-vous reçu le paiement?</string>
+    <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
     <string name="connect_payment_confirm_yes">Oui!</string>
     <string name="connect_payment_confirm_no">Plus tard</string>
     <string name="connect_payment_confirm_failed">Échec de l\'envoi de la confirmation, nous vous redemanderons plus tard.</string>
@@ -492,8 +492,7 @@ License.
     <string name="personalid_work_history_title">Mon Historique de Travail</string>
     <string name="personalid_work_history">Historique de Travail</string>
     <string name="personalid_work_history_learn_more">En Savoir Plus Sur les Titres de Compétences</string>
-    <string name="personalid_work_history_no_records_available">Aucun enregistrement d\'historique de travail n\'est actuellement disponible. Cliquez sur Actualiser ou revenez plus tard.</string>
-    <string name="personalid_work_history_earned">Gagné</string>
+    <string name="personalid_work_history_no_records_available">Aucun dossier de travail n\'est actuellement disponible. Cliquez sur Actualiser ou revenez plus tard.</string>    <string name="personalid_work_history_earned">Gagné</string>
     <string name="personalid_work_history_pending">En attente</string>
     <string name="personalid_work_history_sync">Synchroniser</string>
     <string name="personalid_work_history_level_1_month_active">1 Mois d\'\nActivité</string>
@@ -505,7 +504,7 @@ License.
     <string name="personalid_work_history_no_pending_records">Il n\'y a aucun enregistrement en attente pour le moment</string>
 
     <string name="personalid_notification">Notifications</string>
-    <string name="pn_no_notification_found">Aucune notification trouvée</string>
+    <string name="pn_no_notification_available">Aucune notification disponible</string>
 
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
@@ -533,7 +532,7 @@ License.
     <string name="personalid_authentication_failed">L\'authentification des données biométriques sur votre appareil Android a échoué. Veuillez appliquer les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
     <string name="connect_verify_configuration_failed">La configuration des données biométriques sur votre appareil Android a échoué. Veuillez réessayer %s.</string>
 
-    <string name="no_channel_msg">Vous n\'avez aucun canal de messagerie actif.</string>
+    <string name="no_channel_msg">Vous n\'êtes abonné à aucune chaîne de messagerie. Une fois que vous aurez été ajouté à une chaîne, elle apparaîtra dans cette liste.</string>
     <string name="personalid_using_your_location">Utilisation de votre emplacement</string>
     <string name="personalid_no_location_found">Nous ne parvenons pas à trouver votre emplacement</string>
     <string name="personalid_tooltip_location_failure_message">Nous utilisons les données de localisation pour garantir une utilisation sécurisée de cette application.\n\nPour continuer, veuillez activer les autorisations de localisation dans les paramètres, ou réessayez plus tard.</string>

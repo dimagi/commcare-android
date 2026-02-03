@@ -395,7 +395,7 @@
 
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>
-    <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
+    <string name="connect_no_jobs">You haven’t been invited to any opportunities yet. Once you’ve been invited to an opportunity, it will appear in this list.</string>
     <string name="connect_corrupt_job_text">Failed to load this opportunity</string>
 
     <string name="connect_job_intro_title">Opportunity</string>
@@ -470,7 +470,7 @@
     <string name="connect_results_payment_confirm_undo">Undo confirm</string>
     <string name="connect_results_payment_confirmed">Confirmed</string>
     <string name="connect_results_payment_not_confirmed">Not Confirmed</string>
-    <string name="connect_payment_confirm_text">You got paid!\n%s %s paid %s.\nHave you received the payment?</string>
+    <string name="connect_payment_confirm_text">Have you been paid %d %s for %s Opportunity?</string>
     <string name="connect_payment_confirm_yes">Yes!</string>
     <string name="connect_payment_confirm_no">Ask later</string>
     <string name="connect_payment_confirm_failed">Failed to send confirmation, we will ask again later.</string>
@@ -656,7 +656,7 @@
     <string name="personalid_work_history_title">My Work History</string>
     <string name="personalid_work_history">Work History</string>
     <string name="personalid_work_history_learn_more">Learn More About Work History</string>
-    <string name="personalid_work_history_no_records_available">No records are currently available. Click Refresh or check back later</string>
+    <string name="personalid_work_history_no_records_available">No work records are currently available. Click refresh, or check back later.</string>
     <string name="personalid_work_history_earned">Earned</string>
     <string name="personalid_work_history_pending">Pending</string>
     <string name="personalid_work_history_sync">Sync</string>
@@ -682,7 +682,7 @@
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
     <string name="personalid_notification">Notifications</string>
-    <string name="pn_no_notification_found">No notifications found</string>
+    <string name="pn_no_notification_available">No notifications available</string>
 
     <string name="play_service_update_error">To use PersonalID, you need to update Google Play Services. Tap here to go to the Google Play Store to check for updates</string>
     <string name="nav_drawer_open">Open navigation drawer</string>
@@ -699,7 +699,7 @@
     <string name="yesterday">Yesterday %1$s</string>
 
     <string name="personalid_authentication_failed">Authenticating the biometrics on your Android device has failed. Please apply any available system updates, or try again with a different device</string>
-    <string name="no_channel_msg">You have no current messaging channels</string>
+    <string name="no_channel_msg">You\'re not subscribed to any messaging channels. Once you have been added to a channel, it will appear in this list</string>
 
     <string name="personalid_using_your_location">Using your location</string>
     <string name="personalid_no_location_found">We can\'t find your location</string>

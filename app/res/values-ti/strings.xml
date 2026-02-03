@@ -291,7 +291,7 @@
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
     <string name="connect_last_update">ዝተመሓየሸ: %s</string>
     <string name="connect_title">ኣራኽብ</string>
-    <string name="connect_no_jobs">ኣብ ዝኾነ ንጡፍ ዕድላት ኣይተዓደምኩምን። በይዛኹም ፀኒሕኹም ተመለሱ።</string>
+    <string name="connect_no_jobs">ክሳብ ሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምኩምን። ንሓደ ዕድል ምስ ተዓደምካ፡ ኣብ\'ዚ ዝርዝር\'ዚ ክቐርብ\'ዩ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
     <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
@@ -352,7 +352,7 @@
     <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
     <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
     <string name="connect_results_payment_not_confirmed">ኣይተረጋገፀን።</string>
-    <string name="connect_payment_confirm_text">ክፍሊት ረኺብካ!\n%s %s ተኸፊሉ %s.\nእቲ ክፍሊት ተቐቢልካዮ ዲኻ?</string>
+    <string name="connect_payment_confirm_text">ን%d %s ዕድል ዝኸውን %s ተኸፊልካዶ?</string>
     <string name="connect_payment_confirm_yes">እወ!</string>
     <string name="connect_payment_confirm_no">ፀኒሕኻ ሕተት።</string>
     <string name="connect_payment_confirm_failed">መረጋገፂ ምልኣኽ ስለዘይከኣለ፡ ፀኒሕና እንደገና ክንሓትት ኢና።</string>
@@ -484,8 +484,7 @@
     <string name="personalid_work_history_title">ታሪኽ ስራሐይ</string>
     <string name="personalid_work_history">ታሪኽ ስራሕ</string>
     <string name="personalid_work_history_learn_more">ብዛዕባ ምስክር ወረቐታት ዝበለጸ ፍለጥ</string>
-    <string name="personalid_work_history_no_records_available">No work history records are currently available. Click Refresh or check back later</string>
-    <string name="personalid_work_history_earned">ዝተረኽበ</string>
+    <string name="personalid_work_history_no_records_available">ህሉው ናይ ስራሕ መዝገባት የለዉን። ሓድስ ነገር ንምርኣይ ጠውቕ፣ ወይ ድሕሪኡ ተመለስ።</string>    <string name="personalid_work_history_earned">ዝተረኽበ</string>
     <string name="personalid_work_history_pending">ኣብ ከይዲ ዘሎ</string>
     <string name="personalid_work_history_sync">Sync</string>
     <string name="personalid_work_history_level_1_month_active">1 ወርሒ\nተግባር</string>
@@ -496,7 +495,7 @@
     <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
 
     <string name="personalid_notification">መፍለጥታትን</string>
-    <string name="pn_no_notification_found">ዝኾነ መፍለጢ ኣይተረኽበን</string>
+    <string name="pn_no_notification_available">ዝርከብ መፍለጢ የለን</string>
 
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
@@ -522,7 +521,7 @@
     <string name="recovery_network_unknown">ገለ ነገር ተጋግዩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_authentication_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ዘሎ ባዮሜትሪክስ ምእማት ኣይተዓወተን። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
 
-    <string name="no_channel_msg">ናይ ሕጂ ናይ መልእኽቲ ቻነላት የብልካን።</string>
+    <string name="no_channel_msg">ንዝኾነ ቻነላት መልእኽቲ ኣይተመዝገብካን ኢኻ። ሓንሳብ ናብቻነል ምስ ተወሰኽካ፡ ኣብዚ ዝርዝር\'ዚ ክትቐርብ እያ።</string>
     <string name="personalid_using_your_location">ቦታኻ ምጥቃም</string>
     <string name="personalid_no_location_found">ቦታኻ ክንረክቦ ኣይከኣልናን</string>
     <string name="personalid_tooltip_location_failure_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\nንኽትቅጽል በጃኻ ኣብ setting ናይ ቦታ ፍቓድ ኣኽእል፡ ወይ ድማ ጸኒሕካ ደጊምካ ፈትን።</string>

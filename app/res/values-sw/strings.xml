@@ -301,7 +301,7 @@
     <string name="connect_messaging_channel_consent_decline">Kataa</string>
     <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
-    <string name="connect_no_jobs">Hujaalikwa kwa fursa zozote zinazotumika. Tafadhali rudi baadaye.</string>
+    <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
     <string name="connect_job_intro_title">Fursa</string>
     <string name="connect_job_you_will_learn">Kamilisha moduli zifuatazo za kujifunza na upate cheti</string>
     <string name="connect_job_no_learning_required">Hakuna kujifunza kunahitajika</string>
@@ -353,7 +353,7 @@
     <string name="connect_results_payment_confirm_undo">Tendua uthibitisho</string>
     <string name="connect_results_payment_confirmed">Imethibitishwa</string>
     <string name="connect_results_payment_not_confirmed">Haijathibitishwa</string>
-    <string name="connect_payment_confirm_text">Umelipwa!\n%s %s imelipwa %s.\nJe, umepokea malipo?</string>
+    <string name="connect_payment_confirm_text">Je, umelipwa %d %s kwa ajili ya fursa ya %s?</string>
     <string name="connect_payment_confirm_yes">Ndiyo!</string>
     <string name="connect_payment_confirm_no">Uliza baadaye</string>
     <string name="connect_payment_confirm_failed">Imeshindwa kutuma uthibitisho, tutauliza tena baadaye.</string>
@@ -498,8 +498,7 @@
     <string name="personalid_work_history_title">Historia Yangu ya Kazi</string>
     <string name="personalid_work_history">Historia ya Kazi</string>
     <string name="personalid_work_history_learn_more">Jifunze Zaidi Kuhusu Vitambulisho</string>
-    <string name="personalid_work_history_no_records_available">Hakuna rekodi za historia ya kazi zinazopatikana kwa sasa. Bofya Onyesha upya au uangalie tena baadaye</string>
-    <string name="personalid_work_history_earned">Imelipwa</string>
+    <string name="personalid_work_history_no_records_available">Hakuna rekodi za kazi zinazopatikana kwa sasa. Bofya onyesha upya, au angalia tena baadaye.</string>    <string name="personalid_work_history_earned">Imelipwa</string>
     <string name="personalid_work_history_pending">Inasubiri</string>
     <string name="personalid_work_history_sync">Sawazisha</string>
     <string name="personalid_work_history_level_1_month_active">Mwezi 1 wa\nShughuli</string>
@@ -511,7 +510,7 @@
     <string name="personalid_work_history_no_pending_records">Hakuna rekodi zinazosubiri kwa sasa</string>
 
     <string name="personalid_notification">Arifa</string>
-    <string name="pn_no_notification_found">Hakuna arifa zilizopatikana</string>
+    <string name="pn_no_notification_available">Hakuna arifa zinazopatikana</string>
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
@@ -537,7 +536,7 @@
     <string name="recovery_network_cooldown">Majaribio mengi mno ya ombi. Tafadhali jaribu tena baada ya saa moja.</string>
     <string name="recovery_network_unknown">Kuna kitu kimeenda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_authentication_failed">Uthibitishaji wa bayometriki kwenye kifaa chako cha Android haukufaulu. Tafadhali weka masasisho yoyote ya mfumo yanayopatikana, au jaribu tena ukitumia kifaa tofauti.</string>
-    <string name="no_channel_msg">Huna njia za sasa za kutuma ujumbe</string>
+    <string name="no_channel_msg">Haujasajiliwa kwa Idhaa zozote za kutuma ujumbe. Ukishaongezwa kwenye Idhaa, itaonekana katika orodha hii.</string>
 
     <string name="personalid_using_your_location">Inatumia eneo lako</string>
     <string name="personalid_no_location_found">Hatuwezi kupata eneo lako</string>
