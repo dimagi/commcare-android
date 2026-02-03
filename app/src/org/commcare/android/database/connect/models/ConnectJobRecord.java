@@ -84,7 +84,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
 
-    public static final String META_JOB_UUID = "opportunity_id";    // todo The server needs to confirm this job (opportunity) UUID field name.
+    public static final String META_JOB_UUID = "opportunity_id";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
