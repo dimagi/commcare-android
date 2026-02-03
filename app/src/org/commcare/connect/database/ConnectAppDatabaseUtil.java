@@ -84,13 +84,14 @@ public class ConnectAppDatabaseUtil {
             Context context,
             List<ConnectReleaseToggleRecord> incomingToggles
     ) {
-        List<ConnectReleaseToggleRecord> existingToggles = getReleaseToggles(context);
         List<ConnectReleaseToggleRecord> changedToggles = new ArrayList<>();
 
         try {
             SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
                     ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
             ConnectDatabaseHelper.connectDatabase.beginTransaction();
+
+            List<ConnectReleaseToggleRecord> existingToggles = getReleaseToggles(context);
 
             toggleStorage.removeAll();
 
