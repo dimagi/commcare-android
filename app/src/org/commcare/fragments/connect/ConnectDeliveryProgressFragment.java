@@ -29,12 +29,16 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
+import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
+import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,13 +46,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
+
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment<FragmentConnectDeliveryProgressBinding>
         implements RefreshableFragment {
     public static final String TAB_POSITION = "tabPosition";
     public static final int TAB_PROGRESS = 0;
     public static final int TAB_PAYMENT = 1;
     private ViewStateAdapter viewPagerAdapter;
-    private ConnectJobPaymentRecord paymentToConfirm = null;
+    private final ArrayList<ConnectPaymentConfirmationModel> paymentsToConfirm = new ArrayList<>();
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
 
@@ -144,30 +150,52 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void setupRefreshAndConfirmationActions() {
         getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh());
 
-        getBinding().connectPaymentConfirmNoButton.setOnClickListener(v -> {
-            updatePaymentConfirmationTile(true);
-            FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-        });
-        getBinding().includeErrorLayout.ivClose.setOnClickListener(v -> getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE));
+        getBinding().connectPaymentConfirmNoButton.setOnClickListener(v ->
+                handlePaymentConfirmationNoClick()
+        );
 
-        getBinding().connectPaymentConfirmYesButton.setOnClickListener(v -> {
-            if (paymentToConfirm != null) {
-                FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-                ConnectJobHelper.INSTANCE.updatePaymentConfirmed(getContext(), paymentToConfirm, true, success -> {
-                    updatePaymentConfirmationTile(true);
-                }, (success,msg) ->{
-                    if (success){
-                        if (isAdded()) {
-                            updatePaymentConfirmationTile(true);
-                        }
-                        getBinding().includeErrorLayout.getRoot().setVisibility(View.GONE);
-                    }else {
-                        getBinding().includeErrorLayout.getRoot().setVisibility(View.VISIBLE);
-                        getBinding().includeErrorLayout.tvErrorMessage.setText(msg);
+        getBinding().connectPaymentConfirmYesButton.setOnClickListener(v ->
+                handlePaymentConfirmYesButtonClick()
+        );
+    }
+
+    private void handlePaymentConfirmationNoClick() {
+        updatePaymentConfirmationTile(true);
+        FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, new Date().getTime());
+    }
+
+    private void handlePaymentConfirmYesButtonClick() {
+        if (paymentsToConfirm.isEmpty()) {
+            throw new IllegalStateException("No payments to confirm but confirmation card was shown.");
+        }
+
+        FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
+        ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
+                requireContext(),
+                paymentsToConfirm,
+                success -> {
+                    if (isAdded()) {
+                        updatePaymentConfirmationTile(true);
+                        redirectToPaymentTab();
+                        refresh();
                     }
-                });
-            }
-        });
+                }
+        );
+    }
+
+    private void redirectToPaymentTab() {
+        if (getBinding().connectDeliveryProgressViewPager.getCurrentItem() == TAB_PAYMENT) {
+            return;
+        }
+
+        TabLayout tabLayout = getBinding().connectDeliveryProgressTabs;
+        TabLayout.Tab tab = tabLayout.getTabAt(TAB_PAYMENT);
+
+        isProgrammaticTabChange = true;
+        tabLayout.selectTab(tab);
+        getBinding().connectDeliveryProgressViewPager.setCurrentItem(TAB_PAYMENT, true);
     }
 
     private void setupJobCard(ConnectJobRecord job) {
@@ -248,28 +276,42 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void updatePaymentConfirmationTile(boolean forceHide) {
-        paymentToConfirm = null;
+        if (forceHide) {
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.GONE);
+            return;
+        }
 
-        if (!forceHide) {
-            for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                if (payment.allowConfirm()) {
-                    paymentToConfirm = payment;
-                    break;
-                }
+        paymentsToConfirm.clear();
+        int totalUnconfirmedPaymentAmount = 0;
+
+        for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            if (payment.allowConfirm()) {
+                paymentsToConfirm.add(new ConnectPaymentConfirmationModel(payment, true));
+                totalUnconfirmedPaymentAmount += Integer.parseInt(payment.getAmount());
             }
         }
 
-        boolean showTile = paymentToConfirm != null && ConnectivityStatus.isNetworkAvailable(requireContext());
-        getBinding().connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        long hiddenSinceTimeMs = preferenceManager.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+        long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
+
+        boolean showTile = !paymentsToConfirm.isEmpty()
+                && ConnectivityStatus.isNetworkAvailable(requireContext())
+                && (hiddenSinceTimeMs == -1 || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
 
         if (showTile) {
-            String date = ConnectDateUtils.INSTANCE.formatDate(paymentToConfirm.getDate());
-            getBinding().connectPaymentConfirmLabel.setText(getString(
-                    R.string.connect_payment_confirm_text,
-                    paymentToConfirm.getAmount(),
-                    job.getCurrency(),
-                    date));
+            getBinding().connectPaymentConfirmLabel.setText(
+                    getString(
+                            R.string.connect_payment_confirm_text,
+                            totalUnconfirmedPaymentAmount,
+                            job.getCurrency(),
+                            job.getTitle()
+                    )
+            );
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.VISIBLE);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
+        } else {
+            getBinding().connectDeliveryProgressAlertTile.setVisibility(View.GONE);
         }
     }
 

@@ -52,5 +52,7 @@ public class ConnectConstants {
     public final static String NOTIFICATION_STATUS = "status";
     public final static String NOTIFICATION_MESSAGE_ID = "message_id";
     public final static String NOTIFICATION_CHANNEL_ID = "channel";
+    public final static String PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME =
+            "payment_confirmation_hidden_since_time";
     public final static int PERSONAL_ID_CANCEL_MESSAGE_BOTTOM_SHEET = 12;
 }
