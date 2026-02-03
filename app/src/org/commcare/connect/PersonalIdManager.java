@@ -212,6 +212,7 @@ public class PersonalIdManager {
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();
         ConnectReleaseTogglesWorker.Companion.schedulePeriodicFetch(CommCareApplication.instance());
+        ConnectReleaseTogglesWorker.Companion.scheduleOneTimeFetch(CommCareApplication.instance());
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {

@@ -268,8 +268,7 @@ class BaseDrawerController(
         val toggles = ConnectAppDatabaseUtil.getReleaseToggles(activity)
 
         for (toggle in toggles) {
-            // There currently exists two toggles for QA testing: "Test" (on PersonalID) and "Test-Connect" (on Connect)
-            if (toggle.slug == "Test" || toggle.slug == "Test-Connect") {
+            if (toggle.slug == "Test") {
                 binding.tvTestToggleActive.visibility =
                     if (toggle.active) View.VISIBLE else View.GONE
             }
