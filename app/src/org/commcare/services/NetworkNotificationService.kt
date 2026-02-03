@@ -20,6 +20,8 @@ class NetworkNotificationService: Service() {
     companion object {
         const val NETWORK_NOTIFICATION_ID = R.string.network_notification_service_id
         var isServiceRunning = false
+        const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "UPDATE_PROGRESS"
+        const val PROGRESS_INTENT_EXTRA = "progress"
     }
 
     override fun onCreate() {
@@ -34,6 +36,22 @@ class NetworkNotificationService: Service() {
             startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.requests.starting",0,0))
         }
         isServiceRunning = true
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            UPDATE_PROGRESS_NOTIFICATION_ACTION -> {
+                intent.getIntArrayExtra(PROGRESS_INTENT_EXTRA)
+                    ?.takeIf { it.size >= 2 }
+                    ?.let {
+                        notificationManager.notify(
+                            NETWORK_NOTIFICATION_ID,
+                            buildNotification("network.requests.runnning", it[0], it[1])
+                        )
+                    }
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onBind(intent: Intent?): IBinder? {

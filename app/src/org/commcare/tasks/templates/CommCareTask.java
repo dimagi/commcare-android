@@ -11,6 +11,8 @@ import org.commcare.services.NetworkNotificationService;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
 
+import static org.commcare.services.NetworkNotificationService.UPDATE_PROGRESS_NOTIFICATION_ACTION;
+
 /**
  * @author ctsims
  */
@@ -147,6 +149,22 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 this.deliverUpdate(connector.getReceiver(), values);
             }
         }
+
+        if (shouldUpdateNetworkNotificationProgress(values)) {
+            CommCareApplication.instance().startService(getNotificationIntentProgress(values[0]));
+        }
+    }
+
+    private Intent getNotificationIntentProgress(Progress value) {
+        return getNotificationIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION)
+                .putExtra("progress", (int[])value);
+    }
+
+    // Only update the notificaition progress if the Progress is of type int[], where index 0 is current and 1 is
+    // total
+    public boolean shouldUpdateNetworkNotificationProgress(Progress[] values) {
+        return (values != null && values.length > 0 && values[0] instanceof int[]) &&
+                NetworkNotificationService.Companion.isServiceRunning();
     }
 
     /**

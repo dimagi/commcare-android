@@ -1019,3 +1019,5 @@ microimage.manual.face.capture.failed=Manual capture failed, contact CommCare Su
 microimage.camera.permission.denied=Go to settings and enable camera permission to use this feature
 
 network.requests.starting=Starting network requests
+network.requests.running=Running network requests
+network.requests.progress=Completed: ${0}/${1}
