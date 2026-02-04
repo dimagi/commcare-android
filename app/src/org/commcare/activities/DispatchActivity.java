@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.CONNECT_JOB_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
@@ -94,6 +95,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean redirectToConnectHome = false;
     private boolean redirectToConnectOpportunityInfo = false;
     private String redirectToLoginAppId = null;
+    private int connectJobId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,8 +235,9 @@ public class DispatchActivity extends AppCompatActivity {
                     ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 } else if(redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this, connectJobId);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+                    connectJobId=-1;    // reset the variable
                 } else {
                     launchHomeScreen();
                 }
@@ -320,6 +323,10 @@ public class DispatchActivity extends AppCompatActivity {
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
             i.putExtra(IS_LAUNCH_FROM_CONNECT, getLaunchedFromConnect());
+            int connectJobId = getConnectJobId();
+            if(connectJobId!=-1){
+                i.putExtra(CONNECT_JOB_ID, connectJobId);
+            }
 
             String sessionEndpointAppID = getSessionEndpointAppId();
             if(sessionEndpointAppID == null && redirectToLoginAppId != null) {
@@ -351,6 +358,12 @@ public class DispatchActivity extends AppCompatActivity {
         return launchedFromConnect;
     }
 
+    private int getConnectJobId(){
+        int connectJobId = getIntent().getIntExtra(CONNECT_JOB_ID, -1);
+        getIntent().removeExtra(CONNECT_JOB_ID);
+        return connectJobId;
+    }
+
     private void launchHomeScreen() {
         Intent i;
         if (useRootMenuHomeActivity()) {
@@ -365,9 +378,11 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
+        i.putExtra(CONNECT_JOB_ID,connectJobId);
         startFromLogin = false;
         clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
+        connectJobId=-1;    // reset the variable
     }
 
     public static boolean useRootMenuHomeActivity() {
@@ -486,6 +501,7 @@ public class DispatchActivity extends AppCompatActivity {
             needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
             redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
             redirectToLoginAppId = intent.getStringExtra(EXTRA_APP_ID);
+            connectJobId = intent.getIntExtra(CONNECT_JOB_ID,-1);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement

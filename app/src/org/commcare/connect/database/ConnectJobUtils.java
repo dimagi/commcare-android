@@ -46,13 +46,8 @@ public class ConnectJobUtils {
         return jobs.isEmpty() ? null : jobs.firstElement();
     }
 
-    public static ConnectJobRecord getJobForApp(Context context, String appId) {
-        ConnectAppRecord appRecord = getAppRecord(context, appId);
-        if(appRecord == null) {
-            return null;
-        }
-
-        return getCompositeJob(context, appRecord.getJobId());
+    public static ConnectJobRecord getJobForApp(Context context, int jobId) {
+        return getCompositeJob(context, jobId);
     }
 
     public static List<ConnectJobRecord> getCompositeJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
@@ -391,12 +386,14 @@ public class ConnectJobUtils {
         }
     }
 
-    public static ConnectAppRecord getAppRecord(Context context, String appId) {
+    public static ConnectAppRecord getAppRecord(Context context, String appId,int jobId) {
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
-                    new String[]{ConnectAppRecord.META_APP_ID},
-                    new Object[]{appId});
-            return records.isEmpty() ? null : records.firstElement();
+            ConnectJobRecord connectJobRecord = getJobForApp(context,jobId);
+            if(connectJobRecord!=null && connectJobRecord.getDeliveryAppInfo()!=null && connectJobRecord.getDeliveryAppInfo().getAppId().equals(appId)){
+                return connectJobRecord.getDeliveryAppInfo();
+            }else if(connectJobRecord!=null && connectJobRecord.getLearnAppInfo()!=null && connectJobRecord.getLearnAppInfo().getAppId().equals(appId)){
+                return connectJobRecord.getLearnAppInfo();
+            }
         }
         return null;
     }

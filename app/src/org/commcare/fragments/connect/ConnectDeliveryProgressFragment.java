@@ -326,7 +326,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         if (AppUtils.isAppInstalled(appId)) {
             CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, appId);
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, appId, job.getJobId());
         } else {
             NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
                     .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
