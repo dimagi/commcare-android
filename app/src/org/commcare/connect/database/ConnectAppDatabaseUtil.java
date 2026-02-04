@@ -10,7 +10,9 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
@@ -84,32 +86,28 @@ public class ConnectAppDatabaseUtil {
             Context context,
             List<ConnectReleaseToggleRecord> incomingToggles
     ) {
-        List<ConnectReleaseToggleRecord> changedToggles = new ArrayList<>();
+        boolean togglesChanged = false;
 
         try {
             SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
                     ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
             ConnectDatabaseHelper.connectDatabase.beginTransaction();
 
+            // Create map of existing toggles for easy comparison to incoming toggles.
             List<ConnectReleaseToggleRecord> existingToggles = getReleaseToggles(context);
+            Map<String, ConnectReleaseToggleRecord> existingTogglesMap = new HashMap<>();
+            for (ConnectReleaseToggleRecord existingToggle : existingToggles) {
+                existingTogglesMap.put(existingToggle.getSlug(), existingToggle);
+            }
 
             toggleStorage.removeAll();
 
             for (ConnectReleaseToggleRecord incomingToggle : incomingToggles) {
                 toggleStorage.write(incomingToggle);
 
-                boolean toggleIsNewOrModified = true;
-                for (ConnectReleaseToggleRecord existingToggle : existingToggles) {
-                    boolean slugsMatch = existingToggle.getSlug().equals(incomingToggle.getSlug());
-                    boolean activeStatusesMatch = existingToggle.getActive() == incomingToggle.getActive();
-                    if (slugsMatch && activeStatusesMatch) {
-                        toggleIsNewOrModified = false;
-                        break;
-                    }
-                }
-
-                if (toggleIsNewOrModified) {
-                    changedToggles.add(incomingToggle);
+                ConnectReleaseToggleRecord matchingToggle = existingTogglesMap.get(incomingToggle.getSlug());
+                if (matchingToggle == null || matchingToggle.getActive() != incomingToggle.getActive()) {
+                    togglesChanged = true;
                 }
             }
 
@@ -118,8 +116,8 @@ public class ConnectAppDatabaseUtil {
             ConnectDatabaseHelper.connectDatabase.endTransaction();
         }
 
-        if (!changedToggles.isEmpty()) {
-            FirebaseAnalyticsUtil.reportPersonalIdReleaseTogglesChanged(changedToggles);
+        if (togglesChanged) {
+            FirebaseAnalyticsUtil.reportPersonalIdReleaseTogglesChanged(incomingToggles);
         }
     }
 
