@@ -22,48 +22,48 @@ class ConnectJobDeliveryRecordV21 :
     Serializable {
     @Persisting(1)
     @MetaField(META_JOB_ID)
-    private var jobId = 0
+    var jobId = 0
 
     @Persisting(2)
     @MetaField(META_ID)
-    private var deliveryId = 0
+    var deliveryId = 0
 
     @Persisting(3)
     @MetaField(META_DATE)
-    private var date: Date? = null
+    var date: Date? = null
 
     @Persisting(4)
     @MetaField(META_STATUS)
-    private var status: String? = null
+    var status: String? = null
 
     @Persisting(5)
     @MetaField(META_UNIT_NAME)
-    private var unitName: String? = null
+    var unitName: String? = null
 
     @Persisting(6)
     @MetaField(META_SLUG)
-    private var slug: String? = null
+    var slug: String? = null
 
     @Persisting(7)
     @MetaField(META_ENTITY_ID)
-    private var entityId: String? = null
+    var entityId: String? = null
 
     @Persisting(8)
     @MetaField(META_ENTITY_NAME)
-    private var entityName: String? = null
+    var entityName: String? = null
 
     @Persisting(9)
-    private var lastUpdate: Date? = null
+    var lastUpdate: Date? = null
 
     @Persisting(10)
     @MetaField(META_REASON)
-    private var reason: String? = null
+    var reason: String? = null
 
     companion object {
         const val STORAGE_KEY = ConnectJobDeliveryRecord.STORAGE_KEY
 
-        fun fromV21(oldRecord: ConnectJobDeliveryRecordV21): ConnectJobDeliveryRecord {
-            val newRecord = ConnectJobDeliveryRecord()
+        fun fromV2(oldRecord: ConnectJobDeliveryRecordV2): ConnectJobDeliveryRecordV21 {
+            val newRecord = ConnectJobDeliveryRecordV21()
             newRecord.jobId = oldRecord.jobId
             newRecord.deliveryId = oldRecord.deliveryId
             newRecord.date = oldRecord.date
@@ -73,8 +73,7 @@ class ConnectJobDeliveryRecordV21 :
             newRecord.entityId = oldRecord.entityId
             newRecord.entityName = oldRecord.entityName
             newRecord.lastUpdate = oldRecord.lastUpdate
-            newRecord.reason = oldRecord.reason
-            newRecord.jobUUID = "${oldRecord.jobId}"
+            newRecord.reason = ""
             return newRecord
         }
     }
