@@ -674,7 +674,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
                 && ConnectUserDatabaseUtil.hasConnectAccess(this);
         installFragment.updateConnectButton(isConnectEnabled, v -> {
-            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, msg) -> {
+            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
             });
         });
     }

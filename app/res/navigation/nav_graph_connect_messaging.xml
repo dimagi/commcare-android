@@ -18,9 +18,6 @@
         <action
             android:id="@+id/action_channelConsent_to_connectMessageFragment"
             app:destination="@id/connectMessageFragment" />
-        <action
-            android:id="@+id/action_channelConsent_to_personalid_message_display_dialog"
-            app:destination="@id/personalid_message_display_dialog" />
     </dialog>
 
     <fragment

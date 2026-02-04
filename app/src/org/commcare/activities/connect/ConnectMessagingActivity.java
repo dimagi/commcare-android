@@ -115,7 +115,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     private void handleNoChannel(String channelId) {
-        MessageManager.retrieveMessages(this, (success, msg) -> {  // This is required to update the local DB for channels
+        MessageManager.retrieveMessages(this, (success, error) -> {  // This is required to update the local DB for channels
             ConnectMessagingChannelRecord connectMessagingChannelRecord = ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
             if (connectMessagingChannelRecord == null) {
                 showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
@@ -142,7 +142,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     private void retrieveChannelEncryptionKey(ConnectMessagingChannelRecord channel) {
-        MessageManager.getChannelEncryptionKey(this, channel, (success, msg) -> {
+        MessageManager.getChannelEncryptionKey(this, channel, (success, error) -> {
             if (success) {
                 showConnectMessageFragment(channel.getChannelId());
             } else {

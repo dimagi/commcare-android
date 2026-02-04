@@ -130,7 +130,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     @Override
     public void refresh() {
         setWaitDialogEnabled(false);
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success, msg) -> {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success, error) -> {
             if (success && isAdded()) {
                 updateLastUpdatedText(new Date());
                 updateCardMessage();
@@ -176,15 +176,13 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 requireContext(),
                 paymentsToConfirm,
                 (success, error) -> {
-                    if (success) {
-                        if (isAdded()) {
+                    if (isAdded()) {
+                        if (success) {
                             updatePaymentConfirmationTile(true);
                             redirectToPaymentTab();
                             refresh();
                             hideError();
-                        }
-                    } else {
-                        if (isAdded() && error != null) {
+                        } else {
                             showError(error);
                         }
                     }

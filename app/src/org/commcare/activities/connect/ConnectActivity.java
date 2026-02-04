@@ -208,7 +208,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     private void retrieveMessages(){
-        MessageManager.retrieveMessages(this, (success, msg) -> {
+        MessageManager.retrieveMessages(this, (success, error) -> {
         });
     }
 

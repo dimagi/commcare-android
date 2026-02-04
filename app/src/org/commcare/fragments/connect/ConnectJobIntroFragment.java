@@ -124,8 +124,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                             false,
                             R.string.ok);
                     hideError();
+                } else if (PersonalIdOrConnectApiErrorHandler.isNetworkError(errorCode)){
+                    showError(getString(R.string.failed_to_sync_updates));
                 } else {
-                    showError(error);
+                    showError(getString(R.string.failed_to_start_learning));
                 }
                 reportApiCall(false);
             }

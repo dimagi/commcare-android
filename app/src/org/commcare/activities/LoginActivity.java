@@ -541,7 +541,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, msg) -> {
+        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
             setResult(RESULT_OK);
             finish();
         });

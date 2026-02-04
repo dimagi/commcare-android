@@ -75,6 +75,21 @@ public class PersonalIdOrConnectApiErrorHandler {
     }
 
     /**
+     * Errors that should be shown ONLY in the network banner UI (non-blocking)
+     */
+    private static final EnumSet<BaseApiHandler.PersonalIdOrConnectApiErrorCodes> NETWORK_ERRORS =
+            EnumSet.of(
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR
+            );
+
+    public static boolean isNetworkError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes error) {
+        return NETWORK_ERRORS.contains(error);
+    }
+
+    /**
      * Errors for which UI must show a blocking experience.
      */
     private static final EnumSet<BaseApiHandler.PersonalIdOrConnectApiErrorCodes> BLOCKING_ERRORS =

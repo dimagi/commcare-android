@@ -94,9 +94,11 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         loadingBinding.root.visibility = View.GONE
     }
 
-    fun showError(message: String) {
-        errorBinding.tvErrorMessage.text = message
-        errorBinding.root.visibility = View.VISIBLE
+    fun showError(message: String?) {
+        if (message != null) {
+            errorBinding.tvErrorMessage.text = message
+            errorBinding.root.visibility = View.VISIBLE
+        }
     }
 
     fun hideError() {
