@@ -529,5 +529,5 @@
     <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
 
     <string name="connect_complete_by">Kamilisha ifikapo %s</string>
-    <string name="connect_expired_expired_on">Muda wake umeisha mnamo: %s</string>
+    <string name="connect_expired_on">Muda wake umeisha mnamo: %s</string>
 </resources>

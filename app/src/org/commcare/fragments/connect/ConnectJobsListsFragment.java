@@ -143,15 +143,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
     private void navigateToJobDetailBottomSheet(View view) {
         NavController navController = Navigation.findNavController(view);
-        if (navController.getCurrentDestination() != null &&
-                navController.getCurrentDestination().getId()
-                        == R.id.connect_job_detail_bottom_sheet_dialog_fragment) {
-            return;
-        }
+
 
         navController.navigate(R.id.connect_job_detail_bottom_sheet_dialog_fragment);
     }
-
 
     private void launchJobInfo(ConnectJobRecord job) {
         setActiveJob(job);
@@ -191,59 +186,60 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void setJobListData(List<ConnectJobRecord> jobs) {
+
         inProgressJobs = new ArrayList<>();
         newJobs = new ArrayList<>();
         completedJobs = new ArrayList<>();
 
         for (ConnectJobRecord job : jobs) {
-            boolean isLearnAppInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-            boolean isDeliverAppInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
-            // We need the composite job because it has the correct number of deliveries.
-            ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
-            boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
+            boolean isLearnAppInstalled =
+                    AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
+
+            boolean isDeliverAppInstalled =
+                    AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
+
+            ConnectLoginJobListModel model;
 
             switch (job.getStatus()) {
 
-                case STATUS_AVAILABLE_NEW,STATUS_AVAILABLE:
-                    if (!deliveryComplete) {
-                        newJobs.add(createJobModel(job,
-                                ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY, NEW_APP,
-                                true, true, false, false));
-                    } else {
-                        completedJobs.add(createJobModel(job,
-                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                                DELIVERY_APP,
-                                isDeliverAppInstalled, false, false, true));
-                    }
+                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+                    model = createJobModel(
+                            job,
+                            ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY,
+                            NEW_APP,
+                            true,
+                            true,
+                            false,
+                            false
+                    );
+                    newJobs.add(model);
                     break;
 
                 case STATUS_LEARNING:
-                    if (deliveryComplete) {
-                        completedJobs.add(createJobModel(job,
-                                ConnectLoginJobListModel.JobListEntryType.LEARNING,
-                                LEARN_APP,
-                                isLearnAppInstalled, false, true, false));
-                    } else {
-                        inProgressJobs.add(createJobModel(job,
-                                ConnectLoginJobListModel.JobListEntryType.LEARNING,
-                                LEARN_APP,
-                                isLearnAppInstalled, false, true, false));
-                    }
+                    model = createJobModel(
+                            job,
+                            ConnectLoginJobListModel.JobListEntryType.LEARNING,
+                            LEARN_APP,
+                            isLearnAppInstalled,
+                            false,
+                            true,
+                            false
+                    );
+                    inProgressJobs.add(model);
                     break;
 
                 case STATUS_DELIVERING:
-                    if (deliveryComplete) {
-                        completedJobs.add(createJobModel(job,
-                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                                DELIVERY_APP,
-                                isDeliverAppInstalled, false, false, true));
-                    } else {
-                        inProgressJobs.add(createJobModel(job,
-                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                                DELIVERY_APP,
-                                isDeliverAppInstalled, false, false, true));
-                    }
+                    model = createJobModel(
+                            job,
+                            ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                            DELIVERY_APP,
+                            isDeliverAppInstalled,
+                            false,
+                            false,
+                            true
+                    );
+                    inProgressJobs.add(model);
                     break;
             }
         }

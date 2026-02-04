@@ -152,5 +152,5 @@
     <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
 
     <string name="connect_complete_by">Fullfør innen %s</string>
-    <string name="connect_expired_expired_on">Utløpt den: %s</string>
+    <string name="connect_expired_on">Utløpt den: %s</string>
 </resources>

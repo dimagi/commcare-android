@@ -1,7 +1,8 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.connect.ConnectDateUtils.formatDateDayMonthYear;
-import static org.commcare.connect.ConnectDateUtils.shouldShowDateInRed;
+import static org.commcare.connect.ConnectDateUtils.formatDate;
+import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
+import static org.commcare.utils.ViewUtils.dpToPx;
 
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -23,6 +24,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.ConnectDateUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobDetailBottomSheetDialogBinding;
 import org.commcare.views.connect.CircleProgressBar;
@@ -64,10 +66,10 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         binding.tvOpportunityName.setText(job.getTitle());
         boolean isCompleted = job.isFinished();
         int dateRes = isCompleted
-                ? R.string.connect_expired_expired_on
+                ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
-        binding.tvDate.setText(binding.tvDate.getContext().getString(dateRes, formatDateDayMonthYear(job.getProjectEndDate())));
-        if (shouldShowDateInRed(job.getProjectEndDate())) {
+        binding.tvDate.setText(binding.tvDate.getContext().getString(dateRes, formatDate(job.getProjectEndDate())));
+        if (isExpiryDateUnderFiveDays(job.getProjectEndDate())) {
             int redColor = ContextCompat.getColor(binding.tvDate.getContext(), R.color.dark_red_brick_red);
 
             binding.tvDate.setTextColor(redColor);
@@ -86,7 +88,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
     }
     public void handleProgressBarUI(ConnectJobRecord job) {
 
-        applyProgressStep(
+        setProgressIconState(
                 binding.includeJobProgress.pbNewOpp,
                 binding.includeJobProgress.ivNewOpp,
                 true,
@@ -97,7 +99,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         );
 
         boolean learnEnabled = job.getStatus() >= ConnectJobRecord.STATUS_LEARNING;
-        applyProgressStep(
+        setProgressIconState(
                 binding.includeJobProgress.pbLearn,
                 binding.includeJobProgress.ivLearn,
                 learnEnabled,
@@ -108,7 +110,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         );
 
         boolean reviewEnabled = job.passedAssessment();
-        applyProgressStep(
+        setProgressIconState(
                 binding.includeJobProgress.pbReview,
                 binding.includeJobProgress.ivReview,
                 reviewEnabled,
@@ -119,7 +121,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         );
 
         boolean deliveryEnabled = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING;
-        applyProgressStep(
+        setProgressIconState(
                 binding.includeJobProgress.pbDelivery,
                 binding.includeJobProgress.ivDelivery,
                 deliveryEnabled,
@@ -130,7 +132,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         );
     }
 
-    private void applyProgressStep(
+    private void setProgressIconState(
             CircleProgressBar progressBar,
             ImageView icon,
             boolean enabled,
@@ -145,7 +147,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
             progressBar.setProgressColor(color);
             icon.setImageResource(enabledIcon);
 
-            int padding = dpToPx( 6);
+            int padding = dpToPx(6,requireContext());
             icon.setPadding(padding, padding, padding, padding);
 
             setIconSize(icon, 32);
@@ -154,9 +156,6 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
             icon.setImageResource(disabledIcon);
             setIconSize(icon, 45);
         }
-    }
-    private int dpToPx(int dp) {
-        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
     private void setIconSize(ImageView icon, int sizeDp) {

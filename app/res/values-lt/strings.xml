@@ -165,5 +165,5 @@
     <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
 
     <string name="connect_complete_by">Atlikti iki %s</string>
-    <string name="connect_expired_expired_on">Galiojimas baigėsi: %s</string>
+    <string name="connect_expired_on">Galiojimas baigėsi: %s</string>
 </resources>

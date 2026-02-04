@@ -521,5 +521,5 @@ License.
     <string name="personalid_biometric_error_cannot_configure">हम आपके डिवाइस पर बायोमेट्रिक्स कॉन्फ़िगर नहीं कर सके। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
 
     <string name="connect_complete_by">%s तक पूरा करें</string>
-    <string name="connect_expired_expired_on">समय सीमा समाप्त: %s</string>
+    <string name="connect_expired_on">समय सीमा समाप्त: %s</string>
 </resources>
