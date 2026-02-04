@@ -236,6 +236,7 @@ class BaseDrawerController(
             handleTestToggle()
         } else {
             setSignedInState(false)
+            binding.tvTestToggleActive.visibility = View.GONE
         }
     }
 
@@ -267,10 +268,10 @@ class BaseDrawerController(
     private fun handleTestToggle() {
         val toggles = ConnectAppDatabaseUtil.getReleaseToggles(activity)
 
+        binding.tvTestToggleActive.visibility = View.GONE
         for (toggle in toggles) {
-            if (toggle.slug == "Test") {
-                binding.tvTestToggleActive.visibility =
-                    if (toggle.active) View.VISIBLE else View.GONE
+            if (toggle.slug == "Test" && toggle.active) {
+                binding.tvTestToggleActive.visibility = View.VISIBLE
             }
         }
     }
