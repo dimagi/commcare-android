@@ -29,7 +29,6 @@ import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
 import java.io.Serializable
 import java.util.Date
-import kotlin.math.ceil
 
 @Table(ConnectJobRecordV21.STORAGE_KEY)
 class ConnectJobRecordV21 :
@@ -139,35 +138,34 @@ class ConnectJobRecordV21 :
     companion object {
         const val STORAGE_KEY = ConnectJobRecord.STORAGE_KEY
 
-        fun fromV21(oldRecord: ConnectJobRecordV21): ConnectJobRecord {
-            val newRecord = ConnectJobRecord()
-            newRecord.jobId = oldRecord.jobId
-            newRecord.title = oldRecord.title
-            newRecord.description = oldRecord.description
-            newRecord.status = oldRecord.status
-            newRecord.completedVisits = oldRecord.completedVisits
-            newRecord.maxDailyVisits = oldRecord.maxDailyVisits
-            newRecord.maxVisits = oldRecord.maxVisits
-            newRecord.budgetPerVisit = (oldRecord.budgetPerVisit)
-            newRecord.totalBudget = oldRecord.totalBudget
-            newRecord.projectEndDate = oldRecord.projectEndDate
-            newRecord.lastWorkedDate = oldRecord.lastWorkedDate
-            newRecord.organization = oldRecord.organization
-            newRecord.numLearningModules = oldRecord.numLearningModules
-            newRecord.learningModulesCompleted = oldRecord.learningModulesCompleted
-            newRecord.currency = oldRecord.currency
-            newRecord.setPaymentAccrued(oldRecord.paymentAccrued)
-            newRecord.shortDescription = oldRecord.shortDescription
-            newRecord.lastUpdate = oldRecord.lastUpdate
-            newRecord.lastLearnUpdate = oldRecord.lastLearnUpdate
-            newRecord.lastDeliveryUpdate = oldRecord.lastDeliveryUpdate
-            newRecord.dateClaimed = oldRecord.dateClaimed
-            newRecord.projectStartDate = oldRecord.projectStartDate
-            newRecord.isActive = oldRecord.isActive
-            newRecord.isUserSuspended = oldRecord.isUserSuspended
-            newRecord.dailyStartTime = oldRecord.dailyStartTime
-            newRecord.dailyFinishTime = oldRecord.dailyFinishTime
-            newRecord.jobUUID = "${oldRecord.jobId}"
+        fun fromV10(oldRecord: ConnectJobRecordV10): ConnectJobRecordV21 {
+            val newRecord = ConnectJobRecordV21()
+            newRecord.jobId = oldRecord.getJobId()
+            newRecord.title = oldRecord.getTitle()
+            newRecord.description = oldRecord.getDescription()
+            newRecord.status = oldRecord.getStatus()
+            newRecord.completedVisits = oldRecord.getCompletedVisits()
+            newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits()
+            newRecord.maxVisits = oldRecord.getMaxVisits()
+            newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit()
+            newRecord.totalBudget = oldRecord.getTotalBudget()
+            newRecord.projectEndDate = oldRecord.getProjectEndDate()
+            newRecord.lastWorkedDate = oldRecord.getLastWorkedDate()
+            newRecord.organization = oldRecord.getOrganization()
+            newRecord.numLearningModules = oldRecord.getNumLearningModules()
+            newRecord.learningModulesCompleted = oldRecord.getCompletedLearningModules()
+            newRecord.currency = oldRecord.getCurrency()
+            newRecord.paymentAccrued = oldRecord.getPaymentAccrued().toString()
+            newRecord.shortDescription = oldRecord.getShortDescription()
+            newRecord.lastUpdate = oldRecord.getLastUpdate()
+            newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate()
+            newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate()
+            newRecord.dateClaimed = oldRecord.getDateClaimed()
+            newRecord.projectStartDate = oldRecord.getProjectStartDate()
+            newRecord.isActive = oldRecord.getIsActive()
+            newRecord.isUserSuspended = oldRecord.getIsUserSuspended()
+            newRecord.dailyStartTime = ""
+            newRecord.dailyFinishTime = ""
             return newRecord
         }
     }

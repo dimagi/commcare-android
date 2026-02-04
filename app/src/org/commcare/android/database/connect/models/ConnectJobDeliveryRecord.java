@@ -174,6 +174,23 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         return newRecord;
     }
 
+    public static ConnectJobDeliveryRecord fromV21(ConnectJobDeliveryRecordV21 oldRecord) {
+        ConnectJobDeliveryRecord newRecord = new ConnectJobDeliveryRecord();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.deliveryId = oldRecord.getDeliveryId();
+        newRecord.date = oldRecord.getDate();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.unitName = oldRecord.getUnitName();
+        newRecord.slug = oldRecord.getSlug();
+        newRecord.entityId = oldRecord.getEntityId();
+        newRecord.entityName = oldRecord.getEntityName();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.reason = oldRecord.getReason();
+        newRecord.jobUUID = ""+oldRecord.getJobId();
+
+        return newRecord;
+    }
 
     //  getter and setter for kotlin
     public void setJobId(int jobId) {

@@ -69,17 +69,16 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public ConnectJobPaymentRecord() {
     }
 
-    public static ConnectJobPaymentRecord fromV3(ConnectJobPaymentRecordV3 oldRecord) {
+    public static ConnectJobPaymentRecord fromV21(ConnectJobPaymentRecordV21 oldRecord) {
         ConnectJobPaymentRecord newRecord = new ConnectJobPaymentRecord();
-
         newRecord.jobId = oldRecord.getJobId();
         newRecord.date = oldRecord.getDate();
         newRecord.amount = oldRecord.getAmount();
-
-        newRecord.paymentId = "-1";
-        newRecord.confirmed = false;
-        newRecord.confirmedDate = new Date();
-
+        newRecord.paymentId = oldRecord.getPaymentId();
+        newRecord.confirmed = oldRecord.getConfirmed();
+        newRecord.confirmedDate = oldRecord.getConfirmedDate();
+        newRecord.paymentUUID = oldRecord.getPaymentId();
+        newRecord.jobUUID = "" + oldRecord.getJobId();
         return newRecord;
     }
 

@@ -19,48 +19,46 @@ class ConnectJobPaymentRecordV21 :
     Serializable {
     @Persisting(1)
     @MetaField(META_JOB_ID)
-    private var jobId = 0
+    var jobId = 0
 
     /**
      * Date is used to tell when the payment is created
      */
     @Persisting(2)
     @MetaField(META_DATE)
-    private var date: Date? = null
+    var date: Date? = null
 
     @Persisting(3)
     @MetaField(META_AMOUNT)
-    private var amount: String? = null
+    var amount: String? = null
 
     @Persisting(4)
     @MetaField(META_PAYMENT_ID)
-    private var paymentId: String? = null
+    var paymentId: String? = null
 
     @Persisting(5)
     @MetaField(META_CONFIRMED)
-    private var confirmed = false
+    var confirmed = false
 
     /**
      * Confirm Date is used to tell when the worker has confirmed this payment is done
      */
     @Persisting(6)
     @MetaField(META_CONFIRMED_DATE)
-    private var confirmedDate: Date? = null
+    var confirmedDate: Date? = null
 
     companion object {
         const val STORAGE_KEY = ConnectJobPaymentRecord.STORAGE_KEY
 
-        fun fromV21(connectJobPaymentRecordV21: ConnectJobPaymentRecordV21): ConnectJobPaymentRecord {
-            val payment = ConnectJobPaymentRecord()
-            payment.jobId = connectJobPaymentRecordV21.jobId
-            payment.jobUUID = "${connectJobPaymentRecordV21.jobId}"
-            payment.paymentUUID = connectJobPaymentRecordV21.paymentId
-            payment.date = connectJobPaymentRecordV21.date
-            payment.amount = connectJobPaymentRecordV21.amount
-            payment.paymentId = connectJobPaymentRecordV21.paymentId
-            payment.confirmed = connectJobPaymentRecordV21.confirmed
-            payment.confirmedDate = connectJobPaymentRecordV21.confirmedDate
-            return payment
+        fun fromV3(oldRecord: ConnectJobPaymentRecordV3): ConnectJobPaymentRecordV21 {
+            val newRecord = ConnectJobPaymentRecordV21()
+            newRecord.jobId = oldRecord.getJobId()
+            newRecord.date = oldRecord.getDate()
+            newRecord.amount = oldRecord.getAmount()
+            newRecord.paymentId = "-1"
+            newRecord.confirmed = false
+            newRecord.confirmedDate = Date()
+            return newRecord
         }
     }
 }

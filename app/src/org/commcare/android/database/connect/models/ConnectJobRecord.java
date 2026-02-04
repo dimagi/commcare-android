@@ -680,9 +680,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return lines.isEmpty() ? null : TextUtils.join("\n", lines);
     }
 
-    public static ConnectJobRecord fromV10(ConnectJobRecordV10 oldRecord) {
+    public static ConnectJobRecord fromV21(ConnectJobRecordV21 oldRecord) {
         ConnectJobRecord newRecord = new ConnectJobRecord();
-
         newRecord.jobId = oldRecord.getJobId();
         newRecord.title = oldRecord.getTitle();
         newRecord.description = oldRecord.getDescription();
@@ -694,28 +693,22 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.totalBudget = oldRecord.getTotalBudget();
         newRecord.projectEndDate = oldRecord.getProjectEndDate();
         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
-        newRecord.deliveries = new ArrayList<>();
-        newRecord.payments = new ArrayList<>();
-        newRecord.learnings = new ArrayList<>();
-        newRecord.assessments = new ArrayList<>();
-        newRecord.paymentUnits = new ArrayList<>();
-
         newRecord.organization = oldRecord.getOrganization();
         newRecord.numLearningModules = oldRecord.getNumLearningModules();
-        newRecord.learningModulesCompleted = oldRecord.getCompletedLearningModules();
+        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
         newRecord.currency = oldRecord.getCurrency();
-        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
+        newRecord.paymentAccrued = oldRecord.getPaymentAccrued();
         newRecord.shortDescription = oldRecord.getShortDescription();
         newRecord.lastUpdate = oldRecord.getLastUpdate();
         newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
         newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
         newRecord.dateClaimed = oldRecord.getDateClaimed();
         newRecord.projectStartDate = oldRecord.getProjectStartDate();
-        newRecord.isActive = oldRecord.getIsActive();
-        newRecord.isUserSuspended = oldRecord.getIsUserSuspended();
-        newRecord.dailyStartTime = "";
-        newRecord.dailyFinishTime = "";
-
+        newRecord.isActive = oldRecord.isActive();
+        newRecord.isUserSuspended = oldRecord.isUserSuspended();
+        newRecord.dailyStartTime = oldRecord.getDailyStartTime();
+        newRecord.dailyFinishTime = oldRecord.getDailyFinishTime();
+        newRecord.jobUUID = "" + oldRecord.getJobId();
         return newRecord;
     }
 

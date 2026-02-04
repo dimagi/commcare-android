@@ -302,13 +302,13 @@ public class ConnectDatabaseUpgrader {
                     new ConcreteAndroidDbHelper(c, db));
 
             newStorage = new SqlStorage<>(
-                    ConnectJobPaymentRecord.STORAGE_KEY,
-                    ConnectJobPaymentRecord.class,
+                    ConnectJobPaymentRecordV21.STORAGE_KEY,
+                    ConnectJobPaymentRecordV21.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
                 ConnectJobPaymentRecordV3 oldRecord = (ConnectJobPaymentRecordV3)r;
-                ConnectJobPaymentRecord newRecord = ConnectJobPaymentRecord.fromV3(oldRecord);
+                ConnectJobPaymentRecordV21 newRecord = ConnectJobPaymentRecordV21.Companion.fromV3(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -534,13 +534,13 @@ public class ConnectDatabaseUpgrader {
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.class,
+                    ConnectJobRecordV21.STORAGE_KEY,
+                    ConnectJobRecordV21.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
                 ConnectJobRecordV10 oldRecord = (ConnectJobRecordV10)r;
-                ConnectJobRecord newRecord = ConnectJobRecord.fromV10(oldRecord);
+                ConnectJobRecordV21 newRecord = ConnectJobRecordV21.Companion.fromV10(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -548,18 +548,18 @@ public class ConnectDatabaseUpgrader {
 
             //Next, migrate the old ConnectJobDeliveryRecord in storage to the new version
             oldStorage = new SqlStorage<>(
-                    ConnectJobDeliveryRecord.STORAGE_KEY,
+                    ConnectJobDeliveryRecordV2.STORAGE_KEY,
                     ConnectJobDeliveryRecordV2.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             newStorage = new SqlStorage<>(
-                    ConnectJobDeliveryRecord.STORAGE_KEY,
-                    ConnectJobDeliveryRecord.class,
+                    ConnectJobDeliveryRecordV21.STORAGE_KEY,
+                    ConnectJobDeliveryRecordV21.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
                 ConnectJobDeliveryRecordV2 oldRecord = (ConnectJobDeliveryRecordV2)r;
-                ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecord.fromV2(oldRecord);
+                ConnectJobDeliveryRecordV21 newRecord = ConnectJobDeliveryRecordV21.Companion.fromV2(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -736,7 +736,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectJobRecordV21 oldRecord = (ConnectJobRecordV21)r;
-            ConnectJobRecord newRecord = ConnectJobRecordV21.Companion.fromV21(oldRecord);
+            ConnectJobRecord newRecord = ConnectJobRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -760,7 +760,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectJobDeliveryRecordV21 oldRecord = (ConnectJobDeliveryRecordV21)r;
-            ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecordV21.Companion.fromV21(oldRecord);
+            ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -837,7 +837,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectJobPaymentRecordV21 oldRecord = (ConnectJobPaymentRecordV21)r;
-            ConnectJobPaymentRecord newRecord = ConnectJobPaymentRecordV21.Companion.fromV21(oldRecord);
+            ConnectJobPaymentRecord newRecord = ConnectJobPaymentRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
