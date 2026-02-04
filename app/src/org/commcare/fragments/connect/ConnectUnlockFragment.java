@@ -63,13 +63,13 @@ public class ConnectUnlockFragment extends Fragment {
     private final Runnable unlockRunnable = new Runnable() {
         @Override
         public void run() {
-            PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
-                if (success) {
+//            PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
+//                if (success) {
                     retrieveOpportunities();
-                } else {
-                    requireActivity().finish();
-                }
-            });
+//                } else {
+//                    requireActivity().finish();
+//                }
+//            });
         }
     };
 
