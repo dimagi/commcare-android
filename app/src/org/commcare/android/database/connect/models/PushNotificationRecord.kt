@@ -65,6 +65,14 @@ class PushNotificationRecord :
     @MetaField(META_ACKNOWLEDGED)
     var acknowledged: Boolean = false
 
+    @Persisting(14)
+    @MetaField(META_PAYMENT_UUID)
+    var paymentUUID: String = ""
+
+    @Persisting(15)
+    @MetaField(META_OPPORTUNITY_UUID)
+    var opportunityUUID: String = ""
+
     companion object {
         const val STORAGE_KEY = "push_notification_history"
 
@@ -81,8 +89,9 @@ class PushNotificationRecord :
         const val META_PAYMENT_ID = "payment_id"
         const val META_READ_STATUS = "read_status"
         const val META_ACKNOWLEDGED = "acknowledged"
-
         const val META_TIME_STAMP = "timestamp"
+        const val META_OPPORTUNITY_UUID = "opportunity_uuid"
+        const val META_PAYMENT_UUID = "payment_uuid"
 
         fun fromJson(obj: JSONObject): PushNotificationRecord =
             PushNotificationRecord().apply {
@@ -99,6 +108,8 @@ class PushNotificationRecord :
                 channel = obj.optString(META_CHANNEL, "")
                 action = obj.optString(META_ACTION, "")
                 opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
+                opportunityUUID = obj.optString(META_OPPORTUNITY_UUID, "")
+                paymentUUID = obj.optString(META_PAYMENT_UUID, "")
             }
     }
 }

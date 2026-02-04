@@ -74,8 +74,7 @@ class ConnectJobDeliveryRecordV21 :
             newRecord.entityName = oldRecord.entityName
             newRecord.lastUpdate = oldRecord.lastUpdate
             newRecord.reason = oldRecord.reason
-            newRecord.deliveryUUID = "${oldRecord.deliveryId}"
-            newRecord.jobUUID = "${newRecord.jobId}"
+            newRecord.jobUUID = "${oldRecord.jobId}"
             return newRecord
         }
     }

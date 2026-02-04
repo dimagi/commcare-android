@@ -36,7 +36,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static final String META_ENTITY_ID = "entity_id";
     public static final String META_ENTITY_NAME = "entity_name";
     public static final String META_FLAGS = "flags";
-    public static final String META_DELIVERY_UUID = "delivery_id";  // todo The server needs to confirm this delivery UUID field name.
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
@@ -71,10 +70,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     private String reason;
 
     @Persisting(11)
-    @MetaField(META_DELIVERY_UUID)
-    private String deliveryUUID;
-
-    @Persisting(12)
     @MetaField(META_JOB_UUID)
     private String jobUUID;
 
@@ -96,9 +91,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         }
 
         delivery.deliveryId = json.getInt(META_ID);
-        String deliveryUUID = json.optString(META_DELIVERY_UUID, "");
-        delivery.deliveryUUID = deliveryUUID.isEmpty() ? Integer.toString(delivery.deliveryId) : deliveryUUID;
-
         delivery.lastUpdate = new Date();
         String dateString = json.getString(META_DATE);
         delivery.date = DateUtils.parseDateTime(dateString);
@@ -155,10 +147,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
 
     public String getReason() {
         return reason;
-    }
-
-    public String getDeliveryUUID() {
-        return deliveryUUID;
     }
 
     public String getJobUUID() {
@@ -222,10 +210,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
 
     public void setReason(String reason) {
         this.reason = reason;
-    }
-
-    public void setDeliveryUUID(String deliveryUUID) {
-        this.deliveryUUID = deliveryUUID;
     }
 
     public void setFlags(List<ConnectJobDeliveryFlagRecord> flags) {
