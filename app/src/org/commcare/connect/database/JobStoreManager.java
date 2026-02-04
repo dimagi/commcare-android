@@ -44,10 +44,10 @@ public class JobStoreManager {
         }
     }
 
-    private void pruneOldJobs(List<ConnectJobRecord> existingList, List<ConnectJobRecord> jobs) {
-        Set<Integer> incomingJobIds = new HashSet<>();
-        for (ConnectJobRecord job : jobs) {
-            incomingJobIds.add(job.getJobId());
+    private void pruneOldJobs(List<ConnectJobRecord> existingList, List<ConnectJobRecord> serverList) {
+        Set<String> incomingJobUUIDs = new HashSet<>();
+        for (ConnectJobRecord job : serverList) {
+            incomingJobUUIDs.add(job.getJobUUID());
         }
 
         Vector<Integer> jobIdsToDelete = new Vector<>();
@@ -56,7 +56,7 @@ public class JobStoreManager {
         Vector<Integer> paymentUnitIdsToDelete = new Vector<>();
 
         for (ConnectJobRecord existing : existingList) {
-            if (!incomingJobIds.contains(existing.getJobId())) {
+            if (!incomingJobUUIDs.contains(existing.getJobUUID())) {
                 jobIdsToDelete.add(existing.getID());
                 appInfoIdsToDelete.add(existing.getLearnAppInfo().getID());
                 appInfoIdsToDelete.add(existing.getDeliveryAppInfo().getID());
@@ -99,7 +99,7 @@ public class JobStoreManager {
         // Check if the job already exists
         boolean isExisting = false;
         for (ConnectJobRecord existingJob : existingJobs) {
-            if (existingJob.getJobId() == job.getJobId()) {
+            if (existingJob.getJobUUID().equals(job.getJobUUID())) {
                 job.setID(existingJob.getID());  // Set ID for updating
                 if(existingJob.getStatus() > job.getStatus()) {
                     //Status should never go backwards
@@ -128,8 +128,8 @@ public class JobStoreManager {
     private void storeAppInfo(ConnectJobRecord job) {
         // Check if LearnAppInfo already exists
         Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
-                new String[]{ConnectAppRecord.META_JOB_ID},
-                new Object[]{job.getJobId()}
+                new String[]{ConnectAppRecord.META_JOB_UUID},
+                new Object[]{job.getJobUUID()}
         );
 
         // Update LearnAppInfo and DeliveryAppInfo if they already exist
@@ -140,8 +140,10 @@ public class JobStoreManager {
                 job.getDeliveryAppInfo().setID(existing.getID());  // Set ID for updating
             }
         }
-        job.getLearnAppInfo().setJobId(job.getJobId());
-        job.getDeliveryAppInfo().setJobId(job.getJobId());
+        job.getLearnAppInfo().setJobId(job.getJobId()); //  TODO to visit wheather to remove or not
+        job.getDeliveryAppInfo().setJobId(job.getJobId());  //  TODO to visit wheather to remove or not
+        job.getLearnAppInfo().setJobUUID(job.getJobUUID());
+        job.getDeliveryAppInfo().setJobUUID(job.getJobUUID());
         job.getLearnAppInfo().setLastUpdate(new Date());
         job.getDeliveryAppInfo().setLastUpdate(new Date());
 
@@ -151,8 +153,8 @@ public class JobStoreManager {
 
     private void storeModules(ConnectJobRecord job) {
         Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getRecordsForValues(
-                new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
-                new Object[]{job.getJobId()}
+                new String[]{ConnectLearnModuleSummaryRecord.META_JOB_UUID},
+                new Object[]{job.getJobUUID()}
         );
 
         // Prune old modules that are not present in the incoming data
@@ -174,7 +176,8 @@ public class JobStoreManager {
 
         // Store or update current modules
         for (ConnectLearnModuleSummaryRecord module : job.getLearnAppInfo().getLearnModules()) {
-            module.setJobId(job.getJobId());
+            module.setJobId(job.getJobId());    // TODO to visit wheather to remove or not
+            module.setJobUUID(job.getJobUUID());
             module.setLastUpdate(new Date());
             moduleStorage.write(module);
         }
@@ -182,8 +185,8 @@ public class JobStoreManager {
 
     private void storePaymentUnits(ConnectJobRecord job) {
         Vector<ConnectPaymentUnitRecord> existingPaymentUnits = paymentUnitStorage.getRecordsForValues(
-                new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
-                new Object[]{job.getJobId()}
+                new String[]{ConnectPaymentUnitRecord.META_JOB_UUID},
+                new Object[]{job.getJobUUID()}
         );
 
         // Prune old payment units that are not present in the incoming data
@@ -205,7 +208,8 @@ public class JobStoreManager {
 
         // Store or update current payment units
         for (ConnectPaymentUnitRecord record : job.getPaymentUnits()) {
-            record.setJobId(job.getJobId());
+            record.setJobId(job.getJobId());    //  TODO to visit wheather to remove or not
+            record.setJobUUID(job.getJobUUID());
             paymentUnitStorage.write(record);
         }
     }

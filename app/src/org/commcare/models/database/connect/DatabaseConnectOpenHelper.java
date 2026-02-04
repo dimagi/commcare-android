@@ -62,6 +62,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.19 - Added push_notification_history
      * V.20 - Added acknowledged column in push_notification_history
      * V.21 - Added ConnectReleaseToggleRecord table
+     * V.22 - Migrations for UUIDs
      */
     private static final int CONNECT_DB_VERSION = 22;
 

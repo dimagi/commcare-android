@@ -58,6 +58,7 @@ import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 /**
@@ -256,15 +257,16 @@ public class FirebaseMessagingUtil {
      * @return
      */
     private static Intent handleResumeLearningOrDeliveryJobPushNotification(Boolean isLearning, Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID) ||
+                fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
-            intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            if(showNotification) showNotification(context, buildNotification(context, intent, fcmMessageData),
-                    fcmMessageData);
+            if (showNotification)
+                showNotification(context, buildNotification(context, intent, fcmMessageData),
+                        fcmMessageData);
             return intent;
         }
         String ccc_action = isLearning ? CCC_DEST_LEARN_PROGRESS : CCC_DEST_DELIVERY_PROGRESS;
-        Logger.exception("Empty push notification for action '" + ccc_action + "'", new Throwable(String.format("Empty notification without 'opportunity_id'")));
+        Logger.exception("Empty push notification for action '" + ccc_action + "'", new Throwable(String.format("Empty notification without 'opportunity' details")));
         return null;
     }
 
@@ -277,14 +279,15 @@ public class FirebaseMessagingUtil {
      * @return
      */
     private static Intent handleOpportunitySummaryPagePushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID) ||
+                fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
-            intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            if(showNotification) showNotification(context, buildNotification(context, intent, fcmMessageData),
-                    fcmMessageData);
+            if (showNotification)
+                showNotification(context, buildNotification(context, intent, fcmMessageData),
+                        fcmMessageData);
             return intent;
         }
-        Logger.exception("Empty push notification for action 'ccc_opportunity_summary_page'", new Throwable(String.format("Empty notification without 'opportunity_id'")));
+        Logger.exception("Empty push notification for action 'ccc_opportunity_summary_page'", new Throwable(String.format("Empty notification without 'opportunity' details")));
         return null;
     }
 
@@ -394,7 +397,10 @@ public class FirebaseMessagingUtil {
     private static Intent getConnectActivityNotification(Context context, FCMMessageData fcmMessageData) {
         Intent intent = new Intent(context, ConnectActivity.class);
         intent.putExtra(REDIRECT_ACTION, fcmMessageData.getAction());
-        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID)) {
+            intent.putExtra(OPPORTUNITY_UUID, fcmMessageData.getPayloadData().get(OPPORTUNITY_UUID));
+        }
+        if(fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)){
             intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
         }
         return intent;

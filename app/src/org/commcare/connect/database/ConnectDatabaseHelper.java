@@ -44,7 +44,7 @@ public class ConnectDatabaseHelper {
         return dbBroken;
     }
 
-    static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
+    public static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
         return new SqlStorage<>(c.getAnnotation(Table.class).value(), c, new AndroidDbHelper(context) {
             @Override
             public IDatabase getHandle() {

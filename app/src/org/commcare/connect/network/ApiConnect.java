@@ -50,13 +50,13 @@ public class ApiConnect {
 
     }
 
-    public static void startLearnApp(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
+    public static void startLearnApp(Context context, @NonNull ConnectUserRecord user, String jobUUID, IApiCallback callback) {
 
         ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
                 HashMap<String, Object> params = new HashMap<>();
-                params.put("opportunity", String.valueOf(jobId));
+                params.put("opportunity", jobUUID);
 
                 HashMap<String, String> headers = new HashMap<>();
                 RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, API_VERSION_CONNECT, headers);
@@ -80,7 +80,7 @@ public class ApiConnect {
 
     }
 
-    public static void getLearningAppProgress(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
+    public static void getLearningAppProgress(Context context, @NonNull ConnectUserRecord user, String jobUUID, IApiCallback callback) {
 
         ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
@@ -90,7 +90,7 @@ public class ApiConnect {
                 ApiService apiService = ConnectApiClient.Companion.getClientApi();
                 HashMap<String, String> headers = new HashMap<>();
                 ConnectNetworkHelper.addVersionHeader(headers, API_VERSION_CONNECT);
-                Call<ResponseBody> call = apiService.getConnectLearningAppProgress(tokenAuth,jobId,headers);
+                Call<ResponseBody> call = apiService.getConnectLearningAppProgress(tokenAuth,jobUUID,headers);
                 BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectLearnProgressURL);
             }
 
@@ -107,7 +107,7 @@ public class ApiConnect {
 
     }
 
-    public static void claimJob(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
+    public static void claimJob(Context context, @NonNull ConnectUserRecord user, String jobUUID, IApiCallback callback) {
         ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
@@ -118,7 +118,7 @@ public class ApiConnect {
 
                 String tokenAuth = HttpUtils.getCredential(token);
                 ApiService apiService = ConnectApiClient.Companion.getClientApi();
-                Call<ResponseBody> call = apiService.connectClaimJob(tokenAuth,jobId,headers,requestBody);
+                Call<ResponseBody> call = apiService.connectClaimJob(tokenAuth,jobUUID,headers,requestBody);
                 BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectClaimJobURL);
 
             }
@@ -136,7 +136,7 @@ public class ApiConnect {
 
     }
 
-    public static void getDeliveries(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback callback) {
+    public static void getDeliveries(Context context, @NonNull ConnectUserRecord user, String jobUUID, IApiCallback callback) {
 
         ConnectSsoHelper.retrievePersonalIdToken(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
@@ -145,7 +145,7 @@ public class ApiConnect {
                 ApiService apiService = ConnectApiClient.Companion.getClientApi();
                 HashMap<String, String> headers = new HashMap<>();
                 ConnectNetworkHelper.addVersionHeader(headers, API_VERSION_CONNECT);
-                Call<ResponseBody> call = apiService.getConnectDeliveries(tokenAuth,jobId,headers);
+                Call<ResponseBody> call = apiService.getConnectDeliveries(tokenAuth, jobUUID, headers);
                 BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectDeliveriesURL);
             }
 

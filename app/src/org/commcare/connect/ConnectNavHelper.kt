@@ -9,7 +9,7 @@ import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
-import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 
@@ -77,7 +77,7 @@ object ConnectNavHelper {
         checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
         i.putExtra(GO_TO_JOB_STATUS, true)
-        i.putExtra(OPPORTUNITY_ID, job.jobId)
+        i.putExtra(OPPORTUNITY_UUID, job.jobUUID)
         i.putExtra(SHOW_LAUNCH_BUTTON, allowProgression)
         context.startActivity(i)
     }
