@@ -1,7 +1,5 @@
 package org.commcare.connect.network.base
 
-import org.commcare.activities.FormEntryActivity
-import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
@@ -42,17 +40,16 @@ abstract class BaseApiCallback<T>(
                 )
 
             400 -> {
-                if (FormEntryActivity.mFormController == null &&
-                    ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody))
-                {
-                    GlobalErrorUtil.triggerGlobalError(
+                if (!ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody) ||
+                    !GlobalErrorUtil.triggerGlobalError(
                         GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR
                     )
+                ) {
+                    baseApiHandler.stopLoadingAndInformError(
+                        PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,
+                        null,
+                    )
                 }
-                baseApiHandler.stopLoadingAndInformError(
-                    PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,
-                    null,
-                )
             }
 
             in 500..509 ->
