@@ -222,7 +222,7 @@
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated" cc:translatable="true">This app is outdated. Please update the app on the Google Play Store in order to proceed.</string>
     <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue. Please try again.</string>
-    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost PersonalID configuration with server, please recover your Personal ID account and retry</string>
+    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
     <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
     <string name="recovery_network_server_error">There was an error processing your request.</string>
     <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
@@ -590,9 +590,9 @@
     <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
-    <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
+    <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for PersonalID from the menu.</string>
     <string name="personalid_login_via_connect">Ready to login!\n</string>
-    <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
+    <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
@@ -641,7 +641,7 @@
 
     <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
     <string name="nav_drawer_payments">Payments</string>
