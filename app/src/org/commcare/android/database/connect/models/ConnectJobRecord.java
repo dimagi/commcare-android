@@ -202,10 +202,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);
-        job.jobUUID = json.optString(META_JOB_UUID, "");
-        if (job.jobUUID.isEmpty()) {
-            job.jobUUID = String.valueOf(job.jobId);
-        }
+        job.jobUUID = json.getString(META_JOB_UUID);
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
