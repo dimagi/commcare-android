@@ -3,10 +3,16 @@ package org.commcare.connect.network;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
+
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.utils.JsonExtensions;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
@@ -54,5 +60,22 @@ public class ConnectNetworkHelper {
             //Empty headers if something goes wrong
         }
         return headers;
+    }
+
+    public static boolean checkForLoginFromDifferentDevice(String errorBody) {
+        if (errorBody == null) {
+            return false;
+        }
+
+        String errorCode;
+        try {
+            JSONObject json = new JSONObject(errorBody);
+            errorCode = JsonExtensions.optStringSafe(json, "error_code", null);
+        } catch (JSONException e) {
+            //It's okay for the error body not to be JSON
+            return false;
+        }
+
+        return "LOGIN_FROM_DIFFERENT_DEVICE".equals(errorCode);
     }
 }
