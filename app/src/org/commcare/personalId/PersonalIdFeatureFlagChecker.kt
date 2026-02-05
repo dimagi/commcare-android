@@ -3,7 +3,7 @@ package org.commcare.personalId
 import androidx.annotation.StringDef
 
 /**
- * Utility class to check for enabled feature flags related to Personal ID functionality.
+ * Utility class to check for enabled feature flags related to PersonalID functionality.
  */
 class PersonalIdFeatureFlagChecker {
     @StringDef
