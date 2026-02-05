@@ -38,6 +38,7 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
+import static org.commcare.util.LogTypes.TYPE_ERROR_DESIGN;
 
 /**
  * Created by amstone326 on 10/13/17.
@@ -617,12 +618,63 @@ public class FirebaseAnalyticsUtil {
     public static void reportPersonalIdReleaseTogglesChanged(
             List<ConnectReleaseToggleRecord> toggles
     ) {
+        if (toggles == null || toggles.isEmpty()) {
+            return;
+        }
+
         Bundle bundle = new Bundle();
 
+        // Make sure that we don't cross Firebase's limit of 25 parameters.
+        int paramCount = 0;
+
         for (ConnectReleaseToggleRecord toggle : toggles) {
-            bundle.putLong(toggle.getSlug(), toggle.getActive() ? 1 : 0);
+            if (paramCount >= 25) {
+                Logger.log(TYPE_ERROR_DESIGN, "There are too many toggles to report to Firebase! Dropping the following toggle from analytics: " + toggle.getSlug());
+                break;
+            }
+
+            String sanitizedKey = sanitizeParamName(toggle.getSlug());
+            bundle.putLong(sanitizedKey, toggle.getActive() ? 1 : 0);
+            paramCount++;
         }
 
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_RELEASE_TOGGLES, bundle);
     }
+
+    /**
+     * Sanitizes a string to be a valid Firebase Analytics parameter name.
+     * Constraints: max 40 chars, alphanumeric/underscores only, starts with a letter,
+     * no reserved prefixes.
+     *
+     * @param param The parameter name to sanitize.
+     * @return A string representing the sanitized name.
+     */
+    private static String sanitizeParamName(String param) {
+        if (param == null || param.isEmpty()) {
+            Logger.log(TYPE_ERROR_DESIGN, "An invalid empty parameter was passed to Firebase analytics!");
+            return "unknown_param";
+        }
+
+        // Replace invalid characters (anything not alphanumeric or underscore) with underscore.
+        String sanitizedParam = param.replaceAll("[^a-zA-Z0-9_]", "_");
+
+        // Ensure it starts with a letter (prepend 'p_' if it starts with a digit or underscore).
+        if (!Character.isLetter(sanitizedParam.charAt(0))) {
+            sanitizedParam = "p_" + sanitizedParam;
+        }
+
+        // Remove reserved prefixes.
+        String lower = sanitizedParam.toLowerCase();
+        if (lower.startsWith("firebase_") || lower.startsWith("google_") || lower.startsWith("ga_")) {
+            sanitizedParam = "p_" + sanitizedParam;
+        }
+
+        // Truncate to 40 characters.
+        if (sanitizedParam.length() > 40) {
+            sanitizedParam = sanitizedParam.substring(0, 40);
+        }
+
+        return sanitizedParam;
+    }
+
 }
