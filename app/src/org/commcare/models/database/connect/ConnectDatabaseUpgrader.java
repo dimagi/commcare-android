@@ -784,7 +784,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectJobLearningRecordV21 oldRecord = (ConnectJobLearningRecordV21)r;
-            ConnectJobLearningRecord newRecord = ConnectJobLearningRecordV21.Companion.fromV21(oldRecord);
+            ConnectJobLearningRecord newRecord = ConnectJobLearningRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -808,7 +808,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectJobAssessmentRecordV21 oldRecord = (ConnectJobAssessmentRecordV21)r;
-            ConnectJobAssessmentRecord newRecord = ConnectJobAssessmentRecordV21.Companion.fromV21(oldRecord);
+            ConnectJobAssessmentRecord newRecord = ConnectJobAssessmentRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -861,7 +861,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectAppRecordV21 oldRecord = (ConnectAppRecordV21)r;
-            ConnectAppRecord newRecord = ConnectAppRecordV21.Companion.fromV21(oldRecord);
+            ConnectAppRecord newRecord = ConnectAppRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -885,7 +885,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectLearnModuleSummaryRecordV21 oldRecord = (ConnectLearnModuleSummaryRecordV21)r;
-            ConnectLearnModuleSummaryRecord newRecord = ConnectLearnModuleSummaryRecordV21.Companion.fromV21(oldRecord);
+            ConnectLearnModuleSummaryRecord newRecord = ConnectLearnModuleSummaryRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -914,7 +914,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectPaymentUnitRecordV21 oldRecord = (ConnectPaymentUnitRecordV21)r;
-            ConnectPaymentUnitRecord newRecord = ConnectPaymentUnitRecordV21.Companion.fromV21(oldRecord);
+            ConnectPaymentUnitRecord newRecord = ConnectPaymentUnitRecord.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -942,7 +942,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             PushNotificationRecordV21 oldRecord = (PushNotificationRecordV21)r;
-            PushNotificationRecord newRecord = PushNotificationRecordV21.Companion.fromV21(oldRecord);
+            PushNotificationRecord newRecord = PushNotificationRecord.Companion.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }

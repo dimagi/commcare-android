@@ -84,11 +84,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static ConnectJobDeliveryRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
         ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
         delivery.jobId = job.getJobId();
-        if (job.getJobUUID().isEmpty()) {
-            delivery.jobUUID = Integer.toString(job.getJobId());
-        } else {
-            delivery.jobUUID = job.getJobUUID();
-        }
+        delivery.jobUUID = job.getJobUUID();
 
         delivery.deliveryId = json.getInt(META_ID);
         delivery.lastUpdate = new Date();
@@ -187,7 +183,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         newRecord.entityName = oldRecord.getEntityName();
         newRecord.lastUpdate = oldRecord.getLastUpdate();
         newRecord.reason = oldRecord.getReason();
-        newRecord.jobUUID = ""+oldRecord.getJobId();
+        newRecord.jobUUID = String.valueOf(oldRecord.getJobId());
 
         return newRecord;
     }

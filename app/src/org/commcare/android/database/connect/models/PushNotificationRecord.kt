@@ -111,5 +111,24 @@ class PushNotificationRecord :
                 opportunityUUID = obj.optString(META_OPPORTUNITY_UUID, "")
                 paymentUUID = obj.optString(META_PAYMENT_UUID, "")
             }
+
+        fun fromV21(pushNotificationRecordV21: PushNotificationRecordV21): PushNotificationRecord =
+            PushNotificationRecord().apply {
+                notificationId = pushNotificationRecordV21.notificationId
+                title = pushNotificationRecordV21.title
+                body = pushNotificationRecordV21.body
+                notificationType = pushNotificationRecordV21.notificationType
+                confirmationStatus = pushNotificationRecordV21.confirmationStatus
+                paymentId = pushNotificationRecordV21.paymentId
+                readStatus = pushNotificationRecordV21.readStatus
+                createdDate = pushNotificationRecordV21.createdDate
+                connectMessageId = pushNotificationRecordV21.connectMessageId
+                channel = pushNotificationRecordV21.channel
+                action = pushNotificationRecordV21.action
+                acknowledged = pushNotificationRecordV21.acknowledged
+                opportunityId = pushNotificationRecordV21.opportunityId
+                opportunityUUID = pushNotificationRecordV21.opportunityId
+                paymentUUID = pushNotificationRecordV21.paymentId
+            }
     }
 }

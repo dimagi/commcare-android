@@ -69,16 +69,10 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
         ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
 
             paymentUnit.jobId = job.getJobId();
-
-            if (job.getJobUUID().isEmpty()) {
-                paymentUnit.jobUUID = Integer.toString(job.getJobId());
-            } else {
-                paymentUnit.jobUUID = job.getJobUUID();
-            }
+            paymentUnit.jobUUID = job.getJobUUID();
 
             paymentUnit.unitId = json.getInt(META_ID);
-            String unitUUID = json.optString(META_PAYMENT_UNIT_UUID, "");
-            paymentUnit.unitUUID = unitUUID.isEmpty() ? Integer.toString(paymentUnit.unitId) : unitUUID;
+            paymentUnit.unitUUID = json.getString(META_PAYMENT_UNIT_UUID);
 
             paymentUnit.name = json.getString(META_NAME);
             paymentUnit.maxTotal = json.getInt(META_TOTAL);
@@ -90,6 +84,19 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
             Logger.exception("Error parsing Connect payment", e);
             return null;
         }
+    }
+
+    public static ConnectPaymentUnitRecord fromV21(ConnectPaymentUnitRecordV21 connectPaymentUnitRecordV21) {
+        ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
+        paymentUnit.jobId = connectPaymentUnitRecordV21.getJobId();
+        paymentUnit.jobUUID = String.valueOf(connectPaymentUnitRecordV21.getJobId());
+        paymentUnit.unitId = connectPaymentUnitRecordV21.getUnitId();
+        paymentUnit.unitUUID = String.valueOf(connectPaymentUnitRecordV21.getUnitId());
+        paymentUnit.name = connectPaymentUnitRecordV21.getName();
+        paymentUnit.maxTotal = connectPaymentUnitRecordV21.getMaxTotal();
+        paymentUnit.maxDaily = connectPaymentUnitRecordV21.getMaxDaily();
+        paymentUnit.amount = connectPaymentUnitRecordV21.getAmount();
+        return paymentUnit;
     }
 
     public int getJobId() {
@@ -122,37 +129,5 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
     public int getAmount() {
         return amount;
-    }
-
-    public void setUnitId(int unitId) {
-        this.unitId = unitId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setMaxDaily(int maxDaily) {
-        this.maxDaily = maxDaily;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
-    public String getJobUUID() {
-        return jobUUID;
-    }
-
-    public void setJobUUID(String jobUUID) {
-        this.jobUUID = jobUUID;
-    }
-
-    public String getUnitUUID() {
-        return unitUUID;
-    }
-
-    public void setUnitUUID(String unitUUID) {
-        this.unitUUID = unitUUID;
     }
 }

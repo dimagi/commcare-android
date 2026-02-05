@@ -21,59 +21,43 @@ class ConnectAppRecordV21 :
     Serializable {
     @Persisting(1)
     @MetaField(META_JOB_ID)
-    private var jobId = 0
+    var jobId = 0
 
     @Persisting(2)
-    private var isLearning = false
+    var isLearning = false
 
     @Persisting(3)
     @MetaField(META_DOMAIN)
-    private var domain: String? = null
+    var domain: String? = null
 
     @Persisting(4)
     @MetaField(META_APP_ID)
-    private var appId: String? = null
+    var appId: String? = null
 
     @Persisting(5)
     @MetaField(META_NAME)
-    private var name: String? = null
+    var name: String? = null
 
     @Persisting(6)
     @MetaField(META_DESCRIPTION)
-    private var description: String? = null
+    var description: String? = null
 
     @Persisting(7)
     @MetaField(META_ORGANIZATION)
-    private var organization: String? = null
+    var organization: String? = null
 
     @Persisting(8)
     @MetaField(META_PASSING_SCORE)
-    private var passingScore = 0
+    var passingScore = 0
 
     @Persisting(9)
     @MetaField(META_INSTALL_URL)
-    private var installUrl: String? = null
+    var installUrl: String? = null
 
     @Persisting(10)
-    private var lastUpdate: Date? = null
+    var lastUpdate: Date? = null
 
     companion object {
         const val STORAGE_KEY = ConnectAppRecord.STORAGE_KEY
-
-        fun fromV21(connectAppRecordV21: ConnectAppRecordV21): ConnectAppRecord {
-            val app = ConnectAppRecord()
-            app.jobId = connectAppRecordV21.jobId
-            app.isLearning = connectAppRecordV21.isLearning
-            app.domain = connectAppRecordV21.domain
-            app.appId = connectAppRecordV21.appId
-            app.jobUUID = "${connectAppRecordV21.jobId}"
-            app.name = connectAppRecordV21.name
-            app.description = connectAppRecordV21.description
-            app.organization = connectAppRecordV21.organization
-            app.passingScore = connectAppRecordV21.passingScore
-            app.installUrl = connectAppRecordV21.installUrl
-            app.lastUpdate = connectAppRecordV21.lastUpdate
-            return app
-        }
     }
 }

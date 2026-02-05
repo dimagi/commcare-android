@@ -18,42 +18,29 @@ class ConnectPaymentUnitRecordV21 :
     Serializable {
     @Persisting(1)
     @MetaField(META_JOB_ID)
-    private var jobId = 0
+    var jobId = 0
 
     @Persisting(2)
     @MetaField(META_UNIT_ID)
-    private var unitId = 0
+    var unitId = 0
 
     @Persisting(3)
     @MetaField(META_NAME)
-    private var name: String? = null
+    var name: String? = null
 
     @Persisting(4)
     @MetaField(META_TOTAL)
-    private var maxTotal = 0
+    var maxTotal = 0
 
     @Persisting(5)
     @MetaField(META_DAILY)
-    private var maxDaily = 0
+    var maxDaily = 0
 
     @Persisting(6)
     @MetaField(META_AMOUNT)
-    private var amount = 0
+    var amount = 0
 
     companion object {
         const val STORAGE_KEY = ConnectPaymentUnitRecord.STORAGE_KEY
-
-        fun fromV21(connectPaymentUnitRecordV21: ConnectPaymentUnitRecordV21): ConnectPaymentUnitRecord {
-            val paymentUnit = ConnectPaymentUnitRecord()
-            paymentUnit.jobId = connectPaymentUnitRecordV21.jobId
-            paymentUnit.jobUUID = "${connectPaymentUnitRecordV21.jobId}"
-            paymentUnit.unitId = connectPaymentUnitRecordV21.unitId
-            paymentUnit.unitUUID = "${connectPaymentUnitRecordV21.unitId}"
-            paymentUnit.name = connectPaymentUnitRecordV21.name
-            paymentUnit.maxTotal = connectPaymentUnitRecordV21.maxTotal
-            paymentUnit.maxDaily = connectPaymentUnitRecordV21.maxDaily
-            paymentUnit.amount = connectPaymentUnitRecordV21.amount
-            return paymentUnit
-        }
     }
 }

@@ -78,7 +78,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         newRecord.confirmed = oldRecord.getConfirmed();
         newRecord.confirmedDate = oldRecord.getConfirmedDate();
         newRecord.paymentUUID = oldRecord.getPaymentId();
-        newRecord.jobUUID = "" + oldRecord.getJobId();
+        newRecord.jobUUID = String.valueOf(oldRecord.getJobId());
         return newRecord;
     }
 
@@ -86,14 +86,9 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
         payment.jobId = job.getJobId();
-        if (job.getJobUUID().isEmpty()) {
-            payment.jobUUID = Integer.toString(job.getJobId());
-        } else {
-            payment.jobUUID = job.getJobUUID();
-        }
+        payment.jobUUID = job.getJobUUID();
         payment.paymentId = json.getString("id");
-        String paymentUUID = json.optString(META_PAYMENT_ID, "");
-        payment.paymentUUID = paymentUUID.isEmpty() ? payment.paymentId : paymentUUID;
+        payment.paymentUUID = json.getString(META_PAYMENT_ID);
 
         payment.date = DateUtils.parseDateTime(json.getString(META_DATE));
         payment.amount = String.valueOf(json.getInt(META_AMOUNT));
@@ -164,51 +159,5 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         long millis = (new Date()).getTime() - confirmedDate.getTime();
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
         return days < UNDO_WINDOW_DAYS;
-    }
-
-
-    //  getter and setter for kotlin
-    public int getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(int jobId) {
-        this.jobId = jobId;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
-
-    public void setPaymentId(String paymentId) {
-        this.paymentId = paymentId;
-    }
-
-    public boolean isConfirmed() {
-        return confirmed;
-    }
-
-    public void setConfirmedDate(Date confirmedDate) {
-        this.confirmedDate = confirmedDate;
-    }
-
-    public String getJobUUID() {
-        return jobUUID;
-    }
-
-    public void setJobUUID(String jobUUID) {
-        this.jobUUID = jobUUID;
-    }
-
-    public String getPaymentUUID() {
-        return paymentUUID;
-    }
-
-    public void setPaymentUUID(String paymentUUID) {
-        this.paymentUUID = paymentUUID;
     }
 }

@@ -70,13 +70,22 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         info.lastUpdate = new Date();
 
         info.jobId = job.getJobId();
-        if (job.getJobUUID().isEmpty()) {
-            info.jobUUID = Integer.toString(job.getJobId());
-        } else {
-            info.jobUUID = job.getJobUUID();
-        }
+        info.jobUUID = job.getJobUUID();
 
         return info;
+    }
+
+    public static ConnectLearnModuleSummaryRecord fromV21(ConnectLearnModuleSummaryRecordV21 connectLearnModuleSummaryRecordV21) {
+        ConnectLearnModuleSummaryRecord learnModuleSummaryRecord = new ConnectLearnModuleSummaryRecord();
+        learnModuleSummaryRecord.moduleIndex = connectLearnModuleSummaryRecordV21.getModuleIndex();
+        learnModuleSummaryRecord.slug = connectLearnModuleSummaryRecordV21.getSlug();
+        learnModuleSummaryRecord.name = connectLearnModuleSummaryRecordV21.getName();
+        learnModuleSummaryRecord.description = connectLearnModuleSummaryRecordV21.getDescription();
+        learnModuleSummaryRecord.timeEstimate = connectLearnModuleSummaryRecordV21.getTimeEstimate();
+        learnModuleSummaryRecord.lastUpdate = connectLearnModuleSummaryRecordV21.getLastUpdate();
+        learnModuleSummaryRecord.jobId = connectLearnModuleSummaryRecordV21.getJobId();
+        learnModuleSummaryRecord.jobUUID = String.valueOf(connectLearnModuleSummaryRecordV21.getJobId());
+        return learnModuleSummaryRecord;
     }
 
     public void setJobId(int jobId) {
@@ -101,45 +110,5 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
 
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setTimeEstimate(int timeEstimate) {
-        this.timeEstimate = timeEstimate;
-    }
-
-    public int getJobId() {
-        return jobId;
-    }
-
-    public void setModuleIndex(int moduleIndex) {
-        this.moduleIndex = moduleIndex;
-    }
-
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public String getJobUUID() {
-        return jobUUID;
-    }
-
-    public void setJobUUID(String jobUUID) {
-        this.jobUUID = jobUUID;
     }
 }

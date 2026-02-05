@@ -708,7 +708,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.isUserSuspended = oldRecord.isUserSuspended();
         newRecord.dailyStartTime = oldRecord.getDailyStartTime();
         newRecord.dailyFinishTime = oldRecord.getDailyFinishTime();
-        newRecord.jobUUID = "" + oldRecord.getJobId();
+        newRecord.jobUUID = String.valueOf(oldRecord.getJobId());
         return newRecord;
     }
 
