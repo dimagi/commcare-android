@@ -171,7 +171,9 @@
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
     <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
-    <string name="recovery_network_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ Personal ID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
+    <string name="personalid_login_from_different_device">ናትካ PersonalID ኣካውንት ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክውነን ዝኽእልን ኣብ ካልእ መሳርሒ ድማ ተዋቒሩን ኣሎ። በጃኻ ኣብቲ ሓድሽ መሳርሒ ቀጽሎ ወይ ኣብዚ PersonalID ምጥቃም ክትቅጽል ኣብዚ መሳርሒ ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="recovery_network_unauthorized">ነዚ ሕቶ እዚ ከተቕርቡ ፍቓድ የብልኩምን።</string>
     <string name="recovery_network_server_error">ሕቶኻ ኣብ መስርሕ ጌጋ ኣጋጢሙ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>

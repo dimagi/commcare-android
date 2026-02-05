@@ -2,21 +2,23 @@ package org.commcare.connect.network;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.GlobalErrorUtil;
+import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 
 import java.util.Objects;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Helper class for making SSO calls (both to ConnectID and HQ servers)
@@ -45,12 +47,11 @@ public class ConnectSsoHelper {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
-                    callback.tokenRequestDenied();
-                } else {
+                if (errorCode != PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR ||
+                        !GlobalErrorUtil.triggerGlobalError(
+                                GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR)) {
                     callback.tokenUnavailable();
                 }
-
             }
 
             @Override

@@ -10,7 +10,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.ConnectSsoHelper;
-import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -174,7 +173,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return headers;
     }
 
-    private AuthInfo buildAuth() throws TokenDeniedException, TokenUnavailableException {
+    private AuthInfo buildAuth() throws TokenUnavailableException {
         if (username != null) {
             AuthInfo.TokenAuth tokenAuth = PersonalIdManager.getInstance().getHqTokenIfLinked(username);
             if (tokenAuth != null) {
