@@ -233,10 +233,11 @@ class BaseDrawerController(
 
             navDrawerAdapter.refreshList(items)
 
-            handleTestToggle()
+            handleTestToggles()
         } else {
             setSignedInState(false)
-            binding.tvTestToggleActive.visibility = View.GONE
+            binding.tvPersonalIDTestToggleActive.visibility = View.GONE
+            binding.tvConnectTestToggleActive.visibility = View.GONE
         }
     }
 
@@ -265,13 +266,17 @@ class BaseDrawerController(
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
 
-    private fun handleTestToggle() {
+    private fun handleTestToggles() {
         val toggles = ConnectAppDatabaseUtil.getReleaseToggles(activity)
 
-        binding.tvTestToggleActive.visibility = View.GONE
+        binding.tvPersonalIDTestToggleActive.visibility = View.GONE
+        binding.tvConnectTestToggleActive.visibility = View.GONE
+
         for (toggle in toggles) {
             if (toggle.slug == "Test" && toggle.active) {
-                binding.tvTestToggleActive.visibility = View.VISIBLE
+                binding.tvPersonalIDTestToggleActive.visibility = View.VISIBLE
+            } else if (toggle.slug == "Test-Connect" && toggle.active) {
+                binding.tvConnectTestToggleActive.visibility = View.VISIBLE
             }
         }
     }

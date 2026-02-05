@@ -64,11 +64,25 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tv_test_toggle_active"
+                    android:id="@+id/tv_personalid_test_toggle_active"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TEST TOGGLE ACTIVE"
+                    android:text="PERSONALID TEST TOGGLE ACTIVE"
                     android:textColor="@color/red"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:layout_margin="20dp"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:background="@drawable/tile_drop_shadow_small_margins"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_connect_test_toggle_active"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CONNECT TEST TOGGLE ACTIVE"
+                    android:textColor="@color/blue"
                     android:textStyle="bold"
                     android:textSize="15sp"
                     android:layout_margin="20dp"
