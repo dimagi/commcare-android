@@ -204,13 +204,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
-
-        job.jobId = json.optInt(META_JOB_ID, -1);
-        job.jobUUID = json.optString(META_JOB_UUID, "");
+        job.jobId = json.getInt(META_JOB_ID);
+        job.jobUUID = json.getString(META_JOB_UUID);
         migrateOtherModalsForUUIDs(job.jobId, job.jobUUID);
-        if (job.jobUUID.isEmpty()) {
-            job.jobUUID = String.valueOf(job.jobId);
-        }
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
@@ -799,7 +795,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.isUserSuspended = oldRecord.isUserSuspended();
         newRecord.dailyStartTime = oldRecord.getDailyStartTime();
         newRecord.dailyFinishTime = oldRecord.getDailyFinishTime();
-        newRecord.jobUUID = "" + oldRecord.getJobId();
+        newRecord.jobUUID = String.valueOf(oldRecord.getJobId());
         return newRecord;
     }
 

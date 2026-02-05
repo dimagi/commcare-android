@@ -76,17 +76,10 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         ConnectAppRecord app = new ConnectAppRecord();
 
         app.jobId = job.getJobId();
+        app.jobUUID = job.getJobUUID();
         app.isLearning = isLearning;
-
         app.domain = json.getString(META_DOMAIN);
         app.appId = json.getString(META_APP_ID);
-
-        if (job.getJobUUID().isEmpty()) {
-            app.jobUUID = Integer.toString(job.getJobId());
-        } else {
-            app.jobUUID = job.getJobUUID();
-        }
-
         app.name = json.getString(META_NAME);
         app.description = json.getString(META_DESCRIPTION);
         app.organization = json.getString(META_ORGANIZATION);
@@ -101,6 +94,22 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         }
 
         return app;
+    }
+
+    public static ConnectAppRecord fromV21(ConnectAppRecordV21 connectAppRecordV21) {
+        ConnectAppRecord connectAppRecord = new ConnectAppRecord();
+        connectAppRecord.jobId = connectAppRecordV21.getJobId();
+        connectAppRecord.isLearning = connectAppRecordV21.isLearning();
+        connectAppRecord.domain = connectAppRecordV21.getDomain();
+        connectAppRecord.appId = connectAppRecordV21.getAppId();
+        connectAppRecord.jobUUID = String.valueOf(connectAppRecordV21.getJobId());
+        connectAppRecord.name = connectAppRecordV21.getName();
+        connectAppRecord.description = connectAppRecordV21.getDescription();
+        connectAppRecord.organization = connectAppRecordV21.getOrganization();
+        connectAppRecord.passingScore = connectAppRecordV21.getPassingScore();
+        connectAppRecord.installUrl = connectAppRecordV21.getInstallUrl();
+        connectAppRecord.lastUpdate = connectAppRecordV21.getLastUpdate();
+        return connectAppRecord;
     }
 
     public boolean getIsLearning() {
@@ -154,37 +163,5 @@ public class ConnectAppRecord extends Persisted implements Serializable {
 
     public int getPassingScore() {
         return passingScore;
-    }
-
-    public void setIsLearning(boolean learning) {
-        isLearning = learning;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
-    }
-
-    public void setPassingScore(int passingScore) {
-        this.passingScore = passingScore;
-    }
-
-    public void setInstallUrl(String installUrl) {
-        this.installUrl = installUrl;
-    }
-
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public String getJobUUID() {
-        return jobUUID;
-    }
-
-    public void setJobUUID(String jobUUID) {
-        this.jobUUID = jobUUID;
     }
 }

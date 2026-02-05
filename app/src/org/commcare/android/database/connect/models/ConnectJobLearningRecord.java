@@ -59,17 +59,24 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
         record.lastUpdate = new Date();
 
         record.jobId = job.getJobId();
-        if (job.getJobUUID().isEmpty()) {
-            record.jobUUID = Integer.toString(job.getJobId());
-        } else {
-            record.jobUUID = job.getJobUUID();
-        }
+        record.jobUUID = job.getJobUUID();
 
         record.date = DateUtils.parseDateTime(json.getString(META_DATE));
         record.moduleId = json.getInt(META_MODULE);
         record.duration = json.getString(META_DURATION);
 
         return record;
+    }
+
+    public static ConnectJobLearningRecord fromV21(ConnectJobLearningRecordV21 connectJobLearningRecordV21) {
+        ConnectJobLearningRecord connectJobLearningRecord = new ConnectJobLearningRecord();
+        connectJobLearningRecord.jobId = connectJobLearningRecordV21.getJobId();
+        connectJobLearningRecord.date = connectJobLearningRecordV21.getDate();
+        connectJobLearningRecord.moduleId = connectJobLearningRecordV21.getModuleId();
+        connectJobLearningRecord.duration = connectJobLearningRecordV21.getDuration();
+        connectJobLearningRecord.lastUpdate = connectJobLearningRecordV21.getLastUpdate();
+        connectJobLearningRecord.jobUUID = String.valueOf(connectJobLearningRecordV21.getJobId());
+        return connectJobLearningRecord;
     }
 
     public int getModuleId() {
@@ -82,42 +89,5 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
 
     public void setLastUpdate(Date date) {
         lastUpdate = date;
-    }
-
-    //  getter and setter for kotlin
-    public int getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(int jobId) {
-        this.jobId = jobId;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public void setModuleId(int moduleId) {
-        this.moduleId = moduleId;
-    }
-
-    public String getDuration() {
-        return duration;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
-
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public String getJobUUID() {
-        return jobUUID;
-    }
-
-    public void setJobUUID(String jobUUID) {
-        this.jobUUID = jobUUID;
     }
 }
