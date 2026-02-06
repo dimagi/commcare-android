@@ -139,6 +139,7 @@
     <string name="connect_job_ended">Oppgaven ble avsluttet %s</string>
     <string name="connect_job_info_view_info">Se info</string>
     <string name="connect_job_info_view_resume">Gjenoppta</string>
+    <string name="connect_job_info_view_review">Vurder</string>
 
     <string name="connect_in_progress">Pågår</string>
     <string name="connect_new_opportunities">Nye muligheter</string>

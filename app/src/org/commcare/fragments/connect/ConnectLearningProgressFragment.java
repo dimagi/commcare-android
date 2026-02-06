@@ -260,7 +260,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         Drawable downloadIcon = appInstalled
                 ? null
                 : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
-        jobCard.mbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 downloadIcon, null, null, null
         );
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
@@ -268,11 +268,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
         jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
         jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.mbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
-        jobCard.mbResume.setOnClickListener(v -> navigateToLearnAppHome());
+        jobCard.acbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.acbResume.setOnClickListener(v -> navigateToLearnAppHome());
         jobCard.tvViewMore.setVisibility(View.GONE);
-        jobCard.mbViewInfo.setVisibility(View.VISIBLE);
-        jobCard.mbResume.setVisibility(View.VISIBLE);
+        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.acbResume.setVisibility(View.VISIBLE);
 
         if (showHours) {
             jobCard.tvJobTime.setText(hours);

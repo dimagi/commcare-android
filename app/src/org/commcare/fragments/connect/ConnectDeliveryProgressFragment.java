@@ -202,10 +202,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void setupJobCard(ConnectJobRecord job) {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
 
-        jobCard.mbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
+        jobCard.acbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
                 .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment())
         );
-        jobCard.mbResume.setOnClickListener(v -> navigateToDeliverAppHome());
+        jobCard.acbResume.setOnClickListener(v -> navigateToDeliverAppHome());
         jobCard.tvJobTitle.setText(job.getTitle());
 
         @StringRes int dateMessageStringRes;
@@ -228,7 +228,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         Drawable downloadIcon = appInstalled
                 ? null
                 : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
-        jobCard.mbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 downloadIcon, null, null, null
         );
         jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
@@ -237,8 +237,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
         jobCard.connectJobEndDate.setVisibility(View.GONE);
         jobCard.tvViewMore.setVisibility(View.GONE);
-        jobCard.mbViewInfo.setVisibility(View.VISIBLE);
-        jobCard.mbResume.setVisibility(View.VISIBLE);
+        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.acbResume.setVisibility(View.VISIBLE);
 
         if (hasHours) {
             (jobCard.tvJobTime).setText(workingHours);
