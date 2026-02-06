@@ -5,7 +5,7 @@ import java.io.Serializable
 import java.util.Date
 
 /**
- * Data holder for personal identification session state during Personal ID flows.
+ * Data holder for personal identification session state during PersonalID flows.
  * This includes authentication configuration and account-related metadata.
  */
 data class PersonalIdSessionData(
