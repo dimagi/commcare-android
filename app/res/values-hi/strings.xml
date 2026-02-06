@@ -182,7 +182,9 @@ License.
     <string name="recovery_forms_state_unavailable">फॉर्म उपलब्ध नहीं हैं। जांचें कि आपके फ़ोन का संग्रहण स्थान उपलब्ध है।</string>
     <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</string>
     <string name="recovery_network_outdated">यह ऐप पुराना हो गया है। आगे बढ़ने के लिए कृपया Google Play Store पर ऐप को अपडेट करें।</string>
-    <string name="recovery_network_token_unavailable">नेटवर्क में कोई समस्या थी. कृपया फिर से कोशिश करें.</string>
+    <string name="personalid_token_unavailable">नेटवर्क में कोई समस्या थी. कृपया फिर से कोशिश करें.</string>
+    <string name="personalid_token_request_rejected">सर्वर के साथ PersonalID कॉन्फ़िगरेशन खो गया है, कृपया अपना PersonalID अकाउंट रिकवर करें और फिर से कोशिश करें</string>
+    <string name="personalid_login_from_different_device">आपका PersonalID अकाउंट एक समय में सिर्फ़ एक डिवाइस पर ही कॉन्फ़िगर किया जा सकता है और इसे दूसरे डिवाइस पर कॉन्फ़िगर किया गया है। PersonalID का इस्तेमाल जारी रखने के लिए कृपया नए डिवाइस पर जारी रखें या इस डिवाइस पर अपना अकाउंट फिर से कॉन्फ़िगर करें।</string>
     <string name="recovery_network_unauthorized">आप यह रिक्वेस्ट करने के लिए ऑथराइज़्ड नहीं हैं।</string>
     <string name="recovery_network_server_error">आपकी रिक्वेस्ट प्रोसेस करते समय एक एरर आया।</string>
     <string name="recovery_app_manager">एप्लिकेशन प्रबंधक पर जाएं</string>
@@ -484,7 +486,7 @@ License.
 
     <string name="nav_drawer_signin_register">साइन इन / रजिस्टर</string>
     <string name="nav_drawer_help">सहायता</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">आप Personal ID में साइन इन नहीं हैं</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">आप PersonalID में साइन इन नहीं हैं</string>
     <string name="nav_drawer_opportunities">अवसर</string>
     <string name="nav_drawer_commcare_apps">कॉमकेयर ऐप्स</string>
     <string name="nav_drawer_payments">भुगतान</string>

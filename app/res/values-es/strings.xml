@@ -119,7 +119,9 @@
     <string name="recovery_forms_state_unavailable">Los formularios no están disponibles. Verifica que el espacio de almacenamiento de tu teléfono esté disponible.</string>
     <string name="recovery_network_unavailable">Sin conexión de red. Verifica tu conexión a Internet e inténtalo de nuevo.</string>
     <string name="recovery_network_outdated">Esta aplicación está desactualizada. Por favor, actualice la aplicación en Google Play Store para continuar.</string>
-    <string name="recovery_network_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
+    <string name="personalid_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
+    <string name="personalid_token_request_rejected">Se perdió la configuración de PersonalID con el servidor, recupere su cuenta de PersonalID y vuelva a intentarlo</string>
+    <string name="personalid_login_from_different_device">Su cuenta de PersonalID solo se puede configurar en un dispositivo a la vez y ya se configuró en otro. Continúe en el nuevo dispositivo o vuelva a configurar su cuenta en este para seguir usando PersonalID aquí.</string>
     <string name="recovery_network_unauthorized">No está autorizado para realizar esta solicitud.</string>
     <string name="recovery_network_server_error">Hubo un error al procesar su solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>

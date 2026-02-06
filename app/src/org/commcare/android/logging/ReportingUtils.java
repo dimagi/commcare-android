@@ -167,7 +167,7 @@ public class ReportingUtils {
                 return manager.getUser(CommCareApplication.instance()).getIsDemo();
             }
         } catch (Exception e) {
-            Logger.exception("Error checking if Personal ID user is a demo user", e);
+            Logger.exception("Error checking if PersonalID user is a demo user", e);
         }
         return null;
     }
