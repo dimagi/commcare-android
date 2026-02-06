@@ -88,20 +88,4 @@ public class PersonalIdOrConnectApiErrorHandler {
     public static boolean isNetworkError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes error) {
         return NETWORK_ERRORS.contains(error);
     }
-
-    /**
-     * Errors for which UI must show a blocking experience.
-     */
-    private static final EnumSet<BaseApiHandler.PersonalIdOrConnectApiErrorCodes> BLOCKING_ERRORS =
-            EnumSet.of(
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
-                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OLD_API_ERROR
-            );
-
-    public static boolean isBlockingError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes error) {
-        return BLOCKING_ERRORS.contains(error);
-    }
 }

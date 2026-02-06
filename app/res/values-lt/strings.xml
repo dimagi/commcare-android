@@ -154,8 +154,8 @@
     <string name="connect_job_info_view_resume">Tęsti</string>
 
     <string name="error">Klaida</string>
-    <string name="failed_to_sync_updates">Nepavyko sinchronizuoti naujinimų</string>
     <string name="failed_to_start_learning">Nepavyko pradėti mokytis</string>
+    <string name="failed_to">Nepavyko %s</string>
     <string name="connect_in_progress">Vykdoma</string>
     <string name="connect_new_opportunities">Naujos galimybės</string>
     <string name="connect_completed">Užbaigta</string>

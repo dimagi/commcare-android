@@ -93,10 +93,9 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun hideLoading() {
         loadingBinding.root.visibility = View.GONE
     }
-
-    fun showError(message: String?) {
-        if (message != null) {
-            errorBinding.tvErrorMessage.text = message
+    fun showError(error: String?) {
+        if (error != null) {
+            errorBinding.tvErrorMessage.text = error
             errorBinding.root.visibility = View.VISIBLE
         }
     }

@@ -43,32 +43,4 @@
             app:argType="string"
             app:nullable="false"/>
     </fragment>
-    <dialog
-        android:id="@+id/personalid_message_display_dialog"
-        android:name="org.commcare.fragments.personalId.PersonalIdMessageFragment"
-        android:label="fragment_personalid_message"
-        tools:layout="@layout/screen_personalid_message">
-        <argument
-            android:name="title"
-            app:argType="string" />
-        <argument
-            android:name="message"
-            app:argType="string" />
-        <argument
-            android:name="callingClass"
-            app:argType="integer"
-            app:nullable="false" />
-        <argument
-            android:name="buttonText"
-            app:nullable="false"
-            app:argType="string" />
-        <argument
-            android:name="button2Text"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="isCancellable"
-            android:defaultValue="true"
-            app:argType="boolean" />
-    </dialog>
 </navigation>

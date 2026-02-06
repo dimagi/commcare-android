@@ -519,8 +519,8 @@ License.
 
     <string name="network_forbidden_error">Accès refusé. Veuillez contacter le service client si le problème persiste.</string>
     <string name="error">Erreur</string>
-    <string name="failed_to_sync_updates">Échec de la synchronisation des mises à jour</string>
     <string name="failed_to_start_learning">Échec du démarrage de l\'apprentissage</string>
+    <string name="failed_to">Échec de %s</string>
 
     <string name="personalid_biometric_error_cancelled">La configuration biométrique a été annulée. Veuillez contacter le support client si le problème persiste.</string>
     <string name="personalid_biometric_error_lockout">Trop de tentatives. Veuillez patienter et réessayer.</string>

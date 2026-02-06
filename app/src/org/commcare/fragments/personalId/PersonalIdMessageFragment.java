@@ -157,13 +157,11 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 GeoUtils.goToProperLocationSettingsScreen(activity);
                 activity.finish();
                 break;
-            case ConnectConstants.PERSONAL_ID_CANCEL_MESSAGE_BOTTOM_SHEET:
-                NavHostFragment.findNavController(this).popBackStack();
-                break;
-
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
+        } else {
+            NavHostFragment.findNavController(this).navigateUp();
         }
     }
 

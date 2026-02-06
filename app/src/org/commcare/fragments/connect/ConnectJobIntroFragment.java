@@ -117,17 +117,15 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
                 String error = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
-                if (PersonalIdOrConnectApiErrorHandler.isBlockingError(errorCode)) {
+                if (PersonalIdOrConnectApiErrorHandler.isNetworkError(errorCode)) {
+                    showError(getString(R.string.failed_to_start_learning));
+                } else {
                     navigateToMessageDisplayDialog(
                             getString(R.string.error),
                             error,
                             false,
                             R.string.ok);
                     hideError();
-                } else if (PersonalIdOrConnectApiErrorHandler.isNetworkError(errorCode)){
-                    showError(getString(R.string.failed_to_sync_updates));
-                } else {
-                    showError(getString(R.string.failed_to_start_learning));
                 }
                 reportApiCall(false);
             }
@@ -169,7 +167,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     }
     private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, int buttonText) {
         NavDirections navDirections = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
-                title, message, ConnectConstants.PERSONAL_ID_CANCEL_MESSAGE_BOTTOM_SHEET,getString(buttonText),null).setIsCancellable(isCancellable);
+                title, message,getString(buttonText),null).setIsCancellable(isCancellable);
         NavHostFragment.findNavController(this).navigate(navDirections);
     }
 }

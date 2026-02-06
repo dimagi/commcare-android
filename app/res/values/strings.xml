@@ -686,8 +686,8 @@
 
     <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
     <string name="error">Error</string>
-    <string name="failed_to_sync_updates">Failed to sync updates</string>
     <string name="failed_to_start_learning">Failed to start learning</string>
+    <string name="failed_to">Failed to %s</string>
 
     <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
