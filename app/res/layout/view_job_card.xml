@@ -61,43 +61,40 @@
             app:layout_constraintTop_toBottomOf="@id/tv_job_description"
             android:textStyle="bold" />
 
-        <!-- TODO: ONLY THINGS LEFT TO DO HERE ARE CHANGE DRAWABLE ICON TO ic_download_circle, ADJUST DOWNLOAD ICON SIZE (Maybe do NOT set the icon size at all???) -->
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
             android:id="@+id/mb_resume"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:padding="5dp"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:backgroundTint="@color/connect_light_grey"
-            android:text="@string/connect_job_info_view_resume"
-            android:textColor="@color/connect_blue_color"
             android:textSize="11sp"
-            android:textAllCaps="false"
+            android:text="@string/connect_job_info_view_resume"
+            android:layout_marginTop="16dp"
+            app:textAllCaps="false"
+            android:paddingHorizontal="8dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:drawableStart="@drawable/ic_download_circle"
+            android:background="@drawable/bg_rounded_blue_70"
             android:visibility="gone"
-            app:cornerRadius="20dp"
-            app:icon="@drawable/apply_update"
-            app:iconSize="20dp"
-            app:iconTint="@color/connect_blue_color"
-            app:iconGravity="textStart"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_job_time"
-            app:strokeColor="@color/connect_blue_color" />
+            app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/mb_view_info"
-            android:layout_height="wrap_content"
+        <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
-            android:padding="5dp"
+            android:layout_height="30dp"
+            android:id="@+id/mb_view_info"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_info"
             android:layout_marginStart="15dp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/connect_blue_color"
-            android:text="@string/connect_job_info_view_info"
-            android:textColor="@color/white"
-            android:textSize="11sp"
-            android:textAllCaps="false"
+            app:textAllCaps="false"
+            app:backgroundTint="@null"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            android:textColor="@color/connect_blue_color"
+            android:background="@drawable/bg_rounded_corner_lavender_70"
             android:visibility="gone"
-            app:cornerRadius="20dp"
             app:layout_constraintStart_toEndOf="@id/mb_resume"
             app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
 

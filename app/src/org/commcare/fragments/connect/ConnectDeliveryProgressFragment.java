@@ -225,9 +225,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String workingHours = job.getWorkingHours();
         boolean hasHours = workingHours != null;
         boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
-        //  TODO: CHANGE DRAWABLE ICON TO ic_download_circle
-        Drawable downloadIcon = ContextCompat.getDrawable(requireContext(), R.drawable.apply_update);
-        jobCard.mbResume.setIcon(appInstalled ? null : downloadIcon);
+        Drawable downloadIcon = appInstalled
+                ? null
+                : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
+        jobCard.mbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                downloadIcon, null, null, null
+        );
         jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
         jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
