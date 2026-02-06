@@ -142,7 +142,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-        uiController.checkForGlobalErrors();
         initPersonaIdManager();
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);

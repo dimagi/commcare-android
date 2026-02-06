@@ -59,7 +59,6 @@ import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.ConsumerAppsUtil;
-import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -177,7 +176,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
     private final InstallPermissionsFragment permFragment = new InstallPermissionsFragment();
     private ContainerViewModel<CommCareApp> containerViewModel;
-    private String globalError = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,9 +185,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             return;
         }
         if (!fromManager) {
-            String errors = GlobalErrorUtil.getGlobalErrors();
-            globalError = errors.length() > 0 ? errors : null;
-
             PersonalIdManager.getInstance().init(this);
         }
         loadIntentAndInstanceState(savedInstanceState);
@@ -370,10 +365,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             ft.replace(R.id.setup_fragment_container, fragment);
             ft.commit();
             fm.executePendingTransactions();
-        }
-
-        if(globalError != null) {
-            installFragment.showConnectErrorMessage(globalError);
         }
 
         updateConnectButton();

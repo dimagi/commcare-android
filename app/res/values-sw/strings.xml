@@ -494,7 +494,9 @@
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id">Endelea bila PersonalID</string>
+    <string name="nav_drawer_fix_now">Rekebisha Sasa</string>
     <string name="nav_drawer_opportunities">Fursa</string>
     <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
     <string name="nav_drawer_payments">Malipo</string>

@@ -7,10 +7,13 @@ import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 public class GlobalErrorUtil {
+    private static final int ERROR_EXPIRATION_HOURS = 24;
+
     public static boolean triggerGlobalError(GlobalErrors error) {
-        if(FormEntryActivity.mFormController != null) {
+        if (FormEntryActivity.mFormController != null) {
             return false;
         }
 
@@ -21,27 +24,36 @@ public class GlobalErrorUtil {
         CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).write(error);
     }
 
-    public static String getGlobalErrors() {
-        StringBuilder sb = new StringBuilder();
+    public static String checkGlobalErrors() {
         SqlStorage<GlobalErrorRecord> storage = CommCareApplication.instance()
                 .getGlobalStorage(GlobalErrorRecord.class);
-        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[]{}, new String[]{});
 
-        if(!errors.isEmpty()) {
-            for (GlobalErrorRecord error : errors) {
-                if (sb.length() > 0) {
-                    sb.append("\n");
-                }
+        pruneOldErrors(storage);
 
-                GlobalErrors ge = GlobalErrors.values()[error.getErrorCode()];
-
-                sb.append(CommCareApplication.instance().getString(ge.getMessageId()));
-            }
-
-            //Clear the errors once retrieved
-            storage.removeAll();
+        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[] {}, new String[] {});
+        if (errors.isEmpty()) {
+            return null;
         }
 
-        return sb.toString();
+        GlobalErrors ge = GlobalErrors.values()[errors.get(0).getErrorCode()];
+        return CommCareApplication.instance().getString(ge.getMessageId());
+    }
+
+    private static void pruneOldErrors(SqlStorage<GlobalErrorRecord> storage) {
+        long currentTime = System.currentTimeMillis();
+        long expirationWindow = TimeUnit.HOURS.toMillis(ERROR_EXPIRATION_HOURS);
+
+        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[] {}, new String[] {});
+        for (GlobalErrorRecord error : errors) {
+            if (currentTime - error.getCreatedDate().getTime() > expirationWindow) {
+                storage.remove(error.getID());
+            }
+        }
+    }
+
+    public static void dismissGlobalErrors() {
+        SqlStorage<GlobalErrorRecord> storage = CommCareApplication.instance()
+                .getGlobalStorage(GlobalErrorRecord.class);
+        storage.removeAll();
     }
 }

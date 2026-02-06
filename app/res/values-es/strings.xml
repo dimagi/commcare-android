@@ -488,7 +488,9 @@
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la ID personal</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id">Continuar sin PersonalID</string>
+    <string name="nav_drawer_fix_now">Reparar ahora</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
     <string name="nav_drawer_payments">Pagos</string>

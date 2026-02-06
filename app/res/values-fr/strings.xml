@@ -489,7 +489,9 @@ License.
 
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à l\'identifiant personnel</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id">Continuer sans PersonalID</string>
+    <string name="nav_drawer_fix_now">Réparer maintenant</string>
     <string name="nav_drawer_opportunities">Opportunités</string>
     <string name="nav_drawer_commcare_apps">Applications CommCare</string>
     <string name="nav_drawer_payments">Paiements</string>

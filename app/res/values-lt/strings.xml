@@ -77,6 +77,8 @@
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
+    <string name="nav_drawer_continue_without_personal_id">Tęsti be „PersonalID“</string>
+    <string name="nav_drawer_fix_now">Pataisyti dabar</string>
     <string name="nav_drawer_opportunities">Galimybės</string>
     <string name="nav_drawer_commcare_apps">„CommCare“ programėlės</string>
     <string name="nav_drawer_work_history">Darbo istorija</string>
