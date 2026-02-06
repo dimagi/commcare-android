@@ -169,7 +169,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     }
     private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, int buttonText) {
         NavDirections navDirections = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
-                title, message,PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING,getString(buttonText),null).setIsCancellable(isCancellable);
+                title, message,getString(buttonText),null).setIsCancellable(isCancellable);
         NavHostFragment.findNavController(this).navigate(navDirections);
     }
 }
