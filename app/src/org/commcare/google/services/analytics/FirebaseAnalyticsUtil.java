@@ -22,6 +22,8 @@ import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -627,7 +629,15 @@ public class FirebaseAnalyticsUtil {
         // Make sure that we don't cross Firebase's limit of 25 parameters.
         int paramCount = 0;
 
-        for (ConnectReleaseToggleRecord toggle : toggles) {
+        // Sort the toggles by most recently modified so that we always report the most recent toggles.
+        List<ConnectReleaseToggleRecord> togglesToReport = new ArrayList<>(toggles);
+        Collections.sort(
+                togglesToReport,
+                (t1, t2) ->
+                        t2.getModifiedAt().compareTo(t1.getModifiedAt())
+        );
+
+        for (ConnectReleaseToggleRecord toggle : togglesToReport) {
             if (paramCount >= 25) {
                 Logger.log(TYPE_ERROR_DESIGN, "There are too many toggles to report to Firebase! Dropping the following toggle from analytics: " + toggle.getSlug());
                 break;
@@ -654,7 +664,10 @@ public class FirebaseAnalyticsUtil {
      */
     private static String sanitizeParamName(String param) {
         if (param == null || param.isEmpty()) {
-            Logger.exception("An invalid empty parameter was passed to Firebase analytics!", new IllegalStateException());
+            Logger.exception(
+                    "An invalid empty parameter was passed to Firebase analytics!",
+                    new IllegalStateException()
+            );
             return null;
         }
 
