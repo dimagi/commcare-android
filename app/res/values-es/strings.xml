@@ -519,7 +519,7 @@
     <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
     <string name="error">Error</string>
     <string name="failed_to_start_learning">Error al iniciar el aprendizaje</string>
-    <string name="failed_to">Error al %s</string>
+    <string name="failed_to_update_payment">Error al actualizar el pago</string>
 
     <string name="personalid_biometric_error_cancelled">La configuración biométrica fue cancelada. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_lockout">Demasiados intentos. Por favor, espere e inténtelo de nuevo.</string>

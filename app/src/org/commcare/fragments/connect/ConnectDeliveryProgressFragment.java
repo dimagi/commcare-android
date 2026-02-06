@@ -183,7 +183,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                             refresh();
                             hideError();
                         } else {
-                            showError(getString(R.string.failed_to,error));
+                            showError(getString(R.string.failed_to_update_payment));
                         }
                     }
                 }
