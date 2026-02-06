@@ -634,8 +634,11 @@ public class FirebaseAnalyticsUtil {
             }
 
             String sanitizedKey = sanitizeParamName(toggle.getSlug());
-            bundle.putLong(sanitizedKey, toggle.getActive() ? 1 : 0);
-            paramCount++;
+
+            if (sanitizedKey != null) {
+                bundle.putLong(sanitizedKey, toggle.getActive() ? 1 : 0);
+                paramCount++;
+            }
         }
 
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_RELEASE_TOGGLES, bundle);
@@ -647,12 +650,12 @@ public class FirebaseAnalyticsUtil {
      * no reserved prefixes.
      *
      * @param param The parameter name to sanitize.
-     * @return A string representing the sanitized name.
+     * @return A string representing the sanitized name, or null if the input param was null or empty.
      */
     private static String sanitizeParamName(String param) {
         if (param == null || param.isEmpty()) {
-            Logger.log(TYPE_ERROR_DESIGN, "An invalid empty parameter was passed to Firebase analytics!");
-            return "unknown_param";
+            Logger.exception("An invalid empty parameter was passed to Firebase analytics!", new IllegalStateException());
+            return null;
         }
 
         // Replace invalid characters (anything not alphanumeric or underscore) with underscore.
