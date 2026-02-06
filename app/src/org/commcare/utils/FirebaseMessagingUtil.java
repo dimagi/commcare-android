@@ -57,7 +57,6 @@ import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATIO
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
-import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
@@ -257,8 +256,7 @@ public class FirebaseMessagingUtil {
      * @return
      */
     private static Intent handleResumeLearningOrDeliveryJobPushNotification(Boolean isLearning, Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID) ||
-                fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
             if (showNotification)
                 showNotification(context, buildNotification(context, intent, fcmMessageData),
@@ -279,8 +277,7 @@ public class FirebaseMessagingUtil {
      * @return
      */
     private static Intent handleOpportunitySummaryPagePushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID) ||
-                fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
             if (showNotification)
                 showNotification(context, buildNotification(context, intent, fcmMessageData),
@@ -399,9 +396,6 @@ public class FirebaseMessagingUtil {
         intent.putExtra(REDIRECT_ACTION, fcmMessageData.getAction());
         if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID)) {
             intent.putExtra(OPPORTUNITY_UUID, fcmMessageData.getPayloadData().get(OPPORTUNITY_UUID));
-        }
-        if(fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)){
-            intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
         }
         return intent;
     }

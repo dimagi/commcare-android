@@ -204,9 +204,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
-        job.jobId = json.getInt(META_JOB_ID);
+        job.jobId = json.getInt(META_JOB_ID);   //  This will be eventually removed
         job.jobUUID = json.getString(META_JOB_UUID);
-        migrateOtherModalsForUUIDs(job.jobId, job.jobUUID);
+        migrateOtherModelsForUUID(job.jobId, job.jobUUID);
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
@@ -302,7 +302,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return job;
     }
 
-    private static void migrateOtherModalsForUUIDs(int jobId, String jobUUID) {
+    private static void migrateOtherModelsForUUID(int jobId, String jobUUID) {
         if (jobId != -1 && !TextUtils.isEmpty(jobUUID)) {
 
             SqlStorage<ConnectJobRecord> connectJobStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobRecord.class);
@@ -313,6 +313,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             SqlStorage<ConnectJobLearningRecord> learningStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobLearningRecord.class);
             SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobAssessmentRecord.class);
             SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectPaymentUnitRecord.class);
+            SqlStorage<PushNotificationRecord> notificationStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), PushNotificationRecord.class);
 
             //  migrate ConnectJobRecord
             Vector<ConnectJobRecord> connectJobRecords = connectJobStorage.getRecordsForValues(
@@ -384,6 +385,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             for (ConnectPaymentUnitRecord paymentUnitRecord : paymentUnitRecords) {
                 paymentUnitRecord.setJobUUID(jobUUID);
                 paymentUnitStorage.write(paymentUnitRecord);
+            }
+
+            // migrate PushNotificationRecord
+            Vector<PushNotificationRecord> pushNotificationRecords = notificationStorage.getRecordsForValues(
+                    new String[]{PushNotificationRecord.META_OPPORTUNITY_ID},
+                    new Object[]{jobId});
+            for (PushNotificationRecord pushNotificationRecord : pushNotificationRecords) {
+                pushNotificationRecord.setOpportunityUUID(jobUUID);
+                notificationStorage.write(pushNotificationRecord);
             }
         }
     }

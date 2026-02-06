@@ -36,23 +36,6 @@ public class ConnectJobUtils {
         new JobStoreManager(context).storeJobs(context, list, false);
     }
 
-    /**
-     * This is the only place where opportunity is fetched using ID to support all old notifications stored in DB with opportunity ID.
-     *
-     * @param context
-     * @param jobId
-     * @return ConnectJobRecord
-     */
-    public static ConnectJobRecord getCompositeJob(Context context, int jobId) {
-        Vector<ConnectJobRecord> jobs = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class).getRecordsForValues(
-                new String[]{ConnectJobRecord.META_JOB_ID},
-                new Object[]{jobId});
-
-        populateJobs(context, jobs);
-
-        return jobs.isEmpty() ? null : jobs.firstElement();
-    }
-
     public static ConnectJobRecord getCompositeJob(Context context, String jobUUID) {
         Vector<ConnectJobRecord> jobs = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class).getRecordsForValues(
                 new String[]{ConnectJobRecord.META_JOB_UUID},

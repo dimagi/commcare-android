@@ -127,18 +127,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         String opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
         if (!TextUtils.isEmpty(opportunityUuid)) {
             job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
-        } else {
-            //  Old notifications stored in DB will have only opportunity ID
-            int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
-            if (opportunityId == -1) {
-                String opportunityIdStr = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-                if (!StringUtils.isEmpty(opportunityIdStr)) {
-                    opportunityId = Integer.parseInt(opportunityIdStr);
-                }
-            }
-            if (opportunityId != -1) {
-                job = ConnectJobUtils.getCompositeJob(this, opportunityId);
-            }
         }
     }
 

@@ -160,4 +160,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
         return days < UNDO_WINDOW_DAYS;
     }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
 }

@@ -13,7 +13,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
-import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
