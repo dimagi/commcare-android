@@ -143,8 +143,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
     private void navigateToJobDetailBottomSheet(View view) {
         NavController navController = Navigation.findNavController(view);
-
-
+        if (navController.getCurrentDestination() != null &&
+                navController.getCurrentDestination().getId()
+                        == R.id.connect_job_detail_bottom_sheet_dialog_fragment) {
+            return;
+        }
         navController.navigate(R.id.connect_job_detail_bottom_sheet_dialog_fragment);
     }
 
@@ -186,60 +189,53 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void setJobListData(List<ConnectJobRecord> jobs) {
-
         inProgressJobs = new ArrayList<>();
         newJobs = new ArrayList<>();
         completedJobs = new ArrayList<>();
-
         for (ConnectJobRecord job : jobs) {
-
             boolean isLearnAppInstalled =
                     AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-
             boolean isDeliverAppInstalled =
                     AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
-
-            ConnectLoginJobListModel model;
-
+            ConnectJobRecord compositeJob =
+                    ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
+            boolean deliveryComplete =
+                    compositeJob != null && compositeJob.deliveryComplete();
             switch (job.getStatus()) {
-
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
-                    model = createJobModel(
+                    newJobs.add(createJobModel(
                             job,
                             ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY,
                             NEW_APP,
-                            true,
-                            true,
-                            false,
-                            false
-                    );
-                    newJobs.add(model);
+                            true, true, false, false
+                    ));
                     break;
 
                 case STATUS_LEARNING:
-                    model = createJobModel(
+                    inProgressJobs.add(createJobModel(
                             job,
                             ConnectLoginJobListModel.JobListEntryType.LEARNING,
                             LEARN_APP,
-                            isLearnAppInstalled,
-                            false,
-                            true,
-                            false
-                    );
-                    inProgressJobs.add(model);
+                            isLearnAppInstalled, false, true, false
+                    ));
                     break;
 
                 case STATUS_DELIVERING:
-                    model = createJobModel(
-                            job,
-                            ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                            DELIVERY_APP,
-                            isDeliverAppInstalled,
-                            false,
-                            false,
-                            true
-                    );
-                    inProgressJobs.add(model);
+                    if (deliveryComplete) {
+                        completedJobs.add(createJobModel(
+                                job,
+                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                                DELIVERY_APP,
+                                isDeliverAppInstalled, false, false, true
+                        ));
+                    } else {
+                        inProgressJobs.add(createJobModel(
+                                job,
+                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                                DELIVERY_APP,
+                                isDeliverAppInstalled, false, false, true
+                        ));
+                    }
                     break;
             }
         }
@@ -276,7 +272,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 isDeliveryApp,
                 processJobRecords(job, jobType),
                 job.getLearningPercentComplete(),
-                job.getCompletedLearningModules(),
+                job.getDeliveryProgressPercentage(),
                 jobType,
                 appType,
                 job
