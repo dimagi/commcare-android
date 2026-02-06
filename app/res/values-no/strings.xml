@@ -100,7 +100,9 @@
     <string name="personalid_configuration_process_failed_subtitle">Denne enheten besto dessverre ikke sikkerhetssjekkene som kreves for å registrere seg for PersonalID. Prøv igjen på en annen enhet.</string>
     <string name="personalid_location_permission_error">PersonalID krever at enheten din har posisjonstjenester aktivert. Aktiver dette i telefonens innstillinger før du fortsetter.</string>
     <string name="recovery_network_outdated">Denne appen er utdatert. Oppdater appen i Google Play Store for å fortsette.</string>
-    <string name="recovery_network_token_unavailable">Det oppsto et nettverksproblem. Prøv på nytt.</string>
+    <string name="personalid_token_unavailable">Det oppsto et nettverksproblem. Prøv på nytt.</string>
+    <string name="personalid_token_request_rejected">Mistet PersonalID-konfigurasjonen med serveren. Gjenopprett PersonalID-kontoen din og prøv på nytt.</string>
+    <string name="personalid_login_from_different_device">PersonalID-kontoen din kan bare konfigureres på én enhet om gangen, og den har blitt konfigurert på en annen enhet. Fortsett på den nye enheten, eller konfigurer kontoen din på denne enheten på nytt for å fortsette å bruke PersonalID her.</string>
     <string name="recovery_network_unauthorized">Du har ikke tillatelse til å sende inn denne forespørselen.</string>
     <string name="recovery_network_server_error">Det oppsto en feil under behandling av forespørselen din.</string>
     <string name="recovery_network_cooldown">For mange forespørselsforsøk. Prøv igjen om en time.</string>
