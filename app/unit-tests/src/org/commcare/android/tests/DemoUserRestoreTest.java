@@ -76,7 +76,6 @@ public class DemoUserRestoreTest {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
                         .setup().get();
-        ShadowLooper.idleMainLooper();
         return Shadows.shadowOf(homeActivity);
     }
 
@@ -97,6 +96,7 @@ public class DemoUserRestoreTest {
         loginAsDemoUser();
 
         Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
 
         ShadowActivity shadowActivity = launchHomeActivityForDemoUser();
         checkOptionsMenuVisibility(shadowActivity);
