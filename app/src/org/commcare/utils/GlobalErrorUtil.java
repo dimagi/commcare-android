@@ -30,7 +30,7 @@ public class GlobalErrorUtil {
 
         pruneOldErrors(storage);
 
-        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[] {}, new String[] {});
+        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[]{}, new String[]{});
         if (errors.isEmpty()) {
             return null;
         }
@@ -43,7 +43,7 @@ public class GlobalErrorUtil {
         long currentTime = System.currentTimeMillis();
         long expirationWindow = TimeUnit.HOURS.toMillis(ERROR_EXPIRATION_HOURS);
 
-        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[] {}, new String[] {});
+        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[]{}, new String[]{});
         for (GlobalErrorRecord error : errors) {
             if (currentTime - error.getCreatedDate().getTime() > expirationWindow) {
                 storage.remove(error.getID());

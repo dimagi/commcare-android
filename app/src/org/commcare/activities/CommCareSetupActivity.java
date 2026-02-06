@@ -12,15 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
-
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -29,10 +20,9 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import androidx.annotation.Nullable;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -77,11 +67,21 @@ import java.security.SignatureException;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+
 /**
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
  * CommCare can load normally.
- *
+ * <p>
  * If the startup activity identifies that the app is installed properly it
  * should not ever require interaction or be visible to the user.
  *
@@ -509,10 +509,10 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         if (item != null) {
             item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
-        
+
         MenuItem refreshItem = menu.findItem(MENU_REFRESH_OPPORTUNITIES);
         if (refreshItem != null) {
-            boolean showRefreshMenu =  !fromExternal &&
+            boolean showRefreshMenu = !fromExternal &&
                     PersonalIdManager.getInstance().isloggedIn() &&
                     !ConnectUserDatabaseUtil.hasConnectAccess(this);
             refreshItem.setVisible(showRefreshMenu);
@@ -524,8 +524,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
      * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
      * in response to Google play console policies for now. We are going to watch out for a while
      * for any changes in policies in near future before completely removing the surrounding code
-     *
-     *
+     * <p>
+     * <p>
      * Scan SMS messages for texts with profile references.
      *
      * @param installTriggeredManually if scan was triggered manually, then
@@ -1008,7 +1008,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
                 boolean connectAccess = !data.getValidJobs().isEmpty() || !data.getCorruptJobs().isEmpty();
                 String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
-                if(connectAccess){
+                if (connectAccess) {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(activity);
 
                     updateConnectButton();

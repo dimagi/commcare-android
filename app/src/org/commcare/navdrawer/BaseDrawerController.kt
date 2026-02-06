@@ -246,7 +246,8 @@ class BaseDrawerController(
 
             binding.errorContainer.visibility = if (hasError) View.VISIBLE else View.GONE
             binding.continueLink.visibility = if (hasError) View.VISIBLE else View.GONE
-            val textId = if (hasError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
+            val textId =
+                if (hasError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
             binding.signInButton.text = activity.getString(textId)
 
             if (hasError) {
@@ -288,7 +289,8 @@ class BaseDrawerController(
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotiifcations(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotiifcations(): Boolean =
+        PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)

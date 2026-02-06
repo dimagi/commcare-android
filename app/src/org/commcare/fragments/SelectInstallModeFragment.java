@@ -200,8 +200,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
     /**
      * Updates the visibility and click listener of the Connect button and related UI elements.
+     *
      * @param connectEnabled Whether the connect feature should be enabled
-     * @param listener Click listener to be set when the button is enabled
+     * @param listener       Click listener to be set when the button is enabled
      */
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
         if (mConnectButton != null) {
