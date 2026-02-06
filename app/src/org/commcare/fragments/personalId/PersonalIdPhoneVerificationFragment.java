@@ -150,7 +150,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             }
         };
 
-        // The last OTP method may be Twilio (via Personal ID) after restoring this fragment.
+        // The last OTP method may be Twilio (via PersonalID) after restoring this fragment.
         Boolean useOtpFallback = SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(lastOtpMethod);
         setupOtpManager(useOtpFallback);
     }
@@ -205,7 +205,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
     private void setupListeners() {
         binding.connectResendButton.setOnClickListener(v -> {
-            // Always fallback to Twilio (via Personal ID) if this is the first time the user reattempts to send the OTP.
+            // Always fallback to Twilio (via PersonalID) if this is the first time the user reattempts to send the OTP.
             Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1;
             setupOtpManager(useOtpFallback);
             requestOtp();
@@ -397,7 +397,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         // Check if using the OTP fallback is allowed for the current user.
         Boolean allowedToFallback = personalIdSessionData.getOtpFallback();
 
-        // The fallback for the OTP uses Twilio (via Personal ID) rather than Firebase.
+        // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase.
         if (useOtpFallback && allowedToFallback) {
             otpManager = new OtpManager(
                     activity,
