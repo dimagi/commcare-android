@@ -22,6 +22,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
+import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
 import org.commcare.views.ViewUtil
@@ -51,7 +52,12 @@ class BaseDrawerController(
         initializeAdapter()
         setupListeners()
         setupViews()
-        refreshDrawerContent()
+        if (refreshDrawerContent()) {
+            openDrawer()
+            binding.drawerLayout.postDelayed({
+                ViewUtil.hideVirtualKeyboard(activity)
+            }, 250)
+        }
     }
 
     private fun setupActionBarDrawerToggle() {
@@ -132,7 +138,7 @@ class BaseDrawerController(
         binding.helpView.setOnClickListener { /* Future Help Action */ }
     }
 
-    fun refreshDrawerContent() {
+    fun refreshDrawerContent(): Boolean {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
@@ -230,8 +236,43 @@ class BaseDrawerController(
 //            }
 
             navDrawerAdapter.refreshList(items)
+
+            return false
         } else {
             setSignedInState(false)
+
+            val globalError = GlobalErrorUtil.checkGlobalErrors()
+            val hasError = globalError != null
+
+            binding.errorContainer.visibility = if (hasError) View.VISIBLE else View.GONE
+            binding.continueLink.visibility = if (hasError) View.VISIBLE else View.GONE
+            val textId =
+                if (hasError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
+            binding.signInButton.text = activity.getString(textId)
+
+            if (hasError) {
+                binding.errorText.text = globalError
+
+                binding.continueLink.setOnClickListener {
+                    GlobalErrorUtil.dismissGlobalErrors()
+                    refreshDrawerContent()
+                }
+            }
+
+            binding.signInButton.setOnClickListener {
+                if (hasError) {
+                    GlobalErrorUtil.dismissGlobalErrors()
+                }
+                PersonalIdManager
+                    .getInstance()
+                    .launchPersonalId(
+                        activity,
+                        ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH,
+                    )
+                closeDrawer()
+            }
+
+            return hasError
         }
     }
 
@@ -248,7 +289,8 @@ class BaseDrawerController(
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotiifcations(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotiifcations(): Boolean =
+        PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
