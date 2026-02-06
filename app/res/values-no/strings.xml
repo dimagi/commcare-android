@@ -155,4 +155,7 @@
     <string name="personalid_work_history_no_records_available">Ingen arbeidslogger er tilgjengelige for øyeblikket. Klikk på Oppdater, eller kom tilbake senere.</string>
     <string name="pn_no_notification_available">Ingen varsler tilgjengelig</string>
     <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
+
+    <string name="connect_complete_by">Fullfør innen %s</string>
+    <string name="connect_expired_expired_on">Utløpt den: %s</string>
 </resources>
