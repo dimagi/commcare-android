@@ -208,10 +208,10 @@ public class ConnectJobUtils {
         for (ConnectJobPaymentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobPaymentRecord incoming : payments) {
-                if (existing.getPaymentId().equals(incoming.getPaymentId())) {
+                if (existing.getPaymentUUID().equals(incoming.getPaymentUUID())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
-                    matchedIncomingIds.add(incoming.getPaymentId());
+                    matchedIncomingIds.add(incoming.getPaymentUUID());
                     break;
                 }
             }
@@ -232,7 +232,7 @@ public class ConnectJobUtils {
         for (ConnectJobPaymentRecord incomingRecord : payments) {
             storage.write(incomingRecord);
 
-            if (!matchedIncomingIds.contains(incomingRecord.getPaymentId())) {
+            if (!matchedIncomingIds.contains(incomingRecord.getPaymentUUID())) {
                 newPaymentReceived = true;
             }
         }

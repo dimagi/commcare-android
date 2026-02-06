@@ -134,4 +134,8 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     public void setJobUUID(String jobUUID) {
         this.jobUUID = jobUUID;
     }
+
+    public String getUnitUUID() {
+        return unitUUID;
+    }
 }

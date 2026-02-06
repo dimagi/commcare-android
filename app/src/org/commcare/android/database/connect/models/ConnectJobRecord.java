@@ -302,6 +302,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return job;
     }
 
+    /**
+     * UUIDs are defaulted to ID value. Whenever the application has a new valid UUID for an opportunity from
+     * the server response, this function will upgrade all other models from the default UUID value to the new
+     * valid UUID. This will ensure that all Connect models are in sync for UUID values, and thus it will reduce
+     * the error happening due to mismatched UUID values. Also, this makes the code less complex, as it has to now
+     * check for UUID only and can ignore ID, which is our long-term  goal
+     * @param jobId
+     * @param jobUUID
+     */
     private static void migrateOtherModelsForUUID(int jobId, String jobUUID) {
         if (jobId != -1 && !TextUtils.isEmpty(jobUUID)) {
 

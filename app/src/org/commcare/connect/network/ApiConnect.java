@@ -174,7 +174,7 @@ public class ApiConnect {
                 List<Map<String, Object>> paymentConfirmationsMap = new ArrayList<>();
                 for (ConnectPaymentConfirmationModel paymentConfirmation : paymentConfirmations) {
                     HashMap<String, Object> paymentMap = new HashMap<>();
-                    paymentMap.put("id", Integer.valueOf(paymentConfirmation.getPayment().getPaymentId()));
+                    paymentMap.put("id", paymentConfirmation.getPayment().getPaymentUUID());
                     paymentMap.put("confirmed", paymentConfirmation.getToConfirm() ? "true" : "false");
                     paymentConfirmationsMap.add(paymentMap);
                 }

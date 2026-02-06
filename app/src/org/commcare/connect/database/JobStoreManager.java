@@ -194,7 +194,7 @@ public class JobStoreManager {
         for (ConnectPaymentUnitRecord existing : existingPaymentUnits) {
             boolean stillExists = false;
             for (ConnectPaymentUnitRecord incoming : job.getPaymentUnits()) {
-                if (Objects.equals(existing.getUnitId(), incoming.getUnitId())) {
+                if (Objects.equals(existing.getUnitUUID(), incoming.getUnitUUID())) {
                     incoming.setID(existing.getID());  // Set ID for updating
                     stillExists = true;
                     break;

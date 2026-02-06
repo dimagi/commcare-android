@@ -103,10 +103,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         return payment;
     }
 
-    public String getPaymentId() {
-        return paymentId;
-    }
-
     public Date getDate() {
         return date;
     }
@@ -163,5 +159,9 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
 
     public void setJobUUID(String jobUUID) {
         this.jobUUID = jobUUID;
+    }
+
+    public String getPaymentUUID() {
+        return paymentUUID;
     }
 }
