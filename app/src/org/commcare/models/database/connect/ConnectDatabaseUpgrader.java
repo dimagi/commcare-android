@@ -681,14 +681,14 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeEighteenNineteen(IDatabase db) {
-        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+        addTableForNewModel(db, PushNotificationRecordV21.STORAGE_KEY, new PushNotificationRecordV21());
     }
 
     private void upgradeNineteenTwenty(IDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage.dropTable(db, PushNotificationRecord.STORAGE_KEY);
-            addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+            SqlStorage.dropTable(db, PushNotificationRecordV21.STORAGE_KEY);
+            addTableForNewModel(db, PushNotificationRecordV21.STORAGE_KEY, new PushNotificationRecordV21());
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

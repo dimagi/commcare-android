@@ -77,6 +77,6 @@ class PushNotificationRecordV21 :
     var acknowledged: Boolean = false
 
     companion object {
-        const val STORAGE_KEY = "push_notification_history"
+        const val STORAGE_KEY = PushNotificationRecord.STORAGE_KEY
     }
 }
