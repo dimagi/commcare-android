@@ -51,13 +51,13 @@ abstract class ConnectApiHandler<T>(
     fun getLearningAppProgress(
         context: Context,
         user: ConnectUserRecord,
-        jobId: Int,
+        job: ConnectJobRecord,
     ) {
         ApiConnect.getLearningAppProgress(
             context,
             user,
-            jobId,
-            createCallback(LearningAppProgressResponseParser<T>(), jobId),
+            job.jobId,
+            createCallback(LearningAppProgressResponseParser<T>(), job),
         )
     }
 
