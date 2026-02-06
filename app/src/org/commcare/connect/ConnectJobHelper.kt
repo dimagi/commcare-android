@@ -85,7 +85,7 @@ object ConnectJobHelper {
                 FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
                 listener.connectActivityComplete(false)
             }
-        }.getLearningAppProgress(context, user, job.jobId)
+        }.getLearningAppProgress(context, user, job)
     }
 
     fun updateDeliveryProgress(
