@@ -75,7 +75,8 @@
             app:backgroundTint="@null"
             android:stateListAnimator="@null"
             android:drawableStart="@drawable/ic_download_circle"
-            android:background="@drawable/bg_rounded_blue_70"
+            android:textColor="@color/connect_blue_color"
+            android:background="@drawable/bg_rounded_corner_lavender_70"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
@@ -92,8 +93,7 @@
             app:backgroundTint="@null"
             android:elevation="0dp"
             android:stateListAnimator="@null"
-            android:textColor="@color/connect_blue_color"
-            android:background="@drawable/bg_rounded_corner_lavender_70"
+            android:background="@drawable/bg_rounded_blue_70"
             android:visibility="gone"
             app:layout_constraintStart_toEndOf="@id/mb_resume"
             app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
