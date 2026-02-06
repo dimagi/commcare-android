@@ -104,7 +104,7 @@ public class ConnectMessageFragment extends Fragment {
     };
 
     private void fetchMessagesFromNetwork() {
-        MessageManager.retrieveMessages(requireActivity(), success -> {
+        MessageManager.retrieveMessages(requireActivity(), (success,error) -> {
             if (success) {
                 refreshUi();
             } else {
@@ -176,7 +176,7 @@ public class ConnectMessageFragment extends Fragment {
         adapter.addMessage(chat);
         scrollToLatestMessage();
 
-        MessageManager.sendMessage(requireContext(), message, success -> {
+        MessageManager.sendMessage(requireContext(), message, (success,error) -> {
             if (!success) {
                 Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
             } else {

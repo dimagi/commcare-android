@@ -40,13 +40,13 @@ public class MessageManager {
                 if (channel.getConsented()) {
                     getChannelEncryptionKey(context, channel, listener);
                 } else {
-                    listener.connectActivityComplete(true);
+                    listener.connectActivityComplete(true,null);
                 }
             }
 
             @Override
             public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-                listener.connectActivityComplete(false);
+                listener.connectActivityComplete(false,null);
             }
         }.updateChannelConsent(context, user,channel);
     }
@@ -57,13 +57,13 @@ public class MessageManager {
         new PersonalIdApiHandler<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
-                listener.connectActivityComplete(success);
+                listener.connectActivityComplete(success,null);
             }
 
             @Override
             public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 Logger.log("Messaging", "Failed to retrieve encryption key: " + (t!=null ? t.getMessage():""));
-                listener.connectActivityComplete(false);
+                listener.connectActivityComplete(false,null);
             }
         }.retrieveChannelEncryptionKey(context, user,channel);
     }
@@ -72,7 +72,7 @@ public class MessageManager {
         List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesAll(context);
         for (ConnectMessagingMessageRecord message : messages) {
             if (message.getIsOutgoing() && !message.getConfirmed()) {
-                sendMessage(context, message, success -> {
+                sendMessage(context, message, (success,error) -> {
                     Log.d("Check", Boolean.toString(success));
                 });
                 break;
@@ -92,12 +92,12 @@ public class MessageManager {
                 public void onSuccess(Boolean success) {
                     message.setConfirmed(true);
                     ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
-                    listener.connectActivityComplete(true);
+                    listener.connectActivityComplete(true,null);
                 }
 
                 @Override
                 public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-                    listener.connectActivityComplete(false);
+                    listener.connectActivityComplete(false,null);
                 }
             }.sendMessagingMessage(context, user,message,channel);
         } else {

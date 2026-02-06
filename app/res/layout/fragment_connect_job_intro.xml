@@ -105,8 +105,6 @@
                             android:textColor= "@color/cc_brand_color" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
-
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>

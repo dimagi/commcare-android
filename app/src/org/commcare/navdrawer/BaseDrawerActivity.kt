@@ -98,7 +98,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         unlockAndGoToConnectJobsList(
             this,
             object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(success: Boolean) {
+                override fun connectActivityComplete(success: Boolean, error: String?) {
                     if (success) {
                         closeDrawer()
                     }
@@ -111,7 +111,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         unlockAndGoToMessaging(
             this,
             object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(success: Boolean) {
+                override fun connectActivityComplete(success: Boolean, error: String?) {
                     if (success) {
                         closeDrawer()
                     }
@@ -124,7 +124,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         unlockAndGoToWorkHistory(
             this,
             object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(success: Boolean) {
+                override fun connectActivityComplete(success: Boolean, error: String?) {
                     if (success) {
                         closeDrawer()
                     }
