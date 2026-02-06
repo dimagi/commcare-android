@@ -60,4 +60,5 @@ public class CCAnalyticsEvent {
     static final String OTP_REQUESTED = "otp_requested";
     static final String PERSONAL_ID_NOTIFICATION_RECEIVED = "personal_id_notification_received";
     static final String PERSONAL_ID_NOTIFICATION_CLICKED = "personal_id_notification_clicked";
+    static final String PERSONAL_ID_RELEASE_TOGGLES = "personal_id_release_toggles";
 }
