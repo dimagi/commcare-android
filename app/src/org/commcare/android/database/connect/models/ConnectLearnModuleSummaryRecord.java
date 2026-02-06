@@ -24,6 +24,8 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     public static final String META_JOB_ID = "job_id";
     public static final String META_INDEX = "module_index";
 
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
+
     @Persisting(1)
     @MetaField(META_SLUG)
     private String slug;
@@ -51,11 +53,14 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     @Persisting(7)
     private Date lastUpdate;
 
+    @Persisting(8)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
     public ConnectLearnModuleSummaryRecord() {
 
     }
 
-    public static ConnectLearnModuleSummaryRecord fromJson(JSONObject json, int moduleIndex) throws JSONException {
+    public static ConnectLearnModuleSummaryRecord fromJson(JSONObject json, int moduleIndex, ConnectJobRecord job) throws JSONException {
         ConnectLearnModuleSummaryRecord info = new ConnectLearnModuleSummaryRecord();
         info.moduleIndex = moduleIndex;
         info.slug = json.getString(META_SLUG);
@@ -64,7 +69,23 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         info.timeEstimate = json.getInt(META_ESTIMATE);
         info.lastUpdate = new Date();
 
+        info.jobId = job.getJobId();
+        info.jobUUID = job.getJobUUID();
+
         return info;
+    }
+
+    public static ConnectLearnModuleSummaryRecord fromV21(ConnectLearnModuleSummaryRecordV21 connectLearnModuleSummaryRecordV21) {
+        ConnectLearnModuleSummaryRecord learnModuleSummaryRecord = new ConnectLearnModuleSummaryRecord();
+        learnModuleSummaryRecord.moduleIndex = connectLearnModuleSummaryRecordV21.getModuleIndex();
+        learnModuleSummaryRecord.slug = connectLearnModuleSummaryRecordV21.getSlug();
+        learnModuleSummaryRecord.name = connectLearnModuleSummaryRecordV21.getName();
+        learnModuleSummaryRecord.description = connectLearnModuleSummaryRecordV21.getDescription();
+        learnModuleSummaryRecord.timeEstimate = connectLearnModuleSummaryRecordV21.getTimeEstimate();
+        learnModuleSummaryRecord.lastUpdate = connectLearnModuleSummaryRecordV21.getLastUpdate();
+        learnModuleSummaryRecord.jobId = connectLearnModuleSummaryRecordV21.getJobId();
+        learnModuleSummaryRecord.jobUUID = String.valueOf(connectLearnModuleSummaryRecordV21.getJobId());
+        return learnModuleSummaryRecord;
     }
 
     public void setJobId(int jobId) {

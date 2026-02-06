@@ -5,7 +5,7 @@ import java.io.Serializable
 import java.util.Date
 
 /**
- * Data holder for personal identification session state during Personal ID flows.
+ * Data holder for personal identification session state during PersonalID flows.
  * This includes authentication configuration and account-related metadata.
  */
 data class PersonalIdSessionData(
@@ -47,6 +47,7 @@ data class PersonalIdSessionData(
     var previousDevice: String? = null,
     // timestamp of the last time this account was accessed from the previous device
     var lastAccessed: Date? = null,
+    var featureReleaseToggles: List<ConnectReleaseToggleRecord>? = null,
 ) : Serializable {
     /**
      * Annotation to restrict accepted authentication types used by the device.

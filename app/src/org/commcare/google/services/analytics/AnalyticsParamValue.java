@@ -179,7 +179,7 @@ public class AnalyticsParamValue {
     public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
     public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
 
-    // Param values for personal ID configuration failure
+    // Param values for PersonalID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE = "start_configuration_integrity_device_failure";
     public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE = "start_configuration_integrity_check_failure";
     public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE = "start_configuration_locked_account_failure";

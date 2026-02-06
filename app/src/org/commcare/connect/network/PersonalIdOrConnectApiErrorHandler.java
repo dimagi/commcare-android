@@ -41,7 +41,7 @@ public class PersonalIdOrConnectApiErrorHandler {
             case NETWORK_ERROR:
                 return context.getString(R.string.recovery_network_unavailable);
             case TOKEN_UNAVAILABLE_ERROR:
-                return context.getString(R.string.recovery_network_token_unavailable);
+                return context.getString(R.string.personalid_token_unavailable);
             case RATE_LIMIT_EXCEEDED_ERROR:
                 return context.getString(R.string.recovery_network_cooldown);
             case FAILED_AUTH_ERROR:
@@ -49,7 +49,7 @@ public class PersonalIdOrConnectApiErrorHandler {
             case SERVER_ERROR:
                 return context.getString(R.string.recovery_network_server_error);
             case TOKEN_DENIED_ERROR:
-                ConnectNetworkHelper.handleTokenDeniedException();
+                TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
                 return "";
             case OLD_API_ERROR:
                 return context.getString(R.string.recovery_network_outdated);

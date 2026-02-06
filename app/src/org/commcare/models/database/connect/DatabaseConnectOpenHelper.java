@@ -62,8 +62,10 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.19 - Added push_notification_history
      * V.20 - Added acknowledged column in push_notification_history
      * V.21 - Added ConnectReleaseToggleRecord table
+     * V.22 - Added a new field UUID for ConnectAppRecord, ConnectLearnModuleSummaryRecord, ConnectJobLearningRecord, ConnectJobDeliveryRecord
+     *          ConnectJobAssessmentRecord, ConnectPaymentUnitRecord, ConnectJobRecord, ConnectJobPaymentRecord and PushNotificationRecord
      */
-    private static final int CONNECT_DB_VERSION = 21;
+    private static final int CONNECT_DB_VERSION = 22;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
