@@ -524,4 +524,7 @@ License.
     <string name="personalid_biometric_error_lockout_permanent">Trop de tentatives infructueuses. Veuillez déverrouiller votre appareil et réessayer.</string>
     <string name="personalid_biometric_error_timeout">L\'opération biométrique a expiré. Veuillez contacter le support client si le problème persiste.</string>
     <string name="personalid_biometric_error_cannot_configure">Nous n\'avons pas pu configurer la biométrie sur votre appareil. Veuillez contacter le support client si le problème persiste.</string>
+
+    <string name="connect_complete_by">À compléter d\'ici le %s</string>
+    <string name="connect_expired_expired_on">Expiré le : %s</string>
 </resources>
