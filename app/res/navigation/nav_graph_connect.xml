@@ -169,8 +169,7 @@
             app:argType="string" />
         <argument
             android:name="callingClass"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="integer" />
         <argument
             android:name="buttonText"
             app:nullable="false"

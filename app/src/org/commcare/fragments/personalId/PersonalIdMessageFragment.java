@@ -145,9 +145,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
                 activity.finish();
                 break;
-            case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING:
-                NavHostFragment.findNavController(this).navigateUp();
-                break;
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
                 personalIdSessionData.setAccountExists(false);
                 directions = navigateToBackupCode();
@@ -157,11 +154,12 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 GeoUtils.goToProperLocationSettingsScreen(activity);
                 activity.finish();
                 break;
+            default:
+                NavHostFragment.findNavController(this).navigateUp();
+                break;
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
-        } else {
-            NavHostFragment.findNavController(this).navigateUp();
         }
     }
 
