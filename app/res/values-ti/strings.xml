@@ -381,6 +381,7 @@
     <string name="connect_job_info_download">ዳውንሎድ</string>
     <string name="connect_job_info_view_info">ሓበሬታ ርአ</string>
     <string name="connect_job_info_view_resume">ቐጽል</string>
+    <string name="connect_job_info_view_review">ዳግመ ግምት</string>
     <string name="connect_progress">ምዕባለ</string>
     <string name="connect_payment">ክፍሊት</string>
     <string name="connect_delivery_progress_description">ዝኾነ ትምህርቲ ኣይወዳእካን ስልዚ ምስክር ወረቐትካ ንምርካብ ምምሃር ጀምር።</string>

@@ -152,6 +152,7 @@
     <string name="connect_job_ended">Užduotis baigėsi %s</string>
     <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
     <string name="connect_job_info_view_resume">Tęsti</string>
+    <string name="connect_job_info_view_review">Peržiūrėti</string>
 
     <string name="connect_in_progress">Vykdoma</string>
     <string name="connect_new_opportunities">Naujos galimybės</string>

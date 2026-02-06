@@ -379,6 +379,7 @@ License.
     <string name="connect_job_info_download">Télécharger</string>
     <string name="connect_job_info_view_info">Voir les informations</string>
     <string name="connect_job_info_view_resume">Reprendre</string>
+    <string name="connect_job_info_view_review">Réviser</string>
     <string name="connect_progress">Progrès</string>
     <string name="connect_payment">Paiement</string>
     <string name="connect_delivery_progress_description">Vous n\'avez terminé aucune leçon. Commencez votre apprentissage pour obtenir votre certificat.</string>
