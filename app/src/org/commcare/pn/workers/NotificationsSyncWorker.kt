@@ -27,7 +27,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 /**
- * This worker is responsible to sync different API endpoints from Connect and Personal ID server based on the action
+ * This worker is responsible to sync different API endpoints from Connect and PersonalID server based on the action
  * specified in the input data.
  */
 class NotificationsSyncWorker(

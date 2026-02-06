@@ -11,12 +11,12 @@ object TokenExceptionHandler {
         Toast
             .makeText(
                 context,
-                context.getString(R.string.recovery_network_token_unavailable),
+                context.getString(R.string.personalid_token_unavailable),
                 Toast.LENGTH_LONG,
             ).show()
     }
 
     fun handleTokenDeniedException() {
-        ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR)
+        ConnectDatabaseHelper.handleGlobalError(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR)
     }
 }

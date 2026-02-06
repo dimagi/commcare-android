@@ -42,7 +42,7 @@ class NotificationsSyncWorkerManager(
         private const val PERIODIC_NOTIFICATION_REQUEST_NAME = "periodic_notification_request_name"
 
         /**
-         * Schedules periodic push notification retrieval to run every hour only if Personal ID login is present
+         * Schedules periodic push notification retrieval to run every hour only if PersonalID login is present
          * @param context Application context
          */
         @JvmStatic

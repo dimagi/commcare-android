@@ -100,7 +100,9 @@
     <string name="personalid_configuration_process_failed_subtitle">Deja, šis įrenginys nepraėjo saugumo patikrų, būtinų registracijai „PersonalID“. Bandykite dar kartą kitame įrenginyje.</string>
     <string name="personalid_location_permission_error">„PersonalID“ reikalauja, kad jūsų įrenginyje būtų įjungtos vietos nustatymo paslaugos. Prieš tęsdami, įjunkite jas telefono nustatymuose.</string>
     <string name="recovery_network_outdated">Ši programa pasenusi. Norėdami tęsti, atnaujinkite programą „Google Play“ parduotuvėje.</string>
-    <string name="recovery_network_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
+    <string name="personalid_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
+    <string name="personalid_token_request_rejected">Praradote „PersonalID“ konfigūraciją serveryje, atkurkite „PersonalID“ paskyrą ir bandykite dar kartą.</string>
+    <string name="personalid_login_from_different_device">Jūsų „PersonalID“ paskyrą vienu metu galima konfigūruoti tik viename įrenginyje, o ji jau buvo sukonfigūruota kitame įrenginyje. Tęskite naujame įrenginyje arba dar kartą sukonfigūruokite paskyrą šiame įrenginyje, kad galėtumėte toliau naudoti „PersonalID“ čia.</string>
     <string name="recovery_network_unauthorized">Jūs neturite teisės pateikti šio prašymo.</string>
     <string name="recovery_network_server_error">Apdorojant jūsų užklausą įvyko klaida.</string>
     <string name="recovery_network_cooldown">Per daug užklausų. Bandykite dar kartą po valandos.</string>
