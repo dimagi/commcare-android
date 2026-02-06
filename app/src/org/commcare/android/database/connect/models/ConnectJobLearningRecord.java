@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -31,6 +30,7 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     public static final String META_DATE = "date";
     public static final String META_MODULE = "module";
     public static final String META_DURATION = "duration";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -46,21 +46,37 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     private String duration;
     @Persisting(5)
     private Date lastUpdate;
+    @Persisting(6)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
 
     public ConnectJobLearningRecord() {
     }
 
-    public static ConnectJobLearningRecord fromJson(JSONObject json, int jobId) throws JSONException {
+    public static ConnectJobLearningRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
         ConnectJobLearningRecord record = new ConnectJobLearningRecord();
 
         record.lastUpdate = new Date();
 
-        record.jobId = jobId;
+        record.jobId = job.getJobId();
+        record.jobUUID = job.getJobUUID();
+
         record.date = DateUtils.parseDateTime(json.getString(META_DATE));
         record.moduleId = json.getInt(META_MODULE);
         record.duration = json.getString(META_DURATION);
 
         return record;
+    }
+
+    public static ConnectJobLearningRecord fromV21(ConnectJobLearningRecordV21 connectJobLearningRecordV21) {
+        ConnectJobLearningRecord connectJobLearningRecord = new ConnectJobLearningRecord();
+        connectJobLearningRecord.jobId = connectJobLearningRecordV21.getJobId();
+        connectJobLearningRecord.date = connectJobLearningRecordV21.getDate();
+        connectJobLearningRecord.moduleId = connectJobLearningRecordV21.getModuleId();
+        connectJobLearningRecord.duration = connectJobLearningRecordV21.getDuration();
+        connectJobLearningRecord.lastUpdate = connectJobLearningRecordV21.getLastUpdate();
+        connectJobLearningRecord.jobUUID = String.valueOf(connectJobLearningRecordV21.getJobId());
+        return connectJobLearningRecord;
     }
 
     public int getModuleId() {
