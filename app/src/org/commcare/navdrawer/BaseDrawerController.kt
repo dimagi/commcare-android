@@ -14,11 +14,13 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.models.database.connect.DatabaseConnectOpenHelper
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
@@ -230,8 +232,12 @@ class BaseDrawerController(
 //            }
 
             navDrawerAdapter.refreshList(items)
+
+            handleTestToggles()
         } else {
             setSignedInState(false)
+            binding.tvPersonalIDTestToggleActive.visibility = View.GONE
+            binding.tvConnectTestToggleActive.visibility = View.GONE
         }
     }
 
@@ -259,4 +265,19 @@ class BaseDrawerController(
     }
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
+
+    private fun handleTestToggles() {
+        val toggles = ConnectAppDatabaseUtil.getReleaseToggles(activity)
+
+        binding.tvPersonalIDTestToggleActive.visibility = View.GONE
+        binding.tvConnectTestToggleActive.visibility = View.GONE
+
+        for (toggle in toggles) {
+            if (toggle.slug == "Test" && toggle.active) {
+                binding.tvPersonalIDTestToggleActive.visibility = View.VISIBLE
+            } else if (toggle.slug == "Test-Connect" && toggle.active) {
+                binding.tvConnectTestToggleActive.visibility = View.VISIBLE
+            }
+        }
+    }
 }
