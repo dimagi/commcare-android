@@ -645,7 +645,7 @@
     <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
-    <string name="nav_drawer_continue_without_personal_id">Continue without PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continue without PersonalID</u></string>
     <string name="nav_drawer_fix_now">Fix Now</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>

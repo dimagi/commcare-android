@@ -77,7 +77,7 @@
     <string name="nav_drawer_signin_register">Logg inn / Registrer deg</string>
     <string name="nav_drawer_help">Hjelp</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Du er ikke logget inn med PersonalID</string>
-    <string name="nav_drawer_continue_without_personal_id">Fortsett uten PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Fortsett uten PersonalID</u></string>
     <string name="nav_drawer_fix_now">Fiks nå</string>
     <string name="nav_drawer_opportunities">Muligheter</string>
     <string name="nav_drawer_commcare_apps">CommCare-apper</string>

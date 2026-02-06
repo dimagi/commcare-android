@@ -496,7 +496,7 @@
     <string name="nav_drawer_signin_register">Entrar / Registrar-se</string>
     <string name="nav_drawer_help">Ajuda</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao PersonalID</string>
-    <string name="nav_drawer_continue_without_personal_id">Continuar sem PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continuar sem PersonalID</u></string>
     <string name="nav_drawer_fix_now">Corrigir agora</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicativos CommCare</string>

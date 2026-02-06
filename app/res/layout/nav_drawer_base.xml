@@ -71,6 +71,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.NavDrawerItem"
+                            android:textAlignment="center"
                             android:textStyle="italic" />
                     </LinearLayout>
 
@@ -96,6 +97,7 @@
                         android:padding="16dp"
                         android:text="@string/nav_drawer_continue_without_personal_id"
                         android:textColor="@color/white"
+                        android:textAlignment="center"
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackground"

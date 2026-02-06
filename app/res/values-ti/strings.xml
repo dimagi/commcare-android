@@ -482,7 +482,7 @@
     <string name="nav_drawer_signin_register">እቶም ኣእትዉ / ይመዝገቡ</string>
     <string name="nav_drawer_help">እርዳታ</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
-    <string name="nav_drawer_continue_without_personal_id">ብዘይ PersonalID ቀጽል።</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>ብዘይ PersonalID ቀጽል።</u></string>
     <string name="nav_drawer_fix_now">ሕጂ ኣዐርዩ።</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
