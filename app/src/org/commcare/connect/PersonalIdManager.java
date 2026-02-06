@@ -5,18 +5,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
@@ -31,10 +19,9 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.ConnectSsoSyncHelper;
-import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenExceptionHandler;
-import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
+import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -45,12 +32,25 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyProvider;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_USER_DENIED;
@@ -118,7 +118,7 @@ public class PersonalIdManager {
                 CrashUtil.registerUserData();
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
+                GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
             }
         }
     }
@@ -202,14 +202,15 @@ public class PersonalIdManager {
         personalIdSatus = PersonalIdStatus.LoggedIn;
         userUnlockedPersonalId();
         if (parentActivity instanceof BaseDrawerActivity) {
-            ((BaseDrawerActivity<?>) parentActivity).openDrawer();
+            ((BaseDrawerActivity<?>)parentActivity).openDrawer();
         }
     }
 
-    public void userUnlockedPersonalId(){
+    public void userUnlockedPersonalId() {
         scheduleHeartbeat();
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
         CrashUtil.registerUserData();
+        ConnectReleaseTogglesWorker.Companion.schedulePeriodicFetch(CommCareApplication.instance());
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
@@ -218,7 +219,6 @@ public class PersonalIdManager {
             completeSignin();
         }
     }
-
 
     public void forgetUser(String reason) {
         if (ConnectDatabaseHelper.dbExists()) {
@@ -232,6 +232,8 @@ public class PersonalIdManager {
 
         // remove notification read / unread preferences
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
+
+        ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -266,17 +268,19 @@ public class PersonalIdManager {
     }
 
     public void checkPersonalIdLink(CommCareActivity<?> activity, boolean personalIdManagedLogin, String appId,
-            String username, String password, ConnectActivityCompleteListener callback) {
+                                    String username, String password, ConnectActivityCompleteListener callback) {
         switch (evaluateAppState(activity, appId, username)) {
-            case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
-            case PersonalId -> promptToDelinkPersonalIdApp(activity, appId, username, personalIdManagedLogin,
-                    callback);
+            case Unmanaged ->
+                    promptTolinkUnmanagedApp(activity, appId, username, password, callback);
+            case PersonalId ->
+                    promptToDelinkPersonalIdApp(activity, appId, username, personalIdManagedLogin,
+                            callback);
             case Connect -> callback.connectActivityComplete(true);
         }
     }
 
     private void promptTolinkUnmanagedApp(CommCareActivity<?> activity, String appId, String username,
-            String password, ConnectActivityCompleteListener callback) {
+                                          String password, ConnectActivityCompleteListener callback) {
         ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId,
                 username);
         OfferCheckResult offerCheck = evaluateLinkOffer(linkedApp);
@@ -334,7 +338,7 @@ public class PersonalIdManager {
 
 
     private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username,
-            String password, ConnectActivityCompleteListener callback) {
+                                String password, ConnectActivityCompleteListener callback) {
         StandardAlertDialog dialog = new StandardAlertDialog(
                 activity.getString(R.string.personalid_link_app_title),
                 activity.getString(R.string.personalid_link_app_message));
@@ -355,7 +359,7 @@ public class PersonalIdManager {
     }
 
     private void unlockAndLinkConnect(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp,
-            String username, String password, ConnectActivityCompleteListener callback) {
+                                      String username, String password, ConnectActivityCompleteListener callback) {
         unlockConnect(activity, success -> {
             if (!success) {
                 callback.connectActivityComplete(false);
@@ -388,7 +392,7 @@ public class PersonalIdManager {
     }
 
     private void promptToDelinkPersonalIdApp(CommCareActivity<?> activity, String appId, String username,
-            boolean personalIdManagedLogin, ConnectActivityCompleteListener callback) {
+                                             boolean personalIdManagedLogin, ConnectActivityCompleteListener callback) {
         // we only want to prompt when user chose non connect Id managed login
         if (personalIdManagedLogin) {
             callback.connectActivityComplete(false);
@@ -529,8 +533,7 @@ public class PersonalIdManager {
         return false;
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username)
-            throws TokenDeniedException, TokenUnavailableException {
+    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) {
         if (!manager.isloggedIn()) {
             return null;
         }
