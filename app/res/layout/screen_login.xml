@@ -152,7 +152,6 @@
                                 android:textSize="18sp"
                                 tools:ignore="RtlCompat">
 
-                                <requestFocus />
                             </AutoCompleteTextView>
 
                             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"

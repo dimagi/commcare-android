@@ -54,6 +54,9 @@ class BaseDrawerController(
         setupViews()
         if (refreshDrawerContent()) {
             openDrawer()
+            binding.drawerLayout.postDelayed({
+                ViewUtil.hideVirtualKeyboard(activity)
+            }, 250)
         }
     }
 
