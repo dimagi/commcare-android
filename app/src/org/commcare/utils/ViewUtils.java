@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,5 +34,9 @@ public class ViewUtils {
         tv.setMaxLines(5);
 
         snackbar.show();
+    }
+
+    public static int dpToPx(int dp, Context context) {
+        return (int) (dp * context.getResources().getDisplayMetrics().density);
     }
 }

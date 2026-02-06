@@ -1,6 +1,8 @@
 package org.commcare.adapters;
 
 
+import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
+
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -24,11 +26,8 @@ import org.commcare.models.connect.ConnectLoginJobListModel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -161,7 +160,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             OnJobSelectionClick launcher
     ) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
-        if (shouldShowDateInRed(connectLoginJobListModel.getDate())) {
+        if (isExpiryDateUnderFiveDays(connectLoginJobListModel.getDate())) {
             int redColor = ContextCompat.getColor(mContext, R.color.dark_red_brick_red);
 
             binding.tvDate.setTextColor(redColor);
@@ -169,7 +168,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
         boolean isCompleted = connectLoginJobListModel.getJob().isFinished();
         int dateRes = isCompleted
-                ? R.string.connect_expired_expired_on
+                ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
@@ -188,16 +187,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         clickListener(binding, connectLoginJobListModel, launcher);
     }
-
-    private boolean shouldShowDateInRed(Date expiryDate) {
-        long now = System.currentTimeMillis();
-        long diffMillis = expiryDate.getTime() - now;
-
-        long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
-
-        return daysRemaining >= 0 && daysRemaining <= 5;
-    }
-
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
             @StringRes int headerTextResId,
@@ -212,10 +201,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectLoginJobListModel connectLoginJobListModel,
             OnJobSelectionClick launcher
     ) {
-        binding.btnResume.setOnClickListener(view -> {
-            launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
-                    connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
-        });
+        binding.btnResume.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(),OnJobSelectionClick.Action.RESUME));
+        binding.btnViewInfo.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(),OnJobSelectionClick.Action.VIEW_INFO));
     }
 
     public void handleProgressBarUI(

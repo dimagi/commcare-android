@@ -9,10 +9,12 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 object ConnectDateUtils {
     val dateFormat: DateFormat = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
 
+    @JvmStatic
     fun formatDate(date: Date?): String {
         synchronized(dateFormat) {
             return dateFormat.format(date)
