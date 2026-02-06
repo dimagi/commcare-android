@@ -257,7 +257,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;
         boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-        // TODO: CHANGE DRAWABLE ICON TO ic_download_circle
+        //  TODO: CHANGE DRAWABLE ICON TO ic_download_circle
         Drawable downloadIcon = ContextCompat.getDrawable(requireContext(), R.drawable.apply_update);
         jobCard.mbResume.setIcon(appInstalled ? null : downloadIcon);
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
