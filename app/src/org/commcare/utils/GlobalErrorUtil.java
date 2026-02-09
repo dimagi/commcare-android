@@ -24,6 +24,12 @@ public class GlobalErrorUtil {
         CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).write(error);
     }
 
+    /**
+     * Checks for any global errors that should be surfaced to the user.
+     * If there are multiple errors, only the most recent one will be returned.
+     * Errors will be automatically pruned after the expiration time has passed.
+     * @return Localized error string to display to the user, or null if there are no errors to display
+     */
     public static String checkGlobalErrors() {
         SqlStorage<GlobalErrorRecord> storage = CommCareApplication.instance()
                 .getGlobalStorage(GlobalErrorRecord.class);
@@ -35,8 +41,8 @@ public class GlobalErrorUtil {
             return null;
         }
 
-        GlobalErrors ge = GlobalErrors.values()[errors.get(0).getErrorCode()];
-        return CommCareApplication.instance().getString(ge.getMessageId());
+        GlobalErrors globalError = GlobalErrors.values()[errors.get(0).getErrorCode()];
+        return CommCareApplication.instance().getString(globalError.getMessageId());
     }
 
     private static void pruneOldErrors(SqlStorage<GlobalErrorRecord> storage) {
