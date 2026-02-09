@@ -100,7 +100,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             object : ConnectActivityCompleteListener {
                 override fun connectActivityComplete(
                     success: Boolean,
-                    error: String?
+                    error: String?,
                 ) {
                     if (success) {
                         closeDrawer()
@@ -116,7 +116,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             object : ConnectActivityCompleteListener {
                 override fun connectActivityComplete(
                     success: Boolean,
-                    error: String?
+                    error: String?,
                 ) {
                     if (success) {
                         closeDrawer()
@@ -132,7 +132,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             object : ConnectActivityCompleteListener {
                 override fun connectActivityComplete(
                     success: Boolean,
-                    error: String?
+                    error: String?,
                 ) {
                     if (success) {
                         closeDrawer()

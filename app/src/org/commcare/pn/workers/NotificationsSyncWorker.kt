@@ -121,7 +121,7 @@ class NotificationsSyncWorker(
                 object : ConnectActivityCompleteListener {
                     override fun connectActivityComplete(
                         success: Boolean,
-                        error: String?
+                        error: String?,
                     ) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
@@ -152,7 +152,7 @@ class NotificationsSyncWorker(
                 object : ConnectActivityCompleteListener {
                     override fun connectActivityComplete(
                         success: Boolean,
-                        error: String?
+                        error: String?,
                     ) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
@@ -177,7 +177,7 @@ class NotificationsSyncWorker(
                 object : ConnectActivityCompleteListener {
                     override fun connectActivityComplete(
                         success: Boolean,
-                        error: String?
+                        error: String?,
                     ) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }

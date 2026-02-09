@@ -53,22 +53,22 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
         val rootFrame =
             FrameLayout(requireContext()).apply {
-            layoutParams =
-                ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-            )
-        }
+                layoutParams =
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+            }
 
         val verticalContainer =
             LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams =
-                ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-            )
-        }
+                orientation = LinearLayout.VERTICAL
+                layoutParams =
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+            }
 
         verticalContainer.addView(errorView)
         verticalContainer.addView(mainView)
