@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.interfaces.base.BaseConnectView
 
@@ -17,6 +19,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     val binding get() = _binding!!
 
     private lateinit var loadingBinding: LoadingBinding
+    private lateinit var errorBinding: InlineErrorLayoutBinding
     private lateinit var rootView: View
 
     /**
@@ -40,29 +43,48 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         loadingBinding = LoadingBinding.inflate(inflater, container, false)
         val loadingView = loadingBinding.root
 
-        // Create a parent container that holds both mainView and loadingView
-        val mergedLayout =
-            FrameLayout(
-                requireContext(),
-            ).apply {
+        errorBinding = InlineErrorLayoutBinding.inflate(inflater, container, false)
+        val errorView = errorBinding.root
+        errorView.visibility = View.GONE
+
+        errorBinding.ivClose.setOnClickListener {
+            hideError()
+        }
+
+        val rootFrame =
+            FrameLayout(requireContext()).apply {
                 layoutParams =
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
                     )
-                addView(mainView)
-                addView(loadingView)
             }
 
-        // Hide loading by default
-        hideLoading()
+        val verticalContainer =
+            LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams =
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+            }
 
-        rootView = mergedLayout
+        verticalContainer.addView(errorView)
+        verticalContainer.addView(mainView)
+
+        rootFrame.addView(verticalContainer)
+        rootFrame.addView(loadingView)
+
+        rootView = rootFrame
+
+        hideLoading()
         return rootView
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        hideError()
         _binding = null
         // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
         loadingBinding.root.visibility = View.GONE
@@ -74,5 +96,16 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun hideLoading() {
         loadingBinding.root.visibility = View.GONE
+    }
+
+    fun showError(error: String?) {
+        if (error != null) {
+            errorBinding.tvErrorMessage.text = error
+            errorBinding.root.visibility = View.VISIBLE
+        }
+    }
+
+    fun hideError() {
+        errorBinding.root.visibility = View.GONE
     }
 }

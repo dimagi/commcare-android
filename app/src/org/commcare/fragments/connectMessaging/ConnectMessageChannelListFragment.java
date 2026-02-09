@@ -88,7 +88,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
                 new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
 
-        MessageManager.retrieveMessages(requireActivity(), success -> {
+        MessageManager.retrieveMessages(requireActivity(), (success,error) -> {
             refreshUi();
         });
 

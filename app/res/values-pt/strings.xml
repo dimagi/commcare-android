@@ -526,10 +526,15 @@
     <string name="personalid_tooltip_location_success_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Clique aqui para mais informações.</a></string>
 
     <string name="network_forbidden_error">Acesso negado. Se o problema persistir, entre em contato com o suporte ao cliente.</string>
-
+    <string name="error">Erro</string>
+    <string name="failed_to_start_learning">Falha ao iniciar o aprendizado</string>
+    <string name="failed_to_update_payment">Falha ao atualizar o pagamento</string>
     <string name="personalid_biometric_error_cancelled">A configuração biométrica foi cancelada. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_lockout">Muitas tentativas. Por favor, espere e tente novamente.</string>
     <string name="personalid_biometric_error_lockout_permanent">Muitas tentativas falhadas. Por favor, desbloqueie o seu dispositivo e tente novamente.</string>
     <string name="personalid_biometric_error_timeout">A operação biométrica expirou. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_cannot_configure">Não foi possível configurar a biometria no seu dispositivo. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
+
+    <string name="connect_complete_by">Concluir até %s</string>
+    <string name="connect_expired_on">Expirou em: %s</string>
 </resources>

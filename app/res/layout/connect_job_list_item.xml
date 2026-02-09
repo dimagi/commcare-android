@@ -8,9 +8,6 @@
     android:layout_marginHorizontal="16dp"
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"
     android:shadowColor="@color/connect_light_grey_transparent"
     android:shadowDx="30"
     android:shadowDy="30"
@@ -41,74 +38,117 @@
 
         <LinearLayout
             android:id="@+id/llOpportunity"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/connect_rounded_corner_orange_yellow"
+            android:layout_marginTop="11dp"
             android:orientation="horizontal"
             android:paddingStart="4dp"
             android:paddingTop="4dp"
             android:paddingEnd="10dp"
+            android:layout_marginEnd="3dp"
             android:paddingBottom="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
             <ImageView
-                android:id="@+id/imgJobType"
+                android:id="@+id/iv_info"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:contentDescription="@null"
-                android:src="@drawable/ic_connect_new_opportunity" />
+                android:src="@drawable/ic_location_info" />
 
             <TextView
-                android:id="@+id/tvJobType"
+                android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="10dp"
-                android:textColor="@color/connect_yellowish_orange_color"
                 android:textSize="12sp"
-                tools:text="@string/connect_new_opportunity"
-                android:textStyle="bold"/>
+                android:layout_marginStart="4dp"
+                android:fontFamily="sans-serif" />
         </LinearLayout>
 
-        <org.commcare.views.connect.CircleProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/llOpportunity"
-            app:layout_constraintStart_toEndOf="@+id/llOpportunity"
-            app:layout_constraintTop_toTopOf="@+id/llOpportunity" />
-
-        <ImageView
-            android:id="@+id/imgDownload"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_connect_download_green"
-            app:layout_constraintBottom_toBottomOf="@+id/llOpportunity"
-            app:layout_constraintStart_toEndOf="@+id/progressBar"
-            app:layout_constraintTop_toTopOf="@+id/llOpportunity"/>
-
-        <TextView
-            android:id="@+id/tvDate"
+        <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/connect_dark_grey"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="@+id/llOpportunity"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/llOpportunity" />
+            android:layout_height="30dp"
+            android:id="@+id/btn_resume"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_resume"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="10dp"
+            app:textAllCaps="false"
+            android:paddingHorizontal="8dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:drawableStart="@drawable/ic_download_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_rounded_blue_70"
+            app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:id="@+id/btn_view_info"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_info"
+            android:layout_marginTop="10dp"
+            app:textAllCaps="false"
+            app:backgroundTint="@null"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            android:textColor="@color/connect_blue_color"
+            app:layout_constraintStart_toEndOf="@id/btn_resume"
+            android:background="@drawable/bg_rounded_corner_lavender_70"
+            android:layout_marginStart="10dp"
+            app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.6" />
+            app:layout_constraintGuide_percent="0.7" />
+
+        <org.commcare.views.connect.CircleProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="71dp"
+            android:layout_height="71dp"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_view_info"
+            app:layout_constraintStart_toEndOf="@+id/guideline2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvTitle" />
+
+        <ImageView
+            android:id="@+id/imgJobType"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_connect_new_opportunity"
+            app:layout_constraintTop_toTopOf="@id/progressBar"
+            app:layout_constraintStart_toStartOf="@id/progressBar"
+            app:layout_constraintBottom_toBottomOf="@id/progressBar"
+            app:layout_constraintEnd_toEndOf="@id/progressBar"/>
+
+        <TextView
+            android:id="@+id/tv_progress_percent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/progressBar"
+            app:layout_constraintStart_toStartOf="@id/progressBar"
+            app:layout_constraintEnd_toEndOf="@id/progressBar"
+            android:layout_marginTop="3dp"
+            android:textColor="@color/dark_silver"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            tools:text="30%"/>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="progressBar,imgJobType,tv_progress_percent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
