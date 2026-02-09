@@ -528,5 +528,5 @@
     <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
 
     <string name="connect_complete_by">Completar para el %s</string>
-    <string name="connect_expired_expired_on">Expirado el: %s</string>
+    <string name="connect_expired_on">Expirado el: %s</string>
 </resources>

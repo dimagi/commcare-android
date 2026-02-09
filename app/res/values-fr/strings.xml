@@ -529,5 +529,5 @@ License.
     <string name="personalid_biometric_error_cannot_configure">Nous n\'avons pas pu configurer la biométrie sur votre appareil. Veuillez contacter le support client si le problème persiste.</string>
 
     <string name="connect_complete_by">À compléter d\'ici le %s</string>
-    <string name="connect_expired_expired_on">Expiré le : %s</string>
+    <string name="connect_expired_on">Expiré le : %s</string>
 </resources>

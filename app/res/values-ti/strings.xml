@@ -517,5 +517,5 @@
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
     <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
-    <string name="connect_expired_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
+    <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
 </resources>

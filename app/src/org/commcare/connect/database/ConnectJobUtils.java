@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
@@ -411,4 +412,14 @@ public class ConnectJobUtils {
 
         return payments;
     }
+
+    public static boolean isExpiryDateUnderFiveDays(Date expiryDate) {
+        long now = System.currentTimeMillis();
+        long diffMillis = expiryDate.getTime() - now;
+
+        long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
+
+        return daysRemaining >= 0 && daysRemaining <= 5;
+    }
+
 }
