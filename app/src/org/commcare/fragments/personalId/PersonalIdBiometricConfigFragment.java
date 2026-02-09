@@ -1,5 +1,14 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
+import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +22,7 @@ import androidx.biometric.BiometricPrompt;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
@@ -31,17 +41,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-import androidx.navigation.fragment.NavHostFragment;
-
-import static android.app.Activity.RESULT_OK;
-
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
-import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
-import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
-
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
  */
@@ -53,6 +52,10 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
     public PersonalIdBiometricConfigFragment() {
         // Required empty public constructor
+    }
+
+    protected BiometricManager getBiometricManager() {
+        return BiometricManager.from(requireActivity());
     }
 
     @Override
@@ -72,7 +75,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidVerifyBinding.inflate(inflater, container, false);
-        biometricManager = BiometricManager.from(requireActivity());
+        biometricManager = getBiometricManager();
         biometricCallback = setupBiometricCallback();
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> onFingerprintButtonClicked());
