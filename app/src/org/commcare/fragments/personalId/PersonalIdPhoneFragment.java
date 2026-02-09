@@ -54,6 +54,7 @@ import org.commcare.location.LocationRequestFailureHandler;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
@@ -221,8 +222,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                             Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        binding.connectPrimaryPhoneInput.post(
-                                () -> binding.connectPrimaryPhoneInput.requestFocus());
+                        View focusView = activity.getCurrentFocus();
+                        if (focusView != null) {
+                            KeyboardHelper.showKeyboardOnInput(activity, focusView);
+                        }
                     }
                 }
         );
