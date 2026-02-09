@@ -242,7 +242,8 @@ class BaseDrawerController(
             val globalError = GlobalErrorUtil.checkGlobalErrors()
             showingError = globalError != null
 
-            binding.errorContainer.visibility = if (showingError) View.VISIBLE else View.GONE
+            binding.errorIcon.visibility = if (showingError) View.VISIBLE else View.GONE
+            binding.errorText.visibility = if (showingError) View.VISIBLE else View.GONE
             binding.continueLink.visibility = if (showingError) View.VISIBLE else View.GONE
             val textId =
                 if (showingError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register

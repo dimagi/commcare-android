@@ -48,32 +48,21 @@
                         android:textAppearance="@style/TextAppearance.NavDrawerItem"
                         android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
 
-                    <LinearLayout
-                        android:id="@+id/nav_drawer_error_container"
+                    <ImageView
+                        android:id="@+id/nav_drawer_error_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_x_circle"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_horizontal"/>
+
+                    <TextView
+                        android:id="@+id/nav_drawer_error_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="8dp"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="8dp"
-                        android:visibility="gone">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_x_circle"
-                            android:layout_marginEnd="8dp"/>
-
-                        <TextView
-                            android:id="@+id/nav_drawer_error_text"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="@style/TextAppearance.NavDrawerItem"
-                            android:textAlignment="center"
-                            android:textStyle="italic" />
-                    </LinearLayout>
+                        android:textAppearance="@style/TextAppearance.NavDrawerItem"
+                        android:textAlignment="center"
+                        android:textStyle="italic" />
 
                     <com.google.android.material.button.MaterialButton
                         android:backgroundTint="@color/cc_brand_color"

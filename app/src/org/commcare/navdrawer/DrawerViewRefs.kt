@@ -27,7 +27,7 @@ class DrawerViewRefs(rootView: View) {
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
     val toolbar: Toolbar = rootView.findViewById(R.id.toolbar)
-    val errorContainer: LinearLayout = rootView.findViewById(R.id.nav_drawer_error_container)
+    val errorIcon: ImageView = rootView.findViewById(R.id.nav_drawer_error_icon)
     val errorText: TextView = rootView.findViewById(R.id.nav_drawer_error_text)
     val continueLink: TextView = rootView.findViewById(R.id.nav_drawer_continue_link)
 }
