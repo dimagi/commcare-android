@@ -6,6 +6,6 @@ package org.commcare.connect
 interface ConnectActivityCompleteListener {
     fun connectActivityComplete(
         success: Boolean,
-        error: String? = ""
+        error: String? = "",
     )
 }
