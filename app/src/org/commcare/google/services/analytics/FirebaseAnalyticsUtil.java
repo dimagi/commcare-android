@@ -620,38 +620,42 @@ public class FirebaseAnalyticsUtil {
     public static void reportPersonalIdReleaseTogglesChanged(
             List<ConnectReleaseToggleRecord> toggles
     ) {
-        if (toggles == null || toggles.isEmpty()) {
-            return;
-        }
-
-        Bundle bundle = new Bundle();
-
-        // Make sure that we don't cross Firebase's limit of 25 parameters.
-        int paramCount = 0;
-
-        // Sort the toggles by most recently modified so that we always report the most recent toggles.
-        List<ConnectReleaseToggleRecord> togglesToReport = new ArrayList<>(toggles);
-        Collections.sort(
-                togglesToReport,
-                (t1, t2) ->
-                        t2.getModifiedAt().compareTo(t1.getModifiedAt())
-        );
-
-        for (ConnectReleaseToggleRecord toggle : togglesToReport) {
-            if (paramCount >= 25) {
-                Logger.log(TYPE_ERROR_DESIGN, "There are too many toggles to report to Firebase! Dropping the following toggle from analytics: " + toggle.getSlug());
-                break;
+        try {
+            if (toggles == null || toggles.isEmpty()) {
+                return;
             }
 
-            String sanitizedKey = sanitizeParamName(toggle.getSlug());
+            Bundle bundle = new Bundle();
 
-            if (sanitizedKey != null) {
-                bundle.putLong(sanitizedKey, toggle.getActive() ? 1 : 0);
-                paramCount++;
+            // Make sure that we don't cross Firebase's limit of 25 parameters.
+            int paramCount = 0;
+
+            // Sort the toggles by most recently modified so that we always report the most recent toggles.
+            List<ConnectReleaseToggleRecord> togglesToReport = new ArrayList<>(toggles);
+            Collections.sort(
+                    togglesToReport,
+                    (t1, t2) ->
+                            t2.getModifiedAt().compareTo(t1.getModifiedAt())
+            );
+
+            for (ConnectReleaseToggleRecord toggle : togglesToReport) {
+                if (paramCount >= 25) {
+                    Logger.log(TYPE_ERROR_DESIGN, "There are too many toggles to report to Firebase! Dropping the following toggle from analytics: " + toggle.getSlug());
+                    break;
+                }
+
+                String sanitizedKey = sanitizeParamName(toggle.getSlug());
+
+                if (sanitizedKey != null) {
+                    bundle.putLong(sanitizedKey, toggle.getActive() ? 1 : 0);
+                    paramCount++;
+                }
             }
-        }
 
-        reportEvent(CCAnalyticsEvent.PERSONAL_ID_RELEASE_TOGGLES, bundle);
+            reportEvent(CCAnalyticsEvent.PERSONAL_ID_RELEASE_TOGGLES, bundle);
+        } catch (Exception e) {
+            Logger.exception("Failed to report PersonalID release toggles to Firebase analytics!", e);
+        }
     }
 
     /**
