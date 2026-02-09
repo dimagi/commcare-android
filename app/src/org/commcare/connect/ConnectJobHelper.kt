@@ -160,7 +160,7 @@ object ConnectJobHelper {
             ) {
                 val error = PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t)
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
-                listener.connectActivityComplete(false,error)
+                listener.connectActivityComplete(false, error)
             }
         }.setPaymentConfirmations(context, user, paymentConfirmations)
     }

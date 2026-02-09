@@ -51,18 +51,22 @@ abstract class BaseConnectFragment<B : ViewBinding> :
             hideError()
         }
 
-        val rootFrame = FrameLayout(requireContext()).apply {
-            layoutParams = ViewGroup.LayoutParams(
+        val rootFrame =
+            FrameLayout(requireContext()).apply {
+            layoutParams =
+                ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
             )
         }
 
-        val verticalContainer = LinearLayout(requireContext()).apply {
+        val verticalContainer =
+            LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            layoutParams = ViewGroup.LayoutParams(
+            layoutParams =
+                ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
             )
         }
 
@@ -93,6 +97,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun hideLoading() {
         loadingBinding.root.visibility = View.GONE
     }
+
     fun showError(error: String?) {
         if (error != null) {
             errorBinding.tvErrorMessage.text = error
