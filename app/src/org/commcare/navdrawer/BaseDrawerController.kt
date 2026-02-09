@@ -118,6 +118,10 @@ class BaseDrawerController(
 
     private fun setupListeners() {
         binding.signInButton.setOnClickListener {
+            if (showingError) {
+                GlobalErrorUtil.dismissGlobalErrors()
+            }
+
             PersonalIdManager
                 .getInstance()
                 .launchPersonalId(
@@ -238,38 +242,7 @@ class BaseDrawerController(
             navDrawerAdapter.refreshList(items)
         } else {
             setSignedInState(false)
-
-            val globalError = GlobalErrorUtil.checkGlobalErrors()
-            showingError = globalError != null
-
-            binding.errorIcon.visibility = if (showingError) View.VISIBLE else View.GONE
-            binding.errorText.visibility = if (showingError) View.VISIBLE else View.GONE
-            binding.continueLink.visibility = if (showingError) View.VISIBLE else View.GONE
-            val textId =
-                if (showingError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
-            binding.signInButton.text = activity.getString(textId)
-
-            if (showingError) {
-                binding.errorText.text = globalError
-
-                binding.continueLink.setOnClickListener {
-                    GlobalErrorUtil.dismissGlobalErrors()
-                    refreshDrawerContent()
-                }
-            }
-
-            binding.signInButton.setOnClickListener {
-                if (showingError) {
-                    GlobalErrorUtil.dismissGlobalErrors()
-                }
-                PersonalIdManager
-                    .getInstance()
-                    .launchPersonalId(
-                        activity,
-                        ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH,
-                    )
-                closeDrawer()
-            }
+            configureErrorState()
         }
     }
 
@@ -279,6 +252,27 @@ class BaseDrawerController(
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.notificationView.visibility =
             if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
+    }
+
+    private fun configureErrorState() {
+        val globalError = GlobalErrorUtil.checkGlobalErrors()
+        showingError = globalError != null
+
+        binding.errorIcon.visibility = if (showingError) View.VISIBLE else View.GONE
+        binding.errorText.visibility = if (showingError) View.VISIBLE else View.GONE
+        binding.continueLink.visibility = if (showingError) View.VISIBLE else View.GONE
+        val textId =
+            if (showingError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
+        binding.signInButton.text = activity.getString(textId)
+
+        if (showingError) {
+            binding.errorText.text = globalError
+
+            binding.continueLink.setOnClickListener {
+                GlobalErrorUtil.dismissGlobalErrors()
+                refreshDrawerContent()
+            }
+        }
     }
 
     private fun shouldShowWorkHistory(): Boolean {
