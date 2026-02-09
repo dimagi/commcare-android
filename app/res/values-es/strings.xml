@@ -119,7 +119,9 @@
     <string name="recovery_forms_state_unavailable">Los formularios no están disponibles. Verifica que el espacio de almacenamiento de tu teléfono esté disponible.</string>
     <string name="recovery_network_unavailable">Sin conexión de red. Verifica tu conexión a Internet e inténtalo de nuevo.</string>
     <string name="recovery_network_outdated">Esta aplicación está desactualizada. Por favor, actualice la aplicación en Google Play Store para continuar.</string>
-    <string name="recovery_network_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
+    <string name="personalid_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
+    <string name="personalid_token_request_rejected">Se perdió la configuración de PersonalID con el servidor, recupere su cuenta de PersonalID y vuelva a intentarlo</string>
+    <string name="personalid_login_from_different_device">Su cuenta de PersonalID solo se puede configurar en un dispositivo a la vez y ya se configuró en otro. Continúe en el nuevo dispositivo o vuelva a configurar su cuenta en este para seguir usando PersonalID aquí.</string>
     <string name="recovery_network_unauthorized">No está autorizado para realizar esta solicitud.</string>
     <string name="recovery_network_server_error">Hubo un error al procesar su solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
@@ -515,10 +517,16 @@
     <string name="personalid_tooltip_location_success_message">Utilizamos datos de ubicación para garantizar el uso seguro de esta aplicación.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Haga clic aquí para más información.</a></string>
 
     <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
+    <string name="error">Error</string>
+    <string name="failed_to_start_learning">Error al iniciar el aprendizaje</string>
+    <string name="failed_to_update_payment">Error al actualizar el pago</string>
 
     <string name="personalid_biometric_error_cancelled">La configuración biométrica fue cancelada. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_lockout">Demasiados intentos. Por favor, espere e inténtelo de nuevo.</string>
     <string name="personalid_biometric_error_lockout_permanent">Demasiados intentos fallidos. Por favor, desbloquee su dispositivo e inténtelo de nuevo.</string>
     <string name="personalid_biometric_error_timeout">La operación biométrica ha expirado. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
+
+    <string name="connect_complete_by">Completar para el %s</string>
+    <string name="connect_expired_on">Expirado el: %s</string>
 </resources>

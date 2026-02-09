@@ -171,7 +171,9 @@
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
     <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
-    <string name="recovery_network_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ PersonalID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
+    <string name="personalid_login_from_different_device">ናትካ PersonalID ኣካውንት ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክውነን ዝኽእልን ኣብ ካልእ መሳርሒ ድማ ተዋቒሩን ኣሎ። በጃኻ ኣብቲ ሓድሽ መሳርሒ ቀጽሎ ወይ ኣብዚ PersonalID ምጥቃም ክትቅጽል ኣብዚ መሳርሒ ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="recovery_network_unauthorized">ነዚ ሕቶ እዚ ከተቕርቡ ፍቓድ የብልኩምን።</string>
     <string name="recovery_network_server_error">ሕቶኻ ኣብ መስርሕ ጌጋ ኣጋጢሙ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
@@ -505,10 +507,15 @@
     <string name="personalid_tooltip_location_success_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">ንተወሳኺ ሓበሬታ ኣብዚ ጠውቕ።</a></string>
 
     <string name="network_forbidden_error">ምብጻሕ ተኸልኪሉ። እቲ ጸገም እንተቐጺሉ ንደገፍ ዓማዊል ተወከሱ።</string>
-
+    <string name="error">ጌጋ</string>
+    <string name="failed_to_start_learning">ምምሃር ምጅማር ኣይተኻእለን</string>
+    <string name="failed_to_update_payment">ክፍሊት ምዕራይ ኣይተኻእለን</string>
     <string name="personalid_biometric_error_cancelled">ናይ ባዮሜትሪክ ምድላው ተሰሪዙ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_lockout">በዝሒ ፈተነታት። በጃኻ ጽንሕ ኢልካ እንደገና ፈትን።</string>
     <string name="personalid_biometric_error_lockout_permanent">በዝሒ ዝፈሸለ ፈተነታት። በጃኻ ንመሳርሒኻ ክፈቶ እሞ እንደገና ፈትን።</string>
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
+
+    <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
+    <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
 </resources>

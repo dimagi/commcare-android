@@ -85,7 +85,7 @@ object ConnectJobHelper {
                 FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
                 listener.connectActivityComplete(false)
             }
-        }.getLearningAppProgress(context, user, job.jobId)
+        }.getLearningAppProgress(context, user, job)
     }
 
     fun updateDeliveryProgress(
@@ -158,14 +158,9 @@ object ConnectJobHelper {
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                Toast
-                    .makeText(
-                        context,
-                        PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t),
-                        Toast.LENGTH_LONG,
-                    ).show()
+                val error = PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t)
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
-                listener.connectActivityComplete(false)
+                listener.connectActivityComplete(false, error)
             }
         }.setPaymentConfirmations(context, user, paymentConfirmations)
     }

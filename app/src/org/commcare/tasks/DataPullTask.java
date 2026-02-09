@@ -13,7 +13,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.util.InvalidCaseGraphException;
-import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
@@ -317,8 +317,6 @@ public abstract class DataPullTask<R>
             responseError = PullTaskResult.BAD_CERTIFICATE;
         }catch (TokenUnavailableException e) {
             responseError = PullTaskResult.TOKEN_UNAVAILABLE;
-        } catch (TokenDeniedException e) {
-            responseError = PullTaskResult.TOKEN_DENIED;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());

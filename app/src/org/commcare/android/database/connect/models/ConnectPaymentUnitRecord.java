@@ -25,6 +25,8 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     public static final String META_TOTAL = "max_total";
     public static final String META_DAILY = "max_daily";
     public static final String META_AMOUNT = "amount";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
+    public static final String META_PAYMENT_UNIT_UUID = "payment_unit_id";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -50,16 +52,28 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     @MetaField(META_AMOUNT)
     private int amount;
 
+    @Persisting(7)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
+
+    @Persisting(8)
+    @MetaField(META_PAYMENT_UNIT_UUID)
+    private String unitUUID;
+
     public ConnectPaymentUnitRecord() {
 
     }
 
-    public static ConnectPaymentUnitRecord fromJson(JSONObject json, int jobId) {
+    public static ConnectPaymentUnitRecord fromJson(JSONObject json, ConnectJobRecord job) {
         try {
         ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
 
-            paymentUnit.jobId = jobId;
+            paymentUnit.jobId = job.getJobId();
+            paymentUnit.jobUUID = job.getJobUUID();
+
             paymentUnit.unitId = json.getInt(META_ID);
+            paymentUnit.unitUUID = json.getString(META_PAYMENT_UNIT_UUID);
+
             paymentUnit.name = json.getString(META_NAME);
             paymentUnit.maxTotal = json.getInt(META_TOTAL);
             paymentUnit.maxDaily = json.getInt(META_DAILY);
@@ -70,6 +84,19 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
             Logger.exception("Error parsing Connect payment", e);
             return null;
         }
+    }
+
+    public static ConnectPaymentUnitRecord fromV21(ConnectPaymentUnitRecordV21 connectPaymentUnitRecordV21) {
+        ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
+        paymentUnit.jobId = connectPaymentUnitRecordV21.getJobId();
+        paymentUnit.jobUUID = String.valueOf(connectPaymentUnitRecordV21.getJobId());
+        paymentUnit.unitId = connectPaymentUnitRecordV21.getUnitId();
+        paymentUnit.unitUUID = String.valueOf(connectPaymentUnitRecordV21.getUnitId());
+        paymentUnit.name = connectPaymentUnitRecordV21.getName();
+        paymentUnit.maxTotal = connectPaymentUnitRecordV21.getMaxTotal();
+        paymentUnit.maxDaily = connectPaymentUnitRecordV21.getMaxDaily();
+        paymentUnit.amount = connectPaymentUnitRecordV21.getAmount();
+        return paymentUnit;
     }
 
     public int getJobId() {
