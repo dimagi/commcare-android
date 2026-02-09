@@ -507,7 +507,9 @@
     <string name="personalid_tooltip_location_success_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">ንተወሳኺ ሓበሬታ ኣብዚ ጠውቕ።</a></string>
 
     <string name="network_forbidden_error">ምብጻሕ ተኸልኪሉ። እቲ ጸገም እንተቐጺሉ ንደገፍ ዓማዊል ተወከሱ።</string>
-
+    <string name="error">ጌጋ</string>
+    <string name="failed_to_start_learning">ምምሃር ምጅማር ኣይተኻእለን</string>
+    <string name="failed_to_update_payment">ክፍሊት ምዕራይ ኣይተኻእለን</string>
     <string name="personalid_biometric_error_cancelled">ናይ ባዮሜትሪክ ምድላው ተሰሪዙ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_lockout">በዝሒ ፈተነታት። በጃኻ ጽንሕ ኢልካ እንደገና ፈትን።</string>
     <string name="personalid_biometric_error_lockout_permanent">በዝሒ ዝፈሸለ ፈተነታት። በጃኻ ንመሳርሒኻ ክፈቶ እሞ እንደገና ፈትን።</string>
@@ -515,5 +517,5 @@
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
     <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
-    <string name="connect_expired_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
+    <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
 </resources>

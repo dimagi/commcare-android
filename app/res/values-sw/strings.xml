@@ -523,7 +523,9 @@
     <string name="personalid_tooltip_location_success_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Bofya hapa kwa maelezo zaidi.</a></string>
 
     <string name="network_forbidden_error">Ufikiaji umekataliwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
-
+    <string name="error">Hitilafu</string>
+    <string name="failed_to_start_learning">Imeshindwa kuanza kujifunza</string>
+    <string name="failed_to_update_payment">Imeshindwa kusasisha malipo</string>
     <string name="personalid_biometric_error_cancelled">Usanidi wa kibayometri ulighairiwa. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_lockout">Majaribio mengi mno. Tafadhali subiri na ujaribu tena.</string>
     <string name="personalid_biometric_error_lockout_permanent">Majaribio mengi mno yameshindikana. Tafadhali fungua kifaa chako na ujaribu tena.</string>
@@ -531,5 +533,5 @@
     <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
 
     <string name="connect_complete_by">Kamilisha ifikapo %s</string>
-    <string name="connect_expired_expired_on">Muda wake umeisha mnamo: %s</string>
+    <string name="connect_expired_on">Muda wake umeisha mnamo: %s</string>
 </resources>

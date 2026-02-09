@@ -153,6 +153,9 @@
     <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
     <string name="connect_job_info_view_resume">Tęsti</string>
 
+    <string name="error">Klaida</string>
+    <string name="failed_to_start_learning">Nepavyko pradėti mokytis</string>
+    <string name="failed_to_update_payment">Nepavyko atnaujinti mokėjimo</string>
     <string name="connect_in_progress">Vykdoma</string>
     <string name="connect_new_opportunities">Naujos galimybės</string>
     <string name="connect_completed">Užbaigta</string>
@@ -167,5 +170,5 @@
     <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
 
     <string name="connect_complete_by">Atlikti iki %s</string>
-    <string name="connect_expired_expired_on">Galiojimas baigėsi: %s</string>
+    <string name="connect_expired_on">Galiojimas baigėsi: %s</string>
 </resources>
