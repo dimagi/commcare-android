@@ -140,6 +140,9 @@
     <string name="connect_job_info_view_info">Se info</string>
     <string name="connect_job_info_view_resume">Gjenoppta</string>
 
+    <string name="error">Feil</string>
+    <string name="failed_to_start_learning">Kunne ikke starte læringen</string>
+    <string name="failed_to_update_payment">Kunne ikke oppdatere betalingen</string>
     <string name="connect_in_progress">Pågår</string>
     <string name="connect_new_opportunities">Nye muligheter</string>
     <string name="connect_completed">Fullført</string>

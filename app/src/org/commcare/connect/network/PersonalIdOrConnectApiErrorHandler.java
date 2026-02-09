@@ -8,6 +8,8 @@ import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 
+import java.util.EnumSet;
+
 /**
  * Utility class for handling standardized API error responses across the configuration flow.
  * <p>
@@ -70,5 +72,20 @@ public class PersonalIdOrConnectApiErrorHandler {
                     return context.getString(R.string.recovery_network_unknown);
                 }
         }
+    }
+
+    /**
+     * Errors that should be shown ONLY in the network banner UI (non-blocking)
+     */
+    private static final EnumSet<BaseApiHandler.PersonalIdOrConnectApiErrorCodes> NETWORK_ERRORS =
+            EnumSet.of(
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR
+            );
+
+    public static boolean isNetworkError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes error) {
+        return NETWORK_ERRORS.contains(error);
     }
 }
