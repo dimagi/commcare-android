@@ -1,10 +1,17 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -138,9 +145,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
                 activity.finish();
                 break;
-            case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING:
-                NavHostFragment.findNavController(this).navigateUp();
-                break;
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
                 personalIdSessionData.setAccountExists(false);
                 directions = navigateToBackupCode();
@@ -150,7 +154,9 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 GeoUtils.goToProperLocationSettingsScreen(activity);
                 activity.finish();
                 break;
-
+            default:
+                NavHostFragment.findNavController(this).navigateUp();
+                break;
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
