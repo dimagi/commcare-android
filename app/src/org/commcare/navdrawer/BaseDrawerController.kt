@@ -37,6 +37,7 @@ class BaseDrawerController(
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
     private var hasRefreshed = false
+    private var showingError = false
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -52,11 +53,10 @@ class BaseDrawerController(
         initializeAdapter()
         setupListeners()
         setupViews()
-        if (refreshDrawerContent()) {
+        refreshDrawerContent()
+
+        if(showingError) {
             openDrawer()
-            binding.drawerLayout.postDelayed({
-                ViewUtil.hideVirtualKeyboard(activity)
-            }, 250)
         }
     }
 
@@ -138,7 +138,7 @@ class BaseDrawerController(
         binding.helpView.setOnClickListener { /* Future Help Action */ }
     }
 
-    fun refreshDrawerContent(): Boolean {
+    fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
@@ -236,21 +236,19 @@ class BaseDrawerController(
 //            }
 
             navDrawerAdapter.refreshList(items)
-
-            return false
         } else {
             setSignedInState(false)
 
             val globalError = GlobalErrorUtil.checkGlobalErrors()
-            val hasError = globalError != null
+            showingError = globalError != null
 
-            binding.errorContainer.visibility = if (hasError) View.VISIBLE else View.GONE
-            binding.continueLink.visibility = if (hasError) View.VISIBLE else View.GONE
+            binding.errorContainer.visibility = if (showingError) View.VISIBLE else View.GONE
+            binding.continueLink.visibility = if (showingError) View.VISIBLE else View.GONE
             val textId =
-                if (hasError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
+                if (showingError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
             binding.signInButton.text = activity.getString(textId)
 
-            if (hasError) {
+            if (showingError) {
                 binding.errorText.text = globalError
 
                 binding.continueLink.setOnClickListener {
@@ -260,7 +258,7 @@ class BaseDrawerController(
             }
 
             binding.signInButton.setOnClickListener {
-                if (hasError) {
+                if (showingError) {
                     GlobalErrorUtil.dismissGlobalErrors()
                 }
                 PersonalIdManager
@@ -271,8 +269,6 @@ class BaseDrawerController(
                     )
                 closeDrawer()
             }
-
-            return hasError
         }
     }
 
@@ -298,6 +294,10 @@ class BaseDrawerController(
 
     fun openDrawer() {
         binding.drawerLayout.openDrawer(GravityCompat.START)
+    }
+
+    fun isShowingError(): Boolean {
+        return showingError
     }
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)

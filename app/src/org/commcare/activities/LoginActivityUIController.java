@@ -287,11 +287,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (lastUser != null) {
             // If there was a last user for this app, show it
             username.setText(lastUser);
-            passwordOrPin.requestFocus();
+            requestFocusIfNoError(passwordOrPin);
         } else {
             // Otherwise, clear the username text so it does not show a username from a different app
             username.setText("");
-            username.requestFocus();
+            requestFocusIfNoError(username);
         }
 
         // Since the entered username may have changed, need to re-check if we should be in PIN mode
@@ -308,6 +308,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+    }
+
+    private void requestFocusIfNoError(EditText view) {
+        if (!activity.isShowingGlobalError()) {
+            view.requestFocus();
+        }
     }
 
     private void checkEnteredUsernameForMatch() {
@@ -480,7 +486,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         String lastUser = prefs.getString(HiddenPreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);
-            passwordOrPin.requestFocus();
+            requestFocusIfNoError(passwordOrPin);
         }
     }
 
