@@ -79,7 +79,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void refreshLearningData() {
-        ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, success -> {
+        ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, (success,error) -> {
             if (success && isAdded()) {
                 updateLearningUI();
             } else if (!success && isAdded()) {

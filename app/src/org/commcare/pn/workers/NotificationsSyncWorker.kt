@@ -119,7 +119,10 @@ class NotificationsSyncWorker(
             ConnectJobHelper.retrieveOpportunities(
                 appContext,
                 object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(success: Boolean) {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
                 },
@@ -147,7 +150,10 @@ class NotificationsSyncWorker(
                 null,
                 null,
                 object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(success: Boolean) {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
                 },
@@ -169,7 +175,10 @@ class NotificationsSyncWorker(
                 appContext,
                 job,
                 object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(success: Boolean) {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
                         continuation.resume(PNApiResponseStatus(success, !success))
                     }
                 },

@@ -141,6 +141,9 @@
     <string name="connect_job_info_view_resume">Gjenoppta</string>
     <string name="connect_job_info_view_review">Vurder</string>
 
+    <string name="error">Feil</string>
+    <string name="failed_to_start_learning">Kunne ikke starte læringen</string>
+    <string name="failed_to_update_payment">Kunne ikke oppdatere betalingen</string>
     <string name="connect_in_progress">Pågår</string>
     <string name="connect_new_opportunities">Nye muligheter</string>
     <string name="connect_completed">Fullført</string>
@@ -155,5 +158,5 @@
     <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
 
     <string name="connect_complete_by">Fullfør innen %s</string>
-    <string name="connect_expired_expired_on">Utløpt den: %s</string>
+    <string name="connect_expired_on">Utløpt den: %s</string>
 </resources>
