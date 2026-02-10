@@ -116,4 +116,15 @@ class TestablePersonalIdBiometricConfigFragment(
         val result = org.mockito.Mockito.mock(BiometricPrompt.AuthenticationResult::class.java)
         callback.onAuthenticationSucceeded(result)
     }
+
+    /**
+     * Simulates a failed biometric authentication by directly triggering the authentication callback.
+     */
+    fun simulateFailedAuthentication() {
+        val callbackField = PersonalIdBiometricConfigFragment::class.java.getDeclaredField("biometricCallback")
+        callbackField.isAccessible = true
+        val callback = callbackField.get(this) as BiometricPrompt.AuthenticationCallback
+        val result = org.mockito.Mockito.mock(BiometricPrompt.AuthenticationResult::class.java)
+        callback.onAuthenticationFailed()
+    }
 }

@@ -10,11 +10,11 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.dalvik.R
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -150,6 +150,44 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
         verifyPinButtonState(View.GONE)
     }
 
+    @Test
+    fun testSuccessfulBiometricAuthentication_navigatesToOtpScreen() {
+        // Setup and Act
+        setUpAndClickFingerprintButton(true)
+
+        // Verify user navigates to OTP screen on successful biometric authentication
+        assertEquals(R.id.personalid_otp_page, navController.currentDestination?.id)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R]) // BiometricManager.Authenticators.DEVICE_CREDENTIAL requires API 30+
+    fun testSuccessfulPinAuthentication_navigatesToOtpScreen() {
+        // Setup and Act
+        setUpAndClickPintButton(true)
+
+        // Verify user navigates to OTP screen on successful pin authentication
+        assertEquals(R.id.personalid_otp_page, navController.currentDestination?.id)
+    }
+
+    @Test
+    fun testFailedBiometricAuthentication_navigatesToOtpScreen() {
+        // Setup and Act
+        setUpAndClickFingerprintButton(false)
+
+        // Verify no navigation occurs on failed biometric authentication and user stays on the same screen
+        assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R]) // BiometricManager.Authenticators.DEVICE_CREDENTIAL requires API 30+
+    fun testFailedPinAuthentication_navigatesToOtpScreen() {
+        // Setup and Act
+        setUpAndClickPintButton(false)
+
+        // Verify no navigation occurs on failed biometric authentication and user stays on the same screen
+        assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
+    }
+
     private fun verifyFingerButtonState(
         expectedVisibility: Int,
         expectedMessage: Int,
@@ -202,5 +240,45 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
                 verifyPinButton.text,
             )
         }
+    }
+
+    private fun setUpAndClickFingerprintButton(successfulAuth: Boolean) {
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
+        setUpBiometricFragment()
+
+        val fingerprintButton = fragment.view!!.findViewById<Button>(R.id.connect_verify_fingerprint_button)
+        val testableFragment = fragment as TestablePersonalIdBiometricConfigFragment
+
+        fingerprintButton.performClick()
+        mockBiometricAuthentication(testableFragment, successfulAuth)
+    }
+
+    private fun setUpAndClickPintButton(successfulAuth: Boolean) {
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL))
+            .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
+        setUpBiometricFragment()
+
+        val pinButton = fragment.view!!.findViewById<Button>(org.commcare.dalvik.R.id.connect_verify_pin_button)
+        val testableFragment = fragment as TestablePersonalIdBiometricConfigFragment
+        pinButton.performClick()
+        mockBiometricAuthentication(testableFragment, successfulAuth)
+    }
+
+    private fun mockBiometricAuthentication(
+        testableFragment: TestablePersonalIdBiometricConfigFragment,
+        successfulAuth: Boolean
+    ) {
+        activity.runOnUiThread {
+            ShadowLooper.idleMainLooper()
+            if (successfulAuth) {
+                testableFragment.simulateSuccessfulAuthentication()
+            } else {
+                testableFragment.simulateFailedAuthentication()
+            }
+        }
+        ShadowLooper.idleMainLooper()
     }
 }
