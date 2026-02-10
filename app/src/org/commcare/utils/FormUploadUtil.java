@@ -24,11 +24,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +41,7 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLException;
 
@@ -47,6 +51,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
 import static org.commcare.network.HttpUtils.parseUserVisibleError;
 
 import com.google.common.collect.ImmutableMultimap;
@@ -66,15 +71,24 @@ public class FormUploadUtil {
                     ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg", ".pdf", 
                     ".html", ".rtf", ".txt", ".docx", ".xlsx", ".msg"};
 
-    public static Cipher getDecryptCipher(SecretKeySpec key) {
+    public static Cipher getDecryptCipher(Key key){
+        return getDecryptCipher(key, null);
+    }
+
+    public static Cipher getDecryptCipher(Key key, FileInputStream fis) {
         Cipher cipher;
         try {
-            cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.DECRYPT_MODE, key);
+            cipher = Cipher.getInstance(isEncryptedByAndroidKeyStore ? "AES/CBC/PKCS7Padding" : "AES");
+            byte[] iv = null;
+            if (isEncryptedByAndroidKeyStore && fis != null) {
+                int ivlength = ((byte[])fis.readNBytes(1))[0];
+                iv = fis.readNBytes(ivlength);
+            }
+            cipher.init(Cipher.DECRYPT_MODE, key, iv != null ? new IvParameterSpec(iv) : null);
             return cipher;
             //TODO: Something smart here;
-        } catch (NoSuchAlgorithmException |
-                NoSuchPaddingException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IOException |
+                 InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         return null;
@@ -115,7 +129,7 @@ public class FormUploadUtil {
      *                               file-system
      */
     public static FormUploadResult sendInstance(int submissionNumber, File folder,
-                                                @Nullable SecretKeySpec key, String url,
+                                                @Nullable Key key, String url,
                                                 @Nullable DataSubmissionListener listener, User user)
             throws FileNotFoundException {
 
@@ -326,7 +340,7 @@ public class FormUploadUtil {
      *                               file-system
      */
     private static boolean buildMultipartEntity(List<MultipartBody.Part> parts,
-                                                @Nullable SecretKeySpec key,
+                                                @Nullable Key key,
                                                 File[] files)
             throws FileNotFoundException {
 
@@ -373,7 +387,7 @@ public class FormUploadUtil {
         return true;
     }
 
-    private static int addPartToEntity(List<MultipartBody.Part> parts, File f, String contentType, SecretKeySpec key) {
+    private static int addPartToEntity(List<MultipartBody.Part> parts, File f, String contentType, Key key) {
         if (f.length() <= MAX_BYTES) {
             MultipartBody.Part part;
             if (f.getName().endsWith(MediaWidget.AES_EXTENSION)) {
@@ -416,13 +430,18 @@ public class FormUploadUtil {
     }
 
 
-    public static MultipartBody.Part createEncryptedFilePart(String partName, File file, String contentType, SecretKeySpec key) {
+    public static MultipartBody.Part createEncryptedFilePart(String partName, File file, String contentType, Key key) {
 
         // create RequestBody instance from file
-        RequestBody requestFile = new EncryptedFileBody(
-                MediaType.parse(contentType),
-                file,
-                FormUploadUtil.getDecryptCipher(key));
+        RequestBody requestFile = null;
+        try {
+            requestFile = new EncryptedFileBody(
+                    MediaType.parse(contentType),
+                    file,
+                    FormUploadUtil.getDecryptCipher(key, new FileInputStream(file)));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         // MultipartBody.Part is used to send also the actual file name
         return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);

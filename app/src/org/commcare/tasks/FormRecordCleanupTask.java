@@ -8,6 +8,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -33,7 +34,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Hashtable;
@@ -42,7 +45,10 @@ import java.util.Vector;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
 
 /**
  * @author ctsims
@@ -251,8 +257,16 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         InputStream is = null;
         FileInputStream fis = new FileInputStream(path);
         try {
-            Cipher decrypter = Cipher.getInstance("AES");
-            decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
+            Cipher decrypter = Cipher.getInstance(isEncryptedByAndroidKeyStore ? "AES/CBC/PKCS7Padding" : "AES");
+            byte[] iv = null;
+            if (isEncryptedByAndroidKeyStore) {
+                int ivlength = ((byte[])fis.readNBytes(1))[0];
+                iv = fis.readNBytes(ivlength);
+            }
+            Key key = isEncryptedByAndroidKeyStore ?
+                    new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey() :
+                    new SecretKeySpec(r.getAesKey(), "AES");
+            decrypter.init(Cipher.DECRYPT_MODE, key, iv != null ? new IvParameterSpec(iv) : null);
             is = new CipherInputStream(fis, decrypter);
 
             // Construct parser for this form's internal data.
@@ -269,6 +283,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         } catch (InvalidKeyException e) {
             e.printStackTrace();
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
         } finally {
             fis.close();
             if (is != null) {

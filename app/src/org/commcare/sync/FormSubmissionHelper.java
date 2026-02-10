@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -34,11 +35,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.security.Key;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
 
 /**
  * Helper for uploading forms to the server and should be used by all upload Forms processes
@@ -315,8 +319,10 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                                 throw new TaskCancelledException();
                             }
 
-                            mResults[i] = FormUploadUtil.sendInstance(i, folder,
-                                    new SecretKeySpec(record.getAesKey(), "AES"), mUrl, this, user);
+                            Key encryptionKey = isEncryptedByAndroidKeyStore ?
+                                    new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey() :
+                                    new SecretKeySpec(record.getAesKey(), "AES");
+                            mResults[i] = FormUploadUtil.sendInstance(i, folder, encryptionKey, mUrl, this, user);
                             if (mResults[i] == FormUploadResult.FULL_SUCCESS) {
                                 logSubmissionSuccess(record);
                                 break;

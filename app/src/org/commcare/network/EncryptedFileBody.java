@@ -16,6 +16,8 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
+
 /**
  * @author ctsims
  */
@@ -39,7 +41,14 @@ public class EncryptedFileBody extends RequestBody {
     public void writeTo(BufferedSink sink) throws IOException {
         //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
         //it'll get caught when we initialize.
-        CipherInputStream cis = new CipherInputStream(new FileInputStream(file), cipher);
+        FileInputStream fis = new FileInputStream(file);
+        byte[] iv = null;
+        if (isEncryptedByAndroidKeyStore) {
+            int ivlength = ((byte[])fis.readNBytes(1))[0];
+            iv = fis.readNBytes(ivlength);
+        }
+        CipherInputStream cis = new CipherInputStream(fis, cipher);
+
         try {
             StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());
         } catch (InputIOException iioe) {

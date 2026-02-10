@@ -10,6 +10,7 @@ import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.javarosa.AndroidXFormHttpRequester;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
+import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
@@ -54,10 +55,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
 
 /**
  * @author Carl Hartung (carlhartung@gmail.com)
@@ -260,7 +264,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         // convert files into a byte array
         InputStream is;
         try {
-            is = EncryptionIO.getFileInputStream(filePath, mSymetricKey);
+            Key key = isEncryptedByAndroidKeyStore?
+                    new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey():
+                    mSymetricKey;
+            is = EncryptionIO.getFileInputStream(filePath, key);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new RuntimeException("Unable to open encrypted form instance file: " + filePath);

@@ -6,6 +6,7 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.SqlStorage;
@@ -33,8 +34,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.Key;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
 
 /**
  * @author Carl Hartung (carlhartung@gmail.com)
@@ -218,8 +222,11 @@ public class SaveToDiskTask extends
         XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
         ByteArrayPayload payload = (ByteArrayPayload)serializer.createSerializedPayload(dataModel);
 
+        Key encryptionKey = isEncryptedByAndroidKeyStore?
+                new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey():
+                symetricKey;
         writeXmlToStream(payload,
-                EncryptionIO.createFileOutputStream(mFormRecordPath, symetricKey));
+                EncryptionIO.createFileOutputStream(mFormRecordPath, encryptionKey));
 
         SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         updateFormRecord(formRecordStorage, true);
@@ -230,7 +237,7 @@ public class SaveToDiskTask extends
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             writeXmlToStream(payload,
-                    EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
+                    EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), encryptionKey));
 
             // Set this record's status to COMPLETE
             updateFormRecord(formRecordStorage, false);

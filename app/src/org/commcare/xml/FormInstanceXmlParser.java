@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.FileUtil;
@@ -21,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -31,6 +33,8 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
 
 /**
  * @author ctsims
@@ -97,11 +101,19 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         BufferedOutputStream bos = null;
 
         try {
-            Cipher encrypter = Cipher.getInstance("AES");
+            Cipher encrypter = Cipher.getInstance(isEncryptedByAndroidKeyStore ? "AES/CBC/PKCS7Padding" : "AES");
 
-            SecretKeySpec key = new SecretKeySpec(formRecord.getAesKey(), "AES");
+            Key key = isEncryptedByAndroidKeyStore?
+                    new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey():
+                    new SecretKeySpec(formRecord.getAesKey(), "AES");
             encrypter.init(Cipher.ENCRYPT_MODE, key);
+
             CipherOutputStream cos = new CipherOutputStream(o, encrypter);
+            if (isEncryptedByAndroidKeyStore) {
+                byte[] iv = encrypter.getIV();
+                o.write(iv.length);
+                o.write(iv);
+            }
             bos = new BufferedOutputStream(cos, 1024 * 256);
 
             serializer.setOutput(bos, "UTF-8");
