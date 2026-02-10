@@ -398,6 +398,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">Ver informações</string>
     <string name="connect_job_info_view_resume">Retomar</string>
+    <string name="connect_job_info_view_review">Revisar</string>
     <string name="connect_progress">Progresso</string>
     <string name="connect_payment">Pagamento</string>
     <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>

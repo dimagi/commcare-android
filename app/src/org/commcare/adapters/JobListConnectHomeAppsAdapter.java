@@ -15,6 +15,8 @@ import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
@@ -166,21 +168,35 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.tvDate.setTextColor(redColor);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
         }
-        boolean isCompleted = connectLoginJobListModel.getJob().isFinished();
-        int dateRes = isCompleted
+
+        // We need the composite job because it has the correct number of deliveries.
+        ConnectJobRecord compositeJob = ConnectJobUtils
+                .getCompositeJob(mContext, connectLoginJobListModel.getJob().getJobId());
+        boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
+
+        int dateRes = deliveryComplete
                 ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
         );
 
-        Drawable startDrawable = connectLoginJobListModel.isAppInstalled()
+        Drawable startDrawableResume = connectLoginJobListModel.isAppInstalled()
                 ? null
                 : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle);
-
         binding.btnResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                startDrawable, null, null, null
+                startDrawableResume, null, null, null
         );
+
+        Drawable startDrawableReview = connectLoginJobListModel.isAppInstalled()
+                ? null
+                : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle_faded);
+        binding.btnReview.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                startDrawableReview, null, null, null
+        );
+
+        binding.btnResume.setVisibility(deliveryComplete ? View.INVISIBLE : View.VISIBLE);
+        binding.btnReview.setVisibility(deliveryComplete ? View.VISIBLE : View.INVISIBLE);
 
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
@@ -202,9 +218,11 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             OnJobSelectionClick launcher
     ) {
         binding.btnResume.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
-                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(),OnJobSelectionClick.Action.RESUME));
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.RESUME));
         binding.btnViewInfo.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
-                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(),OnJobSelectionClick.Action.VIEW_INFO));
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.VIEW_INFO));
+        binding.btnReview.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.RESUME));
     }
 
     public void handleProgressBarUI(
