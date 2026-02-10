@@ -5,8 +5,8 @@
 - CommCare Core is a shared Java library that provides core functionalities for CommCare's Android and Web Client
 
 ## Code Quality Standards
-- General code standards: [https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md]
-- Exception Handling Guidelines: [https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md]
+- [General code standards](https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md)
+- [Exception Handling Guidelines](https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md)
 - Write testable code
 - Don't be verbose but be detail oriented (i.e. ensure correctness without writing unnecessary code)
 - Any new classes should be written in Kotlin
@@ -53,11 +53,11 @@ All the changes below should be part of a separate commit after the main code ch
 - Tag any commits with [AI] in the commit message
 
 ## Resources
-- CommCare Core Wiki [https://github.com/dimagi/commcare-core/wiki]
-- CommCare Android Wiki [https://github.com/dimagi/commcare-android/wiki]
-- Formplayer [https://github.com/dimagi/formplayer]
-- Formplayer Wiki [https://github.com/dimagi/formplayer/wiki]
-- CommCare Technical Overview [https://docs.google.com/document/d/1mr7MRboYGtsKKL9LMG-ZuBpYy10JLHzznIKVO32QRM8]
+- [CommCare Core Wiki](https://github.com/dimagi/commcare-core/wiki)
+- [CommCare Android Wiki](https://github.com/dimagi/commcare-android/wiki)
+- [Formplayer](https://github.com/dimagi/formplayer)
+- [Formplayer Wiki](https://github.com/dimagi/formplayer/wiki)
+- [CommCare Technical Overview](https://docs.google.com/document/d/1mr7MRboYGtsKKL9LMG-ZuBpYy10JLHzznIKVO32QRM8)
 
 ## Agent Tone Guidelines
 - Be concise without subjective judgements
