@@ -2,13 +2,13 @@
 
 ## Project Overview
 - CommCare Android is an open-source Android application for data collection and service delivery in low-resource settings
-- CommCare Core is a shared Java library that provides core functionalities for CommCare's Android and Web Client.
+- CommCare Core is a shared Java library that provides core functionalities for CommCare's Android and Web Client
 
 ## Code Quality Standards
 - General code standards: [https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md]
 - Exception Handling Guidelines: [https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md]
 - Write testable code
-- Don't be verbose but be detail oriented i.e. ensure correctness without writing unnecessary code
+- Don't be verbose but be detail oriented (i.e. ensure correctness without writing unnecessary code)
 - Any new classes should be written in Kotlin
 - Old classes can remain in Java unless it affects new code architecture significantly
 - Use standard Android APIs where applicable
@@ -23,7 +23,7 @@
 - Ensure test compiles and passes before committing code changes
 
 ## Workflow After Code Changes
-- All the changes below should be part of a separate commit after the main code changes
+All the changes below should be part of a separate commit after the main code changes:
 - Clean up any unused code and imports
 - Verify Java code with `checkstyle.xml` and make changes as applicable
 - Run ktlint formatting: `ktlint --format path/to/file.kt`
@@ -43,8 +43,8 @@
 
 ## Project Structure Notes
 - CommCare Core is in `../commcare-core/`, always include it to the working directory for the current session
-- Connect and Personal ID share `org.commcare.connect` package
-- Personal ID Fragments are in `org.commcare.fragments.personalId` package
+- Connect and PersonalID share `org.commcare.connect` package
+- PersonalID Fragments are in `org.commcare.fragments.personalId` package
 ## Git Usage Guidelines
 - Logical Commits: Break work into logical chunks and commit after completing each coherent piece of functionality
 - Commit Messages: Write concise commit messages that describe the change's purpose, not an exhaustive list of modifications
