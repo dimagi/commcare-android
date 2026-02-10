@@ -13,11 +13,13 @@ import org.commcare.android.database.user.models.FormRecordV5;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -34,13 +36,19 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES;
 import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE;
@@ -234,6 +242,38 @@ class UserDatabaseUpgrader {
             if (updateTwentyEightTwentyNine(db)) {
                 oldVersion = 29;
             }
+        }
+        if (oldVersion == 29) {
+            if (updateTwentyNineToThirty(db)) {
+                oldVersion = 30;
+            }
+        }
+    }
+
+    private boolean updateTwentyNineToThirty(IDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<FormRecordV5> formRecordStorage = UserDbUpgradeUtils.getFormRecordStorage(c, db, FormRecordV5.class);
+            SqlStorageIterator<FormRecordV5> iterator = formRecordStorage.iterate();
+            while (iterator.hasMore()) {
+                FormRecordV5 form = iterator.next();
+                try {
+                    InputStream is = EncryptionIO.getFileInputStreamWithoutKeyStore(form.getFilePath(), new SecretKeySpec(form.getAesKey(), "AES"));
+                    File fileToDelete = new File(form.getFilePath());
+                    if (fileToDelete.exists()) {
+                        fileToDelete.delete();
+                    }
+                    EncryptionIO.encryptWithKeyStore(is, form.getFilePath(), new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey());
+                } catch (FileNotFoundException | StreamsUtil.InputIOException | StreamsUtil.OutputIOException e) {
+                    throw new RuntimeException(e);
+                }
+                formRecordStorage.write(form);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
         }
     }
 

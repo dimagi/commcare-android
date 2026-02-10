@@ -20,6 +20,8 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
 
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
+
 
 public class UserDatabaseSchemaManager {
     /**
@@ -55,7 +57,7 @@ public class UserDatabaseSchemaManager {
      * v.29 - Add columns for is_dirty and is_shallow in entity_cache table
      */
 
-    public static final int USER_DB_VERSION = 29;
+    public static final int USER_DB_VERSION = isEncryptedByAndroidKeyStore? 30: 29;
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
     public static String getDbName(String sandboxId) {

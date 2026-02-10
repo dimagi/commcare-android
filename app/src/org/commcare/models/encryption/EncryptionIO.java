@@ -118,4 +118,33 @@ public class EncryptionIO {
             throw new RuntimeException(e);
         }
     }
+
+    // For testing purposes only
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    public static InputStream getFileInputStreamWithoutKeyStore(String filepath,
+                                                 Key symetricKey) throws FileNotFoundException {
+        final File file = new File(filepath);
+        InputStream is;
+        try {
+            is = new FileInputStream(file);
+            if (symetricKey != null) {
+                Cipher cipher = Cipher.getInstance("AES");
+                cipher.init(Cipher.DECRYPT_MODE, symetricKey);
+                is = new BufferedInputStream(new CipherInputStream(is, cipher));
+            }
+            return is;
+        } catch (InvalidKeyException | NoSuchPaddingException
+                 | NoSuchAlgorithmException | IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    // For testing purposes only
+    public static void encryptWithKeyStore(InputStream is, String destPath, Key symetricKey) throws FileNotFoundException,
+            StreamsUtil.InputIOException, StreamsUtil.OutputIOException {
+        OutputStream os;
+        os = createFileOutputStream(destPath, symetricKey);
+        StreamsUtil.writeFromInputToOutputNew(is, os);
+    }
 }
