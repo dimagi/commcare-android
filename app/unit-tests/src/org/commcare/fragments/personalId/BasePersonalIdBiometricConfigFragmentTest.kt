@@ -124,7 +124,6 @@ class TestablePersonalIdBiometricConfigFragment(
         val callbackField = PersonalIdBiometricConfigFragment::class.java.getDeclaredField("biometricCallback")
         callbackField.isAccessible = true
         val callback = callbackField.get(this) as BiometricPrompt.AuthenticationCallback
-        val result = org.mockito.Mockito.mock(BiometricPrompt.AuthenticationResult::class.java)
         callback.onAuthenticationFailed()
     }
 }

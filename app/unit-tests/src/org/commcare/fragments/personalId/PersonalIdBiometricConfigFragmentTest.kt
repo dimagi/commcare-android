@@ -163,14 +163,14 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
     @Config(sdk = [Build.VERSION_CODES.R]) // BiometricManager.Authenticators.DEVICE_CREDENTIAL requires API 30+
     fun testSuccessfulPinAuthentication_navigatesToOtpScreen() {
         // Setup and Act
-        setUpAndClickPintButton(true)
+        setUpAndClickPinButton(true)
 
         // Verify user navigates to OTP screen on successful pin authentication
         assertEquals(R.id.personalid_otp_page, navController.currentDestination?.id)
     }
 
     @Test
-    fun testFailedBiometricAuthentication_navigatesToOtpScreen() {
+    fun testFailedBiometricAuthentication_doesNotNavigateToOtpScreen() {
         // Setup and Act
         setUpAndClickFingerprintButton(false)
 
@@ -180,9 +180,9 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R]) // BiometricManager.Authenticators.DEVICE_CREDENTIAL requires API 30+
-    fun testFailedPinAuthentication_navigatesToOtpScreen() {
+    fun testFailedPinAuthentication_doesNotNavigateToOtpScreen() {
         // Setup and Act
-        setUpAndClickPintButton(false)
+        setUpAndClickPinButton(false)
 
         // Verify no navigation occurs on failed biometric authentication and user stays on the same screen
         assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
@@ -254,7 +254,7 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
         mockBiometricAuthentication(testableFragment, successfulAuth)
     }
 
-    private fun setUpAndClickPintButton(successfulAuth: Boolean) {
+    private fun setUpAndClickPinButton(successfulAuth: Boolean) {
         `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
             .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
         `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL))
@@ -269,7 +269,7 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
 
     private fun mockBiometricAuthentication(
         testableFragment: TestablePersonalIdBiometricConfigFragment,
-        successfulAuth: Boolean
+        successfulAuth: Boolean,
     ) {
         activity.runOnUiThread {
             ShadowLooper.idleMainLooper()
