@@ -35,6 +35,7 @@ import androidx.annotation.RequiresApi;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EncryptionIO {
+    public static boolean isEncryptedByAndroidKeyStore = true;
 
     public static void encryptFile(String sourceFilePath, String destPath, Key symetricKey) throws FileNotFoundException,
             StreamsUtil.InputIOException, StreamsUtil.OutputIOException {
@@ -53,11 +54,13 @@ public class EncryptionIO {
             return fos;
         } else {
             try {
-                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+                Cipher cipher = Cipher.getInstance(isEncryptedByAndroidKeyStore ? "AES/CBC/PKCS7Padding" : "AES");
                 cipher.init(Cipher.ENCRYPT_MODE, symetricKey);
-                byte[] iv = cipher.getIV();
-                fos.write(iv.length);
-                fos.write(iv);
+                if (isEncryptedByAndroidKeyStore) {
+                    byte[] iv = cipher.getIV();
+                    fos.write(iv.length);
+                    fos.write(iv);
+                }
                 return new BufferedOutputStream(new CipherOutputStream(fos, cipher));
 
                 //All of these exceptions imply a bad platform and should be irrecoverable (Don't ever
@@ -88,11 +91,13 @@ public class EncryptionIO {
         InputStream is;
         try {
             is = new FileInputStream(file);
-
-            int ivlength = ((byte[])is.readNBytes(1))[0];
-            byte[] iv = is.readNBytes(ivlength);
+            byte[] iv = null;
+            if (isEncryptedByAndroidKeyStore) {
+                int ivlength = ((byte[])is.readNBytes(1))[0];
+                iv = is.readNBytes(ivlength);
+            }
             if (symetricKey != null) {
-                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+                Cipher cipher = Cipher.getInstance(isEncryptedByAndroidKeyStore ? "AES/CBC/PKCS7Padding" : "AES");
                 cipher.init(Cipher.DECRYPT_MODE, symetricKey, iv != null ? new IvParameterSpec(iv) : null);
                 is = new BufferedInputStream(new CipherInputStream(is, cipher));
             }

@@ -45,6 +45,8 @@ import javax.crypto.spec.SecretKeySpec;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import static org.commcare.models.encryption.EncryptionIO.isEncryptedByAndroidKeyStore;
+
 /**
  * Generic logic for capturing or choosing audio/video/image media
  *
@@ -148,9 +150,10 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     private Key getSecretKey() {
-        //return ((FormEntryActivity)getContext()).getSymetricKey();
         // for testing purposes only
-        return new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey();
+        return isEncryptedByAndroidKeyStore ?
+                new AesKeyStoreHandler("file_encryption_key", false).getKeyOrGenerate().getKey() :
+                ((FormEntryActivity)getContext()).getSymetricKey();
     }
 
     protected void togglePlayButton(boolean enabled) {

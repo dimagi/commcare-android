@@ -70,9 +70,10 @@ public class FormRecordProcessor {
 
         final File f = new File(form);
 
+        FileInputStream fis = new FileInputStream(f);
         final Cipher decrypter =
-                FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
-        InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
+                FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")), fis);
+        InputStream is = new CipherInputStream(fis, decrypter);
 
         AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(c, null) {
             @Override
