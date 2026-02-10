@@ -38,6 +38,7 @@ class ApkDependenciesTest : BaseTest() {
         // This constructor is used by a Google Location API, but R8 was stripping it from the instrumentation
         // tests APK, which caused some tests to fail. This dummy test is to force R8 to retain the constructor
         ConcurrentHashMap<Any, Any>(1, 1.00f, 1)
+        ConcurrentHashMap<Any, Any>(1)
     }
 
     @Test
