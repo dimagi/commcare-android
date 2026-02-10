@@ -55,7 +55,7 @@ class BaseDrawerController(
         setupViews()
         refreshDrawerContent()
 
-        if(showingError) {
+        if (showingError) {
             openDrawer()
         }
     }
@@ -258,20 +258,24 @@ class BaseDrawerController(
         val globalError = GlobalErrorUtil.checkGlobalErrors()
         showingError = globalError != null
 
-        binding.errorIcon.visibility = if (showingError) View.VISIBLE else View.GONE
-        binding.errorText.visibility = if (showingError) View.VISIBLE else View.GONE
-        binding.continueLink.visibility = if (showingError) View.VISIBLE else View.GONE
-        val textId =
-            if (showingError) R.string.nav_drawer_fix_now else R.string.nav_drawer_signin_register
-        binding.signInButton.text = activity.getString(textId)
-
         if (showingError) {
+            binding.errorIcon.visibility = View.VISIBLE
+            binding.errorText.visibility = View.VISIBLE
+            binding.continueLink.visibility = View.VISIBLE
+
+            binding.signInButton.text = activity.getString(R.string.nav_drawer_fix_now)
             binding.errorText.text = globalError
 
             binding.continueLink.setOnClickListener {
                 GlobalErrorUtil.dismissGlobalErrors()
                 refreshDrawerContent()
             }
+        } else {
+            binding.errorIcon.visibility = View.GONE
+            binding.errorText.visibility = View.GONE
+            binding.continueLink.visibility = View.GONE
+
+            binding.signInButton.text = activity.getString(R.string.nav_drawer_signin_register)
         }
     }
 
