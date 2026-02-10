@@ -1,6 +1,8 @@
 package org.commcare.fragments.personalId
 
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.dalvik.R
@@ -35,6 +37,10 @@ abstract class BasePersonalIdFragment : Fragment() {
             ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED,
             R.string.ok
         )
+    }
+
+    protected open fun getNavController(): NavController {
+        return NavHostFragment.findNavController(this)
     }
 
     protected abstract fun navigateToMessageDisplay(

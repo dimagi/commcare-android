@@ -22,12 +22,10 @@ import androidx.biometric.BiometricPrompt;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -91,7 +89,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
-        Context context = requireActivity();
+        requireActivity();
         return new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
@@ -297,12 +295,12 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
             if (isConfigured) {
                 storeBiometricInvalidationKey();
                 if (Boolean.FALSE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser())) {
-                    NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
+                    getNavController().navigate(navigateToOtpScreen());
                 } else {
                     View view = getView();
                     if (view != null) {
                         showSnackBarWithOk(view, getString(R.string.connect_verify_skip_phone_number),
-                                v -> NavHostFragment.findNavController(this).navigate(navigateToNameScreen()));
+                                v -> getNavController().navigate(navigateToNameScreen()));
                     }
                 }
             }
@@ -314,8 +312,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
      */
     private void storeBiometricInvalidationKey() {
         CommCareActivity<?> activity = (CommCareActivity<?>) requireActivity();
-        if(BiometricsHelper.isFingerprintConfigured(activity,
-                PersonalIdManager.getInstance().getBiometricManager(activity))) {
+        if(BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
         }
     }
