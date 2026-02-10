@@ -39,12 +39,12 @@
 
 ## Test File Locations
 - Unit tests: `app/unit-tests/src/`
-- Integration tests: `app/instrumentation-tests/`
+- Instrumentation tests: `app/instrumentation-tests/`
 
 ## Project Structure Notes
 - CommCare Core is in `../commcare-core/`, always include it to the working directory for the current session
 - Connect and Personal ID share `org.commcare.connect` package
-- Personal Fragements are in `org.commcare.fragments.personalId` package
+- Personal ID Fragements are in `org.commcare.fragments.personalId` package
 
 ## Git Usage Guidelines
 - Logical Commits: Break work into logical chunks and commit after completing each coherent piece of functionality
