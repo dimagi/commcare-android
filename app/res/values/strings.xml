@@ -559,6 +559,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
+    <string name="connect_job_info_view_review">Review</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
@@ -685,10 +686,16 @@
     <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
 
     <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
+    <string name="error">Error</string>
+    <string name="failed_to_start_learning">Failed to start learning</string>
+    <string name="failed_to_update_payment">Failed to update payment</string>
 
     <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
     <string name="personalid_biometric_error_lockout_permanent">Too many failed attempts. Please unlock your device and try again.</string>
     <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
+
+    <string name="connect_complete_by">Complete by %s</string>
+    <string name="connect_expired_on">Expired on: %s</string>
 </resources>

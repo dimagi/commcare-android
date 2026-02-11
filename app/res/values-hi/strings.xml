@@ -379,6 +379,7 @@ License.
     <string name="connect_job_info_download">डाउनलोड करें</string>
     <string name="connect_job_info_view_info">जानकारी देखें</string>
     <string name="connect_job_info_view_resume">फिर से शुरू करें</string>
+    <string name="connect_job_info_view_review">समीक्षा करें</string>
     <string name="connect_progress">प्रगति</string>
     <string name="connect_payment">भुगतान</string>
     <string name="connect_delivery_progress_description">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए अपना सीखना शुरू करें।</string>
@@ -515,10 +516,15 @@ License.
     <string name="personalid_tooltip_location_success_message">हम इस एप्लिकेशन का सुरक्षित उपयोग सुनिश्चित करने के लिए स्थान डेटा का उपयोग करते हैं।\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">अधिक जानकारी के लिए यहां क्लिक करें।</a></string>
 
     <string name="network_forbidden_error">एक्सेस नहीं मिला। अगर समस्या बनी रहती है, तो कृपया कस्टमर सपोर्ट से संपर्क करें।</string>
-
+    <string name="error">त्रुटि</string>
+    <string name="failed_to_start_learning">सीखना शुरू करने में विफल</string>
+    <string name="failed_to_update_payment">भुगतान अपडेट करने में विफल</string>
     <string name="personalid_biometric_error_cancelled">बायोमेट्रिक सेटअप रद्द कर दिया गया था। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
     <string name="personalid_biometric_error_lockout">बहुत अधिक प्रयास। कृपया प्रतीक्षा करें और पुनः प्रयास करें।</string>
     <string name="personalid_biometric_error_lockout_permanent">बहुत अधिक असफल प्रयास। कृपया अपने डिवाइस को अनलॉक करें और पुनः प्रयास करें।</string>
     <string name="personalid_biometric_error_timeout">बायोमेट्रिक ऑपरेशन का समय समाप्त हो गया। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
     <string name="personalid_biometric_error_cannot_configure">हम आपके डिवाइस पर बायोमेट्रिक्स कॉन्फ़िगर नहीं कर सके। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
+
+    <string name="connect_complete_by">%s तक पूरा करें</string>
+    <string name="connect_expired_on">समय सीमा समाप्त: %s</string>
 </resources>

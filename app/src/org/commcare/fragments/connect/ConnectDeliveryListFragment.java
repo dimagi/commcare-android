@@ -124,7 +124,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     }
 
     private void refreshData() {
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, success -> {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success,error) -> {
             if (success) {
                 adapter.updateDeliveries(getFilteredDeliveries());
             }
