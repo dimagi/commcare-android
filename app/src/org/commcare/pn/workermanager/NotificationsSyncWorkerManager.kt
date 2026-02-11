@@ -239,7 +239,7 @@ class NotificationsSyncWorkerManager(
 
     private fun startDeliverySyncWorker(notificationPayload: Map<String, String>) {
         val opportunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
-        if (!TextUtils.isEmpty(opportunityUUID)  && cccCheckPassed(context)) {
+        if (!TextUtils.isEmpty(opportunityUUID) && cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_DELIVERY_PROGRESS,
