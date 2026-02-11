@@ -415,7 +415,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         synchronized (serviceLock) {
             closeUserSession();
             SessionRegistrationHelper.registerSessionExpiration();
-            sendBroadcast(new Intent(SessionRegistrationHelper.USER_SESSION_EXPIRED));
+            sendBroadcast(
+                    new Intent(SessionRegistrationHelper.USER_SESSION_EXPIRED)
+                            .setPackage(this.getPackageName())
+            );
         }
     }
 
