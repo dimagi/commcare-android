@@ -25,9 +25,8 @@ class EntityLoaderHelper(
     var sessionDatum: EntityDatum?,
     evalCtx: EvaluationContext,
     inBackground: Boolean,
-    var factory: NodeEntityFactory? = null
+    var factory: NodeEntityFactory? = null,
 ) : Cancellable {
-
     var focusTargetIndex: Int = -1
     private var stopLoading: Boolean = false
 
@@ -57,11 +56,15 @@ class EntityLoaderHelper(
      */
     fun loadEntities(
         nodeset: TreeReference,
-        progressListener: EntityLoadingProgressListener
+        progressListener: EntityLoadingProgressListener,
     ): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
         if (!isAsyncNodeEntityFactory()) {
             // if we are into synchronous mode, cancel background cache work for now to not lock the user db
-            CommCareApplication.instance().currentApp.primeEntityCacheHelper.cancelWork()
+            CommCareApplication
+                .instance()
+                .currentApp
+                .primeEntityCacheHelper
+                .cancelWork()
         }
         try {
             val references = factory!!.expandReferenceList(nodeset)
@@ -80,9 +83,7 @@ class EntityLoaderHelper(
         return null
     }
 
-    fun isAsyncNodeEntityFactory(): Boolean {
-        return factory is AsyncNodeEntityFactory
-    }
+    fun isAsyncNodeEntityFactory(): Boolean = factory is AsyncNodeEntityFactory
 
     /**
      *  Primes the entity cache
@@ -103,7 +104,7 @@ class EntityLoaderHelper(
      */
     private fun loadEntitiesWithReferences(
         references: List<TreeReference>,
-        progressListener: EntityLoadingProgressListener?
+        progressListener: EntityLoadingProgressListener?,
     ): MutableList<Entity<TreeReference>>? {
         val entities: MutableList<Entity<TreeReference>> = ArrayList()
         focusTargetIndex = -1
@@ -115,7 +116,7 @@ class EntityLoaderHelper(
             progressListener?.publishEntityLoadingProgress(
                 EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_PROCESSING,
                 index,
-                references.size
+                references.size,
             )
             val e = factory!!.getEntity(ref)
             if (e != null) {
