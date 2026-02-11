@@ -955,41 +955,35 @@ public class ConnectDatabaseUpgrader {
     }
     //endregion
 
-
-    //region upgradeTwentyTwoTwentyThree
     private void upgradeTwentyTwoTwentyThree(IDatabase db){
         db.beginTransaction();
         try {
-            upgradeConnectJobDeliveryRecordToV23(db);
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobDeliveryRecord.STORAGE_KEY,
+                    ConnectJobDeliveryRecord.META_SLUG_UUID,
+                    "TEXT"));
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    ConnectJobDeliveryRecordV22.STORAGE_KEY,
+                    ConnectJobDeliveryRecordV22.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectJobDeliveryRecord.STORAGE_KEY,
+                    ConnectJobDeliveryRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectJobDeliveryRecordV22 oldRecord = (ConnectJobDeliveryRecordV22)r;
+                ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecord.fromV22(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
     }
-
-    private void upgradeConnectJobDeliveryRecordToV23(IDatabase db) {
-        db.execSQL(DbUtil.addColumnToTable(
-                ConnectJobDeliveryRecord.STORAGE_KEY,
-                ConnectJobDeliveryRecord.META_SLUG_UUID,
-                "TEXT"));
-
-        SqlStorage<Persistable> oldStorage = new SqlStorage<>(
-                ConnectJobDeliveryRecordV22.STORAGE_KEY,
-                ConnectJobDeliveryRecordV22.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                ConnectJobDeliveryRecord.STORAGE_KEY,
-                ConnectJobDeliveryRecord.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        for (Persistable r : oldStorage) {
-            ConnectJobDeliveryRecordV22 oldRecord = (ConnectJobDeliveryRecordV22)r;
-            ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecord.fromV22(oldRecord);
-            newRecord.setID(oldRecord.getID());
-            newStorage.write(newRecord);
-        }
-    }
-    //endregion upgradeTwentyTwoTwentyThree
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
                                             Persistable modelToAdd) {
