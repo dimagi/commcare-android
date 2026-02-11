@@ -67,7 +67,7 @@ class ConnectJobDeliveryRecordV22 :
     companion object {
         const val STORAGE_KEY = ConnectJobDeliveryRecord.STORAGE_KEY
 
-        fun fromV22(oldRecord: ConnectJobDeliveryRecordV21): ConnectJobDeliveryRecordV22 {
+        fun fromV21(oldRecord: ConnectJobDeliveryRecordV21): ConnectJobDeliveryRecordV22 {
             val newRecord = ConnectJobDeliveryRecordV22()
             newRecord.jobId = oldRecord.jobId
             newRecord.deliveryId = oldRecord.deliveryId

@@ -206,7 +206,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         ConnectJobRecord job = new ConnectJobRecord();
         job.jobId = json.getInt(META_JOB_ID);   //  This will be eventually removed
         job.jobUUID = json.getString(META_JOB_UUID);
-        migrateOtherModelsForUUID(job.jobId, job.jobUUID);
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
@@ -300,111 +299,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         return job;
-    }
-
-    /**
-     * UUIDs are defaulted to ID value. Whenever the application has a new valid UUID for an opportunity from
-     * the server response, this function will upgrade all other models from the default UUID value to the new
-     * valid UUID. This will ensure that all Connect models are in sync for UUID values, and thus it will reduce
-     * the error happening due to mismatched UUID values. Also, this makes the code less complex, as it has to now
-     * check for UUID only and can ignore ID, which is our long-term  goal
-     * @param jobId
-     * @param jobUUID
-     */
-    private static void migrateOtherModelsForUUID(int jobId, String jobUUID) {
-        if (jobId != -1 && !TextUtils.isEmpty(jobUUID)) {
-
-            SqlStorage<ConnectJobRecord> connectJobStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobRecord.class);
-            SqlStorage<ConnectAppRecord> appInfoStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectAppRecord.class);
-            SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectLearnModuleSummaryRecord.class);
-            SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobDeliveryRecord.class);
-            SqlStorage<ConnectJobPaymentRecord> paymentStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobPaymentRecord.class);
-            SqlStorage<ConnectJobLearningRecord> learningStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobLearningRecord.class);
-            SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobAssessmentRecord.class);
-            SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectPaymentUnitRecord.class);
-            SqlStorage<PushNotificationRecord> notificationStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), PushNotificationRecord.class);
-
-            //  migrate ConnectJobRecord
-            Vector<ConnectJobRecord> connectJobRecords = connectJobStorage.getRecordsForValues(
-                    new String[]{ConnectJobRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectJobRecord connectJobRecord : connectJobRecords) {
-                connectJobRecord.setJobUUID(jobUUID);
-                connectJobStorage.write(connectJobRecord);
-            }
-
-            // migrate ConnectAppRecord
-            Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
-                    new String[]{ConnectAppRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectAppRecord connectAppRecord : existingAppInfos) {
-                connectAppRecord.setJobUUID(jobUUID);
-                appInfoStorage.write(connectAppRecord);
-            }
-
-            // migrate ConnectLearnModuleSummaryRecord
-            Vector<ConnectLearnModuleSummaryRecord> connectLearnModuleSummaryRecords = moduleStorage.getRecordsForValues(
-                    new String[]{ConnectAppRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectLearnModuleSummaryRecord connectLearnModuleSummaryRecord : connectLearnModuleSummaryRecords) {
-                connectLearnModuleSummaryRecord.setJobUUID(jobUUID);
-                moduleStorage.write(connectLearnModuleSummaryRecord);
-            }
-
-            // migrate ConnectJobDeliveryRecord
-            Vector<ConnectJobDeliveryRecord> deliveries = deliveryStorage.getRecordsForValues(
-                    new String[]{ConnectJobDeliveryRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectJobDeliveryRecord deliveryRecord : deliveries) {
-                deliveryRecord.setJobUUID(jobUUID);
-                deliveryStorage.write(deliveryRecord);
-            }
-
-            // migrate ConnectJobLearningRecord
-            Vector<ConnectJobLearningRecord> learnings = learningStorage.getRecordsForValues(
-                    new String[]{ConnectJobLearningRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectJobLearningRecord learningRecord : learnings) {
-                learningRecord.setJobUUID(jobUUID);
-                learningStorage.write(learningRecord);
-            }
-
-            // migrate ConnectJobPaymentRecord
-            Vector<ConnectJobPaymentRecord> payments = paymentStorage.getRecordsForValues(
-                    new String[]{ConnectJobPaymentRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectJobPaymentRecord paymentRecord : payments) {
-                paymentRecord.setJobUUID(jobUUID);
-                paymentStorage.write(paymentRecord);
-            }
-
-            // migrate ConnectJobAssessmentRecord
-            Vector<ConnectJobAssessmentRecord> assessments = assessmentStorage.getRecordsForValues(
-                    new String[]{ConnectJobAssessmentRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectJobAssessmentRecord assessmentRecord : assessments) {
-                assessmentRecord.setJobUUID(jobUUID);
-                assessmentStorage.write(assessmentRecord);
-            }
-
-            // migrate ConnectPaymentUnitRecord
-            Vector<ConnectPaymentUnitRecord> paymentUnitRecords = paymentUnitStorage.getRecordsForValues(
-                    new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
-                    new Object[]{jobId});
-            for (ConnectPaymentUnitRecord paymentUnitRecord : paymentUnitRecords) {
-                paymentUnitRecord.setJobUUID(jobUUID);
-                paymentUnitStorage.write(paymentUnitRecord);
-            }
-
-            // migrate PushNotificationRecord
-            Vector<PushNotificationRecord> pushNotificationRecords = notificationStorage.getRecordsForValues(
-                    new String[]{PushNotificationRecord.META_OPPORTUNITY_ID},
-                    new Object[]{jobId});
-            for (PushNotificationRecord pushNotificationRecord : pushNotificationRecords) {
-                pushNotificationRecord.setOpportunityUUID(jobUUID);
-                notificationStorage.write(pushNotificationRecord);
-            }
-        }
     }
 
     public boolean isFinished() {

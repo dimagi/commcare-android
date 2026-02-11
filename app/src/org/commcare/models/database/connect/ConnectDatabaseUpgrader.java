@@ -766,7 +766,7 @@ public class ConnectDatabaseUpgrader {
 
         for (Persistable r : oldStorage) {
             ConnectJobDeliveryRecordV21 oldRecord = (ConnectJobDeliveryRecordV21)r;
-            ConnectJobDeliveryRecordV22 newRecord = ConnectJobDeliveryRecordV22.Companion.fromV22(oldRecord);
+            ConnectJobDeliveryRecordV22 newRecord = ConnectJobDeliveryRecordV22.Companion.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -958,7 +958,12 @@ public class ConnectDatabaseUpgrader {
 
     //region upgradeTwentyTwoTwentyThree
     private void upgradeTwentyTwoTwentyThree(IDatabase db){
-        upgradeConnectJobDeliveryRecordToV23(db);
+        db.beginTransaction();
+        try {
+            upgradeConnectJobDeliveryRecordToV23(db);
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void upgradeConnectJobDeliveryRecordToV23(IDatabase db) {

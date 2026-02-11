@@ -227,23 +227,23 @@ class NotificationsSyncWorkerManager(
     }
 
     private fun startLearningSyncWorker(notificationPayload: Map<String, String>) {
-        val oppotunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
-        if (!TextUtils.isEmpty(oppotunityUUID) && cccCheckPassed(context)) {
+        val opportunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
+        if (!TextUtils.isEmpty(opportunityUUID) && cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_LEARNING_PROGRESS,
-                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-$oppotunityUUID",
+                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-$opportunityUUID",
             )
         }
     }
 
     private fun startDeliverySyncWorker(notificationPayload: Map<String, String>) {
-        val oppotunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
-        if (!TextUtils.isEmpty(oppotunityUUID)  && cccCheckPassed(context)) {
+        val opportunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
+        if (!TextUtils.isEmpty(opportunityUUID)  && cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_DELIVERY_PROGRESS,
-                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-$oppotunityUUID",
+                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-$opportunityUUID",
             )
         }
     }
