@@ -1,10 +1,12 @@
 package org.commcare.navdrawer
 
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -117,7 +119,7 @@ class BaseDrawerController(
     }
 
     private fun setupListeners() {
-        binding.signInButton.setOnClickListener {
+        val loginHandler = {
             if (showingError) {
                 GlobalErrorUtil.dismissGlobalErrors()
             }
@@ -130,6 +132,10 @@ class BaseDrawerController(
                 )
             closeDrawer()
         }
+
+        binding.signInButton.setOnClickListener { loginHandler() }
+        binding.reconfigureButton.setOnClickListener { loginHandler() }
+
         binding.aboutView.setOnClickListener {
             DialogCreationHelpers.showAboutCommCareDialog(
                 activity,
@@ -259,23 +265,19 @@ class BaseDrawerController(
         showingError = globalError != null
 
         if (showingError) {
-            binding.errorIcon.visibility = View.VISIBLE
-            binding.errorText.visibility = View.VISIBLE
-            binding.continueLink.visibility = View.VISIBLE
+            binding.signInButton.visibility = View.GONE
+            binding.errorContainer.visibility = View.VISIBLE
 
-            binding.signInButton.text = activity.getString(R.string.nav_drawer_fix_now)
-            binding.errorText.text = globalError
+            binding.errorTitle.setText(globalError.titleId)
+            binding.errorMessage.setText(globalError.messageId)
 
-            binding.continueLink.setOnClickListener {
+            binding.dismissLink.setOnClickListener {
                 GlobalErrorUtil.dismissGlobalErrors()
                 refreshDrawerContent()
             }
         } else {
-            binding.errorIcon.visibility = View.GONE
-            binding.errorText.visibility = View.GONE
-            binding.continueLink.visibility = View.GONE
-
-            binding.signInButton.text = activity.getString(R.string.nav_drawer_signin_register)
+            binding.signInButton.visibility = View.VISIBLE
+            binding.errorContainer.visibility = View.GONE
         }
     }
 

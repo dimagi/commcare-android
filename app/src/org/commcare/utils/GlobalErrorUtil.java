@@ -28,28 +28,34 @@ public class GlobalErrorUtil {
      * Checks for any global errors that should be surfaced to the user.
      * If there are multiple errors, only the most recent one will be returned.
      * Errors will be automatically pruned after the expiration time has passed.
-     * @return Localized error string to display to the user, or null if there are no errors to display
+     * 
+     * @return The GlobalErrors enum representing the error, or null if there are no
+     *         errors to display
      */
-    public static String checkGlobalErrors() {
+    public static GlobalErrors checkGlobalErrors() {
         SqlStorage<GlobalErrorRecord> storage = CommCareApplication.instance()
                 .getGlobalStorage(GlobalErrorRecord.class);
 
         pruneOldErrors(storage);
 
-        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[]{}, new String[]{});
+        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[] {}, new String[]{});
         if (errors.isEmpty()) {
             return null;
         }
 
-        GlobalErrors globalError = GlobalErrors.values()[errors.get(0).getErrorCode()];
-        return CommCareApplication.instance().getString(globalError.getMessageId());
+        int errorCode = errors.get(0).getErrorCode();
+        if (errorCode >= 0 && errorCode < GlobalErrors.values().length) {
+            return GlobalErrors.values()[errorCode];
+        } else {
+            return null;
+        }
     }
 
     private static void pruneOldErrors(SqlStorage<GlobalErrorRecord> storage) {
         long currentTime = System.currentTimeMillis();
         long expirationWindow = TimeUnit.HOURS.toMillis(ERROR_EXPIRATION_HOURS);
 
-        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[]{}, new String[]{});
+        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[] {}, new String[] {});
         for (GlobalErrorRecord error : errors) {
             if (currentTime - error.getCreatedDate().getTime() > expirationWindow) {
                 storage.remove(error.getID());

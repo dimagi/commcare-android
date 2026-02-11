@@ -186,6 +186,11 @@
     <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
     <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
     <string name="personalid_login_from_different_device">A sua conta PersonalID só pode ser configurada num dispositivo de cada vez e já foi configurada noutro dispositivo. Por favor, continue no novo dispositivo ou configure novamente a sua conta neste dispositivo para continuar a utilizar o PersonalID aqui.</string>
+    <string name="personalid_generic_error_title">Sessão encerrada no PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Conta em uso em outro dispositivo</string>
+    <string name="personalid_error_message_login_different_device">Continue no novo dispositivo ou configure sua conta novamente.</string>
+    <string name="personalid_reconfigure">Reconfigurar</string>
+    <string name="personalid_dismiss">Ignorar</string>
     <string name="recovery_network_unauthorized">Você não está autorizado a fazer esta solicitação.</string>
     <string name="recovery_network_server_error">Ocorreu um erro ao processar sua solicitação.</string>
     <string name="recovery_app_manager">Vá para o Gerenciador de aplicativos</string>

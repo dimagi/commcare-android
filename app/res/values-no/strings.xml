@@ -105,6 +105,11 @@
     <string name="personalid_token_unavailable">Det oppsto et nettverksproblem. Prøv på nytt.</string>
     <string name="personalid_token_request_rejected">Mistet PersonalID-konfigurasjonen med serveren. Gjenopprett PersonalID-kontoen din og prøv på nytt.</string>
     <string name="personalid_login_from_different_device">PersonalID-kontoen din kan bare konfigureres på én enhet om gangen, og den har blitt konfigurert på en annen enhet. Fortsett på den nye enheten, eller konfigurer kontoen din på denne enheten på nytt for å fortsette å bruke PersonalID her.</string>
+    <string name="personalid_generic_error_title">Logget ut av PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Konto i bruk på en annen enhet</string>
+    <string name="personalid_error_message_login_different_device">Vennligst fortsett på den nye enheten, eller konfigurer kontoen din på nytt.</string>
+    <string name="personalid_reconfigure">Konfigurer på nytt</string>
+    <string name="personalid_dismiss">Avvis</string>
     <string name="recovery_network_unauthorized">Du har ikke tillatelse til å sende inn denne forespørselen.</string>
     <string name="recovery_network_server_error">Det oppsto en feil under behandling av forespørselen din.</string>
     <string name="recovery_network_cooldown">For mange forespørselsforsøk. Prøv igjen om en time.</string>

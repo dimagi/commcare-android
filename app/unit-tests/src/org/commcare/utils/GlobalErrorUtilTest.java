@@ -43,16 +43,14 @@ public class GlobalErrorUtilTest {
         GlobalErrorUtil.addError(newError);
 
         // Check errors - this should trigger pruning
-        String errorMessage = GlobalErrorUtil.checkGlobalErrors();
+        GlobalErrors error = GlobalErrorUtil.checkGlobalErrors();
 
-        // The old error should be gone, so we should get the new error's message
-        Assert.assertNotNull("Should have returned a valid error message", errorMessage);
+        // The old error should be gone, so we should get the new error
+        Assert.assertNotNull("Should have returned a valid error", error);
 
-        // checkGlobalErrors returns the message string.
-        String expectedMessage = CommCareApplication.instance().getString(
-                GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR.getMessageId());
-
-        Assert.assertEquals("Should return the recent error message", expectedMessage, errorMessage);
+        // checkGlobalErrors returns the correct error.
+        Assert.assertEquals("Should return the recent error",
+                GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR, error);
 
         // Verify storage count directly
         int count = CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).getNumRecords();
@@ -61,28 +59,28 @@ public class GlobalErrorUtilTest {
 
     @Test
     public void testNoErrors() {
-        String errorMessage = GlobalErrorUtil.checkGlobalErrors();
-        Assert.assertNull("Should return null when no errors exist", errorMessage);
+        GlobalErrors error = GlobalErrorUtil.checkGlobalErrors();
+        Assert.assertNull("Should return null when no errors exist", error);
     }
 
     @Test
     public void testDismissErrors() {
         // Add an error
-        GlobalErrorRecord error = new GlobalErrorRecord(
+        GlobalErrorRecord errorRecord = new GlobalErrorRecord(
                 new Date(),
                 GlobalErrors.PERSONALID_GENERIC_ERROR.ordinal());
-        GlobalErrorUtil.addError(error);
+        GlobalErrorUtil.addError(errorRecord);
 
-        // Verify it exists AND checkGlobalErrors returns a message
-        String errorMessage = GlobalErrorUtil.checkGlobalErrors();
-        Assert.assertNotNull("Should have error before dismissal", errorMessage);
+        // Verify it exists AND checkGlobalErrors returns an error
+        GlobalErrors error = GlobalErrorUtil.checkGlobalErrors();
+        Assert.assertNotNull("Should have error before dismissal", error);
 
         // Dismiss
         GlobalErrorUtil.dismissGlobalErrors();
 
         // Verify it's gone
-        String result = GlobalErrorUtil.checkGlobalErrors();
-        Assert.assertNull("Should return null after dismissal", result);
+        GlobalErrors gone = GlobalErrorUtil.checkGlobalErrors();
+        Assert.assertNull("Should return null after dismissal", gone);
 
         // Verify storage is empty
         int count = CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).getNumRecords();

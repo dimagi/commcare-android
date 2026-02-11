@@ -185,6 +185,11 @@ License.
     <string name="personalid_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
     <string name="personalid_token_request_rejected">Configuration PersonalID perdue sur le serveur. Veuillez récupérer votre compte PersonalID et réessayer.</string>
     <string name="personalid_login_from_different_device">Votre compte PersonalID ne peut être configuré que sur un seul appareil à la fois et a déjà été configuré sur un autre appareil. Veuillez poursuivre la configuration sur le nouvel appareil ou reconfigurer votre compte sur cet appareil pour continuer à utiliser PersonalID ici.</string>
+    <string name="personalid_generic_error_title">Déconnecté de PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Compte utilisé sur un autre appareil</string>
+    <string name="personalid_error_message_login_different_device">Veuillez continuer sur le nouvel appareil ou configurer à nouveau votre compte.</string>
+    <string name="personalid_reconfigure">Reconfigurer</string>
+    <string name="personalid_dismiss">Ignorer</string>
     <string name="recovery_network_unauthorized">Vous n\'êtes pas autorisé à faire cette demande.</string>
     <string name="recovery_network_server_error">Une erreur s\'est produite lors du traitement de votre demande.</string>
     <string name="recovery_app_manager">Accéder au gestionnaire d\'applications</string>

@@ -594,6 +594,7 @@
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
     <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for PersonalID from the menu.</string>
+    <string name="personalid_generic_error_title" cc:translatable="true">Logged out of PersonalID</string>
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
@@ -619,6 +620,10 @@
     <string name="personalid_second_device_login_title">Login on Second Device</string>
     <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>
     <string name="personalid_second_device_login_message_no_date">Logged out of %s. PersonalID can only be logged in on one device at a time.</string>
+    <string name="personalid_error_title_login_different_device">Account in use on another device</string>
+    <string name="personalid_error_message_login_different_device">Please continue on the new device, or configure your account again.</string>
+    <string name="personalid_reconfigure">Reconfigure</string>
+    <string name="personalid_dismiss">Dismiss</string>
     <string name="personalid_camera_permission_title">Permission for camera</string>
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
