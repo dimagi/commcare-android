@@ -22,7 +22,7 @@ import org.javarosa.core.model.instance.TreeReference
  */
 class EntityLoaderHelper(
     detail: Detail,
-    sessionDatum: EntityDatum?,
+    var sessionDatum: EntityDatum?,
     evalCtx: EvaluationContext,
     inBackground: Boolean,
     var factory: NodeEntityFactory? = null
