@@ -112,7 +112,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     protected abstract void deliverError(Receiver receiver, Exception e);
 
-    protected void handleCancellation(Receiver receiver){
+    protected void handleCancellation(Receiver receiver) {
         // Do nothing by default
     }
 
@@ -170,7 +170,6 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     /**
      * Adjust the time that the task will wait for a connector before cancelling
      * or proceeding (if headless)
-     *
      */
     protected void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimout = connectionTimeout;

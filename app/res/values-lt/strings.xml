@@ -100,7 +100,9 @@
     <string name="personalid_configuration_process_failed_subtitle">Deja, šis įrenginys nepraėjo saugumo patikrų, būtinų registracijai „PersonalID“. Bandykite dar kartą kitame įrenginyje.</string>
     <string name="personalid_location_permission_error">„PersonalID“ reikalauja, kad jūsų įrenginyje būtų įjungtos vietos nustatymo paslaugos. Prieš tęsdami, įjunkite jas telefono nustatymuose.</string>
     <string name="recovery_network_outdated">Ši programa pasenusi. Norėdami tęsti, atnaujinkite programą „Google Play“ parduotuvėje.</string>
-    <string name="recovery_network_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
+    <string name="personalid_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
+    <string name="personalid_token_request_rejected">Praradote „PersonalID“ konfigūraciją serveryje, atkurkite „PersonalID“ paskyrą ir bandykite dar kartą.</string>
+    <string name="personalid_login_from_different_device">Jūsų „PersonalID“ paskyrą vienu metu galima konfigūruoti tik viename įrenginyje, o ji jau buvo sukonfigūruota kitame įrenginyje. Tęskite naujame įrenginyje arba dar kartą sukonfigūruokite paskyrą šiame įrenginyje, kad galėtumėte toliau naudoti „PersonalID“ čia.</string>
     <string name="recovery_network_unauthorized">Jūs neturite teisės pateikti šio prašymo.</string>
     <string name="recovery_network_server_error">Apdorojant jūsų užklausą įvyko klaida.</string>
     <string name="recovery_network_cooldown">Per daug užklausų. Bandykite dar kartą po valandos.</string>
@@ -150,7 +152,11 @@
     <string name="connect_job_ended">Užduotis baigėsi %s</string>
     <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
     <string name="connect_job_info_view_resume">Tęsti</string>
+    <string name="connect_job_info_view_review">Peržiūrėti</string>
 
+    <string name="error">Klaida</string>
+    <string name="failed_to_start_learning">Nepavyko pradėti mokytis</string>
+    <string name="failed_to_update_payment">Nepavyko atnaujinti mokėjimo</string>
     <string name="connect_in_progress">Vykdoma</string>
     <string name="connect_new_opportunities">Naujos galimybės</string>
     <string name="connect_completed">Užbaigta</string>
@@ -163,4 +169,7 @@
     <string name="personalid_work_history_no_records_available">Šiuo metu nėra jokių darbo įrašų. Spustelėkite atnaujinti arba patikrinkite vėliau.</string>
     <string name="pn_no_notification_available">Pranešimų nėra</string>
     <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
+
+    <string name="connect_complete_by">Atlikti iki %s</string>
+    <string name="connect_expired_on">Galiojimas baigėsi: %s</string>
 </resources>

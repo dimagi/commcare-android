@@ -36,6 +36,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static final String META_ENTITY_ID = "entity_id";
     public static final String META_ENTITY_NAME = "entity_name";
     public static final String META_FLAGS = "flags";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -68,6 +69,10 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     @MetaField(META_REASON)
     private String reason;
 
+    @Persisting(11)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
+
     private List<ConnectJobDeliveryFlagRecord> flags;
 
     public ConnectJobDeliveryRecord() {
@@ -76,14 +81,13 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         flags = new ArrayList<>();
     }
 
-    public static ConnectJobDeliveryRecord fromJson(JSONObject json, int jobId) throws JSONException {
-        int deliveryId = -1;
+    public static ConnectJobDeliveryRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
         ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
-        delivery.jobId = jobId;
-        delivery.lastUpdate = new Date();
+        delivery.jobId = job.getJobId();
+        delivery.jobUUID = job.getJobUUID();
 
-        deliveryId = json.getInt(META_ID);
-        delivery.deliveryId = deliveryId;
+        delivery.deliveryId = json.getInt(META_ID);
+        delivery.lastUpdate = new Date();
         String dateString = json.getString(META_DATE);
         delivery.date = DateUtils.parseDateTime(dateString);
         delivery.status = json.getString(META_STATUS);
@@ -141,6 +145,10 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         return reason;
     }
 
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
     public List<ConnectJobDeliveryFlagRecord> getFlags() {
         return flags;
     }
@@ -160,5 +168,68 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         newRecord.reason = null;
 
         return newRecord;
+    }
+
+    public static ConnectJobDeliveryRecord fromV21(ConnectJobDeliveryRecordV21 oldRecord) {
+        ConnectJobDeliveryRecord newRecord = new ConnectJobDeliveryRecord();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.deliveryId = oldRecord.getDeliveryId();
+        newRecord.date = oldRecord.getDate();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.unitName = oldRecord.getUnitName();
+        newRecord.slug = oldRecord.getSlug();
+        newRecord.entityId = oldRecord.getEntityId();
+        newRecord.entityName = oldRecord.getEntityName();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.reason = oldRecord.getReason();
+        newRecord.jobUUID = String.valueOf(oldRecord.getJobId());
+
+        return newRecord;
+    }
+
+    //  getter and setter for kotlin
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public void setDeliveryId(int deliveryId) {
+        this.deliveryId = deliveryId;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public void setFlags(List<ConnectJobDeliveryFlagRecord> flags) {
+        this.flags = flags;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
     }
 }

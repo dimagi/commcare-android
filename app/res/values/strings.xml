@@ -222,16 +222,19 @@
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated" cc:translatable="true">This app is outdated. Please update the app on the Google Play Store in order to proceed.</string>
     <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue. Please try again.</string>
-    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost PersonalID configuration with server, please recover your Personal ID account and retry</string>
+    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
+    <string name="personalid_token_unavailable">There was a network issue. Please try again.</string>
+    <string name="personalid_token_request_rejected">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
+    <string name="personalid_login_from_different_device">Your PersonalID account can only be configured on one device at a time and has been configured on another device. Please continue on the new device or configure your account on this device again to continue using PersonalID here.</string>
     <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
     <string name="recovery_network_server_error">There was an error processing your request.</string>
     <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
     <string name="recovery_network_unknown">Something went wrong. Please try again.</string>
     <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity, please contact an administrator.</string>
+    <string name="notification_channel_errors_description">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
     <string name="notification_channel_errors_title" cc:translatable="true">Errors</string>
-    <string name="notification_channel_errors_description" cc:translatable="true">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
     <string name="notification_channel_user_session_title" cc:translatable="true">User Session</string>
     <string name="notification_channel_user_session_description" cc:translatable="true">Notification containing information around current user session like when the current session is scheduled to expire</string>
     <string name="notification_channel_server_communication_title" cc:translatable="true">Server Communications</string>
@@ -556,6 +559,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
+    <string name="connect_job_info_view_review">Review</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
@@ -590,9 +594,9 @@
     <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
-    <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
+    <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for PersonalID from the menu.</string>
     <string name="personalid_login_via_connect">Ready to login!\n</string>
-    <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
+    <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
@@ -641,7 +645,7 @@
 
     <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
     <string name="nav_drawer_payments">Payments</string>
@@ -682,6 +686,9 @@
     <string name="personalid_tooltip_location_success_message">We use location data to ensure secure usage of this application.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Click here for more info</a>.</string>
 
     <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
+    <string name="error">Error</string>
+    <string name="failed_to_start_learning">Failed to start learning</string>
+    <string name="failed_to_update_payment">Failed to update payment</string>
 
     <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
@@ -689,4 +696,7 @@
     <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
     <string name="network_notification_service_id">network_notification_service_id</string>
+
+    <string name="connect_complete_by">Complete by %s</string>
+    <string name="connect_expired_on">Expired on: %s</string>
 </resources>

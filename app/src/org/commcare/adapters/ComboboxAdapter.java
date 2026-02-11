@@ -9,10 +9,8 @@ import android.widget.Filter;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.ComboItem;
 import org.javarosa.core.model.ComboboxFilterRule;
-import org.javarosa.core.model.FuzzyMatchFilterRule;
-import org.javarosa.core.model.MultiWordFilterRule;
-import org.javarosa.core.model.StandardFilterRule;
 
 import java.util.ArrayList;
 
@@ -23,14 +21,14 @@ import java.util.ArrayList;
  *
  * @author Aliza Stone
  */
-public class ComboboxAdapter extends ArrayAdapter<String> {
+public class ComboboxAdapter extends ArrayAdapter<ComboItem> {
 
     private float customTextSize;
-    protected final String[] allChoices;
-    protected String[] currentChoices;
+    protected final ComboItem[] allChoices;
+    protected ComboItem[] currentChoices;
     protected ComboboxFilterRule filterRule;
 
-    public ComboboxAdapter(final Context context, final String[] objects,
+    public ComboboxAdapter(final Context context, final ComboItem[] objects,
                            ComboboxFilterRule filterRule) {
         super(context, R.layout.custom_spinner_item, objects);
         allChoices = currentChoices = objects;
@@ -44,7 +42,7 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
      * there being at least 1 answer option in the dropdown list when this string is entered.
      */
     public boolean isValidUserEntry(String enteredText) {
-        for (String choice : allChoices) {
+        for (ComboItem choice : allChoices) {
             if (filterRule.choiceShouldBeShown(choice, enteredText)) {
                 return true;
             }
@@ -77,7 +75,7 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
     }
 
     @Override
-    public String getItem(int position) {
+    public ComboItem getItem(int position) {
         return currentChoices[position];
     }
 
@@ -86,22 +84,22 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                ArrayList<String> matched = new ArrayList<>();
-                for (String choice : allChoices) {
+                ArrayList<ComboItem> matched = new ArrayList<>();
+                for (ComboItem choice : allChoices) {
                     if (constraint == null || filterRule.choiceShouldBeShown(choice, constraint)) {
                         matched.add(choice);
                     }
                 }
 
                 FilterResults results = new FilterResults();
-                results.values = matched.toArray(new String[]{});
+                results.values = matched.toArray(new ComboItem[]{});
                 results.count = matched.size();
                 return results;
             }
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                currentChoices = (String[]) results.values;
+                currentChoices = (ComboItem[]) results.values;
                 if (results.count > 0) {
                     notifyDataSetChanged();
                 } else {

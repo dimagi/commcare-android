@@ -14,10 +14,12 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Date
 
-class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
-
-    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
-
+class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
+    override fun parse(
+        responseCode: Int,
+        responseData: InputStream,
+        anyInputObject: Any?,
+    ): T {
         val job = anyInputObject as ConnectJobRecord
 
         var updatedJob = false
@@ -29,7 +31,7 @@ class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
             try {
                 val responseAsString = String(StreamsUtil.inputStreamToByteArray(`in`))
                 if (responseAsString.length > 0) {
-                    //Parse the JSON
+                    // Parse the JSON
                     val json = JSONObject(responseAsString)
 
                     if (json.has("max_payments")) {
@@ -42,12 +44,10 @@ class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
                         updatedJob = true
                     }
 
-
                     if (json.has("payment_accrued")) {
                         job.paymentAccrued = json.getInt("payment_accrued")
                         updatedJob = true
                     }
-
 
                     if (json.has("is_user_suspended")) {
                         job.isUserSuspended = json.getBoolean("is_user_suspended")
@@ -66,7 +66,7 @@ class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
                         val array = json.getJSONArray("deliveries")
                         for (i in 0 until array.length()) {
                             val obj = array[i] as JSONObject
-                            deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.jobId))
+                            deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job))
                         }
 
                         job.deliveries = deliveries
@@ -79,7 +79,7 @@ class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
                         val array = json.getJSONArray("payments")
                         for (i in 0 until array.length()) {
                             val obj = array[i] as JSONObject
-                            payments.add(ConnectJobPaymentRecord.fromJson(obj, job.jobId))
+                            payments.add(ConnectJobPaymentRecord.fromJson(obj, job))
                         }
 
                         job.payments = payments

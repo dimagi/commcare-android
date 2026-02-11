@@ -183,7 +183,9 @@
     <string name="recovery_network_unavailable">Sem conexão de rede. Verifique sua internet e tente novamente.</string>
     <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade, entre em contato com um administrador.</string>
     <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
-    <string name="recovery_network_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
+    <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
+    <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
+    <string name="personalid_login_from_different_device">A sua conta PersonalID só pode ser configurada num dispositivo de cada vez e já foi configurada noutro dispositivo. Por favor, continue no novo dispositivo ou configure novamente a sua conta neste dispositivo para continuar a utilizar o PersonalID aqui.</string>
     <string name="recovery_network_unauthorized">Você não está autorizado a fazer esta solicitação.</string>
     <string name="recovery_network_server_error">Ocorreu um erro ao processar sua solicitação.</string>
     <string name="recovery_app_manager">Vá para o Gerenciador de aplicativos</string>
@@ -396,6 +398,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">Ver informações</string>
     <string name="connect_job_info_view_resume">Retomar</string>
+    <string name="connect_job_info_view_review">Revisar</string>
     <string name="connect_progress">Progresso</string>
     <string name="connect_payment">Pagamento</string>
     <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>
@@ -522,10 +525,15 @@
     <string name="personalid_tooltip_location_success_message">Usamos dados de localização para garantir o uso seguro deste aplicativo.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Clique aqui para mais informações.</a></string>
 
     <string name="network_forbidden_error">Acesso negado. Se o problema persistir, entre em contato com o suporte ao cliente.</string>
-
+    <string name="error">Erro</string>
+    <string name="failed_to_start_learning">Falha ao iniciar o aprendizado</string>
+    <string name="failed_to_update_payment">Falha ao atualizar o pagamento</string>
     <string name="personalid_biometric_error_cancelled">A configuração biométrica foi cancelada. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_lockout">Muitas tentativas. Por favor, espere e tente novamente.</string>
     <string name="personalid_biometric_error_lockout_permanent">Muitas tentativas falhadas. Por favor, desbloqueie o seu dispositivo e tente novamente.</string>
     <string name="personalid_biometric_error_timeout">A operação biométrica expirou. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_cannot_configure">Não foi possível configurar a biometria no seu dispositivo. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
+
+    <string name="connect_complete_by">Concluir até %s</string>
+    <string name="connect_expired_on">Expirou em: %s</string>
 </resources>
