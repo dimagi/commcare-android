@@ -65,7 +65,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.22 - Added a new field UUID for ConnectAppRecord, ConnectLearnModuleSummaryRecord, ConnectJobLearningRecord, ConnectJobDeliveryRecord
      *          ConnectJobAssessmentRecord, ConnectPaymentUnitRecord, ConnectJobRecord, ConnectJobPaymentRecord and PushNotificationRecord
      */
-    private static final int CONNECT_DB_VERSION = 22;
+    private static final int CONNECT_DB_VERSION = 23;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 

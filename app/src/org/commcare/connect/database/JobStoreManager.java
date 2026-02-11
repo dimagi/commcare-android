@@ -140,8 +140,8 @@ public class JobStoreManager {
                 job.getDeliveryAppInfo().setID(existing.getID());  // Set ID for updating
             }
         }
-        job.getLearnAppInfo().setJobId(job.getJobId()); //  TODO to visit wheather to remove or not
-        job.getDeliveryAppInfo().setJobId(job.getJobId());  //  TODO to visit wheather to remove or not
+        job.getLearnAppInfo().setJobId(job.getJobId());
+        job.getDeliveryAppInfo().setJobId(job.getJobId());
         job.getLearnAppInfo().setJobUUID(job.getJobUUID());
         job.getDeliveryAppInfo().setJobUUID(job.getJobUUID());
         job.getLearnAppInfo().setLastUpdate(new Date());
@@ -176,7 +176,7 @@ public class JobStoreManager {
 
         // Store or update current modules
         for (ConnectLearnModuleSummaryRecord module : job.getLearnAppInfo().getLearnModules()) {
-            module.setJobId(job.getJobId());    // TODO to visit wheather to remove or not
+            module.setJobId(job.getJobId());
             module.setJobUUID(job.getJobUUID());
             module.setLastUpdate(new Date());
             moduleStorage.write(module);
@@ -208,7 +208,7 @@ public class JobStoreManager {
 
         // Store or update current payment units
         for (ConnectPaymentUnitRecord record : job.getPaymentUnits()) {
-            record.setJobId(job.getJobId());    //  TODO to visit wheather to remove or not
+            record.setJobId(job.getJobId());
             record.setJobUUID(job.getJobUUID());
             paymentUnitStorage.write(record);
         }

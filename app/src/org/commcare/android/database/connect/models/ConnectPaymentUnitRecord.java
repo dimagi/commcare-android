@@ -111,10 +111,6 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
         return name;
     }
 
-    public int getUnitId() {
-        return unitId;
-    }
-
     public int getMaxTotal() {
         return maxTotal;
     }

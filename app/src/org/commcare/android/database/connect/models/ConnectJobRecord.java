@@ -79,7 +79,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_DAILY_FINISH_TIME = "form_submission_end";
     public static final String META_IS_ACTIVE = "is_active";
     public static final String META_PAYMENT_UNITS = "payment_units";
-    public static final String META_PAYMENT_UNIT = "payment_unit";
+    public static final String META_PAYMENT_UNIT_ID = "payment_unit_id";
     public static final String META_MAX_VISITS = "max_visits";
 
     private static final String WORKING_HOURS_SOURCE_FORMAT = "HH:mm:ss";
@@ -272,9 +272,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 JSONArray unitsArray = claim.getJSONArray(META_PAYMENT_UNITS);
                 for (int i = 0; i < unitsArray.length(); i++) {
                     JSONObject unitObj = unitsArray.getJSONObject(i);
-                    int unitId = unitObj.getInt(META_PAYMENT_UNIT);
+                    String unitUUID = unitObj.getString(META_PAYMENT_UNIT_ID);
                     for (int j = 0; j < job.paymentUnits.size(); j++) {
-                        if (job.paymentUnits.get(j).getUnitId() == unitId) {
+                        if (job.paymentUnits.get(j).getUnitUUID().equals(unitUUID)) {
                             int newMax = unitObj.getInt(META_MAX_VISITS);
                             job.paymentUnits.get(j).setMaxTotal(newMax);
                             break;
@@ -711,11 +711,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
             if (!todayOnly || DateUtils.dateDiff(new Date(), delivery.getDate()) == 0) {
                 int oldCount = 0;
-                if (paymentCounts.containsKey(delivery.getSlug())) {
-                    oldCount = paymentCounts.get(delivery.getSlug());
+                if (paymentCounts.containsKey(delivery.getSlugUUID())) {
+                    oldCount = paymentCounts.get(delivery.getSlugUUID());
                 }
 
-                paymentCounts.put(delivery.getSlug(), oldCount + 1);
+                paymentCounts.put(delivery.getSlugUUID(), oldCount + 1);
             }
         }
 
@@ -759,7 +759,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         List<String> totalMaxes = new ArrayList<>();
 
         for (ConnectPaymentUnitRecord unit : getPaymentUnits()) {
-            String key = String.valueOf(unit.getUnitId());
+            String key = unit.getUnitUUID();
 
             int totalCount = total.containsKey(key) ? total.get(key) : 0;
             if (totalCount >= unit.getMaxTotal()) {

@@ -7,12 +7,12 @@ public class ConnectDeliveryDetails {
     private long remainingDays;
     private String totalAmount;
     private double approvedPercentage;
-    private int unitId;
+    private String unitUUID;
 
     // Constructor
-    public ConnectDeliveryDetails(int unitId, String deliveryName, int approvedCount, int pendingCount, String totalAmount,
+    public ConnectDeliveryDetails(String unitUUID, String deliveryName, int approvedCount, int pendingCount, String totalAmount,
             long remainingDays, double approvedPercentage) {
-        this.unitId = unitId;
+        this.unitUUID = unitUUID;
         this.deliveryName = deliveryName;
         this.approvedCount = approvedCount;
         this.pendingCount = pendingCount;
@@ -67,13 +67,5 @@ public class ConnectDeliveryDetails {
 
     public void setApprovedPercentage(double approvedPercentage) {
         this.approvedPercentage = approvedPercentage;
-    }
-
-    public int getUnitId() {
-        return unitId;
-    }
-
-    public void setUnitId(int unitId) {
-        this.unitId = unitId;
     }
 }
