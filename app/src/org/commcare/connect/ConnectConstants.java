@@ -57,5 +57,5 @@ public class ConnectConstants {
     public static final int MAX_MESSAGE_LENGTH = 65535;
     public final static String MESSAGE_NOTIFICATION_TITLE = "notification_title";
     public final static String NOTIFICATION = "notification";
-    public final static String MESSAGE = "notification";
+    public final static String MESSAGE = "message";
 }
