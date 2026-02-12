@@ -81,7 +81,7 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
 
         // Verify
         verifyFingerButtonState(View.GONE, R.string.connect_verify_configure_fingerprint)
-        verifyMessageState(View.VISIBLE, org.commcare.dalvik.R.string.connect_verify_message_pin)
+        verifyMessageState(View.VISIBLE, R.string.connect_verify_message_pin)
         verifyPinButtonState(View.VISIBLE, R.string.connect_verify_configure_pin)
     }
 
@@ -145,7 +145,7 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
         setUpBiometricFragment()
 
         // Verify
-        verifyFingerButtonState(View.VISIBLE, org.commcare.dalvik.R.string.connect_verify_agree)
+        verifyFingerButtonState(View.VISIBLE, R.string.connect_verify_agree)
         verifyMessageState(View.VISIBLE, R.string.connect_verify_fingerprint_configured)
         verifyPinButtonState(View.GONE)
     }
@@ -193,7 +193,7 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
         expectedMessage: Int,
     ) {
         val fingerprintButton = fragment.view!!.findViewById<Button>(R.id.connect_verify_fingerprint_button)
-        val fingerprintContainer = fragment.view!!.findViewById<View>(org.commcare.dalvik.R.id.connect_verify_fingerprint_container)
+        val fingerprintContainer = fragment.view!!.findViewById<View>(R.id.connect_verify_fingerprint_container)
 
         assertEquals(
             expectedVisibility,
@@ -226,8 +226,8 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
         expectedVisibility: Int,
         expectedMessage: Int = R.string.connect_verify_agree,
     ) {
-        val verifyPinButton = fragment.view!!.findViewById<Button>(org.commcare.dalvik.R.id.connect_verify_pin_button)
-        val pinContainer = fragment.view!!.findViewById<View>(org.commcare.dalvik.R.id.connect_verify_pin_container)
+        val verifyPinButton = fragment.view!!.findViewById<Button>(R.id.connect_verify_pin_button)
+        val pinContainer = fragment.view!!.findViewById<View>(R.id.connect_verify_pin_container)
 
         assertEquals(
             expectedVisibility,
@@ -261,7 +261,7 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
             .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
         setUpBiometricFragment()
 
-        val pinButton = fragment.view!!.findViewById<Button>(org.commcare.dalvik.R.id.connect_verify_pin_button)
+        val pinButton = fragment.view!!.findViewById<Button>(R.id.connect_verify_pin_button)
         val testableFragment = fragment as TestablePersonalIdBiometricConfigFragment
         pinButton.performClick()
         mockBiometricAuthentication(testableFragment, successfulAuth)
