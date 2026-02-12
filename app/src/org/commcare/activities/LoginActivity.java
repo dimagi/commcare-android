@@ -1003,7 +1003,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
-        initPersonaIdManager();
         return shouldShowDrawerAfterCheck();
     }
 
