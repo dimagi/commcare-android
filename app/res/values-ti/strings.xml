@@ -425,10 +425,12 @@
     <string name="connect_messaging_channel_notification_message">ሓድሽ ናይ መልእኽቲ ቻነል ካብ %s ይርከብ፣ ንምርኣይ ኣብዚ ጠውቑ</string>
     <string name="connect_messaging_send_message_fail_msg">መልእኽቲ ምልኣኽ ዘይምኽኣል</string>
     <string name="connect_messaging_retrieve_messages_fail">መልእኽትታት ምምላስ ኣይከኣለን</string>
-    <string name="connect_messaging_subscribe_dialog_title">ናብቲ %s ናይ መልእኽቲ ቻነል እንደገና ክትምዝገብ ርግጸኛ ዲኻ?</string>
+    <string name="connect_messaging_subscribe_dialog_title">እንደገና ናብ %s ተመዝገብ</string>
+    <string name="connect_messaging_subscribe_dialog_body">ናብቲ %s ናይ መልእኽቲ ቻነል እንደገና ክትምዝገብ ርግጸኛ ዲኻ?</string>
     <string name="connect_messaging_subscribe_dialog_subscribe">ተመዝገብ</string>
     <string name="connect_messaging_subscribe_dialog_cancel">ሰርዝ</string>
     <string name="connect_messaging_unsubscribe_dialog_title">ካብ %s ምዝገባ ሰርዝ</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">ካብዚ ቻነል ምዝገባኻ ክትሰርዝ ርግጸኛ ዲኻ? ካብዚ ዕድል ደጊምካ መልእኽቲ ኣይክትረክብን ኢኻ።</string>
     <string name="connect_messaging_unsubscribe_dialog_subscribe">ምዝገባ ሰርዝ</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">ሰርዝ</string>
     <string name="connect_messaging_channel_unsubscribe_error">ምዝገባ ምስራዝ ኣይተዓወተን</string>

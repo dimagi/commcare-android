@@ -439,10 +439,12 @@
     <string name="connect_messaging_channel_consent_failure_msg">No se pudo otorgar el consentimiento al canal</string>
     <string name="connect_messaging_send_message_fail_msg">Error al enviar el mensaje</string>
     <string name="connect_messaging_retrieve_messages_fail">Error al recuperar mensajes</string>
-    <string name="connect_messaging_subscribe_dialog_title">¿Estás seguro de que deseas volver a suscribirte al canal de mensajería %s?</string>
+    <string name="connect_messaging_subscribe_dialog_title">Volver a suscribirse a %s</string>
+    <string name="connect_messaging_subscribe_dialog_body">¿Estás seguro de que deseas volver a suscribirte al canal de mensajería %s?</string>
     <string name="connect_messaging_subscribe_dialog_subscribe">Suscribirse</string>
     <string name="connect_messaging_subscribe_dialog_cancel">Cancelar</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Darse de baja de %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">¿Estás seguro de que deseas darte de baja de este canal? Ya no recibirás mensajes de esta oportunidad.</string>
     <string name="connect_messaging_unsubscribe_dialog_subscribe">Darse de baja</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Cancelar</string>
     <string name="connect_messaging_channel_unsubscribe_error">Error al darse de baja</string>

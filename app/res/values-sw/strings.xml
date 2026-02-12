@@ -442,10 +442,12 @@
     <string name="connect_messaging_channel_consent_failure_msg">Imeshindwa kutoa idhini kwa kituo</string>
     <string name="connect_messaging_send_message_fail_msg">Imeshindwa kutuma ujumbe</string>
     <string name="connect_messaging_retrieve_messages_fail">Imeshindwa kurejesha ujumbe</string>
-    <string name="connect_messaging_subscribe_dialog_title">Je, una uhakika unataka kujiandikisha tena kwenye kituo cha ujumbe cha %s?</string>
+    <string name="connect_messaging_subscribe_dialog_title">Jiandikishe tena kwa %s</string>
+    <string name="connect_messaging_subscribe_dialog_body">Je, una uhakika unataka kujiandikisha tena kwenye kituo cha ujumbe cha %s?</string>
     <string name="connect_messaging_subscribe_dialog_subscribe">Jiandikishe</string>
     <string name="connect_messaging_subscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Acha kufuata %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Tem certeza de que deseja anular a subscrição deste canal? Não receberá mais mensagens desta oportunidade.</string>
     <string name="connect_messaging_unsubscribe_dialog_subscribe">Acha kufuata</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_channel_unsubscribe_error">Imeshindwa kuacha kufuata</string>
