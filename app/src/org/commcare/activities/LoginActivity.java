@@ -123,6 +123,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect = false;
+
+    /**
+     *   This lets us launch CommCare in a single app mode from external applications
+     *   and should only be used internally when we don't want user to have the option to switch to other apps
+     *   for eg. for launch from Connect Opportunities
+     */
     private String presetAppId;
     private PersonalIdManager personalIdManager;
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
@@ -759,7 +765,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         selectedAppIndex = position;
         String appId = appIdDropdownList.get(selectedAppIndex);
-        presetAppId = appId;
         seatAppIfNeeded(appId);
     }
 
