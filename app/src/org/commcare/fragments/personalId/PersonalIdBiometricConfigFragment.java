@@ -90,7 +90,6 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
-        requireActivity();
         return new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
