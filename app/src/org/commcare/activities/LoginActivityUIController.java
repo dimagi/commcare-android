@@ -1,8 +1,5 @@
 package org.commcare.activities;
 
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
-
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -25,8 +22,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -34,7 +31,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
-import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -50,6 +46,9 @@ import java.util.Vector;
 import javax.annotation.Nullable;
 
 import androidx.preference.PreferenceManager;
+
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
 /**
  * Handles login activity UI
@@ -94,9 +93,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
-
-    @UiElement(R.id.error_msg)
-    private TextView errorMessage;
 
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
@@ -291,11 +287,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (lastUser != null) {
             // If there was a last user for this app, show it
             username.setText(lastUser);
-            passwordOrPin.requestFocus();
+            requestFocusIfNoError(passwordOrPin);
         } else {
             // Otherwise, clear the username text so it does not show a username from a different app
             username.setText("");
-            username.requestFocus();
+            requestFocusIfNoError(username);
         }
 
         // Since the entered username may have changed, need to re-check if we should be in PIN mode
@@ -312,6 +308,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+    }
+
+    private void requestFocusIfNoError(EditText view) {
+        if (!activity.isShowingGlobalError()) {
+            view.requestFocus();
+        }
     }
 
     private void checkEnteredUsernameForMatch() {
@@ -405,14 +407,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
-    protected void checkForGlobalErrors() {
-        String errors = GlobalErrorUtil.getGlobalErrors();
-        if(errors.length() > 0) {
-            errorMessage.setVisibility(View.VISIBLE);
-            errorMessage.setText(errors);
-        }
-    }
-
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
@@ -492,7 +486,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         String lastUser = prefs.getString(HiddenPreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);
-            passwordOrPin.requestFocus();
+            requestFocusIfNoError(passwordOrPin);
         }
     }
 
