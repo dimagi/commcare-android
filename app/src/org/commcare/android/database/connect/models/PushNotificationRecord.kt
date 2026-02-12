@@ -1,6 +1,9 @@
 package org.commcare.android.database.connect.models
 
 import org.commcare.android.storage.framework.Persisted
+import org.commcare.connect.ConnectConstants.MESSAGE_NOTIFICATION_TITLE
+import org.commcare.connect.ConnectConstants.NOTIFICATION
+import org.commcare.connect.MessageManager.truncateLongString
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
@@ -28,10 +31,16 @@ class PushNotificationRecord :
     @Persisting(4)
     @MetaField(META_TITLE)
     var title: String = ""
+        set(value) {
+            field = truncateLongString(value, MESSAGE_NOTIFICATION_TITLE)
+        }
 
     @Persisting(5)
     @MetaField(META_BODY)
     var body: String = ""
+        set(value) {
+            field = truncateLongString(value,NOTIFICATION)
+        }
 
     @Persisting(6)
     @MetaField(META_CREATED_DATE)
