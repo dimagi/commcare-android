@@ -328,6 +328,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
 
         // Otherwise, refresh the activity for current conditions
+        selectedAppIndex = -1;
         uiController.refreshView();
 
         if(shouldDoConnectLogin() && !seatAppIfNeeded(presetAppId)) {
