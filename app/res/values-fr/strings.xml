@@ -437,6 +437,16 @@ License.
     <string name="connect_messaging_channel_consent_failure_msg">Impossible d\'accorder le consentement à la chaîne</string>
     <string name="connect_messaging_send_message_fail_msg">Échec de l\'envoi du message</string>
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
+    <string name="connect_messaging_subscribe_dialog_title">Voulez-vous vraiment vous réabonner au canal de messagerie %s?</string>
+    <string name="connect_messaging_subscribe_dialog_subscribe">S\'abonner</string>
+    <string name="connect_messaging_subscribe_dialog_cancel">Annuler</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Se désabonner de %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_subscribe">Se désabonner</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Annuler</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Échec du désabonnement</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">désabonné</string>
+    <string name="connect_messaging_channel_menu_item_subscribe">S\'abonner</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Se désabonner</string>
     <string name="connect_send_message_hint">Tapez un message</string>
     <string name="connect_send_message_btn_desc">Appuyez ici pour envoyer un message</string>
     <string name="connect_message_you">Toi</string>

@@ -442,6 +442,16 @@
     <string name="connect_messaging_channel_consent_failure_msg">Imeshindwa kutoa idhini kwa kituo</string>
     <string name="connect_messaging_send_message_fail_msg">Imeshindwa kutuma ujumbe</string>
     <string name="connect_messaging_retrieve_messages_fail">Imeshindwa kurejesha ujumbe</string>
+    <string name="connect_messaging_subscribe_dialog_title">Je, una uhakika unataka kujiandikisha tena kwenye kituo cha ujumbe cha %s?</string>
+    <string name="connect_messaging_subscribe_dialog_subscribe">Jiandikishe</string>
+    <string name="connect_messaging_subscribe_dialog_cancel">Ghairi</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Acha kufuata %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_subscribe">Acha kufuata</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Ghairi</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Imeshindwa kuacha kufuata</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">umeacha kufuata</string>
+    <string name="connect_messaging_channel_menu_item_subscribe">Jiandikishe</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Acha kufuata</string>
     <string name="connect_send_message_hint">Andika ujumbe</string>
     <string name="connect_send_message_btn_desc">Bonyeza hapa kutuma ujumbe</string>
     <string name="connect_message_you">Wewe</string>
