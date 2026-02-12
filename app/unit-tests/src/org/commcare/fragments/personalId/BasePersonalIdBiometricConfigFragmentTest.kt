@@ -11,11 +11,14 @@ import androidx.test.core.app.ApplicationProvider
 import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.PersonalIdManager
 import org.commcare.dalvik.R
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
 import org.mockito.Mock
+import org.mockito.MockedStatic
+import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
@@ -31,14 +34,29 @@ abstract class BasePersonalIdBiometricConfigFragmentTest {
     protected lateinit var activity: PersonalIdActivity
     protected lateinit var fragment: PersonalIdBiometricConfigFragment
     protected lateinit var navController: TestNavHostController
+    protected lateinit var personalIdManagerMock: MockedStatic<PersonalIdManager>
 
     @Mock
     protected lateinit var mockBiometricManager: BiometricManager
+
+    @Mock
+    protected lateinit var mockPersonalIdManager: PersonalIdManager
 
     @Before
     open fun setUp() {
         mocksCloseable = MockitoAnnotations.openMocks(this)
         MockAndroidKeyStoreProvider.registerProvider()
+        mockBiometricManager()
+    }
+
+    private fun mockBiometricManager() {
+        personalIdManagerMock = Mockito.mockStatic(PersonalIdManager::class.java)
+        personalIdManagerMock
+            .`when`<PersonalIdManager> { PersonalIdManager.getInstance() }
+            .thenReturn(mockPersonalIdManager)
+        Mockito
+            .`when`(mockPersonalIdManager.getBiometricManager(Mockito.any()))
+            .thenReturn(mockBiometricManager)
     }
 
     protected fun setUpBiometricFragment(requiredLock: String = PersonalIdSessionData.PIN) {
@@ -75,7 +93,7 @@ abstract class BasePersonalIdBiometricConfigFragmentTest {
 
         activity.runOnUiThread {
             Navigation.setViewNavController(navHostFragment.requireView(), navController)
-            val testableFragment = TestablePersonalIdBiometricConfigFragment(mockBiometricManager, navController)
+            val testableFragment = TestablePersonalIdBiometricConfigFragment(navController)
             navHostFragment.childFragmentManager
                 .beginTransaction()
                 .replace(R.id.nav_host_fragment_connectid, testableFragment)
@@ -90,6 +108,7 @@ abstract class BasePersonalIdBiometricConfigFragmentTest {
     open fun tearDown() {
         activityController.pause().stop().destroy()
         mocksCloseable.close()
+        personalIdManagerMock.close()
         MockAndroidKeyStoreProvider.deregisterProvider()
     }
 }
@@ -99,11 +118,8 @@ abstract class BasePersonalIdBiometricConfigFragmentTest {
  * and a test NavController for navigation testing.
  */
 class TestablePersonalIdBiometricConfigFragment(
-    private val mockBiometricManager: BiometricManager,
     private val testNavController: NavController? = null,
 ) : PersonalIdBiometricConfigFragment() {
-    override fun getBiometricManager(): BiometricManager = mockBiometricManager
-
     override fun getNavController(): NavController = testNavController ?: super.getNavController()
 
     /**
@@ -113,7 +129,7 @@ class TestablePersonalIdBiometricConfigFragment(
         val callbackField = PersonalIdBiometricConfigFragment::class.java.getDeclaredField("biometricCallback")
         callbackField.isAccessible = true
         val callback = callbackField.get(this) as BiometricPrompt.AuthenticationCallback
-        val result = org.mockito.Mockito.mock(BiometricPrompt.AuthenticationResult::class.java)
+        val result = Mockito.mock(BiometricPrompt.AuthenticationResult::class.java)
         callback.onAuthenticationSucceeded(result)
     }
 

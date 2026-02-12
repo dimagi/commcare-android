@@ -45,6 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
+import androidx.fragment.app.FragmentActivity;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -556,7 +557,7 @@ public class PersonalIdManager {
                 false);
     }
 
-    public BiometricManager getBiometricManager(CommCareActivity<?> parent) {
+    public BiometricManager getBiometricManager(FragmentActivity parent) {
         if (biometricManager == null) {
             biometricManager = BiometricManager.from(parent);
         }

@@ -26,6 +26,7 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -50,10 +51,6 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
     public PersonalIdBiometricConfigFragment() {
         // Required empty public constructor
-    }
-
-    protected BiometricManager getBiometricManager() {
-        return BiometricManager.from(requireActivity());
     }
 
     @Override
@@ -86,6 +83,10 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     public void onResume() {
         super.onResume();
         updateUiBasedOnMinSecurityRequired();
+    }
+
+    private BiometricManager getBiometricManager() {
+        return PersonalIdManager.getInstance().getBiometricManager(requireActivity());
     }
 
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
