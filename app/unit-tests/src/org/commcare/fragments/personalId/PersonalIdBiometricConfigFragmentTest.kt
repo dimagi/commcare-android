@@ -224,7 +224,7 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
 
     private fun verifyPinButtonState(
         expectedVisibility: Int,
-        expectedMessage: Int = R.string.connect_verify_agree,
+        expectedMessage: Int = R.string.connect_verify_configure_pin,
     ) {
         val verifyPinButton = fragment.view!!.findViewById<Button>(R.id.connect_verify_pin_button)
         val pinContainer = fragment.view!!.findViewById<View>(R.id.connect_verify_pin_container)
@@ -234,12 +234,10 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
             pinContainer.visibility,
         )
 
-        if (expectedVisibility == View.VISIBLE) {
-            assertEquals(
-                fragment.context!!.getString(expectedMessage),
-                verifyPinButton.text,
-            )
-        }
+        assertEquals(
+            fragment.context!!.getString(expectedMessage),
+            verifyPinButton.text,
+        )
     }
 
     private fun setUpAndClickFingerprintButton(successfulAuth: Boolean) {
