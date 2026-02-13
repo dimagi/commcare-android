@@ -104,7 +104,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         }
 
         if (NetworkNotificationService.Companion.isServiceRunning()) {
-            CommCareApplication.instance().stopService(getNotificationIntent());
+            CommCareApplication.instance().stopService(getNetworkServiceBaseIntent());
         }
     }
 
@@ -129,7 +129,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         }
 
         if (shouldRunNetworkNotificationService()) {
-            CommCareApplication.instance().startForegroundService(getNotificationIntent());
+            CommCareApplication.instance().startForegroundService(getNetworkServiceBaseIntent());
         }
     }
 
@@ -138,7 +138,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
     }
 
-    private Intent getNotificationIntent() {
+    private Intent getNetworkServiceBaseIntent() {
         return new Intent(CommCareApplication.instance(), NetworkNotificationService.class);
     }
 
@@ -158,7 +158,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     }
 
     private Intent getNotificationUpdateIntent() {
-        return getNotificationIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION)
+        return getNetworkServiceBaseIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION)
                 .putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, notificationServiceProgressTextKey);
     }
 
