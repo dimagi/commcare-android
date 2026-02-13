@@ -10,6 +10,14 @@ import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.commcare.CommCareNoficationManager
 import org.commcare.activities.DispatchActivity
 import org.commcare.dalvik.R
@@ -23,7 +31,14 @@ class NetworkNotificationService : Service() {
         var isServiceRunning = false
         const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
         const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
+        const val STOP_NOTIFICATION_ACTION = "stop_notification"
+        const val START_NOTIFICATION_ACTION = "start_notification"
+        const val TASK_ID_INTENT_EXTRA = "task_id"
     }
+
+    private val _taskIds = MutableStateFlow<List<Int>>(emptyList())
+    val taskIds: StateFlow<List<Int>> = _taskIds
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onCreate() {
         super.onCreate()
@@ -37,6 +52,13 @@ class NetworkNotificationService : Service() {
         } else {
             startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.requests.starting"))
         }
+        serviceScope.launch {
+            taskIds.collect { list ->
+                if (list.isEmpty() && isServiceRunning) {
+                    stopSelf()
+                }
+            }
+        }
         isServiceRunning = true
     }
 
@@ -47,6 +69,9 @@ class NetworkNotificationService : Service() {
     ): Int {
         when (intent?.action) {
             UPDATE_PROGRESS_NOTIFICATION_ACTION -> {
+                intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1).let { taskId ->
+                    registerTaskId(taskId, true)
+                }
                 notificationManager.notify(
                     NETWORK_NOTIFICATION_ID,
                     buildNotification(intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA)?:"network.requests.running")
@@ -54,6 +79,17 @@ class NetworkNotificationService : Service() {
             }
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun removeTaskId(taskId: Int) {
+        if (taskId == -1) return
+        _taskIds.update { current -> current - taskId }
+    }
+
+    private fun registerTaskId(taskId: Int, update: Boolean) {
+        if (taskId == -1 || (update && taskId in _taskIds.value)) return
+
+        _taskIds.update { current -> current + taskId }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -82,6 +118,7 @@ class NetworkNotificationService : Service() {
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         isServiceRunning = false
+        serviceScope.cancel()
         super.onDestroy()
     }
 }
