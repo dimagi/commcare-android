@@ -1,6 +1,7 @@
 package org.commcare.views.connect
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.TextView
@@ -85,7 +86,7 @@ class ConnectDialogCreationHelper {
             dialogView.findViewById<MaterialButton>(R.id.mb_negative_button).apply {
                 text = negativeButtonText
                 setTextColor(ContextCompat.getColor(context, negativeButtonTextColorRes))
-                setBackgroundColor(
+                backgroundTintList = ColorStateList.valueOf(
                     ContextCompat.getColor(context, negativeButtonBackgroundColorRes),
                 )
                 setOnClickListener {
@@ -98,7 +99,7 @@ class ConnectDialogCreationHelper {
             dialogView.findViewById<MaterialButton>(R.id.mb_positive_button).apply {
                 text = positiveButtonText
                 setTextColor(ContextCompat.getColor(context, positiveButtonTextColorRes))
-                setBackgroundColor(
+                backgroundTintList = ColorStateList.valueOf(
                     ContextCompat.getColor(context, positiveButtonBackgroundColorRes),
                 )
                 setOnClickListener {
