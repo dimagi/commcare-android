@@ -1,10 +1,21 @@
 package org.commcare.tasks.templates;
 
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
+import org.commcare.CommCareApplication;
 import org.commcare.logging.UserCausedRuntimeException;
+import org.commcare.services.NetworkNotificationService;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
+
+import static org.commcare.services.NetworkNotificationService.PROGRESS_TEXT_KEY_INTENT_EXTRA;
+import static org.commcare.services.NetworkNotificationService.START_NOTIFICATION_ACTION;
+import static org.commcare.services.NetworkNotificationService.STOP_NOTIFICATION_ACTION;
+import static org.commcare.services.NetworkNotificationService.TASK_ID_INTENT_EXTRA;
+import static org.commcare.services.NetworkNotificationService.UPDATE_PROGRESS_NOTIFICATION_ACTION;
 
 /**
  * @author ctsims
@@ -22,6 +33,8 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     private Exception unknownError;
 
     protected int taskId = GENERIC_TASK_ID;
+    protected boolean runNotificationService = false;
+    protected String notificationServiceProgressTextKey = null;
 
     //Wait for 2 seconds for something to reconnnect for now (very high)
     private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
@@ -92,6 +105,10 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 connector.stopTaskTransition(taskId);
             }
         }
+
+        if (NetworkNotificationService.Companion.isServiceRunning()) {
+            CommCareApplication.instance().startForegroundService(getNotificationStopIntent());
+        }
     }
 
     protected abstract void deliverResult(Receiver receiver, Result result);
@@ -113,6 +130,20 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 connector.startBlockingForTask(getTaskId());
             }
         }
+
+        if (shouldRunNetworkNotificationService()) {
+            CommCareApplication.instance().startForegroundService(getNotificationStartIntent());
+        }
+    }
+
+    private boolean shouldRunNetworkNotificationService() {
+        return !CommCareApplication.isSessionActive() && runNotificationService &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+    }
+
+    private Intent getNetworkServiceBaseIntent() {
+        return new Intent(CommCareApplication.instance(), NetworkNotificationService.class)
+                .putExtra(TASK_ID_INTENT_EXTRA, taskId);
     }
 
     @Override
@@ -124,6 +155,26 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 this.deliverUpdate(connector.getReceiver(), values);
             }
         }
+
+        if (NetworkNotificationService.Companion.isServiceRunning()) {
+            CommCareApplication.instance().startForegroundService(getNotificationUpdateIntent());
+        }
+    }
+
+    private Intent getNotificationStopIntent() {
+        return getNetworkServiceBaseIntent().setAction(STOP_NOTIFICATION_ACTION);
+    }
+
+    private Intent getNotificationStartIntent() {
+        return getNetworkServiceBaseIntent().setAction(START_NOTIFICATION_ACTION);
+    }
+
+    private Intent getNotificationUpdateIntent() {
+        Intent intent = getNetworkServiceBaseIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION);
+        if (notificationServiceProgressTextKey != null) {
+            intent.putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, notificationServiceProgressTextKey);
+        }
+        return intent;
     }
 
     /**
