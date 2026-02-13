@@ -1018,6 +1018,5 @@ microimage.scalingdown.compression.error=Image compression failed. Please try ag
 microimage.manual.face.capture.failed=Manual capture failed, contact CommCare Support if the issue persists
 microimage.camera.permission.denied=Go to settings and enable camera permission to use this feature
 
-network.requests.starting=Starting network requests
-network.requests.running=Running network requests
-network.requests.progress=Completed: ${0}/${1}
+network.notification.service.starting=Starting network service
+network.notification.service.running=Running network requests...
