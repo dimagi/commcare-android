@@ -431,7 +431,7 @@
     <string name="connect_messaging_subscribe_dialog_cancel">ሰርዝ</string>
     <string name="connect_messaging_unsubscribe_dialog_title">ካብ %s ምዝገባ ሰርዝ</string>
     <string name="connect_messaging_unsubscribe_dialog_body">ካብዚ ቻነል ምዝገባኻ ክትሰርዝ ርግጸኛ ዲኻ? ካብዚ ዕድል ደጊምካ መልእኽቲ ኣይክትረክብን ኢኻ።</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">ምዝገባ ሰርዝ</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">ምዝገባ ሰርዝ</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">ሰርዝ</string>
     <string name="connect_messaging_channel_unsubscribe_error">ምዝገባ ምስራዝ ኣይተዓወተን</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">ምዝገባ ተሰሪዙ</string>

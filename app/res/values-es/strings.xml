@@ -445,7 +445,7 @@
     <string name="connect_messaging_subscribe_dialog_cancel">Cancelar</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Darse de baja de %s</string>
     <string name="connect_messaging_unsubscribe_dialog_body">¿Estás seguro de que deseas darte de baja de este canal? Ya no recibirás mensajes de esta oportunidad.</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">Darse de baja</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Darse de baja</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Cancelar</string>
     <string name="connect_messaging_channel_unsubscribe_error">Error al darse de baja</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">dado de baja</string>

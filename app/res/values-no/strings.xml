@@ -97,7 +97,7 @@
     <string name="connect_messaging_subscribe_dialog_cancel">Avbryt</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Avslutt abonnement på %s</string>
     <string name="connect_messaging_unsubscribe_dialog_body">Er du sikker på at du vil avslutte abonnementet på denne kanalen? Du vil ikke lenger motta meldinger fra denne muligheten.</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">Avslutt abonnement</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Avslutt abonnement</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Avbryt</string>
     <string name="connect_messaging_channel_unsubscribe_error">Kunne ikke avslutte abonnement</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">avmeldt</string>

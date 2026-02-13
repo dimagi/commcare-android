@@ -446,7 +446,7 @@
     <string name="connect_messaging_subscribe_dialog_cancel">Cancelar</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Anular subscrição de %s</string>
     <string name="connect_messaging_unsubscribe_dialog_body">Tem certeza de que deseja anular a subscrição deste canal? Não receberá mais mensagens desta oportunidade.</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">Anular subscrição</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Anular subscrição</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Cancelar</string>
     <string name="connect_messaging_channel_unsubscribe_error">Falha ao anular subscrição</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">subscrição anulada</string>

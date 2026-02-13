@@ -389,7 +389,7 @@
     <string name="connect_messaging_subscribe_dialog_cancel">Cancel</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Unsubscribe from %s</string>
     <string name="connect_messaging_unsubscribe_dialog_body">Are you sure you want to unsubscribe from this channel? You will no longer receive messages from this opportunity.</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">Unsubscribe</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Unsubscribe</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Cancel</string>
     <string name="connect_messaging_channel_unsubscribe_error">Failed to unsubscribe</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">unsubscribed</string>

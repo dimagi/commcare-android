@@ -59,7 +59,7 @@
             android:paddingEnd="25dp"
             android:textAllCaps="false"
             android:textSize="@dimen/text_small"
-            tools:text="@string/connect_messaging_unsubscribe_dialog_subscribe"
+            tools:text="@string/connect_messaging_unsubscribe_dialog_unsubscribe"
             app:cornerRadius="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_dialog_message" />

@@ -442,7 +442,7 @@ License.
     <string name="connect_messaging_subscribe_dialog_cancel">रद्द करें</string>
     <string name="connect_messaging_unsubscribe_dialog_title">%s से सदस्यता समाप्त करें</string>
     <string name="connect_messaging_unsubscribe_dialog_body">क्या आप वाकई इस चैनल से अपनी सदस्यता समाप्त करना चाहते हैं? अब आपको इस अवसर से कोई संदेश प्राप्त नहीं होगा।</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">सदस्यता समाप्त करें</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">सदस्यता समाप्त करें</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">रद्द करें</string>
     <string name="connect_messaging_channel_unsubscribe_error">सदस्यता समाप्त करने में विफल</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">सदस्यता समाप्त की गई</string>

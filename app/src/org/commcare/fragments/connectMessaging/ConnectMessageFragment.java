@@ -311,7 +311,7 @@ public class ConnectMessageFragment extends Fragment {
         );
         String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
         String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
-        String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_subscribe);
+        String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
 
         ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
                 requireContext(),

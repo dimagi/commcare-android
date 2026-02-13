@@ -448,7 +448,7 @@
     <string name="connect_messaging_subscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Acha kufuata %s</string>
     <string name="connect_messaging_unsubscribe_dialog_body">Tem certeza de que deseja anular a subscrição deste canal? Não receberá mais mensagens desta oportunidade.</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">Acha kufuata</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Acha kufuata</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_channel_unsubscribe_error">Imeshindwa kuacha kufuata</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">umeacha kufuata</string>

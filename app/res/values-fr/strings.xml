@@ -443,7 +443,7 @@ License.
     <string name="connect_messaging_subscribe_dialog_cancel">Annuler</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Se désabonner de %s</string>
     <string name="connect_messaging_unsubscribe_dialog_body">Voulez-vous vraiment vous désabonner de ce canal ? Vous ne recevrez plus de messages pour cette opportunité.</string>
-    <string name="connect_messaging_unsubscribe_dialog_subscribe">Se désabonner</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Se désabonner</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Annuler</string>
     <string name="connect_messaging_channel_unsubscribe_error">Échec du désabonnement</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">désabonné</string>
