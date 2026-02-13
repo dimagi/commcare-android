@@ -94,7 +94,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         activity = requireActivity();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class);
         locationController = CommCareLocationControllerFactory.getLocationController(requireActivity(), this);
@@ -172,8 +172,17 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private void initializeUi() {
         binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
+        setupKeyboardScrollListener();
         setupListeners();
         updateContinueButtonState();
+    }
+
+    private void setupKeyboardScrollListener() {
+        View rootView = binding.getRoot();
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            binding.scrollView.post(() ->
+                    binding.scrollView.smoothScrollTo(0, binding.scrollView.getChildAt(0).getBottom()));
+        });
     }
 
     private void setupListeners() {
