@@ -79,7 +79,9 @@ class NetworkNotificationService : Service() {
                 }
                 notificationManager.notify(
                     NETWORK_NOTIFICATION_ID,
-                    buildNotification(intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA)?:"network.requests.running")
+                    buildNotification(
+                        intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA) ?: "network.requests.running",
+                    ),
                 )
             }
             STOP_NOTIFICATION_ACTION -> {
@@ -96,7 +98,10 @@ class NetworkNotificationService : Service() {
         _taskIds.update { current -> current - taskId }
     }
 
-    private fun registerTaskId(taskId: Int, update: Boolean) {
+    private fun registerTaskId(
+        taskId: Int,
+        update: Boolean,
+    ) {
         if (taskId == -1 || (update && taskId in _taskIds.value)) return
 
         _taskIds.update { current -> current + taskId }
@@ -104,9 +109,7 @@ class NetworkNotificationService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun buildNotification(
-        notificationTitleKey: String,
-    ): Notification {
+    private fun buildNotification(notificationTitleKey: String): Notification {
         val activityToLaunch = Intent(this, DispatchActivity::class.java)
         activityToLaunch.setAction("android.intent.action.MAIN")
         activityToLaunch.addCategory("android.intent.category.LAUNCHER")
