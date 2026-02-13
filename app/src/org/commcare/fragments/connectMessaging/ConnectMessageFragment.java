@@ -116,10 +116,12 @@ public class ConnectMessageFragment extends Fragment {
                     public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                         int menuItemId = menuItem.getItemId();
 
-                        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(
-                                this.getClass(),
-                                menuItemsAnalyticsParamsMapping.get(menuItemId)
-                        );
+                        if (menuItemsAnalyticsParamsMapping.containsKey(menuItemId)) {
+                            FirebaseAnalyticsUtil.reportOptionsMenuItemClick(
+                                    ConnectMessageFragment.class,
+                                    menuItemsAnalyticsParamsMapping.get(menuItemId)
+                            );
+                        }
 
                         if (menuItemId == MENU_UNSUBSCRIBE) {
                             showUnsubscribeDialog();
