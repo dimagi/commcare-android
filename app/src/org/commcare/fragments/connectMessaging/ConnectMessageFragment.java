@@ -34,12 +34,15 @@ import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
+import org.commcare.views.connect.ConnectDialogCreationHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import kotlin.Unit;
 
 public class ConnectMessageFragment extends Fragment {
     private static String activeChannel;
@@ -50,6 +53,7 @@ public class ConnectMessageFragment extends Fragment {
     private static final int INTERVAL = 30000;
     private final Handler handler = new Handler(); // To post periodic tasks
 
+    private ConnectMessagingChannelRecord channel;
     private Map<Integer, String> menuItemsAnalyticsParamsMapping;
     private static final int MENU_UNSUBSCRIBE = Menu.FIRST;
     private static final int MENU_SUBSCRIBE = Menu.FIRST + 1;
@@ -62,7 +66,7 @@ public class ConnectMessageFragment extends Fragment {
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
 
-        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
         requireActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
@@ -118,10 +122,10 @@ public class ConnectMessageFragment extends Fragment {
                         );
 
                         if (menuItemId == MENU_UNSUBSCRIBE) {
-                            handleUnsubscribeFromMessagingChannel();
+                            showUnsubscribeDialog();
                             return true;
                         } else if (menuItemId == MENU_SUBSCRIBE) {
-                            handleSubscribeToMessagingChannel();
+                            showSubscribeDialog();
                             return true;
                         }
 
@@ -169,7 +173,7 @@ public class ConnectMessageFragment extends Fragment {
     };
 
     private void fetchMessagesFromNetwork() {
-        MessageManager.retrieveMessages(requireActivity(), (success,error) -> {
+        MessageManager.retrieveMessages(requireActivity(), (success, error) -> {
             if (success) {
                 refreshUi();
             } else {
@@ -241,7 +245,7 @@ public class ConnectMessageFragment extends Fragment {
         adapter.addMessage(chat);
         scrollToLatestMessage();
 
-        MessageManager.sendMessage(requireContext(), message, (success,error) -> {
+        MessageManager.sendMessage(requireContext(), message, (success, error) -> {
             if (!success) {
                 Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
             } else {
@@ -300,12 +304,67 @@ public class ConnectMessageFragment extends Fragment {
         }
     }
 
-    private void handleUnsubscribeFromMessagingChannel() {
-        // TODO: Not implemented yet.
+    private void showUnsubscribeDialog() {
+        String titleText = getString(
+                R.string.connect_messaging_unsubscribe_dialog_title,
+                channel.getChannelName()
+        );
+        String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
+        String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
+        String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_subscribe);
+
+        ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
+                requireContext(),
+                titleText,
+                messageText,
+                negativeButtonText,
+                () -> {
+                    // No-op
+                    return Unit.INSTANCE;
+                },
+                R.color.connect_darker_blue_color,
+                R.color.white,
+                positiveButtonText,
+                () -> {
+                    // TODO: Not implemented yet.
+                    return Unit.INSTANCE;
+                },
+                R.color.white,
+                R.color.red
+        );
     }
 
-    private void handleSubscribeToMessagingChannel() {
-        // TODO: Not implemented yet.
+    private void showSubscribeDialog() {
+        String titleText = getString(
+                R.string.connect_messaging_subscribe_dialog_title,
+                channel.getChannelName()
+        );
+        String messageText = getString(
+                R.string.connect_messaging_subscribe_dialog_body,
+                channel.getChannelName()
+        );
+        String negativeButtonText = getString(R.string.connect_messaging_subscribe_dialog_cancel);
+        String positiveButtonText = getString(R.string.connect_messaging_subscribe_dialog_subscribe);
+
+        ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
+                requireContext(),
+                titleText,
+                messageText,
+                negativeButtonText,
+                () -> {
+                    // No-op
+                    return Unit.INSTANCE;
+                },
+                R.color.connect_darker_blue_color,
+                R.color.white,
+                positiveButtonText,
+                () -> {
+                    // TODO: Not implemented yet.
+                    return Unit.INSTANCE;
+                },
+                R.color.white,
+                R.color.connect_blue_color
+        );
     }
 }
 
