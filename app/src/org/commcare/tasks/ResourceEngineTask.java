@@ -70,6 +70,7 @@ public abstract class ResourceEngineTask<R>
         this.reinstall = reinstall;
         TAG = ResourceEngineTask.class.getSimpleName();
         this.runNotificationService = true;
+        this.notificationServiceProgressTextKey = "network.notification.service.downloading.files";
     }
 
     @Override
