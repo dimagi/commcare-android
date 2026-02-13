@@ -21,8 +21,8 @@ class NetworkNotificationService : Service() {
     companion object {
         const val NETWORK_NOTIFICATION_ID = R.string.network_notification_service_id
         var isServiceRunning = false
-        const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "UPDATE_PROGRESS"
-        const val PROGRESS_INTENT_EXTRA = "progress"
+        const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
+        const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
     }
 
     override fun onCreate() {
@@ -31,11 +31,11 @@ class NetworkNotificationService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
                 NETWORK_NOTIFICATION_ID,
-                buildNotification("network.requests.starting", 0, 0),
+                buildNotification("network.requests.starting"),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
         } else {
-            startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.requests.starting", 0, 0))
+            startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.requests.starting"))
         }
         isServiceRunning = true
     }
@@ -47,15 +47,10 @@ class NetworkNotificationService : Service() {
     ): Int {
         when (intent?.action) {
             UPDATE_PROGRESS_NOTIFICATION_ACTION -> {
-                intent
-                    .getIntArrayExtra(PROGRESS_INTENT_EXTRA)
-                    ?.takeIf { it.size >= 2 }
-                    ?.let {
-                        notificationManager.notify(
-                            NETWORK_NOTIFICATION_ID,
-                            buildNotification("network.requests.running", it[0], it[1]),
-                        )
-                    }
+                notificationManager.notify(
+                    NETWORK_NOTIFICATION_ID,
+                    buildNotification(intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA)?:"network.requests.running")
+                )
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -65,8 +60,6 @@ class NetworkNotificationService : Service() {
 
     private fun buildNotification(
         notificationTitleKey: String,
-        progress: Int,
-        total: Int,
     ): Notification {
         val activityToLaunch = Intent(this, DispatchActivity::class.java)
         activityToLaunch.setAction("android.intent.action.MAIN")
@@ -77,24 +70,13 @@ class NetworkNotificationService : Service() {
 
         return NotificationCompat
             .Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
-            .setContentText(getProgressText(progress, total))
             .setContentTitle(Localization.get(notificationTitleKey))
             .setOnlyAlertOnce(true)
-            .setProgress(total, progress, false)
             .setSmallIcon(R.drawable.commcare_actionbar_logo)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()
     }
-
-    private fun getProgressText(
-        progress: Int,
-        max: Int,
-    ): String? =
-        Localization.get(
-            "network.requests.progress",
-            arrayOf(progress.toString(), max.toString()),
-        )
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onDestroy() {

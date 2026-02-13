@@ -11,6 +11,7 @@ import org.commcare.services.NetworkNotificationService;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
 
+import static org.commcare.services.NetworkNotificationService.PROGRESS_TEXT_KEY_INTENT_EXTRA;
 import static org.commcare.services.NetworkNotificationService.UPDATE_PROGRESS_NOTIFICATION_ACTION;
 
 /**
@@ -30,6 +31,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     protected int taskId = GENERIC_TASK_ID;
     protected boolean runNotificationService = false;
+    protected String notificationServiceProgressTextKey = null;
 
     //Wait for 2 seconds for something to reconnnect for now (very high)
     private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
@@ -150,21 +152,14 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (shouldUpdateNetworkNotificationProgress(values)) {
-            CommCareApplication.instance().startService(getNotificationIntentProgress(values[0]));
+        if (NetworkNotificationService.Companion.isServiceRunning()) {
+            CommCareApplication.instance().startForegroundService(getNotificationUpdateIntent());
         }
     }
 
-    private Intent getNotificationIntentProgress(Progress value) {
+    private Intent getNotificationUpdateIntent() {
         return getNotificationIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION)
-                .putExtra("progress", (int[])value);
-    }
-
-    // Only update the notificaition progress if the Progress is of type int[], where index 0 is current and 1 is
-    // total
-    public boolean shouldUpdateNetworkNotificationProgress(Progress[] values) {
-        return (values != null && values.length > 0 && values[0] instanceof int[]) &&
-                NetworkNotificationService.Companion.isServiceRunning();
+                .putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, notificationServiceProgressTextKey);
     }
 
     /**
