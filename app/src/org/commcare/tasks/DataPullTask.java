@@ -281,7 +281,9 @@ public abstract class DataPullTask<R>
                             AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
                     attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS,
                             PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
-                    CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+                    if(trace != null) {
+                        CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+                    }
                 } catch (Exception e) {
                     Logger.exception("Failed to stop tracing ", e);
                 }
