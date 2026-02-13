@@ -9,13 +9,18 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,13 +31,18 @@ import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
+import org.commcare.views.connect.ConnectDialogCreationHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import kotlin.Unit;
 
 public class ConnectMessageFragment extends Fragment {
     private static String activeChannel;
@@ -43,6 +53,10 @@ public class ConnectMessageFragment extends Fragment {
     private static final int INTERVAL = 30000;
     private final Handler handler = new Handler(); // To post periodic tasks
 
+    private ConnectMessagingChannelRecord channel;
+    private Map<Integer, String> menuItemsAnalyticsParamsMapping;
+    private static final int MENU_UNSUBSCRIBE = Menu.FIRST;
+    private static final int MENU_SUBSCRIBE = Menu.FIRST + 1;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -52,7 +66,7 @@ public class ConnectMessageFragment extends Fragment {
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
 
-        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
         requireActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
@@ -64,8 +78,65 @@ public class ConnectMessageFragment extends Fragment {
                 handler.postDelayed(this, INTERVAL); // Schedule the next call
             }
         };
+        setupMenuItems();
 
         return binding.getRoot();
+    }
+
+    private void setupMenuItems() {
+        requireActivity().addMenuProvider(
+                new MenuProvider() {
+                    @Override
+                    public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+
+                        // TODO: Conditionally show/hide either "Unsubscribe" or "Subscribe"
+                        // TODO: Both menu items are hidden (commented out) for now.
+//                        menu.add(
+//                                Menu.NONE,
+//                                MENU_UNSUBSCRIBE,
+//                                Menu.NONE,
+//                                R.string.connect_messaging_channel_menu_item_unsubscribe
+//                        );
+//                        menu.add(
+//                                Menu.NONE,
+//                                MENU_SUBSCRIBE,
+//                                Menu.NONE,
+//                                R.string.connect_messaging_channel_menu_item_subscribe
+//                        );
+
+                        menuItemsAnalyticsParamsMapping = Map.of(
+                                MENU_UNSUBSCRIBE,
+                                AnalyticsParamValue.CONNECT_MESSAGING_CHANNEL_MENU_UNSUBSCRIBE,
+                                MENU_SUBSCRIBE,
+                                AnalyticsParamValue.CONNECT_MESSAGING_CHANNEL_MENU_SUBSCRIBE
+                        );
+                    }
+
+                    @Override
+                    public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                        int menuItemId = menuItem.getItemId();
+
+                        if (menuItemsAnalyticsParamsMapping.containsKey(menuItemId)) {
+                            FirebaseAnalyticsUtil.reportOptionsMenuItemClick(
+                                    ConnectMessageFragment.class,
+                                    menuItemsAnalyticsParamsMapping.get(menuItemId)
+                            );
+                        }
+
+                        if (menuItemId == MENU_UNSUBSCRIBE) {
+                            showUnsubscribeDialog();
+                            return true;
+                        } else if (menuItemId == MENU_SUBSCRIBE) {
+                            showSubscribeDialog();
+                            return true;
+                        }
+
+                        return false;
+                    }
+                },
+                getViewLifecycleOwner(),
+                Lifecycle.State.RESUMED
+        );
     }
 
     @Override
@@ -104,7 +175,7 @@ public class ConnectMessageFragment extends Fragment {
     };
 
     private void fetchMessagesFromNetwork() {
-        MessageManager.retrieveMessages(requireActivity(), (success,error) -> {
+        MessageManager.retrieveMessages(requireActivity(), (success, error) -> {
             if (success) {
                 refreshUi();
             } else {
@@ -176,7 +247,7 @@ public class ConnectMessageFragment extends Fragment {
         adapter.addMessage(chat);
         scrollToLatestMessage();
 
-        MessageManager.sendMessage(requireContext(), message, (success,error) -> {
+        MessageManager.sendMessage(requireContext(), message, (success, error) -> {
             if (!success) {
                 Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
             } else {
@@ -233,6 +304,69 @@ public class ConnectMessageFragment extends Fragment {
         if (adapter != null && adapter.getItemCount() > 0) {
             binding.rvChat.scrollToPosition(adapter.getItemCount() - 1);
         }
+    }
+
+    private void showUnsubscribeDialog() {
+        String titleText = getString(
+                R.string.connect_messaging_unsubscribe_dialog_title,
+                channel.getChannelName()
+        );
+        String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
+        String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
+        String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+
+        ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
+                requireContext(),
+                titleText,
+                messageText,
+                negativeButtonText,
+                () -> {
+                    // No-op
+                    return Unit.INSTANCE;
+                },
+                R.color.connect_darker_blue_color,
+                R.color.white,
+                positiveButtonText,
+                () -> {
+                    // TODO: Not implemented yet.
+                    return Unit.INSTANCE;
+                },
+                R.color.white,
+                R.color.red
+        );
+    }
+
+    private void showSubscribeDialog() {
+        String titleText = getString(
+                R.string.connect_messaging_subscribe_dialog_title,
+                channel.getChannelName()
+        );
+        String messageText = getString(
+                R.string.connect_messaging_subscribe_dialog_body,
+                channel.getChannelName()
+        );
+        String negativeButtonText = getString(R.string.connect_messaging_subscribe_dialog_cancel);
+        String positiveButtonText = getString(R.string.connect_messaging_subscribe_dialog_subscribe);
+
+        ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
+                requireContext(),
+                titleText,
+                messageText,
+                negativeButtonText,
+                () -> {
+                    // No-op
+                    return Unit.INSTANCE;
+                },
+                R.color.connect_darker_blue_color,
+                R.color.white,
+                positiveButtonText,
+                () -> {
+                    // TODO: Not implemented yet.
+                    return Unit.INSTANCE;
+                },
+                R.color.white,
+                R.color.connect_blue_color
+        );
     }
 }
 
