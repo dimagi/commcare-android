@@ -68,6 +68,11 @@ class NetworkNotificationService : Service() {
         startId: Int,
     ): Int {
         when (intent?.action) {
+            START_NOTIFICATION_ACTION -> {
+                intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1).let { taskId ->
+                    registerTaskId(taskId, false)
+                }
+            }
             UPDATE_PROGRESS_NOTIFICATION_ACTION -> {
                 intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1).let { taskId ->
                     registerTaskId(taskId, true)
@@ -76,6 +81,11 @@ class NetworkNotificationService : Service() {
                     NETWORK_NOTIFICATION_ID,
                     buildNotification(intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA)?:"network.requests.running")
                 )
+            }
+            STOP_NOTIFICATION_ACTION -> {
+                intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1).let { taskId ->
+                    removeTaskId(taskId)
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId)
