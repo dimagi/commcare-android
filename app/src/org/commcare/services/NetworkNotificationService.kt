@@ -30,9 +30,9 @@ class NetworkNotificationService : Service() {
         const val NETWORK_NOTIFICATION_ID = R.string.network_notification_service_id
         var isServiceRunning = false
         const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
-        const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
         const val STOP_NOTIFICATION_ACTION = "stop_notification"
         const val START_NOTIFICATION_ACTION = "start_notification"
+        const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
         const val TASK_ID_INTENT_EXTRA = "task_id"
     }
 

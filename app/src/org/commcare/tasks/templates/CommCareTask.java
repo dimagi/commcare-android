@@ -170,8 +170,11 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     }
 
     private Intent getNotificationUpdateIntent() {
-        return getNetworkServiceBaseIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION)
-                .putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, notificationServiceProgressTextKey);
+        Intent intent = getNetworkServiceBaseIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION);
+        if (notificationServiceProgressTextKey != null) {
+            intent.putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, notificationServiceProgressTextKey);
+        }
+        return intent;
     }
 
     /**
