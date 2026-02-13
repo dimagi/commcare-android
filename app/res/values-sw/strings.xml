@@ -447,7 +447,7 @@
     <string name="connect_messaging_subscribe_dialog_subscribe">Jiandikishe</string>
     <string name="connect_messaging_subscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_unsubscribe_dialog_title">Acha kufuata %s</string>
-    <string name="connect_messaging_unsubscribe_dialog_body">Tem certeza de que deseja anular a subscrição deste canal? Não receberá mais mensagens desta oportunidade.</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Je, una uhakika unataka kuacha kufuata kituo hiki? Hutapokea tena ujumbe kutoka kwa fursa hii.</string>
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Acha kufuata</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_channel_unsubscribe_error">Imeshindwa kuacha kufuata</string>
