@@ -86,9 +86,10 @@ class ConnectDialogCreationHelper {
             dialogView.findViewById<MaterialButton>(R.id.mb_negative_button).apply {
                 text = negativeButtonText
                 setTextColor(ContextCompat.getColor(context, negativeButtonTextColorRes))
-                backgroundTintList = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, negativeButtonBackgroundColorRes),
-                )
+                backgroundTintList =
+                    ColorStateList.valueOf(
+                        ContextCompat.getColor(context, negativeButtonBackgroundColorRes),
+                    )
                 setOnClickListener {
                     dialog.dismiss()
                     negativeButtonCallback()
@@ -99,9 +100,10 @@ class ConnectDialogCreationHelper {
             dialogView.findViewById<MaterialButton>(R.id.mb_positive_button).apply {
                 text = positiveButtonText
                 setTextColor(ContextCompat.getColor(context, positiveButtonTextColorRes))
-                backgroundTintList = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, positiveButtonBackgroundColorRes),
-                )
+                backgroundTintList =
+                    ColorStateList.valueOf(
+                        ContextCompat.getColor(context, positiveButtonBackgroundColorRes),
+                    )
                 setOnClickListener {
                     dialog.dismiss()
                     positiveButtonCallback()
