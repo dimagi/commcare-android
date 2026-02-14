@@ -1,8 +1,8 @@
 package org.commcare.connect;
 
+import static org.commcare.connect.ConnectConstants.MAX_MESSAGE_LENGTH;
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
@@ -12,6 +12,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.utils.PushNotificationApiHelper;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -103,5 +104,16 @@ public class MessageManager {
         } else {
             Logger.log("Messaging", "Tried to send message but no encryption key");
         }
+    }
+
+    public static String truncateLongString(String message, @NotNull String type) {
+        if (message.length() > MAX_MESSAGE_LENGTH) {
+            Logger.log(type, "Received " + type + " exceeded max length. Length=" + message.length());
+            return message.substring(0, MAX_MESSAGE_LENGTH);
+        } else {
+            Logger.log(type, "Received " + type + " length=" + message.length());
+        }
+
+        return message;
     }
 }
