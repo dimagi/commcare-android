@@ -1,6 +1,8 @@
 package org.commcare.fragments.personalId
 
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.dalvik.R
@@ -8,15 +10,12 @@ import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 abstract class BasePersonalIdFragment : Fragment() {
-
-    fun handleCommonSignupFailures(
-        failureCode: PersonalIdOrConnectApiErrorCodes
-    ): Boolean {
-        return when (failureCode) {
+    fun handleCommonSignupFailures(failureCode: PersonalIdOrConnectApiErrorCodes): Boolean =
+        when (failureCode) {
             PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR -> {
                 onConfigurationFailure(
                     AnalyticsParamValue.START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE,
-                    getString(R.string.personalid_configuration_locked_account)
+                    getString(R.string.personalid_configuration_locked_account),
                 )
                 true
             }
@@ -24,24 +23,28 @@ abstract class BasePersonalIdFragment : Fragment() {
                 false
             }
         }
-    }
 
-    protected fun onConfigurationFailure(failureCause: String, errorMessage: String) {
+    protected fun onConfigurationFailure(
+        failureCause: String,
+        errorMessage: String,
+    ) {
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause)
         navigateToMessageDisplay(
             getString(R.string.personalid_configuration_process_failed_title),
             errorMessage,
             false,
             ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED,
-            R.string.ok
+            R.string.ok,
         )
     }
+
+    protected open fun getNavController(): NavController = NavHostFragment.findNavController(this)
 
     protected abstract fun navigateToMessageDisplay(
         title: String,
         message: String?,
         isCancellable: Boolean,
         phase: Int,
-        buttonText: Int
+        buttonText: Int,
     )
 }
