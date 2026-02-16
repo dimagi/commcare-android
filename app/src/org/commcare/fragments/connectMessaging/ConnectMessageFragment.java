@@ -56,7 +56,7 @@ public class ConnectMessageFragment extends Fragment {
     private ConnectMessagingChannelRecord channel;
     private Map<Integer, String> menuItemsAnalyticsParamsMapping;
     private static final int MENU_UNSUBSCRIBE = Menu.FIRST;
-    private static final int MENU_SUBSCRIBE = Menu.FIRST + 1;
+    private static final int MENU_RESUBSCRIBE = Menu.FIRST + 1;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -89,7 +89,7 @@ public class ConnectMessageFragment extends Fragment {
                     @Override
                     public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 
-                        // TODO: Conditionally show/hide either "Unsubscribe" or "Subscribe"
+                        // TODO: Conditionally show/hide either "Unsubscribe" or "Resubscribe"
                         // TODO: Both menu items are hidden (commented out) for now.
 //                        menu.add(
 //                                Menu.NONE,
@@ -97,18 +97,18 @@ public class ConnectMessageFragment extends Fragment {
 //                                Menu.NONE,
 //                                R.string.connect_messaging_channel_menu_item_unsubscribe
 //                        );
-//                        menu.add(
-//                                Menu.NONE,
-//                                MENU_SUBSCRIBE,
-//                                Menu.NONE,
-//                                R.string.connect_messaging_channel_menu_item_subscribe
-//                        );
+                        menu.add(
+                                Menu.NONE,
+                                MENU_RESUBSCRIBE,
+                                Menu.NONE,
+                                R.string.connect_messaging_channel_menu_item_resubscribe
+                        );
 
                         menuItemsAnalyticsParamsMapping = Map.of(
                                 MENU_UNSUBSCRIBE,
                                 AnalyticsParamValue.CONNECT_MESSAGING_CHANNEL_MENU_UNSUBSCRIBE,
-                                MENU_SUBSCRIBE,
-                                AnalyticsParamValue.CONNECT_MESSAGING_CHANNEL_MENU_SUBSCRIBE
+                                MENU_RESUBSCRIBE,
+                                AnalyticsParamValue.CONNECT_MESSAGING_CHANNEL_MENU_RESUBSCRIBE
                         );
                     }
 
@@ -126,8 +126,8 @@ public class ConnectMessageFragment extends Fragment {
                         if (menuItemId == MENU_UNSUBSCRIBE) {
                             showUnsubscribeDialog();
                             return true;
-                        } else if (menuItemId == MENU_SUBSCRIBE) {
-                            showSubscribeDialog();
+                        } else if (menuItemId == MENU_RESUBSCRIBE) {
+                            showResubscribeDialog();
                             return true;
                         }
 
@@ -336,17 +336,17 @@ public class ConnectMessageFragment extends Fragment {
         );
     }
 
-    private void showSubscribeDialog() {
+    private void showResubscribeDialog() {
         String titleText = getString(
-                R.string.connect_messaging_subscribe_dialog_title,
+                R.string.connect_messaging_resubscribe_dialog_title,
                 channel.getChannelName()
         );
         String messageText = getString(
-                R.string.connect_messaging_subscribe_dialog_body,
+                R.string.connect_messaging_resubscribe_dialog_body,
                 channel.getChannelName()
         );
-        String negativeButtonText = getString(R.string.connect_messaging_subscribe_dialog_cancel);
-        String positiveButtonText = getString(R.string.connect_messaging_subscribe_dialog_subscribe);
+        String negativeButtonText = getString(R.string.connect_messaging_resubscribe_dialog_cancel);
+        String positiveButtonText = getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
 
         ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
                 requireContext(),
