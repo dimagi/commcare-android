@@ -331,7 +331,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         selectedAppIndex = -1;
         uiController.refreshView();
 
-        if(shouldDoConnectLogin() && !seatAppIfNeeded(presetAppId)) {
+        // if the app is already seated, we can login immediately
+        if(shouldDoConnectLogin() && isAppSeated(presetAppId)) {
             connectLaunchPerformed = true;
             initiateLoginAttempt(uiController.isRestoreSessionChecked());
         }
@@ -962,7 +963,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     protected boolean seatAppIfNeeded(String appId) {
-        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+        boolean selectedNewApp = !isAppSeated(appId);
         if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -974,6 +975,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
         return selectedNewApp;
+    }
+
+    private boolean isAppSeated(String appId) {
+        return appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
     }
 
     protected void evaluateConnectAppState() {
