@@ -182,6 +182,16 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     private void setupKeyboardScrollListener() {
         WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), false);
+
+        View appBar = activity.findViewById(R.id.include_tool_bar);
+        if (appBar != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
+                int topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+                v.setPadding(0, topInset, 0, 0);
+                return insets;
+            });
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, (v, insets) -> {
             Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
             Insets systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -191,12 +201,17 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 binding.scrollView.post(() ->
                         binding.scrollView.smoothScrollTo(0, binding.scrollView.getChildAt(0).getBottom()));
             }
-            return WindowInsetsCompat.CONSUMED;
+            return insets;
         });
     }
 
     private void destroyKeyboardScrollListener() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, null);
+        View appBar = activity.findViewById(R.id.include_tool_bar);
+        if (appBar != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(appBar, null);
+            appBar.setPadding(0, 0, 0, 0);
+        }
         WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), true);
     }
 
