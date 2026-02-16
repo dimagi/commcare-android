@@ -12,6 +12,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -80,6 +81,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
     private String playServicesError;
     private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
+    private ViewTreeObserver.OnGlobalLayoutListener layoutListener;
 
 
 
@@ -147,6 +149,8 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void onDestroyView() {
         super.onDestroyView();
         locationController.destroy();
+        destroyKeyboardScrollListener();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
     private void checkGooglePlayServices() {
@@ -179,10 +183,20 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     private void setupKeyboardScrollListener() {
         View rootView = binding.getRoot();
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+        layoutListener = () -> {
             binding.scrollView.post(() ->
                     binding.scrollView.smoothScrollTo(0, binding.scrollView.getChildAt(0).getBottom()));
-        });
+        };
+
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+    }
+
+    private void destroyKeyboardScrollListener() {
+        if(layoutListener != null) {
+            View rootView = binding.getRoot();
+            rootView.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
+            layoutListener = null;
+        }
     }
 
     private void setupListeners() {
