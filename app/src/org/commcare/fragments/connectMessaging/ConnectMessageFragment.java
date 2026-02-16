@@ -34,7 +34,7 @@ import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
-import org.commcare.views.connect.ConnectDialogCreationHelper;
+import org.commcare.views.dialogs.CustomThreeButtonAlertDialog;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -315,8 +315,7 @@ public class ConnectMessageFragment extends Fragment {
         String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
         String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
 
-        ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
-                requireContext(),
+        CustomThreeButtonAlertDialog dialog = new CustomThreeButtonAlertDialog(
                 titleText,
                 messageText,
                 negativeButtonText,
@@ -334,6 +333,9 @@ public class ConnectMessageFragment extends Fragment {
                 R.color.white,
                 R.color.red
         );
+
+        dialog.showNonPersistentDialog(requireContext());
+        dialog.setWindowBackgroundTransparent();
     }
 
     private void showResubscribeDialog() {
@@ -348,8 +350,7 @@ public class ConnectMessageFragment extends Fragment {
         String negativeButtonText = getString(R.string.connect_messaging_resubscribe_dialog_cancel);
         String positiveButtonText = getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
 
-        ConnectDialogCreationHelper.Companion.showCustomConnectDialog(
-                requireContext(),
+        CustomThreeButtonAlertDialog dialog = new CustomThreeButtonAlertDialog(
                 titleText,
                 messageText,
                 negativeButtonText,
@@ -367,6 +368,9 @@ public class ConnectMessageFragment extends Fragment {
                 R.color.white,
                 R.color.connect_blue_color
         );
+
+        dialog.showNonPersistentDialog(requireContext());
+        dialog.setWindowBackgroundTransparent();
     }
 }
 
