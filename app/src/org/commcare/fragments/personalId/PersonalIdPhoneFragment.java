@@ -20,10 +20,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -149,7 +145,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void onDestroyView() {
         super.onDestroyView();
         locationController.destroy();
-        destroyKeyboardScrollListener();
+        destroyKeyboardScrollListener(binding.scrollView);
     }
 
     private void checkGooglePlayServices() {
@@ -175,44 +171,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private void initializeUi() {
         binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
-        setupKeyboardScrollListener();
+        setupKeyboardScrollListener(binding.scrollView);
         setupListeners();
         updateContinueButtonState();
-    }
-
-    private void setupKeyboardScrollListener() {
-        WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), false);
-
-        View appBar = activity.findViewById(R.id.include_tool_bar);
-        if (appBar != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
-                int topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-                v.setPadding(0, topInset, 0, 0);
-                return insets;
-            });
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, (v, insets) -> {
-            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
-            Insets systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            int bottomInset = Math.max(imeInsets.bottom, systemBarInsets.bottom);
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
-            if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
-                binding.scrollView.post(() ->
-                        binding.scrollView.smoothScrollTo(0, binding.scrollView.getChildAt(0).getBottom()));
-            }
-            return insets;
-        });
-    }
-
-    private void destroyKeyboardScrollListener() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, null);
-        View appBar = activity.findViewById(R.id.include_tool_bar);
-        if (appBar != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(appBar, null);
-            appBar.setPadding(0, 0, 0, 0);
-        }
-        WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), true);
     }
 
     private void setupListeners() {
