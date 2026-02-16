@@ -5,6 +5,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import org.commcare.CommCareApplication
 import org.commcare.util.LogTypes
+import org.commcare.utils.SessionUnavailableException
 import org.javarosa.core.services.Logger
 import java.io.IOException
 import java.lang.IllegalStateException
@@ -18,8 +19,10 @@ class HeartbeatWorker(context: Context, workerParams: WorkerParameters):
     private val requester = CommCareApplication.instance().heartbeatRequester
     override fun doWork(): Result {
         try {
-            if (CommCareApplication.instance().session.isActive &&
-                    !CommCareApplication.instance().session.heartbeatSucceededForSession()) {
+            if (!CommCareApplication.isSessionActive()) {
+                return Result.failure()
+            }
+            if (!CommCareApplication.instance().session.heartbeatSucceededForSession()) {
                 requester.makeRequest()
             }
         } catch (e: Exception) {
