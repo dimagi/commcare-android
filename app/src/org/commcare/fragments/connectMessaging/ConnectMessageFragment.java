@@ -97,12 +97,12 @@ public class ConnectMessageFragment extends Fragment {
 //                                Menu.NONE,
 //                                R.string.connect_messaging_channel_menu_item_unsubscribe
 //                        );
-                        menu.add(
-                                Menu.NONE,
-                                MENU_RESUBSCRIBE,
-                                Menu.NONE,
-                                R.string.connect_messaging_channel_menu_item_resubscribe
-                        );
+//                        menu.add(
+//                                Menu.NONE,
+//                                MENU_RESUBSCRIBE,
+//                                Menu.NONE,
+//                                R.string.connect_messaging_channel_menu_item_resubscribe
+//                        );
 
                         menuItemsAnalyticsParamsMapping = Map.of(
                                 MENU_UNSUBSCRIBE,
