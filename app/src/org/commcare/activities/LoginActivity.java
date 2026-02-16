@@ -1003,18 +1003,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
-        if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
-            return true;
-        }
-
-        initPersonaIdManager();
-        boolean showDrawer = personalIdManager.isloggedIn();
-
-        if(showDrawer) {
-            NavDrawerHelper.INSTANCE.setDrawerShown();
-        }
-
-        return showDrawer;
+        return shouldShowDrawerAfterCheck();
     }
 
     @Override
