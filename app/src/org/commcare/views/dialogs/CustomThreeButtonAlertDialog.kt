@@ -39,7 +39,6 @@ class CustomThreeButtonAlertDialog(
     @ColorRes private val positiveButtonTextColorRes: Int,
     @ColorRes private val positiveButtonBackgroundColorRes: Int,
 ) : CommCareAlertDialog() {
-
     override fun initView(context: Context) {
         val inflater = LayoutInflater.from(context)
         val binding = CustomThreeButtonAlertDialogBinding.inflate(inflater)
