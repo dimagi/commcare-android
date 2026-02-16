@@ -54,8 +54,4 @@ public class ConnectConstants {
     public final static String NOTIFICATION_CHANNEL_ID = "channel";
     public final static String PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME =
             "payment_confirmation_hidden_since_time";
-    public static final int MAX_MESSAGE_LENGTH = 65535;
-    public final static String MESSAGE_NOTIFICATION_TITLE = "notification_title";
-    public final static String NOTIFICATION = "notification";
-    public final static String MESSAGE = "message";
 }
