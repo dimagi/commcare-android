@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import com.google.firebase.perf.metrics.Trace;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntityLoadingProgressListener;
@@ -12,11 +13,13 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.templates.ManagedAsyncTask;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +82,27 @@ public class EntityLoaderTask
             Logger.exception("Error during EntityLoaderTask: " + ForceCloseLogger.getStackTrace(xe), xe);
             mException = xe;
             return null;
+        } catch (RuntimeException e) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Loading entities failed for " + getSessionShortDetail() +
+                    "; session expiring at: " + getSessionExpirationTime());
+            throw e;
         }
+    }
+
+    private Date getSessionExpirationTime() {
+        if (CommCareApplication.isSessionActive()) {
+            try {
+                return CommCareApplication.instance().getSession().getSessionExpireDate();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private String getSessionShortDetail() {
+        return (entityLoaderHelper != null && entityLoaderHelper.getSessionDatum() != null) ?
+                entityLoaderHelper.getSessionDatum().getShortDetail() : "null";
     }
 
     @Override
