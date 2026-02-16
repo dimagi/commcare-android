@@ -12,8 +12,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,6 +20,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -81,7 +83,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
     private String playServicesError;
     private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
-    private ViewTreeObserver.OnGlobalLayoutListener layoutListener;
 
 
 
@@ -96,7 +97,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         activity = requireActivity();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class);
         locationController = CommCareLocationControllerFactory.getLocationController(requireActivity(), this);
@@ -150,7 +150,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         super.onDestroyView();
         locationController.destroy();
         destroyKeyboardScrollListener();
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
     private void checkGooglePlayServices() {
@@ -182,21 +181,23 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void setupKeyboardScrollListener() {
-        View rootView = binding.getRoot();
-        layoutListener = () -> {
-            binding.scrollView.post(() ->
-                    binding.scrollView.smoothScrollTo(0, binding.scrollView.getChildAt(0).getBottom()));
-        };
-
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+        WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), false);
+        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, (v, insets) -> {
+            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+            Insets systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            int bottomInset = Math.max(imeInsets.bottom, systemBarInsets.bottom);
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
+            if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                binding.scrollView.post(() ->
+                        binding.scrollView.smoothScrollTo(0, binding.scrollView.getChildAt(0).getBottom()));
+            }
+            return WindowInsetsCompat.CONSUMED;
+        });
     }
 
     private void destroyKeyboardScrollListener() {
-        if(layoutListener != null) {
-            View rootView = binding.getRoot();
-            rootView.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
-            layoutListener = null;
-        }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, null);
+        WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), true);
     }
 
     private void setupListeners() {
