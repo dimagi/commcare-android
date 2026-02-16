@@ -43,8 +43,10 @@ public class AnalyticsParamValue {
     public static final String LOGIN_MENU_APP_MANAGER = "login_menu_app_manager";
     public static final String LOGIN_MENU_PERSONAL_ID_SIGN_IN = "login_menu_personal_id_sign_in";
     public static final String LOGIN_MENU_PERSONAL_ID_FORGET = "login_menu_personal_id_forget";
-    public static final String CONNECT_MESSAGING_CHANNEL_MENU_UNSUBSCRIBE = "connect_messaging_channel_menu_unsubscribe";
-    public static final String CONNECT_MESSAGING_CHANNEL_MENU_RESUBSCRIBE = "connect_messaging_channel_menu_resubscribe";
+    public static final String CONNECT_MESSAGING_CHANNEL_MENU_UNSUBSCRIBE =
+            "connect_messaging_channel_menu_unsubscribe";
+    public static final String CONNECT_MESSAGING_CHANNEL_MENU_RESUBSCRIBE =
+            "connect_messaging_channel_menu_resubscribe";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
