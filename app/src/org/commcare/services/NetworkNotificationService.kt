@@ -27,7 +27,7 @@ class NetworkNotificationService : Service() {
     lateinit var notificationManager: NotificationManager
 
     companion object {
-        const val NETWORK_NOTIFICATION_ID = R.string.network_notification_service_id
+        const val NETWORK_NOTIFICATION_ID = "network_notification_service_id"
         var isServiceRunning = false
         const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
         const val STOP_NOTIFICATION_ACTION = "stop_notification"
@@ -45,12 +45,12 @@ class NetworkNotificationService : Service() {
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
-                NETWORK_NOTIFICATION_ID,
+                NETWORK_NOTIFICATION_ID.hashCode(),
                 buildNotification("network.notification.service.starting"),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
         } else {
-            startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.notification.service.starting"))
+            startForeground(NETWORK_NOTIFICATION_ID.hashCode(), buildNotification("network.notification.service.starting"))
         }
         serviceScope.launch {
             taskIds.collect { list ->
@@ -78,7 +78,7 @@ class NetworkNotificationService : Service() {
                     registerTaskId(taskId, true)
                 }
                 notificationManager.notify(
-                    NETWORK_NOTIFICATION_ID,
+                    NETWORK_NOTIFICATION_ID.hashCode(),
                     buildNotification(
                         intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA) ?: "network.notification.service.running",
                     ),
