@@ -12,7 +12,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -94,7 +93,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         activity = requireActivity();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class);
         locationController = CommCareLocationControllerFactory.getLocationController(requireActivity(), this);
@@ -147,6 +145,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void onDestroyView() {
         super.onDestroyView();
         locationController.destroy();
+        destroyKeyboardScrollListener(binding.scrollView);
     }
 
     private void checkGooglePlayServices() {
@@ -172,6 +171,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private void initializeUi() {
         binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
+        setupKeyboardScrollListener(binding.scrollView);
         setupListeners();
         updateContinueButtonState();
     }
