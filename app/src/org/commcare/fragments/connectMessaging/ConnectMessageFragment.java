@@ -88,7 +88,6 @@ public class ConnectMessageFragment extends Fragment {
                 new MenuProvider() {
                     @Override
                     public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-
                         // TODO: Conditionally show/hide either "Unsubscribe" or "Resubscribe"
                         // TODO: Both menu items are hidden (commented out) for now.
 //                        menu.add(
@@ -123,11 +122,8 @@ public class ConnectMessageFragment extends Fragment {
                             );
                         }
 
-                        if (menuItemId == MENU_UNSUBSCRIBE) {
-                            showUnsubscribeDialog();
-                            return true;
-                        } else if (menuItemId == MENU_RESUBSCRIBE) {
-                            showResubscribeDialog();
+                        if (menuItemId == MENU_UNSUBSCRIBE || menuItemId == MENU_RESUBSCRIBE) {
+                            showDialogForMenuItem(menuItemId);
                             return true;
                         }
 
@@ -306,68 +302,71 @@ public class ConnectMessageFragment extends Fragment {
         }
     }
 
-    private void showUnsubscribeDialog() {
-        String titleText = getString(
-                R.string.connect_messaging_unsubscribe_dialog_title,
-                channel.getChannelName()
-        );
-        String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
-        String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
-        String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+    private void showDialogForMenuItem(int menuItemId) {
+        CustomThreeButtonAlertDialog dialog = null;
 
-        CustomThreeButtonAlertDialog dialog = new CustomThreeButtonAlertDialog(
-                titleText,
-                messageText,
-                negativeButtonText,
-                () -> {
-                    // No-op
-                    return Unit.INSTANCE;
-                },
-                R.color.connect_darker_blue_color,
-                R.color.white,
-                positiveButtonText,
-                () -> {
-                    // TODO: Not implemented yet.
-                    return Unit.INSTANCE;
-                },
-                R.color.white,
-                R.color.red
-        );
+        if (menuItemId == MENU_UNSUBSCRIBE) {
+            String titleText = getString(
+                    R.string.connect_messaging_unsubscribe_dialog_title,
+                    channel.getChannelName()
+            );
+            String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
+            String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
+            String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
 
-        dialog.showNonPersistentDialog(requireContext());
-        dialog.setWindowBackgroundTransparent();
-    }
+            dialog = new CustomThreeButtonAlertDialog(
+                    titleText,
+                    messageText,
+                    negativeButtonText,
+                    () -> {
+                        // No-op
+                        return Unit.INSTANCE;
+                    },
+                    R.color.connect_darker_blue_color,
+                    R.color.white,
+                    positiveButtonText,
+                    () -> {
+                        // TODO: Not implemented yet.
+                        return Unit.INSTANCE;
+                    },
+                    R.color.white,
+                    R.color.red
+            );
+        } else if (menuItemId == MENU_RESUBSCRIBE) {
+            String titleText = getString(
+                    R.string.connect_messaging_resubscribe_dialog_title,
+                    channel.getChannelName()
+            );
+            String messageText = getString(
+                    R.string.connect_messaging_resubscribe_dialog_body,
+                    channel.getChannelName()
+            );
+            String negativeButtonText = getString(R.string.connect_messaging_resubscribe_dialog_cancel);
+            String positiveButtonText = getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
 
-    private void showResubscribeDialog() {
-        String titleText = getString(
-                R.string.connect_messaging_resubscribe_dialog_title,
-                channel.getChannelName()
-        );
-        String messageText = getString(
-                R.string.connect_messaging_resubscribe_dialog_body,
-                channel.getChannelName()
-        );
-        String negativeButtonText = getString(R.string.connect_messaging_resubscribe_dialog_cancel);
-        String positiveButtonText = getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
+            dialog = new CustomThreeButtonAlertDialog(
+                    titleText,
+                    messageText,
+                    negativeButtonText,
+                    () -> {
+                        // No-op
+                        return Unit.INSTANCE;
+                    },
+                    R.color.connect_darker_blue_color,
+                    R.color.white,
+                    positiveButtonText,
+                    () -> {
+                        // TODO: Not implemented yet.
+                        return Unit.INSTANCE;
+                    },
+                    R.color.white,
+                    R.color.connect_blue_color
+            );
+        }
 
-        CustomThreeButtonAlertDialog dialog = new CustomThreeButtonAlertDialog(
-                titleText,
-                messageText,
-                negativeButtonText,
-                () -> {
-                    // No-op
-                    return Unit.INSTANCE;
-                },
-                R.color.connect_darker_blue_color,
-                R.color.white,
-                positiveButtonText,
-                () -> {
-                    // TODO: Not implemented yet.
-                    return Unit.INSTANCE;
-                },
-                R.color.white,
-                R.color.connect_blue_color
-        );
+        if (dialog == null) {
+            throw new IllegalStateException("Attempted to show alert dialog for an unsupported menu item!");
+        }
 
         dialog.showNonPersistentDialog(requireContext());
         dialog.setWindowBackgroundTransparent();
