@@ -113,8 +113,12 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:34.8.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging'
-    implementation 'com.google.firebase:firebase-perf'
-    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation('com.google.firebase:firebase-perf') {
+        exclude group: 'com.google.firebase', module: 'firebase-sessions'
+    }
+    implementation('com.google.firebase:firebase-crashlytics') {
+        exclude group: 'com.google.firebase', module: 'firebase-sessions'
+    }
     
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation('com.github.bumptech.glide:glide:4.9.0') {
@@ -150,7 +154,7 @@ dependencies {
     implementation 'io.michaelrocks:libphonenumber-android:8.13.11'
     implementation 'com.nulab-inc:zxcvbn:1.7.0'
     // Dependency required for API desugaring
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_minimal:2.1.5'
     implementation 'com.google.android.gms:play-services-auth:21.3.0'
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
