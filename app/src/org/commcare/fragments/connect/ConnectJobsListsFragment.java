@@ -261,7 +261,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ) {
         return new ConnectLoginJobListModel(
                 job.getTitle(),
-                job.getJobUUID(),   //  TODO check the implication here
+                job.getJobUUID(),
                 getAppIdForType(job, jobType),
                 job.getProjectEndDate(),
                 getDescriptionForType(job, jobType),

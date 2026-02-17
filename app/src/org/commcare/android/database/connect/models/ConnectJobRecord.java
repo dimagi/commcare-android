@@ -712,9 +712,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return newRecord;
     }
 
-
-
-
     public boolean deliveryComplete() {
         return isFinished() || getDeliveries().size() >= getMaxVisits();
     }
