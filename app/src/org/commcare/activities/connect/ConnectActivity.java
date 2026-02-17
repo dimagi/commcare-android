@@ -1,7 +1,12 @@
 package org.commcare.activities.connect;
 
+import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
+import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
@@ -157,6 +162,17 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
                     redirectionAction,
                     notificationId
             );
+        }
+
+        if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction)) {
+            String paymentId = getIntent().getStringExtra(PAYMENT_ID);  //TODO change to payment_uuid in another PR
+            if (!TextUtils.isEmpty(paymentId) && job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+                redirectionAction = CCC_DEST_PAYMENTS;  //  Generic push notification was for payment related
+            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING){
+                redirectionAction = CCC_DEST_DELIVERY_PROGRESS; //  Generic push notification was for delivery related
+            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_LEARNING){
+                redirectionAction = CCC_DEST_LEARN_PROGRESS;    // Generic push notification was for learning related
+            }
         }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));

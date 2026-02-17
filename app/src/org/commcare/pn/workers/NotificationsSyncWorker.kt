@@ -53,6 +53,7 @@ class NotificationsSyncWorker(
             SYNC_PERSONALID_NOTIFICATIONS,
             SYNC_DELIVERY_PROGRESS,
             SYNC_LEARNING_PROGRESS,
+            SYNC_GENERIC_OPPORTUNITY
         }
     }
 
@@ -111,6 +112,10 @@ class NotificationsSyncWorker(
 
             SyncAction.SYNC_LEARNING_PROGRESS -> {
                 if (cccCheckPassed(appContext)) syncLearningProgress() else getFailedResponseWithoutRetry()
+            }
+
+            SyncAction.SYNC_GENERIC_OPPORTUNITY -> {
+                if (cccCheckPassed(appContext)) syncLearnOrDeliveryProgress() else getFailedResponseWithoutRetry()
             }
         }
 
@@ -174,6 +179,34 @@ class NotificationsSyncWorker(
             ConnectJobHelper.updateLearningProgress(
                 appContext,
                 job,
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        continuation.resume(PNApiResponseStatus(success, !success))
+                    }
+                },
+            )
+        }
+    }
+
+    private suspend fun syncLearnOrDeliveryProgress(): PNApiResponseStatus {
+        val job = getConnectJob()
+        if (job == null) {
+            Logger.exception(
+                "WorkRequest Failed to complete the task for -$syncAction as connect job not found",
+                Throwable("WorkRequest Failed for $syncAction as connect job not found"),
+            )
+            return getFailedResponseWithoutRetry()
+        }
+        return suspendCoroutine { continuation ->
+
+            ConnectJobHelper.updateJobProgress(
+                appContext,
+                job,
+                false,
+                null,
                 object : ConnectActivityCompleteListener {
                     override fun connectActivityComplete(
                         success: Boolean,

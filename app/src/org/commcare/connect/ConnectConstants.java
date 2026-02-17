@@ -24,6 +24,7 @@ public class ConnectConstants {
     public static final String CCC_MESSAGE = "ccc_message";
     public static final String CCC_PAYMENT_INFO_CONFIRMATION = "ccc_payment_info_confirmation";
     public static final String CCC_PAYMENT_INFO_CONFIRMATION_STATUS = "confirmation_status";
+    public static final String CCC_GENERIC_OPPORTUNITY = "ccc_generic_opportunity";
     public static final String REDIRECT_ACTION = "action";
     public static final String GO_TO_JOB_STATUS = "go_to_job_status";
     public static final String SHOW_LAUNCH_BUTTON = "show_launch_button";
