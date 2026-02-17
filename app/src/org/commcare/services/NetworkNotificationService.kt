@@ -46,11 +46,11 @@ class NetworkNotificationService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
                 NETWORK_NOTIFICATION_ID,
-                buildNotification("network.requests.starting"),
+                buildNotification("network.notification.service.starting"),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
         } else {
-            startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.requests.starting"))
+            startForeground(NETWORK_NOTIFICATION_ID, buildNotification("network.notification.service.starting"))
         }
         serviceScope.launch {
             taskIds.collect { list ->
@@ -80,7 +80,7 @@ class NetworkNotificationService : Service() {
                 notificationManager.notify(
                     NETWORK_NOTIFICATION_ID,
                     buildNotification(
-                        intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA) ?: "network.requests.running",
+                        intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA) ?: "network.notification.service.running",
                     ),
                 )
             }
