@@ -1,35 +1,35 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.connect.ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -66,7 +66,6 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
             //First, need to tell Connect we're starting learning so it can create a user on HQ
             startLearning(appInstalled);
         });
-
         setupJobCard(job);
         return view;
     }
@@ -119,7 +118,17 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                String error = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
+                if (PersonalIdOrConnectApiErrorHandler.isNetworkError(errorCode)) {
+                    showError(getString(R.string.failed_to_start_learning));
+                } else {
+                    navigateToMessageDisplayDialog(
+                            getString(R.string.error),
+                            error,
+                            false,
+                            R.string.ok);
+                    hideError();
+                }
                 reportApiCall(false);
             }
 
@@ -129,6 +138,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                 ConnectJobUtils.upsertJob(getContext(), job);
+
+                if (!isAdded()) {
+                    return;
+                }
 
                 if (appInstalled) {
                     ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true,
@@ -153,5 +166,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     @Override
     protected @NotNull FragmentConnectJobIntroBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectJobIntroBinding.inflate(inflater, container, false);
+    }
+    private void navigateToMessageDisplayDialog(@Nullable String title, @Nullable String message, boolean isCancellable, int buttonText) {
+        NavDirections navDirections = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
+                title, message,getString(buttonText),null).setIsCancellable(isCancellable);
+        NavHostFragment.findNavController(this).navigate(navDirections);
     }
 }

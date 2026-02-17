@@ -1,14 +1,15 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
-
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
@@ -32,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 public class ConnectLearningProgressFragment extends ConnectJobFragment<FragmentConnectLearningProgressBinding>
         implements RefreshableFragment {
@@ -76,7 +79,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void refreshLearningData() {
-        ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, success -> {
+        ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, (success,error) -> {
             if (success && isAdded()) {
                 updateLearningUI();
             } else if (!success && isAdded()) {
@@ -178,18 +181,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private void configureGoToAssessmentButton() {
         getBinding().connectLearningButton.setText(getString(R.string.connect_learn_go_to_assessment));
-        getBinding().connectLearningButton.setOnClickListener(v -> {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
-        });
+        getBinding().connectLearningButton.setOnClickListener(v -> navigateToLearnAppHome());
     }
 
     private void configureLaunchLearningButton() {
         getBinding().connectLearningButton.setText(getString(R.string.connect_learn_continue));
-        getBinding().connectLearningButton.setOnClickListener(v -> {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
-        });
+        getBinding().connectLearningButton.setOnClickListener(v -> navigateToLearnAppHome());
     }
 
     private void configureDownloadButton() {
@@ -242,15 +239,40 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
-        jobCard.connectJobEndDate.setText(
-                getString(R.string.connect_learn_complete_by,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
+
+        @StringRes int dateMessageStringRes;
+        if (job.deliveryComplete()) {
+            dateMessageStringRes = R.string.connect_job_ended;
+        } else {
+            dateMessageStringRes = R.string.connect_learn_complete_by;
+        }
+
+        jobCard.connectJobEndDateSubHeading.setText(
+                getString(
+                        dateMessageStringRes,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+                )
+        );
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;
+        boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
+        Drawable downloadIcon = appInstalled
+                ? null
+                : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
+        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                downloadIcon, null, null, null
+        );
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvViewMore.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
+        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
+        jobCard.connectJobEndDate.setVisibility(View.GONE);
+        jobCard.acbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.acbResume.setOnClickListener(v -> navigateToLearnAppHome());
+        jobCard.tvViewMore.setVisibility(View.GONE);
+        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.acbResume.setVisibility(View.VISIBLE);
 
         if (showHours) {
             jobCard.tvJobTime.setText(hours);
@@ -260,6 +282,22 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     private void navigateToJobDetailBottomSheet(View view) {
         Navigation.findNavController(view).navigate(
                 ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
+    }
+
+    private void navigateToLearnAppHome() {
+        String appId = job.getLearnAppInfo().getAppId();
+
+        if (AppUtils.isAppInstalled(appId)) {
+            CommCareApplication.instance().closeUserSession();
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, appId);
+        } else {
+            NavDirections navDirections = ConnectLearningProgressFragmentDirections
+                    .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
+                            getString(R.string.connect_downloading_learn),
+                            true
+                    );
+            Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
+        }
     }
 
     @Override

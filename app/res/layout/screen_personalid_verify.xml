@@ -11,7 +11,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
             <TextView
                 android:id="@+id/connect_verify_title"
                 android:layout_width="wrap_content"
@@ -71,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/content_min_margin"
-                android:text="@string/choice_or"
+                android:text="@string/personalid_choice_or"
                 android:textSize="@dimen/text_medium" />
 
             <LinearLayout
@@ -96,6 +95,17 @@
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="16dp"
                     android:text="@string/connect_verify_configure_pin" />
+
+                <TextView
+                    android:id="@+id/error_text_view"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/activity_horizontal_margin"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@android:color/holo_red_light"
+                    android:visibility="gone"
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

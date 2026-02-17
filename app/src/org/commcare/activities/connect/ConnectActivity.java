@@ -70,7 +70,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(getString(R.string.connect_title));
 
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);
@@ -104,6 +103,12 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
 
 
+    }
+
+    @Override
+    public void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        getSupportActionBar().setTitle(getString(R.string.connect_title));
     }
 
     private int getStartDestinationId(Bundle startArgs) {
@@ -160,12 +165,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     @Override
-    public void setTitle(CharSequence title) {
-        super.setTitle(title);
-        getSupportActionBar().setTitle(title);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_connect, menu);
 
@@ -209,7 +208,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     private void retrieveMessages(){
-        MessageManager.retrieveMessages(this, success -> {
+        MessageManager.retrieveMessages(this, (success, error) -> {
         });
     }
 

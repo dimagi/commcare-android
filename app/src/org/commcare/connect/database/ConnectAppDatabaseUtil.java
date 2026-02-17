@@ -3,11 +3,16 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
@@ -77,4 +82,49 @@ public class ConnectAppDatabaseUtil {
         }
     }
 
+    public static void storeReleaseToggles(
+            Context context,
+            List<ConnectReleaseToggleRecord> incomingToggles
+    ) {
+        boolean togglesChanged = false;
+
+        try {
+            SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
+                    ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
+
+            // Create map of existing toggles for easy comparison to incoming toggles.
+            List<ConnectReleaseToggleRecord> existingToggles = getReleaseToggles(context);
+            Map<String, ConnectReleaseToggleRecord> existingTogglesMap = new HashMap<>();
+            for (ConnectReleaseToggleRecord existingToggle : existingToggles) {
+                existingTogglesMap.put(existingToggle.getSlug(), existingToggle);
+            }
+
+            toggleStorage.removeAll();
+
+            for (ConnectReleaseToggleRecord incomingToggle : incomingToggles) {
+                toggleStorage.write(incomingToggle);
+
+                ConnectReleaseToggleRecord matchingToggle = existingTogglesMap.get(incomingToggle.getSlug());
+                if (matchingToggle == null || matchingToggle.getActive() != incomingToggle.getActive()) {
+                    togglesChanged = true;
+                }
+            }
+
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+        } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
+        }
+
+        if (togglesChanged) {
+            FirebaseAnalyticsUtil.reportPersonalIdReleaseTogglesChanged(incomingToggles);
+        }
+    }
+
+    public static List<ConnectReleaseToggleRecord> getReleaseToggles(Context context) {
+        SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
+                ConnectDatabaseHelper.getConnectStorage(context, ConnectReleaseToggleRecord.class);
+
+        return toggleStorage.getRecordsForValues(new String[]{}, new Object[]{});
+    }
 }

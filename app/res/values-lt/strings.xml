@@ -71,22 +71,22 @@
     <string name="selected">Parinkta:</string>
     <string name="select_answer">Pažymėkite atsakymą</string>
     <string name="edit_prompt">Keisti atsakymą</string>
-    <string name="no_gps_title">Location Data Disabled</string>
-    <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
-    <string name="change_settings">Change Settings</string>
-    <string name="nav_drawer_signin_register">Accedi / Registrati</string>
-    <string name="nav_drawer_help">Aiuto</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Non hai effettuato l’accesso all\ID personale</string>
-    <string name="nav_drawer_opportunities">Opportunità</string>
-    <string name="nav_drawer_commcare_apps">App CommCare</string>
-    <string name="nav_drawer_work_history">Storico lavorativo</string>
-    <string name="nav_drawer_payments">Pagamenti</string>
-    <string name="nav_drawer_manage_profile">Gestisci profilo</string>
+    <string name="no_gps_title">Vietovės duomenys išjungti</string>
+    <string name="no_gps_message">Šio įrenginio vietos nustatymo paslaugos šiuo metu išjungtos. Ar norite pakeisti šiuos nustatymus?</string>
+    <string name="change_settings">Keisti nustatymus</string>
+    <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
+    <string name="nav_drawer_help">Pagalba</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
+    <string name="nav_drawer_opportunities">Galimybės</string>
+    <string name="nav_drawer_commcare_apps">„CommCare“ programėlės</string>
+    <string name="nav_drawer_work_history">Darbo istorija</string>
+    <string name="nav_drawer_payments">Mokėjimai</string>
+    <string name="nav_drawer_manage_profile">Tvarkyti profilį</string>
     <string name="play_service_update_error">Norint naudoti „PersonalID“, reikia atnaujinti „Google Play“ paslaugas. Palieskite čia, kad pereitumėte į „Google Play“ parduotuvę ir patikrintumėte, ar yra naujinių</string>
-    <string name="nav_drawer_open">Apri il menu di navigazione</string>
-    <string name="nav_drawer_close">Chiudi il menu di navigazione</string>
-    <string name="connect_message_you">Voi</string>
-    <string name="connect_message_them">Loro</string>
+    <string name="nav_drawer_open">Atidaryti navigacijos meniu</string>
+    <string name="nav_drawer_close">Uždaryti navigacijos meniu</string>
+    <string name="connect_message_you">Jūs</string>
+    <string name="connect_message_them">Jie</string>
     <string name="fcm_sync_failed_body_text">Norėdami sužinoti daugiau, spustelėkite čia</string>
     <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
     <string name="connect_fetch_delivery_progress_error">Nepavyko gauti pristatymo eigos</string>
@@ -99,8 +99,14 @@
 
     <string name="personalid_configuration_process_failed_subtitle">Deja, šis įrenginys nepraėjo saugumo patikrų, būtinų registracijai „PersonalID“. Bandykite dar kartą kitame įrenginyje.</string>
     <string name="personalid_location_permission_error">„PersonalID“ reikalauja, kad jūsų įrenginyje būtų įjungtos vietos nustatymo paslaugos. Prieš tęsdami, įjunkite jas telefono nustatymuose.</string>
-    <string name="recovery_network_outdated">Questa app non è aggiornata. Per procedere, aggiorna l\'app sul Google Play Store.</string>
+    <string name="recovery_network_outdated">Ši programa pasenusi. Norėdami tęsti, atnaujinkite programą „Google Play“ parduotuvėje.</string>
+    <string name="personalid_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
+    <string name="personalid_token_request_rejected">Praradote „PersonalID“ konfigūraciją serveryje, atkurkite „PersonalID“ paskyrą ir bandykite dar kartą.</string>
+    <string name="personalid_login_from_different_device">Jūsų „PersonalID“ paskyrą vienu metu galima konfigūruoti tik viename įrenginyje, o ji jau buvo sukonfigūruota kitame įrenginyje. Tęskite naujame įrenginyje arba dar kartą sukonfigūruokite paskyrą šiame įrenginyje, kad galėtumėte toliau naudoti „PersonalID“ čia.</string>
+    <string name="recovery_network_unauthorized">Jūs neturite teisės pateikti šio prašymo.</string>
+    <string name="recovery_network_server_error">Apdorojant jūsų užklausą įvyko klaida.</string>
     <string name="recovery_network_cooldown">Per daug užklausų. Bandykite dar kartą po valandos.</string>
+    <string name="recovery_network_unknown">Kažkas nepavyko. Bandykite dar kartą.</string>
     <string name="connect_biometric_enroll_fail_message">„PersonalID“ reikalauja įjungti biometrinius duomenis. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Šiuo metu šiame įrenginyje biometriniai duomenys neįjungti. Prieš tęsdami, sukonfigūruokite biometrinius duomenis „Android“ sistemos nustatymuose.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">Šiame įrenginyje esantys biometriniai duomenys nėra atnaujinti. Įdiekite visus galimus sistemos atnaujinimus arba bandykite dar kartą su kitu įrenginiu.</string>
@@ -121,11 +127,49 @@
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_length">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
-    <string name="no_channel_msg">Jūs neturite jokių dabartinių susirašinėjimo kanalų</string>
+    <string name="no_channel_msg">Jūs neprenumeruojate jokių susirašinėjimo kanalų. Kai būsite pridėtas prie kanalo, jis pasirodys šiame sąraše.</string>
+    <string name="connect_payment_confirm_text">Ar gavote %d %s už %s galimybę?</string>
+    <string name="connect_payment_confirm_yes">Taip, gavau</string>
+    <string name="connect_payment_confirm_no">Ne, negavau</string>
+    <string name="connect_payment_confirm_failed">Nepavyko patvirtinti mokėjimo. Bandykite dar kartą.</string>
+    <string name="connect_payment_acknowledge_notification_yes">Mokėjimas patvirtintas</string>
+    <string name="connect_payment_acknowledge_notification_no">Mokėjimas nepatvirtintas</string>
+    <string name="connect_payment">Mokėjimas</string>
+    <string name="connect_payment_received">Mokėjimas gautas</string>
+    <string name="connect_payment_transferred">Mokėjimas pervestas</string>
+    <string name="connect_payment_confirm_transferred">Patvirtinti pervedimą</string>
+    <string name="connect_payment_revoke_transferred">Atšaukti pervedimą</string>
+    <string name="connect_payment_dialog_no">Ne</string>
+    <string name="connect_payment_dialog_yes">Taip</string>
+    <string name="connect_payment_revert">Atstatyti</string>
 
     <string name="personalid_using_your_location">Naudojama jūsų buvimo vieta</string>
     <string name="personalid_no_location_found">Nepavyksta rasti jūsų buvimo vietos</string>
     <string name="personalid_tooltip_location_failure_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programos naudojimą.\n\nNorėdami tęsti, įjunkite vietos leidimus nustatymuose arba bandykite dar kartą vėliau.</string>
     <string name="personalid_tooltip_location_success_message">Naudojame vietos duomenis, kad užtikrintume saugų šios programėlės naudojimą.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Spustelėkite čia, jei norite gauti daugiau informacijos.</a></string>
 
+    <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="connect_job_ended">Užduotis baigėsi %s</string>
+    <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
+    <string name="connect_job_info_view_resume">Tęsti</string>
+    <string name="connect_job_info_view_review">Peržiūrėti</string>
+
+    <string name="error">Klaida</string>
+    <string name="failed_to_start_learning">Nepavyko pradėti mokytis</string>
+    <string name="failed_to_update_payment">Nepavyko atnaujinti mokėjimo</string>
+    <string name="connect_in_progress">Vykdoma</string>
+    <string name="connect_new_opportunities">Naujos galimybės</string>
+    <string name="connect_completed">Užbaigta</string>
+
+    <string name="personalid_biometric_error_cancelled">Biometrinis nustatymas buvo atšauktas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_biometric_error_lockout">Per daug bandymų. Palaukite ir bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_lockout_permanent">Per daug nepavykusių bandymų. Atrakinkite įrenginį ir bandykite dar kartą.</string>
+    <string name="personalid_biometric_error_timeout">Baigėsi biometrinės operacijos laikas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_biometric_error_cannot_configure">Nepavyko sukonfigūruoti biometrinių duomenų jūsų įrenginyje. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_work_history_no_records_available">Šiuo metu nėra jokių darbo įrašų. Spustelėkite atnaujinti arba patikrinkite vėliau.</string>
+    <string name="pn_no_notification_available">Pranešimų nėra</string>
+    <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
+
+    <string name="connect_complete_by">Atlikti iki %s</string>
+    <string name="connect_expired_on">Galiojimas baigėsi: %s</string>
 </resources>

@@ -1,13 +1,13 @@
 package org.commcare.gis;
 
-import static org.commcare.views.EntityView.FORM_IMAGE;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,31 +15,48 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.common.base.Strings;
+import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.StringUtils;
+import org.commcare.utils.ViewUtils;
 import org.commcare.views.UserfacingErrorHandling;
-import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
+import static org.commcare.views.EntityView.FORM_IMAGE;
 
 /**
  * @author Forest Tong (ftong@dimagi.com)
@@ -48,23 +65,48 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         GoogleMap.OnInfoWindowClickListener {
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
     private static final int DEFAULT_MARKER_SIZE = 120;
+    private static final int BOUNDARY_POLYGON_ALPHA = 64;
+    private static final int BOUNDARY_POLYGON_STROKE_WIDTH = 5;
+    private static final double GEO_POINT_RADIUS_METERS = 3.0;
 
-    private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();
+    private final Vector<Pair<Entity<TreeReference>, EntityMapDisplayInfo>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
+    private final HashMap<Polygon, Entity<TreeReference>> polygonInfo = new HashMap<>();
+    private final List<Circle> geoPointCircles = new ArrayList<>();
 
     private GoogleMap mMap;
+    private SwitchMaterial toggleMarkers;
+    private SwitchMaterial togglePolygons;
+    private SwitchMaterial toggleGeoPoints;
 
     // keeps track of detail field index that should be used to show a custom icon
     private int imageFieldIndex = -1;
+
+    private Marker polygonInfoMarker = null;
+    private TreeReference polygonInfoMarkerReference = null;
+    private Trace mapReadyTrace = null;
+    private Trace mapLoadedTrace = null;
+    private int numMarkers = 0;
+    private int numPolygons = 0;
+    private int numGeoPoints = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entity_map_view);
 
+        mapReadyTrace = CCPerfMonitoring.INSTANCE.startTracing(
+                CCPerfMonitoring.TRACE_ENTITY_MAP_READY_TIME);
+
+        toggleMarkers = findViewById(R.id.toggle_markers);
+        togglePolygons = findViewById(R.id.toggle_polygons);
+        toggleGeoPoints = findViewById(R.id.toggle_geopoints);
+
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        findViewById(R.id.switch_map_layer).setOnClickListener(v -> changeMapLayer());
 
         try {
             addEntityData();
@@ -73,27 +115,49 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
     }
 
-
     /**
      * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
      */
     private void addEntityData() {
-
         EntityDatum selectDatum = EntityMapUtils.getNeededEntityDatum();
         if (selectDatum != null) {
             Detail detail = CommCareApplication.instance().getCurrentSession()
                     .getDetail(selectDatum.getShortDetail());
             evalImageFieldIndex(detail);
+
+            setToggleLabels(detail);
+
+            var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
-                for (int i = 0; i < detail.getHeaderForms().length; ++i) {
-                    GeoPointData data = EntityMapUtils.getEntityLocation(entity, detail, i);
-                    if (data != null) {
-                        entityLocations.add(
-                                new Pair<>(entity, new LatLng(data.getLatitude(), data.getLongitude())));
-                    }
+                EntityMapDisplayInfo displayInfo = EntityMapUtils.getDisplayInfoForEntity(entity, detail);
+                if (displayInfo != null) {
+                    entityLocations.add(new Pair<>(entity, displayInfo));
+                    errorEncountered |= displayInfo.getErrorEncountered();
                 }
             }
+
+            if (errorEncountered) {
+                ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
+                        getString(R.string.entity_map_error_message));
+            }
         }
+    }
+
+    private void setToggleLabels(Detail detail) {
+        toggleMarkers.setText(getToggleLabel(EntityMapUtils.getMarkerHeader(detail),
+                R.string.entity_map_markers));
+        togglePolygons.setText(getToggleLabel(EntityMapUtils.getBoundaryHeader(detail),
+                R.string.entity_map_polygons));
+        toggleGeoPoints.setText(getToggleLabel(EntityMapUtils.getGeopointsHeader(detail),
+                R.string.entity_map_geopoints));
+    }
+
+    private String getToggleLabel(String headerValue, int defaultKey) {
+        if(!Strings.isNullOrEmpty(headerValue)) {
+            return headerValue;
+        }
+
+        return StringUtils.getStringRobust(this, defaultKey);
     }
 
     private void evalImageFieldIndex(Detail detail) {
@@ -107,34 +171,222 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     }
 
     @Override
-    public void onMapReady(final GoogleMap map) {
+    public void onMapReady(@NonNull final GoogleMap map) {
         mMap = map;
 
-        if (entityLocations.size() > 0) {
-            boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            // Add markers to map and find bounding region
-            for (Pair<Entity<TreeReference>, LatLng> entityLocation : entityLocations) {
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(entityLocation.second)
-                        .title(entityLocation.first.getFieldString(0))
-                        .snippet(entityLocation.first.getFieldString(1));
-                if (showCustomMapMarker) {
-                    markerOptions.icon(getEntityIcon(entityLocation.first));
-                }
-                Marker marker = mMap.addMarker(markerOptions);
-                markerReferences.put(marker, entityLocation.first.getElement());
-                builder.include(entityLocation.second);
-            }
-            final LatLngBounds bounds = builder.build();
+        CCPerfMonitoring.INSTANCE.stopTracing(mapReadyTrace, new HashMap<>());
+        mapReadyTrace = null;
 
-            // Move camera to be include all markers
-            mMap.setOnMapLoadedCallback(
-                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
+        mapLoadedTrace = CCPerfMonitoring.INSTANCE.startTracing(
+                CCPerfMonitoring.TRACE_ENTITY_MAP_LOADED_TIME);
+
+        if (!entityLocations.isEmpty()) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
+
+            boolean added = false;
+            for (Pair<Entity<TreeReference>, EntityMapDisplayInfo> displayInfoPair : entityLocations) {
+                added |= addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
+                added |= addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
+                added |= addGeoPoints(builder, displayInfoPair.second);
+            }
+
+            final LatLngBounds bounds = added ? builder.build() : null;
+
+            mMap.setOnMapClickListener(latLng -> {
+                dismissPolygonInfoMarker();
+            });
+
+            mMap.setOnMarkerClickListener(marker -> {
+                dismissPolygonInfoMarker();
+                return false;
+            });
+
+            mMap.setOnPolygonClickListener(polygon -> {
+                showPolygonInfo(polygon);
+            });
+
+            // Move camera to include all markers
+            mMap.setOnMapLoadedCallback(() -> {
+                if(bounds != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
+                        @Override
+                        public void onCancel() {
+                            finishLoadingPerformanceTrace();
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            finishLoadingPerformanceTrace();
+                        }
+                    });
+                } else {
+                    finishLoadingPerformanceTrace();
+                }
+            });
+
+            setupMapToggles();
+        } else {
+            finishLoadingPerformanceTrace();
         }
 
         mMap.setOnInfoWindowClickListener(this);
         setMapLocationEnabled(true);
+
+        mMap.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
+    }
+
+    private boolean addMarker(LatLngBounds.Builder builder,
+                           Entity<TreeReference> entity,
+                           EntityMapDisplayInfo displayInfo,
+                           boolean showCustomMapMarker) {
+        // Add markers to map and find bounding region
+        if (displayInfo.getLocation() != null) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(displayInfo.getLocation())
+                    .title(entity.getFieldString(0))
+                    .snippet(entity.getFieldString(1));
+            if (showCustomMapMarker) {
+                markerOptions.icon(getEntityIcon(entity));
+            }
+
+            Marker marker = mMap.addMarker(markerOptions);
+            if (marker == null) {
+                Logger.exception("Failed to add marker to map",
+                        new Exception("Marker: " + entity.getFieldString(0)));
+                return false;
+            }
+
+            markerReferences.put(marker, entity.getElement());
+            builder.include(displayInfo.getLocation());
+            numMarkers++;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean addBoundaryPolygon(LatLngBounds.Builder builder,
+                                    Entity<TreeReference> entity,
+                                    EntityMapDisplayInfo displayInfo) {
+        if (displayInfo.getBoundary() != null) {
+            int color = displayInfo.getBoundaryColorHex() != null ?
+                    displayInfo.getBoundaryColorHex() :
+                    Color.WHITE;
+            int withAlpha = Color.argb(BOUNDARY_POLYGON_ALPHA,
+                    Color.red(color), Color.green(color), Color.blue(color));
+
+            PolygonOptions options = new PolygonOptions()
+                    .addAll(displayInfo.getBoundary())
+                    .clickable(true)
+                    .strokeColor(Color.GRAY)
+                    .fillColor(withAlpha)
+                    .strokeWidth(BOUNDARY_POLYGON_STROKE_WIDTH);
+
+            Polygon polygon = mMap.addPolygon(options);
+            polygonInfo.put(polygon, entity);
+
+            for (LatLng coord : displayInfo.getBoundary()) {
+                builder.include(coord);
+            }
+
+            numPolygons++;
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean addGeoPoints(LatLngBounds.Builder builder,
+                              EntityMapDisplayInfo displayInfo) {
+        // Add additional display points to map
+        if (displayInfo.getPoints() != null) {
+            for (int i = 0; i < displayInfo.getPoints().size(); i++) {
+                LatLng coordinate = displayInfo.getPoints().get(i);
+                int color = Color.WHITE;
+                if (displayInfo.getPointColorsHex() != null &&
+                        displayInfo.getPointColorsHex().size() > i) {
+                    color = displayInfo.getPointColorsHex().get(i);
+                }
+                CircleOptions options = new CircleOptions()
+                        .center(coordinate)
+                        .radius(GEO_POINT_RADIUS_METERS)
+                        .strokeColor(color)
+                        .fillColor(color);
+
+                Circle circle = mMap.addCircle(options);
+                geoPointCircles.add(circle);
+                builder.include(coordinate);
+                numGeoPoints++;
+            }
+
+            return !displayInfo.getPoints().isEmpty();
+        }
+
+        return false;
+    }
+
+    private void finishLoadingPerformanceTrace() {
+        if (mapLoadedTrace != null) {
+            Map<String, String> perfMetrics = new HashMap<>();
+            perfMetrics.put(CCPerfMonitoring.ATTR_MAP_MARKERS, Integer.toString(numMarkers));
+            perfMetrics.put(CCPerfMonitoring.ATTR_MAP_POLYGONS, Integer.toString(numPolygons));
+            perfMetrics.put(CCPerfMonitoring.ATTR_MAP_GEO_POINTS, Integer.toString(numGeoPoints));
+            CCPerfMonitoring.INSTANCE.stopTracing(mapLoadedTrace, perfMetrics);
+            mapLoadedTrace = null;
+        }
+    }
+
+    /**
+     * Shows an info window for a clicked polygon by creating a temporary marker at the polygon center,
+     * similar to marker info windows. Centers the map on the polygon and displays the info bubble.
+     */
+    private void showPolygonInfo(Polygon polygon) {
+        Entity<TreeReference> entity = polygonInfo.get(polygon);
+        if (entity == null || mMap == null) {
+            return;
+        }
+
+        dismissPolygonInfoMarker();
+
+        List<LatLng> points = polygon.getPoints();
+        if (points.isEmpty()) {
+            return;
+        }
+
+        double sumLat = 0;
+        double sumLng = 0;
+        int numPoints = points.size() - 1;
+        for (int i = 0; i < numPoints; i++) {
+            LatLng point = points.get(i);
+            sumLat += point.latitude;
+            sumLng += point.longitude;
+        }
+        LatLng center = new LatLng(sumLat / numPoints, sumLng / numPoints);
+
+        // Create a temporary marker at the polygon center with the polygon's info
+        String title = entity.getFieldString(0);
+        String snippet = entity.getFieldString(1);
+        polygonInfoMarkerReference = entity.getElement();
+        polygonInfoMarker = mMap.addMarker(new MarkerOptions()
+                .position(center)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .title(title)
+                .snippet(snippet)
+                .visible(true));
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(center));
+
+        polygonInfoMarker.showInfoWindow();
+    }
+
+    public void dismissPolygonInfoMarker() {
+        if (polygonInfoMarker != null) {
+            polygonInfoMarker.remove();
+            polygonInfoMarker = null;
+            polygonInfoMarkerReference = null;
+        }
     }
 
     private BitmapDescriptor getEntityIcon(Entity<TreeReference> entity) {
@@ -173,10 +425,59 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
     }
 
+    private void setupMapToggles() {
+        View overlay = findViewById(R.id.map_overlay);
+
+        int visibleToggles = 0;
+
+        if (numMarkers > 1) {
+            toggleMarkers.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            toggleMarkers.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Marker marker : markerReferences.keySet()) {
+                    marker.setVisible(isChecked);
+                }
+            });
+        } else {
+            toggleMarkers.setVisibility(View.GONE);
+        }
+
+        if (numPolygons > 1) {
+            togglePolygons.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            togglePolygons.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Polygon polygon : polygonInfo.keySet()) {
+                    polygon.setVisible(isChecked);
+                }
+            });
+        } else {
+            togglePolygons.setVisibility(View.GONE);
+        }
+
+        if (numGeoPoints > 1) {
+            toggleGeoPoints.setVisibility(View.VISIBLE);
+            visibleToggles++;
+            toggleGeoPoints.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                for (Circle circle : geoPointCircles) {
+                    circle.setVisible(isChecked);
+                }
+            });
+        } else {
+            toggleGeoPoints.setVisibility(View.GONE);
+        }
+
+        overlay.setVisibility(visibleToggles < 2 ? View.GONE : View.VISIBLE);
+    }
+
     @Override
-    public void onInfoWindowClick(Marker marker) {
+    public void onInfoWindowClick(@NonNull Marker marker) {
         Intent i = new Intent(getIntent());
-        TreeReference ref = markerReferences.get(marker);
+        TreeReference ref;
+        if (marker.equals(polygonInfoMarker)) {
+            ref = polygonInfoMarkerReference;
+        } else {
+            ref = markerReferences.get(marker);
+        }
         SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
 
         setResult(RESULT_OK, i);
@@ -186,5 +487,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public boolean shouldListenToSyncComplete() {
         return true;
+    }
+
+    private void changeMapLayer() {
+        if (mMap != null) {
+            MapLayer nextMapLayer = MapLayer.values()[mMap.getMapType() % 4];
+            mMap.setMapType(nextMapLayer.getValue());
+            HiddenPreferences.setMapsDefaultLayer(nextMapLayer);
+        }
     }
 }

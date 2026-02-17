@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="false"
+        tools:replace="android:label,android:icon,android:theme, android:allowBackup"
+        android:name="org.commcare.CommCareApplication"
+        android:icon="@mipmap/commcare_launcher"
+        android:supportsRtl="true"
+        android:label="@string/application_name"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/AppBaseTheme"
+        android:enableOnBackInvokedCallback="false">
+        <!-- Override zebra-print-android library activity to add android:exported attribute
+             required for Android 12+ -->
+        <activity
+            android:name="com.dimagi.android.zebraprinttool.PrintReceiverActivity"
+            android:exported="true"
+            tools:node="merge" />
+    </application>
+
+</manifest>

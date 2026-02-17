@@ -54,6 +54,10 @@
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
             app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
+
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_personalid_message_display_dialog"
+            app:destination="@id/personalid_message_display_dialog" />
     </fragment>
 
     <fragment
@@ -107,9 +111,6 @@
             app:destination="@id/connect_downloading_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment" />
         <action
-            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_results_fragment"
-            app:destination="@id/connect_results_fragment" />
-        <action
             android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_delivery_fragment"
             app:destination="@id/connect_delivery_fragment" />
         <action
@@ -139,16 +140,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/connect_results_fragment"
-        android:name="org.commcare.fragments.connect.ConnectResultsListFragment"
-        android:label="fragment_connect_results_list"
-        tools:layout="@layout/fragment_connect_results_list">
-        <argument
-            android:name="showPayments"
-            app:argType="boolean" />
-    </fragment>
-
-    <fragment
         android:id="@+id/connect_delivery_fragment"
         android:name="org.commcare.fragments.connect.ConnectDeliveryListFragment"
         android:label="fragment_connect_delivery_list"
@@ -164,6 +155,34 @@
         android:label="ConnectJobDetailBottomSheetDialogFragment">
 
 
+    </dialog>
+    <dialog
+        android:id="@+id/personalid_message_display_dialog"
+        android:name="org.commcare.fragments.personalId.PersonalIdMessageFragment"
+        android:label="fragment_personalid_message"
+        tools:layout="@layout/screen_personalid_message">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="message"
+            app:argType="string" />
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+        <argument
+            android:name="buttonText"
+            app:nullable="false"
+            app:argType="string" />
+        <argument
+            android:name="button2Text"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="isCancellable"
+            android:defaultValue="true"
+            app:argType="boolean" />
     </dialog>
 
 </navigation>

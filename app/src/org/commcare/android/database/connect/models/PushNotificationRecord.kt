@@ -5,7 +5,7 @@ import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
 import org.javarosa.core.model.utils.DateUtils
-import org.json.JSONArray
+import org.json.JSONObject
 import java.io.Serializable
 import java.util.Date
 
@@ -65,6 +65,14 @@ class PushNotificationRecord :
     @MetaField(META_ACKNOWLEDGED)
     var acknowledged: Boolean = false
 
+    @Persisting(14)
+    @MetaField(META_PAYMENT_UUID)
+    var paymentUUID: String = ""
+
+    @Persisting(15)
+    @MetaField(META_OPPORTUNITY_UUID)
+    var opportunityUUID: String = ""
+
     companion object {
         const val STORAGE_KEY = "push_notification_history"
 
@@ -81,34 +89,46 @@ class PushNotificationRecord :
         const val META_PAYMENT_ID = "payment_id"
         const val META_READ_STATUS = "read_status"
         const val META_ACKNOWLEDGED = "acknowledged"
-
         const val META_TIME_STAMP = "timestamp"
+        const val META_OPPORTUNITY_UUID = "opportunity_uuid"
+        const val META_PAYMENT_UUID = "payment_uuid"
 
-        fun fromJsonArray(jsonArray: JSONArray): List<PushNotificationRecord> {
-            val records = mutableListOf<PushNotificationRecord>()
-
-            for (i in 0 until jsonArray.length()) {
-                val obj = jsonArray.getJSONObject(i)
-                val record =
-                    PushNotificationRecord().apply {
-                        notificationId = obj.optString(META_NOTIFICATION_ID, "")
-                        title = obj.optString(META_TITLE, "")
-                        body = obj.optString(META_BODY, "")
-                        notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
-                        confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
-                        paymentId = obj.optString(META_PAYMENT_ID, "")
-                        readStatus = obj.optBoolean(META_READ_STATUS, false)
-                        val dateString: String = obj.getString(META_TIME_STAMP)
-                        createdDate = DateUtils.parseDateTime(dateString)
-                        connectMessageId = obj.optString(META_MESSAGE_ID, "")
-                        channel = obj.optString(META_CHANNEL, "")
-                        action = obj.optString(META_ACTION, "")
-                        opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
-                    }
-                records.add(record)
+        fun fromJson(obj: JSONObject): PushNotificationRecord =
+            PushNotificationRecord().apply {
+                notificationId = obj.optString(META_NOTIFICATION_ID, "")
+                title = obj.optString(META_TITLE, "")
+                body = obj.optString(META_BODY, "")
+                notificationType = obj.optString(META_NOTIFICATION_TYPE, "")
+                confirmationStatus = obj.optString(META_CONFIRMATION_STATUS, "")
+                paymentId = obj.optString(META_PAYMENT_ID, "")
+                readStatus = obj.optBoolean(META_READ_STATUS, false)
+                val dateString: String = obj.getString(META_TIME_STAMP)
+                createdDate = DateUtils.parseDateTime(dateString)
+                connectMessageId = obj.optString(META_MESSAGE_ID, "")
+                channel = obj.optString(META_CHANNEL, "")
+                action = obj.optString(META_ACTION, "")
+                opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
+                opportunityUUID = obj.optString(META_OPPORTUNITY_UUID, "")
+                paymentUUID = obj.optString(META_PAYMENT_UUID, "")
             }
 
-            return records
-        }
+        fun fromV21(pushNotificationRecordV21: PushNotificationRecordV21): PushNotificationRecord =
+            PushNotificationRecord().apply {
+                notificationId = pushNotificationRecordV21.notificationId
+                title = pushNotificationRecordV21.title
+                body = pushNotificationRecordV21.body
+                notificationType = pushNotificationRecordV21.notificationType
+                confirmationStatus = pushNotificationRecordV21.confirmationStatus
+                paymentId = pushNotificationRecordV21.paymentId
+                readStatus = pushNotificationRecordV21.readStatus
+                createdDate = pushNotificationRecordV21.createdDate
+                connectMessageId = pushNotificationRecordV21.connectMessageId
+                channel = pushNotificationRecordV21.channel
+                action = pushNotificationRecordV21.action
+                acknowledged = pushNotificationRecordV21.acknowledged
+                opportunityId = pushNotificationRecordV21.opportunityId
+                opportunityUUID = pushNotificationRecordV21.opportunityId
+                paymentUUID = pushNotificationRecordV21.paymentId
+            }
     }
 }

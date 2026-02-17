@@ -171,6 +171,11 @@
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
     <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
+    <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ PersonalID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
+    <string name="personalid_login_from_different_device">ናትካ PersonalID ኣካውንት ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክውነን ዝኽእልን ኣብ ካልእ መሳርሒ ድማ ተዋቒሩን ኣሎ። በጃኻ ኣብቲ ሓድሽ መሳርሒ ቀጽሎ ወይ ኣብዚ PersonalID ምጥቃም ክትቅጽል ኣብዚ መሳርሒ ኣካውንትካ እንደገና ኣወሃህቦ።</string>
+    <string name="recovery_network_unauthorized">ነዚ ሕቶ እዚ ከተቕርቡ ፍቓድ የብልኩምን።</string>
+    <string name="recovery_network_server_error">ሕቶኻ ኣብ መስርሕ ጌጋ ኣጋጢሙ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
     <string name="recovery_retry">ንናይ</string>
     <string name="notification_channel_errors_title">ጌጋታት</string>
@@ -212,8 +217,6 @@
     <string name="image_download_prompt">ንዚ ሕቶ ፋይል ምስሊ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="audio_download_prompt">ንዚ ሕቶ ፋይል ድምፂ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="media_not_found_error">ኣብዚ መተግበሪ ሚድያ (መራክቢ) ኣይተረክበን</string>
-    <string name="parse_coordinates_failure">ናይ ምእታው ኮርዲኔት ክትንትን ኣይከኣለን</string>
-    <string name="location_provider_disabled">ሓድሽ ሓበሬታ ኣቀማምጣኻ ንምርካብ ቦታ (location) ወልዕ</string>
     <string name="wait_for_location_fix">CommCare ሕጂ ውን ቦታኻ ንምርካብ ይጽዕር ኣሎ። በይዛኻ ተፀበ ወይ ንምቁራጽ Cancel ጠውቅ።</string>
     <string name="invalid_case_property_length">ዘይቅቡል %1ስ፤ ቅቡል 255 ፊደላት ወይ ትሕቲኡ ክኸውን ኣለዎ።</string>
     <string name="invalid_case_graph_error">እዚ ቅጥዒ ናይ ዘይቅቡል ጉዳይ ርክብ ኣተኣታትዩ፡፡</string>
@@ -230,12 +233,11 @@
     <string name="dependency_missing_dialog_playstore_not_found">ኣብ መሳርሒኻ/ሞባልካ ዝኾነ ፕለይ ስቶር/ መከዘኒ ኣፕሊክሸናት ኣይተረኽበን።</string>
     <string name="fcm_notification">FCM ሓበሬታ መዘካከሪ</string>
     <string name="fcm_default_notification_channel">ሓበሬታ መዘካከሪ-ቻነል-ደፍእ-ሓበሬታ መዘካከሪታት</string>
-    <string name="login_password_by_connect">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
-    <string name="login_welcome_connect_signed_in">እንቋዕ ብደሓን መጻእኩም %s!</string>
-    <string name="login_connect_secondary_phone_message">በጃኹም ካልኣይ ደረጃ ስልክኹም ብ %s ኣረጋግጹ PersonalId ምጥቃምም ክትቅጽል።</string>
-    <string name="choice_or">_____________ ወይ _____________</string>
-    <string name="busy_message">ሕጂ ውን ቅድሚ ሕጂ ዝገበርካዮ ሕቶ ኣብ ምስራሕ ተጸሚድና ኣለና። በጃኻ ድሕሪ ውሱን ግዜ ደጊምካ ፈትን።</string>
+    <string name="personalid_login_via">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
+    <string name="personalid_welcome_user">እንቋዕ ብደሓን መጻእኩም %s!</string>
+    <string name="personalid_choice_or">_____________ ወይ _____________</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
+    <string name="entity_map_error_message">ኣብ ውቅር ኣፕ ጌጋ ኣጋጢሙ ብሰንኪ እዚ ድማ ኩሎም ኣብቲ ካርታ ዘለዉ ማርከራት ብትኽክል ኣይጽዓኑን እዮም።</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">ብ PersonalID ጀምር</string>
     <string name="connect_consent_message_1">ኣነ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
@@ -271,8 +273,6 @@
     <string name="connect_verify_fingerprint_configured">ኣሰር ኣፃብዕትኻ በቃ ተዋቒሩ ኣሎ፡ ንPersonalId ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
     <string name="connect_verify_configure_fingerprint">ኣሰር ኣፃብዕቲ ምውቃር</string>
     <string name="connect_verify_use_pin_long">ንምትእስሳር ፒን ተጠቐም</string>
-    <string name="connect_verify_pin_configured">ፒንካ በቃ ተዋቒሩ ኣሎ፡ ንPersonalId ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
-    <string name="connect_verify_configuration_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ባዮሜትሪክስ ምውቃር ኣይተዓወተን። በጃኻ እንደገና ፈትን %s።</string>
     <string name="connect_verify_configure_pin">ፒን ምውቃር</string>
     <string name="connect_verify_agree">ስምምዕ &amp; ቀፅል</string>
     <string name="connect_verify_phone_title">ናይ ምርግጋፅ ኮድ</string>
@@ -285,7 +285,7 @@
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
     <string name="connect_last_update">ዝተመሓየሸ: %s</string>
     <string name="connect_title">ኣራኽብ</string>
-    <string name="connect_no_jobs">ኣብ ዝኾነ ንጡፍ ዕድላት ኣይተዓደምኩምን። በይዛኹም ፀኒሕኹም ተመለሱ።</string>
+    <string name="connect_no_jobs">ክሳብ ሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምኩምን። ንሓደ ዕድል ምስ ተዓደምካ፡ ኣብ\'ዚ ዝርዝር\'ዚ ክቐርብ\'ዩ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
     <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
@@ -297,14 +297,12 @@
     <string name="connect_learn_need_assessment_title">ስልጠና ኣብ ምፅባይ ዝርከብ</string>
     <string name="connect_learn_failed_title">ስልጠና ፈሺሉ።</string>
     <string name="connect_learn_complete_by">ፕሮጀክት ብ %s ምዝዛም</string>
-    <string name="connect_learn_error_starting">ትምህርቲ ክትጅምሩ ስለዘይከኣልኩም፡ በጃኹም ምስ ኣመሓዳሪ ዕድል ተወከሱ።</string>
+    <string name="connect_job_ended">እቲ ዕማም ብ %s ተዛዚሙ</string>
     <string name="connect_learn_title">ምዕባለ ትምህርቲ</string>
     <string name="connect_learn_status">%d ናይ %d ትምህርቲ ወዲእካ ኣለኻ።\nምስክር ወረቐትካ ንምርካብ ትምህርቲ ወድእ።</string>
     <string name="connect_learn_not_started">ዝኾነ ትምህርቲ ኣይወዳእካን።\nሰርቲፊኬትካ ንምርካብ ክትመሃር ጀምር።</string>
     <string name="connect_learn_finished">ነዚ ስራሕ ምስክር ወረቐት ረኺብካ ነቲ ስራሕ ክትሓትትን ክንክን ከተቕርብ ክትጅምርን ብቑዕ ኢኻ።\nነጥብኻ: %d\nናይ ምሕላፍ ነጥቢ: %d</string>
     <string name="connect_fetch_learning_progress_error">ነቲ ናይ ትምህርቲ ምዕባለ ከምጽእ ኣይከኣለን</string>
-    <string name="connect_fetch_delivery_progress_error">ናይ ኣወሃህባ ምዕባለ ምምጻእ ኣይከኣለን</string>
-    <string name="your_score">ነጥቢ፡ %d</string>
     <string name="connect_learn_need_assessment">ስልጠና ንምውዳእ ነቲ ገምጋም ወድእ።</string>
     <string name="connect_learn_failed">ይቕሬታ ኣብ ገምጋምካ ናይ ምሕላፍ ነጥቢ ኣይረኸብካን። በጃኻ ደጊምካ ፈትን።\nነጥብኻ: %d\nነጥቢ ምሕላፍ: %d</string>
     <string name="connect_learn_complete">ውዱእ</string>
@@ -314,7 +312,6 @@
     <string name="connect_learn_review">ትምህርቲ ዳግመ ግምት</string>
     <string name="connect_learn_view_details">ዝርዝር ዕድል ርአ</string>
     <string name="connect_learn_go_to_assessment">ናብ ገምጋም ኪድ</string>
-    <string name="connect_learn_try_again">ደጊምካ ፈትን።</string>
     <string name="connect_learn_start">ትምህርቲ ጀምር</string>
     <string name="connect_learn_continue">ትምህርቲ ቀፅል</string>
     <string name="connect_delivery_earn_multi">ኣብ ነፍሲ ወከፍ ምብፃሕ ክትከፍል፤</string>
@@ -345,26 +342,23 @@
     <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
     <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
     <string name="connect_results_payment_not_confirmed">ኣይተረጋገፀን።</string>
-    <string name="connect_payment_confirm_text">ክፍሊት ረኺብካ!\n%s %s ተኸፊሉ %s.\nእቲ ክፍሊት ተቐቢልካዮ ዲኻ?</string>
+    <string name="connect_payment_confirm_text">ን%d %s ዕድል ዝኸውን %s ተኸፊልካዶ?</string>
     <string name="connect_payment_confirm_yes">እወ!</string>
     <string name="connect_payment_confirm_no">ፀኒሕኻ ሕተት።</string>
-    <string name="connect_payment_confirm_failed">መረጋገፂ ምልኣኽ ስለዘይከኣለ፡ ፀኒሕና እንደገና ክንሓትት ኢና።</string>
-    <string name="login_button_connectid">ብ PersonalId እቶ</string>
-    <string name="login_link_connectid_title">ናብ PersonalId ዝወስድ ሊንክ?</string>
-    <string name="login_link_connectid_message">ነዚ መእተዊ ምስ ናይ ምትእስሳር መለለዪ ኣካውንትካ ከተተሓሕዞ ትደሊ ዲኻ? ኣብ መጻኢ ፓስዎርድካ ምጽሓፍ ኣየድልየካን እዩ።</string>
-    <string name="login_unlink_connectid_title">Unlink ናይ ምትእስሳር መለለዪ?</string>
-    <string name="login_unlink_connectid_message">PersonalId ንኣውቶ-ሎጊን ተባሂሉ ዝተዋቕረ እኳ እንተነበረ፡ ብፓስዎርድካ ከም ዝኣተኻ ይርእየካ ኣለኹ። ነዚ መእተዊ ካብ PersonalId ክትቆርጾ ትደሊ ዲኻ?</string>
-    <string name="login_link_connectid_yes">እወ</string>
-    <string name="login_link_connectid_no">አይኮንን</string>
-    <string name="login_menu_connect_sign_in">ኣብ PersonalId ተመዝገቡ</string>
-    <string name="login_menu_connect_forget">ተጠቃሚ PersonalId ረሲዕካዮ</string>
+    <string name="personalid_login_with">ብ PersonalId እቶ</string>
+    <string name="personalid_link_app_title">ናብ PersonalId ዝወስድ ሊንክ?</string>
+    <string name="personalid_link_app_message">ነዚ መእተዊ ምስ ናይ ምትእስሳር መለለዪ ኣካውንትካ ከተተሓሕዞ ትደሊ ዲኻ? ኣብ መጻኢ ፓስዎርድካ ምጽሓፍ ኣየድልየካን እዩ።</string>
+    <string name="personalid_unlink_app_title">Unlink ናይ ምትእስሳር መለለዪ?</string>
+    <string name="personalid_unlink_app_message">PersonalId ንኣውቶ-ሎጊን ተባሂሉ ዝተዋቕረ እኳ እንተነበረ፡ ብፓስዎርድካ ከም ዝኣተኻ ይርእየካ ኣለኹ። ነዚ መእተዊ ካብ PersonalId ክትቆርጾ ትደሊ ዲኻ?</string>
+    <string name="personalid_link_app_yes">እወ</string>
+    <string name="personalid_link_app_no">አይኮንን</string>
+    <string name="personalid_signup">ኣብ PersonalId ተመዝገቡ</string>
+    <string name="personalid_forget_user">ተጠቃሚ PersonalId ረሲዕካዮ</string>
     <string name="connect_app_install_unknown_error">ናይ ኣፕሊኬሽን ምፅዓን ብሰንኪ ዘይተፈልጠ ጌጋ ኣይተዓወተን</string>
     <string name="connect_app_installed">ኣፕሊኬሽን ተፃዒኑ</string>
     <string name="app_with_id_not_found">ዘድሊ CommCare App ኣብ መሳርሒ ኣይተተኸለን</string>
     <string name="audio_recording_notification">ድምጺ ምቕራጽ (ምቅዳሕ) መፍለጢ</string>
     <string name="user_suspended">ተገልጋላይ ተኣጊዱ ኣሎ። ንመመሓዳሪኦም/ኣድሚን ይርከቡ</string>
-    <string name="connect_payment_acknowledge_notification_yes">እወ</string>
-    <string name="connect_payment_acknowledge_notification_no">ኣይፋል</string>
     <string name="enter_otp">ናይ ኤስኤምኤስ ኮድ ኣእትዉ</string>
     <string name="create_a_new_recovery_code">ሓድሽ ኮድ ምፍጣር</string>
     <string name="confirm_code">ኮድ ምርግጋፅ</string>
@@ -385,6 +379,9 @@
     <string name="connect_job_info_start_visit">ምብጻሕ (ምጉብንይ) ጀምር</string>
     <string name="connect_job_info_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_job_info_download">ዳውንሎድ</string>
+    <string name="connect_job_info_view_info">ሓበሬታ ርአ</string>
+    <string name="connect_job_info_view_resume">ቐጽል</string>
+    <string name="connect_job_info_view_review">ዳግመ ግምት</string>
     <string name="connect_progress">ምዕባለ</string>
     <string name="connect_payment">ክፍሊት</string>
     <string name="connect_delivery_progress_description">ዝኾነ ትምህርቲ ኣይወዳእካን ስልዚ ምስክር ወረቐትካ ንምርካብ ምምሃር ጀምር።</string>
@@ -402,6 +399,9 @@
     <string name="connect_delivery">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
     <string name="connect_expired">ኣገልግሎቱ ዝወደአ</string>
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
+    <string name="connect_in_progress">ኣብ መስርሕ</string>
+    <string name="connect_new_opportunities">ሓደስቲ ዕድላት</string>
+    <string name="connect_completed">ተዛዚሙ</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="connect_messaging_channel_consent_title">ፍቓድ ንቻነል ሃብ</string>
     <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
@@ -412,7 +412,6 @@
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed">ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_location_permission_error">PersonalID መሳርሒኻ ናይ ኣገልግሎት ኣቀማምጣ ከም ዝተኸፍተ ገይሩ ክህልዎ የገድድ እዩ። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ setting ናይ ተሌፎንካ ኣክቲቭ ግበሮ።</string>
-    <string name="personalid_messaging_menu_title">መልእኽቲ ምልውዋጥ</string>
     <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
     <string name="connect_recovery_button_phone">ቀፃሊ</string>
@@ -438,7 +437,6 @@
     <string name="personalid_login_via_connect">ንምእታው ድሉው!\n</string>
     <string name="personalid_failed_to_login_with_connectid">ውልቃዊ መለለዪ መንነትካ ተጠቒምካ ንምእታው ኣብ እንኣስረሉ እዋን ዘይምለስ ጌጋ የጋጥመና ኣሎ። በጃኻ ብፓስዎርድካ እቶ ወይ ድማ ውልቃዊ መለለዪ መእተዊኻ ምምላስ</string>
     <string name="personalid_name_fragment_subtitle">በጃኹም ኣብቲ ብመንግስቲ ዝተዋህበኩም መለለዪ መንነትኩም ከም ዝረአ ስምኩም ኣእትዉ</string>
-    <string name="personalid_name_empty_error">ናይ ስም ዓውዲ ባዶ ክኸውን ኣይክእልን እዩ።</string>
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
     <string name="personalid_configuration_process_failed_subtitle">ብ दुर्भाग्य፣ እዚ መሳርሒ\'ዚ ን PersonalID ንምምዝጋብ ዘድልዩ ናይ ጸጥታ መርመራታት ኣይሓለፈን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
@@ -455,22 +453,19 @@
     <string name="personalid_photo_capture_subtitle">ምድላው ኣካውንትኩም ንምዝዛም ፎቶኹም ውሰዱ</string>
     <string name="personalid_photo_capture_take_photo_button">ፎቶ ውሰድ</string>
     <string name="personalid_photo_capture_save_photo_button">ስእሊ ምዕቃብ</string>
-    <string name="personalid_photo_upload_failure">ስእሊ ምዕቃብ ኣይከኣለን። በጃኹም ኢንተርነትኩም ርኣይዎ እሞ እንደገና ፈትኑ።</string>
     <string name="personalid_this_is_not_me"><u>እዚ ኣነ ኣይኮንኩን።</u></string>
     <string name="personalid_welcome_back_msg">እንቋዕ ብደሓን መጻእኩም %s</string>
-    <string name="personalid_recovery_failed_title">ምሕዋይ ኣይተዓወተን</string>
-    <string name="personalid_recovery_lockout_title">ኣካውንት ተዓጽዩ።</string>
-    <string name="personalid_recovery_failed_message">Backup Code ናትካ ዝረሳዕካዮ ይመስል፣ ሓድሽ ኣካውንት ንፈጥር ኣለና።</string>
-    <string name="personalid_recovery_lockout_message">ንስኻ ነቲ ናይ ምትካእ ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። ሕሳብካ ተዓጽዩ ኣሎ።</string>
-    <string name="personalid_wrong_backup_message">ጌጋ Backup Code ኣእቲኻ፡ በጃኻ ደጊምካ ፈትን። ድሕሪ %d ዝያዳ ዘይቅኑዕ ፈተነታት ሓድሽ ኣካውንት ክትፈጥር ከድልየካ እዩ።</string>
+    <string name="personalid_wrong_backup_message">ጌጋ Backup Code ኣእቲኻ ኣለኻ። በጃኹም ደጊምኩም ፈትኑ። ድሕሪ %d ዝያዳ ጌጋ ፈተነታት ኣካውንትካ ክዕጾ እዩ።</string>
+    <string name="personalid_second_device_login_title">ኣብ ካልኣይ መሳርሒ እቶ</string>
+    <string name="personalid_second_device_login_message">ካብ %s ወጺኡ፣ ንመወዳእታ ግዜ ዝተጠቕመሉ %s። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
+    <string name="personalid_second_device_login_message_no_date">ካብ %s ወጺኡ። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
     <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
     <string name="personalid_work_history_title">ታሪኽ ስራሐይ</string>
     <string name="personalid_work_history">ታሪኽ ስራሕ</string>
     <string name="personalid_work_history_learn_more">ብዛዕባ ምስክር ወረቐታት ዝበለጸ ፍለጥ</string>
-    <string name="personalid_work_history_no_records_available">No work history records are currently available. Click Refresh or check back later</string>
-    <string name="personalid_work_history_earned">ዝተረኽበ</string>
+    <string name="personalid_work_history_no_records_available">ህሉው ናይ ስራሕ መዝገባት የለዉን። ሓድስ ነገር ንምርኣይ ጠውቕ፣ ወይ ድሕሪኡ ተመለስ።</string>    <string name="personalid_work_history_earned">ዝተረኽበ</string>
     <string name="personalid_work_history_pending">ኣብ ከይዲ ዘሎ</string>
     <string name="personalid_work_history_sync">Sync</string>
     <string name="personalid_work_history_level_1_month_active">1 ወርሒ\nተግባር</string>
@@ -481,7 +476,7 @@
     <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
 
     <string name="personalid_notification">መፍለጥታትን</string>
-    <string name="pn_no_notification_found">ዝኾነ መፍለጢ ኣይተረኽበን</string>
+    <string name="pn_no_notification_available">ዝርከብ መፍለጢ የለን</string>
 
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
@@ -490,7 +485,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
-    <string name="nav_drawer_work_history">ታሪኽ ስራሕ</string>
     <string name="nav_drawer_payments">ክፍሊታት</string>
     <string name="nav_drawer_manage_profile">ፕሮፋይል ኣስተዳደር</string>
     <string name="play_service_update_error">PersonalID ንኽትጥቀም፡ ናይ Google Play ኣገልግሎታት ከተሐድስ የድልየካ። ምዕዳጋት ንምርኣይ ናብ Google Play Store ንምኻድ ኣብዚ ጠውቕ።</string>
@@ -504,12 +498,25 @@
     <string name="yesterday">ትማሊ %1$s</string>
 
     <string name="recovery_network_cooldown">ኣዝዩ ብዙሕ ናይ ምሕታት ፈተነታት። በጃኻ ድሕሪ ሓደ ሰዓት እንደገና ፈትን።</string>
+    <string name="recovery_network_unknown">ገለ ነገር ተጋግዩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_authentication_failed">ኣብ ናይ ኣንድሮይድ መሳርሒኻ ዘሎ ባዮሜትሪክስ ምእማት ኣይተዓወተን። በጃኹም ዝኾነ ይኹን ዝርከብ ናይ ሲስተም ምዕዳጋት ግበሩሉ፡ ወይ ድማ ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
 
-    <string name="no_channel_msg">ናይ ሕጂ ናይ መልእኽቲ ቻነላት የብልካን።</string>
+    <string name="no_channel_msg">ንዝኾነ ቻነላት መልእኽቲ ኣይተመዝገብካን ኢኻ። ሓንሳብ ናብቻነል ምስ ተወሰኽካ፡ ኣብዚ ዝርዝር\'ዚ ክትቐርብ እያ።</string>
     <string name="personalid_using_your_location">ቦታኻ ምጥቃም</string>
     <string name="personalid_no_location_found">ቦታኻ ክንረክቦ ኣይከኣልናን</string>
     <string name="personalid_tooltip_location_failure_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\nንኽትቅጽል በጃኻ ኣብ setting ናይ ቦታ ፍቓድ ኣኽእል፡ ወይ ድማ ጸኒሕካ ደጊምካ ፈትን።</string>
     <string name="personalid_tooltip_location_success_message">ውሑስ ኣጠቓቕማ ናይዚ ኣፕሊኬሽን ንምርግጋጽ፡ ናይ ቦታ ሓበሬታ ንጥቀም ኢና።\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">ንተወሳኺ ሓበሬታ ኣብዚ ጠውቕ።</a></string>
 
+    <string name="network_forbidden_error">ምብጻሕ ተኸልኪሉ። እቲ ጸገም እንተቐጺሉ ንደገፍ ዓማዊል ተወከሱ።</string>
+    <string name="error">ጌጋ</string>
+    <string name="failed_to_start_learning">ምምሃር ምጅማር ኣይተኻእለን</string>
+    <string name="failed_to_update_payment">ክፍሊት ምዕራይ ኣይተኻእለን</string>
+    <string name="personalid_biometric_error_cancelled">ናይ ባዮሜትሪክ ምድላው ተሰሪዙ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
+    <string name="personalid_biometric_error_lockout">በዝሒ ፈተነታት። በጃኻ ጽንሕ ኢልካ እንደገና ፈትን።</string>
+    <string name="personalid_biometric_error_lockout_permanent">በዝሒ ዝፈሸለ ፈተነታት። በጃኻ ንመሳርሒኻ ክፈቶ እሞ እንደገና ፈትን።</string>
+    <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
+    <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
+
+    <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
+    <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
 </resources>

@@ -15,13 +15,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
@@ -29,6 +30,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.NotificationUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -197,9 +200,6 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
-                } else if (sessionData.getSessionFailureCode() != null &&
-                                sessionData.getSessionFailureCode().equalsIgnoreCase("LOCKED_ACCOUNT")) {
-                    handleAccountLockout();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
@@ -210,7 +210,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
-                showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+                showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
                 }
@@ -229,6 +229,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 personalIdSessionData.getInvitedUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
+        handleSecondDeviceLogin();
         navigateToSuccess();
     }
 
@@ -250,17 +251,30 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
     }
 
-    private void handleAccountLockout() {
-        logRecoveryResult(false);
-        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE);
-        clearBackupCodeFields();
-        navigateWithMessage(getString(R.string.personalid_recovery_lockout_title),
-                getString(R.string.personalid_recovery_lockout_message),
-                ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED);
-    }
-
     private void logRecoveryResult(boolean success) {
         FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+    }
+
+    private void handleSecondDeviceLogin() {
+        if(personalIdSessionData.getPreviousDevice() != null) {
+            int titleId = R.string.personalid_second_device_login_title;
+            String message;
+            if (personalIdSessionData.getLastAccessed() != null) {
+                message = getString(R.string.personalid_second_device_login_message,
+                        personalIdSessionData.getPreviousDevice(),
+                        DateUtils.getShortStringValue(personalIdSessionData.getLastAccessed()));
+            } else {
+                message = getString(R.string.personalid_second_device_login_message_no_date,
+                        personalIdSessionData.getPreviousDevice());
+            }
+
+            NotificationUtil.showNotification(requireContext(),
+                    CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
+                    titleId,
+                    getString(titleId),
+                    message,
+                    null);
+        }
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {

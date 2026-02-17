@@ -26,11 +26,17 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ConnectResultsSummaryListFragment extends ConnectJobFragment<FragmentConnectResultsSummaryListBinding> {
     private ResultsAdapter adapter;
@@ -47,9 +53,17 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getBinding().getRoot().requestLayout();
+    }
+
     public void updateView() {
         updateSummaryView();
+
         if (adapter != null) {
+            adapter.rebuildPaymentsDisplayList();
             adapter.notifyDataSetChanged();
         }
     }
@@ -77,11 +91,16 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
         private final ConnectJobRecord job;
         private final boolean showPayments;
         private final Context context;
+        private final ArrayList<ConnectJobPaymentRecord> payments = new ArrayList<>();
 
         public ResultsAdapter(Context context, ConnectJobRecord job, boolean showPayments) {
             this.context = context;
             this.job = job;
             this.showPayments = showPayments;
+
+            if (showPayments) {
+                buildPaymentsDisplayList();
+            }
         }
 
         @NonNull
@@ -97,7 +116,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
             if (holder instanceof VerificationViewHolder vh) {
                 bindVerificationItem(vh, job.getDeliveries().get(position));
             } else if (holder instanceof PaymentViewHolder ph) {
-                bindPaymentItem(ph, job.getPayments().get(position), job);
+                bindPaymentItem(ph, payments.get(position), job);
             }
         }
 
@@ -141,15 +160,27 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
             }
         }
 
-        private void handleConfirmationDialogResult(PaymentViewHolder holder, ConnectJobPaymentRecord payment,
-                                        boolean result) {
-            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, result,
-                    success -> holder.updateConfirmedText(context, payment));
+        private void handleConfirmationDialogResult(
+                PaymentViewHolder holder,
+                ConnectJobPaymentRecord payment,
+                boolean result
+        ) {
+            ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
+                    context,
+                    Collections.singletonList(
+                            new ConnectPaymentConfirmationModel(payment, result)
+                    ),
+                    (success,error) -> {
+                        holder.updateConfirmedText(context, payment);
+                        rebuildPaymentsDisplayList();
+                        notifyDataSetChanged();
+                    }
+            );
         }
 
         @Override
         public int getItemCount() {
-            return showPayments ? job.getPayments().size() : job.getDeliveries().size();
+            return showPayments ? payments.size() : job.getDeliveries().size();
         }
 
         public static class VerificationViewHolder extends RecyclerView.ViewHolder {
@@ -238,6 +269,32 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
 
             binding.riNo.setOnClickListener(view -> dialog.dismiss());
             dialog.show();
+        }
+
+        private void buildPaymentsDisplayList() {
+            List<ConnectJobPaymentRecord> confirmedPayments = new ArrayList<>();
+            List<ConnectJobPaymentRecord> unconfirmedPayments = new ArrayList<>();
+            List<ConnectJobPaymentRecord> sortedPayments = ConnectJobUtils.getPaymentsSortedByDate(job);
+
+            for (ConnectJobPaymentRecord payment : sortedPayments) {
+                boolean paymentConfirmed = payment.getConfirmed();
+
+                if (paymentConfirmed) {
+                    confirmedPayments.add(payment);
+                } else {
+                    unconfirmedPayments.add(payment);
+                }
+            }
+
+            payments.addAll(unconfirmedPayments);
+            payments.addAll(confirmedPayments);
+        }
+
+        void rebuildPaymentsDisplayList() {
+            if (showPayments) {
+                payments.clear();
+                buildPaymentsDisplayList();
+            }
         }
     }
 

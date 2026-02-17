@@ -93,19 +93,9 @@ and view the results from the output file generated.
 
 ### Run unit-tests from Android Studio
 
-Create a new Android Studio JUnit Build configuration using the following steps.
+Unit tests can be ran from Android Studio via an auto-configured Gradle task by right-clicking on the test folder in the file explorer and then clicking on "Run 'org.commcare.tests'".
 
-- Click *Run -> Edit Configruations* and create a new JUnit configuration by pressing the green plus button.
-- Set *Name* to "commcare Android test suite"
-- Set *Test kind* to "All in directory"
-- set *Directory* to `/absolute/path/to/commcare-android/app/unit-tests/src/`
-- Right click on this directory and click the "Create 'All Tests'" option that should be listed more than half-way down the list.
-- Set *VM options* to `-ea -noverify`
-- Set *Working directory* to `/absolute/path/to/commcare-android/app/`
-- Set *Use classpath of module* to *app*
-- Click `OK` to finish creating the configuration.
-- Select the "commcare Android test suite" under the configuration drop down to the left of the green play button.
-- Press the green play button to run the tests.
+You may also run individual unit tests, via auto-configured Gradle tasks, by clicking on the green play button in the editor gutter (on the left-hand side of the editor window) of the unit test class.
 
 ## Instrumentation Tests
 
@@ -214,3 +204,8 @@ To do this set org.gradle.jvmargs=-Xmx1536M in the project gradle.properties.
 ```
 
 - Click *Run 'app'* to rebuid and run on phone.
+
+
+## AI Development Guidelines
+
+Guidelines for AI agents can be found in [AI Agent Development Guidelines](AGENT.md). This document can be symlinked at the file path that your AI agent expects it to be at.

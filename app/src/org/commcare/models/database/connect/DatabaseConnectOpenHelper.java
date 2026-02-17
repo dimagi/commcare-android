@@ -19,18 +19,16 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
-import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
-import org.commcare.models.database.user.UserSandboxUtils;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
-import org.commcare.util.Base64;
-import org.commcare.util.Base64DecoderException;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
 
@@ -59,12 +57,15 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.13 - Added ConnectJobDeliveryFlagRecord table
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
      * V.16 - Added  personal_id_credential table
-     * V17  - Added a new column has_connect_access to ConnectUserRecord
-     * V18 - Added new columns to personal_id_credential table (previously the table was unused)
+     * V.17 - Added a new column has_connect_access to ConnectUserRecord
+     * V.18 - Added new columns to personal_id_credential table (previously the table was unused)
      * V.19 - Added push_notification_history
-     * V.20 Added acknowledged column in push_notification_history
+     * V.20 - Added acknowledged column in push_notification_history
+     * V.21 - Added ConnectReleaseToggleRecord table
+     * V.22 - Added a new field UUID for ConnectAppRecord, ConnectLearnModuleSummaryRecord, ConnectJobLearningRecord, ConnectJobDeliveryRecord
+     *          ConnectJobAssessmentRecord, ConnectPaymentUnitRecord, ConnectJobRecord, ConnectJobPaymentRecord and PushNotificationRecord
      */
-    private static final int CONNECT_DB_VERSION = 20;
+    private static final int CONNECT_DB_VERSION = 22;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -139,6 +140,10 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(PushNotificationRecord.class);
             database.execSQL(builder.getTableCreateString());
 
+            builder = new TableBuilder(ConnectReleaseToggleRecord.class);
+            builder.setUnique(ConnectReleaseToggleRecord.META_SLUG);
+            database.execSQL(builder.getTableCreateString());
+
             DbUtil.createNumbersTable(database);
 
             database.setVersion(CONNECT_DB_VERSION);
@@ -169,7 +174,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("Connect", oldVersion, newVersion));
-        new ConnectDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
+        new ConnectDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Connect", oldVersion, newVersion));
     }
 }

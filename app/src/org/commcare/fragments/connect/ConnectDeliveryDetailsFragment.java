@@ -21,7 +21,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDetailsBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -95,19 +95,25 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
 
             @Override
             public void onSuccess(Boolean data) {
-                proceedAfterJobClaimed(getBinding().connectDeliveryButton, job, appInstalled);
+                if (isAdded()) {
+                    proceedAfterJobClaimed(getBinding().connectDeliveryButton, job, appInstalled);
+                }
+
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(true);
             }
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                String message;
-                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
-                    message = getString(R.string.recovery_unable_to_claim_opportunity);
-                } else {
-                    message = PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t);
+                if (isAdded()) {
+                    String message;
+                    if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
+                        message = getString(R.string.recovery_unable_to_claim_opportunity);
+                    } else {
+                        message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
+                    }
+                    showSnackBarWithDismissAction(getBinding().getRoot(), message);
                 }
-                showSnackBarWithDismissAction(getBinding().getRoot(), message);
+
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());

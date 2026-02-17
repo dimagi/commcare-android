@@ -2,10 +2,12 @@
 <resources>
 
     <!-- Text sizes -->
-    <dimen name="text_smaller">9dp</dimen>
-    <dimen name="text_small">14dp</dimen>
-    <dimen name="text_medium">18dp</dimen>
-    <dimen name="text_large">21dp</dimen>
+    <dimen name="text_smaller">9sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_medium">18sp</dimen>
+    <dimen name="text_large">21sp</dimen>
+    <dimen name="text_larger">28sp</dimen>
+    <dimen name="text_largest">40sp</dimen>
 
     <!-- Miscellaneous -->
 
@@ -86,11 +88,6 @@
     <dimen name="question_widget_side_padding">16dp</dimen>
     <dimen name="question_widget_side_inv">-16dp</dimen>
 
-    <!--  Text sizes -->
-
-    <dimen name="text_larger">28dp</dimen>
-    <dimen name="text_largest">40dp</dimen>
-
     <!-- Menu list row dimensions -->
 
     <dimen name="content_min_margin">16dp</dimen>
@@ -163,4 +160,7 @@
 
     <dimen name="corner_radius_small_5dp">5dp</dimen>
     <dimen name="nav_drawer_width">264dp</dimen>
+
+    <dimen name="side_nav_horizontal_padding">10dp</dimen>
+    <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
 </resources>

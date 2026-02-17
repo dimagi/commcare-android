@@ -132,7 +132,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         checkManagedConfiguration();
 
         if (shouldFinish()) {
@@ -507,7 +506,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
             if (job != null) {
                 personalIdManager.updateAppAccess(context, appId, username);
-                ConnectJobHelper.INSTANCE.updateJobProgress(context, job,null,null, success -> setResultAndFinish(job.getIsUserSuspended()));
+                ConnectJobHelper.INSTANCE.updateJobProgress(context, job,null,null, (success, error) -> setResultAndFinish(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link PersonalId-managed login
                 personalIdManager.checkPersonalIdLink(context,
@@ -542,7 +541,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
+        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
             setResult(RESULT_OK);
             finish();
         });
@@ -573,8 +572,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         menu.add(0, MENU_ACQUIRE_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_FORGOT_PIN, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
-        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.login_menu_connect_sign_in));
-        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.login_menu_connect_forget));
+        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.personalid_signup));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.personalid_forget_user));
         return true;
     }
 
@@ -760,6 +759,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         selectedAppIndex = position;
         String appId = appIdDropdownList.get(selectedAppIndex);
+        presetAppId = appId;
         seatAppIfNeeded(appId);
     }
 
@@ -1003,18 +1003,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
-        if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
-            return true;
-        }
-
-        initPersonaIdManager();
-        boolean showDrawer = personalIdManager.isloggedIn();
-
-        if(showDrawer) {
-            NavDrawerHelper.INSTANCE.setDrawerShown();
-        }
-
-        return showDrawer;
+        return shouldShowDrawerAfterCheck();
     }
 
     @Override
@@ -1033,6 +1022,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 if (!appIdDropdownList.isEmpty()) {
                     selectedAppIndex = appIdDropdownList.indexOf(recordId);
                 }
+                presetAppId = recordId;
                 seatAppIfNeeded(recordId);
                 closeDrawer();
             }

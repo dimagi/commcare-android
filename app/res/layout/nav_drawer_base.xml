@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:background="@color/connect_blue_color"
     android:layout_gravity="start"
+    android:paddingHorizontal="@dimen/side_nav_horizontal_padding"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
         <androidx.core.widget.NestedScrollView
@@ -26,8 +27,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:orientation="vertical"
+                    android:layout_marginTop="@dimen/side_nav_sign_out_top_margin"
                     android:visibility="gone"
-                    android:paddingTop="92dp"
                     android:layout_weight="1">
 
                     <ImageView

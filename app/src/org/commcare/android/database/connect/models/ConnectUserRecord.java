@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 /**
- * DB model for a ConnectID user and their info
+ * DB model for a PersonalID user and their info
  *
  * @author dviggiano
  */
@@ -236,4 +236,7 @@ public class ConnectUserRecord extends Persisted {
         this.hasConnectAccess = hasConnectAccess;
     }
 
+    public boolean getIsDemo() {
+        return isDemo;
+    }
 }

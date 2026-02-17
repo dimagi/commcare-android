@@ -2,20 +2,10 @@ package org.commcare.android.tests.processing;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
-import org.commcare.CommCareTestApplication;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.javarosa.core.model.FormDef;
@@ -28,6 +18,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -342,67 +342,80 @@ public class FormStorageTest {
             // Added in 2.53
             "org.javarosa.xpath.expr.XPathDecryptStringFunc",
             "org.javarosa.xpath.expr.XPathJsonPropertyFunc",
-            "org.commcare.suite.model.AndroidPackageDependency"
+            "org.commcare.suite.model.AndroidPackageDependency",
 
             // Added in 2.54
-            , "org.commcare.suite.model.QueryPromptCondition"
-            , "org.commcare.suite.model.MultiSelectEntityDatum"
-            , "org.commcare.suite.model.ListQueryData"
-            , "org.commcare.suite.model.ValueQueryData"
-            , "org.javarosa.core.util.externalizable.ExtWrapMultiMap"
-            , "org.javarosa.core.model.instance.ExternalDataInstanceSource"
-            , "org.commcare.suite.model.DetailGroup"
-            , "org.commcare.services.FCMMessageData"
-            , "org.commcare.suite.model.EndpointArgument"
-            , "org.commcare.suite.model.EndpointAction"
-            , "org.commcare.suite.model.QueryGroup"
+            "org.commcare.suite.model.QueryPromptCondition",
+            "org.commcare.suite.model.MultiSelectEntityDatum",
+            "org.commcare.suite.model.ListQueryData",
+            "org.commcare.suite.model.ValueQueryData",
+            "org.javarosa.core.util.externalizable.ExtWrapMultiMap",
+            "org.javarosa.core.model.instance.ExternalDataInstanceSource",
+            "org.commcare.suite.model.DetailGroup",
+            "org.commcare.services.FCMMessageData",
+            "org.commcare.suite.model.EndpointArgument",
+            "org.commcare.suite.model.EndpointAction",
+            "org.commcare.suite.model.QueryGroup",
 
             // Added in 2.55
-            , "org.javarosa.core.model.FormIndex"
-            , "org.commcare.models.database.InterruptedFormState"
-            , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3"
-            , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8"
-            , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9"
-            , "org.commcare.android.database.connect.models.ConnectLinkedAppRecord"
-            , "org.commcare.android.database.connect.models.ConnectUserRecordV5"
-            , "org.commcare.android.database.connect.models.ConnectUserRecord"
-            , "org.commcare.android.database.connect.models.ConnectAppRecord"
-            , "org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV2"
-            , "org.commcare.android.database.connect.models.ConnectJobDeliveryRecord"
-            , "org.commcare.android.database.connect.models.ConnectJobPaymentRecordV3"
-            , "org.commcare.android.database.connect.models.ConnectJobPaymentRecord"
-            , "org.commcare.android.database.connect.models.ConnectJobRecordV2"
-            , "org.commcare.android.database.connect.models.ConnectJobRecordV4"
-            , "org.commcare.android.database.connect.models.ConnectJobRecordV7"
-            , "org.commcare.android.database.connect.models.ConnectJobRecordV10"
-            , "org.commcare.android.database.connect.models.ConnectJobRecord"
-            , "org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord"
-            , "org.commcare.android.database.connect.models.ConnectJobLearningRecord"
-            , "org.commcare.android.database.connect.models.ConnectJobAssessmentRecord"
-            , "org.commcare.android.database.global.models.ConnectKeyRecord"
-            , "org.commcare.android.database.global.models.ConnectKeyRecordV6"
-            , "org.commcare.android.database.connect.models.ConnectPaymentUnitRecord"
+            "org.javarosa.core.model.FormIndex",
+            "org.commcare.models.database.InterruptedFormState",
+            "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3",
+            "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8",
+            "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9",
+            "org.commcare.android.database.connect.models.ConnectLinkedAppRecord",
+            "org.commcare.android.database.connect.models.ConnectUserRecordV5",
+            "org.commcare.android.database.connect.models.ConnectUserRecord",
+            "org.commcare.android.database.connect.models.ConnectAppRecord",
+            "org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV2",
+            "org.commcare.android.database.connect.models.ConnectJobDeliveryRecord",
+            "org.commcare.android.database.connect.models.ConnectJobPaymentRecordV3",
+            "org.commcare.android.database.connect.models.ConnectJobPaymentRecord",
+            "org.commcare.android.database.connect.models.ConnectJobRecordV2",
+            "org.commcare.android.database.connect.models.ConnectJobRecordV4",
+            "org.commcare.android.database.connect.models.ConnectJobRecordV7",
+            "org.commcare.android.database.connect.models.ConnectJobRecordV10",
+            "org.commcare.android.database.connect.models.ConnectJobRecord",
+            "org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord",
+            "org.commcare.android.database.connect.models.ConnectJobLearningRecord",
+            "org.commcare.android.database.connect.models.ConnectJobAssessmentRecord",
+            "org.commcare.android.database.global.models.ConnectKeyRecord",
+            "org.commcare.android.database.global.models.ConnectKeyRecordV6",
+            "org.commcare.android.database.connect.models.ConnectPaymentUnitRecord",
 
-            //Added in 2.56
-            , "org.commcare.android.database.connect.models.ConnectMessagingChannelRecord"
-            , "org.commcare.android.database.connect.models.ConnectMessagingMessageRecord"
-            , "org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord"
+            // Added in 2.56
+            "org.commcare.android.database.connect.models.ConnectMessagingChannelRecord",
+            "org.commcare.android.database.connect.models.ConnectMessagingMessageRecord",
+            "org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord",
 
-            //Added in 2.57
-            , "org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc"
-            , "org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc"
-            , "org.commcare.android.database.connect.models.ConnectUserRecordV13"
-            , "org.commcare.android.database.global.models.GlobalErrorRecord"
+            // Added in 2.57
+            "org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc",
+            "org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc",
+            "org.commcare.android.database.connect.models.ConnectUserRecordV13",
+            "org.commcare.android.database.global.models.GlobalErrorRecord",
 
-            ,"org.commcare.android.database.connect.models.ConnectUserRecordV14"
+            "org.commcare.android.database.connect.models.ConnectUserRecordV14",
 
-            //Added in 2.58
-            ,"org.commcare.android.database.connect.models.PersonalIdWorkHistory"
-            ,"org.commcare.android.database.connect.models.ConnectUserRecordV16"
-            , "org.commcare.android.database.connect.models.PushNotificationRecord"
+            // Added in 2.58
+            "org.commcare.android.database.connect.models.PersonalIdWorkHistory",
+            "org.commcare.android.database.connect.models.ConnectUserRecordV16",
+            "org.commcare.android.database.connect.models.PushNotificationRecord",
 
-            //Added in 2.60
-            ,"org.commcare.suite.model.Credential"
+            // Added in 2.60
+            "org.commcare.suite.model.Credential",
+
+            // Added in 2.62
+            "org.commcare.android.database.connect.models.ConnectReleaseToggleRecord",
+            "org.commcare.android.database.connect.models.ConnectJobRecordV21",
+            "org.commcare.android.database.connect.models.ConnectAppRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobLearningRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobPaymentRecordV21",
+            "org.commcare.android.database.connect.models.ConnectJobAssessmentRecordV21",
+            "org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecordV21",
+            "org.commcare.android.database.connect.models.ConnectPaymentUnitRecordV21",
+            "org.commcare.android.database.connect.models.PushNotificationRecordV21"
+
     );
 
 
