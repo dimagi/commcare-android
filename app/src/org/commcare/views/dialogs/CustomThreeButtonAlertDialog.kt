@@ -84,11 +84,11 @@ class CustomThreeButtonAlertDialog(
         }
     }
 
-    /**
-     * This function should be called after the dialog is built or else the square background will
-     * be visible behind the rounded corners.
-     */
-    fun setWindowBackgroundTransparent() {
+    fun showDialog(context: Context) {
+        showNonPersistentDialog(context)
+
+        // Make the window background transparent after the dialog is built or else the square
+        // background will be visible behind the rounded corners.
         dialog.window!!.setBackgroundDrawableResource(R.color.transparent)
     }
 }

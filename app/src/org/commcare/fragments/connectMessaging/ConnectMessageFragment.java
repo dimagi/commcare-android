@@ -368,8 +368,7 @@ public class ConnectMessageFragment extends Fragment {
             throw new IllegalStateException("Attempted to show alert dialog for an unsupported menu item!");
         }
 
-        dialog.showNonPersistentDialog(requireContext());
-        dialog.setWindowBackgroundTransparent();
+        dialog.showDialog(requireContext());
     }
 }
 
