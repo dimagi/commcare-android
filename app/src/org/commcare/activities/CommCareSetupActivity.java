@@ -318,7 +318,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     @Override
     protected boolean shouldShowDrawer() {
-        return true;
+        return PersonalIdManager.getInstance().checkDeviceCompability();
     }
 
     @Override
@@ -506,8 +506,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.add(0, MENU_OFFLINE_INSTALL, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_INSTALL_FROM_LIST, 2, Localization.get("menu.app.list.install"));
-        menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.login_menu_connect_forget));
-        menu.add(0, MENU_REFRESH_OPPORTUNITIES, 4, getString(R.string.menu_refresh_opportunities));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.personalid_forget_user));
+        menu.add(0, MENU_REFRESH_OPPORTUNITIES, 4, getString(R.string.connect_refresh_opportunities));
         return true;
     }
 
@@ -674,7 +674,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
                 && ConnectUserDatabaseUtil.hasConnectAccess(this);
         installFragment.updateConnectButton(isConnectEnabled, v -> {
-            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
+            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
             });
         });
     }

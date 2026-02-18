@@ -71,7 +71,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     private final Vector<Pair<Entity<TreeReference>, EntityMapDisplayInfo>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
-    private final HashMap<Polygon, Pair<String, String>> polygonInfo = new HashMap<>();
+    private final HashMap<Polygon, Entity<TreeReference>> polygonInfo = new HashMap<>();
     private final List<Circle> geoPointCircles = new ArrayList<>();
 
     private GoogleMap mMap;
@@ -83,6 +83,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private int imageFieldIndex = -1;
 
     private Marker polygonInfoMarker = null;
+    private TreeReference polygonInfoMarkerReference = null;
     private Trace mapReadyTrace = null;
     private Trace mapLoadedTrace = null;
     private int numMarkers = 0;
@@ -183,13 +184,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
 
+            boolean added = false;
             for (Pair<Entity<TreeReference>, EntityMapDisplayInfo> displayInfoPair : entityLocations) {
-                addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
-                addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
-                addGeoPoints(builder, displayInfoPair.second);
+                added |= addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
+                added |= addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
+                added |= addGeoPoints(builder, displayInfoPair.second);
             }
 
-            final LatLngBounds bounds = builder.build();
+            final LatLngBounds bounds = added ? builder.build() : null;
 
             mMap.setOnMapClickListener(latLng -> {
                 dismissPolygonInfoMarker();
@@ -205,8 +207,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             });
 
             // Move camera to include all markers
-            mMap.setOnMapLoadedCallback(
-                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
+            mMap.setOnMapLoadedCallback(() -> {
+                if(bounds != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
                         @Override
                         public void onCancel() {
                             finishLoadingPerformanceTrace();
@@ -216,7 +219,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                         public void onFinish() {
                             finishLoadingPerformanceTrace();
                         }
-                    }));
+                    });
+                } else {
+                    finishLoadingPerformanceTrace();
+                }
+            });
 
             setupMapToggles();
         } else {
@@ -229,7 +236,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         mMap.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
     }
 
-    private void addMarker(LatLngBounds.Builder builder,
+    private boolean addMarker(LatLngBounds.Builder builder,
                            Entity<TreeReference> entity,
                            EntityMapDisplayInfo displayInfo,
                            boolean showCustomMapMarker) {
@@ -247,16 +254,20 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             if (marker == null) {
                 Logger.exception("Failed to add marker to map",
                         new Exception("Marker: " + entity.getFieldString(0)));
-                return;
+                return false;
             }
 
             markerReferences.put(marker, entity.getElement());
             builder.include(displayInfo.getLocation());
             numMarkers++;
+
+            return true;
         }
+
+        return false;
     }
 
-    private void addBoundaryPolygon(LatLngBounds.Builder builder,
+    private boolean addBoundaryPolygon(LatLngBounds.Builder builder,
                                     Entity<TreeReference> entity,
                                     EntityMapDisplayInfo displayInfo) {
         if (displayInfo.getBoundary() != null) {
@@ -274,17 +285,20 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                     .strokeWidth(BOUNDARY_POLYGON_STROKE_WIDTH);
 
             Polygon polygon = mMap.addPolygon(options);
-            polygonInfo.put(polygon, new Pair<>(entity.getFieldString(0), entity.getFieldString(1)));
+            polygonInfo.put(polygon, entity);
 
             for (LatLng coord : displayInfo.getBoundary()) {
                 builder.include(coord);
             }
 
             numPolygons++;
+            return true;
         }
+
+        return false;
     }
 
-    private void addGeoPoints(LatLngBounds.Builder builder,
+    private boolean addGeoPoints(LatLngBounds.Builder builder,
                               EntityMapDisplayInfo displayInfo) {
         // Add additional display points to map
         if (displayInfo.getPoints() != null) {
@@ -306,7 +320,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 builder.include(coordinate);
                 numGeoPoints++;
             }
+
+            return !displayInfo.getPoints().isEmpty();
         }
+
+        return false;
     }
 
     private void finishLoadingPerformanceTrace() {
@@ -325,8 +343,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
      * similar to marker info windows. Centers the map on the polygon and displays the info bubble.
      */
     private void showPolygonInfo(Polygon polygon) {
-        Pair<String, String> info = polygonInfo.get(polygon);
-        if (info == null || mMap == null) {
+        Entity<TreeReference> entity = polygonInfo.get(polygon);
+        if (entity == null || mMap == null) {
             return;
         }
 
@@ -348,8 +366,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         LatLng center = new LatLng(sumLat / numPoints, sumLng / numPoints);
 
         // Create a temporary marker at the polygon center with the polygon's info
-        String title = info.first;
-        String snippet = info.second;
+        String title = entity.getFieldString(0);
+        String snippet = entity.getFieldString(1);
+        polygonInfoMarkerReference = entity.getElement();
         polygonInfoMarker = mMap.addMarker(new MarkerOptions()
                 .position(center)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
@@ -366,6 +385,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         if (polygonInfoMarker != null) {
             polygonInfoMarker.remove();
             polygonInfoMarker = null;
+            polygonInfoMarkerReference = null;
         }
     }
 
@@ -451,13 +471,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     @Override
     public void onInfoWindowClick(@NonNull Marker marker) {
-        // Don't handle clicks on the temporary polygon info marker
-        if (marker == polygonInfoMarker) {
-            return;
-        }
-
         Intent i = new Intent(getIntent());
-        TreeReference ref = markerReferences.get(marker);
+        TreeReference ref;
+        if (marker.equals(polygonInfoMarker)) {
+            ref = polygonInfoMarkerReference;
+        } else {
+            ref = markerReferences.get(marker);
+        }
         SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
 
         setResult(RESULT_OK, i);

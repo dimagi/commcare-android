@@ -50,7 +50,6 @@
     <string name="install_from_list_prompt">Ingia kama mtumiaji wa simu au wavuti ili kuona orodha ya programu unazoweza kusakinisha</string>
     <string name="legacy_failure">CommCare haiauni uboreshaji kutoka kwa toleo la awali la CommCare ulilokuwa ukitumia. Ili kutatua suala hili, tafadhali sanidua CommCare kutoka kwa kifaa chako kisha uisakinishe upya.</string>
     <string name="legacy_failure_title">Uboreshaji wa CommCare Usiooana</string>
-    <string name="app_version_string">toleo.id.nde</string>
     <string name="notificationtitle">Umeingia kwenye Commcare</string>
     <string name="expirenotification">Muda wa Kuingia kwa CommCare Umekwisha</string>
     <string name="submission_notification_title">Kuwasilisha Data</string>
@@ -184,7 +183,9 @@
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
     <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa, tafadhali wasiliana na msimamizi.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
-    <string name="recovery_network_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
+    <string name="personalid_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
+    <string name="personalid_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>
+    <string name="personalid_login_from_different_device">Akaunti yako ya PersonalID inaweza kusanidiwa kwenye kifaa kimoja kwa wakati mmoja na imesanidiwa kwenye kifaa kingine. Tafadhali endelea kwenye kifaa kipya au usanidi akaunti yako kwenye kifaa hiki tena ili kuendelea kutumia PersonalID hapa.</string>
     <string name="recovery_network_unauthorized">Huna ruhusa ya kufanya ombi hili.</string>
     <string name="recovery_network_server_error">Kulikuwa na hitilafu katika kushughulikia ombi lako.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
@@ -226,8 +227,6 @@
     <string name="image_download_prompt">Faili ya picha haipo kwa swali hili, Bofya kitufe cha kupakua hapo juu ili kupakua</string>
     <string name="audio_download_prompt">Faili ya sauti haipo kwa swali hili, bofya kitufe cha kupakua hapo juu ili kupakua</string>
     <string name="media_not_found_error">Midia haipatikani kwenye programu</string>
-    <string name="parse_coordinates_failure">Haikuweza kuchanganua viwianishi vya ingizo</string>
-    <string name="location_provider_disabled">Washa eneo lako ili kupokea masasisho ya eneo</string>
     <string name="wait_for_location_fix">CommCare bado inajaribu kupata eneo lako. Tafadhali subiri au ubofye Ghairi ili kughairi.</string>
     <string name="invalid_case_property_length">Ses %1 si sahihi, thamani lazima iwe na vibambo 255 au chini ya hapo</string>
     <string name="invalid_case_graph_error">Fomu hii inatanguliza uhusiano wa kesi batili</string>
@@ -244,11 +243,9 @@
     <string name="dependency_missing_dialog_playstore_not_found">Hakuna Duka la Google Play lililopatikana kwenye kifaa chako</string>
     <string name="fcm_notification">Taarifa ya FCM</string>
     <string name="fcm_default_notification_channel">arifa-chaneli-kusukuma-arifa</string>
-    <string name="login_password_by_connect">Kupitia PersonalId (au bonyeza hapa)</string>
-    <string name="login_welcome_connect_signed_in">Karibu %s!</string>
-    <string name="login_connect_secondary_phone_message">Tafadhali thibitisha simu yako ya pili kwa %s ili kuendelea kutumia PersonalId.</string>
-    <string name="choice_or">____________ AU _____________</string>
-    <string name="busy_message">Bado tunashughulika kuchakata ombi lako la awali. Tafadhali jaribu tena baada ya muda fulani.</string>
+    <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
+    <string name="personalid_welcome_user">Karibu %s!</string>
+    <string name="personalid_choice_or">____________ AU _____________</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
     <string name="entity_map_error_message">Kulikuwa na hitilafu katika usanidi wa programu kutokana na ambayo si alama zote kwenye ramani zimepakiwa ipasavyo</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya PersonalID tena.</string>
@@ -278,14 +275,12 @@
     <string name="connect_register_success_button">Sawa</string>
     <string name="connect_verify_title">Fungua Chaguzi</string>
     <string name="connect_verify_message">Tafadhali sanidi mbinu iliyo hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
-    <string name="connect_verify_message_pin">Tafadhali sanidi PIN au mchoro hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
-    <string name="connect_verify_message_fingerprint">Tafadhali sanidi alama ya kidole chako hapa chini ili kufungua kifaa chako na akaunti ya Kitambulisho cha Kibinafsi</string>
+    <string name="connect_verify_message_pin">Tafadhali sanidi PIN au mchoro hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
+    <string name="connect_verify_message_fingerprint">Tafadhali sanidi alama ya kidole chako hapa chini ili kufungua kifaa chako na akaunti ya PersonalID</string>
     <string name="connect_verify_use_fingerprint_long">Tumia Alama ya Kidole Kuunganisha</string>
     <string name="connect_verify_fingerprint_configured">Alama yako ya kidole tayari imesanidiwa na itatumika kufungua PersonalId.</string>
     <string name="connect_verify_configure_fingerprint">Sanidi Alama ya Kidole</string>
     <string name="connect_verify_use_pin_long">Tumia PIN Kuunganisha</string>
-    <string name="connect_verify_pin_configured">PIN yako tayari imesanidiwa na itatumika kufungua PersonalId.</string>
-    <string name="connect_verify_configuration_failed">Usanidi wa bayometriki kwenye kifaa chako cha Android umeshindwa. Tafadhali jaribu tena %s.</string>
     <string name="connect_verify_configure_pin">Sanidi PIN</string>
     <string name="connect_verify_agree">Kubali na Uendelee</string>
     <string name="connect_verify_phone_title">Nambari ya Uthibitishaji</string>
@@ -300,7 +295,7 @@
     <string name="connect_messaging_channel_consent_decline">Kataa</string>
     <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
-    <string name="connect_no_jobs">Hujaalikwa kwa fursa zozote zinazotumika. Tafadhali rudi baadaye.</string>
+    <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
     <string name="connect_job_intro_title">Fursa</string>
     <string name="connect_job_you_will_learn">Kamilisha moduli zifuatazo za kujifunza na upate cheti</string>
     <string name="connect_job_no_learning_required">Hakuna kujifunza kunahitajika</string>
@@ -312,14 +307,11 @@
     <string name="connect_learn_failed_title">Mafunzo Yameshindwa</string>
     <string name="connect_learn_complete_by">Kamilisha Mradi kabla ya %s</string>
     <string name="connect_job_ended">Kazi ilimalizika mnamo %s</string>
-    <string name="connect_learn_error_starting">Imeshindwa kuanza kujifunza, tafadhali wasiliana na msimamizi wa fursa.</string>
     <string name="connect_learn_title">Maendeleo ya Kujifunza</string>
     <string name="connect_learn_status">Umemaliza masomo %d kati ya %d.\nMaliza kujifunza ili ujishindie cheti chako.</string>
     <string name="connect_learn_not_started">Hujamaliza masomo yoyote.\nAnza kujifunza ili kupata cheti chako.</string>
     <string name="connect_learn_finished">Umepata cheti cha kazi hii na unastahiki kudai kazi hiyo na kuanza kutoa huduma.\nAlama yako: %d\nAlama za kupita: %d</string>
     <string name="connect_fetch_learning_progress_error">Imeshindwa kuleta maendeleo ya kujifunza</string>
-    <string name="connect_fetch_delivery_progress_error">Imeshindwa kuleta maendeleo</string>
-    <string name="your_score">Alama: %d</string>
     <string name="connect_learn_need_assessment">Kamilisha tathmini ili kumaliza mafunzo.</string>
     <string name="connect_learn_failed">Samahani, hukupata alama za kufaulu kwenye tathmini yako. Tafadhali jaribu tena.\nAlama yako: %d\nAlama ya kupita: %d</string>
     <string name="connect_learn_complete">Kamilisha</string>
@@ -329,7 +321,6 @@
     <string name="connect_learn_review">Kagua Mafunzo</string>
     <string name="connect_learn_view_details">Tazama Maelezo ya Fursa</string>
     <string name="connect_learn_go_to_assessment">Nenda kwa Tathmini</string>
-    <string name="connect_learn_try_again">Jaribu Tena</string>
     <string name="connect_learn_start">Anza Kujifunza</string>
     <string name="connect_learn_continue">Endelea Kujifunza</string>
     <string name="connect_delivery_earn_multi">Lipa kwa kila ziara:</string>
@@ -352,27 +343,24 @@
     <string name="connect_results_payment_confirm_undo">Tendua uthibitisho</string>
     <string name="connect_results_payment_confirmed">Imethibitishwa</string>
     <string name="connect_results_payment_not_confirmed">Haijathibitishwa</string>
-    <string name="connect_payment_confirm_text">Umelipwa!\n%s %s imelipwa %s.\nJe, umepokea malipo?</string>
+    <string name="connect_payment_confirm_text">Je, umelipwa %d %s kwa ajili ya fursa ya %s?</string>
     <string name="connect_payment_confirm_yes">Ndiyo!</string>
     <string name="connect_payment_confirm_no">Uliza baadaye</string>
-    <string name="connect_payment_confirm_failed">Imeshindwa kutuma uthibitisho, tutauliza tena baadaye.</string>
-    <string name="login_button_connectid">Ingia kwa PersonalId</string>
-    <string name="login_link_connectid_title">Unganisha kwa PersonalId?</string>
-    <string name="login_link_connectid_message">Je, ungependa kuunganisha kuingia huku kwa akaunti yako ya PersonalId? Hutahitaji kuandika nenosiri lako katika siku zijazo.</string>
-    <string name="login_unlink_connectid_title">Je, ungependa kutenganisha PersonalId?</string>
-    <string name="login_unlink_connectid_message">Naona umeingia na nenosiri lako ingawa PersonalId ilisanidiwa kwa ajili ya kuingia kiotomatiki. Je, ungependa kutenganisha kuingia huku kutoka kwa PersonalId?</string>
-    <string name="login_link_connectid_yes">Ndiyo</string>
-    <string name="login_link_connectid_no">Hapana</string>
-    <string name="login_menu_connect_sign_in">Jisajili kwa PersonalId</string>
-    <string name="login_menu_connect_forget">Sahau mtumiaji wa PersonalId</string>
-    <string name="menu_refresh_opportunities">Onyesha Fursa</string>
+    <string name="personalid_login_with">Ingia kwa PersonalId</string>
+    <string name="personalid_link_app_title">Unganisha kwa PersonalId?</string>
+    <string name="personalid_link_app_message">Je, ungependa kuunganisha kuingia huku kwa akaunti yako ya PersonalId? Hutahitaji kuandika nenosiri lako katika siku zijazo.</string>
+    <string name="personalid_unlink_app_title">Je, ungependa kutenganisha PersonalId?</string>
+    <string name="personalid_unlink_app_message">Naona umeingia na nenosiri lako ingawa PersonalId ilisanidiwa kwa ajili ya kuingia kiotomatiki. Je, ungependa kutenganisha kuingia huku kutoka kwa PersonalId?</string>
+    <string name="personalid_link_app_yes">Ndiyo</string>
+    <string name="personalid_link_app_no">Hapana</string>
+    <string name="personalid_signup">Jisajili kwa PersonalId</string>
+    <string name="personalid_forget_user">Sahau mtumiaji wa PersonalId</string>
+    <string name="connect_refresh_opportunities">Onyesha Fursa</string>
     <string name="connect_app_install_unknown_error">Usakinishaji wa programu haukufaulu kwa sababu ya hitilafu isiyojulikana</string>
     <string name="connect_app_installed">Programu imesakinishwa</string>
     <string name="app_with_id_not_found">Programu ya CommCare Inayohitajika haijasakinishwa kwenye kifaa</string>
     <string name="audio_recording_notification">Arifa ya Kurekodi Sauti</string>
     <string name="user_suspended">Mtumiaji Amesimamishwa. Tafadhali wasiliana na msimamizi.</string>
-    <string name="connect_payment_acknowledge_notification_yes">Ndiyo</string>
-    <string name="connect_payment_acknowledge_notification_no">Hapana</string>
     <string name="enter_otp">Weka Msimbo wa SMS</string>
     <string name="create_a_new_recovery_code">Unda Nambari mpya ya Urejeshaji</string>
     <string name="confirm_code">Thibitisha Msimbo</string>
@@ -393,6 +381,7 @@
     <string name="connect_job_info_download">Pakua</string>
     <string name="connect_job_info_view_info">Angalia Taarifa</string>
     <string name="connect_job_info_view_resume">Endelea</string>
+    <string name="connect_job_info_view_review">Revisar</string>
     <string name="connect_progress">Maendeleo</string>
     <string name="connect_payment">Malipo</string>
     <string name="connect_delivery_progress_description">Hujamaliza masomo yoyote. Anza kujifunza kupata cheti chako.</string>
@@ -446,7 +435,6 @@
     <string name="personalid_otp_verification_failed_generic">Kitu kilienda vibaya wakati wa kuthibitisha nambari yako ya simu. Tafadhali jaribu tena.</string>
     <string name="personalid_otp_verification_failed">Kitu kilienda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_location_permission_error">PersonalID inahitaji kifaa chako kiwe na Huduma za Mahali zimewashwa. Tafadhali wezesha hii katika mipangilio ya simu yako kabla ya kuendelea.</string>
-    <string name="personalid_messaging_menu_title">Kutuma ujumbe</string>
     <string name="personalid_sync_menu_title">Sawazisha</string>
     <string name="connect_registration_subtitle">Weka Nambari yako ya Simu</string>
     <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya PersonalID</string>
@@ -463,7 +451,6 @@
     <string name="personalid_login_via_connect">Tayari kuingia!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Tunakabiliwa na hitilafu isiyoweza kurekebishwa wakati wa kuunganisha kuingia kwa kutumia Kitambulisho chako cha Kibinafsi. Tafadhali ingia na nenosiri lako au urejeshe kuingia kwa Kitambulisho chako cha Kibinafsi</string>
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
-    <string name="personalid_name_empty_error">Sehemu ya jina haiwezi kuwa tupu</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
     <string name="personalid_configuration_process_failed_subtitle">Kwa bahati mbaya, kifaa hiki hakikufaulu ukaguzi wa usalama unaohitajika ili kujisajili kwa PersonalID. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
@@ -480,22 +467,19 @@
     <string name="personalid_photo_capture_subtitle">Tafadhali jipige picha ili ukamilishe kusanidi akaunti yako</string>
     <string name="personalid_photo_capture_take_photo_button">Piga Picha</string>
     <string name="personalid_photo_capture_save_photo_button">Hifadhi Picha</string>
-    <string name="personalid_photo_upload_failure">Imeshindwa kuhifadhi picha. Tafadhali angalia intaneti yako na ujaribu tena.</string>
     <string name="personalid_this_is_not_me"><u>Huyu si mimi</u></string>
     <string name="personalid_welcome_back_msg">Karibu tena %s</string>
-    <string name="personalid_recovery_failed_title">Urejeshaji haukufaulu</string>
-    <string name="personalid_recovery_lockout_title">Akaunti Imefungwa</string>
-    <string name="personalid_recovery_failed_message">Inaonekana umesahau Nambari yako ya Hifadhi Nambari, tunakuundia akaunti mpya</string>
     <string name="personalid_wrong_backup_message">Umeingiza Nambari ya Kuhifadhi Nakala Isiyo sahihi. Tafadhali jaribu tena. Akaunti yako itafungwa baada ya majaribio %d zaidi yasiyo sahihi.</string>
-    <string name="personalid_recovery_lockout_message">Umeweka msimbo wa akiba usio sahihi mara nyingi sana. Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi ili kufungua akaunti yako.</string>
+    <string name="personalid_second_device_login_title">Ingia kwenye Kifaa cha Pili</string>
+    <string name="personalid_second_device_login_message">Imetoka kwenye %s, imetumika mara ya mwisho %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
+    <string name="personalid_second_device_login_message_no_date">Umetoka kwenye %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
     <string name="personalid_work_history_title">Historia Yangu ya Kazi</string>
     <string name="personalid_work_history">Historia ya Kazi</string>
     <string name="personalid_work_history_learn_more">Jifunze Zaidi Kuhusu Vitambulisho</string>
-    <string name="personalid_work_history_no_records_available">Hakuna rekodi za historia ya kazi zinazopatikana kwa sasa. Bofya Onyesha upya au uangalie tena baadaye</string>
-    <string name="personalid_work_history_earned">Imelipwa</string>
+    <string name="personalid_work_history_no_records_available">Hakuna rekodi za kazi zinazopatikana kwa sasa. Bofya onyesha upya, au angalia tena baadaye.</string>    <string name="personalid_work_history_earned">Imelipwa</string>
     <string name="personalid_work_history_pending">Inasubiri</string>
     <string name="personalid_work_history_sync">Sawazisha</string>
     <string name="personalid_work_history_level_1_month_active">Mwezi 1 wa\nShughuli</string>
@@ -507,14 +491,13 @@
     <string name="personalid_work_history_no_pending_records">Hakuna rekodi zinazosubiri kwa sasa</string>
 
     <string name="personalid_notification">Arifa</string>
-    <string name="pn_no_notification_found">Hakuna arifa zilizopatikana</string>
+    <string name="pn_no_notification_available">Hakuna arifa zinazopatikana</string>
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
     <string name="nav_drawer_opportunities">Fursa</string>
     <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
-    <string name="nav_drawer_work_history">Historia ya Kazi</string>
     <string name="nav_drawer_payments">Malipo</string>
     <string name="nav_drawer_manage_profile">Dhibiti Wasifu</string>
     <string name="play_service_update_error">Ili kutumia PersonalID, unahitaji kusasisha Huduma za Google Play. Gusa hapa ili uende kwenye Duka la Google Play uangalie masasisho.</string>
@@ -523,7 +506,7 @@
 
     <string name="setup_refresh_opportunities_no_jobs">Hakuna fursa zilizopatikana</string>
     <string name="setup_refresh_opportunities_with_jobs">Fursa mpya zimepatikana, bofya Fursa kujifunza zaidi.</string>
-    <string name="personalid_not_login_from_fcm_error">Tafadhali ingia kwenye Kitambulisho cha Kibinafsi ili kuona maelezo</string>
+    <string name="personalid_not_login_from_fcm_error">Tafadhali ingia kwenye PersonalID ili kuona maelezo</string>
 
     <string name="just_now">Muda mfupi uliopita</string>
     <string name="minutes_ago">Dakika %1$d zilizopita</string>
@@ -533,7 +516,7 @@
     <string name="recovery_network_cooldown">Majaribio mengi mno ya ombi. Tafadhali jaribu tena baada ya saa moja.</string>
     <string name="recovery_network_unknown">Kuna kitu kimeenda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_authentication_failed">Uthibitishaji wa bayometriki kwenye kifaa chako cha Android haukufaulu. Tafadhali weka masasisho yoyote ya mfumo yanayopatikana, au jaribu tena ukitumia kifaa tofauti.</string>
-    <string name="no_channel_msg">Huna njia za sasa za kutuma ujumbe</string>
+    <string name="no_channel_msg">Haujasajiliwa kwa Idhaa zozote za kutuma ujumbe. Ukishaongezwa kwenye Idhaa, itaonekana katika orodha hii.</string>
 
     <string name="personalid_using_your_location">Inatumia eneo lako</string>
     <string name="personalid_no_location_found">Hatuwezi kupata eneo lako</string>
@@ -541,10 +524,15 @@
     <string name="personalid_tooltip_location_success_message">Tunatumia data ya eneo ili kuhakikisha matumizi salama ya programu hii.\n\n<a href="https://www.dimagi.com/terms/latest/privacy/">Bofya hapa kwa maelezo zaidi.</a></string>
 
     <string name="network_forbidden_error">Ufikiaji umekataliwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
-
+    <string name="error">Hitilafu</string>
+    <string name="failed_to_start_learning">Imeshindwa kuanza kujifunza</string>
+    <string name="failed_to_update_payment">Imeshindwa kusasisha malipo</string>
     <string name="personalid_biometric_error_cancelled">Usanidi wa kibayometri ulighairiwa. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_lockout">Majaribio mengi mno. Tafadhali subiri na ujaribu tena.</string>
     <string name="personalid_biometric_error_lockout_permanent">Majaribio mengi mno yameshindikana. Tafadhali fungua kifaa chako na ujaribu tena.</string>
     <string name="personalid_biometric_error_timeout">Muda wa utendakazi wa kibayometri umekwisha. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
+
+    <string name="connect_complete_by">Kamilisha ifikapo %s</string>
+    <string name="connect_expired_on">Muda wake umeisha mnamo: %s</string>
 </resources>

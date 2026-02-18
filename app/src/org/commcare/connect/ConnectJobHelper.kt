@@ -3,15 +3,15 @@ package org.commcare.connect
 import android.content.Context
 import android.widget.Toast
 import org.commcare.CommCareApplication
-import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
@@ -85,7 +85,7 @@ object ConnectJobHelper {
                 FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
                 listener.connectActivityComplete(false)
             }
-        }.getLearningAppProgress(context, user, job.jobId)
+        }.getLearningAppProgress(context, user, job)
     }
 
     fun updateDeliveryProgress(
@@ -136,18 +136,20 @@ object ConnectJobHelper {
         }.getDeliveries(context, user, job)
     }
 
-    fun updatePaymentConfirmed(
+    fun updatePaymentsConfirmed(
         context: Context,
-        payment: ConnectJobPaymentRecord,
-        confirmed: Boolean,
+        paymentConfirmations: List<ConnectPaymentConfirmationModel>,
         listener: ConnectActivityCompleteListener,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
 
         object : ConnectApiHandler<Boolean>() {
-            override fun onSuccess(success: Boolean) {
-                payment.confirmed = confirmed
-                ConnectJobUtils.storePayment(context, payment)
+            override fun onSuccess(data: Boolean) {
+                for (paymentConfirmation in paymentConfirmations) {
+                    paymentConfirmation.payment.confirmed = paymentConfirmation.toConfirm
+                    ConnectJobUtils.storePayment(context, paymentConfirmation.payment)
+                }
+
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(true)
                 listener.connectActivityComplete(true)
             }
@@ -156,16 +158,11 @@ object ConnectJobHelper {
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                Toast
-                    .makeText(
-                        context,
-                        PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t),
-                        Toast.LENGTH_LONG,
-                    ).show()
+                val error = PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t)
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
-                listener.connectActivityComplete(false)
+                listener.connectActivityComplete(false, error)
             }
-        }.setPaymentConfirmation(context, user, payment.paymentId, confirmed)
+        }.setPaymentConfirmations(context, user, paymentConfirmations)
     }
 
     fun retrieveOpportunities(

@@ -30,6 +30,7 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public static final String META_PASSING_SCORE = "passing_score";
     public static final String META_INSTALL_URL = "install_url";
     public static final String META_MODULES = "learn_modules";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -61,18 +62,22 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     @Persisting(10)
     private Date lastUpdate;
 
+    @Persisting(11)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
+
     private List<ConnectLearnModuleSummaryRecord> learnModules;
 
     public ConnectAppRecord() {
 
     }
 
-    public static ConnectAppRecord fromJson(JSONObject json, int jobId, boolean isLearning) throws JSONException {
+    public static ConnectAppRecord fromJson(JSONObject json, ConnectJobRecord job, boolean isLearning) throws JSONException {
         ConnectAppRecord app = new ConnectAppRecord();
 
-        app.jobId = jobId;
+        app.jobId = job.getJobId();
+        app.jobUUID = job.getJobUUID();
         app.isLearning = isLearning;
-
         app.domain = json.getString(META_DOMAIN);
         app.appId = json.getString(META_APP_ID);
         app.name = json.getString(META_NAME);
@@ -85,10 +90,26 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         app.learnModules = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             JSONObject obj = (JSONObject)array.get(i);
-            app.learnModules.add(ConnectLearnModuleSummaryRecord.fromJson(obj, i));
+            app.learnModules.add(ConnectLearnModuleSummaryRecord.fromJson(obj, i, job));
         }
 
         return app;
+    }
+
+    public static ConnectAppRecord fromV21(ConnectAppRecordV21 connectAppRecordV21) {
+        ConnectAppRecord connectAppRecord = new ConnectAppRecord();
+        connectAppRecord.jobId = connectAppRecordV21.getJobId();
+        connectAppRecord.isLearning = connectAppRecordV21.isLearning();
+        connectAppRecord.domain = connectAppRecordV21.getDomain();
+        connectAppRecord.appId = connectAppRecordV21.getAppId();
+        connectAppRecord.jobUUID = String.valueOf(connectAppRecordV21.getJobId());
+        connectAppRecord.name = connectAppRecordV21.getName();
+        connectAppRecord.description = connectAppRecordV21.getDescription();
+        connectAppRecord.organization = connectAppRecordV21.getOrganization();
+        connectAppRecord.passingScore = connectAppRecordV21.getPassingScore();
+        connectAppRecord.installUrl = connectAppRecordV21.getInstallUrl();
+        connectAppRecord.lastUpdate = connectAppRecordV21.getLastUpdate();
+        return connectAppRecord;
     }
 
     public boolean getIsLearning() {
@@ -143,5 +164,4 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public int getPassingScore() {
         return passingScore;
     }
-
 }

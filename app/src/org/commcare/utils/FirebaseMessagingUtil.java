@@ -107,13 +107,13 @@ public class FirebaseMessagingUtil {
                 if (!StringUtils.isEmpty(token)) {
                     updateFCMToken(token);
                 } else {
-                    Logger.exception("Fetching FCM registration token failed",
+                    Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()) ,
                             new Throwable("FCM registration token is empty"));
                 }
             } else {
                 Throwable throwable = task.getException() != null ? task.getException() : new Throwable(
                         "Task to fetch FCM registration token failed");
-                Logger.exception("Fetching FCM registration token failed", throwable);
+                Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()), throwable);
             }
         };
     }
@@ -337,7 +337,6 @@ public class FirebaseMessagingUtil {
     private static Intent handleCCCMessageChannelPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = null;
         fcmMessageData.setNotificationChannel(CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID);
-        fcmMessageData.setPriority(NotificationCompat.PRIORITY_MAX);
         fcmMessageData.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_connect_message_large));
 
         boolean isMessage = fcmMessageData.getPayloadData().containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);

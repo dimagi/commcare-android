@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Table(ConnectJobPaymentRecord.STORAGE_KEY)
@@ -28,6 +27,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_CONFIRMED_DATE = "date_confirmed";
     private static final long CONFIRMATION_WINDOW_DAYS = 7;
     private static final long UNDO_WINDOW_DAYS = 1;
+    public static final String META_PAYMENT_UUID = "payment_uuid";
+    public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -57,30 +58,40 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_CONFIRMED_DATE)
     private Date confirmedDate;
 
+    @Persisting(7)
+    @MetaField(META_JOB_UUID)
+    private String jobUUID;
+
+    @Persisting(8)
+    @MetaField(META_PAYMENT_UUID)
+    private String paymentUUID;
+
     public ConnectJobPaymentRecord() {
     }
 
-    public static ConnectJobPaymentRecord fromV3(ConnectJobPaymentRecordV3 oldRecord) {
+    public static ConnectJobPaymentRecord fromV21(ConnectJobPaymentRecordV21 oldRecord) {
         ConnectJobPaymentRecord newRecord = new ConnectJobPaymentRecord();
-
         newRecord.jobId = oldRecord.getJobId();
         newRecord.date = oldRecord.getDate();
         newRecord.amount = oldRecord.getAmount();
-
-        newRecord.paymentId = "-1";
-        newRecord.confirmed = false;
-        newRecord.confirmedDate = new Date();
-
+        newRecord.paymentId = oldRecord.getPaymentId();
+        newRecord.confirmed = oldRecord.getConfirmed();
+        newRecord.confirmedDate = oldRecord.getConfirmedDate();
+        newRecord.paymentUUID = oldRecord.getPaymentId();
+        newRecord.jobUUID = String.valueOf(oldRecord.getJobId());
         return newRecord;
     }
 
-    public static ConnectJobPaymentRecord fromJson(JSONObject json, int jobId) throws JSONException {
+    public static ConnectJobPaymentRecord fromJson(JSONObject json, ConnectJobRecord job) throws JSONException {
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
-        payment.jobId = jobId;
+        payment.jobId = job.getJobId();
+        payment.jobUUID = job.getJobUUID();
+        payment.paymentId = json.getString("id");
+        payment.paymentUUID = json.getString(META_PAYMENT_ID);
+
         payment.date = DateUtils.parseDateTime(json.getString(META_DATE));
         payment.amount = String.valueOf(json.getInt(META_AMOUNT));
-        payment.paymentId = json.getString("id");
         payment.confirmed = json.optBoolean(META_CONFIRMED, false);
         try {
             payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ?

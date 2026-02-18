@@ -13,14 +13,21 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
+import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+
+import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectJobUtils {
 
@@ -195,6 +202,7 @@ public class ConnectJobUtils {
         SqlStorage<ConnectJobPaymentRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobPaymentRecord.class);
 
         List<ConnectJobPaymentRecord> existingList = getPayments(context, jobId, storage);
+        Set<String> matchedIncomingIds = new HashSet<>();
 
         //Delete payments that are no longer available
         Vector<Integer> recordIdsToDelete = new Vector<>();
@@ -204,6 +212,7 @@ public class ConnectJobUtils {
                 if (existing.getPaymentId().equals(incoming.getPaymentId())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
+                    matchedIncomingIds.add(incoming.getPaymentId());
                     break;
                 }
             }
@@ -220,8 +229,21 @@ public class ConnectJobUtils {
         }
 
         //Now insert/update deliveries
+        boolean newPaymentReceived = false;
         for (ConnectJobPaymentRecord incomingRecord : payments) {
             storage.write(incomingRecord);
+
+            if (!matchedIncomingIds.contains(incomingRecord.getPaymentId())) {
+                newPaymentReceived = true;
+            }
+        }
+
+        // Check if there is a brand new payment so that we can reset the timer for the payment
+        // confirmation tile.
+        if (newPaymentReceived) {
+            ICommCarePreferenceManager preferenceManager =
+                    CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+            preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
         }
     }
 
@@ -390,4 +412,14 @@ public class ConnectJobUtils {
 
         return payments;
     }
+
+    public static boolean isExpiryDateUnderFiveDays(Date expiryDate) {
+        long now = System.currentTimeMillis();
+        long diffMillis = expiryDate.getTime() - now;
+
+        long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
+
+        return daysRemaining >= 0 && daysRemaining <= 5;
+    }
+
 }

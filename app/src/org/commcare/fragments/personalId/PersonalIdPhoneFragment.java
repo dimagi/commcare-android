@@ -12,13 +12,13 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -51,7 +51,9 @@ import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
 import org.commcare.location.LocationRequestFailureHandler;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
@@ -91,15 +93,19 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         activity = requireActivity();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class);
         locationController = CommCareLocationControllerFactory.getLocationController(requireActivity(), this);
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
         registerLauncher();
-        checkGooglePlayServices();
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        checkGooglePlayServices();
     }
 
     @Override
@@ -139,6 +145,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     public void onDestroyView() {
         super.onDestroyView();
         locationController.destroy();
+        destroyKeyboardScrollListener(binding.scrollView);
     }
 
     private void checkGooglePlayServices() {
@@ -164,6 +171,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private void initializeUi() {
         binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
+        setupKeyboardScrollListener(binding.scrollView);
         setupListeners();
         updateContinueButtonState();
     }
@@ -214,8 +222,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                             Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        binding.connectPrimaryPhoneInput.post(
-                                () -> binding.connectPrimaryPhoneInput.requestFocus());
+                        View focusView = activity.getCurrentFocus();
+                        if (focusView != null) {
+                            KeyboardHelper.showKeyboardOnInput(activity, focusView);
+                        }
                     }
                 }
         );
@@ -286,6 +296,11 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
         body.put("cc_device_id", ReportingUtils.getDeviceId());
+
+        String model = DeviceIdentifier.getDeviceModel();
+        if(model != null) {
+            body.put("device", model);
+        }
 
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {

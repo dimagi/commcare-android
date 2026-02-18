@@ -1252,6 +1252,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
+        if (!isChangingConfigurations()) {
+            mFormController = null;
+        }
+
         TextToSpeechConverter.INSTANCE.shutDown();
         super.onDestroy();
     }

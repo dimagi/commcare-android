@@ -20,19 +20,21 @@ import org.commcare.preferences.NotificationPrefs;
 public class NotificationUtil {
     public static void showNotification(Context context, String notificationChannel, int notificationId,
                                         String notificationTitle, String notificationText, Intent actionIntent) {
-
-        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        PendingIntent contentIntent =
-                PendingIntent.getActivity(context, 0, actionIntent, pendingIntentFlags);
-
         NotificationCompat.Builder notification =
                 new NotificationCompat.Builder(context, notificationChannel)
                         .setContentTitle(notificationTitle)
                         .setContentText(notificationText)
-                        .setContentIntent(contentIntent)
                         .setSmallIcon(R.drawable.commcare_actionbar_logo)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setWhen(System.currentTimeMillis());
+
+        if(actionIntent != null) {
+            int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+            PendingIntent contentIntent =
+                    PendingIntent.getActivity(context, 0, actionIntent, pendingIntentFlags);
+            notification.setContentIntent(contentIntent);
+        }
+
         ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE))
                 .notify(notificationId, notification.build());
     }

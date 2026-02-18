@@ -1,5 +1,14 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
+import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,17 +40,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-import androidx.navigation.fragment.NavHostFragment;
-
-import static android.app.Activity.RESULT_OK;
-
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
-import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
-import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
-
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
  */
@@ -72,12 +70,11 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidVerifyBinding.inflate(inflater, container, false);
-        biometricManager = BiometricManager.from(requireActivity());
+        biometricManager = getBiometricManager();
         biometricCallback = setupBiometricCallback();
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> onFingerprintButtonClicked());
         binding.connectVerifyPinButton.setOnClickListener(v -> onPinButtonClicked());
-
         requireActivity().setTitle(R.string.connect_appbar_title_app_lock);
         return binding.getRoot();
     }
@@ -88,8 +85,11 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         updateUiBasedOnMinSecurityRequired();
     }
 
+    private BiometricManager getBiometricManager() {
+        return PersonalIdManager.getInstance().getBiometricManager(requireActivity());
+    }
+
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
-        Context context = requireActivity();
         return new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
@@ -295,12 +295,12 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
             if (isConfigured) {
                 storeBiometricInvalidationKey();
                 if (Boolean.FALSE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser())) {
-                    NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
+                    getNavController().navigate(navigateToOtpScreen());
                 } else {
                     View view = getView();
                     if (view != null) {
                         showSnackBarWithOk(view, getString(R.string.connect_verify_skip_phone_number),
-                                v -> NavHostFragment.findNavController(this).navigate(navigateToNameScreen()));
+                                v -> getNavController().navigate(navigateToNameScreen()));
                     }
                 }
             }
@@ -312,8 +312,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
      */
     private void storeBiometricInvalidationKey() {
         CommCareActivity<?> activity = (CommCareActivity<?>) requireActivity();
-        if(BiometricsHelper.isFingerprintConfigured(activity,
-                PersonalIdManager.getInstance().getBiometricManager(activity))) {
+        if(BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
         }
     }

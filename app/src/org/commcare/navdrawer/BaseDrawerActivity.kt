@@ -1,21 +1,18 @@
 package org.commcare.navdrawer
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToWorkHistory
+import org.commcare.connect.PersonalIdManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
+import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
+import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
 import org.commcare.pn.helper.NotificationBroadcastHelper
-import org.commcare.utils.FirebaseMessagingUtil
 import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
@@ -98,7 +95,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         unlockAndGoToConnectJobsList(
             this,
             object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(success: Boolean) {
+                override fun connectActivityComplete(
+                    success: Boolean,
+                    error: String?,
+                ) {
                     if (success) {
                         closeDrawer()
                     }
@@ -111,7 +111,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         unlockAndGoToMessaging(
             this,
             object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(success: Boolean) {
+                override fun connectActivityComplete(
+                    success: Boolean,
+                    error: String?,
+                ) {
                     if (success) {
                         closeDrawer()
                     }
@@ -124,7 +127,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         unlockAndGoToWorkHistory(
             this,
             object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(success: Boolean) {
+                override fun connectActivityComplete(
+                    success: Boolean,
+                    error: String?,
+                ) {
                     if (success) {
                         closeDrawer()
                     }
@@ -153,5 +159,23 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         }
 
         drawerController?.openDrawer()
+    }
+
+    protected fun shouldShowDrawerAfterCheck(): Boolean {
+        if (drawerShownBefore()) {
+            return true
+        }
+
+        val personalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(this)
+        val showDrawer =
+            personalIdManager.isloggedIn() &&
+                personalIdManager.checkDeviceCompability()
+
+        if (showDrawer) {
+            setDrawerShown()
+        }
+
+        return showDrawer
     }
 }
