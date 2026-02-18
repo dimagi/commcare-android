@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -406,11 +408,15 @@ public class ConnectMessageFragment extends Fragment {
     private void setChannelSubscribedState() {
         binding.etMessage.setEnabled(true);
         binding.etMessage.setText("");
+        binding.etMessage.setGravity(Gravity.CENTER_VERTICAL);
+        binding.etMessage.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
     }
 
     private void setChannelUnsubscribedState() {
         binding.etMessage.setEnabled(false);
         binding.etMessage.setText(R.string.connect_messaging_channel_list_not_subscribed);
+        binding.etMessage.setGravity(Gravity.CENTER);
+        binding.etMessage.setTextColor(ContextCompat.getColor(requireContext(), R.color.sterling_ash));
     }
 }
 
