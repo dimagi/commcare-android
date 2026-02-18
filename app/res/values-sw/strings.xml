@@ -445,6 +445,7 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Acha kufuata</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_channel_unsubscribe_error">Imeshindwa kuacha kufuata</string>
+    <string name="connect_messaging_channel_resubscribe_error">Imeshindwa kujiandikisha tena</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">umeacha kufuata</string>
     <string name="connect_messaging_channel_list_not_subscribed">Hujajiandikisha kwenye kituo hiki cha ujumbe.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Jiandikishe tena</string>

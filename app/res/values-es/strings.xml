@@ -442,6 +442,7 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Darse de baja</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Cancelar</string>
     <string name="connect_messaging_channel_unsubscribe_error">Error al darse de baja</string>
+    <string name="connect_messaging_channel_resubscribe_error">Error al volver a suscribirse</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">dado de baja</string>
     <string name="connect_messaging_channel_list_not_subscribed">No estás suscrito a este canal de mensajería.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Volver a suscribirse</string>

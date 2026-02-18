@@ -100,6 +100,7 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Atsisakyti prenumeratos</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Atšaukti</string>
     <string name="connect_messaging_channel_unsubscribe_error">Nepavyko atsisakyti prenumeratos</string>
+    <string name="connect_messaging_channel_resubscribe_error">Nepavyko vėl užsiprenumeruoti</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">prenumerata atšaukta</string>
     <string name="connect_messaging_channel_list_not_subscribed">Jūs nesate užsiprenumeravę šio pranešimų kanalo.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Vėl užsiprenumeruoti</string>

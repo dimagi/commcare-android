@@ -100,6 +100,7 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Avslutt abonnement</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Avbryt</string>
     <string name="connect_messaging_channel_unsubscribe_error">Kunne ikke avslutte abonnement</string>
+    <string name="connect_messaging_channel_resubscribe_error">Kunne ikke abonnere på nytt</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">avmeldt</string>
     <string name="connect_messaging_channel_list_not_subscribed">Du abonnerer ikke på denne meldingskanalen.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Abonner på nytt</string>
