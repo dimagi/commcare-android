@@ -45,6 +45,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         channels.clear();
         channels.addAll(subscribedChannels);
         channels.addAll(unsubscribedChannels);
+        notifyDataSetChanged();
     }
 
     @NonNull

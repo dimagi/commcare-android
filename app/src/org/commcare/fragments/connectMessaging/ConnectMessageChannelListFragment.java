@@ -128,7 +128,6 @@ public class ConnectMessageChannelListFragment extends Fragment {
                     ConnectMessagingDatabaseHelper.getMessagingChannels(context);
             if (!channels.isEmpty()) {
                 channelAdapter.setChannels(channels);
-                channelAdapter.notifyDataSetChanged();
                 binding.rvChannel.setVisibility(VISIBLE);
                 binding.tvNoChannelMsg.setVisibility(GONE);
             } else {
