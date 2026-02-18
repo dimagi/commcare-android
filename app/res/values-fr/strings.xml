@@ -287,10 +287,6 @@ License.
     <string name="connect_verify_phone_resend_wait">Vous n\'avez pas reçu votre code? Veuillez le renvoyer dans%ds.</string>
     <string name="connect_verify_phone_change">Changer de numéro de téléphone</string>
     <string name="connect_verify_phone_verify">Vérifier le code</string>
-    <string name="connect_messaging_channel_consent_title">Consentement à la chaîne</string>
-    <string name="connect_messaging_channel_consent_description">Acceptez-vous d\'ouvrir un fil de discussion sur cette chaîne ?</string>
-    <string name="connect_messaging_channel_consent_accept">Accepter</string>
-    <string name="connect_messaging_channel_consent_decline">Déclin</string>
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_title">Connecter</string>
     <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
@@ -406,7 +402,6 @@ License.
     <string name="connect_verify_skip_phone_number">Je vois que vous êtes un utilisateur de démonstration, nous allons donc ignorer l\'OTP</string>
     <string name="connect_messaging_title">Messagerie</string>
     <string name="connect_messaging_channel_list_title">Chaînes</string>
-    <string name="connect_messaging_channel_list_unconsented">Canal non consenti</string>
     <string name="connect_messaging_message_notification_title">Nouveau message</string>
     <string name="connect_messaging_message_notification_message">Vous avez reçu un nouveau message de %s, appuyez ici pour voir.</string>
     <string name="connect_messaging_channel_notification_title">Nouvelle chaîne</string>
@@ -434,7 +429,6 @@ License.
     <string name="connect_registration_subtitle">Entrez votre numéro de téléphone</string>
     <string name="connect_backup_code_message_title">Code de sauvegarde PersonalId</string>
     <string name="connect_backup_code_message">Entrez votre code de sauvegarde à 6 chiffres</string>
-    <string name="connect_messaging_channel_consent_failure_msg">Impossible d\'accorder le consentement à la chaîne</string>
     <string name="connect_messaging_send_message_fail_msg">Échec de l\'envoi du message</string>
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
     <string name="connect_messaging_resubscribe_dialog_title">Se réabonner à %s</string>

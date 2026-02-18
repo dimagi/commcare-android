@@ -80,6 +80,12 @@ public class ConnectMessageFragment extends Fragment {
         };
         setupMenuItems();
 
+        if (channel.getConsented()) {
+            setChannelSubscribedState();
+        } else {
+            setChannelUnsubscribedState();
+        }
+
         return binding.getRoot();
     }
 
@@ -88,20 +94,23 @@ public class ConnectMessageFragment extends Fragment {
                 new MenuProvider() {
                     @Override
                     public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                        // TODO: Conditionally show/hide either "Unsubscribe" or "Resubscribe"
+                        // TODO: Add this code back in when we fully implement "Resubscribe".
                         // TODO: Both menu items are hidden (commented out) for now.
-//                        menu.add(
-//                                Menu.NONE,
-//                                MENU_UNSUBSCRIBE,
-//                                Menu.NONE,
-//                                R.string.connect_messaging_channel_menu_item_unsubscribe
-//                        );
-//                        menu.add(
-//                                Menu.NONE,
-//                                MENU_RESUBSCRIBE,
-//                                Menu.NONE,
-//                                R.string.connect_messaging_channel_menu_item_resubscribe
-//                        );
+//                        if (channel.getConsented()) {
+//                            menu.add(
+//                                    Menu.NONE,
+//                                    MENU_UNSUBSCRIBE,
+//                                    Menu.NONE,
+//                                    R.string.connect_messaging_channel_menu_item_unsubscribe
+//                            );
+//                        } else {
+//                            menu.add(
+//                                    Menu.NONE,
+//                                    MENU_RESUBSCRIBE,
+//                                    Menu.NONE,
+//                                    R.string.connect_messaging_channel_menu_item_resubscribe
+//                            );
+//                        }
 
                         menuItemsAnalyticsParamsMapping = Map.of(
                                 MENU_UNSUBSCRIBE,
@@ -208,7 +217,7 @@ public class ConnectMessageFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0) {
+                if (s.length() > 0 && channel.getConsented()) {
                     binding.imgSendMessage.setVisibility(View.VISIBLE);
                 } else {
                     binding.imgSendMessage.setVisibility(View.GONE);
@@ -313,6 +322,7 @@ public class ConnectMessageFragment extends Fragment {
             String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
             String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
             String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+            String errorText = getString(R.string.connect_messaging_channel_unsubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
                     titleText,
@@ -326,7 +336,29 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        // TODO: Not implemented yet.
+                        binding.pbLoadingSpinner.setVisibility(View.VISIBLE);
+                        channel.setAnsweredConsent(true);
+                        channel.setConsented(false);
+                        MessageManager.updateChannelConsent(
+                                requireContext(),
+                                channel,
+                                (success, error) -> {
+                                    if (isAdded()) {
+                                        binding.pbLoadingSpinner.setVisibility(View.GONE);
+
+                                        if (success) {
+                                            setChannelUnsubscribedState();
+                                            requireActivity().invalidateMenu();
+                                        } else {
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    errorText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
+                                    }
+                                }
+                        );
                         return Unit.INSTANCE;
                     },
                     R.color.white,
@@ -369,6 +401,16 @@ public class ConnectMessageFragment extends Fragment {
         }
 
         dialog.showDialog(requireContext());
+    }
+
+    private void setChannelSubscribedState() {
+        binding.etMessage.setEnabled(true);
+        binding.etMessage.setText("");
+    }
+
+    private void setChannelUnsubscribedState() {
+        binding.etMessage.setEnabled(false);
+        binding.etMessage.setText(R.string.connect_messaging_channel_list_not_subscribed);
     }
 }
 

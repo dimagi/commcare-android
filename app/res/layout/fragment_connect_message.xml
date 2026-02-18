@@ -35,7 +35,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-<!--        android:drawableEnd="@drawable/ic_connect_message_photo_camera"-->
             <androidx.appcompat.widget.AppCompatEditText
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -69,4 +68,15 @@
         app:layout_constraintBottom_toBottomOf="@+id/cardMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/cardMessage" />
+
+    <ProgressBar
+        android:id="@+id/pbLoadingSpinner"
+        style="@style/Base.Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -287,10 +287,6 @@ License.
     <string name="connect_verify_phone_resend_wait">आपको अपना कोड प्राप्त नहीं हुआ? कृपया इसे %ds में पुनः भेजें।</string>
     <string name="connect_verify_phone_change">फ़ोन नंबर बदलें</string>
     <string name="connect_verify_phone_verify">कोड सत्यापित करें</string>
-    <string name="connect_messaging_channel_consent_title">चैनल सहमति</string>
-    <string name="connect_messaging_channel_consent_description">क्या आप इस चैनल पर एक चैट थ्रेड खोलने के लिए सहमत हैं?</string>
-    <string name="connect_messaging_channel_consent_accept">स्वीकार करें</string>
-    <string name="connect_messaging_channel_consent_decline">अस्वीकार करें</string>
     <string name="connect_last_update">अपडेट किया गया: %s</string>
     <string name="connect_title">कनेक्ट करें</string>
     <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
@@ -406,7 +402,6 @@ License.
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>
     <string name="connect_messaging_title">मैसेजिंग</string>
     <string name="connect_messaging_channel_list_title">चैनल</string>
-    <string name="connect_messaging_channel_list_unconsented">गैर-सहमति वाला चैनल</string>
     <string name="connect_messaging_message_notification_title">नया संदेश</string>
     <string name="connect_messaging_message_notification_message">आपको %s से एक नया संदेश मिला है, देखने के लिए यहां टैप करें।</string>
     <string name="connect_messaging_channel_notification_title">नया चैनल</string>
@@ -433,7 +428,6 @@ License.
     <string name="connect_registration_subtitle">अपना फ़ोन नंबर दर्ज करें</string>
     <string name="connect_backup_code_message_title">PersonalId बैकअप कोड</string>
     <string name="connect_backup_code_message">अपना 6 अंकों का बैकअप कोड दर्ज करें</string>
-    <string name="connect_messaging_channel_consent_failure_msg">चैनल को सहमति देने में असमर्थ</string>
     <string name="connect_messaging_send_message_fail_msg">संदेश भेजने में विफल</string>
     <string name="connect_messaging_retrieve_messages_fail">संदेश पुनर्प्राप्त करने में विफल</string>
     <string name="connect_messaging_resubscribe_dialog_title">%s की फिर से सदस्यता लें</string>

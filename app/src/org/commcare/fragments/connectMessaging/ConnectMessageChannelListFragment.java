@@ -20,12 +20,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.ChannelAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelListBinding;
-import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.List;
@@ -57,14 +55,14 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(getContext());
+        List<ConnectMessagingChannelRecord> channels =
+                ConnectMessagingDatabaseHelper.getMessagingChannels(getContext());
 
         channelAdapter = new ChannelAdapter(channels, this::selectChannel);
 
         binding.rvChannel.setAdapter(channelAdapter);
 
         MessageManager.sendUnsentMessages(requireActivity());
-
 
         return view;
     }
@@ -75,7 +73,8 @@ public class ConnectMessageChannelListFragment extends Fragment {
         String channelId = getArguments() != null ? getArguments().getString(CHANNEL_ID) : null;
         if (channelId != null) {
             getArguments().remove(CHANNEL_ID);
-            ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+            ConnectMessagingChannelRecord channel =
+                    ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
         }
     }
@@ -88,9 +87,10 @@ public class ConnectMessageChannelListFragment extends Fragment {
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
                 new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
 
-        MessageManager.retrieveMessages(requireActivity(), (success,error) -> {
-            refreshUi();
-        });
+        MessageManager.retrieveMessages(
+                requireActivity(),
+                (success, error) -> refreshUi()
+        );
 
         if (getActivity() != null && getActivity() instanceof CommCareActivity && ((CommCareActivity)getActivity()).getSupportActionBar() != null) {
             ((CommCareActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -113,7 +113,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
     };
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
-        Navigation.findNavController(requireView()).navigate(channel.getConsented() ? getConnectMessageFragmentDirection(channel) : getChannelConsetBottomSheetDirection(channel));
+        Navigation.findNavController(requireView()).navigate(getConnectMessageFragmentDirection(channel));
     }
 
     private NavDirections getConnectMessageFragmentDirection(ConnectMessagingChannelRecord channel) {
@@ -121,18 +121,14 @@ public class ConnectMessageChannelListFragment extends Fragment {
                 .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
     }
 
-    private NavDirections getChannelConsetBottomSheetDirection(ConnectMessagingChannelRecord channel) {
-        return ConnectMessageChannelListFragmentDirections
-                .actionChannelListFragmentToChannelConsentBottomSheet(channel.getChannelId(),
-                        channel.getChannelName());
-    }
-
     public void refreshUi() {
         Context context = getContext();
         if (context != null) {
-            List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
+            List<ConnectMessagingChannelRecord> channels =
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(context);
             if (!channels.isEmpty()) {
                 channelAdapter.setChannels(channels);
+                channelAdapter.notifyDataSetChanged();
                 binding.rvChannel.setVisibility(VISIBLE);
                 binding.tvNoChannelMsg.setVisibility(GONE);
             } else {

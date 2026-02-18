@@ -6,34 +6,45 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemChannelBinding;
 import org.javarosa.core.model.utils.DateUtils;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
 
-    private List<ConnectMessagingChannelRecord> channels;
+    private final List<ConnectMessagingChannelRecord> channels = new ArrayList<>();
     private final OnChannelClickListener clickListener;
 
     public ChannelAdapter(List<ConnectMessagingChannelRecord> channels, OnChannelClickListener clickListener) {
-        this.channels = channels;
         this.clickListener = clickListener;
+        setChannels(channels);
     }
 
-    public void setChannels(List<ConnectMessagingChannelRecord> channels) {
-        this.channels = channels;
-        notifyDataSetChanged();
+    public void setChannels(List<ConnectMessagingChannelRecord> incomingChannels) {
+        List<ConnectMessagingChannelRecord> subscribedChannels = new ArrayList<>();
+        List<ConnectMessagingChannelRecord> unsubscribedChannels = new ArrayList<>();
+
+        for (ConnectMessagingChannelRecord channel : incomingChannels) {
+            if (channel.getConsented()) {
+                subscribedChannels.add(channel);
+            } else {
+                unsubscribedChannels.add(channel);
+            }
+        }
+
+        channels.clear();
+        channels.addAll(subscribedChannels);
+        channels.addAll(unsubscribedChannels);
     }
 
     @NonNull
@@ -67,10 +78,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             Date lastDate = channel.getLastMessageDate();
             int unread = channel.getUnreadCount();
 
-            binding.tvChannelDescription.setText(channel.getPreview());
-
-            boolean showDate = lastDate != null;
-            binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);
+            boolean showDate = lastDate != null && channel.getConsented();
             if (showDate) {
                 String lastText;
                 if (DateUtils.dateDiff(new Date(), lastDate) == 0) {
@@ -81,17 +89,34 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 }
 
                 binding.tvLastChatTime.setText(lastText);
+                binding.tvLastChatTime.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvLastChatTime.setVisibility(View.GONE);
             }
 
             boolean showUnread = unread > 0;
-            binding.tvUnreadCount.setVisibility(showUnread ? View.VISIBLE : View.GONE);
             if (showUnread) {
                 binding.tvUnreadCount.setText(String.valueOf(unread));
+                binding.tvUnreadCount.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvUnreadCount.setVisibility(View.GONE);
             }
 
             binding.itemRootLayout.setOnClickListener(view -> {
                 clickListener.onChannelClick(channel);
             });
+
+            Context context = binding.getRoot().getContext();
+            if (channel.getConsented()) {
+                binding.tvUnsubscribedPill.setVisibility(View.GONE);
+                binding.tvChannelName.setTextColor(ContextCompat.getColor(context, R.color.black));
+                binding.tvChannelDescription.setVisibility(View.VISIBLE);
+                binding.tvChannelDescription.setText(channel.getPreview());
+            } else {
+                binding.tvUnsubscribedPill.setVisibility(View.VISIBLE);
+                binding.tvChannelName.setTextColor(ContextCompat.getColor(context, R.color.steel_dust));
+                binding.tvChannelDescription.setVisibility(View.GONE);
+            }
         }
     }
 
