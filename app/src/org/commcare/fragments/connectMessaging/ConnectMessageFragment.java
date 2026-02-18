@@ -352,6 +352,7 @@ public class ConnectMessageFragment extends Fragment {
                                             setChannelUnsubscribedState();
                                             requireActivity().invalidateMenu();
                                         } else {
+                                            channel.setConsented(true);
                                             Toast.makeText(
                                                     requireContext(),
                                                     errorText,
