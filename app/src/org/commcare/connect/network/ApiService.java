@@ -60,20 +60,20 @@ public interface ApiService {
 
     @GET(ApiEndPoints.connectLearnProgressURL)
     Call<ResponseBody> getConnectLearningAppProgress(@Header("Authorization") String token,
-                                                     @Path("id") int id,
+                                                     @Path("id") String uuid,
                                                      @HeaderMap Map<String, String> headers);
 
 
     @POST(ApiEndPoints.connectClaimJobURL)
     Call<ResponseBody> connectClaimJob(@Header("Authorization") String token,
-                                       @Path("id") int id,
+                                       @Path("id") String uuid,
                                        @HeaderMap Map<String, String> headers,
                                        @Body RequestBody connectClaimJobRequest);
 
     @GET(ApiEndPoints.connectDeliveriesURL)
     Call<ResponseBody> getConnectDeliveries(@Header("Authorization") String token,
-                                                     @Path("id") int id,
-                                                     @HeaderMap Map<String, String> headers);
+                                            @Path("id") String uuid,
+                                            @HeaderMap Map<String, String> headers);
 
     @POST(ApiEndPoints.PAYMENT_CONFIRMAITONS)
     Call<ResponseBody> connectPaymentConfirmations(@Header("Authorization") String token,

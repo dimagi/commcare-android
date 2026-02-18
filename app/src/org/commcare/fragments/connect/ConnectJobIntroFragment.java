@@ -156,7 +156,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             }
 
-        }.connectStartLearning(requireContext(), user, job.getJobId());
+        }.connectStartLearning(requireContext(), user, job.getJobUUID());
     }
 
     private void reportApiCall(boolean success) {

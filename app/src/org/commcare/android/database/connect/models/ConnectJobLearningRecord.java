@@ -90,4 +90,8 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     public void setLastUpdate(Date date) {
         lastUpdate = date;
     }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
 }
