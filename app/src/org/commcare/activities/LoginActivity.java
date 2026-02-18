@@ -53,7 +53,6 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.NavDrawerHelper;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -91,6 +90,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
     public static final String EXTRA_APP_ID = "extra_app_id";
+    public static final String EXTRA_FORCE_SINGLE_APP_MODE = "extra_force_single_app_mode";
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_PRACTICE_MODE = Menu.FIRST;
@@ -1033,7 +1033,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 if (!appIdDropdownList.isEmpty()) {
                     selectedAppIndex = appIdDropdownList.indexOf(recordId);
                 }
-                presetAppId = recordId;
+                presetAppId = null;
                 seatAppIfNeeded(recordId);
                 closeDrawer();
             }
