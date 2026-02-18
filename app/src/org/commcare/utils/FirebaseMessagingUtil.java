@@ -52,12 +52,14 @@ import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
+import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
+import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 /**
@@ -223,7 +225,9 @@ public class FirebaseMessagingUtil {
                     handleResumeLearningOrDeliveryJobPushNotification(true, context, fcmMessageData,showNotification);
             case CCC_DEST_DELIVERY_PROGRESS ->
                     handleResumeLearningOrDeliveryJobPushNotification(false, context, fcmMessageData,showNotification);
-            default -> null;
+            case CCC_GENERIC_OPPORTUNITY ->
+                    handleGenericPushNotification( context, fcmMessageData,showNotification);
+            default -> handleGeneralConnectPushNotification(context,fcmMessageData,showNotification);
         };
     }
 
@@ -266,6 +270,17 @@ public class FirebaseMessagingUtil {
         String ccc_action = isLearning ? CCC_DEST_LEARN_PROGRESS : CCC_DEST_DELIVERY_PROGRESS;
         Logger.exception("Empty push notification for action '" + ccc_action + "'", new Throwable(String.format("Empty notification without 'opportunity' details")));
         return null;
+    }
+
+    private static Intent handleGenericPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+        Intent intent = getConnectActivityNotification(context, fcmMessageData);
+        if (fcmMessageData.getPayloadData().containsKey(PAYMENT_ID)) {  //TODO it will changed to payment_uuid by another PR
+            intent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
+        }
+        if (showNotification)
+            showNotification(context, buildNotification(context, intent, fcmMessageData),
+                    fcmMessageData);
+        return intent;
     }
 
 
@@ -323,6 +338,14 @@ public class FirebaseMessagingUtil {
             showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
         }
         return null;    // This will always null as we are already in DispatchActivity and don't want to start again
+    }
+
+    private static Intent handleGeneralConnectPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+        Intent intent = getConnectActivityNotification(context,fcmMessageData);
+        if(showNotification){
+            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
+        }
+        return intent;
     }
 
 
@@ -478,18 +501,22 @@ public class FirebaseMessagingUtil {
         return action != null && action.contains("ccc_");
     }
 
-    public static Intent getIntentForPNIfAny(Context context,Intent intent){
-        if(intent!=null && intent.getExtras()!=null){
-            Map<String, String> dataPayload = new HashMap<>();
-            for (String key : intent.getExtras().keySet()) {
-                String value = intent.getExtras().getString(key);
-                dataPayload.put(key, value);
+    public static Intent getIntentForPNIfAny(Context context, Intent intent) {
+        //  Added try-catch to avoid any data corruption handling, and dispatch activity flow is not disturbed.
+        try {
+            if (intent != null && intent.getExtras() != null) {
+                Map<String, String> dataPayload = new HashMap<>();
+                for (String key : intent.getExtras().keySet()) {
+                    String value = intent.getExtras().getString(key);
+                    dataPayload.put(key, value);
+                }
+                Intent pnIntent = handleNotification(context, dataPayload, null, false);
+                if (pnIntent != null) {
+                    intent.replaceExtras(new Bundle()); // clear intents if push notification intents are present else app keeps reloading same PN intents
+                }
+                return pnIntent;
             }
-            Intent pnIntent = handleNotification(context,dataPayload,null,false);
-            if(pnIntent!=null){
-                intent.replaceExtras(new Bundle()); // clear intents if push notification intents are present else app keeps reloading same PN intents
-            }
-            return pnIntent;
+        } catch (Exception e) { // no need to log
         }
         return null;
     }

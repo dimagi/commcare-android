@@ -16,6 +16,7 @@ import org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
 import org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS
+import org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY
 import org.commcare.connect.ConnectConstants.CCC_MESSAGE
 import org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
@@ -176,6 +177,12 @@ class NotificationsSyncWorkerManager(
                     startDeliverySyncWorker(notificationPayload)
                     notificationHandled = true
                 }
+
+                CCC_GENERIC_OPPORTUNITY -> {
+                    startOpportunitiesSyncWorker(notificationPayload)
+                    startLearnOrDeliverySyncWorker(notificationPayload)
+                    notificationHandled = true
+                }
             }
         }
         return notificationHandled
@@ -254,6 +261,17 @@ class NotificationsSyncWorkerManager(
                 notificationPayload,
                 SyncAction.SYNC_OPPORTUNITY,
                 SyncAction.SYNC_OPPORTUNITY.toString(),
+            )
+        }
+    }
+
+    private fun startLearnOrDeliverySyncWorker(notificationPayload: Map<String, String>) {
+        if (notificationPayload.containsKey(OPPORTUNITY_ID) && cccCheckPassed(context)) {  // TODO add opportunity uuid from other PR
+            val opportunityId = notificationPayload.get(OPPORTUNITY_ID) // TODO add opportunity uuid from other PR
+            startWorkRequest(
+                notificationPayload,
+                SyncAction.SYNC_GENERIC_OPPORTUNITY,
+                SyncAction.SYNC_GENERIC_OPPORTUNITY.toString()+ "-$opportunityId",
             )
         }
     }
