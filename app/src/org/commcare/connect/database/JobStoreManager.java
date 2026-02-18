@@ -34,12 +34,13 @@ public class JobStoreManager {
 
     public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         try {
-            ConnectDatabaseHelper.connectDatabase.beginTransaction();
-            List<ConnectJobRecord> existingList = getCompositeJobs(context, -1, jobStorage);
 
             for (ConnectJobRecord job : jobs) {
                 migrateOtherModelsForJobUUID(job.getJobId(), job.getJobUUID());
             }
+
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
+            List<ConnectJobRecord> existingList = getCompositeJobs(context, -1, jobStorage);
 
             if (pruneMissing) {
                 pruneOldJobs(existingList, jobs);
