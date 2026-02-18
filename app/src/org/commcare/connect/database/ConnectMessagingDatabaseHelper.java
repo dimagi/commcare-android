@@ -36,7 +36,7 @@ public class ConnectMessagingDatabaseHelper {
 
         for (ConnectMessagingChannelRecord channel : channels) {
             List<ConnectMessagingMessageRecord> messages = channel.getMessages();
-            ConnectMessagingMessageRecord lastMessage = messages.size() > 0 ?
+            ConnectMessagingMessageRecord lastMessage = !messages.isEmpty() ?
                     messages.get(messages.size() - 1) : null;
             SpannableString preview;
 
@@ -70,7 +70,7 @@ public class ConnectMessagingDatabaseHelper {
                 .getRecordsForValues(new String[]{ConnectMessagingChannelRecord.META_CHANNEL_ID},
                         new Object[]{channelId});
 
-        if (channels.size() > 0) {
+        if (!channels.isEmpty()) {
             return channels.get(0);
         }
 
@@ -104,7 +104,7 @@ public class ConnectMessagingDatabaseHelper {
                         incoming.setAnsweredConsent(existing.getAnsweredConsent());
                     }
 
-                    if (existing.getKey().length() > 0) {
+                    if (!existing.getKey().isEmpty()) {
                         incoming.setKey(existing.getKey());
                     }
 
