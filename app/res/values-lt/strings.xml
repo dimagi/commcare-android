@@ -91,6 +91,19 @@
     <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
     <string name="connect_fetch_delivery_progress_error">Nepavyko gauti pristatymo eigos</string>
     <string name="personalid_not_login_from_fcm_error">Norėdami peržiūrėti išsamią informaciją, prisijunkite prie „PersonalId“.</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Vėl užsiprenumeruoti %s</string>
+    <string name="connect_messaging_resubscribe_dialog_body">Ar tikrai norite vėl užsiprenumeruoti %s pranešimų kanalą?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Vėl užsiprenumeruoti</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Atšaukti</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Atsisakyti %s prenumeratos</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Ar tikrai norite atsisakyti šio kanalo prenumeratos? Daugiau negausite pranešimų apie šią galimybę.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Atsisakyti prenumeratos</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Atšaukti</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Nepavyko atsisakyti prenumeratos</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">prenumerata atšaukta</string>
+    <string name="connect_messaging_channel_list_not_subscribed">Jūs nesate užsiprenumeravę šio pranešimų kanalo.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Vėl užsiprenumeruoti</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Atsisakyti prenumeratos</string>
 
     <string name="just_now">Ką tik</string>
     <string name="minutes_ago">Prieš %1$d min.</string>
