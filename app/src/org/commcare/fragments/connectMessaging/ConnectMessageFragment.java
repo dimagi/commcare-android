@@ -337,8 +337,8 @@ public class ConnectMessageFragment extends Fragment {
                     positiveButtonText,
                     () -> {
                         binding.pbLoadingSpinner.setVisibility(View.VISIBLE);
-                        channel.setAnsweredConsent(true);
                         channel.setConsented(false);
+
                         MessageManager.updateChannelConsent(
                                 requireContext(),
                                 channel,
