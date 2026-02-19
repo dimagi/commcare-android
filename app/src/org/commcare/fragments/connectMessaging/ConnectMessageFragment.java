@@ -315,6 +315,7 @@ public class ConnectMessageFragment extends Fragment {
 
     private void showDialogForMenuItem(int menuItemId) {
         CustomThreeButtonAlertDialog dialog = null;
+        ConnectMessagingActivity activity = (ConnectMessagingActivity) requireActivity();
 
         if (menuItemId == MENU_UNSUBSCRIBE) {
             String titleText = getString(
@@ -339,9 +340,6 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        ConnectMessagingActivity activity =
-                                (ConnectMessagingActivity) requireActivity();
-
                         activity.showProgressDialog(
                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
                         );
@@ -406,9 +404,6 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        ConnectMessagingActivity activity =
-                                (ConnectMessagingActivity) requireActivity();
-
                         activity.showProgressDialog(
                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
                         );
