@@ -181,7 +181,7 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportViewArchivedFormsList(boolean forIncomplete) {
         String formType = forIncomplete ? AnalyticsParamValue.INCOMPLETE : AnalyticsParamValue.SAVED;
-        reportEvent(CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST, FirebaseAnalytics.Param.ITEM_LIST, formType);
+        reportEvent(CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST, FirebaseAnalytics.Param.ITEM_LIST_ID, formType);
     }
 
     public static void reportOpenArchivedForm(String formType) {
