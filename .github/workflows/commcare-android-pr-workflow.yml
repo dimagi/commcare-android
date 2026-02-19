@@ -28,6 +28,10 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Run cross request script
         run: python checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
+      - name: Restore Gradle properties
+        run: mkdir -p ~/.gradle && echo $GRADLE_PROPERTIES_BASE64 | base64 -d > ~/.gradle/gradle.properties
+        env:
+          GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64_TODO_BREAK_UP }}
       - name: Setup JDK
         uses: actions/setup-java@v5
         with:
