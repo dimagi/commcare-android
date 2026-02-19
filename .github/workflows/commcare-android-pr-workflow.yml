@@ -29,7 +29,7 @@ jobs:
       - name: Run cross request script
         run: python checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
       - name: Restore Gradle properties
-        run: mkdir -p ~/.gradle && echo $GRADLE_PROPERTIES_BASE64 | base64 -d > ~/.gradle/gradle.properties
+        run: mkdir -p ~/.gradle && echo "$GRADLE_PROPERTIES_BASE64" | base64 -d > ~/.gradle/gradle.properties
         env:
           GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64_TODO_BREAK_UP }}
       - name: Setup JDK
@@ -52,11 +52,16 @@ jobs:
         run: ./gradlew assembleCommcareDebug
         working-directory: commcare-android
       - name: Restore Keystore
-        run: echo $SIGNING_KEY | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+        run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
       - name: Assemble Release apk
-        run: ./gradlew assembleCommcareRelease -PRELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore -PRELEASE_STORE_PASSWORD=$RELEASE_STORE_PASSWORD -PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS -PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD
+        run: >-
+          ./gradlew assembleCommcareRelease
+          -PRELEASE_STORE_FILE="$HOME/.gradle/commcare-odk-keys.keystore"
+          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD"
+          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS"
+          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
         working-directory: commcare-android
         env:
           RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
@@ -68,7 +73,12 @@ jobs:
           name: commcare-arelease-pk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: Assemble LTS apk
-        run: ./gradlew assembleLtsRelease -PRELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore -PRELEASE_STORE_PASSWORD=$RELEASE_STORE_PASSWORD -PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS -PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD
+        run: >-
+          ./gradlew assembleLtsRelease
+          -PRELEASE_STORE_FILE="$HOME/.gradle/commcare-odk-keys.keystore"
+          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD"
+          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS"
+          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
         working-directory: commcare-android
         env:
           RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
@@ -80,7 +90,12 @@ jobs:
           name: app-lts-release
           path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
       - name: CommCare apk for Instrumentation Testing
-        run: ./gradlew assembleCommcareReleaseAndroidTest -PRELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore -PRELEASE_STORE_PASSWORD=$RELEASE_STORE_PASSWORD -PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS -PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD
+        run: >-
+          ./gradlew assembleCommcareReleaseAndroidTest
+          -PRELEASE_STORE_FILE="$HOME/.gradle/commcare-odk-keys.keystore"
+          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD"
+          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS"
+          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
         working-directory: commcare-android
         env:
           RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
