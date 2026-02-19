@@ -441,6 +441,8 @@ License.
     <string name="connect_messaging_unsubscribe_dialog_cancel">Annuler</string>
     <string name="connect_messaging_channel_unsubscribe_error">Échec du désabonnement</string>
     <string name="connect_messaging_channel_resubscribe_error">Échec de la réinscription</string>
+    <string name="connect_messaging_channel_unsubscribe_success">Désabonnement réussi</string>
+    <string name="connect_messaging_channel_resubscribe_success">Réabonnement réussi</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">désabonné</string>
     <string name="connect_messaging_channel_list_not_subscribed">Vous n\'êtes pas abonné à ce canal de messagerie.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Se réabonner</string>

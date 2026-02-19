@@ -322,6 +322,7 @@ public class ConnectMessageFragment extends Fragment {
             String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
             String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
             String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+            String successText = getString(R.string.connect_messaging_channel_unsubscribe_success);
             String errorText = getString(R.string.connect_messaging_channel_unsubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
@@ -349,6 +350,11 @@ public class ConnectMessageFragment extends Fragment {
                                         if (success) {
                                             setChannelUnsubscribedState();
                                             requireActivity().invalidateMenu();
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    successText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
                                         } else {
                                             channel.setConsented(true);
                                             Toast.makeText(
@@ -376,6 +382,7 @@ public class ConnectMessageFragment extends Fragment {
             );
             String negativeButtonText = getString(R.string.connect_messaging_resubscribe_dialog_cancel);
             String positiveButtonText = getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
+            String successText = getString(R.string.connect_messaging_channel_resubscribe_success);
             String errorText = getString(R.string.connect_messaging_channel_resubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
@@ -403,6 +410,11 @@ public class ConnectMessageFragment extends Fragment {
                                         if (success) {
                                             setChannelSubscribedState();
                                             requireActivity().invalidateMenu();
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    successText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
                                         } else {
                                             channel.setConsented(false);
                                             Toast.makeText(
