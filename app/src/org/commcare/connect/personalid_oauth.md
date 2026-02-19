@@ -5,14 +5,16 @@
 * **Terminology and Scope**  
   * SSO: Single Sign-On  
   * Authentication (AuthN): Verifying the user's identity (Primary role of OpenID Connect).  
-  * Authorization (AuthZ): Granting access to resources (Primary role of OAuth 2.0).  
+  * Authorization (AuthZ): Granting access to resources (Primary role of OAuth 2.0).
+  * NOTE: ConnectID was the former name for PersonalID (and still the url for that server)
 * **Technology Foundations**  
   * **OAuth 2.0:** Protocol for authorization; used to grant access to data (e.g., calendar, contacts) or APIs.  
   * **OpenID Connect (OIDC):** A simpler layer on top of OAuth 2.0 for authentication; the workflow primarily ends at authentication and can include basic user info. It is characterized by requesting `scope=openid`.  
 * **System Components (Players)**  
   * **User:** The end user (person)  
   * **CommCare:** The CommCare Android app  
-  * **PersonalID:** Auth Tenant (Authorization Server)  
+  * **PersonalID:** Auth Tenant (Authorization Server)
+  * **HQ OAuth:** HQ auth Tenant (Authorization Server)
   * **HQ:** Any CommCare HQ server (Resource Server)  
   * **Connect:** The CommCare Connect server (Resource Server)  
 * **Summary**  
@@ -40,7 +42,7 @@
   1. Check local storage for a valid HQ Token. If found, use it.  
   2. If HQ Token is not found or is invalid, check local storage for a valid PersonalID Token.  
   3. If PersonalID Token is found, use it to retrieve a new HQ Token.  
-  4. If PersonalID Token is not found or is invalid, retrieve a new PersonalID Token (See **C. API Call Details**).  
+  4. If PersonalID Token is not found or is invalid, retrieve a new PersonalID Token  
   5. If new PersonalID Token is retrieved, store it and use it to retrieve a new HQ Token.  
   6. If the process fails, fallback to `CurrentAuth` (if configured).  
 * **API Graph (Token Exchange when no tokens are valid):**  
@@ -64,14 +66,15 @@
 ### A. PersonalID Token Request Specification
 
 * **URL:** `connectid.dimagi.com/o/token`  
+* **Type:** POST
 * **Auth:** NoAuth  
 * **Request Payload (Form-Encoded):**  
   * `client_id`: Hard-coded on mobile (identifies the app).  
   * `scope`: `openid`  
   * `grant_type`: `password`  
-  * `username`: ConnectID user ID  
-  * `password`: ConnectID password  
-* **Response Payload:** `access_token` and `expires`.
+  * `username`: PersonalID user ID  
+  * `password`: PersonalID password  
+* **Response Payload:** `access_token` and `expires_in`.
 
 ### B. HQ Token Request Specification
 
@@ -82,22 +85,23 @@
   * `client_id`: Hard-coded on mobile (identifies the app).  
   * `scope`: `mobile_access sync`  
   * `grant_type`: `password`  
-  * `username`: ConnectID user ID \+ `@` \+ (HQ domain)  
-  * `password`: **The ConnectID token** (i.e., the `access_token` from the previous step).  
-* **Response Payload:** `access_token` and `expires`.
+  * `username`: PersonalID user ID \+ `@` \+ (HQ domain)  
+  * `password`: **The PersonalID token** (i.e., the `access_token` from the previous step).  
+* **Response Payload:** `access_token` and `expires_in`.
 
 
 ```mermaid
 sequenceDiagram
     participant Mobile
-    participant ConnectID
+    participant PersonalID
+    participant HQ OAuth
     participant HQ
 
-    Mobile->>ConnectID: /o/token\nAuth: ConnectID user/pass
-    ConnectID-->>Mobile: ConnectID token
+    Mobile->>PersonalID: /o/token\nAuth: PersonalID user/pass
+    PersonalID-->>Mobile: PersonalID token
 
-    Mobile->>HQ: /oauth/token\nAuth: HQ username + ConnectID token
-    HQ-->>Mobile: HQ token
+    Mobile->>HQ OAuth: /oauth/token\nAuth: HQ username + PersonalID token
+    HQ OAuth-->>Mobile: HQ token
 
     Mobile->>HQ: HQ API call (sync)\nAuth: HQ token
     HQ-->>Mobile: Sync result
