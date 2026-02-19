@@ -56,29 +56,36 @@ jobs:
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
       - name: Assemble Release apk
-        run: ./gradlew assembleCommcareRelease
+        run: ./gradlew assembleCommcareRelease -PRELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore -PRELEASE_STORE_PASSWORD=$RELEASE_STORE_PASSWORD -PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS -PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD
         working-directory: commcare-android
         env:
           RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          RELEASE_STORE_FILE: "~/.gradle/commcare-odk-keys.keystore"
       - name: Upload CommCare apk
         uses: actions/upload-artifact@v6
         with:
           name: commcare-arelease-pk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: Assemble LTS apk
-        run: ./gradlew assembleLtsRelease
+        run: ./gradlew assembleLtsRelease -PRELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore -PRELEASE_STORE_PASSWORD=$RELEASE_STORE_PASSWORD -PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS -PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD
         working-directory: commcare-android
+        env:
+          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
       - name: Upload CommCare LTS apk
         uses: actions/upload-artifact@v6
         with:
           name: app-lts-release
           path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
       - name: CommCare apk for Instrumentation Testing
-        run: ./gradlew assembleCommcareReleaseAndroidTest
+        run: ./gradlew assembleCommcareReleaseAndroidTest -PRELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore -PRELEASE_STORE_PASSWORD=$RELEASE_STORE_PASSWORD -PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS -PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD
         working-directory: commcare-android
+        env:
+          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v6
         with:
