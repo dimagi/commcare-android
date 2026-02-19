@@ -56,6 +56,8 @@ jobs:
           arguments: assembleCommcareDebug
       - name: Restore Keystore
         run: echo $SIGNING_KEY | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
       - name: Assemble Release apk
         uses: gradle/gradle-build-action@v2
         with:
