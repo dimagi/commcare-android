@@ -15,24 +15,19 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: refs/pull/${{env.PR_NUM}}/head
+          path: commcare-android
       - name: Install python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: '3.9'
       - name: Download cross request script
         run: |
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
       - name: Install Python dependencies
-        uses: py-actions/py-dependency-install@v4
-        with:
-          path: "requirements.txt"
-      - name: List python
-        run: |
-          pip list
+        run: python -m pip install -r requirements.txt
       - name: Run cross request script
-        run: |
-          python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
+        run: python checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
       - name: Setup JDK
         uses: actions/setup-java@v5
         with:
@@ -42,18 +37,23 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Clean with Gradle
         run: ./gradlew clean
+        working-directory: commcare-android
       - name: Run Linters
         run: ./gradlew lintCommcareRelease
+        working-directory: commcare-android
       - name: Run Tests
         run: ./gradlew testCommcareDebug
+        working-directory: commcare-android
       - name: Assemble Debug apk
         run: ./gradlew assembleCommcareDebug
+        working-directory: commcare-android
       - name: Restore Keystore
         run: echo $SIGNING_KEY | base64 -d > ~/.gradle/commcare-odk-keys.keystore
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
       - name: Assemble Release apk
         run: ./gradlew assembleCommcareRelease
+        working-directory: commcare-android
         env:
           RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -66,6 +66,7 @@ jobs:
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: Assemble LTS apk
         run: ./gradlew assembleLtsRelease
+        working-directory: commcare-android
       - name: Upload CommCare LTS apk
         uses: actions/upload-artifact@v6
         with:
@@ -73,6 +74,7 @@ jobs:
           path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
       - name: CommCare apk for Instrumentation Testing
         run: ./gradlew assembleCommcareReleaseAndroidTest
+        working-directory: commcare-android
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v6
         with:
@@ -80,6 +82,7 @@ jobs:
           path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
       - name: Generate JaCoCo Report
         run: ./gradlew JacocoTestReport
+        working-directory: commcare-android
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v6
         with:
