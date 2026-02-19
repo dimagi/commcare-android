@@ -124,6 +124,9 @@
             android:id="@+id/action_personalid_phone_fragment_to_personalid_biometric_config"
             app:destination="@id/personalid_biometric_config"/>
         <action
+            android:id="@+id/action_personalid_phone_fragment_to_personalid_name"
+            app:destination="@id/personalid_name" />
+        <action
             android:id="@+id/action_personalid_phone_fragment_self"
             app:destination="@id/personalid_phone_fragment" />
     </fragment>
