@@ -56,7 +56,7 @@ jobs:
         with:
           arguments: assembleCommcareDebug
       - name: Restore Keystore
-        run: echo $SIGNING_KEY | base64 -d > ˜/.gradle/commcare-odk-keys.keystore
+        run: echo $SIGNING_KEY | base64 -d > ~/.gradle/commcare-odk-keys.keystore
       - name: Assemble Release apk
         uses: gradle/gradle-build-action@v2
         with:
@@ -65,7 +65,7 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          RELEASE_STORE_FILE: "˜/.gradle/commcare-odk-keys.keystore"
+          RELEASE_STORE_FILE: "~/.gradle/commcare-odk-keys.keystore"
       - name: Upload CommCare apk
         uses: actions/upload-artifact@v3
         with:
