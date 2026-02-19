@@ -4,7 +4,6 @@ env:
   PR_NUM: ${{github.event.issue.number || github.event.number }}
 on:
   pull_request:
-    types: [opened, edited]
   issue_comment:
 jobs:
   build-test-assemble:
