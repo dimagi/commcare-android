@@ -26,9 +26,11 @@ import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -337,7 +339,12 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        binding.pbLoadingSpinner.setVisibility(View.VISIBLE);
+                        ConnectMessagingActivity activity =
+                                (ConnectMessagingActivity) requireActivity();
+
+                        activity.showProgressDialog(
+                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                        );
                         channel.setConsented(false);
 
                         MessageManager.updateChannelConsent(
@@ -345,7 +352,9 @@ public class ConnectMessageFragment extends Fragment {
                                 channel,
                                 (success, error) -> {
                                     if (isAdded()) {
-                                        binding.pbLoadingSpinner.setVisibility(View.GONE);
+                                        activity.dismissProgressDialogForTask(
+                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                                        );
 
                                         if (success) {
                                             setChannelUnsubscribedState();
@@ -397,7 +406,12 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        binding.pbLoadingSpinner.setVisibility(View.VISIBLE);
+                        ConnectMessagingActivity activity =
+                                (ConnectMessagingActivity) requireActivity();
+
+                        activity.showProgressDialog(
+                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                        );
                         channel.setConsented(true);
 
                         MessageManager.updateChannelConsent(
@@ -405,7 +419,9 @@ public class ConnectMessageFragment extends Fragment {
                                 channel,
                                 (success, error) -> {
                                     if (isAdded()) {
-                                        binding.pbLoadingSpinner.setVisibility(View.GONE);
+                                        activity.dismissProgressDialogForTask(
+                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                                        );
 
                                         if (success) {
                                             setChannelSubscribedState();

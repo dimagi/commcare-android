@@ -11,6 +11,7 @@ public class ConnectConstants {
     public static final int PERSONAL_ID_SIGN_UP_LAUNCH = 1050;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
+    public static final int NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID = 8000;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
 

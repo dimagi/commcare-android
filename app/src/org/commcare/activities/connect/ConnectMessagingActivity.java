@@ -19,13 +19,17 @@ import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.DialogController;
 
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
+import static org.commcare.connect.ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
-public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> {
+public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> implements DialogController {
     public static final String CHANNEL_ID = "channel_id";
+    private static final String KEY_PROGRESS_DIALOG_FRAGMENT = "progress_dialog_fragment";
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
 
 
@@ -37,11 +41,11 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);
 
-        if(personalIdManager.isloggedIn()){
+        if (personalIdManager.isloggedIn()) {
             handleRedirectIfAny();
-        }else{
-            Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
-            personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+        } else {
+            Toast.makeText(this, R.string.personalid_not_login_from_fcm_error, Toast.LENGTH_LONG).show();
+            personalIdManager.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
     }
@@ -72,8 +76,45 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(title);
+        }
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (taskId == NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID) {
+            return CustomProgressDialog.newInstance(
+                    null,
+                    getString(R.string.please_wait),
+                    taskId
+            );
+        } else {
+            // Prevent this dialog from showing for every other API call.
+            return null;
+        }
+    }
+
+    @Override
+    public void showProgressDialog(int taskId) {
+        if (taskId == NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID) {
+            CustomProgressDialog dialog = generateProgressDialog(taskId);
+
+            if (dialog != null) {
+                dialog.showNow(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAGMENT);
+            }
+        }
+    }
+
+    @Override
+    public void dismissProgressDialogForTask(int taskId) {
+        if (taskId == NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID) {
+            CustomProgressDialog dialog = (CustomProgressDialog) getSupportFragmentManager()
+                    .findFragmentByTag(KEY_PROGRESS_DIALOG_FRAGMENT);
+
+            if (dialog != null) {
+                dialog.dismiss();
+            }
         }
     }
 
