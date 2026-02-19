@@ -10,7 +10,8 @@
 
     <include
         android:id="@+id/include_tool_bar"
-        layout="@layout/appbar_layout" />
+        layout="@layout/appbar_layout"
+        android:theme="@style/ToolbarThemeOverlay"/>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment_connect_messaging"
