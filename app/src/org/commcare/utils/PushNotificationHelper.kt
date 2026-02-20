@@ -8,7 +8,10 @@ object PushNotificationHelper {
     const val MESSAGE: String = "message"
 
     @JvmStatic
-    fun truncateMessage(message: String, type: String): String {
+    fun truncateMessage(
+        message: String,
+        type: String,
+    ): String {
         if (message.length > MAX_MESSAGE_LENGTH) {
             val errorMessage = "Received " + type + " exceeded max length. Length=" + message.length
             Logger.exception("Truncating message", Exception(errorMessage))

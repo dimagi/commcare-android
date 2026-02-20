@@ -39,7 +39,7 @@ class PushNotificationRecord :
     @MetaField(META_BODY)
     var body: String = ""
         set(value) {
-            field = truncateMessage(value,NOTIFICATION)
+            field = truncateMessage(value, NOTIFICATION)
         }
 
     @Persisting(6)

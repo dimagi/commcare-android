@@ -18,7 +18,6 @@ import org.commcare.utils.PushNotificationHelper.MAX_MESSAGE_LENGTH
 import org.commcare.utils.PushNotificationHelper.truncateMessage
 import org.json.JSONObject
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -98,15 +97,11 @@ class PushNotificationHelperTest {
 
         return mockStorage
     }
-
-
     private fun cleanupMock() {
         unmockkStatic(ConnectDatabaseHelper::class)
     }
 
-    private fun getStorage():
-            SqlStorage<ConnectMessagingMessageRecord> {
-
+    private fun getStorage(): SqlStorage<ConnectMessagingMessageRecord> {
         return ConnectDatabaseHelper.getConnectStorage(
             context,
             ConnectMessagingMessageRecord::class.java
@@ -114,12 +109,12 @@ class PushNotificationHelperTest {
     }
 
     private fun createRecord(
-        message: String
+        message: String,
     ): ConnectMessagingMessageRecord {
         val encrypted =
             ConnectMessagingMessageRecord.encrypt(
                 message,
-                encryptedKey
+                encryptedKey,
             )
 
         val json = JSONObject().apply {
@@ -139,7 +134,7 @@ class PushNotificationHelperTest {
 
         return ConnectMessagingMessageRecord.fromJson(
             json,
-            listOf(channel)
+            listOf(channel),
         )!!
     }
 }
