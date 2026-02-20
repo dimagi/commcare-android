@@ -349,6 +349,11 @@ public class ConnectMessageFragment extends Fragment {
                                 requireContext(),
                                 channel,
                                 (success, error) -> {
+                                    channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                                            requireContext(),
+                                            channelId
+                                    );
+
                                     if (isAdded()) {
                                         activity.dismissProgressDialogForTask(
                                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
@@ -363,7 +368,6 @@ public class ConnectMessageFragment extends Fragment {
                                                     Toast.LENGTH_SHORT
                                             ).show();
                                         } else {
-                                            channel.setConsented(true);
                                             Toast.makeText(
                                                     requireContext(),
                                                     errorText,
@@ -413,6 +417,11 @@ public class ConnectMessageFragment extends Fragment {
                                 requireContext(),
                                 channel,
                                 (success, error) -> {
+                                    channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                                            requireContext(),
+                                            channelId
+                                    );
+
                                     if (isAdded()) {
                                         activity.dismissProgressDialogForTask(
                                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
@@ -427,7 +436,6 @@ public class ConnectMessageFragment extends Fragment {
                                                     Toast.LENGTH_SHORT
                                             ).show();
                                         } else {
-                                            channel.setConsented(false);
                                             Toast.makeText(
                                                     requireContext(),
                                                     errorText,
