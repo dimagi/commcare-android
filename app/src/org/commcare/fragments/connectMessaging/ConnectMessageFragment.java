@@ -352,24 +352,26 @@ public class ConnectMessageFragment extends Fragment {
                                 requireContext(),
                                 channel,
                                 (success, error) -> {
-                                    if (!isAdded()) {
-                                        return;
-                                    }
-
-                                    activity.dismissProgressDialogForTask(
-                                            ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                                    channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                                            requireContext(),
+                                            channelId
                                     );
 
-                                    if (success) {
-                                        setChannelUnsubscribedState();
-                                        requireActivity().invalidateMenu();
-                                    } else {
-                                        channel.setConsented(true);
-                                        Toast.makeText(
-                                                requireContext(),
-                                                errorText,
-                                                Toast.LENGTH_SHORT
-                                        ).show();
+                                    if (isAdded()) {
+                                        activity.dismissProgressDialogForTask(
+                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                                        );
+
+                                        if (success) {
+                                            setChannelUnsubscribedState();
+                                            requireActivity().invalidateMenu();
+                                        } else {
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    errorText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
                                     }
                                 }
                         );
