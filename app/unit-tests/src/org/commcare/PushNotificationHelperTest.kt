@@ -97,16 +97,16 @@ class PushNotificationHelperTest {
 
         return mockStorage
     }
+
     private fun cleanupMock() {
         unmockkStatic(ConnectDatabaseHelper::class)
     }
 
-    private fun getStorage(): SqlStorage<ConnectMessagingMessageRecord> {
-        return ConnectDatabaseHelper.getConnectStorage(
+    private fun getStorage(): SqlStorage<ConnectMessagingMessageRecord> =
+        ConnectDatabaseHelper.getConnectStorage(
             context,
-            ConnectMessagingMessageRecord::class.java
+            ConnectMessagingMessageRecord::class.java,
         )
-    }
 
     private fun createRecord(
         message: String,
@@ -117,20 +117,22 @@ class PushNotificationHelperTest {
                 encryptedKey,
             )
 
-        val json = JSONObject().apply {
-            put("message_id", messageId)
-            put("channel", channelId)
-            put("channel_id", channelId)
-            put("timestamp", "2024-01-01T00:00:00.000Z")
-            put("ciphertext", encrypted[0])
-            put("nonce", encrypted[1])
-            put("tag", encrypted[2])
-        }
+        val json =
+            JSONObject().apply {
+                put("message_id", messageId)
+                put("channel", channelId)
+                put("channel_id", channelId)
+                put("timestamp", "2024-01-01T00:00:00.000Z")
+                put("ciphertext", encrypted[0])
+                put("nonce", encrypted[1])
+                put("tag", encrypted[2])
+            }
 
-        val channel = ConnectMessagingChannelRecord().apply {
-            this.channelId = this@PushNotificationHelperTest.channelId
-            key = encryptedKey
-        }
+        val channel =
+            ConnectMessagingChannelRecord().apply {
+                this.channelId = this@PushNotificationHelperTest.channelId
+                key = encryptedKey
+            }
 
         return ConnectMessagingMessageRecord.fromJson(
             json,

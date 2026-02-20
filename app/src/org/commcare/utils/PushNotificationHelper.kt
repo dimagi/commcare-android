@@ -1,6 +1,7 @@
 package org.commcare.utils
 
 import org.javarosa.core.services.Logger
+
 object PushNotificationHelper {
     const val MAX_MESSAGE_LENGTH: Int = 65535
     const val MESSAGE_NOTIFICATION_TITLE: String = "notification_title"
