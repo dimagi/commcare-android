@@ -108,13 +108,11 @@ class PushNotificationHelperTest {
             ConnectMessagingMessageRecord::class.java,
         )
 
-    private fun createRecord(
-        message: String,
-    ): ConnectMessagingMessageRecord {
+    private fun createRecord(message: String): ConnectMessagingMessageRecord {
         val encrypted =
             ConnectMessagingMessageRecord.encrypt(
                 message,
-                encryptedKey
+                encryptedKey,
             )
 
         val json =
@@ -136,7 +134,7 @@ class PushNotificationHelperTest {
 
         return ConnectMessagingMessageRecord.fromJson(
             json,
-            listOf(channel)
+            listOf(channel),
         )!!
     }
 }
