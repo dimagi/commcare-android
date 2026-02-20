@@ -21,6 +21,7 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.KeyboardHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +44,14 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
         enableContinueButton(false);
         binding.nameTextValue.addTextChangedListener(createNameWatcher());
         return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if( binding.nameTextValue.requestFocus()){
+            KeyboardHelper.showKeyboardOnInput(activity, binding.nameTextValue);
+        }
     }
 
     private TextWatcher createNameWatcher() {
