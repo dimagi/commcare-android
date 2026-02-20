@@ -28,10 +28,25 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Run cross request script
         run: python checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
-      - name: Restore Gradle properties
-        run: mkdir -p ~/.gradle && echo "$GRADLE_PROPERTIES_BASE64" | base64 -d > ~/.gradle/gradle.properties
-        env:
-          GRADLE_PROPERTIES_BASE64: ${{ secrets.GRADLE_PROPERTIES_BASE64_TODO_BREAK_UP }}
+      - name: Generate Gradle properties
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties <<EOF
+          org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.parallel=false
+          TEST_BUILD_TYPE=release
+          RELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore
+          RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
+          RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          GOOGLE_CLOUD_PROJECT_NUMBER=${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+          GOOGLE_SERVICES_API_KEY=${{ secrets.GOOGLE_SERVICES_API_KEY }}
+          FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
+          GOOGLE_PLAY_MAPS_API_KEY=${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}
+          HQ_API_USERNAME=${{ secrets.HQ_API_USERNAME }}
+          HQ_API_PASSWORD=${{ secrets.HQ_API_PASSWORD }}
+          MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
+          EOF
       - name: Setup JDK
         uses: actions/setup-java@v5
         with:
@@ -50,68 +65,32 @@ jobs:
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
       - name: Assemble Release apk
-        run: >-
-          ./gradlew assembleCommcareRelease
-          -PRELEASE_STORE_FILE="$HOME/.gradle/commcare-odk-keys.keystore"
-          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD"
-          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS"
-          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
+        run: ./gradlew assembleCommcareRelease
         working-directory: commcare-android
-        env:
-          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
       - name: Upload CommCare apk
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-apk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: Bundle Release aab
-        run: >-
-          ./gradlew bundleCommcareRelease
-          -PRELEASE_STORE_FILE="$HOME/.gradle/commcare-odk-keys.keystore"
-          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD"
-          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS"
-          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
+        run: ./gradlew bundleCommcareRelease
         working-directory: commcare-android
-        env:
-          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
       - name: Upload CommCare aab
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-aab
           path: commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab
       - name: Assemble CCC Staging apk
-        run: >-
-          ./gradlew assembleCccStagingRelease
-          -PRELEASE_STORE_FILE="$HOME/.gradle/commcare-odk-keys.keystore"
-          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD"
-          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS"
-          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
+        run: ./gradlew assembleCccStagingRelease
         working-directory: commcare-android
-        env:
-          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
       - name: Upload CCC Staging apk
         uses: actions/upload-artifact@v6
         with:
           name: ccc-staging-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
       - name: Assemble CommCare apk for Instrumentation Testing
-        run: >-
-          ./gradlew assembleCommcareReleaseAndroidTest
-          -PRELEASE_STORE_FILE="$HOME/.gradle/commcare-odk-keys.keystore"
-          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD"
-          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS"
-          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
+        run: ./gradlew assembleCommcareReleaseAndroidTest
         working-directory: commcare-android
-        env:
-          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v6
         with:
