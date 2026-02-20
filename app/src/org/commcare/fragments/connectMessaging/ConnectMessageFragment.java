@@ -98,23 +98,21 @@ public class ConnectMessageFragment extends Fragment {
                 new MenuProvider() {
                     @Override
                     public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                        // TODO: Add this code back in when we fully implement "Resubscribe".
-                        // TODO: Both menu items are hidden (commented out) for now.
-//                        if (channel.getConsented()) {
-//                            menu.add(
-//                                    Menu.NONE,
-//                                    MENU_UNSUBSCRIBE,
-//                                    Menu.NONE,
-//                                    R.string.connect_messaging_channel_menu_item_unsubscribe
-//                            );
-//                        } else {
-//                            menu.add(
-//                                    Menu.NONE,
-//                                    MENU_RESUBSCRIBE,
-//                                    Menu.NONE,
-//                                    R.string.connect_messaging_channel_menu_item_resubscribe
-//                            );
-//                        }
+                        if (channel.getConsented()) {
+                            menu.add(
+                                    Menu.NONE,
+                                    MENU_UNSUBSCRIBE,
+                                    Menu.NONE,
+                                    R.string.connect_messaging_channel_menu_item_unsubscribe
+                            );
+                        } else {
+                            menu.add(
+                                    Menu.NONE,
+                                    MENU_RESUBSCRIBE,
+                                    Menu.NONE,
+                                    R.string.connect_messaging_channel_menu_item_resubscribe
+                            );
+                        }
 
                         menuItemsAnalyticsParamsMapping = Map.of(
                                 MENU_UNSUBSCRIBE,
@@ -317,6 +315,7 @@ public class ConnectMessageFragment extends Fragment {
 
     private void showDialogForMenuItem(int menuItemId) {
         CustomThreeButtonAlertDialog dialog = null;
+        ConnectMessagingActivity activity = (ConnectMessagingActivity) requireActivity();
 
         if (menuItemId == MENU_UNSUBSCRIBE) {
             String titleText = getString(
@@ -326,6 +325,7 @@ public class ConnectMessageFragment extends Fragment {
             String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
             String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
             String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+            String successText = getString(R.string.connect_messaging_channel_unsubscribe_success);
             String errorText = getString(R.string.connect_messaging_channel_unsubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
@@ -340,9 +340,6 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        ConnectMessagingActivity activity =
-                                (ConnectMessagingActivity) requireActivity();
-
                         activity.showProgressDialog(
                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
                         );
@@ -364,6 +361,11 @@ public class ConnectMessageFragment extends Fragment {
                                         if (success) {
                                             setChannelUnsubscribedState();
                                             requireActivity().invalidateMenu();
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    successText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
                                         } else {
                                             Toast.makeText(
                                                     requireContext(),
@@ -390,6 +392,8 @@ public class ConnectMessageFragment extends Fragment {
             );
             String negativeButtonText = getString(R.string.connect_messaging_resubscribe_dialog_cancel);
             String positiveButtonText = getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
+            String successText = getString(R.string.connect_messaging_channel_resubscribe_success);
+            String errorText = getString(R.string.connect_messaging_channel_resubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
                     titleText,
@@ -403,7 +407,42 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        // TODO: Not implemented yet.
+                        activity.showProgressDialog(
+                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                        );
+                        channel.setConsented(true);
+
+                        MessageManager.updateChannelConsent(
+                                requireContext(),
+                                channel,
+                                (success, error) -> {
+                                    if (isAdded()) {
+                                        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                                                requireContext(),
+                                                channelId
+                                        );
+                                        activity.dismissProgressDialogForTask(
+                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                                        );
+
+                                        if (success) {
+                                            setChannelSubscribedState();
+                                            requireActivity().invalidateMenu();
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    successText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        } else {
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    errorText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
+                                    }
+                                }
+                        );
                         return Unit.INSTANCE;
                     },
                     R.color.white,
