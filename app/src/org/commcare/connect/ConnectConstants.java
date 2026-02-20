@@ -60,6 +60,6 @@ public class ConnectConstants {
     public final static String CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_RESUBSCRIBE =
             "click_resubscribed_confirm";
     public final static String CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT =
-            "consent_api_success";
+            "consent_api_success_result";
 
 }

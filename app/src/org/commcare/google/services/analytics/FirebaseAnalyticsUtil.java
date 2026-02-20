@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -27,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
@@ -700,12 +699,12 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportConnectMessagingChannelEvent(
             @NonNull String messagingEventType,
-            @NonNull String messageChannelID,
+            @NonNull String messageChannelId,
             @Nullable Boolean consentApiSuccessful
     ) {
         Bundle bundle = new Bundle();
         bundle.putString(CCAnalyticsParam.CCC_MESSAGING_EVENT_TYPE, messagingEventType);
-        bundle.putString(CCAnalyticsParam.CCC_MESSAGING_CHANNEL_ID, messageChannelID);
+        bundle.putString(CCAnalyticsParam.CCC_MESSAGING_CHANNEL_ID, messageChannelId);
 
         if (consentApiSuccessful != null) {
             bundle.putLong(
