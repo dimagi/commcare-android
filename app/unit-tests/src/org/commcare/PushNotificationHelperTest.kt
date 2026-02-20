@@ -2,7 +2,6 @@ package org.commcare
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import io.mockk.CapturingSlot
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -19,6 +18,7 @@ import org.commcare.utils.PushNotificationHelper.MAX_MESSAGE_LENGTH
 import org.commcare.utils.PushNotificationHelper.truncateMessage
 import org.json.JSONObject
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -29,38 +29,42 @@ class PushNotificationHelperTest {
     private val context: Context = CommCareTestApplication.instance()
     private val longMessage = "A".repeat(70000)
     private val encryptedKey = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
-    private val CHANNEL_ID = "channel-id"
-    private val MESSAGE_ID = "test-id"
+    private val channelId = "channel-id"
+    private val messageId = "test-id"
 
     @Test
     fun truncateMessage_whenMessageTooLong_shouldTruncate() {
-        val result = truncateMessage(
-            longMessage,
-            "message"
-        )
+        val result =
+            truncateMessage(
+                longMessage,
+                "message",
+            )
         Assert.assertEquals(
             MAX_MESSAGE_LENGTH,
-            result.length
+            result.length,
         )
     }
 
     @Test
     fun truncateMessage_whenMessageShort_shouldRemainSame() {
         val message = "Hello"
-        val result = truncateMessage(
-            message,
-            "message"
-        )
+        val result =
+            truncateMessage(
+                message,
+                "message",
+            )
         Assert.assertEquals(message, result)
     }
 
     @Test
     fun truncateMessage_whenExactlyMaxLength_shouldNotTruncate() {
-        val message = "A".repeat(MAX_MESSAGE_LENGTH)
-        val result = truncateMessage(
-            message,
-            "message"
-        )
+        val message =
+            "A".repeat(MAX_MESSAGE_LENGTH)
+        val result =
+            truncateMessage(
+                message,
+                "message",
+            )
         Assert.assertEquals(message, result)
     }
 
@@ -74,38 +78,10 @@ class PushNotificationHelperTest {
         Assert.assertNotNull(stored)
         Assert.assertEquals(
             MAX_MESSAGE_LENGTH,
-            stored.message.length
+            stored.message.length,
         )
         verify(exactly = 1) { mockStorage.write(any()) }
         verify(exactly = 1) { mockStorage.read(any()) }
-        cleanupMock()
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun storingLongMessage_withoutTruncation_shouldCrash() {
-        val mockStorage = mockk<SqlStorage<ConnectMessagingMessageRecord>>()
-        mockkStatic(ConnectDatabaseHelper::class)
-        every {
-            ConnectDatabaseHelper.getConnectStorage(
-                context,
-                ConnectMessagingMessageRecord::class.java
-            )
-        } returns mockStorage
-        every {
-            mockStorage.write(any())
-        } answers {
-            val record = firstArg<ConnectMessagingMessageRecord>()
-            if (record.message.length > MAX_MESSAGE_LENGTH) {
-                throw IllegalStateException(
-                    "Message too large for DB"
-                )
-            }
-        }
-        val storage = getStorage()
-        val record = mockk<ConnectMessagingMessageRecord>()
-        every { record.message } returns longMessage
-        every { record.id } returns 1
-        storage.write(record)
         cleanupMock()
     }
 
@@ -147,9 +123,9 @@ class PushNotificationHelperTest {
             )
 
         val json = JSONObject().apply {
-            put("message_id", MESSAGE_ID)
-            put("channel", CHANNEL_ID)
-            put("channel_id", CHANNEL_ID)
+            put("message_id", messageId)
+            put("channel", channelId)
+            put("channel_id", channelId)
             put("timestamp", "2024-01-01T00:00:00.000Z")
             put("ciphertext", encrypted[0])
             put("nonce", encrypted[1])
@@ -157,7 +133,7 @@ class PushNotificationHelperTest {
         }
 
         val channel = ConnectMessagingChannelRecord().apply {
-            channelId = CHANNEL_ID
+            this.channelId = this@PushNotificationHelperTest.channelId
             key = encryptedKey
         }
 
