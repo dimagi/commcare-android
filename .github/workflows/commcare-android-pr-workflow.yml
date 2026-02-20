@@ -67,7 +67,7 @@ jobs:
           RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           RELEASE_STORE_FILE: "˜/.gradle/commcare-odk-keys.keystore"
       - name: Upload CommCare apk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: commcare-arelease-pk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
@@ -76,7 +76,7 @@ jobs:
         with:
           arguments: assembleLtsRelease
       - name: Upload CommCare LTS apk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-lts-release
           path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
@@ -85,7 +85,7 @@ jobs:
         with:
           arguments: assembleCommcareReleaseAndroidTest
       - name: Upload CommCare apk for Instrumentation Testing
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: commcare-release-androidTest-apk
           path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
@@ -94,7 +94,7 @@ jobs:
         with:
           arguments: JacocoTestReport
       - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports
