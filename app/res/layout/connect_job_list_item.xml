@@ -73,8 +73,6 @@
             android:id="@+id/btn_resume"
             android:textSize="11sp"
             android:text="@string/connect_job_info_view_resume"
-            android:clickable="true"
-            android:focusable="true"
             android:layout_marginTop="10dp"
             app:textAllCaps="false"
             android:paddingHorizontal="8dp"
@@ -85,6 +83,24 @@
             android:drawableStart="@drawable/ic_download_circle"
             app:layout_constraintStart_toStartOf="parent"
             android:background="@drawable/bg_rounded_blue_70"
+            app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:id="@+id/btn_review"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_review"
+            android:layout_marginTop="10dp"
+            app:textAllCaps="false"
+            android:paddingHorizontal="8dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:drawableStart="@drawable/ic_download_circle_faded"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_rounded_corner_violet"
             app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
 
         <androidx.appcompat.widget.AppCompatButton

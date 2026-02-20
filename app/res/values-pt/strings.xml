@@ -403,6 +403,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">Ver informações</string>
     <string name="connect_job_info_view_resume">Retomar</string>
+    <string name="connect_job_info_view_review">Revisar</string>
     <string name="connect_progress">Progresso</string>
     <string name="connect_payment">Pagamento</string>
     <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>
@@ -444,6 +445,19 @@
     <string name="connect_messaging_channel_notification_message">Um novo canal de mensagens está disponível em %s, clique aqui para visualizar</string>
     <string name="connect_messaging_send_message_fail_msg">Falha ao enviar mensagem</string>
     <string name="connect_messaging_retrieve_messages_fail">Falha ao recuperar mensagens</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Assinar %s novamente</string>
+    <string name="connect_messaging_resubscribe_dialog_body">Tem certeza de que deseja assinar novamente o canal de mensagens %s?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Voltar a subscrever</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Cancelar</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Anular subscrição de %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Tem certeza de que deseja anular a subscrição deste canal? Não receberá mais mensagens desta oportunidade.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Anular subscrição</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Cancelar</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Falha ao anular subscrição</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">subscrição anulada</string>
+    <string name="connect_messaging_channel_list_not_subscribed">Não está subscrito neste canal de mensagens.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Voltar a subscrever</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Anular subscrição</string>
     <string name="connect_send_message_hint">Digite mensagem</string>
     <string name="connect_send_message_btn_desc">Clique aqui para enviar mensagem</string>
     <string name="connect_message_you">Você</string>

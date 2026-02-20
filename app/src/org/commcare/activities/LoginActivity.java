@@ -39,7 +39,6 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.NavDrawerHelper;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -91,6 +90,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
     public static final String EXTRA_APP_ID = "extra_app_id";
+    public static final String EXTRA_FORCE_SINGLE_APP_MODE = "extra_force_single_app_mode";
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_PRACTICE_MODE = Menu.FIRST;
@@ -123,6 +123,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect = false;
+
+    /**
+     *   This lets us launch CommCare in a single app mode from external applications
+     *   and should only be used internally when we don't want user to have the option to switch to other apps
+     *   for eg. for launch from Connect Opportunities
+     */
     private String presetAppId;
     private PersonalIdManager personalIdManager;
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
@@ -318,9 +324,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
 
         // Otherwise, refresh the activity for current conditions
+        selectedAppIndex = -1;
         uiController.refreshView();
 
-        if (shouldDoConnectLogin() && !seatAppIfNeeded(presetAppId)) {
+        // if the app is already seated, we can login immediately
+        if(shouldDoConnectLogin() && isAppSeated(presetAppId)) {
             connectLaunchPerformed = true;
             initiateLoginAttempt(uiController.isRestoreSessionChecked());
         }
@@ -755,7 +763,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         selectedAppIndex = position;
         String appId = appIdDropdownList.get(selectedAppIndex);
-        presetAppId = appId;
         seatAppIfNeeded(appId);
     }
 
@@ -952,7 +959,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     protected boolean seatAppIfNeeded(String appId) {
-        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+        boolean selectedNewApp = !isAppSeated(appId);
         if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -964,6 +971,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
         return selectedNewApp;
+    }
+
+    private boolean isAppSeated(String appId) {
+        return appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
     }
 
     protected void evaluateConnectAppState() {
@@ -999,18 +1010,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
-        if (NavDrawerHelper.INSTANCE.drawerShownBefore()) {
-            return true;
-        }
-
-        initPersonaIdManager();
-        boolean showDrawer = personalIdManager.isloggedIn();
-
-        if (showDrawer) {
-            NavDrawerHelper.INSTANCE.setDrawerShown();
-        }
-
-        return showDrawer;
+        return shouldShowDrawerAfterCheck();
     }
 
     @Override
@@ -1029,7 +1029,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 if (!appIdDropdownList.isEmpty()) {
                     selectedAppIndex = appIdDropdownList.indexOf(recordId);
                 }
-                presetAppId = recordId;
+                presetAppId = null;
                 seatAppIfNeeded(recordId);
                 closeDrawer();
             }

@@ -384,6 +384,7 @@ License.
     <string name="connect_job_info_download">Télécharger</string>
     <string name="connect_job_info_view_info">Voir les informations</string>
     <string name="connect_job_info_view_resume">Reprendre</string>
+    <string name="connect_job_info_view_review">Réviser</string>
     <string name="connect_progress">Progrès</string>
     <string name="connect_payment">Paiement</string>
     <string name="connect_delivery_progress_description">Vous n\'avez terminé aucune leçon. Commencez votre apprentissage pour obtenir votre certificat.</string>
@@ -441,6 +442,19 @@ License.
     <string name="connect_messaging_channel_consent_failure_msg">Impossible d\'accorder le consentement à la chaîne</string>
     <string name="connect_messaging_send_message_fail_msg">Échec de l\'envoi du message</string>
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Se réabonner à %s</string>
+    <string name="connect_messaging_resubscribe_dialog_body">Voulez-vous vraiment vous réabonner au canal de messagerie %s?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Se réabonner</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Annuler</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Se désabonner de %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Voulez-vous vraiment vous désabonner de ce canal ? Vous ne recevrez plus de messages pour cette opportunité.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Se désabonner</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Annuler</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Échec du désabonnement</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">désabonné</string>
+    <string name="connect_messaging_channel_list_not_subscribed">Vous n\'êtes pas abonné à ce canal de messagerie.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Se réabonner</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Se désabonner</string>
     <string name="connect_send_message_hint">Tapez un message</string>
     <string name="connect_send_message_btn_desc">Appuyez ici pour envoyer un message</string>
     <string name="connect_message_you">Toi</string>

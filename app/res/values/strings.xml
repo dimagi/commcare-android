@@ -383,6 +383,19 @@
     <string name="connect_messaging_channel_notification_message">A new messaging channel is available from %s, press here to view</string>
     <string name="connect_messaging_send_message_fail_msg">Fail to send message</string>
     <string name="connect_messaging_retrieve_messages_fail">Failed to retrieve messages</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Resubscribe to %s</string>
+    <string name="connect_messaging_resubscribe_dialog_body">Are you sure you want to resubscribe to the %s messaging channel?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Resubscribe</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Cancel</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Unsubscribe from %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Are you sure you want to unsubscribe from this channel? You will no longer receive messages from this opportunity.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Unsubscribe</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Cancel</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Failed to unsubscribe</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">unsubscribed</string>
+    <string name="connect_messaging_channel_list_not_subscribed">You are not subscribed to this messaging channel.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Resubscribe</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Unsubscribe</string>
     <string name="connect_send_message_hint">Type message</string>
     <string name="connect_send_message_btn_desc">Press here to send message</string>
     <string name="connect_messaging_pn_wrong_channel">Sorry, something went wrong, showing all available messaging channels</string>
@@ -559,6 +572,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
+    <string name="connect_job_info_view_review">Review</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>

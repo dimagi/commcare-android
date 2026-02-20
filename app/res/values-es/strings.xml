@@ -387,6 +387,7 @@
     <string name="connect_job_info_download">Descargar</string>
     <string name="connect_job_info_view_info">Ver información</string>
     <string name="connect_job_info_view_resume">Reanudar</string>
+    <string name="connect_job_info_view_review">Revisar</string>
     <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
     <string name="connect_delivery_progress_description">No has completado ninguna lección. Comienza tu aprendizaje para obtener tu certificado.</string>
@@ -443,6 +444,19 @@
     <string name="connect_messaging_channel_consent_failure_msg">No se pudo otorgar el consentimiento al canal</string>
     <string name="connect_messaging_send_message_fail_msg">Error al enviar el mensaje</string>
     <string name="connect_messaging_retrieve_messages_fail">Error al recuperar mensajes</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Volver a suscribirse a %s</string>
+    <string name="connect_messaging_resubscribe_dialog_body">¿Estás seguro de que deseas volver a suscribirte al canal de mensajería %s?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Volver a suscribirse</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Cancelar</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Darse de baja de %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">¿Estás seguro de que deseas darte de baja de este canal? Ya no recibirás mensajes de esta oportunidad.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Darse de baja</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Cancelar</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Error al darse de baja</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">dado de baja</string>
+    <string name="connect_messaging_channel_list_not_subscribed">No estás suscrito a este canal de mensajería.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Volver a suscribirse</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Darse de baja</string>
     <string name="connect_send_message_hint">Escribe un mensaje</string>
     <string name="connect_send_message_btn_desc">Toca aquí para enviar un mensaje</string>
     <string name="connect_corrupt_job_text">No se pudo cargar esta oportunidad</string>
