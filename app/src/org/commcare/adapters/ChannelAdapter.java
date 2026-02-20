@@ -95,7 +95,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 binding.tvLastChatTime.setVisibility(View.GONE);
             }
 
-            boolean showUnread = unread > 0;
+            boolean showUnread = unread > 0 && channel.getConsented();
             if (showUnread) {
                 binding.tvUnreadCount.setText(String.valueOf(unread));
                 binding.tvUnreadCount.setVisibility(View.VISIBLE);
