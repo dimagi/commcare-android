@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
-import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 
 import android.content.Intent;
@@ -253,7 +252,6 @@ public class StandardHomeActivity
                         CommCareApplication.instance().closeUserSession();
                         Intent i = new Intent();
                         i.putExtra(EXTRA_APP_ID, recordId);
-                        i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
                         setResult(RESULT_OK, i);
                         finish();
                     }

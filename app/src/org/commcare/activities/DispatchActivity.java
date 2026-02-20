@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
-import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
@@ -95,7 +94,6 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean redirectToConnectHome = false;
     private boolean redirectToConnectOpportunityInfo = false;
     private String redirectToLoginAppId = null;
-    private boolean forceSingleAppMode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -330,7 +328,6 @@ public class DispatchActivity extends AppCompatActivity {
             }
             if (sessionEndpointAppID != null) {
                 i.putExtra(EXTRA_APP_ID, sessionEndpointAppID);
-                i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, forceSingleAppMode);
             }
 
             startActivityForResult(i, LOGIN_USER);
@@ -489,7 +486,6 @@ public class DispatchActivity extends AppCompatActivity {
             needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
             redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
             redirectToLoginAppId = intent.getStringExtra(EXTRA_APP_ID);
-            forceSingleAppMode = intent.getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
