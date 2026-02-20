@@ -416,12 +416,11 @@ public class ConnectMessageFragment extends Fragment {
                                 requireContext(),
                                 channel,
                                 (success, error) -> {
-                                    channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
-                                            requireContext(),
-                                            channelId
-                                    );
-
                                     if (isAdded()) {
+                                        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                                                requireContext(),
+                                                channelId
+                                        );
                                         activity.dismissProgressDialogForTask(
                                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
                                         );
