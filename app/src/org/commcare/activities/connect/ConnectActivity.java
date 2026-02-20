@@ -11,6 +11,7 @@ import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
+import static org.commcare.utils.FirebaseMessagingUtil.getActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
 import android.content.BroadcastReceiver;
@@ -154,13 +155,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
-                    redirectionAction,
+                    getActionFromIntent(getIntent()),
                     notificationId
             );
         }
 
         if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction)) {
-            String paymentId = getIntent().getStringExtra(PAYMENT_UUID);  //TODO change to payment_uuid in another PR
+            String paymentId = getIntent().getStringExtra(PAYMENT_UUID);
             if (!TextUtils.isEmpty(paymentId) && job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
                 redirectionAction = CCC_DEST_PAYMENTS;  //  Generic push notification for payment related
             }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING){

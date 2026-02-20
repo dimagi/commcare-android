@@ -57,9 +57,11 @@ import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_KEY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
-import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
+import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 /**
@@ -274,9 +276,6 @@ public class FirebaseMessagingUtil {
 
     private static Intent handleGenericPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = getConnectActivityNotification(context, fcmMessageData);
-        if (fcmMessageData.getPayloadData().containsKey(PAYMENT_ID)) {  //TODO it will changed to payment_uuid by another PR
-            intent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
-        }
         if (showNotification)
             showNotification(context, buildNotification(context, intent, fcmMessageData),
                     fcmMessageData);
@@ -420,6 +419,16 @@ public class FirebaseMessagingUtil {
         if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID)) {
             intent.putExtra(OPPORTUNITY_UUID, fcmMessageData.getPayloadData().get(OPPORTUNITY_UUID));
         }
+        if (fcmMessageData.getPayloadData().containsKey(PAYMENT_UUID)) {
+            intent.putExtra(PAYMENT_UUID, fcmMessageData.getPayloadData().get(PAYMENT_UUID));
+        }
+        if (fcmMessageData.getPayloadData().containsKey(NOTIFICATION_KEY)) {
+            intent.putExtra(NOTIFICATION_KEY, fcmMessageData.getPayloadData().get(NOTIFICATION_KEY));
+        }
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_STATUS)) {
+            intent.putExtra(OPPORTUNITY_STATUS, fcmMessageData.getPayloadData().get(OPPORTUNITY_STATUS));
+        }
+
         return intent;
     }
 
@@ -485,7 +494,7 @@ public class FirebaseMessagingUtil {
         FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_SHOW,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_FIREBASE,
-                fcmMessageData.getAction(),
+                getActionFromPayload(fcmMessageData.getPayloadData()),
                 notificationId
         );
     }
@@ -531,4 +540,13 @@ public class FirebaseMessagingUtil {
         return personalIdManager.isloggedIn();
     }
 
+    public static String getActionFromPayload(Map<String, String> payload) {
+        return (CCC_GENERIC_OPPORTUNITY.equals(payload.get(REDIRECT_ACTION)) &&
+                payload.containsKey(NOTIFICATION_KEY)) ? payload.get(NOTIFICATION_KEY) : payload.get(REDIRECT_ACTION);
+    }
+
+    public static String getActionFromIntent(Intent intent) {
+        return (CCC_GENERIC_OPPORTUNITY.equals(intent.getStringExtra(REDIRECT_ACTION)) &&
+                !TextUtils.isEmpty(intent.getStringExtra(NOTIFICATION_KEY))) ? intent.getStringExtra(NOTIFICATION_KEY) : intent.getStringExtra(REDIRECT_ACTION);
+    }
 }

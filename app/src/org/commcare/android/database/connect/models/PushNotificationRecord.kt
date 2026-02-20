@@ -1,6 +1,8 @@
 package org.commcare.android.database.connect.models
 
+import android.text.TextUtils
 import org.commcare.android.storage.framework.Persisted
+import org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
@@ -73,6 +75,14 @@ class PushNotificationRecord :
     @MetaField(META_OPPORTUNITY_UUID)
     var opportunityUUID: String = ""
 
+    @Persisting(16)
+    @MetaField(META_KEY)
+    var key: String = ""
+
+    @Persisting(17)
+    @MetaField(META_OPPORTUNITY_STATUS)
+    var opportunityStatus: String = ""
+
     companion object {
         const val STORAGE_KEY = "push_notification_history"
 
@@ -92,6 +102,8 @@ class PushNotificationRecord :
         const val META_TIME_STAMP = "timestamp"
         const val META_OPPORTUNITY_UUID = "opportunity_uuid"
         const val META_PAYMENT_UUID = "payment_uuid"
+        const val META_KEY = "key"
+        const val META_OPPORTUNITY_STATUS = "opportunity_status"
 
         fun fromJson(obj: JSONObject): PushNotificationRecord =
             PushNotificationRecord().apply {
@@ -112,23 +124,34 @@ class PushNotificationRecord :
                 paymentUUID = obj.optString(META_PAYMENT_UUID, "")
             }
 
-        fun fromV21(pushNotificationRecordV21: PushNotificationRecordV21): PushNotificationRecord =
+        fun fromV23(pushNotificationRecordV23: PushNotificationRecordV23): PushNotificationRecord =
             PushNotificationRecord().apply {
-                notificationId = pushNotificationRecordV21.notificationId
-                title = pushNotificationRecordV21.title
-                body = pushNotificationRecordV21.body
-                notificationType = pushNotificationRecordV21.notificationType
-                confirmationStatus = pushNotificationRecordV21.confirmationStatus
-                paymentId = pushNotificationRecordV21.paymentId
-                readStatus = pushNotificationRecordV21.readStatus
-                createdDate = pushNotificationRecordV21.createdDate
-                connectMessageId = pushNotificationRecordV21.connectMessageId
-                channel = pushNotificationRecordV21.channel
-                action = pushNotificationRecordV21.action
-                acknowledged = pushNotificationRecordV21.acknowledged
-                opportunityId = pushNotificationRecordV21.opportunityId
-                opportunityUUID = pushNotificationRecordV21.opportunityId
-                paymentUUID = pushNotificationRecordV21.paymentId
+                notificationId = pushNotificationRecordV23.notificationId
+                title = pushNotificationRecordV23.title
+                body = pushNotificationRecordV23.body
+                notificationType = pushNotificationRecordV23.notificationType
+                confirmationStatus = pushNotificationRecordV23.confirmationStatus
+                paymentId = pushNotificationRecordV23.paymentId
+                readStatus = pushNotificationRecordV23.readStatus
+                createdDate = pushNotificationRecordV23.createdDate
+                connectMessageId = pushNotificationRecordV23.connectMessageId
+                channel = pushNotificationRecordV23.channel
+                action = pushNotificationRecordV23.action
+                acknowledged = pushNotificationRecordV23.acknowledged
+                opportunityId = pushNotificationRecordV23.opportunityId
+                opportunityUUID = pushNotificationRecordV23.opportunityUUID
+                paymentUUID = pushNotificationRecordV23.paymentUUID
+                key = ""
+                opportunityStatus = ""
+            }
+
+        fun getActionFromRecord(pushNotificationRecord: PushNotificationRecord) =
+            if (CCC_GENERIC_OPPORTUNITY.equals(pushNotificationRecord.action) &&
+                !TextUtils.isEmpty(pushNotificationRecord.key)
+            ) {
+                pushNotificationRecord.key
+            } else {
+                pushNotificationRecord.action
             }
     }
 }

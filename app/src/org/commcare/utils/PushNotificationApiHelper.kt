@@ -15,11 +15,13 @@ import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
+import org.commcare.connect.ConnectConstants.NOTIFICATION_KEY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_MESSAGE_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_STATUS
 import org.commcare.connect.ConnectConstants.NOTIFICATION_TIME_STAMP
 import org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.PAYMENT_UUID
@@ -202,6 +204,8 @@ object PushNotificationApiHelper {
         pn.put(OPPORTUNITY_UUID, pnRecord.opportunityUUID)
         pn.put(PAYMENT_UUID, pnRecord.paymentUUID)
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
+        pn.put(NOTIFICATION_KEY, pnRecord.key)
+        pn.put(OPPORTUNITY_STATUS, pnRecord.opportunityStatus)
         return pn
     }
 

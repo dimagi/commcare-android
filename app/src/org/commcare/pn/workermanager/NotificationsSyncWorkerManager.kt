@@ -266,12 +266,12 @@ class NotificationsSyncWorkerManager(
     }
 
     private fun startLearnOrDeliverySyncWorker(notificationPayload: Map<String, String>) {
-        if (notificationPayload.containsKey(OPPORTUNITY_ID) && cccCheckPassed(context)) {  // TODO add opportunity uuid from other PR
-            val opportunityId = notificationPayload.get(OPPORTUNITY_ID) // TODO add opportunity uuid from other PR
+        if (notificationPayload.containsKey(OPPORTUNITY_UUID) && cccCheckPassed(context)) {
+            val opportunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_GENERIC_OPPORTUNITY,
-                SyncAction.SYNC_GENERIC_OPPORTUNITY.toString()+ "-$opportunityId",
+                SyncAction.SYNC_GENERIC_OPPORTUNITY.toString() + "-$opportunityUUID",
             )
         }
     }

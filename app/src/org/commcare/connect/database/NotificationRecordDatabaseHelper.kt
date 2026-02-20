@@ -2,6 +2,7 @@ package org.commcare.connect.database
 
 import android.content.Context
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.getActionFromRecord
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.models.database.SqlStorage
@@ -68,7 +69,7 @@ object NotificationRecordDatabaseHelper {
             FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_RECEIVED,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API,
-                incoming.action,
+                getActionFromRecord(incoming),
                 incoming.notificationId,
             )
 
