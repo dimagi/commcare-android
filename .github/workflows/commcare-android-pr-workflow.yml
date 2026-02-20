@@ -104,3 +104,37 @@ jobs:
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports
+
+  browserstack-tests:
+    needs: build-test-assemble
+    name: BrowserStack Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          ref: refs/pull/${{env.PR_NUM}}/head
+          path: commcare-android
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Download release APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-apk
+          path: commcare-release-apk
+      - name: Download androidTest APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-androidTest-apk
+          path: commcare-release-androidTest-apk
+      - name: Run BrowserStack Instrumentation Tests
+        run: python commcare-android/scripts/browserstack.py
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
+          RELEASE_APP_LOCATION: commcare-release-apk/app-commcare-release.apk
+          TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
+          BROWSERSTACK_DEVICES: "Samsung Galaxy S10-9.0"
+          ghprbPullId: ${{ env.PR_NUM }}
