@@ -267,6 +267,7 @@ class BaseDrawerController(
         if (showingError) {
             binding.signInButton.visibility = View.GONE
             binding.errorContainer.visibility = View.VISIBLE
+            binding.errorIcon.visibility = View.VISIBLE
 
             binding.errorTitle.setText(globalError.titleId)
             binding.errorMessage.setText(globalError.messageId)
@@ -278,6 +279,7 @@ class BaseDrawerController(
         } else {
             binding.signInButton.visibility = View.VISIBLE
             binding.errorContainer.visibility = View.GONE
+            binding.errorIcon.visibility = View.GONE
         }
     }
 
