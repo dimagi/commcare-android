@@ -2,6 +2,7 @@ package org.commcare.activities.connect;
 
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
@@ -123,15 +124,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
-        if (opportunityId == -1) {
-            String opportunityIdStr = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-            if (!StringUtils.isEmpty(opportunityIdStr)) {
-                opportunityId = Integer.parseInt(opportunityIdStr);
-            }
-        }
-        if(opportunityId != -1) {
-            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
+        String opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
+        if (!TextUtils.isEmpty(opportunityUuid)) {
+            job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
         }
     }
 

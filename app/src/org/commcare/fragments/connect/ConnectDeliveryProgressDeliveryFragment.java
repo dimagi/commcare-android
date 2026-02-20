@@ -68,7 +68,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
             HashMap<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
 
             for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-                String key = String.valueOf(unit.getUnitId());
+                String key = unit.getUnitUUID();
                 int count = paymentCounts.containsKey(key) ? paymentCounts.get(key) : 0;
                 completedText.append(String.format(Locale.getDefault(), "\n%s: %d", unit.getName(), count));
             }
@@ -87,7 +87,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
         HashMap<String, HashMap<String, Integer>> statusMap = getStatusMap(job);
 
         for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-            String unitIdKey = String.valueOf(unit.getUnitId());
+            String unitIdKey = unit.getUnitUUID();
             HashMap<String, Integer> statusCounts = statusMap.containsKey(unitIdKey) ? statusMap.get(unitIdKey)
                     : new HashMap<>();
             int approved = statusCounts.getOrDefault("approved", 0);
@@ -97,7 +97,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
             double percentApproved = unit.getMaxTotal() > 0 ? (double)approved / unit.getMaxTotal() * 100 : 0.0;
 
             deliveryProgressList.add(new ConnectDeliveryDetails(
-                    unit.getUnitId(), unit.getName(), approved, remaining, amount, daysLeft, percentApproved
+                    unit.getUnitUUID(), unit.getName(), approved, remaining, amount, daysLeft, percentApproved
             ));
         }
 
@@ -122,7 +122,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
         for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
             if (delivery == null) continue;
 
-            String slug = delivery.getSlug();
+            String slug = delivery.getSlugUUID();
             HashMap<String, Integer> countMap;
 
             if (statusMap.containsKey(slug)) {

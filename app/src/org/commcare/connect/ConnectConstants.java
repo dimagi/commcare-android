@@ -28,7 +28,9 @@ public class ConnectConstants {
     public static final String GO_TO_JOB_STATUS = "go_to_job_status";
     public static final String SHOW_LAUNCH_BUTTON = "show_launch_button";
     public static final String OPPORTUNITY_ID = "opportunity_id";
+    public static final String OPPORTUNITY_UUID = "opportunity_uuid";
     public static final String PAYMENT_ID = "payment_id";
+    public static final String PAYMENT_UUID = "payment_uuid";
     public static final String PAYMENT_STATUS = "payment_status";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
     public static final String NEW_APP = "new-app";
