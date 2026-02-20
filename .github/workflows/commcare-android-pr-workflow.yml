@@ -4,99 +4,137 @@ env:
   PR_NUM: ${{github.event.issue.number || github.event.number }}
 on:
   pull_request:
-    types: [opened, edited]
   issue_comment:
 jobs:
   build-test-assemble:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
     name: Build
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           ref: refs/pull/${{env.PR_NUM}}/head
+          path: commcare-android
       - name: Install python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: '3.9'
       - name: Download cross request script
         run: |
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
       - name: Install Python dependencies
-        uses: py-actions/py-dependency-install@v4
-        with:
-          path: "requirements.txt"
-      - name: List python
-        run: |
-          pip list
+        run: python -m pip install -r requirements.txt
       - name: Run cross request script
+        run: python checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
+      - name: Generate Gradle properties
         run: |
-          python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties <<EOF
+          org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.parallel=false
+          TEST_BUILD_TYPE=release
+          RELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore
+          RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
+          RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          GOOGLE_CLOUD_PROJECT_NUMBER=${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+          GOOGLE_SERVICES_API_KEY=${{ secrets.GOOGLE_SERVICES_API_KEY }}
+          FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
+          GOOGLE_PLAY_MAPS_API_KEY=${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}
+          HQ_API_USERNAME=${{ secrets.HQ_API_USERNAME }}
+          HQ_API_PASSWORD=${{ secrets.HQ_API_PASSWORD }}
+          MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
+          EOF
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Clean with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: clean
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: Run Linters
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: lintCommcareRelease
+        run: ./gradlew lintCommcareRelease
+        working-directory: commcare-android
       - name: Run Tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: testCommcareDebug
-      - name: Assemble Debug apk
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareDebug
+        run: ./gradlew testCommcareDebug
+        working-directory: commcare-android
       - name: Restore Keystore
-        run: echo $SIGNING_KEY | base64 -d > ˜/.gradle/commcare-odk-keys.keystore
-      - name: Assemble Release apk
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareRelease
+        run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
         env:
-          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          RELEASE_STORE_FILE: "˜/.gradle/commcare-odk-keys.keystore"
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+      - name: Assemble Release apk
+        run: ./gradlew assembleCommcareRelease
+        working-directory: commcare-android
       - name: Upload CommCare apk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
-          name: commcare-arelease-pk
+          name: commcare-release-apk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
-      - name: Assemble LTS apk
-        uses: gradle/gradle-build-action@v2
+      - name: Bundle Release aab
+        run: ./gradlew bundleCommcareRelease
+        working-directory: commcare-android
+      - name: Upload CommCare aab
+        uses: actions/upload-artifact@v6
         with:
-          arguments: assembleLtsRelease
-      - name: Upload CommCare LTS apk
-        uses: actions/upload-artifact@v3
+          name: commcare-release-aab
+          path: commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab
+      - name: Assemble CCC Staging apk
+        run: ./gradlew assembleCccStagingRelease
+        working-directory: commcare-android
+      - name: Upload CCC Staging apk
+        uses: actions/upload-artifact@v6
         with:
-          name: app-lts-release
-          path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
-      - name: CommCare apk for Instrumentation Testing
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareReleaseAndroidTest
+          name: ccc-staging-release-apk
+          path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
+      - name: Assemble CommCare apk for Instrumentation Testing
+        run: ./gradlew assembleCommcareReleaseAndroidTest
+        working-directory: commcare-android
       - name: Upload CommCare apk for Instrumentation Testing
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: commcare-release-androidTest-apk
           path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
-      - name: CommCare apk for Instrumentation Testing
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: JacocoTestReport
+      - name: Generate JaCoCo Report
+        run: ./gradlew JacocoTestReport
+        working-directory: commcare-android
       - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports
 
-
+  browserstack-tests:
+    needs: build-test-assemble
+    name: BrowserStack Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          ref: refs/pull/${{env.PR_NUM}}/head
+          path: commcare-android
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Download release APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-apk
+          path: commcare-release-apk
+      - name: Download androidTest APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-androidTest-apk
+          path: commcare-release-androidTest-apk
+      - name: Run BrowserStack Instrumentation Tests
+        run: python commcare-android/scripts/browserstack.py
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
+          RELEASE_APP_LOCATION: commcare-release-apk/app-commcare-release.apk
+          TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
+          BROWSERSTACK_DEVICES: "Samsung Galaxy S10-9.0"
+          ghprbPullId: ${{ env.PR_NUM }}
