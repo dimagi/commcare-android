@@ -8,6 +8,7 @@ import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.utils.FirebaseMessagingUtil.getActionFromIntent;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -174,7 +175,7 @@ public class DispatchActivity extends AppCompatActivity {
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
-                    actionType,
+                    getActionFromIntent(pnIntent),
                     pnIntent.getStringExtra(NOTIFICATION_ID)
             );
             startActivity(pnIntent);

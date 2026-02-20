@@ -37,10 +37,10 @@ public class ConnectJobUtils {
         new JobStoreManager(context).storeJobs(context, list, false);
     }
 
-    public static ConnectJobRecord getCompositeJob(Context context, int jobId) {
+    public static ConnectJobRecord getCompositeJob(Context context, String jobUUID) {
         Vector<ConnectJobRecord> jobs = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class).getRecordsForValues(
-                new String[]{ConnectJobRecord.META_JOB_ID},
-                new Object[]{jobId});
+                new String[]{ConnectJobRecord.META_JOB_UUID},
+                new Object[]{jobUUID});
 
         populateJobs(context, jobs);
 
@@ -53,7 +53,7 @@ public class ConnectJobUtils {
             return null;
         }
 
-        return getCompositeJob(context, appRecord.getJobId());
+        return getCompositeJob(context, appRecord.getJobUUID());
     }
 
     public static List<ConnectJobRecord> getCompositeJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
@@ -90,8 +90,8 @@ public class ConnectJobUtils {
         for (ConnectJobRecord job : jobs) {
             //Retrieve learn and delivery app info
             Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
-                    new String[]{ConnectAppRecord.META_JOB_ID},
-                    new Object[]{job.getJobId()});
+                    new String[]{ConnectAppRecord.META_JOB_UUID},
+                    new Object[]{job.getJobUUID()});
 
             for (ConnectAppRecord info : existingAppInfos) {
                 if (info.getIsLearning()) {
@@ -103,8 +103,8 @@ public class ConnectJobUtils {
 
             //Retrieve learn modules
             Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getRecordsForValues(
-                    new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
-                    new Object[]{job.getJobId()});
+                    new String[]{ConnectLearnModuleSummaryRecord.META_JOB_UUID},
+                    new Object[]{job.getJobUUID()});
 
             List<ConnectLearnModuleSummaryRecord> modules = new ArrayList<>(existingModules);
 
@@ -125,21 +125,21 @@ public class ConnectJobUtils {
 
             //Retrieve payment units
             job.setPaymentUnits(paymentUnitStorage.getRecordsForValues(
-                    new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
-                    new Object[]{job.getJobId()}));
+                    new String[]{ConnectPaymentUnitRecord.META_JOB_UUID},
+                    new Object[]{job.getJobUUID()}));
 
             //Retrieve related data
-            job.setDeliveries(getDeliveries(context, job.getJobId(), deliveryStorage));
-            job.setPayments(getPayments(context, job.getJobId(), paymentStorage));
-            job.setLearnings(getLearnings(context, job.getJobId(), learningStorage));
-            job.setAssessments(getAssessments(context, job.getJobId(), assessmentStorage));
+            job.setDeliveries(getDeliveries(context, job.getJobUUID(), deliveryStorage));
+            job.setPayments(getPayments(context, job.getJobUUID(), paymentStorage));
+            job.setLearnings(getLearnings(context, job.getJobUUID(), learningStorage));
+            job.setAssessments(getAssessments(context, job.getJobUUID(), assessmentStorage));
         }
     }
 
-    public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, int jobId, boolean pruneMissing) {
+    public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, String jobUUID, boolean pruneMissing) {
         SqlStorage<ConnectJobDeliveryRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobDeliveryRecord.class);
 
-        List<ConnectJobDeliveryRecord> existingDeliveries = getDeliveries(context, jobId, storage);
+        List<ConnectJobDeliveryRecord> existingDeliveries = getDeliveries(context, jobUUID, storage);
 
         //Delete jobs that are no longer available
         Vector<Integer> recordIdsToDelete = new Vector<>();
@@ -198,10 +198,10 @@ public class ConnectJobUtils {
         storage.write(payment);
     }
 
-    public static void storePayments(Context context, List<ConnectJobPaymentRecord> payments, int jobId, boolean pruneMissing) {
+    public static void storePayments(Context context, List<ConnectJobPaymentRecord> payments, String jobUUID, boolean pruneMissing) {
         SqlStorage<ConnectJobPaymentRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobPaymentRecord.class);
 
-        List<ConnectJobPaymentRecord> existingList = getPayments(context, jobId, storage);
+        List<ConnectJobPaymentRecord> existingList = getPayments(context, jobUUID, storage);
         Set<String> matchedIncomingIds = new HashSet<>();
 
         //Delete payments that are no longer available
@@ -209,10 +209,10 @@ public class ConnectJobUtils {
         for (ConnectJobPaymentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobPaymentRecord incoming : payments) {
-                if (existing.getPaymentId().equals(incoming.getPaymentId())) {
+                if (existing.getPaymentUUID().equals(incoming.getPaymentUUID())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
-                    matchedIncomingIds.add(incoming.getPaymentId());
+                    matchedIncomingIds.add(incoming.getPaymentUUID());
                     break;
                 }
             }
@@ -233,7 +233,7 @@ public class ConnectJobUtils {
         for (ConnectJobPaymentRecord incomingRecord : payments) {
             storage.write(incomingRecord);
 
-            if (!matchedIncomingIds.contains(incomingRecord.getPaymentId())) {
+            if (!matchedIncomingIds.contains(incomingRecord.getPaymentUUID())) {
                 newPaymentReceived = true;
             }
         }
@@ -247,58 +247,58 @@ public class ConnectJobUtils {
         }
     }
 
-    public static List<ConnectJobDeliveryRecord> getDeliveries(Context context, int jobId, SqlStorage<ConnectJobDeliveryRecord> deliveryStorage) {
+    public static List<ConnectJobDeliveryRecord> getDeliveries(Context context, String jobUUID, SqlStorage<ConnectJobDeliveryRecord> deliveryStorage) {
         if (deliveryStorage == null) {
             deliveryStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobDeliveryRecord.class);
         }
 
         Vector<ConnectJobDeliveryRecord> deliveries = deliveryStorage.getRecordsForValues(
-                new String[]{ConnectJobDeliveryRecord.META_JOB_ID},
-                new Object[]{jobId});
+                new String[]{ConnectJobDeliveryRecord.META_JOB_UUID},
+                new Object[]{jobUUID});
 
         return new ArrayList<>(deliveries);
     }
 
-    public static List<ConnectJobPaymentRecord> getPayments(Context context, int jobId, SqlStorage<ConnectJobPaymentRecord> paymentStorage) {
+    public static List<ConnectJobPaymentRecord> getPayments(Context context, String jobUUID, SqlStorage<ConnectJobPaymentRecord> paymentStorage) {
         if (paymentStorage == null) {
             paymentStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobPaymentRecord.class);
         }
 
         Vector<ConnectJobPaymentRecord> payments = paymentStorage.getRecordsForValues(
-                new String[]{ConnectJobPaymentRecord.META_JOB_ID},
-                new Object[]{jobId});
+                new String[]{ConnectJobPaymentRecord.META_JOB_UUID},
+                new Object[]{jobUUID});
 
         return new ArrayList<>(payments);
     }
 
-    public static List<ConnectJobLearningRecord> getLearnings(Context context, int jobId, SqlStorage<ConnectJobLearningRecord> learningStorage) {
+    public static List<ConnectJobLearningRecord> getLearnings(Context context, String jobUUID, SqlStorage<ConnectJobLearningRecord> learningStorage) {
         if (learningStorage == null) {
             learningStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobLearningRecord.class);
         }
 
         Vector<ConnectJobLearningRecord> learnings = learningStorage.getRecordsForValues(
-                new String[]{ConnectJobLearningRecord.META_JOB_ID},
-                new Object[]{jobId});
+                new String[]{ConnectJobLearningRecord.META_JOB_UUID},
+                new Object[]{jobUUID});
 
         return new ArrayList<>(learnings);
     }
 
-    public static List<ConnectJobAssessmentRecord> getAssessments(Context context, int jobId, SqlStorage<ConnectJobAssessmentRecord> assessmentStorage) {
+    public static List<ConnectJobAssessmentRecord> getAssessments(Context context, String jobUUID, SqlStorage<ConnectJobAssessmentRecord> assessmentStorage) {
         if (assessmentStorage == null) {
             assessmentStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobAssessmentRecord.class);
         }
 
         Vector<ConnectJobAssessmentRecord> assessments = assessmentStorage.getRecordsForValues(
-                new String[]{ConnectJobAssessmentRecord.META_JOB_ID},
-                new Object[]{jobId});
+                new String[]{ConnectJobAssessmentRecord.META_JOB_UUID},
+                new Object[]{jobUUID});
 
         return new ArrayList<>(assessments);
     }
 
-    public static void storeAssessments(Context context, List<ConnectJobAssessmentRecord> assessments, int jobId, boolean pruneMissing) {
+    public static void storeAssessments(Context context, List<ConnectJobAssessmentRecord> assessments, String jobUUID, boolean pruneMissing) {
         SqlStorage<ConnectJobAssessmentRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobAssessmentRecord.class);
 
-        List<ConnectJobAssessmentRecord> existingList = getAssessments(context, jobId, storage);
+        List<ConnectJobAssessmentRecord> existingList = getAssessments(context, jobUUID, storage);
 
         //Delete records that are no longer available
         Vector<Integer> recordIdsToDelete = new Vector<>();
@@ -340,8 +340,8 @@ public class ConnectJobUtils {
         //Check for existing DB ID
         Vector<ConnectJobRecord> existingJobs =
                 jobStorage.getRecordsForValues(
-                        new String[]{ConnectJobRecord.META_JOB_ID},
-                        new Object[]{job.getJobId()});
+                        new String[]{ConnectJobRecord.META_JOB_UUID},
+                        new Object[]{job.getJobUUID()});
 
         if (existingJobs.size() > 0) {
             ConnectJobRecord existing = existingJobs.get(0);
@@ -350,15 +350,15 @@ public class ConnectJobUtils {
             jobStorage.write(existing);
 
             //Also update learning and assessment records
-            storeLearningRecords(context, job.getLearnings(), job.getJobId(), true);
-            storeAssessments(context, job.getAssessments(), job.getJobId(), true);
+            storeLearningRecords(context, job.getLearnings(), job.getJobUUID(), true);
+            storeAssessments(context, job.getAssessments(), job.getJobUUID(), true);
         }
     }
 
-    public static void storeLearningRecords(Context context, List<ConnectJobLearningRecord> learnings, int jobId, boolean pruneMissing) {
+    public static void storeLearningRecords(Context context, List<ConnectJobLearningRecord> learnings, String jobUUID, boolean pruneMissing) {
         SqlStorage<ConnectJobLearningRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobLearningRecord.class);
 
-        List<ConnectJobLearningRecord> existingList = getLearnings(context, jobId, storage);
+        List<ConnectJobLearningRecord> existingList = getLearnings(context, jobUUID, storage);
 
         //Delete records that are no longer available
         Vector<Integer> recordIdsToDelete = new Vector<>();

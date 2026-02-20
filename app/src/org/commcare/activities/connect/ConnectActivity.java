@@ -1,10 +1,17 @@
 package org.commcare.activities.connect;
 
+import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
+import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
+import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
+import static org.commcare.utils.FirebaseMessagingUtil.getActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
 import android.content.BroadcastReceiver;
@@ -123,15 +130,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
-        if (opportunityId == -1) {
-            String opportunityIdStr = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-            if (!StringUtils.isEmpty(opportunityIdStr)) {
-                opportunityId = Integer.parseInt(opportunityIdStr);
-            }
-        }
-        if(opportunityId != -1) {
-            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
+        String opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
+        if (!TextUtils.isEmpty(opportunityUuid)) {
+            job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
         }
     }
 
@@ -154,9 +155,20 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
-                    redirectionAction,
+                    getActionFromIntent(getIntent()),
                     notificationId
             );
+        }
+
+        if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction)) {
+            String paymentId = getIntent().getStringExtra(PAYMENT_UUID);
+            if (!TextUtils.isEmpty(paymentId) && job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+                redirectionAction = CCC_DEST_PAYMENTS;  //  Generic push notification for payment related
+            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING){
+                redirectionAction = CCC_DEST_DELIVERY_PROGRESS; //  Generic push notification for delivery progress related
+            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_LEARNING){
+                redirectionAction = CCC_DEST_LEARN_PROGRESS;    // Generic push notification for learning progress related
+            }
         }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));

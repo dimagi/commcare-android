@@ -39,12 +39,11 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         Logger.log(LogTypes.TYPE_FCM,
                 "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
 
-        String actionType = remoteMessage.getData().get("action");
         String notificationId = remoteMessage.getData().get("notification_id");
         FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_RECEIVED,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_FIREBASE,
-                actionType,
+                FirebaseMessagingUtil.getActionFromPayload(remoteMessage.getData()),
                 notificationId
         );
 
