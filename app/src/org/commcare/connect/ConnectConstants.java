@@ -55,4 +55,11 @@ public class ConnectConstants {
     public final static String NOTIFICATION_CHANNEL_ID = "channel";
     public final static String PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME =
             "payment_confirmation_hidden_since_time";
+    public final static String CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_UNSUBSCRIBE =
+            "click_unsubscribed_confirm";
+    public final static String CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_RESUBSCRIBE =
+            "click_resubscribed_confirm";
+    public final static String CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT =
+            "consent_api_success_result";
+
 }
