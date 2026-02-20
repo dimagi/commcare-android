@@ -49,4 +49,7 @@ public class CCAnalyticsParam {
     static final String NOTIFICATION_CLICK_METHOD = "click_method";
     static final String IS_PERSONAL_ID_DEMO_USER = "is_personal_id_demo_user";
     static final String APP_FLAVOR = "app_flavor";
+    static final String CCC_MESSAGING_EVENT_TYPE = "event_type";
+    static final String CCC_MESSAGING_CHANNEL_ID = "channel_id";
+    static final String CCC_MESSAGING_CONSENT_API_RESULT = "consent_api_success";
 }

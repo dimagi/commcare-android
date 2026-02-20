@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -697,4 +698,22 @@ public class FirebaseAnalyticsUtil {
         return sanitizedParam;
     }
 
+    public static void reportConnectMessagingChannelEvent(
+            @NonNull String messagingEventType,
+            @NonNull String messageChannelID,
+            @Nullable Boolean consentApiSuccessful
+    ) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.CCC_MESSAGING_EVENT_TYPE, messagingEventType);
+        bundle.putString(CCAnalyticsParam.CCC_MESSAGING_CHANNEL_ID, messageChannelID);
+
+        if (consentApiSuccessful != null) {
+            bundle.putLong(
+                    CCAnalyticsParam.CCC_MESSAGING_CONSENT_API_RESULT,
+                    consentApiSuccessful ? 1 : 0
+            );
+        }
+
+        reportEvent(CCAnalyticsEvent.CCC_MESSAGING, bundle);
+    }
 }

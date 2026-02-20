@@ -48,6 +48,10 @@ import java.util.UUID;
 
 import kotlin.Unit;
 
+import static org.commcare.connect.ConnectConstants.CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT;
+import static org.commcare.connect.ConnectConstants.CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_RESUBSCRIBE;
+import static org.commcare.connect.ConnectConstants.CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_UNSUBSCRIBE;
+
 public class ConnectMessageFragment extends Fragment {
     private static String activeChannel;
     private String channelId;
@@ -340,6 +344,11 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
+                        FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
+                                CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_UNSUBSCRIBE,
+                                channelId,
+                                null
+                        );
                         activity.showProgressDialog(
                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
                         );
@@ -374,6 +383,12 @@ public class ConnectMessageFragment extends Fragment {
                                             ).show();
                                         }
                                     }
+
+                                    FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
+                                            CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT,
+                                            channelId,
+                                            success
+                                    );
                                 }
                         );
                         return Unit.INSTANCE;
@@ -407,6 +422,11 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
+                        FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
+                                CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_RESUBSCRIBE,
+                                channelId,
+                                null
+                        );
                         activity.showProgressDialog(
                                 ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
                         );
@@ -441,6 +461,12 @@ public class ConnectMessageFragment extends Fragment {
                                             ).show();
                                         }
                                     }
+
+                                    FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
+                                            CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT,
+                                            channelId,
+                                            success
+                                    );
                                 }
                         );
                         return Unit.INSTANCE;
