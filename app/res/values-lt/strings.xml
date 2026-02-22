@@ -77,6 +77,8 @@
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Tęsti be „PersonalID“</u></string>
+    <string name="nav_drawer_fix_now">Pataisyti dabar</string>
     <string name="nav_drawer_opportunities">Galimybės</string>
     <string name="nav_drawer_commcare_apps">„CommCare“ programėlės</string>
     <string name="nav_drawer_work_history">Darbo istorija</string>
@@ -116,6 +118,11 @@
     <string name="personalid_token_unavailable">Kilo tinklo problema. Bandykite dar kartą.</string>
     <string name="personalid_token_request_rejected">Praradote „PersonalID“ konfigūraciją serveryje, atkurkite „PersonalID“ paskyrą ir bandykite dar kartą.</string>
     <string name="personalid_login_from_different_device">Jūsų „PersonalID“ paskyrą vienu metu galima konfigūruoti tik viename įrenginyje, o ji jau buvo sukonfigūruota kitame įrenginyje. Tęskite naujame įrenginyje arba dar kartą sukonfigūruokite paskyrą šiame įrenginyje, kad galėtumėte toliau naudoti „PersonalID“ čia.</string>
+    <string name="personalid_generic_error_title">Atsijungta nuo „PersonalID“</string>
+    <string name="personalid_error_title_login_different_device">Paskyra naudojama kitame įrenginyje</string>
+    <string name="personalid_error_message_login_different_device">Tęskite naujame įrenginyje arba vėl sukonfigūruokite paskyrą.</string>
+    <string name="personalid_reconfigure">Sukonfigūruoti iš naujo</string>
+    <string name="personalid_dismiss">Atmesti</string>
     <string name="recovery_network_unauthorized">Jūs neturite teisės pateikti šio prašymo.</string>
     <string name="recovery_network_server_error">Apdorojant jūsų užklausą įvyko klaida.</string>
     <string name="recovery_network_cooldown">Per daug užklausų. Bandykite dar kartą po valandos.</string>

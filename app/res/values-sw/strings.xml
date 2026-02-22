@@ -186,6 +186,11 @@
     <string name="personalid_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
     <string name="personalid_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>
     <string name="personalid_login_from_different_device">Akaunti yako ya PersonalID inaweza kusanidiwa kwenye kifaa kimoja kwa wakati mmoja na imesanidiwa kwenye kifaa kingine. Tafadhali endelea kwenye kifaa kipya au usanidi akaunti yako kwenye kifaa hiki tena ili kuendelea kutumia PersonalID hapa.</string>
+    <string name="personalid_generic_error_title">Umeondolewa kwenye PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Akaunti inatumiwa kwenye kifaa kingine</string>
+    <string name="personalid_error_message_login_different_device">Tafadhali endelea kwenye kifaa kipya, au usanidi akaunti yako tena.</string>
+    <string name="personalid_reconfigure">Sanidi upya</string>
+    <string name="personalid_dismiss">Ondoa</string>
     <string name="recovery_network_unauthorized">Huna ruhusa ya kufanya ombi hili.</string>
     <string name="recovery_network_server_error">Kulikuwa na hitilafu katika kushughulikia ombi lako.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
@@ -508,7 +513,9 @@
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Endelea bila PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Rekebisha Sasa</string>
     <string name="nav_drawer_opportunities">Fursa</string>
     <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
     <string name="nav_drawer_payments">Malipo</string>

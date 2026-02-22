@@ -186,6 +186,11 @@
     <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
     <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
     <string name="personalid_login_from_different_device">A sua conta PersonalID só pode ser configurada num dispositivo de cada vez e já foi configurada noutro dispositivo. Por favor, continue no novo dispositivo ou configure novamente a sua conta neste dispositivo para continuar a utilizar o PersonalID aqui.</string>
+    <string name="personalid_generic_error_title">Sessão encerrada no PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Conta em uso em outro dispositivo</string>
+    <string name="personalid_error_message_login_different_device">Continue no novo dispositivo ou configure sua conta novamente.</string>
+    <string name="personalid_reconfigure">Reconfigurar</string>
+    <string name="personalid_dismiss">Ignorar</string>
     <string name="recovery_network_unauthorized">Você não está autorizado a fazer esta solicitação.</string>
     <string name="recovery_network_server_error">Ocorreu um erro ao processar sua solicitação.</string>
     <string name="recovery_app_manager">Vá para o Gerenciador de aplicativos</string>
@@ -509,7 +514,9 @@
 
     <string name="nav_drawer_signin_register">Entrar / Registrar-se</string>
     <string name="nav_drawer_help">Ajuda</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao ID Pessoal</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continuar sem PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Corrigir agora</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicativos CommCare</string>
     <string name="nav_drawer_payments">Pagamentos</string>

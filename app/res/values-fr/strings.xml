@@ -185,6 +185,11 @@ License.
     <string name="personalid_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
     <string name="personalid_token_request_rejected">Configuration PersonalID perdue sur le serveur. Veuillez récupérer votre compte PersonalID et réessayer.</string>
     <string name="personalid_login_from_different_device">Votre compte PersonalID ne peut être configuré que sur un seul appareil à la fois et a déjà été configuré sur un autre appareil. Veuillez poursuivre la configuration sur le nouvel appareil ou reconfigurer votre compte sur cet appareil pour continuer à utiliser PersonalID ici.</string>
+    <string name="personalid_generic_error_title">Déconnecté de PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Compte utilisé sur un autre appareil</string>
+    <string name="personalid_error_message_login_different_device">Veuillez continuer sur le nouvel appareil ou configurer à nouveau votre compte.</string>
+    <string name="personalid_reconfigure">Reconfigurer</string>
+    <string name="personalid_dismiss">Ignorer</string>
     <string name="recovery_network_unauthorized">Vous n\'êtes pas autorisé à faire cette demande.</string>
     <string name="recovery_network_server_error">Une erreur s\'est produite lors du traitement de votre demande.</string>
     <string name="recovery_app_manager">Accéder au gestionnaire d\'applications</string>
@@ -503,7 +508,9 @@ License.
 
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à l\'identifiant personnel</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continuer sans PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Réparer maintenant</string>
     <string name="nav_drawer_opportunities">Opportunités</string>
     <string name="nav_drawer_commcare_apps">Applications CommCare</string>
     <string name="nav_drawer_payments">Paiements</string>

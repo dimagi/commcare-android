@@ -174,6 +174,11 @@
     <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ PersonalID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
     <string name="personalid_login_from_different_device">ናትካ PersonalID ኣካውንት ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክውነን ዝኽእልን ኣብ ካልእ መሳርሒ ድማ ተዋቒሩን ኣሎ። በጃኻ ኣብቲ ሓድሽ መሳርሒ ቀጽሎ ወይ ኣብዚ PersonalID ምጥቃም ክትቅጽል ኣብዚ መሳርሒ ኣካውንትካ እንደገና ኣወሃህቦ።</string>
+    <string name="personalid_generic_error_title">ካብ PersonalID ወጺኡ ኣሎ</string>
+    <string name="personalid_error_title_login_different_device">ኣካውንት ኣብ ካልእ መሳርሒ ኣብ ጥቕሚ ይውዕል ኣሎ</string>
+    <string name="personalid_error_message_login_different_device">በጃኹም ኣብቲ ሓድሽ መሳርሒ ቀጽሉ፡ ወይ ድማ ኣካውንትኩም እንደገና ኣንኣድዎ</string>
+    <string name="personalid_reconfigure">እንደገና ኣንእድ</string>
+    <string name="personalid_dismiss">ኣወግድ</string>
     <string name="recovery_network_unauthorized">ነዚ ሕቶ እዚ ከተቕርቡ ፍቓድ የብልኩምን።</string>
     <string name="recovery_network_server_error">ሕቶኻ ኣብ መስርሕ ጌጋ ኣጋጢሙ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
@@ -496,6 +501,8 @@
     <string name="nav_drawer_signin_register">እቶም ኣእትዉ / ይመዝገቡ</string>
     <string name="nav_drawer_help">እርዳታ</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>ብዘይ PersonalID ቀጽል።</u></string>
+    <string name="nav_drawer_fix_now">ሕጂ ኣዐርዩ።</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
     <string name="nav_drawer_payments">ክፍሊታት</string>

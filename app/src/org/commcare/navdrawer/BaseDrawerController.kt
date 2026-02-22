@@ -1,10 +1,12 @@
 package org.commcare.navdrawer
 
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -22,6 +24,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
+import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
 import org.commcare.views.ViewUtil
@@ -36,6 +39,7 @@ class BaseDrawerController(
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
     private var hasRefreshed = false
+    private var showingError = false
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -52,6 +56,10 @@ class BaseDrawerController(
         setupListeners()
         setupViews()
         refreshDrawerContent()
+
+        if (showingError) {
+            openDrawer()
+        }
     }
 
     private fun setupActionBarDrawerToggle() {
@@ -111,7 +119,11 @@ class BaseDrawerController(
     }
 
     private fun setupListeners() {
-        binding.signInButton.setOnClickListener {
+        val loginHandler = {
+            if (showingError) {
+                GlobalErrorUtil.dismissGlobalErrors()
+            }
+
             PersonalIdManager
                 .getInstance()
                 .launchPersonalId(
@@ -120,6 +132,10 @@ class BaseDrawerController(
                 )
             closeDrawer()
         }
+
+        binding.signInButton.setOnClickListener { loginHandler() }
+        binding.reconfigureButton.setOnClickListener { loginHandler() }
+
         binding.aboutView.setOnClickListener {
             DialogCreationHelpers.showAboutCommCareDialog(
                 activity,
@@ -232,6 +248,7 @@ class BaseDrawerController(
             navDrawerAdapter.refreshList(items)
         } else {
             setSignedInState(false)
+            configureErrorState()
         }
     }
 
@@ -243,12 +260,36 @@ class BaseDrawerController(
             if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
     }
 
+    private fun configureErrorState() {
+        val globalError = GlobalErrorUtil.checkGlobalErrors()
+        showingError = globalError != null
+
+        if (showingError) {
+            binding.signInButton.visibility = View.GONE
+            binding.errorContainer.visibility = View.VISIBLE
+            binding.errorIcon.visibility = View.VISIBLE
+
+            binding.errorTitle.setText(globalError.titleId)
+            binding.errorMessage.setText(globalError.messageId)
+
+            binding.dismissLink.setOnClickListener {
+                GlobalErrorUtil.dismissGlobalErrors()
+                refreshDrawerContent()
+            }
+        } else {
+            binding.signInButton.visibility = View.VISIBLE
+            binding.errorContainer.visibility = View.GONE
+            binding.errorIcon.visibility = View.GONE
+        }
+    }
+
     private fun shouldShowWorkHistory(): Boolean {
         // we are keeping this off for now until we have go ahead to release this feature
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotiifcations(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotiifcations(): Boolean =
+        PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -256,6 +297,10 @@ class BaseDrawerController(
 
     fun openDrawer() {
         binding.drawerLayout.openDrawer(GravityCompat.START)
+    }
+
+    fun isShowingError(): Boolean {
+        return showingError
     }
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
