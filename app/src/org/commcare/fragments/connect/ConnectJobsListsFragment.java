@@ -201,6 +201,18 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
             boolean deliveryComplete =
                     compositeJob != null && compositeJob.deliveryComplete();
+            if (deliveryComplete) {
+                completedJobs.add(createJobModel(
+                        job,
+                        ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                        DELIVERY_APP,
+                        isDeliverAppInstalled,
+                        false,
+                        false,
+                        true
+                ));
+                continue;
+            }
             switch (job.getStatus()) {
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
                     newJobs.add(createJobModel(
@@ -221,21 +233,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     break;
 
                 case STATUS_DELIVERING:
-                    if (deliveryComplete) {
-                        completedJobs.add(createJobModel(
-                                job,
-                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                                DELIVERY_APP,
-                                isDeliverAppInstalled, false, false, true
-                        ));
-                    } else {
-                        inProgressJobs.add(createJobModel(
-                                job,
-                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                                DELIVERY_APP,
-                                isDeliverAppInstalled, false, false, true
-                        ));
-                    }
+                    inProgressJobs.add(createJobModel(
+                            job,
+                            ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                            DELIVERY_APP,
+                            isDeliverAppInstalled, false, false, true
+                    ));
                     break;
             }
         }

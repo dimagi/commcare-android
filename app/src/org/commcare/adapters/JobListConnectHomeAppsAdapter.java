@@ -198,7 +198,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         binding.btnResume.setVisibility(deliveryComplete ? View.INVISIBLE : View.VISIBLE);
         binding.btnReview.setVisibility(deliveryComplete ? View.VISIBLE : View.INVISIBLE);
 
-        handleProgressBarUI(mContext, connectLoginJobListModel, binding);
+        handleProgressBarUI(mContext, connectLoginJobListModel, binding,deliveryComplete);
         configureJobType(mContext, connectLoginJobListModel, binding);
 
         clickListener(binding, connectLoginJobListModel, launcher);
@@ -228,7 +228,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     public void handleProgressBarUI(
             Context context,
             ConnectLoginJobListModel item,
-            ConnectJobListItemBinding binding
+            ConnectJobListItemBinding binding,
+            boolean deliveryComplete
     ) {
         int progress = 0;
         int progressColor = 0;
@@ -241,16 +242,13 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             progress = item.getDeliveryProgress();
             progressColor = ContextCompat.getColor(context, R.color.connect_green);
         }
-
-        if (progress > 0) {
-            binding.progressBar.setVisibility(View.VISIBLE);
+        if (deliveryComplete) {
+            binding.groupProgress.setVisibility(View.GONE);
+        } else {
+            binding.groupProgress.setVisibility(View.VISIBLE);
             binding.progressBar.setProgress(progress);
             binding.progressBar.setProgressColor(progressColor);
-            binding.groupProgress.setVisibility(View.VISIBLE);
-            binding.tvProgressPercent.setText(progress +" %");
-        } else {
-            binding.progressBar.setVisibility(View.GONE);
-            binding.groupProgress.setVisibility(View.GONE);
+            binding.tvProgressPercent.setText(progress + " %");
         }
     }
 
