@@ -289,10 +289,6 @@
     <string name="connect_verify_phone_resend_wait">Hukupokea nambari yako ya kuthibitisha? Tuma tena baada ya %d s</string>
     <string name="connect_verify_phone_change">Badilisha nambari ya simu</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
-    <string name="connect_messaging_channel_consent_title">Idhini ya kituo</string>
-    <string name="connect_messaging_channel_consent_description">Je, unakubali kufungua mazungumzo ya ujumbe kwenye kituo hiki?</string>
-    <string name="connect_messaging_channel_consent_accept">Kubali</string>
-    <string name="connect_messaging_channel_consent_decline">Kataa</string>
     <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
     <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
@@ -407,7 +403,6 @@
     <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
     <string name="connect_messaging_title">Kutuma ujumbe</string>
     <string name="connect_messaging_channel_list_title">Vituo</string>
-    <string name="connect_messaging_channel_list_unconsented">Kituo ambacho hakijaidhinishwa</string>
     <string name="connect_messaging_message_notification_title">Ujumbe Mpya</string>
     <string name="connect_messaging_message_notification_message">Umepokea ujumbe mpya kutoka kwa %s, bonyeza hapa kutazama.</string>
     <string name="connect_messaging_channel_notification_title">Kituo Kipya</string>
@@ -439,7 +434,6 @@
     <string name="connect_registration_subtitle">Weka Nambari yako ya Simu</string>
     <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya PersonalID</string>
     <string name="connect_backup_code_message">Weka Nambari yako ya Hifadhi Nakala yenye tarakimu 6</string>
-    <string name="connect_messaging_channel_consent_failure_msg">Imeshindwa kutoa idhini kwa kituo</string>
     <string name="connect_messaging_send_message_fail_msg">Imeshindwa kutuma ujumbe</string>
     <string name="connect_messaging_retrieve_messages_fail">Imeshindwa kurejesha ujumbe</string>
     <string name="connect_messaging_resubscribe_dialog_title">Jiandikishe tena kwa %s</string>

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,15 +19,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -80,6 +84,12 @@ public class ConnectMessageFragment extends Fragment {
         };
         setupMenuItems();
 
+        if (channel.getConsented()) {
+            setChannelSubscribedState();
+        } else {
+            setChannelUnsubscribedState();
+        }
+
         return binding.getRoot();
     }
 
@@ -88,20 +98,23 @@ public class ConnectMessageFragment extends Fragment {
                 new MenuProvider() {
                     @Override
                     public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                        // TODO: Conditionally show/hide either "Unsubscribe" or "Resubscribe"
+                        // TODO: Add this code back in when we fully implement "Resubscribe".
                         // TODO: Both menu items are hidden (commented out) for now.
-//                        menu.add(
-//                                Menu.NONE,
-//                                MENU_UNSUBSCRIBE,
-//                                Menu.NONE,
-//                                R.string.connect_messaging_channel_menu_item_unsubscribe
-//                        );
-//                        menu.add(
-//                                Menu.NONE,
-//                                MENU_RESUBSCRIBE,
-//                                Menu.NONE,
-//                                R.string.connect_messaging_channel_menu_item_resubscribe
-//                        );
+//                        if (channel.getConsented()) {
+//                            menu.add(
+//                                    Menu.NONE,
+//                                    MENU_UNSUBSCRIBE,
+//                                    Menu.NONE,
+//                                    R.string.connect_messaging_channel_menu_item_unsubscribe
+//                            );
+//                        } else {
+//                            menu.add(
+//                                    Menu.NONE,
+//                                    MENU_RESUBSCRIBE,
+//                                    Menu.NONE,
+//                                    R.string.connect_messaging_channel_menu_item_resubscribe
+//                            );
+//                        }
 
                         menuItemsAnalyticsParamsMapping = Map.of(
                                 MENU_UNSUBSCRIBE,
@@ -208,7 +221,7 @@ public class ConnectMessageFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0) {
+                if (s.length() > 0 && channel.getConsented()) {
                     binding.imgSendMessage.setVisibility(View.VISIBLE);
                 } else {
                     binding.imgSendMessage.setVisibility(View.GONE);
@@ -313,6 +326,7 @@ public class ConnectMessageFragment extends Fragment {
             String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
             String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
             String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+            String errorText = getString(R.string.connect_messaging_channel_unsubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
                     titleText,
@@ -326,7 +340,40 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        // TODO: Not implemented yet.
+                        ConnectMessagingActivity activity =
+                                (ConnectMessagingActivity) requireActivity();
+
+                        activity.showProgressDialog(
+                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                        );
+                        channel.setConsented(false);
+
+                        MessageManager.updateChannelConsent(
+                                requireContext(),
+                                channel,
+                                (success, error) -> {
+                                    if (isAdded()) {
+                                        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                                                requireContext(),
+                                                channelId
+                                        );
+                                        activity.dismissProgressDialogForTask(
+                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                                        );
+
+                                        if (success) {
+                                            setChannelUnsubscribedState();
+                                            requireActivity().invalidateMenu();
+                                        } else {
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    errorText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
+                                    }
+                                }
+                        );
                         return Unit.INSTANCE;
                     },
                     R.color.white,
@@ -369,6 +416,20 @@ public class ConnectMessageFragment extends Fragment {
         }
 
         dialog.showDialog(requireContext());
+    }
+
+    private void setChannelSubscribedState() {
+        binding.etMessage.setEnabled(true);
+        binding.etMessage.setText("");
+        binding.etMessage.setGravity(Gravity.CENTER_VERTICAL);
+        binding.etMessage.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+    }
+
+    private void setChannelUnsubscribedState() {
+        binding.etMessage.setEnabled(false);
+        binding.etMessage.setText(R.string.connect_messaging_channel_list_not_subscribed);
+        binding.etMessage.setGravity(Gravity.CENTER);
+        binding.etMessage.setTextColor(ContextCompat.getColor(requireContext(), R.color.sterling_ash));
     }
 }
 
