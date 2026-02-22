@@ -4,6 +4,9 @@ import org.commcare.android.storage.framework.Persisted
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
+import org.commcare.utils.PushNotificationHelper.MESSAGE_NOTIFICATION_TITLE
+import org.commcare.utils.PushNotificationHelper.NOTIFICATION
+import org.commcare.utils.PushNotificationHelper.truncateMessage
 import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONObject
 import java.io.Serializable
@@ -28,10 +31,16 @@ class PushNotificationRecord :
     @Persisting(4)
     @MetaField(META_TITLE)
     var title: String = ""
+        set(value) {
+            field = truncateMessage(value, MESSAGE_NOTIFICATION_TITLE)
+        }
 
     @Persisting(5)
     @MetaField(META_BODY)
     var body: String = ""
+        set(value) {
+            field = truncateMessage(value, NOTIFICATION)
+        }
 
     @Persisting(6)
     @MetaField(META_CREATED_DATE)
