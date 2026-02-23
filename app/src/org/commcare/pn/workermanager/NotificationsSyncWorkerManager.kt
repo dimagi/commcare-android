@@ -1,6 +1,7 @@
 package org.commcare.pn.workermanager
 
 import android.content.Context
+import android.text.TextUtils
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.Data
@@ -17,7 +18,7 @@ import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
 import org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS
 import org.commcare.connect.ConnectConstants.CCC_MESSAGE
 import org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION
-import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.connect.PersonalIdManager
 import org.commcare.pn.workers.NotificationsSyncWorker
@@ -226,23 +227,23 @@ class NotificationsSyncWorkerManager(
     }
 
     private fun startLearningSyncWorker(notificationPayload: Map<String, String>) {
-        if (notificationPayload.containsKey(OPPORTUNITY_ID) && cccCheckPassed(context)) {
-            val opportunityId = notificationPayload.get(OPPORTUNITY_ID)
+        val opportunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
+        if (!TextUtils.isEmpty(opportunityUUID) && cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_LEARNING_PROGRESS,
-                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-$opportunityId",
+                SyncAction.SYNC_LEARNING_PROGRESS.toString() + "-$opportunityUUID",
             )
         }
     }
 
     private fun startDeliverySyncWorker(notificationPayload: Map<String, String>) {
-        if (notificationPayload.containsKey(OPPORTUNITY_ID) && cccCheckPassed(context)) {
-            val opportunityId = notificationPayload.get(OPPORTUNITY_ID)
+        val opportunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
+        if (!TextUtils.isEmpty(opportunityUUID) && cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_DELIVERY_PROGRESS,
-                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-$opportunityId",
+                SyncAction.SYNC_DELIVERY_PROGRESS.toString() + "-$opportunityUUID",
             )
         }
     }
