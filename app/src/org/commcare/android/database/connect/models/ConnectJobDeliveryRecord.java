@@ -33,6 +33,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static final String META_DATE = "visit_date";
     public static final String META_UNIT_NAME = "deliver_unit_name";
     public static final String META_SLUG = "deliver_unit_slug";
+    public static final String META_SLUG_UUID = "deliver_unit_slug_id";
     public static final String META_ENTITY_ID = "entity_id";
     public static final String META_ENTITY_NAME = "entity_name";
     public static final String META_FLAGS = "flags";
@@ -56,7 +57,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     private String unitName;
     @Persisting(6)
     @MetaField(META_SLUG)
-    private String slug;
+    private String slug;    //  This is payment unit id
     @Persisting(7)
     @MetaField(META_ENTITY_ID)
     private String entityId;
@@ -72,6 +73,10 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     @Persisting(11)
     @MetaField(META_JOB_UUID)
     private String jobUUID;
+
+    @Persisting(12)
+    @MetaField(META_SLUG_UUID)  //  This is payment unit uuid
+    private String slugUUID;
 
     private List<ConnectJobDeliveryFlagRecord> flags;
 
@@ -97,6 +102,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         delivery.entityName = json.getString(META_ENTITY_NAME);
         delivery.reason = json.getString(META_REASON);
         delivery.reason = JsonExtensions.optStringSafe(json, META_REASON,"");
+        delivery.slugUUID = json.getString(META_SLUG_UUID);
 
         return delivery;
     }
@@ -170,7 +176,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         return newRecord;
     }
 
-    public static ConnectJobDeliveryRecord fromV21(ConnectJobDeliveryRecordV21 oldRecord) {
+    public static ConnectJobDeliveryRecord fromV22(ConnectJobDeliveryRecordV22 oldRecord) {
         ConnectJobDeliveryRecord newRecord = new ConnectJobDeliveryRecord();
 
         newRecord.jobId = oldRecord.getJobId();
@@ -183,7 +189,8 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         newRecord.entityName = oldRecord.getEntityName();
         newRecord.lastUpdate = oldRecord.getLastUpdate();
         newRecord.reason = oldRecord.getReason();
-        newRecord.jobUUID = String.valueOf(oldRecord.getJobId());
+        newRecord.jobUUID = oldRecord.getJobUUID();
+        newRecord.slugUUID = oldRecord.getSlug();
 
         return newRecord;
     }
@@ -231,5 +238,9 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
 
     public void setJobUUID(String jobUUID) {
         this.jobUUID = jobUUID;
+    }
+
+    public String getSlugUUID() {
+        return slugUUID;
     }
 }

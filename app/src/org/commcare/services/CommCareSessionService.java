@@ -266,6 +266,10 @@ public class CommCareSessionService extends Service {
         }
     }
 
+    public Date getSessionExpireDate() {
+        return sessionExpireDate;
+    }
+
     private void setUpSessionExpirationTimer() {
         maintenanceTimer = new Timer("CommCareService");
         maintenanceTimer.schedule(new TimerTask() {
