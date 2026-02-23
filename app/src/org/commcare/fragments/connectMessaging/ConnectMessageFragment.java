@@ -48,10 +48,6 @@ import java.util.UUID;
 
 import kotlin.Unit;
 
-import static org.commcare.connect.ConnectConstants.CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT;
-import static org.commcare.connect.ConnectConstants.CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_RESUBSCRIBE;
-import static org.commcare.connect.ConnectConstants.CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_UNSUBSCRIBE;
-
 public class ConnectMessageFragment extends Fragment {
     private static String activeChannel;
     private String channelId;
@@ -65,6 +61,13 @@ public class ConnectMessageFragment extends Fragment {
     private Map<Integer, String> menuItemsAnalyticsParamsMapping;
     private static final int MENU_UNSUBSCRIBE = Menu.FIRST;
     private static final int MENU_RESUBSCRIBE = Menu.FIRST + 1;
+
+    private final static String FIREBASE_EVENT_TYPE_CONFIRM_UNSUBSCRIBE =
+            "click_unsubscribed_confirm";
+    private final static String FIREBASE_EVENT_TYPE_CONFIRM_RESUBSCRIBE =
+            "click_resubscribed_confirm";
+    private final static String FIREBASE_EVENT_TYPE_CONSENT_API_RESULT =
+            "consent_api_success_result";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -345,7 +348,7 @@ public class ConnectMessageFragment extends Fragment {
                     positiveButtonText,
                     () -> {
                         FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
-                                CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_UNSUBSCRIBE,
+                                FIREBASE_EVENT_TYPE_CONFIRM_UNSUBSCRIBE,
                                 channelId,
                                 null
                         );
@@ -385,7 +388,7 @@ public class ConnectMessageFragment extends Fragment {
                                     }
 
                                     FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
-                                            CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT,
+                                            FIREBASE_EVENT_TYPE_CONSENT_API_RESULT,
                                             channelId,
                                             success
                                     );
@@ -423,7 +426,7 @@ public class ConnectMessageFragment extends Fragment {
                     positiveButtonText,
                     () -> {
                         FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
-                                CCC_MESSAGING_EVENT_TYPE_USER_CONFIRM_RESUBSCRIBE,
+                                FIREBASE_EVENT_TYPE_CONFIRM_RESUBSCRIBE,
                                 channelId,
                                 null
                         );
@@ -463,7 +466,7 @@ public class ConnectMessageFragment extends Fragment {
                                     }
 
                                     FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
-                                            CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT,
+                                            FIREBASE_EVENT_TYPE_CONSENT_API_RESULT,
                                             channelId,
                                             success
                                     );
