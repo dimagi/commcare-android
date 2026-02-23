@@ -53,58 +53,58 @@ There are three main types of notifications:
 
 - **`CommCareFirebaseMessagingService`**: The entry point for all FCM messages. It parses the
   incoming message and delegates to the appropriate handler.
-    * If the message contains a `sync` action, the `NotificationsSyncWorkerManager` is invoked to
-      start a background sync and push notification is shown after that sync.
-    * If the message is a standard notification, `FirebaseMessagingUtil` is used to display the
-      notification to the user immediately, without any sync action.
+  * If the message contains a `sync` action, the `NotificationsSyncWorkerManager` is invoked to
+    start a background sync and push notification is shown after that sync.
+  * If the message is a standard notification, `FirebaseMessagingUtil` is used to display the
+    notification to the user immediately, without any sync action.
 - **`FirebaseMessagingUtil`**: A utility class for handling and displaying notifications. Its
   `handleNotification` method is the main entry point for processing notifications. It first checks
   if the notification is a CCC-related notification by looking for a "ccc_" prefix in the action
   string.
-    - If it is a CCC notification, it further delegates to `handleCCCActionPushNotification`, which
-      then calls a specific handler based on the action (e.g.,
-      `handleCCCMessageChannelPushNotification`, `handleCCCPaymentPushNotification`).
-    - If it is a sync notification, it delegates to `FirebaseMessagingDataSyncer`.
-    - For all other notifications, it calls `handleGeneralApplicationPushNotification`, which
-      displays the notification and launches the `DispatchActivity` when the user clicks on it.
+  - If it is a CCC notification, it further delegates to `handleCCCActionPushNotification`, which
+    then calls a specific handler based on the action (e.g.,
+    `handleCCCMessageChannelPushNotification`, `handleCCCPaymentPushNotification`).
+  - If it is a sync notification, it delegates to `FirebaseMessagingDataSyncer`.
+  - For all other notifications, it calls `handleGeneralApplicationPushNotification`, which
+    displays the notification and launches the `DispatchActivity` when the user clicks on it.
 - **`NotificationsSyncWorkerManager`**: Manages the lifecycle of the `NotificationsSyncWorker`.
-    * It is responsible for creating and enqueueing a `OneTimeWorkRequest` for the
-      `NotificationsSyncWorker` using Android's `WorkManager`.
-    * This manager class passes the necessary notification data from the FCM message to the worker
-      as input, ensuring the sync is performed for the correct user and domain.
+  * It is responsible for creating and enqueueing a `OneTimeWorkRequest` for the
+    `NotificationsSyncWorker` using Android's `WorkManager`.
+  * This manager class passes the necessary notification data from the FCM message to the worker
+    as input, ensuring the sync is performed for the correct user and domain.
 - **`NotificationsSyncWorker`**: A background worker that performs a data sync when triggered by a
   push notification.
-    * It runs in the background, managed by `WorkManager`, ensuring the sync operation is reliable
-      and executes even if the app is not in the foreground.
-    * This worker is responsible for executing the `DataPullTask`, which communicates with the
-      server, downloads the latest data, and updates the local database. After the sync is complete,
-      it triggers a local notification to inform the user about the sync's completion.
-    * It supports the following sync actions:
-        - `SYNC_OPPORTUNITY`: Syncs all the opportunities.
-        - `SYNC_PERSONALID_NOTIFICATIONS`: Syncs all the notifications for the current user.
-        - `SYNC_DELIVERY_PROGRESS`: Syncs the delivery progress for a specific opportunity.
-        - `SYNC_LEARNING_PROGRESS`: Syncs the learning progress for a specific opportunity.
-        - `SYNC_GENERIC_OPPORTUNITY` : Syncs the opportunity learn/deliver progress or payment
-          depending upon the payload.
+  * It runs in the background, managed by `WorkManager`, ensuring the sync operation is reliable
+    and executes even if the app is not in the foreground.
+  * This worker is responsible for executing the `DataPullTask`, which communicates with the
+    server, downloads the latest data, and updates the local database. After the sync is complete,
+    it triggers a local notification to inform the user about the sync's completion.
+  * It supports the following sync actions:
+    - `SYNC_OPPORTUNITY`: Syncs all the opportunities.
+    - `SYNC_PERSONALID_NOTIFICATIONS`: Syncs all the notifications for the current user.
+    - `SYNC_DELIVERY_PROGRESS`: Syncs the delivery progress for a specific opportunity.
+    - `SYNC_LEARNING_PROGRESS`: Syncs the learning progress for a specific opportunity.
+    - `SYNC_GENERIC_OPPORTUNITY` : Syncs the opportunity learn/deliver progress or payment
+      depending upon the payload.
 - **`PushNotificationActivity`**: An activity that displays a list of all received notifications.
-    * When a user clicks on a notification in the list, the `onNotificationClick` listener is
-      triggered. This method then calls `FirebaseMessagingUtil.getIntentForPNClick()`, which creates
-      the appropriate `Intent` to navigate the user to the correct screen based on the
-      notification's action. The activity then starts the new activity using this intent.
+  * When a user clicks on a notification in the list, the `onNotificationClick` listener is
+    triggered. This method then calls `FirebaseMessagingUtil.getIntentForPNClick()`, which creates
+    the appropriate `Intent` to navigate the user to the correct screen based on the
+    notification's action. The activity then starts the new activity using this intent.
 - **`PushNotificationApiHelper`**: A helper class that encapsulates all API interactions related to
   push notifications.
-    * It is the central point for fetching new notifications from the server and acknowledging their
-      receipt.
-    * The process starts with `retrieveLatestPushNotifications`, which calls the
-      `retrieveNotifications` API endpoint.
-    * Upon receiving a successful response, the helper processes the data: it parses the incoming
-      notifications, messages, and channels, and stores them in the local database using helpers
-      like `ConnectMessagingDatabaseHelper` and `NotificationRecordDatabaseHelper`.
-    * After successfully storing the data, it immediately calls `acknowledgeNotificationsReceipt`.
-      This function makes a `POST` request to the `updateNotifications` API endpoint, sending the
-      IDs of the received notifications to the server to confirm their delivery.
-    * Finally, upon successful acknowledgment from the server, it updates the `acknowledged` status
-      of the corresponding notifications in the local database.
+  * It is the central point for fetching new notifications from the server and acknowledging their
+    receipt.
+  * The process starts with `retrieveLatestPushNotifications`, which calls the
+    `retrieveNotifications` API endpoint.
+  * Upon receiving a successful response, the helper processes the data: it parses the incoming
+    notifications, messages, and channels, and stores them in the local database using helpers
+    like `ConnectMessagingDatabaseHelper` and `NotificationRecordDatabaseHelper`.
+  * After successfully storing the data, it immediately calls `acknowledgeNotificationsReceipt`.
+    This function makes a `POST` request to the `updateNotifications` API endpoint, sending the
+    IDs of the received notifications to the server to confirm their delivery.
+  * Finally, upon successful acknowledgment from the server, it updates the `acknowledged` status
+    of the corresponding notifications in the local database.
 
 ## API Endpoints
 
