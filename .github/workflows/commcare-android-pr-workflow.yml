@@ -31,11 +31,11 @@ jobs:
       - name: Generate Gradle properties
         run: |
           mkdir -p ~/.gradle
-          cat > ~/.gradle/gradle.properties <<EOF
+          cat > ~/.gradle/gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.parallel=false
           TEST_BUILD_TYPE=release
-          RELEASE_STORE_FILE=$HOME/.gradle/commcare-odk-keys.keystore
+          RELEASE_STORE_FILE=/home/runner/.gradle/commcare-odk-keys.keystore
           RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
           RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
