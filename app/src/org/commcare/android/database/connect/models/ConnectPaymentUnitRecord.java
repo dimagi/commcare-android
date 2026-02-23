@@ -111,10 +111,6 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
         return name;
     }
 
-    public int getUnitId() {
-        return unitId;
-    }
-
     public int getMaxTotal() {
         return maxTotal;
     }
@@ -129,5 +125,13 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
     public int getAmount() {
         return amount;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
+
+    public String getUnitUUID() {
+        return unitUUID;
     }
 }
