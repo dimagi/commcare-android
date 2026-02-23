@@ -383,6 +383,19 @@
     <string name="connect_messaging_channel_notification_message">A new messaging channel is available from %s, press here to view</string>
     <string name="connect_messaging_send_message_fail_msg">Fail to send message</string>
     <string name="connect_messaging_retrieve_messages_fail">Failed to retrieve messages</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Resubscribe to %s</string>
+    <string name="connect_messaging_resubscribe_dialog_body">Are you sure you want to resubscribe to the %s messaging channel?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Resubscribe</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Cancel</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Unsubscribe from %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Are you sure you want to unsubscribe from this channel? You will no longer receive messages from this opportunity.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Unsubscribe</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Cancel</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Failed to unsubscribe</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">unsubscribed</string>
+    <string name="connect_messaging_channel_list_not_subscribed">You are not subscribed to this messaging channel.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Resubscribe</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Unsubscribe</string>
     <string name="connect_send_message_hint">Type message</string>
     <string name="connect_send_message_btn_desc">Press here to send message</string>
     <string name="connect_messaging_pn_wrong_channel">Sorry, something went wrong, showing all available messaging channels</string>
@@ -559,6 +572,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
+    <string name="connect_job_info_view_review">Review</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
@@ -594,6 +608,7 @@
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
     <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for PersonalID from the menu.</string>
+    <string name="personalid_generic_error_title" cc:translatable="true">Logged out of PersonalID</string>
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
@@ -619,6 +634,10 @@
     <string name="personalid_second_device_login_title">Login on Second Device</string>
     <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>
     <string name="personalid_second_device_login_message_no_date">Logged out of %s. PersonalID can only be logged in on one device at a time.</string>
+    <string name="personalid_error_title_login_different_device">Account in use on another device</string>
+    <string name="personalid_error_message_login_different_device">Please continue on the new device, or configure your account again.</string>
+    <string name="personalid_reconfigure">Reconfigure</string>
+    <string name="personalid_dismiss">Dismiss</string>
     <string name="personalid_camera_permission_title">Permission for camera</string>
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
@@ -645,6 +664,8 @@
     <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continue without PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Fix Now</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
     <string name="nav_drawer_payments">Payments</string>

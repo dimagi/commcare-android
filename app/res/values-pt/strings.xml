@@ -186,6 +186,11 @@
     <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
     <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
     <string name="personalid_login_from_different_device">A sua conta PersonalID só pode ser configurada num dispositivo de cada vez e já foi configurada noutro dispositivo. Por favor, continue no novo dispositivo ou configure novamente a sua conta neste dispositivo para continuar a utilizar o PersonalID aqui.</string>
+    <string name="personalid_generic_error_title">Sessão encerrada no PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Conta em uso em outro dispositivo</string>
+    <string name="personalid_error_message_login_different_device">Continue no novo dispositivo ou configure sua conta novamente.</string>
+    <string name="personalid_reconfigure">Reconfigurar</string>
+    <string name="personalid_dismiss">Ignorar</string>
     <string name="recovery_network_unauthorized">Você não está autorizado a fazer esta solicitação.</string>
     <string name="recovery_network_server_error">Ocorreu um erro ao processar sua solicitação.</string>
     <string name="recovery_app_manager">Vá para o Gerenciador de aplicativos</string>
@@ -398,6 +403,7 @@
     <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_info">Ver informações</string>
     <string name="connect_job_info_view_resume">Retomar</string>
+    <string name="connect_job_info_view_review">Revisar</string>
     <string name="connect_progress">Progresso</string>
     <string name="connect_payment">Pagamento</string>
     <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>
@@ -439,6 +445,19 @@
     <string name="connect_messaging_channel_notification_message">Um novo canal de mensagens está disponível em %s, clique aqui para visualizar</string>
     <string name="connect_messaging_send_message_fail_msg">Falha ao enviar mensagem</string>
     <string name="connect_messaging_retrieve_messages_fail">Falha ao recuperar mensagens</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Assinar %s novamente</string>
+    <string name="connect_messaging_resubscribe_dialog_body">Tem certeza de que deseja assinar novamente o canal de mensagens %s?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Voltar a subscrever</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Cancelar</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Anular subscrição de %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Tem certeza de que deseja anular a subscrição deste canal? Não receberá mais mensagens desta oportunidade.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Anular subscrição</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Cancelar</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Falha ao anular subscrição</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">subscrição anulada</string>
+    <string name="connect_messaging_channel_list_not_subscribed">Não está subscrito neste canal de mensagens.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Voltar a subscrever</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Anular subscrição</string>
     <string name="connect_send_message_hint">Digite mensagem</string>
     <string name="connect_send_message_btn_desc">Clique aqui para enviar mensagem</string>
     <string name="connect_message_you">Você</string>
@@ -495,7 +514,9 @@
 
     <string name="nav_drawer_signin_register">Entrar / Registrar-se</string>
     <string name="nav_drawer_help">Ajuda</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao ID Pessoal</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continuar sem PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Corrigir agora</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicativos CommCare</string>
     <string name="nav_drawer_payments">Pagamentos</string>

@@ -53,6 +53,12 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getBinding().getRoot().requestLayout();
+    }
+
     public void updateView() {
         updateSummaryView();
 

@@ -61,43 +61,41 @@
             app:layout_constraintTop_toBottomOf="@id/tv_job_description"
             android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/mb_view_info"
-            android:layout_height="wrap_content"
+        <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
-            android:minWidth="120dp"
-            android:minHeight="0dp"
-            android:padding="5dp"
+            android:layout_height="30dp"
+            android:id="@+id/acb_resume"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_resume"
             android:layout_marginTop="16dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:backgroundTint="@color/connect_light_grey"
-            android:text="@string/connect_job_info_view_info"
+            app:textAllCaps="false"
+            android:paddingHorizontal="8dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:drawableStart="@drawable/ic_download_circle"
             android:textColor="@color/connect_blue_color"
-            android:textSize="@dimen/text_small"
-            android:textAllCaps="false"
+            android:background="@drawable/bg_rounded_corner_lavender_70"
             android:visibility="gone"
-            app:cornerRadius="20dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_job_time"
-            app:strokeColor="@color/connect_blue_color" />
+            app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/mb_resume"
-            android:layout_height="wrap_content"
+        <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
-            android:minWidth="120dp"
-            android:minHeight="0dp"
-            android:padding="5dp"
+            android:layout_height="30dp"
+            android:id="@+id/acb_view_info"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_info"
             android:layout_marginStart="15dp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/connect_blue_color"
-            android:text="@string/connect_job_info_view_resume"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_small"
-            android:textAllCaps="false"
+            app:textAllCaps="false"
+            app:backgroundTint="@null"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            android:background="@drawable/bg_rounded_blue_70"
             android:visibility="gone"
-            app:cornerRadius="20dp"
-            app:layout_constraintStart_toEndOf="@id/mb_view_info"
+            app:layout_constraintStart_toEndOf="@id/acb_resume"
             app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
 
         <TextView

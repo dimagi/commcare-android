@@ -204,3 +204,8 @@ To do this set org.gradle.jvmargs=-Xmx1536M in the project gradle.properties.
 ```
 
 - Click *Run 'app'* to rebuid and run on phone.
+
+
+## AI Development Guidelines
+
+Guidelines for AI agents can be found in [AI Agent Development Guidelines](AGENT.md). This document can be symlinked at the file path that your AI agent expects it to be at.
