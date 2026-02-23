@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
@@ -177,7 +178,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         });
 
         notificationButton.setText(Localization.get("error.button.text"));
-        notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
+        notificationButton.setOnClickListener(
+                view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
         setUpConnectUiListeners();
     }
 
@@ -235,12 +237,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
 
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        if (readyApps.size() == 1) {
+        if (readyApps.size() == 1 || presetAppRecord != null) {
             // Set this app as the last selected app, for use in choosing what app to initialize on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
-            setSingleAppUIState();
+            if (shouldForceSingleAppMode()) {
+                setSingleAppUIState();
+            } else {
+                activity.populateAppSpinner(readyApps);
+            }
             activity.seatAppIfNeeded(r.getUniqueId());
         } else {
             activity.populateAppSpinner(readyApps);
@@ -263,6 +269,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
+    }
+
+    private boolean shouldForceSingleAppMode() {
+        return activity.getIntent().getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
     }
 
     @Nullable
@@ -407,7 +417,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     protected void checkForGlobalErrors() {
         String errors = GlobalErrorUtil.getGlobalErrors();
-        if(errors.length() > 0) {
+        if (errors.length() > 0) {
             errorMessage.setVisibility(View.VISIBLE);
             errorMessage.setText(errors);
         }
@@ -416,8 +426,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),
+                null, null, null);
+        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(
+                getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
 
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(message);
