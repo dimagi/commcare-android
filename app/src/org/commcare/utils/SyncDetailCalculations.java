@@ -47,6 +47,7 @@ public class SyncDetailCalculations {
             String notificationText) {
 
         unsentFormsExecutor.submit(SyncDetailCalculations::getNumUnsentForms).thenAcceptAsync(numUnsentForms -> {
+            if (activity.isFinishing() || activity.isDestroyed()) return;
             Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
             Spannable syncIndicator =
