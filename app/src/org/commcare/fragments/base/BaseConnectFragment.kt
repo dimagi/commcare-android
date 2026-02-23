@@ -109,8 +109,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         errorBinding.root.visibility = View.GONE
     }
 
-    private val hideErrorRunnable
-    = Runnable {
-        hideError()
-    }
+    private val hideErrorRunnable =
+        Runnable {
+            hideError()
+        }
 }
