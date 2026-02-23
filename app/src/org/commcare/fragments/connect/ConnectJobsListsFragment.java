@@ -163,7 +163,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
         // We need the composite job because it has the correct number of deliveries.
-        ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
+        ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
         boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
 
         if (deliveryComplete && !isLearning) {
@@ -198,7 +198,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             boolean isDeliverAppInstalled =
                     AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
             ConnectJobRecord compositeJob =
-                    ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobId());
+                    ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
             boolean deliveryComplete =
                     compositeJob != null && compositeJob.deliveryComplete();
             switch (job.getStatus()) {
@@ -261,7 +261,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ) {
         return new ConnectLoginJobListModel(
                 job.getTitle(),
-                String.valueOf(job.getJobId()),
+                job.getJobUUID(),
                 getAppIdForType(job, jobType),
                 job.getProjectEndDate(),
                 getDescriptionForType(job, jobType),
