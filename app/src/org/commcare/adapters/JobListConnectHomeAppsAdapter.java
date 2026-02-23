@@ -171,7 +171,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         // We need the composite job because it has the correct number of deliveries.
         ConnectJobRecord compositeJob = ConnectJobUtils
-                .getCompositeJob(mContext, connectLoginJobListModel.getJob().getJobId());
+                .getCompositeJob(mContext, connectLoginJobListModel.getJob().getJobUUID());
         boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
 
         int dateRes = deliveryComplete
