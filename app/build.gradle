@@ -113,12 +113,8 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:34.8.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging'
-    implementation('com.google.firebase:firebase-perf') {
-        exclude group: 'com.google.firebase', module: 'firebase-sessions'
-    }
-    implementation('com.google.firebase:firebase-crashlytics') {
-        exclude group: 'com.google.firebase', module: 'firebase-sessions'
-    }
+    implementation 'com.google.firebase:firebase-perf'
+    implementation 'com.google.firebase:firebase-crashlytics'
     
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation('com.github.bumptech.glide:glide:4.9.0') {
