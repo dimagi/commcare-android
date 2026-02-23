@@ -198,7 +198,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         binding.btnResume.setVisibility(deliveryComplete ? View.INVISIBLE : View.VISIBLE);
         binding.btnReview.setVisibility(deliveryComplete ? View.VISIBLE : View.INVISIBLE);
 
-        handleProgressBarUI(mContext, connectLoginJobListModel, binding,deliveryComplete);
+        handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
 
         clickListener(binding, connectLoginJobListModel, launcher);
@@ -228,20 +228,24 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     public void handleProgressBarUI(
             Context context,
             ConnectLoginJobListModel item,
-            ConnectJobListItemBinding binding,
-            boolean deliveryComplete
+            ConnectJobListItemBinding binding
     ) {
         int progress = 0;
         int progressColor = 0;
         ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
+        ConnectJobRecord job = item.getJob();
+        boolean deliveryComplete = job != null && job.deliveryComplete();
 
-        if (jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING && !item.getJob().passedAssessment()) {
-            progress = item.getLearningProgress();
-            progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-        } else if (jobType == ConnectLoginJobListModel.JobListEntryType.DELIVERY && !item.getJob().isFinished()) {
-            progress = item.getDeliveryProgress();
-            progressColor = ContextCompat.getColor(context, R.color.connect_green);
+        if (job != null) {
+            if (jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING && !job.passedAssessment()) {
+                progress = item.getLearningProgress();
+                progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
+            } else if (jobType == ConnectLoginJobListModel.JobListEntryType.DELIVERY && !job.isFinished()) {
+                progress = item.getDeliveryProgress();
+                progressColor = ContextCompat.getColor(context, R.color.connect_green);
+            }
         }
+
         if (deliveryComplete) {
             binding.groupProgress.setVisibility(View.GONE);
         } else {
