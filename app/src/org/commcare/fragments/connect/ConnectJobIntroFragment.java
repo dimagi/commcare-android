@@ -1,7 +1,5 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.connect.ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING;
-
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,7 +17,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -127,7 +124,6 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                             error,
                             false,
                             R.string.ok);
-                    hideError();
                 }
                 reportApiCall(false);
             }

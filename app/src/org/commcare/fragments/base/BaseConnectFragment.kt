@@ -21,6 +21,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private lateinit var loadingBinding: LoadingBinding
     private lateinit var errorBinding: InlineErrorLayoutBinding
     private lateinit var rootView: View
+    val delayDuration : Long = 5000
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -46,10 +47,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         errorBinding = InlineErrorLayoutBinding.inflate(inflater, container, false)
         val errorView = errorBinding.root
         errorView.visibility = View.GONE
-
-        errorBinding.ivClose.setOnClickListener {
-            hideError()
-        }
 
         val rootFrame =
             FrameLayout(requireContext()).apply {
@@ -102,10 +99,16 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         if (error != null) {
             errorBinding.tvErrorMessage.text = error
             errorBinding.root.visibility = View.VISIBLE
+            errorBinding.root.removeCallbacks(hideErrorRunnable)
+            errorBinding.root.postDelayed(hideErrorRunnable, delayDuration)
         }
     }
 
     fun hideError() {
+        errorBinding.root.removeCallbacks(hideErrorRunnable)
         errorBinding.root.visibility = View.GONE
+    }
+    private val hideErrorRunnable = Runnable {
+        hideError()
     }
 }
