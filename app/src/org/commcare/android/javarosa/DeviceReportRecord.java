@@ -6,6 +6,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.services.SessionManager;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.utils.DateUtils;
@@ -14,8 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.util.Date;
-
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * A small DB record for keeping track of serialized device reports which we are planning
@@ -33,16 +32,13 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
 
     @Persisting(1)
     private String fileName;
-    @Persisting(2)
-    private byte[] aesKey;
 
     public DeviceReportRecord() {
         // for externalization
     }
 
-    public DeviceReportRecord(String fileName, byte[] aesKey) {
+    public DeviceReportRecord(String fileName) {
         this.fileName = fileName;
-        this.aesKey = aesKey;
     }
 
     public static DeviceReportRecord generateNewRecordStub() {
@@ -51,7 +47,6 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS))
                         + FileUtil.SanitizeFileName(File.separator
                         + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
-        slr.aesKey = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
         return slr;
     }
 
@@ -66,16 +61,15 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return true;
     }
 
-    public byte[] getKey() {
-        return aesKey;
-    }
-
     public String getFilePath() {
         return fileName;
     }
 
     public final OutputStream openOutputStream() throws FileNotFoundException {
-        return EncryptionIO.createFileOutputStream(getFilePath(),
-                new SecretKeySpec(getKey(), "AES"));
+        return EncryptionIO.createFileOutputStream(
+                getFilePath(),
+                SessionManager.getEncryptionKey(),
+                SessionManager.getKeyTransformation()
+        );
     }
 }
