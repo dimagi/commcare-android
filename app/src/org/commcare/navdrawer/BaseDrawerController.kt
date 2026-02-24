@@ -265,6 +265,7 @@ class BaseDrawerController(
         showingError = globalError != null
 
         if (showingError) {
+            binding.signedOutText.visibility = View.GONE
             binding.signInButton.visibility = View.GONE
             binding.errorContainer.visibility = View.VISIBLE
             binding.errorIcon.visibility = View.VISIBLE
