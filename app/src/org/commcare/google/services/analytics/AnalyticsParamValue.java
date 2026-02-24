@@ -206,4 +206,12 @@ public class AnalyticsParamValue {
     public static final String NOTIFICATION_EVENT_TYPE_CLICK = "click_notification";
     public static final String NOTIFICATION_EVENT_TYPE_RECEIVED = "receive_notification";
     public static final String NOTIFICATION_EVENT_TYPE_SHOW = "show_notification";
+
+    // Param values for Connect messaging channels
+    public final static String CCC_MESSAGING_EVENT_TYPE_CONFIRM_UNSUBSCRIBE =
+            "click_unsubscribed_confirm";
+    public final static String CCC_MESSAGING_EVENT_TYPE_CONFIRM_RESUBSCRIBE =
+            "click_resubscribed_confirm";
+    public final static String CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT =
+            "consent_api_success_result";
 }
