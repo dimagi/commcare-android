@@ -268,12 +268,17 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnResume.setVisibility(View.GONE);
             binding.btnReview.setVisibility(View.GONE);
             binding.btnViewInfo.setVisibility(View.GONE);
-        } else if (item.isLearningApp()) {
-            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
-        } else if (item.isDeliveryApp()) {
-            boolean finished = item.getJob().isFinished();
-            int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
-            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
+        } else {
+            binding.btnViewOpportunity.setVisibility(View.GONE);
+            binding.btnViewInfo.setVisibility(View.VISIBLE);
+
+            if (item.isLearningApp()) {
+                binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
+            } else if (item.isDeliveryApp()) {
+                boolean finished = item.getJob().isFinished();
+                int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
+                binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
+            }
         }
     }
 
