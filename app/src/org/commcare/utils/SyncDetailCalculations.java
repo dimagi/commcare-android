@@ -1,8 +1,6 @@
 package org.commcare.utils;
 
 import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -28,6 +26,8 @@ import org.joda.time.LocalDate;
 import java.text.DateFormat;
 import java.util.Date;
 
+import kotlin.Unit;
+
 /**
  * Logic that populates the sync button's notification text
  *
@@ -38,7 +38,7 @@ public class SyncDetailCalculations {
     private static final String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
     private static final String LAST_SYNC_KEY_BASE = "last-succesful-sync-";
 
-    private static LatestTaskExecutor unsentFormsExecutor = new LatestTaskExecutor();
+    private static final LatestTaskExecutor<Integer> unsentFormsExecutor = new LatestTaskExecutor<>();
 
     public static void updateSubText(
             final StandardHomeActivity activity,
@@ -46,8 +46,11 @@ public class SyncDetailCalculations {
             HomeCardDisplayData cardDisplayData,
             String notificationText) {
 
-        unsentFormsExecutor.submit(SyncDetailCalculations::getNumUnsentForms).thenAcceptAsync(numUnsentForms -> {
-            if (activity.isFinishing() || activity.isDestroyed()) return;
+        unsentFormsExecutor.submit(SyncDetailCalculations::getNumUnsentForms, numUnsentForms ->  {
+            if (activity.isFinishing() || activity.isDestroyed()) {
+                return;
+            }
+
             Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
             Spannable syncIndicator =
@@ -78,7 +81,7 @@ public class SyncDetailCalculations {
                     lastSyncTimeAndMessage.first,
                     activity.getResources().getColor(cardDisplayData.subTextColor),
                     activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
-        }, new Handler(Looper.getMainLooper())::post);
+        });
     }
 
     public static int getNumUnsentForms() {
