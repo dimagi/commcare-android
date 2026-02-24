@@ -60,8 +60,7 @@ public class EncryptedFileBody extends RequestBody {
         //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
         //it'll get caught when we initialize.
         Cipher cipher = FormUploadUtil.getDecryptCipher(key, transformation, iv);
-        CipherInputStream cis = new CipherInputStream(fis, cipher);
-        try {
+        try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
             StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());
         } catch (InputIOException iioe) {
             //Here we want to retain the fundamental problem of the _input_ being responsible for the issue
@@ -70,8 +69,6 @@ public class EncryptedFileBody extends RequestBody {
         } catch (OutputIOException oe) {
             //We want the original exception here.
             throw oe.getWrapped();
-        } finally {
-            cis.close();
         }
     }
 
