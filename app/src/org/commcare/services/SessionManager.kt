@@ -3,7 +3,6 @@ package org.commcare.services
 import android.os.Build
 import androidx.annotation.RequiresApi
 import org.commcare.android.security.AesKeyStoreHandler
-import org.commcare.utils.EncryptionKeyAndTransform
 import java.security.Key
 
 /**
@@ -11,7 +10,6 @@ import java.security.Key
  */
 @RequiresApi(Build.VERSION_CODES.M)
 class SessionManager {
-
     companion object {
         private const val SESSION_KEY_ALIAS = "session_encryption_key"
 
