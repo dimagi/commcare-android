@@ -13,7 +13,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
-import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.NotificationRecordDatabaseHelper.getNotificationById
@@ -187,11 +187,11 @@ class NotificationsSyncWorker(
     }
 
     private fun getConnectJob(): ConnectJobRecord? {
-        val opportunityId = notificationPayload?.get(OPPORTUNITY_ID)
-        if (!TextUtils.isEmpty(opportunityId)) {
+        val opportunityUUID = notificationPayload?.get(OPPORTUNITY_UUID)
+        if (!TextUtils.isEmpty(opportunityUUID)) {
             return ConnectJobUtils.getCompositeJob(
                 appContext,
-                Integer.parseInt(opportunityId!!),
+                opportunityUUID!!,
             )
         }
         return null

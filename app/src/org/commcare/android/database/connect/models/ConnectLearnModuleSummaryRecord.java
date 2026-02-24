@@ -111,4 +111,8 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
 }

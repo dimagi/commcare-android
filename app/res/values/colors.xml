@@ -237,4 +237,6 @@
     <color name="violet">#9196DB</color>
     <color name="cyan">#499D85</color>
     <color name="violet_blue">#3C42BF</color>
+    <color name="pale_violet_blue">#C8CAEF</color>
+    <color name="light_indigo">#757BD8</color>
 </resources>

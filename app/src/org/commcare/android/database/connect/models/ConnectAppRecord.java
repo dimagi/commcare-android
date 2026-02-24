@@ -164,4 +164,12 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public int getPassingScore() {
         return passingScore;
     }
+
+    public String getJobUUID() {
+        return jobUUID;
+    }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
 }
