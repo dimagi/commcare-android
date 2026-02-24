@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
@@ -32,12 +33,12 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionIO {
 
-    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symetricKey) throws IOException {
+    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symmetricKey) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
         OutputStream os;
         FileInputStream is;
-        os = createFileOutputStream(destPath, symetricKey);
+        os = createFileOutputStream(destPath, symmetricKey);
         is = new FileInputStream(sourceFilePath);
         int fileSize = is.available();
         StreamsUtil.writeFromInputToOutputNew(is, os);
@@ -46,16 +47,16 @@ public class EncryptionIO {
     }
 
     public static OutputStream createFileOutputStream(String filename,
-                                                      SecretKeySpec symetricKey)
+                                                      Key symmetricKey, String transformation)
             throws FileNotFoundException {
         final File path = new File(filename);
         FileOutputStream fos = new FileOutputStream(path);
-        if (symetricKey == null) {
+        if (symmetricKey == null) {
             return fos;
         } else {
             try {
                 Cipher cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.ENCRYPT_MODE, symetricKey);
+                cipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
                 return new BufferedOutputStream(new CipherOutputStream(fos, cipher));
 
                 //All of these exceptions imply a bad platform and should be irrecoverable (Don't ever

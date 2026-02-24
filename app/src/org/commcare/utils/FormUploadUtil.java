@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class FormUploadUtil {
                     ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg", ".pdf", 
                     ".html", ".rtf", ".txt", ".docx", ".xlsx", ".msg"};
 
-    public static Cipher getDecryptCipher(SecretKeySpec key) {
+    public static Cipher getDecryptCipher(Key key) {
         Cipher cipher;
         try {
             cipher = Cipher.getInstance("AES");
