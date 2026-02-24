@@ -36,7 +36,6 @@ import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.EntityDatum;
 import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
@@ -55,6 +54,9 @@ import java.util.Vector;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
+import org.commcare.tasks.EntityMapLoadingTask;
+import org.commcare.views.dialogs.CustomProgressDialog;
 
 import static org.commcare.views.EntityView.FORM_IMAGE;
 
@@ -89,6 +91,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private int numMarkers = 0;
     private int numPolygons = 0;
     private int numGeoPoints = 0;
+    private boolean isMapReady = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,38 +111,29 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         findViewById(R.id.switch_map_layer).setOnClickListener(v -> changeMapLayer());
 
-        try {
-            addEntityData();
-        } catch (XPathException xe) {
-            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, xe, true);
+        EntityMapLoadingTask task = new EntityMapLoadingTask();
+        task.connect(this);
+        task.executeParallel();
+    }
+
+    public void onEntityDataLoaded(EntityMapLoadingTask.EntityMapData data) {
+        entityLocations.addAll(data.getEntityLocations());
+        if (data.getDetail() != null) {
+            evalImageFieldIndex(data.getDetail());
+            setToggleLabels(data.getDetail());
+        }
+        if (data.getErrorEncountered()) {
+            ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
+                    getString(R.string.entity_map_error_message));
+        }
+        if (isMapReady) {
+            populateMapWithEntityData();
         }
     }
 
-    /**
-     * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
-     */
-    private void addEntityData() {
-        EntityDatum selectDatum = EntityMapUtils.getNeededEntityDatum();
-        if (selectDatum != null) {
-            Detail detail = CommCareApplication.instance().getCurrentSession()
-                    .getDetail(selectDatum.getShortDetail());
-            evalImageFieldIndex(detail);
-
-            setToggleLabels(detail);
-
-            var errorEncountered = false;
-            for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
-                EntityMapDisplayInfo displayInfo = EntityMapUtils.getDisplayInfoForEntity(entity, detail);
-                if (displayInfo != null) {
-                    entityLocations.add(new Pair<>(entity, displayInfo));
-                    errorEncountered |= displayInfo.getErrorEncountered();
-                }
-            }
-
-            if (errorEncountered) {
-                ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
-                        getString(R.string.entity_map_error_message));
-            }
+    public void onEntityLoadError(Exception e) {
+        if (e instanceof XPathException) {
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, (XPathException) e, true);
         }
     }
 
@@ -173,6 +167,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public void onMapReady(@NonNull final GoogleMap map) {
         mMap = map;
+        isMapReady = true;
 
         CCPerfMonitoring.INSTANCE.stopTracing(mapReadyTrace, new HashMap<>());
         mapReadyTrace = null;
@@ -181,51 +176,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 CCPerfMonitoring.TRACE_ENTITY_MAP_LOADED_TIME);
 
         if (!entityLocations.isEmpty()) {
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
-
-            boolean added = false;
-            for (Pair<Entity<TreeReference>, EntityMapDisplayInfo> displayInfoPair : entityLocations) {
-                added |= addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
-                added |= addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
-                added |= addGeoPoints(builder, displayInfoPair.second);
-            }
-
-            final LatLngBounds bounds = added ? builder.build() : null;
-
-            mMap.setOnMapClickListener(latLng -> {
-                dismissPolygonInfoMarker();
-            });
-
-            mMap.setOnMarkerClickListener(marker -> {
-                dismissPolygonInfoMarker();
-                return false;
-            });
-
-            mMap.setOnPolygonClickListener(polygon -> {
-                showPolygonInfo(polygon);
-            });
-
-            // Move camera to include all markers
-            mMap.setOnMapLoadedCallback(() -> {
-                if(bounds != null) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
-                        @Override
-                        public void onCancel() {
-                            finishLoadingPerformanceTrace();
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            finishLoadingPerformanceTrace();
-                        }
-                    });
-                } else {
-                    finishLoadingPerformanceTrace();
-                }
-            });
-
-            setupMapToggles();
+            populateMapWithEntityData();
         } else {
             finishLoadingPerformanceTrace();
         }
@@ -234,6 +185,54 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         setMapLocationEnabled(true);
 
         mMap.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
+    }
+
+    private void populateMapWithEntityData() {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
+
+        boolean added = false;
+        for (Pair<Entity<TreeReference>, EntityMapDisplayInfo> displayInfoPair : entityLocations) {
+            added |= addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
+            added |= addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
+            added |= addGeoPoints(builder, displayInfoPair.second);
+        }
+
+        final LatLngBounds bounds = added ? builder.build() : null;
+
+        mMap.setOnMapClickListener(latLng -> {
+            dismissPolygonInfoMarker();
+        });
+
+        mMap.setOnMarkerClickListener(marker -> {
+            dismissPolygonInfoMarker();
+            return false;
+        });
+
+        mMap.setOnPolygonClickListener(polygon -> {
+            showPolygonInfo(polygon);
+        });
+
+        // Move camera to include all markers
+        mMap.setOnMapLoadedCallback(() -> {
+            if (bounds != null) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
+                    @Override
+                    public void onCancel() {
+                        finishLoadingPerformanceTrace();
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        finishLoadingPerformanceTrace();
+                    }
+                });
+            } else {
+                finishLoadingPerformanceTrace();
+            }
+        });
+
+        setupMapToggles();
     }
 
     private boolean addMarker(LatLngBounds.Builder builder,
@@ -487,6 +486,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     @Override
     public boolean shouldListenToSyncComplete() {
         return true;
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (taskId == EntityMapLoadingTask.ENTITY_MAP_LOADING_TASK_ID) {
+            return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
+        }
+        return null;
     }
 
     private void changeMapLayer() {
