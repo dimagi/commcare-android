@@ -1,5 +1,7 @@
 package org.commcare.android.database.connect.models;
 
+import static org.commcare.utils.PushNotificationHelper.MESSAGE;
+import static org.commcare.utils.PushNotificationHelper.truncateMessage;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -100,7 +102,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             return null;
         }
 
-        connectMessagingMessageRecord.message = decrypted;
+        connectMessagingMessageRecord.message = truncateMessage(decrypted, MESSAGE);
 
         connectMessagingMessageRecord.isOutgoing = false;
         connectMessagingMessageRecord.confirmed = false;
