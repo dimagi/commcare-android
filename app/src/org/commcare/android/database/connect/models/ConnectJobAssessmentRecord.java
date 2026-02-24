@@ -99,4 +99,8 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
     public void setLastUpdate(Date date) {
         lastUpdate = date;
     }
+
+    public void setJobUUID(String jobUUID) {
+        this.jobUUID = jobUUID;
+    }
 }

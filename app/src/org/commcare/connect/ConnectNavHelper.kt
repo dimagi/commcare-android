@@ -9,16 +9,20 @@ import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
-import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 
 object ConnectNavHelper {
-    private fun unlockAndGoTo(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener, navigationAction: (Context) -> Unit) {
+    private fun unlockAndGoTo(
+        activity: CommCareActivity<*>,
+        listener: ConnectActivityCompleteListener,
+        navigationAction: (Context) -> Unit,
+    ) {
         val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(activity)
         personalIdManager.unlockConnect(
-            activity
+            activity,
         ) { success: Boolean ->
             if (success) {
                 navigationAction(activity)
@@ -27,7 +31,10 @@ object ConnectNavHelper {
         }
     }
 
-    fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+    fun unlockAndGoToMessaging(
+        activity: CommCareActivity<*>,
+        listener: ConnectActivityCompleteListener,
+    ) {
         unlockAndGoTo(activity, listener, ::goToMessaging)
     }
 
@@ -42,7 +49,10 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
-    fun unlockAndGoToWorkHistory(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+    fun unlockAndGoToWorkHistory(
+        activity: CommCareActivity<*>,
+        listener: ConnectActivityCompleteListener,
+    ) {
         unlockAndGoTo(activity, listener, ::goToWorkHistory)
     }
 
@@ -51,7 +61,10 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
-    fun unlockAndGoToConnectJobsList(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+    fun unlockAndGoToConnectJobsList(
+        activity: CommCareActivity<*>,
+        listener: ConnectActivityCompleteListener,
+    ) {
         unlockAndGoTo(activity, listener, ::goToConnectJobsList)
     }
 
@@ -73,11 +86,15 @@ object ConnectNavHelper {
         }
     }
 
-    fun goToActiveInfoForJob(context: Context, job: ConnectJobRecord, allowProgression: Boolean) {
+    fun goToActiveInfoForJob(
+        context: Context,
+        job: ConnectJobRecord,
+        allowProgression: Boolean,
+    ) {
         checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
         i.putExtra(GO_TO_JOB_STATUS, true)
-        i.putExtra(OPPORTUNITY_ID, job.jobId)
+        i.putExtra(OPPORTUNITY_UUID, job.jobUUID)
         i.putExtra(SHOW_LAUNCH_BUTTON, allowProgression)
         context.startActivity(i)
     }
