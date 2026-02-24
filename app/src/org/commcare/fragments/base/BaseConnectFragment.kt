@@ -1,11 +1,13 @@
 package org.commcare.fragments.base
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.core.animation.doOnEnd
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
@@ -21,7 +23,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private lateinit var loadingBinding: LoadingBinding
     private lateinit var errorBinding: InlineErrorLayoutBinding
     private lateinit var rootView: View
-    val delayDuration: Long = 5000
+    val delayDurationMs: Long = 5000
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -96,17 +98,64 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     fun showError(error: String?) {
-        if (error != null) {
-            errorBinding.tvErrorMessage.text = error
-            errorBinding.root.visibility = View.VISIBLE
-            errorBinding.root.removeCallbacks(hideErrorRunnable)
-            errorBinding.root.postDelayed(hideErrorRunnable, delayDuration)
+        if (error == null) return
+
+        val errorView = errorBinding.root
+        errorBinding.tvErrorMessage.text = error
+        errorView.removeCallbacks(hideErrorRunnable)
+
+        errorView.measure(
+            View.MeasureSpec.makeMeasureSpec(
+                (errorView.parent as View).width,
+                View.MeasureSpec.EXACTLY
+            ),
+            View.MeasureSpec.UNSPECIFIED
+        )
+
+        val targetHeight = errorView.measuredHeight
+
+        errorView.layoutParams.height = 0
+        errorView.visibility = View.VISIBLE
+
+        val animator = ValueAnimator.ofInt(0, targetHeight)
+        animator.duration = 300
+        animator.addUpdateListener {
+            errorView.layoutParams.height = it.animatedValue as Int
+            errorView.requestLayout()
         }
+
+        animator.doOnEnd {
+            errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+
+        animator.start()
+
+        errorView.postDelayed(hideErrorRunnable, delayDurationMs)
     }
 
     fun hideError() {
-        errorBinding.root.removeCallbacks(hideErrorRunnable)
-        errorBinding.root.visibility = View.GONE
+        val errorView = errorBinding.root
+        errorView.removeCallbacks(hideErrorRunnable)
+
+        val initialHeight = errorView.height
+        if (initialHeight == 0) {
+            errorView.visibility = View.GONE
+            return
+        }
+
+        val animator = ValueAnimator.ofInt(initialHeight, 0)
+        animator.duration = 300
+        animator.addUpdateListener {
+            errorView.layoutParams.height = it.animatedValue as Int
+            errorView.requestLayout()
+        }
+
+        animator.doOnEnd {
+            errorView.visibility = View.GONE
+            errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+
+        animator.start()
     }
 
     private val hideErrorRunnable =
