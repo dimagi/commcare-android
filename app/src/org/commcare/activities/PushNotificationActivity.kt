@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PushNotificationViewModel
 import org.commcare.adapters.PushNotificationAdapter
 import org.commcare.android.database.connect.models.PushNotificationRecord
-import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.getActionFromRecord
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPushNotificationBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
@@ -83,7 +82,7 @@ class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
                             FirebaseAnalyticsUtil.reportNotificationEvent(
                                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                                 AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY,
-                                getActionFromRecord(notificationRecord),
+                                notificationRecord.getNotificationActionFromRecord(),
                                 notificationRecord.notificationId,
                             )
                             val activityIntent = getIntentForPNClick(application, notificationRecord)

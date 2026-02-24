@@ -228,7 +228,7 @@ public class FirebaseMessagingUtil {
             case CCC_DEST_DELIVERY_PROGRESS ->
                     handleResumeLearningOrDeliveryJobPushNotification(false, context, fcmMessageData,showNotification);
             case CCC_GENERIC_OPPORTUNITY ->
-                    handleGenericPushNotification( context, fcmMessageData,showNotification);
+                    handleCccGenericOpportunityNotifcation( context, fcmMessageData,showNotification);
             default -> handleGeneralConnectPushNotification(context,fcmMessageData,showNotification);
         };
     }
@@ -274,7 +274,7 @@ public class FirebaseMessagingUtil {
         return null;
     }
 
-    private static Intent handleGenericPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+    private static Intent handleCccGenericOpportunityNotifcation(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = getConnectActivityNotification(context, fcmMessageData);
         if (showNotification)
             showNotification(context, buildNotification(context, intent, fcmMessageData),
@@ -494,7 +494,7 @@ public class FirebaseMessagingUtil {
         FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_SHOW,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_FIREBASE,
-                getActionFromPayload(fcmMessageData.getPayloadData()),
+                getNotificationActionFromPayload(fcmMessageData.getPayloadData()),
                 notificationId
         );
     }
@@ -540,12 +540,12 @@ public class FirebaseMessagingUtil {
         return personalIdManager.isloggedIn();
     }
 
-    public static String getActionFromPayload(Map<String, String> payload) {
+    public static String getNotificationActionFromPayload(Map<String, String> payload) {
         return (CCC_GENERIC_OPPORTUNITY.equals(payload.get(REDIRECT_ACTION)) &&
                 payload.containsKey(NOTIFICATION_KEY)) ? payload.get(NOTIFICATION_KEY) : payload.get(REDIRECT_ACTION);
     }
 
-    public static String getActionFromIntent(Intent intent) {
+    public static String getNotificationActionFromIntent(Intent intent) {
         return (CCC_GENERIC_OPPORTUNITY.equals(intent.getStringExtra(REDIRECT_ACTION)) &&
                 !TextUtils.isEmpty(intent.getStringExtra(NOTIFICATION_KEY))) ? intent.getStringExtra(NOTIFICATION_KEY) : intent.getStringExtra(REDIRECT_ACTION);
     }

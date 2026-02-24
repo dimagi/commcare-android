@@ -8,15 +8,11 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.CCAnalyticsParam;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
@@ -43,7 +39,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_RECEIVED,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_FIREBASE,
-                FirebaseMessagingUtil.getActionFromPayload(remoteMessage.getData()),
+                FirebaseMessagingUtil.getNotificationActionFromPayload(remoteMessage.getData()),
                 notificationId
         );
 

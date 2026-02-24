@@ -83,6 +83,15 @@ class PushNotificationRecord :
     @MetaField(META_OPPORTUNITY_STATUS)
     var opportunityStatus: String = ""
 
+    fun getNotificationActionFromRecord() =
+        if (CCC_GENERIC_OPPORTUNITY.equals(action) &&
+            !TextUtils.isEmpty(key)
+        ) {
+            key
+        } else {
+            action
+        }
+
     companion object {
         const val STORAGE_KEY = "push_notification_history"
 
@@ -143,15 +152,6 @@ class PushNotificationRecord :
                 paymentUUID = pushNotificationRecordV23.paymentUUID
                 key = ""
                 opportunityStatus = ""
-            }
-
-        fun getActionFromRecord(pushNotificationRecord: PushNotificationRecord) =
-            if (CCC_GENERIC_OPPORTUNITY.equals(pushNotificationRecord.action) &&
-                !TextUtils.isEmpty(pushNotificationRecord.key)
-            ) {
-                pushNotificationRecord.key
-            } else {
-                pushNotificationRecord.action
             }
     }
 }
