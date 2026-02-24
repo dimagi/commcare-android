@@ -110,7 +110,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         //this.startSubmission(submissionNumber, bytes);
 
-        final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
+        final Cipher decrypter = FormUploadUtil.getDecryptCipher(key, null, null);
 
         /* Encrypted files need to copied to the SD Card in their original form, reason
          * being the decryption key is associated with to the user and device and therefore

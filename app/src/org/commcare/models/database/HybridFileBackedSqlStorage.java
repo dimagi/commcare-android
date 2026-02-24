@@ -352,7 +352,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     protected DataOutputStream getOutputFileStream(String filename,
                                                    byte[] aesKeyBytes) throws IOException {
         SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-        return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+        return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey, null, false));
     }
 
     @Override

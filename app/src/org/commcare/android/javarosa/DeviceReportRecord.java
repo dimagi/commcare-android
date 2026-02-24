@@ -69,7 +69,8 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return EncryptionIO.createFileOutputStream(
                 getFilePath(),
                 SessionManager.getEncryptionKey(),
-                SessionManager.getKeyTransformation()
+                SessionManager.getKeyTransformation(),
+                true
         );
     }
 }

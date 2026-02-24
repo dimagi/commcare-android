@@ -71,7 +71,7 @@ public class FormRecordProcessor {
         final File f = new File(form);
 
         final Cipher decrypter =
-                FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
+                FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")), null, null);
         InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
 
         AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(c, null) {
@@ -224,7 +224,11 @@ public class FormRecordProcessor {
         try {
             //decrypter
             if (useCipher) {
-                Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(r.getAesKey(), "AES")));
+                Cipher decrypter = FormUploadUtil.getDecryptCipher(
+                        new SecretKeySpec(r.getAesKey(), "AES"),
+                        null,
+                        null
+                );
                 is = new CipherInputStream(new FileInputStream(recordFile), decrypter);
             } else {
                 is = new FileInputStream(recordFile);
@@ -255,7 +259,7 @@ public class FormRecordProcessor {
         KXmlParser parser = new KXmlParser();
         InputStream is = null;
         try {
-            Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(r.getAesKey(), "AES")));
+            Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(r.getAesKey(), "AES")), null, null);
             is = new CipherInputStream(new FileInputStream(recordFile), decrypter);
 
             parser.setInput(is, "UTF-8");

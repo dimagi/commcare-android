@@ -326,7 +326,7 @@ public abstract class MediaWidget extends QuestionWidget {
         try {
             if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
                 destMediaPath = destMediaPath + AES_EXTENSION;
-                EncryptionIO.encryptFile(binaryPath, destMediaPath, getSecretKey());
+                EncryptionIO.encryptFile(binaryPath, destMediaPath, getSecretKey(), null, false);
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Media successfully encrypted and saved: " + destMediaPath);
             } else {
                 FileUtil.copyFile(binaryPath, destMediaPath);

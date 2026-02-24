@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -33,12 +34,12 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionIO {
 
-    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symmetricKey) throws IOException {
+    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symmetricKey, String transformation, boolean isKeyFromKeystore) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
         OutputStream os;
         FileInputStream is;
-        os = createFileOutputStream(destPath, symmetricKey);
+        os = createFileOutputStream(destPath, symmetricKey, transformation, isKeyFromKeystore);
         is = new FileInputStream(sourceFilePath);
         int fileSize = is.available();
         StreamsUtil.writeFromInputToOutputNew(is, os);
@@ -47,16 +48,24 @@ public class EncryptionIO {
     }
 
     public static OutputStream createFileOutputStream(String filename,
-                                                      Key symmetricKey, String transformation)
-            throws FileNotFoundException {
+                                                      Key symmetricKey,
+                                                      String transformation,
+                                                      boolean isKeyFromAndroidKeyStore
+    ) throws FileNotFoundException {
         final File path = new File(filename);
         FileOutputStream fos = new FileOutputStream(path);
         if (symmetricKey == null) {
             return fos;
         } else {
             try {
-                Cipher cipher = Cipher.getInstance("AES");
+                Cipher cipher = Cipher.getInstance(Objects.requireNonNullElse(transformation, "AES"));
                 cipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
+                byte[] iv;
+                if (isKeyFromAndroidKeyStore) {
+                    iv = cipher.getIV();
+                    fos.write(iv.length);
+                    fos.write(iv);
+                }
                 return new BufferedOutputStream(new CipherOutputStream(fos, cipher));
 
                 //All of these exceptions imply a bad platform and should be irrecoverable (Don't ever
@@ -73,6 +82,9 @@ public class EncryptionIO {
                 e.printStackTrace();
                 Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Bad Padding: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
+            } catch (IOException e) {
+                Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Writing IV failed with message: " + e.getMessage());
+                throw new RuntimeException(e);
             }
         }
     }

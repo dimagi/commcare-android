@@ -67,7 +67,7 @@ public class ImageCaptureProcessing {
         if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
             finalFilePath = finalFilePath + MediaWidget.AES_EXTENSION;
             try {
-                EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey());
+                EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey(), null, false);
             } catch (Exception e) {
                 throw new IOException("Failed to encrypt " + sourcePath +
                         " to " + finalFilePath, e);
