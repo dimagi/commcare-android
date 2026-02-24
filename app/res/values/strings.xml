@@ -573,6 +573,7 @@
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
     <string name="connect_job_info_view_review">Review</string>
+    <string name="connect_job_info_view_proceed">Proceed</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
