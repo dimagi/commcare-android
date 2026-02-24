@@ -236,24 +236,31 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         ConnectJobRecord job = item.getJob();
         boolean deliveryComplete = job != null && job.deliveryComplete();
 
-        if (job != null) {
-            if (jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING && !job.passedAssessment()) {
-                progress = item.getLearningProgress();
-                progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-            } else if (jobType == ConnectLoginJobListModel.JobListEntryType.DELIVERY && !job.isFinished()) {
-                progress = item.getDeliveryProgress();
-                progressColor = ContextCompat.getColor(context, R.color.connect_green);
-            }
+        if (deliveryComplete){
+            binding.groupProgress.setVisibility(View.GONE);
+            return;
         }
 
-        if (deliveryComplete) {
-            binding.groupProgress.setVisibility(View.GONE);
-        } else {
-            binding.groupProgress.setVisibility(View.VISIBLE);
-            binding.progressBar.setProgress(progress);
-            binding.progressBar.setProgressColor(progressColor);
-            binding.tvProgressPercent.setText(progress + " %");
+        switch (jobType) {
+            case LEARNING:
+                if (!job.passedAssessment()) {
+                    progress = item.getLearningProgress();
+                    progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
+                }
+                break;
+
+            case DELIVERY:
+                if (!job.isFinished()) {
+                    progress = item.getDeliveryProgress();
+                    progressColor = ContextCompat.getColor(context, R.color.connect_green);
+                }
+                break;
         }
+
+        binding.groupProgress.setVisibility(View.VISIBLE);
+        binding.progressBar.setProgress(progress);
+        binding.progressBar.setProgressColor(progressColor);
+        binding.tvProgressPercent.setText(progress + " %");
     }
 
     private void configureJobType(
