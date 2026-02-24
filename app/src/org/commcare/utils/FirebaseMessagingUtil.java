@@ -227,9 +227,8 @@ public class FirebaseMessagingUtil {
                     handleResumeLearningOrDeliveryJobPushNotification(true, context, fcmMessageData,showNotification);
             case CCC_DEST_DELIVERY_PROGRESS ->
                     handleResumeLearningOrDeliveryJobPushNotification(false, context, fcmMessageData,showNotification);
-            case CCC_GENERIC_OPPORTUNITY ->
+            default ->
                     handleCccGenericOpportunityNotifcation( context, fcmMessageData,showNotification);
-            default -> handleGeneralConnectPushNotification(context,fcmMessageData,showNotification);
         };
     }
 
@@ -338,15 +337,6 @@ public class FirebaseMessagingUtil {
         }
         return null;    // This will always null as we are already in DispatchActivity and don't want to start again
     }
-
-    private static Intent handleGeneralConnectPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        Intent intent = getConnectActivityNotification(context,fcmMessageData);
-        if(showNotification){
-            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
-        }
-        return intent;
-    }
-
 
     /**
      * Handle CCC messaging/channel push notification
