@@ -350,6 +350,7 @@ public class ConnectMessageFragment extends Fragment {
                         FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
                                 FIREBASE_EVENT_TYPE_CONFIRM_UNSUBSCRIBE,
                                 channelId,
+                                null,
                                 null
                         );
                         activity.showProgressDialog(
@@ -390,7 +391,8 @@ public class ConnectMessageFragment extends Fragment {
                                     FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
                                             FIREBASE_EVENT_TYPE_CONSENT_API_RESULT,
                                             channelId,
-                                            success
+                                            success,
+                                            false
                                     );
                                 }
                         );
@@ -428,6 +430,7 @@ public class ConnectMessageFragment extends Fragment {
                         FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
                                 FIREBASE_EVENT_TYPE_CONFIRM_RESUBSCRIBE,
                                 channelId,
+                                null,
                                 null
                         );
                         activity.showProgressDialog(
@@ -468,7 +471,8 @@ public class ConnectMessageFragment extends Fragment {
                                     FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
                                             FIREBASE_EVENT_TYPE_CONSENT_API_RESULT,
                                             channelId,
-                                            success
+                                            success,
+                                            true
                                     );
                                 }
                         );

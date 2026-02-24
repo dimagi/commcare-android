@@ -52,4 +52,5 @@ public class CCAnalyticsParam {
     static final String CCC_MESSAGING_EVENT_TYPE = "event_type";
     static final String CCC_MESSAGING_CHANNEL_ID = "channel_id";
     static final String CCC_MESSAGING_CONSENT_API_RESULT = "consent_api_success";
+    static final String CCC_MESSAGING_DESIRED_CONSENT_STATUS = "consent_api_desired_consent_status";
 }

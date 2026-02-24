@@ -700,7 +700,8 @@ public class FirebaseAnalyticsUtil {
     public static void reportConnectMessagingChannelEvent(
             @NonNull String messagingEventType,
             @NonNull String messageChannelId,
-            @Nullable Boolean consentApiSuccessful
+            @Nullable Boolean consentApiSuccessful,
+            @Nullable Boolean desiredConsentStatus
     ) {
         Bundle bundle = new Bundle();
         bundle.putString(CCAnalyticsParam.CCC_MESSAGING_EVENT_TYPE, messagingEventType);
@@ -710,6 +711,13 @@ public class FirebaseAnalyticsUtil {
             bundle.putLong(
                     CCAnalyticsParam.CCC_MESSAGING_CONSENT_API_RESULT,
                     consentApiSuccessful ? 1 : 0
+            );
+        }
+
+        if (desiredConsentStatus != null) {
+            bundle.putLong(
+                    CCAnalyticsParam.CCC_MESSAGING_DESIRED_CONSENT_STATUS,
+                    desiredConsentStatus ? 1 : 0
             );
         }
 
