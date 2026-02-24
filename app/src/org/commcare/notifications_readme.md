@@ -37,9 +37,9 @@ There are three main types of notifications:
 2. **Sync Trigger**: If the notification contains a `sync` action, the
    `NotificationsSyncWorkerManager` is invoked to start a background sync. The
    `NotificationsSyncWorkerManager` is responsible for creating and enqueueing a`OneTimeWorkRequest`
-   for the `NotificationSyncWorker`. This ensures that the sync operation is executed in a reliable
+   for the `NotificationsSyncWorker`. This ensures that the sync operation is executed in a reliable
    and battery-efficient manner, even if the app is not in the foreground.
-3. **Sync Execution**: The `NotificationSyncWorker` performs the actual data sync. It runs in the
+3. **Sync Execution**: The `NotificationsSyncWorker` performs the actual data sync. It runs in the
    background and is managed by Android's `WorkManager`. This worker is responsible for
    communicating with the server, making sure that required data is retrieved and processed.
 4. **Notification Display**: If the notification is a standard notification (without a `sync`
@@ -48,6 +48,60 @@ There are three main types of notifications:
    notifications.
 6. **API Interaction**: The `PushNotificationApiHelper` is responsible for all communication with
    the backend API, including retrieving the latest notifications and acknowledging their receipt.
+
+### Push Notification Received Flow
+```mermaid
+sequenceDiagram
+    participant FCM
+    participant CommCareFirebaseMessagingService
+    participant NotificationsSyncWorkerManager
+    participant NotificationsSyncWorker
+    participant FirebaseMessagingUtil
+
+    FCM->>CommCareFirebaseMessagingService: onMessageReceived(remoteMessage)
+    alt remoteMessage contains 'sync' action
+        CommCareFirebaseMessagingService->>NotificationsSyncWorkerManager: startSyncWorker(data)
+        NotificationsSyncWorkerManager->>NotificationsSyncWorker: enqueue(workRequest)
+        NotificationsSyncWorker->>NotificationsSyncWorker: doWork()
+        NotificationsSyncWorker->>FirebaseMessagingUtil: handleNotification(data)
+        FirebaseMessagingUtil->>FirebaseMessagingUtil: buildNotification(data) // add pending intents if any
+        FirebaseMessagingUtil->>FirebaseMessagingUtil: showNotification(data)
+    else
+        CommCareFirebaseMessagingService->>FirebaseMessagingUtil: handleNotification(data)
+        FirebaseMessagingUtil->>FirebaseMessagingUtil: buildNotification(data) // add pending intents if any
+        FirebaseMessagingUtil->>FirebaseMessagingUtil: showNotification(data)
+    end
+```
+
+### Push Notification Click Flow
+This diagram illustrates how the application handles a user clicking on a push notification, whether it's from the device's notification tray or from the in-app notification history list.
+```mermaid
+sequenceDiagram
+    participant User
+    participant SystemUI
+    participant PushNotificationActivity
+    participant DispatchActivity
+    participant FirebaseMessagingUtil
+    participant TargetActivity
+
+    alt Click from Device Tray without PendingIntent
+        User->>SystemUI: Clicks Notification
+        SystemUI->>DispatchActivity: startActivity(pendingIntent)
+        DispatchActivity->>FirebaseMessagingUtil: getIntentForPNIfAny(intent)
+        FirebaseMessagingUtil->>FirebaseMessagingUtil: handleNotification(data)
+        FirebaseMessagingUtil-->>DispatchActivity: returns target Intent
+        DispatchActivity->>TargetActivity: startActivity(targetIntent)
+    else Click from Device Tray with PendingIntent
+        User->>SystemUI: Clicks Notification
+        SystemUI->>TargetActivity: startActivity(pendingIntent)
+    else Click from Notification History
+        User->>PushNotificationActivity: Clicks Notification Item
+        PushNotificationActivity->>FirebaseMessagingUtil: getIntentForPNClick(notificationRecord)
+        FirebaseMessagingUtil->>FirebaseMessagingUtil: handleNotification(data)
+        FirebaseMessagingUtil-->>PushNotificationActivity: returns target Intent
+        PushNotificationActivity->>TargetActivity: startActivity(targetIntent)
+    end
+```
 
 ## Key Classes
 
@@ -122,25 +176,47 @@ The notification system interacts with the following API endpoints:
 
 **Example Response Payload**:
 
+Example 1: Generic Opportunity Push Notification
 ```json
 {
   "notifications": [
     {
-      "action": "ccc_dest_delivery_progress",
-      "title": "New Data Available",
-      "body": "Please sync your device to get the latest data.",
+      "action": "ccc_generic_opportunity",
+      "title": "Payment updated",
+      "body": "There has been an adjustment to your earnings for your opportunity.",
       "notification_id": "12345-RIOU-UOU-423",
       "created": "2024-05-21T10:00:00Z",
       "status": "unread",
       "opportunity_uuid": "abcde-328-32mkj-43",
       "payment_uuid": "42309-fdfjl4-4343",
+      "opportunity_status" : "delivery",
+      "key" : "payment_rollback"
+    }
+  ],
+  "channels": []
+}
+```
+Example 2 : Delivery Progress Push Notification
+```json
+{
+  "notifications": [
+    {
+      "action": "ccc_dest_delivery_progress",
+      "title": "Delivery Progress update",
+      "body": "Please sync your device to get the latest delivery progress.",
+      "notification_id": "12345-RIOU-UOU-423",
+      "created": "2024-05-21T10:00:00Z",
+      "status": "unread",
+      "opportunity_uuid": "abcde-328-32mkj-43",
       "opportunity_id": "32",
+      "payment_uuid": "42309-fdfjl4-4343",
       "payment_id": "21"
     }
   ],
   "channels": []
 }
 ```
+
 
 ### Acknowledge Notification Receipt
 
