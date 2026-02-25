@@ -49,26 +49,27 @@ public class EncryptedFileBody extends RequestBody {
 
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
-        FileInputStream fis = new FileInputStream(file);
-        byte[] iv = null;
-        if (isKeyFromAndroidKeyStore) {
-            int ivLength = fis.read() & 0xFF;
-            iv = new byte[ivLength];
-            fis.read(iv, 0, ivLength);
-        }
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] iv = null;
+            if (isKeyFromAndroidKeyStore) {
+                int ivLength = fis.read() & 0xFF;
+                iv = new byte[ivLength];
+                fis.read(iv, 0, ivLength);
+            }
 
-        //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
-        //it'll get caught when we initialize.
-        Cipher cipher = FormUploadUtil.getDecryptCipher(key, transformation, iv);
-        try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
-            StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());
-        } catch (InputIOException iioe) {
-            //Here we want to retain the fundamental problem of the _input_ being responsible for the issue
-            //so we can differentiate between bad reads and bad network
-            throw iioe;
-        } catch (OutputIOException oe) {
-            //We want the original exception here.
-            throw oe.getWrapped();
+            //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
+            //it'll get caught when we initialize.
+            Cipher cipher = FormUploadUtil.getDecryptCipher(key, transformation, iv);
+            try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
+                StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());
+            } catch (InputIOException iioe) {
+                //Here we want to retain the fundamental problem of the _input_ being responsible for the issue
+                //so we can differentiate between bad reads and bad network
+                throw iioe;
+            } catch (OutputIOException oe) {
+                //We want the original exception here.
+                throw oe.getWrapped();
+            }
         }
     }
 
