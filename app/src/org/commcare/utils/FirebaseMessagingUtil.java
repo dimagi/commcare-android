@@ -501,7 +501,12 @@ public class FirebaseMessagingUtil {
     }
 
     public static Intent getIntentForPNIfAny(Context context, Intent intent) {
-        //  Added try-catch to avoid any data corruption handling, and dispatch activity flow is not disturbed.
+        //  Here we are handling only push notification-related intent, and
+        //  It has only strings as keys and values. But now, this function gets executed whenever
+        //  DispatchActivity is created; e.g., for showing the CC app, it might have a valid boolean intent.
+        //  e.g., is_launched_from_connect, but this function raises an exception. So in order to not break
+        //  things which are not even related to this getIntentForPNIfAny function, a try-catch has been put.
+        //  This also gives reason to not log any exception in catch.
         try {
             if (intent != null && intent.getExtras() != null) {
                 Map<String, String> dataPayload = new HashMap<>();
@@ -515,7 +520,7 @@ public class FirebaseMessagingUtil {
                 }
                 return pnIntent;
             }
-        } catch (Exception e) { // no need to log
+        } catch (Exception e) {
         }
         return null;
     }

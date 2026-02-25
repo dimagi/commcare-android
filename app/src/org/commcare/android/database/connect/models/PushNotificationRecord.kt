@@ -1,8 +1,11 @@
 package org.commcare.android.database.connect.models
 
 import android.text.TextUtils
+import androidx.annotation.StringDef
 import org.commcare.android.storage.framework.Persisted
 import org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_DELIVERY
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
@@ -81,6 +84,7 @@ class PushNotificationRecord :
 
     @Persisting(17)
     @MetaField(META_OPPORTUNITY_STATUS)
+    @OpportunityStatusType
     var opportunityStatus: String = ""
 
     fun getNotificationActionFromRecord() =
@@ -91,6 +95,10 @@ class PushNotificationRecord :
         } else {
             action
         }
+
+    @StringDef(OPPORTUNITY_STATUS_LEARN, OPPORTUNITY_STATUS_DELIVERY)
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class OpportunityStatusType
 
     companion object {
         const val STORAGE_KEY = "push_notification_history"

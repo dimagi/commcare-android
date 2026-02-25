@@ -34,6 +34,8 @@ public class ConnectConstants {
     public static final String PAYMENT_UUID = "payment_uuid";
     public static final String NOTIFICATION_KEY = "key";
     public static final String OPPORTUNITY_STATUS = "opportunity_status";
+    public static final String OPPORTUNITY_STATUS_LEARN = "learn";
+    public static final String OPPORTUNITY_STATUS_DELIVERY = "delivery";
     public static final String PAYMENT_STATUS = "payment_status";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
     public static final String NEW_APP = "new-app";
