@@ -46,25 +46,24 @@ public class ConnectMessageChannelListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         binding = FragmentChannelListBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
-
         requireActivity().setTitle(R.string.connect_messaging_channel_list_title);
-
         binding.rvChannel.setLayoutManager(new LinearLayoutManager(getContext()));
 
         List<ConnectMessagingChannelRecord> channels =
                 ConnectMessagingDatabaseHelper.getMessagingChannels(getContext());
 
         channelAdapter = new ChannelAdapter(channels, this::selectChannel);
-
         binding.rvChannel.setAdapter(channelAdapter);
 
         MessageManager.sendUnsentMessages(requireActivity());
 
-        return view;
+        return binding.getRoot();
     }
 
     @Override
@@ -84,16 +83,23 @@ public class ConnectMessageChannelListFragment extends Fragment {
         super.onResume();
         isActive = true;
 
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
-                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+                updateReceiver,
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
+        );
 
         MessageManager.retrieveMessages(
                 requireActivity(),
                 (success, error) -> refreshUi()
         );
 
-        if (getActivity() != null && getActivity() instanceof CommCareActivity && ((CommCareActivity)getActivity()).getSupportActionBar() != null) {
-            ((CommCareActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        boolean shouldDisplayHomeAsUp = getActivity() != null
+                && getActivity() instanceof CommCareActivity
+                && ((CommCareActivity) getActivity()).getSupportActionBar() != null;
+        if (shouldDisplayHomeAsUp) {
+            ((CommCareActivity) getActivity())
+                    .getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);
         }
 
     }
@@ -113,10 +119,13 @@ public class ConnectMessageChannelListFragment extends Fragment {
     };
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
-        Navigation.findNavController(requireView()).navigate(getConnectMessageFragmentDirection(channel));
+        Navigation.findNavController(requireView())
+                .navigate(getConnectMessageFragmentDirection(channel));
     }
 
-    private NavDirections getConnectMessageFragmentDirection(ConnectMessagingChannelRecord channel) {
+    private NavDirections getConnectMessageFragmentDirection(
+            ConnectMessagingChannelRecord channel
+    ) {
         return ConnectMessageChannelListFragmentDirections
                 .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
     }

@@ -7,7 +7,6 @@ package org.commcare.connect;
  */
 public class ConnectConstants {
     public static final int PERSONAL_ID_TASK_ID_OFFSET = 1000;
-    public final static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final int PERSONAL_ID_SIGN_UP_LAUNCH = 1050;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
@@ -32,22 +31,29 @@ public class ConnectConstants {
     public static final String OPPORTUNITY_UUID = "opportunity_uuid";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_UUID = "payment_uuid";
-    public static final String PAYMENT_STATUS = "payment_status";
-    public static final String CONNECT_KEY_DB_KEY = "db_key";
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
-    public final static int PERSONALID_NO_ACTIVITY = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
-    public final static int PERSONALID_REGISTRATION_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
-    public final static int PERSONALID_RECOVERY_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 2;
-    public final static int PERSONALID_BIOMETRIC_ENROLL_FAIL = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 4;
-    public final static int PERSONALID_RECOVERY_WRONG_BACKUPCODE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
-    public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 8;
-    public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 9;
-    public final static int PERSONALID_RECOVERY_ACCOUNT_LOCKED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 10;
-    public final static int PERSONALID_LOCATION_PERMISSION_FAILURE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
-    public final static int PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
-    public final static String STATUS_APPROVED = "approved";
+    public final static int PERSONALID_NO_ACTIVITY =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
+    public final static int PERSONALID_REGISTRATION_SUCCESS =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
+    public final static int PERSONALID_RECOVERY_SUCCESS =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 2;
+    public final static int PERSONALID_BIOMETRIC_ENROLL_FAIL =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 4;
+    public final static int PERSONALID_RECOVERY_WRONG_BACKUPCODE =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
+    public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 8;
+    public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 9;
+    public final static int PERSONALID_RECOVERY_ACCOUNT_LOCKED =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 10;
+    public final static int PERSONALID_LOCATION_PERMISSION_FAILURE =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
+    public final static int PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
     public final static String NOTIFICATION_TITLE = "title";
     public final static String NOTIFICATION_BODY = "body";
     public final static String NOTIFICATION_ID = "notification_id";
