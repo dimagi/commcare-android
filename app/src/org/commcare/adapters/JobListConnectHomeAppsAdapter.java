@@ -203,6 +203,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         clickListener(binding, connectLoginJobListModel, launcher);
     }
+
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
             @StringRes int headerTextResId,
@@ -217,6 +218,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectLoginJobListModel connectLoginJobListModel,
             OnJobSelectionClick launcher
     ) {
+        binding.btnViewOpportunity.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.VIEW_INFO));
         binding.btnResume.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
                 connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.RESUME));
         binding.btnViewInfo.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
@@ -269,12 +272,21 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     ) {
         if (item.isNew()) {
             binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_new_opportunity));
-        } else if (item.isLearningApp()) {
-            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
-        } else if (item.isDeliveryApp()) {
-            boolean finished = item.getJob().isFinished();
-            int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
-            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
+            binding.btnViewOpportunity.setVisibility(View.VISIBLE);
+            binding.btnResume.setVisibility(View.GONE);
+            binding.btnReview.setVisibility(View.GONE);
+            binding.btnViewInfo.setVisibility(View.GONE);
+        } else {
+            binding.btnViewOpportunity.setVisibility(View.GONE);
+            binding.btnViewInfo.setVisibility(View.VISIBLE);
+
+            if (item.isLearningApp()) {
+                binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
+            } else if (item.isDeliveryApp()) {
+                boolean finished = item.getJob().isFinished();
+                int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
+                binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
+            }
         }
     }
 
