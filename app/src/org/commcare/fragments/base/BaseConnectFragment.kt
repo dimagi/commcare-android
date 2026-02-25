@@ -83,7 +83,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        hideError()
+        errorViewController?.cleanup()
         errorViewController = null
         _binding = null
         // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
