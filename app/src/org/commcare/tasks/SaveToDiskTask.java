@@ -224,7 +224,7 @@ public class SaveToDiskTask extends
         ByteArrayPayload payload = (ByteArrayPayload)serializer.createSerializedPayload(dataModel);
 
         writeXmlToStream(payload,
-                EncryptionIO.createFileOutputStream(mFormRecordPath, symetricKey, null, false));
+                EncryptionIO.createFileOutputStream(mFormRecordPath, symetricKey));
 
         SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         updateFormRecord(formRecordStorage, true);
@@ -235,7 +235,7 @@ public class SaveToDiskTask extends
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             writeXmlToStream(payload,
-                    EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey, null, false));
+                    EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
 
             // Set this record's status to COMPLETE
             updateFormRecord(formRecordStorage, false);

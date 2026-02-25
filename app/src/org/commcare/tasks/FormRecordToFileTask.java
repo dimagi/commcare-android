@@ -73,7 +73,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
         logTransferBytes(files);
 
-        final Cipher decryptCipher = FormUploadUtil.getDecryptCipher(decryptionKey, null, null);
+        final Cipher decryptCipher = FormUploadUtil.getDecryptCipher(decryptionKey);
         try {
             decryptCopyFiles(files, myDir, decryptCipher);
         } catch (IOException e){

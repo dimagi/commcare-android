@@ -70,6 +70,10 @@ public class FormUploadUtil {
                     ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg", ".pdf", 
                     ".html", ".rtf", ".txt", ".docx", ".xlsx", ".msg"};
 
+    public static Cipher getDecryptCipher(Key key) {
+        return getDecryptCipher(key, null, null);
+    }
+
     public static Cipher getDecryptCipher(Key key, String transformation, byte[] iv) {
         Cipher cipher;
         try {

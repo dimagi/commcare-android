@@ -34,17 +34,24 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionIO {
 
-    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symmetricKey, String transformation, boolean isKeyFromKeystore) throws IOException {
+    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symmetricKey) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
         OutputStream os;
         FileInputStream is;
-        os = createFileOutputStream(destPath, symmetricKey, transformation, isKeyFromKeystore);
+        os = createFileOutputStream(destPath, symmetricKey);
         is = new FileInputStream(sourceFilePath);
         int fileSize = is.available();
         StreamsUtil.writeFromInputToOutputNew(is, os);
 
         CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, fileSize, sourceFilePath);
+    }
+
+    public static OutputStream createFileOutputStream(
+            String filename,
+            Key symmetricKey
+    ) throws FileNotFoundException {
+        return createFileOutputStream(filename, symmetricKey, null, false);
     }
 
     public static OutputStream createFileOutputStream(String filename,
