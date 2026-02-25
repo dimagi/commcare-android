@@ -7,7 +7,7 @@ import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 
 class ErrorViewController(
     private val errorBinding: InlineErrorLayoutBinding,
-    private val autoDismissMs: Long = 5000
+    private val autoDismissMs: Long = 5000,
 ) {
     private val errorView = errorBinding.root
     private val hideRunnable = Runnable { hide() }
@@ -25,13 +25,14 @@ class ErrorViewController(
         errorView.layoutParams.height = 0
         errorView.visibility = View.VISIBLE
 
-        animator = errorView.animateHeight(
-            from = 0,
-            to = targetHeight
-        ) {
-            errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            animator = null
-        }
+        animator =
+            errorView.animateHeight(
+                from = 0,
+                to = targetHeight,
+            ) {
+                errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                animator = null
+            }
 
         errorView.postDelayed(hideRunnable, autoDismissMs)
     }
@@ -46,14 +47,15 @@ class ErrorViewController(
             return
         }
 
-        animator = errorView.animateHeight(
-            from = initialHeight,
-            to = 0
-        ) {
-            errorView.visibility = View.GONE
-            errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            animator = null
-        }
+        animator =
+            errorView.animateHeight(
+                from = initialHeight,
+                to = 0,
+            ) {
+                errorView.visibility = View.GONE
+                errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                animator = null
+            }
     }
 
     private fun cancelAnimator() {
@@ -65,9 +67,9 @@ class ErrorViewController(
         errorView.measure(
             View.MeasureSpec.makeMeasureSpec(
                 (errorView.parent as View).width,
-                View.MeasureSpec.EXACTLY
+                View.MeasureSpec.EXACTLY,
             ),
-            View.MeasureSpec.UNSPECIFIED
+            View.MeasureSpec.UNSPECIFIED,
         )
         return errorView.measuredHeight
     }

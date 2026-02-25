@@ -8,10 +8,9 @@ fun View.animateHeight(
     from: Int,
     to: Int,
     duration: Long = 300,
-    onEnd: () -> Unit = {}
-): ValueAnimator {
-
-    return ValueAnimator.ofInt(from, to).apply {
+    onEnd: () -> Unit = {},
+): ValueAnimator =
+    ValueAnimator.ofInt(from, to).apply {
         this.duration = duration
         addUpdateListener {
             layoutParams.height = it.animatedValue as Int
@@ -20,4 +19,3 @@ fun View.animateHeight(
         doOnEnd { onEnd() }
         start()
     }
-}
