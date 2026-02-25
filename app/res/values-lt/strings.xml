@@ -192,4 +192,8 @@
 
     <string name="connect_complete_by">Atlikti iki %s</string>
     <string name="connect_expired_on">Galiojimas baigėsi: %s</string>
+    <string name="connect_job_you_will_learn">Užbaikite šiuos mokymosi modulius ir vertinimą, kad gautumėte sertifikatą</string>
+    <string name="connect_job_preview_start">Pradėti</string>
+    <string name="connect_job_delivery_preview_subtitle">Baigę mokymosi vertinimą, pereisite prie pristatymo</string>
+    <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
 </resources>

@@ -404,7 +404,7 @@
     <string name="connect_job_intro_title">Opportunity</string>
 
     <string name="connect_job_learn_details">Learn Details</string>
-    <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
+    <string name="connect_job_you_will_learn">Complete the following learn modules and assessment to earn a certificate</string>
     <string name="connect_job_no_learning_required">No learning required</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
 
@@ -554,6 +554,8 @@
     <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>
     <string name="connect_job_info_review_delivery">Review the delivery details</string>
+    <string name="connect_job_preview_start">Start</string>
+    <string name="connect_job_delivery_preview_subtitle">Once you have completed the learning assessment, you will transition to delivery</string>
     <string name="connect_job_info_visit">%d maximum Visits</string>
     <string name="connect_job_info_days">%d Days to complete</string>
     <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
@@ -563,6 +565,7 @@
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
+    <string name="connect_job_info_view_opportunity">View Opportunity</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
     <string name="connect_job_info_view_review">Review</string>

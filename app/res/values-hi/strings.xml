@@ -296,7 +296,7 @@ License.
     <string name="connect_title">कनेक्ट करें</string>
     <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
     <string name="connect_job_intro_title">अवसर</string>
-    <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल पूरे करें और एक प्रमाण पत्र प्राप्त करें</string>
+    <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल और मूल्यांकन पूरे करें और एक प्रमाण पत्र प्राप्त करें</string>
     <string name="connect_job_no_learning_required">कोई शिक्षण आवश्यक नहीं</string>
     <string name="connect_job_go_to_learn_app">Learn ऐप पर जाएं</string>
     <string name="connect_job_learn_summary">%d मॉड्यूल, %d घंटे</string>
@@ -541,4 +541,7 @@ License.
 
     <string name="connect_complete_by">%s तक पूरा करें</string>
     <string name="connect_expired_on">समय सीमा समाप्त: %s</string>
+    <string name="connect_job_preview_start">शुरू करें</string>
+    <string name="connect_job_delivery_preview_subtitle">एक बार जब आप शिक्षण मूल्यांकन पूरा कर लेते हैं, तो आप वितरण चरण में जाएंगे</string>
+    <string name="connect_job_info_view_opportunity">अवसर देखें</string>
 </resources>

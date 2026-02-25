@@ -124,7 +124,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 (job, isLearning, appId, jobType,action) -> {
                     if (action == OnJobSelectionClick.Action.VIEW_INFO) {
                         setActiveJob(job);
-                        navigateToJobDetailBottomSheet(getView());
+                        if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE_NEW
+                                || job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                            navigateToJobIntro();
+                        } else {
+                            navigateToJobDetailBottomSheet(getView());
+                        }
                         return;
                     }
 
@@ -149,6 +154,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             return;
         }
         navController.navigate(R.id.connect_job_detail_bottom_sheet_dialog_fragment);
+    }
+
+    private void navigateToJobIntro() {
+        Navigation.findNavController(getBinding().getRoot()).navigate(
+                ConnectJobsListsFragmentDirections
+                        .actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchJobInfo(ConnectJobRecord job) {
@@ -201,6 +212,18 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
             boolean deliveryComplete =
                     compositeJob != null && compositeJob.deliveryComplete();
+            if (deliveryComplete) {
+                completedJobs.add(createJobModel(
+                        job,
+                        ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                        DELIVERY_APP,
+                        isDeliverAppInstalled,
+                        false,
+                        false,
+                        true
+                ));
+                continue;
+            }
             switch (job.getStatus()) {
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
                     newJobs.add(createJobModel(
@@ -221,21 +244,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     break;
 
                 case STATUS_DELIVERING:
-                    if (deliveryComplete) {
-                        completedJobs.add(createJobModel(
-                                job,
-                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                                DELIVERY_APP,
-                                isDeliverAppInstalled, false, false, true
-                        ));
-                    } else {
-                        inProgressJobs.add(createJobModel(
-                                job,
-                                ConnectLoginJobListModel.JobListEntryType.DELIVERY,
-                                DELIVERY_APP,
-                                isDeliverAppInstalled, false, false, true
-                        ));
-                    }
+                    inProgressJobs.add(createJobModel(
+                            job,
+                            ConnectLoginJobListModel.JobListEntryType.DELIVERY,
+                            DELIVERY_APP,
+                            isDeliverAppInstalled, false, false, true
+                    ));
                     break;
             }
         }
