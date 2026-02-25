@@ -37,8 +37,7 @@ public class SyncDetailCalculations {
     private static final String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
     private static final String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
     private static final String LAST_SYNC_KEY_BASE = "last-succesful-sync-";
-
-    private static final LatestTaskExecutor<Integer> unsentFormsExecutor = new LatestTaskExecutor<>();
+    private static LatestTaskExecutor<Integer> unsentFormsExecutor;
 
     public static void updateSubText(
             final StandardHomeActivity activity,
@@ -46,7 +45,7 @@ public class SyncDetailCalculations {
             HomeCardDisplayData cardDisplayData,
             String notificationText) {
 
-        unsentFormsExecutor.submit(SyncDetailCalculations::getNumUnsentForms, numUnsentForms ->  {
+        getUnsentFormsExecutor().submit(SyncDetailCalculations::getNumUnsentForms, numUnsentForms ->  {
             if (activity.isFinishing() || activity.isDestroyed()) {
                 return;
             }
@@ -82,6 +81,13 @@ public class SyncDetailCalculations {
                     activity.getResources().getColor(cardDisplayData.subTextColor),
                     activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
         });
+    }
+
+    public static LatestTaskExecutor<Integer> getUnsentFormsExecutor() {
+        if (unsentFormsExecutor == null) {
+            unsentFormsExecutor = new LatestTaskExecutor<>();
+        }
+        return unsentFormsExecutor;
     }
 
     public static int getNumUnsentForms() {
