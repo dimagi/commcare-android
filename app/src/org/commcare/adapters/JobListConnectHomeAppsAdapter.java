@@ -233,25 +233,33 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         int progress = 0;
         int progressColor = 0;
         ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
+        ConnectJobRecord job = item.getJob();
 
-        if (jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING && !item.getJob().passedAssessment()) {
-            progress = item.getLearningProgress();
-            progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-        } else if (jobType == ConnectLoginJobListModel.JobListEntryType.DELIVERY && !item.getJob().isFinished()) {
-            progress = item.getDeliveryProgress();
-            progressColor = ContextCompat.getColor(context, R.color.connect_green);
-        }
-
-        if (progress > 0) {
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.progressBar.setProgress(progress);
-            binding.progressBar.setProgressColor(progressColor);
-            binding.groupProgress.setVisibility(View.VISIBLE);
-            binding.tvProgressPercent.setText(progress +" %");
-        } else {
-            binding.progressBar.setVisibility(View.GONE);
+        if (job.deliveryComplete()){
             binding.groupProgress.setVisibility(View.GONE);
+            return;
         }
+
+        switch (jobType) {
+            case LEARNING:
+                if (!job.passedAssessment()) {
+                    progress = item.getLearningProgress();
+                    progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
+                }
+                break;
+
+            case DELIVERY:
+                if (!job.isFinished()) {
+                    progress = item.getDeliveryProgress();
+                    progressColor = ContextCompat.getColor(context, R.color.connect_green);
+                }
+                break;
+        }
+
+        binding.groupProgress.setVisibility(View.VISIBLE);
+        binding.progressBar.setProgress(progress);
+        binding.progressBar.setProgressColor(progressColor);
+        binding.tvProgressPercent.setText(progress + " %");
     }
 
     private void configureJobType(
