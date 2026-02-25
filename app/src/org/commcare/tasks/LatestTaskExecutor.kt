@@ -24,7 +24,7 @@ class LatestTaskExecutor<T> {
 
     fun submit(
         task: Callable<T>,
-        callback: Callback<T>
+        callback: Callback<T>,
     ) {
         val future =
             singleThreadExecutor.submit {
