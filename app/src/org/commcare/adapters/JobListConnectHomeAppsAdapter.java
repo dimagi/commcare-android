@@ -279,6 +279,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
 
         binding.groupProgress.setVisibility(View.VISIBLE);
+        binding.progressBar.setStrokeWidth(20);
         binding.progressBar.setProgress(progress);
         binding.progressBar.setProgressColor(progressColor);
         binding.tvProgressPercent.setText(progress + " %");
@@ -295,6 +296,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnResume.setVisibility(View.GONE);
             binding.btnReview.setVisibility(View.GONE);
             binding.btnViewInfo.setVisibility(View.GONE);
+            binding.btnProceed.setVisibility(View.GONE);
         } else {
             binding.btnViewOpportunity.setVisibility(View.GONE);
             binding.btnViewInfo.setVisibility(View.VISIBLE);
