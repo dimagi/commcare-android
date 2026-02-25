@@ -293,7 +293,7 @@
     <string name="connect_no_jobs">ክሳብ ሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምኩምን። ንሓደ ዕድል ምስ ተዓደምካ፡ ኣብ\'ዚ ዝርዝር\'ዚ ክቐርብ\'ዩ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
-    <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
+    <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላትን ምግምጋምን ዛዚምካ ምስክር ወረቐት ውሰድ</string>
     <string name="connect_job_no_learning_required">ትምህርቲ ኣየድልን።</string>
     <string name="connect_job_go_to_learn_app">ናብ Learn App ኪድ</string>
     <string name="connect_job_learn_summary">%d ሞዱላት፣ %d ሰዓታት</string>
@@ -540,4 +540,7 @@
 
     <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
     <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
+    <string name="connect_job_preview_start">ጀምር</string>
+    <string name="connect_job_delivery_preview_subtitle">ናይ ምምሃር ምግምጋም ምስ ዛዘምካ፡ ናብ ምብጸሕ ክትሰጋገር ኢካ</string>
+    <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
 </resources>
