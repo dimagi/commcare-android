@@ -515,7 +515,8 @@ public class FirebaseAnalyticsUtil {
         reportEvent(
                 CCAnalyticsEvent.MENU_SCREEN_ITEM_CLICK,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
-                new String[]{commandId});
+                new String[]{commandId}
+        );
     }
 
     public static void reportFormUploadAttempt(FormUploadResult first, Integer second) {
