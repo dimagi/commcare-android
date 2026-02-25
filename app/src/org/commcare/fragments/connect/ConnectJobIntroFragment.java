@@ -130,6 +130,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             @Override
             public void onSuccess(Boolean success) {
+                hideError();
                 reportApiCall(success);
 
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
