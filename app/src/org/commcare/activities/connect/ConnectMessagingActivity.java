@@ -44,7 +44,11 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         if (personalIdManager.isloggedIn()) {
             handleRedirectIfAny();
         } else {
-            Toast.makeText(this, R.string.personalid_not_login_from_fcm_error, Toast.LENGTH_LONG).show();
+            Toast.makeText(
+                    this,
+                    R.string.personalid_not_login_from_fcm_error,
+                    Toast.LENGTH_LONG
+            ).show();
             personalIdManager.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
@@ -63,7 +67,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
 
     @Override
     protected NavHostFragment getHostFragment() {
-        return (NavHostFragment)getSupportFragmentManager()
+        return (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_connect_messaging);
     }
 
@@ -134,7 +138,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
                     String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
                     if (!TextUtils.isEmpty(notificationId)) {
-                        NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);
+                        NotificationRecordDatabaseHelper.INSTANCE
+                                .updateReadStatus(this, notificationId, true);
                     }
                     if (TextUtils.isEmpty(channelId)) {
                         showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
@@ -147,7 +152,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     private void handleChannelForValidity(String channelId) {
-        ConnectMessagingChannelRecord connectMessagingChannelRecord = ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
+        ConnectMessagingChannelRecord connectMessagingChannelRecord =
+                ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
         if (connectMessagingChannelRecord == null) {
             handleNoChannel(channelId); //This happens if local DB doesn't have the channel yet
         } else {
@@ -156,8 +162,10 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     private void handleNoChannel(String channelId) {
-        MessageManager.retrieveMessages(this, (success, error) -> {  // This is required to update the local DB for channels
-            ConnectMessagingChannelRecord connectMessagingChannelRecord = ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
+        MessageManager.retrieveMessages(this, (success, error) -> {
+            // This is required to update the local DB for channels
+            ConnectMessagingChannelRecord connectMessagingChannelRecord =
+                    ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
             if (connectMessagingChannelRecord == null) {
                 showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
             } else {
@@ -183,13 +191,17 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     private void retrieveChannelEncryptionKey(ConnectMessagingChannelRecord channel) {
-        MessageManager.getChannelEncryptionKey(this, channel, (success, error) -> {
-            if (success) {
-                showConnectMessageFragment(channel.getChannelId());
-            } else {
-                showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
-            }
-        });
+        MessageManager.getChannelEncryptionKey(
+                this,
+                channel,
+                (success, error) -> {
+                    if (success) {
+                        showConnectMessageFragment(channel.getChannelId());
+                    } else {
+                        showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
+                    }
+                }
+        );
     }
 
     private void showFailureMessage(String failureMessage) {

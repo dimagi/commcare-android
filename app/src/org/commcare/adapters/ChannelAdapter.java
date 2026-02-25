@@ -21,11 +21,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
-
     private final List<ConnectMessagingChannelRecord> channels = new ArrayList<>();
     private final OnChannelClickListener clickListener;
 
-    public ChannelAdapter(List<ConnectMessagingChannelRecord> channels, OnChannelClickListener clickListener) {
+    public ChannelAdapter(
+            List<ConnectMessagingChannelRecord> channels,
+            OnChannelClickListener clickListener
+    ) {
         this.clickListener = clickListener;
         setChannels(channels);
     }
@@ -51,7 +53,13 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     @NonNull
     @Override
     public ChannelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ChannelViewHolder(ItemChannelBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+        return new ChannelViewHolder(
+                ItemChannelBinding.inflate(
+                        LayoutInflater.from(parent.getContext()),
+                        parent,
+                        false
+                )
+        );
     }
 
     @Override
@@ -65,7 +73,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     }
 
     static class ChannelViewHolder extends RecyclerView.ViewHolder {
-
         private final ItemChannelBinding binding;
 
         public ChannelViewHolder(@NonNull ItemChannelBinding binding) {
@@ -73,7 +80,10 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             this.binding = binding;
         }
 
-        public void bind(ConnectMessagingChannelRecord channel, OnChannelClickListener clickListener) {
+        public void bind(
+                ConnectMessagingChannelRecord channel,
+                OnChannelClickListener clickListener
+        ) {
             binding.tvChannelName.setText(channel.getChannelName());
 
             Date lastDate = channel.getLastMessageDate();
@@ -83,9 +93,15 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             if (showDate) {
                 String lastText;
                 if (DateUtils.dateDiff(new Date(), lastDate) == 0) {
-                    lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
+                    lastText = DateUtils.formatTime(
+                            lastDate,
+                            DateUtils.FORMAT_HUMAN_READABLE_SHORT
+                    );
                 } else {
-                    SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+                    SimpleDateFormat outputFormat = new SimpleDateFormat(
+                            "dd MMM, yyyy",
+                            Locale.ENGLISH
+                    );
                     lastText = outputFormat.format(lastDate);
                 }
 
@@ -115,7 +131,9 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 binding.tvChannelDescription.setText(channel.getPreview());
             } else {
                 binding.tvUnsubscribedPill.setVisibility(View.VISIBLE);
-                binding.tvChannelName.setTextColor(ContextCompat.getColor(context, R.color.steel_dust));
+                binding.tvChannelName.setTextColor(
+                        ContextCompat.getColor(context, R.color.steel_dust)
+                );
                 binding.tvChannelDescription.setVisibility(View.GONE);
             }
         }
