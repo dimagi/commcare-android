@@ -73,6 +73,7 @@ class ErrorViewController(
         )
         return errorView.measuredHeight
     }
+
     fun cleanup() {
         errorView.removeCallbacks(hideRunnable)
         cancelAnimator()
