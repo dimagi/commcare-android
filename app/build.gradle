@@ -170,6 +170,9 @@ def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withInputStream { localProperties.load(it) }
 }
+def loadProp = { String key, def defaultValue = '' ->
+    localProperties.containsKey(key) ? localProperties.getProperty(key) : (project.properties[key] ?: defaultValue)
+}
 
 ext {
     // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your global
