@@ -22,7 +22,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private lateinit var loadingBinding: LoadingBinding
     private lateinit var errorBinding: InlineErrorLayoutBinding
     private lateinit var rootView: View
-    private lateinit var errorViewController: ErrorViewController
+    private var errorViewController: ErrorViewController? = null
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -84,6 +84,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun onDestroyView() {
         super.onDestroyView()
         hideError()
+        errorViewController = null
         _binding = null
         // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
         loadingBinding.root.visibility = View.GONE
@@ -98,10 +99,10 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     fun showError(error: String) {
-        errorViewController.show(error)
+        errorViewController!!.show(error)
     }
 
     fun hideError() {
-        errorViewController.hide()
+        errorViewController!!.hide()
     }
 }
