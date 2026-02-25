@@ -1,10 +1,7 @@
 package org.commcare.fragments.personalId
 
-import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.ScrollView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -13,7 +10,6 @@ import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiEr
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import kotlin.math.max
 
 abstract class BasePersonalIdFragment : Fragment() {
     fun handleCommonSignupFailures(failureCode: PersonalIdOrConnectApiErrorCodes): Boolean =
@@ -55,51 +51,23 @@ abstract class BasePersonalIdFragment : Fragment() {
         buttonText: Int,
     )
 
+    private var globalLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
+
     protected fun setupKeyboardScrollListener(scrollView: ScrollView) {
-        WindowCompat.setDecorFitsSystemWindows(requireActivity().window, false)
-
-        val appBar = requireActivity().findViewById<View?>(R.id.include_tool_bar)
-        if (appBar != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(
-                appBar
-            ) { v: View?, insets: WindowInsetsCompat? ->
-                val topInset = insets!!.getInsets(WindowInsetsCompat.Type.systemBars()).top
-                v!!.setPadding(0, topInset, 0, 0)
-                insets
-            }
+        globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+            val contentHeight = scrollView.getChildAt(0)?.bottom ?: 0
+            scrollView.smoothScrollTo(0, contentHeight)
         }
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-            scrollView
-        ) { v: View?, insets: WindowInsetsCompat? ->
-            val imeInsets = insets!!.getInsets(WindowInsetsCompat.Type.ime())
-            val systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val bottomInset = max(imeInsets.bottom, systemBarInsets.bottom)
-            v!!.setPadding(
-                v.paddingLeft,
-                v.paddingTop,
-                v.paddingRight,
-                bottomInset
-            )
-            if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
-                scrollView.post({
-                    scrollView.smoothScrollTo(
-                        0,
-                        scrollView.getChildAt(0).bottom
-                    )
-                })
-            }
-            insets
-        }
+        scrollView.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
     }
 
     protected fun destroyKeyboardScrollListener(scrollView: ScrollView) {
-        ViewCompat.setOnApplyWindowInsetsListener(scrollView, null)
-        val appBar = requireActivity().findViewById<View?>(R.id.include_tool_bar)
-        if (appBar != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(appBar, null)
-            appBar.setPadding(0, 0, 0, 0)
+        globalLayoutListener?.let { listener ->
+            if (scrollView.viewTreeObserver.isAlive) {
+                scrollView.viewTreeObserver.removeOnGlobalLayoutListener(listener)
+            }
         }
-        WindowCompat.setDecorFitsSystemWindows(requireActivity().window, true)
+        globalLayoutListener = null
     }
+
 }
