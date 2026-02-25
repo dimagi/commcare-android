@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="30dp"
+    android:height="30dp"
+    android:viewportWidth="30"
+    android:viewportHeight="30">
+    <!-- Gold outer ring -->
+    <path
+        android:pathData="M14,13m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0"
+        android:fillColor="#C67E13" />
+    <!-- White inner circle -->
+    <path
+        android:pathData="M14,13m-8.235,0a8.235,8.235 0,1 1,16.47 0a8.235,8.235 0,1 1,-16.47 0"
+        android:fillColor="#F8F8F8" />
+    <!-- Gold center circle -->
+    <path
+        android:pathData="M14,13m-4.667,0a4.667,4.667 0,1 1,9.334 0a4.667,4.667 0,1 1,-9.334 0"
+        android:fillColor="#C67E13" />
+    <!-- Badge checkmark -->
+    <path
+        android:pathData="M13.016,15.497L12.541,14.695L11.637,14.497L11.725,13.567L11.113,12.867L11.725,12.166L11.637,11.236L12.541,11.038L13.016,10.236L13.867,10.597L14.717,10.236L15.193,11.038L16.096,11.236L16.008,12.166L16.621,12.867L16.008,13.567L16.096,14.497L15.193,14.695L14.717,15.497L13.867,15.136ZM13.187,14.987L13.867,14.698L14.555,14.987L14.933,14.347L15.667,14.178L15.6,13.427L16.093,12.867L15.6,12.298L15.667,11.547L14.933,11.387L14.547,10.747L13.867,11.035L13.179,10.747L12.8,11.387L12.067,11.547L12.133,12.298L11.64,12.867L12.133,13.427L12.067,14.187L12.8,14.347ZM13.587,13.721L15.001,12.307L14.72,12.017L13.587,13.151L13.013,12.586L12.732,12.867Z"
+        android:fillColor="#ffffff" />
+</vector>

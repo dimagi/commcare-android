@@ -257,7 +257,7 @@ class BaseDrawerController(
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.notificationView.visibility =
-            if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
+            if (shouldShowNotifications()) View.VISIBLE else View.GONE
     }
 
     private fun configureErrorState() {
@@ -265,6 +265,7 @@ class BaseDrawerController(
         showingError = globalError != null
 
         if (showingError) {
+            binding.signedOutText.visibility = View.GONE
             binding.signInButton.visibility = View.GONE
             binding.errorContainer.visibility = View.VISIBLE
             binding.errorIcon.visibility = View.VISIBLE
@@ -277,6 +278,7 @@ class BaseDrawerController(
                 refreshDrawerContent()
             }
         } else {
+            binding.signedOutText.visibility = View.VISIBLE
             binding.signInButton.visibility = View.VISIBLE
             binding.errorContainer.visibility = View.GONE
             binding.errorIcon.visibility = View.GONE
@@ -288,7 +290,7 @@ class BaseDrawerController(
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotiifcations(): Boolean =
+    private fun shouldShowNotifications(): Boolean =
         PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
