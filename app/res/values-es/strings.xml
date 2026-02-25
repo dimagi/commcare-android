@@ -122,6 +122,11 @@
     <string name="personalid_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
     <string name="personalid_token_request_rejected">Se perdió la configuración de PersonalID con el servidor, recupere su cuenta de PersonalID y vuelva a intentarlo</string>
     <string name="personalid_login_from_different_device">Su cuenta de PersonalID solo se puede configurar en un dispositivo a la vez y ya se configuró en otro. Continúe en el nuevo dispositivo o vuelva a configurar su cuenta en este para seguir usando PersonalID aquí.</string>
+    <string name="personalid_generic_error_title">Cerró la sesión de PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Cuenta en uso en otro dispositivo</string>
+    <string name="personalid_error_message_login_different_device">Por favor, continúe en el nuevo dispositivo o configure su cuenta de nuevo.</string>
+    <string name="personalid_reconfigure">Reconfigurar</string>
+    <string name="personalid_dismiss">Descartar</string>
     <string name="recovery_network_unauthorized">No está autorizado para realizar esta solicitud.</string>
     <string name="recovery_network_server_error">Hubo un error al procesar su solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
@@ -502,7 +507,9 @@
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la ID personal</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continuar sin PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Reparar ahora</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
     <string name="nav_drawer_payments">Pagos</string>
