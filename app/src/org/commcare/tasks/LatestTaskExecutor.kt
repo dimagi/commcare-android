@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicReference
  * The result is posted back to the main thread via the provided callback.
  */
 class LatestTaskExecutor<T> {
-
     fun interface Callback<T> {
         fun onResult(result: T)
     }
@@ -23,15 +22,19 @@ class LatestTaskExecutor<T> {
     private val currentTask: AtomicReference<Future<*>?> = AtomicReference<Future<*>?>()
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    fun submit(task: Callable<T>, callback: Callback<T>) {
-        val future = singleThreadExecutor.submit {
-            try {
-                val result = task.call()
-                mainHandler.post { callback.onResult(result) }
-            } catch (e: Exception) {
-                Logger.exception("LatestTaskExecutor task failed", e)
+    fun submit(
+        task: Callable<T>,
+        callback: Callback<T>
+    ) {
+        val future =
+            singleThreadExecutor.submit {
+                try {
+                    val result = task.call()
+                    mainHandler.post { callback.onResult(result) }
+                } catch (e: Exception) {
+                    Logger.exception("LatestTaskExecutor task failed", e)
+                }
             }
-        }
         val previous = currentTask.getAndSet(future)
         previous?.cancel(true)
     }
