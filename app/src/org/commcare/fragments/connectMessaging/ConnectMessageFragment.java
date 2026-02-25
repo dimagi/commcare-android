@@ -272,7 +272,11 @@ public class ConnectMessageFragment extends Fragment {
 
         MessageManager.sendMessage(requireContext(), message, (success, error) -> {
             if (!success) {
-                Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        requireContext(),
+                        getString(R.string.connect_messaging_send_message_fail_msg),
+                        Toast.LENGTH_SHORT
+                ).show();
             } else {
                 chat.setMessageRead(success);
                 adapter.updateMessageReadStatus(chat);
