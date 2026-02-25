@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
@@ -29,6 +30,9 @@ import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.location.CommCareFusedLocationController;
+import org.commcare.location.CommCareLocationController;
+import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
@@ -181,17 +185,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 CCPerfMonitoring.TRACE_ENTITY_MAP_LOADED_TIME);
 
         if (!entityLocations.isEmpty()) {
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            final LatLngBounds.Builder builder = new LatLngBounds.Builder();
             boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
 
-            boolean added = false;
             for (Pair<Entity<TreeReference>, EntityMapDisplayInfo> displayInfoPair : entityLocations) {
-                added |= addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
-                added |= addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
-                added |= addGeoPoints(builder, displayInfoPair.second);
+                addMarker(builder, displayInfoPair.first, displayInfoPair.second, showCustomMapMarker);
+                addBoundaryPolygon(builder, displayInfoPair.first, displayInfoPair.second);
+                addGeoPoints(builder, displayInfoPair.second);
             }
-
-            final LatLngBounds bounds = added ? builder.build() : null;
 
             mMap.setOnMapClickListener(latLng -> {
                 dismissPolygonInfoMarker();
@@ -206,26 +207,17 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 showPolygonInfo(polygon);
             });
 
-            // Move camera to include all markers
-            mMap.setOnMapLoadedCallback(() -> {
-                if(bounds != null) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
-                        @Override
-                        public void onCancel() {
-                            finishLoadingPerformanceTrace();
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            finishLoadingPerformanceTrace();
-                        }
-                    });
-                } else {
-                    finishLoadingPerformanceTrace();
-                }
-            });
-
             setupMapToggles();
+
+            CommCareLocationController locationController =
+                    CommCareLocationControllerFactory.getLocationController(this, null);
+            if(locationController instanceof CommCareFusedLocationController fusedLocationController) {
+                fusedLocationController.getCurrentLocation(userLocation -> {
+                        proceedWithLocation(builder, userLocation);
+                });
+            } else {
+                proceedWithLocation(builder, null);
+            }
         } else {
             finishLoadingPerformanceTrace();
         }
@@ -236,7 +228,37 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         mMap.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
     }
 
-    private boolean addMarker(LatLngBounds.Builder builder,
+    private void proceedWithLocation(LatLngBounds.Builder boundsBuilder, Location location) {
+        boolean added;
+        if (location != null) {
+            boundsBuilder.include(new LatLng(location.getLatitude(), location.getLongitude()));
+            added = true;
+        } else {
+            added = numMarkers > 0 || numPolygons > 0 || numGeoPoints > 0;
+        }
+
+        // Move camera to include all markers
+        LatLngBounds bounds = added ? boundsBuilder.build() : null;
+        mMap.setOnMapLoadedCallback(() -> {
+            if (bounds != null) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
+                    @Override
+                    public void onCancel() {
+                        finishLoadingPerformanceTrace();
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        finishLoadingPerformanceTrace();
+                    }
+                });
+            } else {
+                finishLoadingPerformanceTrace();
+            }
+        });
+    }
+
+    private void addMarker(LatLngBounds.Builder builder,
                            Entity<TreeReference> entity,
                            EntityMapDisplayInfo displayInfo,
                            boolean showCustomMapMarker) {
@@ -254,20 +276,15 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             if (marker == null) {
                 Logger.exception("Failed to add marker to map",
                         new Exception("Marker: " + entity.getFieldString(0)));
-                return false;
             }
 
             markerReferences.put(marker, entity.getElement());
             builder.include(displayInfo.getLocation());
             numMarkers++;
-
-            return true;
         }
-
-        return false;
     }
 
-    private boolean addBoundaryPolygon(LatLngBounds.Builder builder,
+    private void addBoundaryPolygon(LatLngBounds.Builder builder,
                                     Entity<TreeReference> entity,
                                     EntityMapDisplayInfo displayInfo) {
         if (displayInfo.getBoundary() != null) {
@@ -292,13 +309,10 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             }
 
             numPolygons++;
-            return true;
         }
-
-        return false;
     }
 
-    private boolean addGeoPoints(LatLngBounds.Builder builder,
+    private void addGeoPoints(LatLngBounds.Builder builder,
                               EntityMapDisplayInfo displayInfo) {
         // Add additional display points to map
         if (displayInfo.getPoints() != null) {
@@ -320,11 +334,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 builder.include(coordinate);
                 numGeoPoints++;
             }
-
-            return !displayInfo.getPoints().isEmpty();
         }
-
-        return false;
     }
 
     private void finishLoadingPerformanceTrace() {
