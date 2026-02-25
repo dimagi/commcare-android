@@ -11,6 +11,8 @@ import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.FormRecordV5;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.android.javarosa.DeviceReportRecordPreV30;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
@@ -233,6 +235,12 @@ class UserDatabaseUpgrader {
         if (oldVersion == 28) {
             if (updateTwentyEightTwentyNine(db)) {
                 oldVersion = 29;
+            }
+        }
+
+        if (oldVersion == 29) {
+            if (upgradeTwentyNineThirty(db)) {
+                oldVersion = 30;
             }
         }
     }
@@ -802,6 +810,35 @@ class UserDatabaseUpgrader {
         try {
             db.execSQL("DROP TABLE IF EXISTS " + CommCareEntityStorageCache.TABLE_NAME);
             db.execSQL(CommCareEntityStorageCache.getTableDefinition());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyNineThirty(IDatabase db) {
+        // DeviceReportRecord previously stored a per-record aesKey as a @Persisting field,
+        // serialized into the commcare_sql_record blob. The SQL schema has no separate aesKey
+        // column, so we re-serialize all existing records using the new model (fileName only)
+        // to strip the stale aesKey bytes from the blobs.
+        db.beginTransaction();
+        try {
+            SqlStorage<DeviceReportRecordPreV30> oldStorage = new SqlStorage<>(
+                    DeviceReportRecord.STORAGE_KEY,
+                    DeviceReportRecordPreV30.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<DeviceReportRecord> newStorage = new SqlStorage<>(
+                    DeviceReportRecord.STORAGE_KEY,
+                    DeviceReportRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (DeviceReportRecordPreV30 old : oldStorage) {
+                DeviceReportRecord updated = new DeviceReportRecord(old.getFilePath());
+                updated.setID(old.getID());
+                newStorage.write(updated);
+            }
             db.setTransactionSuccessful();
             return true;
         } finally {
