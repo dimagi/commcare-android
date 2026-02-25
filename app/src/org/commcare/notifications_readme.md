@@ -189,8 +189,8 @@ Example 1: Generic Opportunity Push Notification
       "status": "unread",
       "opportunity_uuid": "abcde-328-32mkj-43",
       "payment_uuid": "42309-fdfjl4-4343",
-      "opportunity_status" : "delivery",
-      "key" : "payment_rollback"
+      "opportunity_status" : "delivery",  //  The notification will be shown only if this and ConnectJobRecord status match, thus avoiding unnecessary FCM to users if they have moved ahead already.
+      "key" : "payment_rollback" // For logging real action in Firebase for this type of generic opportunity notification.
     }
   ],
   "channels": []
