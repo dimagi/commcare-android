@@ -234,9 +234,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         int progressColor = 0;
         ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
         ConnectJobRecord job = item.getJob();
-        boolean deliveryComplete = job != null && job.deliveryComplete();
 
-        if (deliveryComplete){
+        if (job.deliveryComplete()){
             binding.groupProgress.setVisibility(View.GONE);
             return;
         }
