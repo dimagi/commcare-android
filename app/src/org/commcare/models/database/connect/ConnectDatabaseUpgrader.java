@@ -41,6 +41,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.android.database.connect.models.PushNotificationRecordV21;
+import org.commcare.android.database.connect.models.PushNotificationRecordV23;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -162,8 +163,13 @@ public class ConnectDatabaseUpgrader {
             oldVersion = 22;
         }
 
-        if(oldVersion == 22){
+        if (oldVersion == 22) {
             upgradeTwentyTwoTwentyThree(db);
+            oldVersion = 23;
+        }
+
+        if (oldVersion == 23) {
+            upgradeTwentyThreeTwentyFour(db);
         }
     }
 
@@ -942,13 +948,13 @@ public class ConnectDatabaseUpgrader {
                 new ConcreteAndroidDbHelper(c, db));
 
         SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                PushNotificationRecord.STORAGE_KEY,
-                PushNotificationRecord.class,
+                PushNotificationRecordV23.STORAGE_KEY,
+                PushNotificationRecordV23.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         for (Persistable r : oldStorage) {
             PushNotificationRecordV21 oldRecord = (PushNotificationRecordV21)r;
-            PushNotificationRecord newRecord = PushNotificationRecord.Companion.fromV21(oldRecord);
+            PushNotificationRecordV23 newRecord = PushNotificationRecordV23.Companion.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -976,6 +982,42 @@ public class ConnectDatabaseUpgrader {
             for (Persistable r : oldStorage) {
                 ConnectJobDeliveryRecordV22 oldRecord = (ConnectJobDeliveryRecordV22)r;
                 ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecord.fromV22(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyThreeTwentyFour(IDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    PushNotificationRecord.STORAGE_KEY,
+                    PushNotificationRecord.META_KEY,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    PushNotificationRecord.STORAGE_KEY,
+                    PushNotificationRecord.META_OPPORTUNITY_STATUS,
+                    "TEXT"));
+
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    PushNotificationRecordV23.STORAGE_KEY,
+                    PushNotificationRecordV23.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    PushNotificationRecord.STORAGE_KEY,
+                    PushNotificationRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                PushNotificationRecordV23 oldRecord = (PushNotificationRecordV23)r;
+                PushNotificationRecord newRecord = PushNotificationRecord.Companion.fromV23(oldRecord);
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
