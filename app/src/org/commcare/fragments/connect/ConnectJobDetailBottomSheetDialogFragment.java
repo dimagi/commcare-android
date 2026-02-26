@@ -66,7 +66,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         binding.tvOpportunityName.setText(job.getTitle());
         boolean isCompleted = job.isFinished();
         int dateRes = isCompleted
-                ? R.string.connect_task_ended_on
+                ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(binding.tvDate.getContext().getString(dateRes, formatDate(job.getProjectEndDate())));
         if (isExpiryDateUnderFiveDays(job.getProjectEndDate())) {
