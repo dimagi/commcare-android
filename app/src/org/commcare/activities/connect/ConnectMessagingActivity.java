@@ -26,6 +26,7 @@ import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
 public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> implements DialogController {
     public static final String CHANNEL_ID = "channel_id";
@@ -129,7 +130,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
-                    action,
+                    getNotificationActionFromIntent(getIntent()),
                     getIntent().getStringExtra(NOTIFICATION_ID)
             );
             PersonalIdManager.getInstance().unlockConnect(this, success -> {

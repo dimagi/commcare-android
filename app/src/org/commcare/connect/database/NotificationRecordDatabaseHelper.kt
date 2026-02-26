@@ -68,7 +68,7 @@ object NotificationRecordDatabaseHelper {
             FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_RECEIVED,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API,
-                incoming.action,
+                incoming.getNotificationActionFromRecord(),
                 incoming.notificationId,
             )
 
