@@ -16,6 +16,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.models.database.SqlStorage;
+import org.javarosa.xform.util.CalendarUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -414,17 +415,11 @@ public class ConnectJobUtils {
     }
 
     public static boolean isExpiryDateUnderFiveDays(Date expiryDate) {
-        Calendar today = Calendar.getInstance();
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(expiryDate);
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-        expiry.set(Calendar.HOUR_OF_DAY, 0);
-        expiry.set(Calendar.MINUTE, 0);
-        expiry.set(Calendar.SECOND, 0);
-        expiry.set(Calendar.MILLISECOND, 0);
+        CalendarUtils.toMidnight(expiry);
+        Calendar today = Calendar.getInstance();
+        CalendarUtils.toMidnight(today);
         Calendar upperBound = (Calendar) today.clone();
         upperBound.add(Calendar.DAY_OF_YEAR, 5);
         return !expiry.before(today) && !expiry.after(upperBound);
