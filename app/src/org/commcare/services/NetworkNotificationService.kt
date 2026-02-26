@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.Intent.ACTION_MAIN
+import android.content.Intent.CATEGORY_LAUNCHER
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
@@ -23,11 +25,13 @@ import org.commcare.activities.DispatchActivity
 import org.commcare.dalvik.R
 import org.javarosa.core.services.locale.Localization
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class NetworkNotificationService : Service() {
     lateinit var notificationManager: NotificationManager
 
     companion object {
         const val NETWORK_NOTIFICATION_ID = "network_notification_service_id"
+        @JvmStatic
         var isServiceRunning = false
         const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
         const val STOP_NOTIFICATION_ACTION = "stop_notification"
@@ -69,14 +73,10 @@ class NetworkNotificationService : Service() {
     ): Int {
         when (intent?.action) {
             START_NOTIFICATION_ACTION -> {
-                intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1).let { taskId ->
-                    registerTaskId(taskId, false)
-                }
+                registerTaskId(intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1), false)
             }
             UPDATE_PROGRESS_NOTIFICATION_ACTION -> {
-                intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1).let { taskId ->
-                    registerTaskId(taskId, true)
-                }
+                registerTaskId(intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1), true)
                 notificationManager.notify(
                     NETWORK_NOTIFICATION_ID.hashCode(),
                     buildNotification(
@@ -85,9 +85,7 @@ class NetworkNotificationService : Service() {
                 )
             }
             STOP_NOTIFICATION_ACTION -> {
-                intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1).let { taskId ->
-                    removeTaskId(taskId)
-                }
+                removeTaskId(intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1))
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -111,8 +109,8 @@ class NetworkNotificationService : Service() {
 
     private fun buildNotification(notificationTitleKey: String): Notification {
         val activityToLaunch = Intent(this, DispatchActivity::class.java)
-        activityToLaunch.setAction("android.intent.action.MAIN")
-        activityToLaunch.addCategory("android.intent.category.LAUNCHER")
+        activityToLaunch.setAction(ACTION_MAIN)
+        activityToLaunch.addCategory(CATEGORY_LAUNCHER)
 
         val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         val pendingIntent = PendingIntent.getActivity(this, 0, activityToLaunch, pendingIntentFlags)
@@ -127,7 +125,6 @@ class NetworkNotificationService : Service() {
             .build()
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         isServiceRunning = false

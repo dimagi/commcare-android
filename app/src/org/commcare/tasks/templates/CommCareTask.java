@@ -33,8 +33,6 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     private Exception unknownError;
 
     protected int taskId = GENERIC_TASK_ID;
-    protected boolean runNotificationService = false;
-    protected String notificationServiceProgressTextKey = null;
 
     //Wait for 2 seconds for something to reconnnect for now (very high)
     private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
@@ -62,6 +60,14 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             unknownError = e;
             return null;
         }
+    }
+
+    public boolean requireNetworkNotification() {
+        return false;
+    }
+
+    public String getNetworkNotificationProgressKey(){
+        return null;
     }
 
     /**
@@ -106,7 +112,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (NetworkNotificationService.Companion.isServiceRunning()) {
+        if (NetworkNotificationService.isServiceRunning()) {
             CommCareApplication.instance().startForegroundService(getNotificationStopIntent());
         }
     }
@@ -137,7 +143,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     }
 
     private boolean shouldRunNetworkNotificationService() {
-        return !CommCareApplication.isSessionActive() && runNotificationService &&
+        return !CommCareApplication.isSessionActive() && requireNetworkNotification() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
     }
 
@@ -156,7 +162,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (NetworkNotificationService.Companion.isServiceRunning()) {
+        if (NetworkNotificationService.isServiceRunning()) {
             CommCareApplication.instance().startForegroundService(getNotificationUpdateIntent());
         }
     }
@@ -171,8 +177,8 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private Intent getNotificationUpdateIntent() {
         Intent intent = getNetworkServiceBaseIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION);
-        if (notificationServiceProgressTextKey != null) {
-            intent.putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, notificationServiceProgressTextKey);
+        if (getNetworkNotificationProgressKey() != null) {
+            intent.putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, getNetworkNotificationProgressKey());
         }
         return intent;
     }

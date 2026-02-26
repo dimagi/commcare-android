@@ -69,8 +69,16 @@ public abstract class ResourceEngineTask<R>
         this.shouldSleep = shouldSleep;
         this.reinstall = reinstall;
         TAG = ResourceEngineTask.class.getSimpleName();
-        this.runNotificationService = true;
-        this.notificationServiceProgressTextKey = "network.notification.service.downloading.files";
+    }
+
+    @Override
+    public boolean requireNetworkNotification() {
+        return true;
+    }
+
+    @Override
+    public String getNetworkNotificationProgressKey() {
+        return "network.notification.service.downloading.files";
     }
 
     @Override
