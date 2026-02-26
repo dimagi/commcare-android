@@ -11,7 +11,7 @@ import androidx.viewbinding.ViewBinding
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.interfaces.base.BaseConnectView
-import org.commcare.utils.ErrorViewController
+import org.commcare.views.TopBarErrorViewController
 
 abstract class BaseConnectFragment<B : ViewBinding> :
     Fragment(),
@@ -22,7 +22,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private lateinit var loadingBinding: LoadingBinding
     private lateinit var errorBinding: InlineErrorLayoutBinding
     private lateinit var rootView: View
-    private var errorViewController: ErrorViewController? = null
+    private var topBarErrorViewController: TopBarErrorViewController? = null
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -48,7 +48,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         errorBinding = InlineErrorLayoutBinding.inflate(inflater, container, false)
         val errorView = errorBinding.root
         errorView.visibility = View.GONE
-        errorViewController = ErrorViewController(errorBinding)
+        topBarErrorViewController = TopBarErrorViewController(errorBinding)
 
         val rootFrame =
             FrameLayout(requireContext()).apply {
@@ -83,8 +83,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        errorViewController?.cleanup()
-        errorViewController = null
+        topBarErrorViewController!!.cleanup()
+        topBarErrorViewController = null
         _binding = null
         // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
         loadingBinding.root.visibility = View.GONE
@@ -99,10 +99,10 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     fun showError(error: String) {
-        errorViewController!!.show(error)
+        topBarErrorViewController!!.show(error)
     }
 
     fun hideError() {
-        errorViewController!!.hide()
+        topBarErrorViewController!!.hide()
     }
 }

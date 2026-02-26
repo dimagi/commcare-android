@@ -1,11 +1,12 @@
-package org.commcare.utils
+package org.commcare.views
 
 import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewGroup
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
+import org.commcare.utils.animateHeight
 
-class ErrorViewController(
+class TopBarErrorViewController(
     private val errorBinding: InlineErrorLayoutBinding,
     private val autoDismissMs: Long = 5000,
 ) {
