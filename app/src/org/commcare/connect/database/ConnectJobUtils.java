@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
@@ -418,21 +417,17 @@ public class ConnectJobUtils {
         Calendar today = Calendar.getInstance();
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(expiryDate);
-
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
-
         expiry.set(Calendar.HOUR_OF_DAY, 0);
         expiry.set(Calendar.MINUTE, 0);
         expiry.set(Calendar.SECOND, 0);
         expiry.set(Calendar.MILLISECOND, 0);
-
-        long diffMillis = expiry.getTimeInMillis() - today.getTimeInMillis();
-        long daysBetween = TimeUnit.MILLISECONDS.toDays(diffMillis);
-
-        return daysBetween >= 0 && daysBetween <= 5;
+        Calendar upperBound = (Calendar) today.clone();
+        upperBound.add(Calendar.DAY_OF_YEAR, 5);
+        return !expiry.before(today) && !expiry.after(upperBound);
     }
 
 }
