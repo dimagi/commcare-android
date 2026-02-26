@@ -167,6 +167,11 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
             binding.tvDate.setTextColor(redColor);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+        } else {
+            binding.tvDate.setTextColor(
+                    ContextCompat.getColor(mContext, R.color.moon_gray)
+            );
+            binding.ivInfo.clearColorFilter();
         }
 
         // We need the composite job because it has the correct number of deliveries.
@@ -175,7 +180,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
 
         int dateRes = deliveryComplete
-                ? R.string.connect_expired_on
+                ? R.string.connect_task_ended_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
@@ -275,7 +280,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnViewOpportunity.setVisibility(View.VISIBLE);
             binding.btnResume.setVisibility(View.GONE);
             binding.btnReview.setVisibility(View.GONE);
-            binding.btnViewInfo.setVisibility(View.GONE);
+            binding.btnViewInfo.setVisibility(View.INVISIBLE);
         } else {
             binding.btnViewOpportunity.setVisibility(View.GONE);
             binding.btnViewInfo.setVisibility(View.VISIBLE);

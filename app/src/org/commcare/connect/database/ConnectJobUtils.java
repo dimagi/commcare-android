@@ -18,6 +18,7 @@ import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -414,12 +415,24 @@ public class ConnectJobUtils {
     }
 
     public static boolean isExpiryDateUnderFiveDays(Date expiryDate) {
-        long now = System.currentTimeMillis();
-        long diffMillis = expiryDate.getTime() - now;
+        Calendar today = Calendar.getInstance();
+        Calendar expiry = Calendar.getInstance();
+        expiry.setTime(expiryDate);
 
-        long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
 
-        return daysRemaining >= 0 && daysRemaining <= 5;
+        expiry.set(Calendar.HOUR_OF_DAY, 0);
+        expiry.set(Calendar.MINUTE, 0);
+        expiry.set(Calendar.SECOND, 0);
+        expiry.set(Calendar.MILLISECOND, 0);
+
+        long diffMillis = expiry.getTimeInMillis() - today.getTimeInMillis();
+        long daysBetween = TimeUnit.MILLISECONDS.toDays(diffMillis);
+
+        return daysBetween >= 0 && daysBetween <= 5;
     }
 
 }

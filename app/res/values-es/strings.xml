@@ -549,8 +549,8 @@
     <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
 
     <string name="connect_complete_by">Completar para el %s</string>
-    <string name="connect_expired_on">Expirado el: %s</string>
     <string name="connect_job_preview_start">Iniciar</string>
     <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
+    <string name="connect_task_ended_on">La tarea finalizó el %s</string>
 </resources>

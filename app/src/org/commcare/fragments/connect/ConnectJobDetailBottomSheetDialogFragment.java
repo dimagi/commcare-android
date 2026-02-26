@@ -66,7 +66,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         binding.tvOpportunityName.setText(job.getTitle());
         boolean isCompleted = job.isFinished();
         int dateRes = isCompleted
-                ? R.string.connect_expired_on
+                ? R.string.connect_task_ended_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(binding.tvDate.getContext().getString(dateRes, formatDate(job.getProjectEndDate())));
         if (isExpiryDateUnderFiveDays(job.getProjectEndDate())) {
@@ -74,6 +74,11 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
 
             binding.tvDate.setTextColor(redColor);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+        } else {
+            binding.tvDate.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.moon_gray)
+            );
+            binding.ivInfo.clearColorFilter();
         }
         binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit,
                 job.getMaxPossibleVisits()));

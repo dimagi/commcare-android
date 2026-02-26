@@ -178,9 +178,9 @@
     <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
 
     <string name="connect_complete_by">Fullfør innen %s</string>
-    <string name="connect_expired_on">Utløpt den: %s</string>
     <string name="connect_job_you_will_learn">Fullfør følgende læringsmoduler og vurdering for å tjene et sertifikat</string>
     <string name="connect_job_preview_start">Start</string>
     <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
+    <string name="connect_task_ended_on">Oppgaven ble avsluttet %s</string>
 </resources>
