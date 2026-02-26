@@ -381,6 +381,7 @@ License.
     <string name="connect_job_info_view_info">जानकारी देखें</string>
     <string name="connect_job_info_view_resume">फिर से शुरू करें</string>
     <string name="connect_job_info_view_review">समीक्षा करें</string>
+    <string name="connect_job_info_view_proceed">आगे बढ़ें</string>
     <string name="connect_progress">प्रगति</string>
     <string name="connect_payment">भुगतान</string>
     <string name="connect_delivery_progress_description">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए अपना सीखना शुरू करें।</string>
@@ -444,6 +445,9 @@ License.
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">सदस्यता समाप्त करें</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">रद्द करें</string>
     <string name="connect_messaging_channel_unsubscribe_error">सदस्यता समाप्त करने में विफल</string>
+    <string name="connect_messaging_channel_resubscribe_error">फिर से सदस्यता लेने में विफल</string>
+    <string name="connect_messaging_channel_unsubscribe_success">सफलतापूर्वक सदस्यता समाप्त कर दी गई</string>
+    <string name="connect_messaging_channel_resubscribe_success">सफलतापूर्वक फिर से सदस्यता ले ली गई</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">सदस्यता समाप्त की गई</string>
     <string name="connect_messaging_channel_list_not_subscribed">आप इस मैसेजिंग चैनल की सदस्यता नहीं ले रहे हैं।</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">फिर से सदस्यता लें</string>
