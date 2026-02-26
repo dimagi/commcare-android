@@ -175,9 +175,9 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         // We need the composite job because it has the correct number of deliveries.
         ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
-        boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
+        assert compositeJob != null;
 
-        if (deliveryComplete && !isLearning) {
+        if (compositeJob.deliveryComplete() || compositeJob.getLearningCompletePercentage() == 100) {
             navigateToDeliveryProgress();
         } else if (AppUtils.isAppInstalled(appId)) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
