@@ -48,6 +48,10 @@ import java.util.UUID;
 
 import kotlin.Unit;
 
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CCC_MESSAGING_EVENT_TYPE_CONFIRM_RESUBSCRIBE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CCC_MESSAGING_EVENT_TYPE_CONFIRM_UNSUBSCRIBE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT;
+
 public class ConnectMessageFragment extends Fragment {
     private static String activeChannel;
     private String channelId;
@@ -268,7 +272,11 @@ public class ConnectMessageFragment extends Fragment {
 
         MessageManager.sendMessage(requireContext(), message, (success, error) -> {
             if (!success) {
-                Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        requireContext(),
+                        getString(R.string.connect_messaging_send_message_fail_msg),
+                        Toast.LENGTH_SHORT
+                ).show();
             } else {
                 chat.setMessageRead(success);
                 adapter.updateMessageReadStatus(chat);
@@ -438,6 +446,16 @@ public class ConnectMessageFragment extends Fragment {
             String errorText,
             Runnable onSuccess
     ) {
+        String eventConfirmType = targetConsent
+                ? CCC_MESSAGING_EVENT_TYPE_CONFIRM_RESUBSCRIBE
+                : CCC_MESSAGING_EVENT_TYPE_CONFIRM_UNSUBSCRIBE;
+        FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
+                eventConfirmType,
+                channelId,
+                null,
+                null
+        );
+
         ConnectMessagingActivity activity = (ConnectMessagingActivity) requireActivity();
         activity.showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID);
         channel.setConsented(targetConsent);
@@ -463,6 +481,13 @@ public class ConnectMessageFragment extends Fragment {
                     } else {
                         Toast.makeText(requireContext(), errorText, Toast.LENGTH_SHORT).show();
                     }
+
+                    FirebaseAnalyticsUtil.reportConnectMessagingChannelEvent(
+                            CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT,
+                            channelId,
+                            success,
+                            targetConsent
+                    );
                 }
         );
     }
