@@ -342,6 +342,7 @@
         </service>
         <service
             android:enabled="true"
+            android:exported="false"
             android:foregroundServiceType="dataSync"
             android:name="org.commcare.services.NetworkNotificationService">
         </service>

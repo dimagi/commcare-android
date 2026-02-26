@@ -42,7 +42,7 @@ class NetworkNotificationService : Service() {
 
     private val _taskIds = MutableStateFlow<List<Int>>(emptyList())
     val taskIds: StateFlow<List<Int>> = _taskIds
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
@@ -88,7 +88,7 @@ class NetworkNotificationService : Service() {
                 removeTaskId(intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1))
             }
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY;
     }
 
     private fun removeTaskId(taskId: Int) {
