@@ -1,16 +1,19 @@
 package org.commcare.activities.connect;
 
+import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
+import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
+import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
+import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -19,25 +22,19 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
 
-import org.apache.commons.lang3.StringUtils;
 import org.commcare.activities.NavigationHostCommCareActivity;
-import org.commcare.activities.PushNotificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
@@ -45,7 +42,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.personalId.PersonalIdFeatureFlagChecker;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
-import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.util.HashMap;
@@ -123,15 +119,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
-        if (opportunityId == -1) {
-            String opportunityIdStr = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-            if (!StringUtils.isEmpty(opportunityIdStr)) {
-                opportunityId = Integer.parseInt(opportunityIdStr);
-            }
-        }
-        if(opportunityId != -1) {
-            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
+        String opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
+        if (!TextUtils.isEmpty(opportunityUuid)) {
+            job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
         }
     }
 
@@ -154,9 +144,20 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
-                    redirectionAction,
+                    getNotificationActionFromIntent(getIntent()),
                     notificationId
             );
+        }
+
+        if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction)) {
+            String paymentId = getIntent().getStringExtra(PAYMENT_UUID);
+            if (!TextUtils.isEmpty(paymentId) && job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+                redirectionAction = CCC_DEST_PAYMENTS;  //  Generic push notification for payment related
+            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING){
+                redirectionAction = CCC_DEST_DELIVERY_PROGRESS; //  Generic push notification for delivery progress related
+            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_LEARNING){
+                redirectionAction = CCC_DEST_LEARN_PROGRESS;    // Generic push notification for learning progress related
+            }
         }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));

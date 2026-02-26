@@ -122,6 +122,11 @@
     <string name="personalid_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
     <string name="personalid_token_request_rejected">Se perdió la configuración de PersonalID con el servidor, recupere su cuenta de PersonalID y vuelva a intentarlo</string>
     <string name="personalid_login_from_different_device">Su cuenta de PersonalID solo se puede configurar en un dispositivo a la vez y ya se configuró en otro. Continúe en el nuevo dispositivo o vuelva a configurar su cuenta en este para seguir usando PersonalID aquí.</string>
+    <string name="personalid_generic_error_title">Cerró la sesión de PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Cuenta en uso en otro dispositivo</string>
+    <string name="personalid_error_message_login_different_device">Por favor, continúe en el nuevo dispositivo o configure su cuenta de nuevo.</string>
+    <string name="personalid_reconfigure">Reconfigurar</string>
+    <string name="personalid_dismiss">Descartar</string>
     <string name="recovery_network_unauthorized">No está autorizado para realizar esta solicitud.</string>
     <string name="recovery_network_server_error">Hubo un error al procesar su solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
@@ -233,7 +238,7 @@
     <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
     <string name="connect_job_intro_title">Oportunidad</string>
-    <string name="connect_job_you_will_learn">Completa los siguientes módulos de aprendizaje y obtén un certificado</string>
+    <string name="connect_job_you_will_learn">Completa los siguientes módulos de aprendizaje y la evaluación para obtener un certificado</string>
     <string name="connect_job_no_learning_required">No se requiere aprendizaje</string>
     <string name="connect_job_go_to_learn_app">Ir a la aplicación Aprender</string>
     <string name="connect_job_learn_summary">%d módulos, %d horas</string>
@@ -502,7 +507,9 @@
 
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la ID personal</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Continuar sin PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Reparar ahora</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
     <string name="nav_drawer_payments">Pagos</string>
@@ -543,4 +550,7 @@
 
     <string name="connect_complete_by">Completar para el %s</string>
     <string name="connect_expired_on">Expirado el: %s</string>
+    <string name="connect_job_preview_start">Iniciar</string>
+    <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
+    <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
 </resources>

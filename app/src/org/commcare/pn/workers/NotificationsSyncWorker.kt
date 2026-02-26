@@ -10,10 +10,17 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE
+import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW
+import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING
+import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
-import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_DELIVERY
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.NotificationRecordDatabaseHelper.getNotificationById
@@ -39,6 +46,8 @@ class NotificationsSyncWorker(
 
     private var showNotification: Boolean = false
 
+    private var job: ConnectJobRecord? = null
+
     companion object {
         const val MAX_RETRIES = 3
 
@@ -53,6 +62,7 @@ class NotificationsSyncWorker(
             SYNC_PERSONALID_NOTIFICATIONS,
             SYNC_DELIVERY_PROGRESS,
             SYNC_LEARNING_PROGRESS,
+            SYNC_UPDATE_PROGRESS,
         }
     }
 
@@ -105,12 +115,8 @@ class NotificationsSyncWorker(
                 if (cccCheckPassed(appContext)) syncPersonalIdNotifications() else getFailedResponseWithoutRetry()
             }
 
-            SyncAction.SYNC_DELIVERY_PROGRESS -> {
-                if (cccCheckPassed(appContext)) syncDeliveryProgress() else getFailedResponseWithoutRetry()
-            }
-
-            SyncAction.SYNC_LEARNING_PROGRESS -> {
-                if (cccCheckPassed(appContext)) syncLearningProgress() else getFailedResponseWithoutRetry()
+            SyncAction.SYNC_DELIVERY_PROGRESS, SyncAction.SYNC_LEARNING_PROGRESS, SyncAction.SYNC_UPDATE_PROGRESS -> {
+                if (cccCheckPassed(appContext)) syncJobProgress() else getFailedResponseWithoutRetry()
             }
         }
 
@@ -134,67 +140,62 @@ class NotificationsSyncWorker(
         return PNApiResponseStatus(result.isSuccess, result.isFailure)
     }
 
-    private suspend fun syncDeliveryProgress(): PNApiResponseStatus {
-        val job = getConnectJob()
-        if (job == null) {
-            Logger.exception(
-                "WorkRequest Failed to complete the task for -$syncAction as connect job not found",
-                Throwable("WorkRequest Failed for $syncAction as connect job not found"),
-            )
-            return getFailedResponseWithoutRetry()
-        }
-        return suspendCoroutine { continuation ->
-            ConnectJobHelper.updateDeliveryProgress(
-                appContext,
-                job,
-                null,
-                null,
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) {
-                        continuation.resume(PNApiResponseStatus(success, !success))
-                    }
-                },
-            )
+    private suspend fun syncJobProgress(): PNApiResponseStatus {
+        job = getConnectJob()
+        return if (job == null) {
+            handleNoConnectJob()
+        } else {
+            suspendCoroutine { continuation ->
+                ConnectJobHelper.updateJobProgress(
+                    appContext,
+                    job!!,
+                    false,
+                    null,
+                    object : ConnectActivityCompleteListener {
+                        override fun connectActivityComplete(
+                            success: Boolean,
+                            error: String?,
+                        ) {
+                            continuation.resume(PNApiResponseStatus(success, !success))
+                        }
+                    },
+                )
+            }
         }
     }
 
-    private suspend fun syncLearningProgress(): PNApiResponseStatus {
-        val job = getConnectJob()
-        if (job == null) {
-            Logger.exception(
-                "WorkRequest Failed to complete the task for -$syncAction as connect job not found",
-                Throwable("WorkRequest Failed for $syncAction as connect job not found"),
-            )
-            return getFailedResponseWithoutRetry()
+    private fun checkForOpportunityStatus(): Boolean =
+        if (notificationPayload?.contains(OPPORTUNITY_STATUS) == true && job != null) {
+            val opportunityStatus = notificationPayload?.get(OPPORTUNITY_STATUS)
+            (job?.status == STATUS_LEARNING || job?.status == STATUS_AVAILABLE || job?.status == STATUS_AVAILABLE_NEW) &&
+                OPPORTUNITY_STATUS_LEARN.equals(
+                    opportunityStatus,
+                ) ||
+                job?.status == STATUS_DELIVERING &&
+                OPPORTUNITY_STATUS_DELIVERY.equals(
+                    opportunityStatus,
+                )
+        } else {
+            true
         }
-        return suspendCoroutine { continuation ->
-            ConnectJobHelper.updateLearningProgress(
-                appContext,
-                job,
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) {
-                        continuation.resume(PNApiResponseStatus(success, !success))
-                    }
-                },
-            )
-        }
-    }
 
     private fun getConnectJob(): ConnectJobRecord? {
-        val opportunityId = notificationPayload?.get(OPPORTUNITY_ID)
-        if (!TextUtils.isEmpty(opportunityId)) {
+        val opportunityUUID = notificationPayload?.get(OPPORTUNITY_UUID)
+        if (!TextUtils.isEmpty(opportunityUUID)) {
             return ConnectJobUtils.getCompositeJob(
                 appContext,
-                Integer.parseInt(opportunityId!!),
+                opportunityUUID!!,
             )
         }
         return null
+    }
+
+    private fun handleNoConnectJob(): PNApiResponseStatus {
+        Logger.exception(
+            "WorkRequest Failed to complete the task for -$syncAction as connect job not found",
+            Throwable("WorkRequest Failed for $syncAction as connect job not found"),
+        )
+        return getFailedResponseWithoutRetry()
     }
 
     private fun getFailedResponseWithoutRetry() = PNApiResponseStatus(false, false)
@@ -216,7 +217,7 @@ class NotificationsSyncWorker(
     }
 
     private fun raiseFCMPushNotificationIfApplicable() {
-        if (showNotification && !isNotificationRead()) {
+        if (showNotification && !isNotificationRead() && checkForOpportunityStatus()) {
             FirebaseMessagingUtil.handleNotification(appContext, notificationPayload, null, true)
         }
     }

@@ -36,12 +36,12 @@ abstract class ConnectApiHandler<T>(
     fun connectStartLearning(
         context: Context,
         user: ConnectUserRecord,
-        jobId: Int,
+        jobUUID: String,
     ) {
         ApiConnect.startLearnApp(
             context,
             user,
-            jobId,
+            jobUUID,
             createCallback(
                 NoParsingResponseParser<T>(),
             ),
@@ -56,7 +56,7 @@ abstract class ConnectApiHandler<T>(
         ApiConnect.getLearningAppProgress(
             context,
             user,
-            job.jobId,
+            job.jobUUID,
             createCallback(LearningAppProgressResponseParser<T>(), job),
         )
     }
@@ -64,12 +64,12 @@ abstract class ConnectApiHandler<T>(
     fun claimJob(
         context: Context,
         user: ConnectUserRecord,
-        jobId: Int,
+        jobUUID: String,
     ) {
         ApiConnect.claimJob(
             context,
             user,
-            jobId,
+            jobUUID,
             createCallback(
                 NoParsingResponseParser<T>(),
             ),
@@ -84,7 +84,7 @@ abstract class ConnectApiHandler<T>(
         ApiConnect.getDeliveries(
             context,
             user,
-            job.jobId,
+            job.jobUUID,
             createCallback(DeliveryAppProgressResponseParser<T>(), job),
         )
     }

@@ -23,7 +23,7 @@ object ConnectJobHelper {
         val appId = CommCareApplication.instance().currentApp.uniqueId
         val appRecord = ConnectJobUtils.getAppRecord(context, appId) ?: return null
 
-        return ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
+        return ConnectJobUtils.getCompositeJob(context, appRecord.jobUUID)
     }
 
     fun shouldShowJobStatus(
@@ -109,14 +109,14 @@ object ConnectJobHelper {
                     if (job.getDeliveryProgressPercentage() == 100) {
                         events.add(FINISH_DELIVERY)
                     }
-                    ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobId, true)
+                    ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobUUID, true)
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
                     if (job.payments.isNotEmpty()) {
                         events.add(PAID_DELIVERY)
                     }
-                    ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
+                    ConnectJobUtils.storePayments(context, job.payments, job.jobUUID, true)
                 }
 
                 events.forEach { event ->
