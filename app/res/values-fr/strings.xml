@@ -300,7 +300,7 @@ License.
     <string name="connect_title">Connecter</string>
     <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
     <string name="connect_job_intro_title">Opportunité</string>
-    <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
+    <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage et l\'évaluation suivants pour obtenir un certificat</string>
     <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
     <string name="connect_job_go_to_learn_app">Accéder à l\'application Learn</string>
     <string name="connect_job_learn_summary">%d modules, %d heures</string>
@@ -551,4 +551,7 @@ License.
 
     <string name="connect_complete_by">À compléter d\'ici le %s</string>
     <string name="connect_expired_on">Expiré le : %s</string>
+    <string name="connect_job_preview_start">Démarrer</string>
+    <string name="connect_job_delivery_preview_subtitle">Une fois que vous avez terminé l\'évaluation d\'apprentissage, vous passerez à la livraison</string>
+    <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
 </resources>

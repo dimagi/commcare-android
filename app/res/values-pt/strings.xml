@@ -309,7 +309,7 @@
     <string name="connect_no_jobs">Você ainda não foi convidado para nenhuma oportunidade. Assim que for convidado para uma oportunidade, ela aparecerá nesta lista.</string>
     <string name="connect_job_intro_title">Oportunidade</string>
     <string name="connect_job_learn_details">Detalhes da Aprendizagem</string>
-    <string name="connect_job_you_will_learn">Complete os seguintes módulos de aprendizagem e ganhe um certificado</string>
+    <string name="connect_job_you_will_learn">Complete os seguintes módulos de aprendizagem e a avaliação para obter um certificado</string>
     <string name="connect_job_no_learning_required">Não é necessário aprender</string>
     <string name="connect_job_go_to_learn_app">Ir para a aplicação Learn</string>
     <string name="connect_job_learn_summary">%d módulos, %d horas</string>
@@ -556,4 +556,7 @@
 
     <string name="connect_complete_by">Concluir até %s</string>
     <string name="connect_expired_on">Expirou em: %s</string>
+    <string name="connect_job_preview_start">Iniciar</string>
+    <string name="connect_job_delivery_preview_subtitle">Depois de concluir a avaliação de aprendizagem, você fará a transição para a entrega</string>
+    <string name="connect_job_info_view_opportunity">Ver oportunidade</string>
 </resources>
