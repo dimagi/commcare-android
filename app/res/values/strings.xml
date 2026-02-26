@@ -385,6 +385,9 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Unsubscribe</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Cancel</string>
     <string name="connect_messaging_channel_unsubscribe_error">Failed to unsubscribe</string>
+    <string name="connect_messaging_channel_resubscribe_error">Failed to resubscribe</string>
+    <string name="connect_messaging_channel_unsubscribe_success">Successfully unsubscribed</string>
+    <string name="connect_messaging_channel_resubscribe_success">Successfully resubscribed</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">unsubscribed</string>
     <string name="connect_messaging_channel_list_not_subscribed">You are not subscribed to this messaging channel.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Resubscribe</string>

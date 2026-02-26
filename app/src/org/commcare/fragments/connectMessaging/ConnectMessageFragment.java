@@ -112,23 +112,21 @@ public class ConnectMessageFragment extends Fragment {
                             @NonNull Menu menu,
                             @NonNull MenuInflater menuInflater
                     ) {
-                        // TODO: Add this code back in when we fully implement "Resubscribe".
-                        // TODO: Both menu items are hidden (commented out) for now.
-//                        if (channel.getConsented()) {
-//                            menu.add(
-//                                    Menu.NONE,
-//                                    MENU_UNSUBSCRIBE,
-//                                    Menu.NONE,
-//                                    R.string.connect_messaging_channel_menu_item_unsubscribe
-//                            );
-//                        } else {
-//                            menu.add(
-//                                    Menu.NONE,
-//                                    MENU_RESUBSCRIBE,
-//                                    Menu.NONE,
-//                                    R.string.connect_messaging_channel_menu_item_resubscribe
-//                            );
-//                        }
+                        if (channel.getConsented()) {
+                            menu.add(
+                                    Menu.NONE,
+                                    MENU_UNSUBSCRIBE,
+                                    Menu.NONE,
+                                    R.string.connect_messaging_channel_menu_item_unsubscribe
+                            );
+                        } else {
+                            menu.add(
+                                    Menu.NONE,
+                                    MENU_RESUBSCRIBE,
+                                    Menu.NONE,
+                                    R.string.connect_messaging_channel_menu_item_resubscribe
+                            );
+                        }
 
                         menuItemsAnalyticsParamsMapping = Map.of(
                                 MENU_UNSUBSCRIBE,
@@ -342,6 +340,7 @@ public class ConnectMessageFragment extends Fragment {
                     getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
             String positiveButtonText =
                     getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+            String successText = getString(R.string.connect_messaging_channel_unsubscribe_success);
             String errorText = getString(R.string.connect_messaging_channel_unsubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
@@ -356,39 +355,11 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        ConnectMessagingActivity activity =
-                                (ConnectMessagingActivity)requireActivity();
-
-                        activity.showProgressDialog(
-                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
-                        );
-                        channel.setConsented(false);
-
-                        MessageManager.updateChannelConsent(
-                                requireContext(),
-                                channel,
-                                (success, error) -> {
-                                    if (isAdded()) {
-                                        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
-                                                requireContext(),
-                                                channelId
-                                        );
-                                        activity.dismissProgressDialogForTask(
-                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
-                                        );
-
-                                        if (success) {
-                                            setChannelUnsubscribedState();
-                                            requireActivity().invalidateMenu();
-                                        } else {
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    errorText,
-                                                    Toast.LENGTH_SHORT
-                                            ).show();
-                                        }
-                                    }
-                                }
+                        handleConsentUpdate(
+                                false,
+                                successText,
+                                errorText,
+                                this::setChannelUnsubscribedState
                         );
                         return Unit.INSTANCE;
                     },
@@ -408,6 +379,8 @@ public class ConnectMessageFragment extends Fragment {
                     getString(R.string.connect_messaging_resubscribe_dialog_cancel);
             String positiveButtonText =
                     getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
+            String successText = getString(R.string.connect_messaging_channel_resubscribe_success);
+            String errorText = getString(R.string.connect_messaging_channel_resubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
                     titleText,
@@ -421,7 +394,12 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        // TODO: Not implemented yet.
+                        handleConsentUpdate(
+                                true,
+                                successText,
+                                errorText,
+                                this::setChannelSubscribedState
+                        );
                         return Unit.INSTANCE;
                     },
                     R.color.white,
@@ -451,6 +429,41 @@ public class ConnectMessageFragment extends Fragment {
         binding.etMessage.setGravity(Gravity.CENTER);
         binding.etMessage.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.sterling_ash)
+        );
+    }
+
+    private void handleConsentUpdate(
+            boolean targetConsent,
+            String successText,
+            String errorText,
+            Runnable onSuccess
+    ) {
+        ConnectMessagingActivity activity = (ConnectMessagingActivity) requireActivity();
+        activity.showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID);
+        channel.setConsented(targetConsent);
+
+        MessageManager.updateChannelConsent(
+                requireContext(),
+                channel,
+                (success, error) -> {
+                    if (!isAdded()) return;
+
+                    channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                            requireContext(),
+                            channelId
+                    );
+                    activity.dismissProgressDialogForTask(
+                            ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                    );
+
+                    if (success) {
+                        onSuccess.run();
+                        requireActivity().invalidateMenu();
+                        Toast.makeText(requireContext(), successText, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), errorText, Toast.LENGTH_SHORT).show();
+                    }
+                }
         );
     }
 }
