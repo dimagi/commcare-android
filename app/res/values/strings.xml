@@ -370,13 +370,6 @@
 
     <string name="connect_messaging_title">Messaging</string>
     <string name="connect_messaging_channel_list_title">Channels</string>
-    <string name="connect_messaging_channel_list_unconsented">Unconsented channel</string>
-    <string name="connect_messaging_channel_consent_title">Consent to channel</string>
-    <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
-    <string name="connect_messaging_channel_consent_failure_msg">Failed to grant consent to channel</string>
-    <string name="connect_messaging_channel_consent_accept">Accept</string>
-    <string name="connect_messaging_channel_consent_decline">Decline</string>
-
     <string name="connect_messaging_message_notification_title">🔔 New Message 🔔</string>
     <string name="connect_messaging_message_notification_message">You received a new message from %s, press here to view.</string>
     <string name="connect_messaging_channel_notification_title">🔔 New Channel 🔔</string>
