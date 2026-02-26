@@ -370,13 +370,6 @@
 
     <string name="connect_messaging_title">Messaging</string>
     <string name="connect_messaging_channel_list_title">Channels</string>
-    <string name="connect_messaging_channel_list_unconsented">Unconsented channel</string>
-    <string name="connect_messaging_channel_consent_title">Consent to channel</string>
-    <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
-    <string name="connect_messaging_channel_consent_failure_msg">Failed to grant consent to channel</string>
-    <string name="connect_messaging_channel_consent_accept">Accept</string>
-    <string name="connect_messaging_channel_consent_decline">Decline</string>
-
     <string name="connect_messaging_message_notification_title">🔔 New Message 🔔</string>
     <string name="connect_messaging_message_notification_message">You received a new message from %s, press here to view.</string>
     <string name="connect_messaging_channel_notification_title">🔔 New Channel 🔔</string>
@@ -392,6 +385,9 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Unsubscribe</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Cancel</string>
     <string name="connect_messaging_channel_unsubscribe_error">Failed to unsubscribe</string>
+    <string name="connect_messaging_channel_resubscribe_error">Failed to resubscribe</string>
+    <string name="connect_messaging_channel_unsubscribe_success">Successfully unsubscribed</string>
+    <string name="connect_messaging_channel_resubscribe_success">Successfully resubscribed</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">unsubscribed</string>
     <string name="connect_messaging_channel_list_not_subscribed">You are not subscribed to this messaging channel.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Resubscribe</string>
@@ -576,6 +572,7 @@
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
     <string name="connect_job_info_view_review">Review</string>
+    <string name="connect_job_info_view_proceed">Proceed</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>

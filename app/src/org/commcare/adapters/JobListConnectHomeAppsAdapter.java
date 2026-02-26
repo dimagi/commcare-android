@@ -166,20 +166,21 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             int redColor = ContextCompat.getColor(mContext, R.color.dark_red_brick_red);
 
             binding.tvDate.setTextColor(redColor);
+            binding.ivInfo.setVisibility(View.VISIBLE);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
         } else {
             binding.tvDate.setTextColor(
                     ContextCompat.getColor(mContext, R.color.moon_gray)
             );
             binding.ivInfo.clearColorFilter();
+            binding.ivInfo.setVisibility(View.GONE);
         }
 
         // We need the composite job because it has the correct number of deliveries.
         ConnectJobRecord compositeJob = ConnectJobUtils
                 .getCompositeJob(mContext, connectLoginJobListModel.getJob().getJobUUID());
-        boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
-
-        int dateRes = deliveryComplete
+        assert compositeJob != null;
+        int dateRes = compositeJob.deliveryComplete()
                 ? R.string.connect_task_ended_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(
@@ -200,8 +201,22 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
                 startDrawableReview, null, null, null
         );
 
-        binding.btnResume.setVisibility(deliveryComplete ? View.INVISIBLE : View.VISIBLE);
-        binding.btnReview.setVisibility(deliveryComplete ? View.VISIBLE : View.INVISIBLE);
+        if (compositeJob.deliveryComplete()) {
+            // Show the "Review" button.
+            binding.btnResume.setVisibility(View.INVISIBLE);
+            binding.btnReview.setVisibility(View.VISIBLE);
+            binding.btnProceed.setVisibility(View.INVISIBLE);
+        } else if (compositeJob.getLearningCompletePercentage() == 100) {
+            // Show the "Proceed" button.
+            binding.btnResume.setVisibility(View.INVISIBLE);
+            binding.btnReview.setVisibility(View.INVISIBLE);
+            binding.btnProceed.setVisibility(View.VISIBLE);
+        } else {
+            // Show the "Resume" button.
+            binding.btnResume.setVisibility(View.VISIBLE);
+            binding.btnReview.setVisibility(View.INVISIBLE);
+            binding.btnProceed.setVisibility(View.INVISIBLE);
+        }
 
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
@@ -230,6 +245,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         binding.btnViewInfo.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
                 connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.VIEW_INFO));
         binding.btnReview.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
+                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.RESUME));
+        binding.btnProceed.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
                 connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.RESUME));
     }
 
@@ -265,6 +282,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
 
         binding.groupProgress.setVisibility(View.VISIBLE);
+        binding.progressBar.setStrokeWidth(20);
         binding.progressBar.setProgress(progress);
         binding.progressBar.setProgressColor(progressColor);
         binding.tvProgressPercent.setText(progress + " %");
@@ -280,7 +298,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnViewOpportunity.setVisibility(View.VISIBLE);
             binding.btnResume.setVisibility(View.GONE);
             binding.btnReview.setVisibility(View.GONE);
-            binding.btnViewInfo.setVisibility(View.INVISIBLE);
+            binding.btnViewInfo.setVisibility(View.GONE);
+            binding.btnProceed.setVisibility(View.GONE);
         } else {
             binding.btnViewOpportunity.setVisibility(View.GONE);
             binding.btnViewInfo.setVisibility(View.VISIBLE);
