@@ -329,7 +329,6 @@ public class ConnectMessageFragment extends Fragment {
 
     private void showDialogForMenuItem(int menuItemId) {
         CustomThreeButtonAlertDialog dialog = null;
-        ConnectMessagingActivity activity = (ConnectMessagingActivity) requireActivity();
 
         if (menuItemId == MENU_UNSUBSCRIBE) {
             String titleText = getString(
@@ -356,41 +355,11 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        activity.showProgressDialog(
-                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
-                        );
-                        channel.setConsented(false);
-
-                        MessageManager.updateChannelConsent(
-                                requireContext(),
-                                channel,
-                                (success, error) -> {
-                                    if (isAdded()) {
-                                        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
-                                                requireContext(),
-                                                channelId
-                                        );
-                                        activity.dismissProgressDialogForTask(
-                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
-                                        );
-
-                                        if (success) {
-                                            setChannelUnsubscribedState();
-                                            requireActivity().invalidateMenu();
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    successText,
-                                                    Toast.LENGTH_SHORT
-                                            ).show();
-                                        } else {
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    errorText,
-                                                    Toast.LENGTH_SHORT
-                                            ).show();
-                                        }
-                                    }
-                                }
+                        handleConsentUpdate(
+                                false,
+                                successText,
+                                errorText,
+                                this::setChannelUnsubscribedState
                         );
                         return Unit.INSTANCE;
                     },
@@ -425,41 +394,11 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        activity.showProgressDialog(
-                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
-                        );
-                        channel.setConsented(true);
-
-                        MessageManager.updateChannelConsent(
-                                requireContext(),
-                                channel,
-                                (success, error) -> {
-                                    if (isAdded()) {
-                                        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
-                                                requireContext(),
-                                                channelId
-                                        );
-                                        activity.dismissProgressDialogForTask(
-                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
-                                        );
-
-                                        if (success) {
-                                            setChannelSubscribedState();
-                                            requireActivity().invalidateMenu();
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    successText,
-                                                    Toast.LENGTH_SHORT
-                                            ).show();
-                                        } else {
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    errorText,
-                                                    Toast.LENGTH_SHORT
-                                            ).show();
-                                        }
-                                    }
-                                }
+                        handleConsentUpdate(
+                                true,
+                                successText,
+                                errorText,
+                                this::setChannelSubscribedState
                         );
                         return Unit.INSTANCE;
                     },
@@ -490,6 +429,41 @@ public class ConnectMessageFragment extends Fragment {
         binding.etMessage.setGravity(Gravity.CENTER);
         binding.etMessage.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.sterling_ash)
+        );
+    }
+
+    private void handleConsentUpdate(
+            boolean targetConsent,
+            String successText,
+            String errorText,
+            Runnable onSuccess
+    ) {
+        ConnectMessagingActivity activity = (ConnectMessagingActivity) requireActivity();
+        activity.showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID);
+        channel.setConsented(targetConsent);
+
+        MessageManager.updateChannelConsent(
+                requireContext(),
+                channel,
+                (success, error) -> {
+                    if (!isAdded()) return;
+
+                    channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                            requireContext(),
+                            channelId
+                    );
+                    activity.dismissProgressDialogForTask(
+                            ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                    );
+
+                    if (success) {
+                        onSuccess.run();
+                        requireActivity().invalidateMenu();
+                        Toast.makeText(requireContext(), successText, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), errorText, Toast.LENGTH_SHORT).show();
+                    }
+                }
         );
     }
 }
