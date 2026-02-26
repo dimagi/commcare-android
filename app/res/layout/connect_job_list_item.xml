@@ -19,7 +19,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="18dp">
+        android:paddingTop="10dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="18dp"
+        android:paddingEnd="10dp">
 
         <TextView
             android:id="@+id/tvTitle"
@@ -31,11 +34,23 @@
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold"
-            tools:text="Sample Job"
             app:layout_constraintBottom_toTopOf="@+id/llOpportunity"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="8dp"
+            tools:text="Opportunity Title"/>
+
+        <ImageView
+            android:id="@+id/iv_completed_check"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_connect_check_circle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/connect_green" />
 
         <LinearLayout
             android:id="@+id/llOpportunity"
@@ -165,6 +180,13 @@
             android:layout_marginStart="10dp"
             app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/buttonBottomBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="btn_review,btn_resume,btn_view_info,btn_view_opportunity"/>
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
             android:layout_width="wrap_content"
@@ -176,7 +198,8 @@
             android:id="@+id/progressBar"
             android:layout_width="71dp"
             android:layout_height="71dp"
-            app:layout_constraintBottom_toBottomOf="@+id/btn_view_info"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonBottomBarrier"
             app:layout_constraintStart_toEndOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvTitle" />
