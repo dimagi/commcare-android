@@ -176,9 +176,9 @@ def loadProp = { String key, def defaultValue = '' ->
 }
 
 ext {
-    // Obtained from local.properties (project root) -> ~/.gradle/gradle.properties (user-level) -> default value
-    // On build server, it's supposed to load from the user-level ~/.gradle/gradle.properties since
-    // local.properties is not supposed to be checked in with secrets
+    // Obtained from local.properties (project root) -> gradle.properties (global and project-level) -> default value
+    // On build server, it's supposed to load from the gradle.properties since local.properties is not supposed
+    // to be checked in with secrets
     MAPBOX_SDK_API_KEY = loadProp('MAPBOX_SDK_API_KEY', '')
     ANALYTICS_TRACKING_ID_DEV = loadProp('ANALYTICS_TRACKING_ID_DEV', '')
     ANALYTICS_TRACKING_ID_LIVE = loadProp('ANALYTICS_TRACKING_ID_LIVE', '')
