@@ -38,11 +38,7 @@ class CommCareFusedLocationController(
             override fun onLocationResult(result: LocationResult) {
                 result.lastLocation ?: return
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Received location update")
-                if (shouldDiscardLocation(result.lastLocation!!)) {
-                    return
-                }
-                mCurrentLocation = result.lastLocation
-                mListener?.onLocationResult(mCurrentLocation!!)
+                onLocationReceived(result.lastLocation!!, mListener) { mCurrentLocation = it }
             }
         }
 

@@ -6,8 +6,10 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.core.content.ContextCompat
 import org.commcare.CommCareApplication
-import org.commcare.preferences.HiddenPreferences
+import org.commcare.preferences.LocationPreferences
+import org.commcare.utils.GeoUtils
 import org.javarosa.core.services.Logger
+import kotlin.math.abs
 
 /**
  * @author $|-|!˅@M
@@ -30,27 +32,85 @@ fun isLocationPermissionGranted(mContext: Context?): Boolean {
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 }
 
-fun isLocationFresh(
-    location: Location,
-    maxAgeMs: Long = DEFAULT_TIME_THRESHOLD,
-): Boolean = System.currentTimeMillis() - location.time <= maxAgeMs
+private fun isFirstLocation(lastLocationString: String?): Boolean = lastLocationString.isNullOrEmpty()
 
-fun shouldDiscardLocation(location: Location): Boolean {
-    if (!isLocationFresh(location)) {
-        Logger.exception("Received a stale location", getStaleLocationException(location))
-        return HiddenPreferences.shouldDiscardStaleLocations()
-    }
-    return false
+private fun isDifferentLocation(
+    newLocation: Location,
+    lastLocationString: String,
+): Boolean = GeoUtils.locationToString(newLocation) != lastLocationString
+
+private fun updateLastLocation(location: Location) {
+    LocationPreferences.setLastAcceptedLocation(GeoUtils.locationToString(location))
 }
 
-fun getStaleLocationException(location: Location): Throwable =
+private fun acceptLocation(
+    location: Location,
+    deviceTime: Long,
+    listener: CommCareLocationListener?,
+) {
+    LocationPreferences.setLastAcceptedLocationTimestamp(deviceTime)
+    listener?.onLocationResult(location)
+}
+
+private fun discardLocation(location: Location) {
+    Logger.exception(
+        "Discarding stale repeated location",
+        Exception("Discarding stale repeated location ${GeoUtils.locationToString(location)} with accuracy ${location.accuracy}"),
+    )
+}
+
+private fun getStaleLocationException(
+    location: Location,
+    currentDeviceTime: Long,
+): Throwable =
     Exception(
         "Stale location with accuracy ${location.accuracy}" +
-            " with time ${location.time}" + " and current device time ${System.currentTimeMillis()}",
+            " with time ${location.time}" + " and current device time $currentDeviceTime",
     )
 
-fun logStaleLocationSaved(location: Location) {
-    if (!isLocationFresh(location, DEFAULT_TIME_THRESHOLD)) {
-        Logger.exception("Stale location saved in GPS capture", getStaleLocationException(location))
+private fun logStaleLocationIfGpsTimeDrifted(
+    location: Location,
+    currentDeviceTime: Long,
+) {
+    val drift = abs(currentDeviceTime - location.time)
+    if (drift > DEFAULT_TIME_THRESHOLD) {
+        Logger.exception(
+            "Received a stale location",
+            getStaleLocationException(location, currentDeviceTime),
+        )
+    }
+}
+
+fun onLocationReceived(
+    newLocation: Location,
+    listener: CommCareLocationListener?,
+    setCurrentLocation: (Location) -> Unit,
+) {
+    val currentDeviceTime = System.currentTimeMillis()
+    val lastLocationString = LocationPreferences.getLastAcceptedLocation()
+    val lastAcceptedTimestamp = LocationPreferences.getLastAcceptedLocationTimestamp()
+
+    if (isFirstLocation(lastLocationString)) {
+        updateLastLocation(newLocation)
+        setCurrentLocation(newLocation)
+        acceptLocation(newLocation, currentDeviceTime, listener)
+        return
+    }
+
+    if (isDifferentLocation(newLocation, lastLocationString!!)) {
+        updateLastLocation(newLocation)
+        setCurrentLocation(newLocation)
+        acceptLocation(newLocation, currentDeviceTime, listener)
+        logStaleLocationIfGpsTimeDrifted(newLocation, currentDeviceTime)
+        return
+    }
+
+    // Location values are same as last accepted location
+    val timeDifference = currentDeviceTime - lastAcceptedTimestamp
+    if (timeDifference > DEFAULT_TIME_THRESHOLD) {
+        discardLocation(newLocation)
+    } else {
+        setCurrentLocation(newLocation)
+        acceptLocation(newLocation, currentDeviceTime, listener)
     }
 }
