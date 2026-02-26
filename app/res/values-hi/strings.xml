@@ -543,8 +543,8 @@ License.
     <string name="personalid_biometric_error_timeout">बायोमेट्रिक ऑपरेशन का समय समाप्त हो गया। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
     <string name="personalid_biometric_error_cannot_configure">हम आपके डिवाइस पर बायोमेट्रिक्स कॉन्फ़िगर नहीं कर सके। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
 
-    <string name="connect_complete_by">%s तक पूरा करें</string>
-    <string name="connect_expired_on">समय सीमा समाप्त: %s</string>
+    <string name="connect_complete_by">कार्य %s को समाप्त होती है</string>
+    <string name="connect_expired_on">कार्य %s को समाप्त हुई</string>
     <string name="connect_job_preview_start">शुरू करें</string>
     <string name="connect_job_delivery_preview_subtitle">एक बार जब आप शिक्षण मूल्यांकन पूरा कर लेते हैं, तो आप वितरण चरण में जाएंगे</string>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>

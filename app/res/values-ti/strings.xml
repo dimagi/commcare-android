@@ -535,8 +535,8 @@
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
-    <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
-    <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
+    <string name="connect_complete_by">ዕዮ ኣብ %s ይወዳእ</string>
+    <string name="connect_expired_on">ዕዮ ኣብ %s ተወዲኡ</string>
     <string name="connect_job_preview_start">ጀምር</string>
     <string name="connect_job_delivery_preview_subtitle">ናይ ምምሃር ምግምጋም ምስ ዛዘምካ፡ ናብ ምብጸሕ ክትሰጋገር ኢካ</string>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>

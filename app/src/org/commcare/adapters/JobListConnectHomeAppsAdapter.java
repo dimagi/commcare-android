@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
@@ -172,17 +171,16 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.ivInfo.setVisibility(View.GONE);
         }
 
-        // We need the composite job because it has the correct number of deliveries.
-        ConnectJobRecord compositeJob = ConnectJobUtils
-                .getCompositeJob(mContext, connectLoginJobListModel.getJob().getJobUUID());
-        assert compositeJob != null;
-
-        int dateRes = compositeJob.deliveryComplete()
+        int dateRes = connectLoginJobListModel.getJobFinished()
                 ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
         );
+
+        binding.ivCompletedCheck.setVisibility(
+                connectLoginJobListModel.getUserCompletedDelivery() ?
+                View.VISIBLE : View.INVISIBLE);
 
         Drawable startDrawableResume = connectLoginJobListModel.isAppInstalled()
                 ? null
@@ -198,12 +196,13 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
                 startDrawableReview, null, null, null
         );
 
-        if (compositeJob.deliveryComplete()) {
+        if (connectLoginJobListModel.getJobFinished()) {
             // Show the "Review" button.
             binding.btnResume.setVisibility(View.INVISIBLE);
             binding.btnReview.setVisibility(View.VISIBLE);
             binding.btnProceed.setVisibility(View.INVISIBLE);
-        } else if (compositeJob.getLearningCompletePercentage() == 100) {
+        } else if (connectLoginJobListModel.isLearningApp() &&
+                connectLoginJobListModel.getLearningProgress() == 100) {
             // Show the "Proceed" button.
             binding.btnResume.setVisibility(View.INVISIBLE);
             binding.btnReview.setVisibility(View.INVISIBLE);

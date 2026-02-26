@@ -29,6 +29,8 @@ public class ConnectLoginJobListModel {
     private JobListEntryType jobType;
     private String appType;
     private ConnectJobRecord job;
+    private boolean jobFinished;
+    private boolean userCompletedDelivery;
 
     // Constructor
     public ConnectLoginJobListModel(
@@ -47,7 +49,9 @@ public class ConnectLoginJobListModel {
             int deliveryProgress,
             JobListEntryType jobType,
             String appType,
-            ConnectJobRecord job
+            ConnectJobRecord job,
+            boolean jobFinished,
+            boolean userCompletedDelivery
     ) {
         this.name = name;
         this.uuid = uuid;
@@ -65,6 +69,8 @@ public class ConnectLoginJobListModel {
         this.jobType = jobType;
         this.appType = appType;
         this.job = job;
+        this.jobFinished = jobFinished;
+        this.userCompletedDelivery = userCompletedDelivery;
     }
 
     // Default constructor
@@ -206,6 +212,22 @@ public class ConnectLoginJobListModel {
 
     public void setJob(ConnectJobRecord job) {
         this.job = job;
+    }
+
+    public boolean getJobFinished() {
+        return jobFinished;
+    }
+
+    public void setJobFinished(boolean jobFinished) {
+        this.jobFinished = jobFinished;
+    }
+
+    public boolean getUserCompletedDelivery() {
+        return userCompletedDelivery;
+    }
+
+    public void setUserCompletedDelivery(boolean userCompletedDelivery) {
+        this.userCompletedDelivery = userCompletedDelivery;
     }
 
     // Optionally, override toString for easy logging or display

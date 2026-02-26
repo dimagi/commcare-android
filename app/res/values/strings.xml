@@ -716,6 +716,6 @@
     <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
 
-    <string name="connect_complete_by">Complete by %s</string>
-    <string name="connect_expired_on">Expired on: %s</string>
+    <string name="connect_complete_by">Task ends on %s</string>
+    <string name="connect_expired_on">Task ended on %s</string>
 </resources>
