@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,15 +19,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -49,9 +53,14 @@ public class ConnectMessageFragment extends Fragment {
     private String channelId;
     private FragmentConnectMessageBinding binding;
     private ConnectMessageAdapter adapter;
-    private Runnable apiCallRunnable; // The task to run periodically
+
+    // The task to run periodically
+    private Runnable apiCallRunnable;
+
     private static final int INTERVAL = 30000;
-    private final Handler handler = new Handler(); // To post periodic tasks
+
+    // To post periodic tasks
+    private final Handler handler = new Handler();
 
     private ConnectMessagingChannelRecord channel;
     private Map<Integer, String> menuItemsAnalyticsParamsMapping;
@@ -59,8 +68,11 @@ public class ConnectMessageFragment extends Fragment {
     private static final int MENU_RESUBSCRIBE = Menu.FIRST + 1;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         binding = FragmentConnectMessageBinding.inflate(inflater, container, false);
 
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
@@ -74,11 +86,20 @@ public class ConnectMessageFragment extends Fragment {
         apiCallRunnable = new Runnable() {
             @Override
             public void run() {
-                fetchMessagesFromNetwork(); // Perform the API call
-                handler.postDelayed(this, INTERVAL); // Schedule the next call
+                // Perform the API call
+                fetchMessagesFromNetwork();
+
+                // Schedule the next call
+                handler.postDelayed(this, INTERVAL);
             }
         };
         setupMenuItems();
+
+        if (channel.getConsented()) {
+            setChannelSubscribedState();
+        } else {
+            setChannelUnsubscribedState();
+        }
 
         return binding.getRoot();
     }
@@ -87,21 +108,27 @@ public class ConnectMessageFragment extends Fragment {
         requireActivity().addMenuProvider(
                 new MenuProvider() {
                     @Override
-                    public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                        // TODO: Conditionally show/hide either "Unsubscribe" or "Resubscribe"
+                    public void onCreateMenu(
+                            @NonNull Menu menu,
+                            @NonNull MenuInflater menuInflater
+                    ) {
+                        // TODO: Add this code back in when we fully implement "Resubscribe".
                         // TODO: Both menu items are hidden (commented out) for now.
-//                        menu.add(
-//                                Menu.NONE,
-//                                MENU_UNSUBSCRIBE,
-//                                Menu.NONE,
-//                                R.string.connect_messaging_channel_menu_item_unsubscribe
-//                        );
-//                        menu.add(
-//                                Menu.NONE,
-//                                MENU_RESUBSCRIBE,
-//                                Menu.NONE,
-//                                R.string.connect_messaging_channel_menu_item_resubscribe
-//                        );
+//                        if (channel.getConsented()) {
+//                            menu.add(
+//                                    Menu.NONE,
+//                                    MENU_UNSUBSCRIBE,
+//                                    Menu.NONE,
+//                                    R.string.connect_messaging_channel_menu_item_unsubscribe
+//                            );
+//                        } else {
+//                            menu.add(
+//                                    Menu.NONE,
+//                                    MENU_RESUBSCRIBE,
+//                                    Menu.NONE,
+//                                    R.string.connect_messaging_channel_menu_item_resubscribe
+//                            );
+//                        }
 
                         menuItemsAnalyticsParamsMapping = Map.of(
                                 MENU_UNSUBSCRIBE,
@@ -189,13 +216,11 @@ public class ConnectMessageFragment extends Fragment {
 
     private void handleSendButtonListener() {
         binding.etMessage.addTextChangedListener(createTextWatcher());
-
         binding.etMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 scrollToLatestMessageWithDelay();
             }
         });
-
         binding.imgSendMessage.setOnClickListener(v -> sendMessage());
     }
 
@@ -208,7 +233,7 @@ public class ConnectMessageFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0) {
+                if (s.length() > 0 && channel.getConsented()) {
                     binding.imgSendMessage.setVisibility(View.VISIBLE);
                 } else {
                     binding.imgSendMessage.setVisibility(View.GONE);
@@ -257,21 +282,19 @@ public class ConnectMessageFragment extends Fragment {
 
     private void setChatAdapter() {
         List<ConnectMessageChatData> messages = new ArrayList<>();
-
         adapter = new ConnectMessageAdapter(messages);
         binding.rvChat.setAdapter(adapter);
-
         refreshUi();
     }
 
     public void refreshUi() {
         Context context = getContext();
         if (context != null) {
-            List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesForChannel(context, channelId);
-
+            List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper
+                    .getMessagingMessagesForChannel(context, channelId);
             List<ConnectMessageChatData> chats = new ArrayList<>();
-            for (ConnectMessagingMessageRecord message : messages) {
 
+            for (ConnectMessagingMessageRecord message : messages) {
                 chats.add(fromMessage(message));
 
                 if (!message.getUserViewed()) {
@@ -287,10 +310,14 @@ public class ConnectMessageFragment extends Fragment {
     }
 
     private ConnectMessageChatData fromMessage(ConnectMessagingMessageRecord message) {
-        int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
+        int viewType = message.getIsOutgoing()
+                ? ConnectMessageAdapter.RIGHTVIEW
+                : ConnectMessageAdapter.LEFTVIEW;
         return new ConnectMessageChatData(message.getMessageId(), viewType,
                 message.getMessage(),
-                message.getIsOutgoing() ? getString(R.string.connect_message_you) : getString(R.string.connect_message_them),
+                message.getIsOutgoing()
+                        ? getString(R.string.connect_message_you)
+                        : getString(R.string.connect_message_them),
                 message.getTimeStamp(),
                 message.getConfirmed());
     }
@@ -311,8 +338,11 @@ public class ConnectMessageFragment extends Fragment {
                     channel.getChannelName()
             );
             String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
-            String negativeButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
-            String positiveButtonText = getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+            String negativeButtonText =
+                    getString(R.string.connect_messaging_unsubscribe_dialog_cancel);
+            String positiveButtonText =
+                    getString(R.string.connect_messaging_unsubscribe_dialog_unsubscribe);
+            String errorText = getString(R.string.connect_messaging_channel_unsubscribe_error);
 
             dialog = new CustomThreeButtonAlertDialog(
                     titleText,
@@ -326,7 +356,40 @@ public class ConnectMessageFragment extends Fragment {
                     R.color.white,
                     positiveButtonText,
                     () -> {
-                        // TODO: Not implemented yet.
+                        ConnectMessagingActivity activity =
+                                (ConnectMessagingActivity)requireActivity();
+
+                        activity.showProgressDialog(
+                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                        );
+                        channel.setConsented(false);
+
+                        MessageManager.updateChannelConsent(
+                                requireContext(),
+                                channel,
+                                (success, error) -> {
+                                    if (isAdded()) {
+                                        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                                                requireContext(),
+                                                channelId
+                                        );
+                                        activity.dismissProgressDialogForTask(
+                                                ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID
+                                        );
+
+                                        if (success) {
+                                            setChannelUnsubscribedState();
+                                            requireActivity().invalidateMenu();
+                                        } else {
+                                            Toast.makeText(
+                                                    requireContext(),
+                                                    errorText,
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
+                                    }
+                                }
+                        );
                         return Unit.INSTANCE;
                     },
                     R.color.white,
@@ -341,8 +404,10 @@ public class ConnectMessageFragment extends Fragment {
                     R.string.connect_messaging_resubscribe_dialog_body,
                     channel.getChannelName()
             );
-            String negativeButtonText = getString(R.string.connect_messaging_resubscribe_dialog_cancel);
-            String positiveButtonText = getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
+            String negativeButtonText =
+                    getString(R.string.connect_messaging_resubscribe_dialog_cancel);
+            String positiveButtonText =
+                    getString(R.string.connect_messaging_resubscribe_dialog_resubscribe);
 
             dialog = new CustomThreeButtonAlertDialog(
                     titleText,
@@ -365,10 +430,28 @@ public class ConnectMessageFragment extends Fragment {
         }
 
         if (dialog == null) {
-            throw new IllegalStateException("Attempted to show alert dialog for an unsupported menu item!");
+            throw new IllegalStateException(
+                    "Attempted to show alert dialog for an unsupported menu item!"
+            );
         }
 
         dialog.showDialog(requireContext());
+    }
+
+    private void setChannelSubscribedState() {
+        binding.etMessage.setEnabled(true);
+        binding.etMessage.setText("");
+        binding.etMessage.setGravity(Gravity.CENTER_VERTICAL);
+        binding.etMessage.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+    }
+
+    private void setChannelUnsubscribedState() {
+        binding.etMessage.setEnabled(false);
+        binding.etMessage.setText(R.string.connect_messaging_channel_list_not_subscribed);
+        binding.etMessage.setGravity(Gravity.CENTER);
+        binding.etMessage.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.sterling_ash)
+        );
     }
 }
 
