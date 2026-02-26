@@ -59,12 +59,8 @@ class CommCareFusedLocationController(
         }
     }
 
-    fun interface CurrentLocationCallback {
-        fun onResult(location: Location?)
-    }
-
     @SuppressLint("MissingPermission")
-    fun getCurrentLocation(callback: CurrentLocationCallback) {
+    override fun getCurrentLocation(callback: CommCareLocationController.CurrentLocationCallback) {
         if (isLocationPermissionGranted(mContext)) {
             mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener { location -> callback.onResult(location) }

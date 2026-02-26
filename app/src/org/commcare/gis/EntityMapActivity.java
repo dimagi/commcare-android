@@ -30,9 +30,7 @@ import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.location.CommCareFusedLocationController;
-import org.commcare.location.CommCareLocationController;
-import org.commcare.location.CommCareLocationControllerFactory;
+import org.commcare.location.LocationHelper;
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
@@ -209,15 +207,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             setupMapToggles();
 
-            CommCareLocationController locationController =
-                    CommCareLocationControllerFactory.getLocationController(this, null);
-            if(locationController instanceof CommCareFusedLocationController fusedLocationController) {
-                fusedLocationController.getCurrentLocation(userLocation -> {
-                        proceedWithLocation(builder, userLocation);
-                });
-            } else {
-                proceedWithLocation(builder, null);
-            }
+            LocationHelper.getCurrentLocation(this, userLocation -> {
+                proceedWithLocation(builder, userLocation);
+            });
         } else {
             finishLoadingPerformanceTrace();
         }

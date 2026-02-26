@@ -1,5 +1,6 @@
 package org.commcare.location
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -101,6 +102,18 @@ class CommCareProviderLocationController(
         for (provider in mProviders) {
             mLocationManager.requestLocationUpdates(provider, 0L, 0.0f, mLocationListener)
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun getCurrentLocation(callback: CommCareLocationController.CurrentLocationCallback) {
+        if (!isLocationPermissionGranted(mContext)) {
+            callback.onResult(null)
+            return
+        }
+        val providers = GeoUtils.evaluateProviders(mLocationManager)
+        val location = providers.mapNotNull { mLocationManager.getLastKnownLocation(it) }
+            .maxByOrNull { it.time }
+        callback.onResult(location)
     }
 
     override fun destroy() {

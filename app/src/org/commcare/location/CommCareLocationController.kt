@@ -13,6 +13,10 @@ import org.javarosa.core.services.Logger
  * @author $|-|!˅@M
  */
 interface CommCareLocationController {
+    fun interface CurrentLocationCallback {
+        fun onResult(location: Location?)
+    }
+
     fun start()
 
     fun stop()
@@ -20,6 +24,8 @@ interface CommCareLocationController {
     fun getLocation(): Location?
 
     fun destroy()
+
+    fun getCurrentLocation(callback: CurrentLocationCallback)
 }
 
 const val DEFAULT_TIME_THRESHOLD = 2 * 60 * 1000L // 2 minutes in milliseconds

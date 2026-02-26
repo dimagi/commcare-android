@@ -12,7 +12,7 @@ class CommCareLocationControllerFactory {
 
     companion object {
         @JvmStatic
-        fun getLocationController(context: Context, mListener: CommCareLocationListener?): CommCareLocationController {
+        fun getLocationController(context: Context, mListener: CommCareLocationListener): CommCareLocationController {
             // We only wanna use FusedLocationClient when play services are available.
             // Otherwise, we'll fallback to using LocationManager, rather than asking user to update playservices.
             return when (isPlayServiceAvailable(context) && !isAirplaneModeOn(context)) {
@@ -26,7 +26,7 @@ class CommCareLocationControllerFactory {
         }
 
         private fun isAirplaneModeOn(context: Context): Boolean {
-            return Settings.Global.getInt(context.contentResolver, Settings.Global.AIRPLANE_MODE_ON) != 0;
+            return Settings.Global.getInt(context.contentResolver, Settings.Global.AIRPLANE_MODE_ON) != 0
         }
     }
 }
