@@ -548,8 +548,8 @@
     <string name="personalid_biometric_error_timeout">A operação biométrica expirou. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_cannot_configure">Não foi possível configurar a biometria no seu dispositivo. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
 
-    <string name="connect_complete_by">Concluir até %s</string>
-    <string name="connect_expired_on">Expirou em: %s</string>
+    <string name="connect_complete_by">A tarefa termina em %s</string>
+    <string name="connect_expired_on">A tarefa terminou em %s</string>
     <string name="connect_job_preview_start">Iniciar</string>
     <string name="connect_job_delivery_preview_subtitle">Depois de concluir a avaliação de aprendizagem, você fará a transição para a entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidade</string>

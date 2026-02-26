@@ -190,8 +190,8 @@
     <string name="pn_no_notification_available">Pranešimų nėra</string>
     <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
 
-    <string name="connect_complete_by">Atlikti iki %s</string>
-    <string name="connect_expired_on">Galiojimas baigėsi: %s</string>
+    <string name="connect_complete_by">Užduotis baigiasi %s</string>
+    <string name="connect_expired_on">Užduotis baigėsi %s</string>
     <string name="connect_job_you_will_learn">Užbaikite šiuos mokymosi modulius ir vertinimą, kad gautumėte sertifikatą</string>
     <string name="connect_job_preview_start">Pradėti</string>
     <string name="connect_job_delivery_preview_subtitle">Baigę mokymosi vertinimą, pereisite prie pristatymo</string>

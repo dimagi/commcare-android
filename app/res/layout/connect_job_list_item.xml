@@ -34,7 +34,19 @@
             app:layout_constraintBottom_toTopOf="@+id/llOpportunity"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Opportunity Title"/>
+
+        <ImageView
+            android:id="@+id/iv_completed_check"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_connect_check_circle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/connect_green" />
 
         <LinearLayout
             android:id="@+id/llOpportunity"
@@ -55,6 +67,7 @@
                 android:id="@+id/iv_info"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
+                android:layout_marginEnd="4dp"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_location_info" />
 
@@ -63,8 +76,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:layout_marginStart="4dp"
-                android:fontFamily="sans-serif" />
+
+                android:fontFamily="sans-serif"
+                tools:text="Complete by Dec 31, 2029"/>
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -138,6 +152,13 @@
             android:layout_marginStart="10dp"
             app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/buttonBottomBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="btn_review,btn_resume,btn_view_info,btn_view_opportunity"/>
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
             android:layout_width="wrap_content"
@@ -149,7 +170,7 @@
             android:id="@+id/progressBar"
             android:layout_width="71dp"
             android:layout_height="71dp"
-            app:layout_constraintBottom_toBottomOf="@+id/btn_view_info"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonBottomBarrier"
             app:layout_constraintStart_toEndOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvTitle" />

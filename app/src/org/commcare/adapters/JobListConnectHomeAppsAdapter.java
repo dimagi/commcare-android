@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
@@ -167,19 +166,21 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
             binding.tvDate.setTextColor(redColor);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+            binding.ivInfo.setVisibility(View.VISIBLE);
+        } else {
+            binding.ivInfo.setVisibility(View.GONE);
         }
 
-        // We need the composite job because it has the correct number of deliveries.
-        ConnectJobRecord compositeJob = ConnectJobUtils
-                .getCompositeJob(mContext, connectLoginJobListModel.getJob().getJobUUID());
-        boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
-
-        int dateRes = deliveryComplete
+        int dateRes = connectLoginJobListModel.getJobFinished()
                 ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
         );
+
+        binding.ivCompletedCheck.setVisibility(
+                connectLoginJobListModel.getUserCompletedDelivery() ?
+                View.VISIBLE : View.INVISIBLE);
 
         Drawable startDrawableResume = connectLoginJobListModel.isAppInstalled()
                 ? null
@@ -195,8 +196,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
                 startDrawableReview, null, null, null
         );
 
-        binding.btnResume.setVisibility(deliveryComplete ? View.INVISIBLE : View.VISIBLE);
-        binding.btnReview.setVisibility(deliveryComplete ? View.VISIBLE : View.INVISIBLE);
+        binding.btnResume.setVisibility(connectLoginJobListModel.getJobFinished() ? View.INVISIBLE : View.VISIBLE);
+        binding.btnReview.setVisibility(connectLoginJobListModel.getJobFinished() ? View.VISIBLE : View.INVISIBLE);
 
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
