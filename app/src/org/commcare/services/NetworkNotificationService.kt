@@ -27,17 +27,17 @@ import org.javarosa.core.services.locale.Localization
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class NetworkNotificationService : Service() {
-    lateinit var notificationManager: NotificationManager
+    private lateinit var notificationManager: NotificationManager
 
     companion object {
-        const val NETWORK_NOTIFICATION_ID = "network_notification_service_id"
-        @JvmStatic
-        var isServiceRunning = false
+        private const val NETWORK_NOTIFICATION_ID = "network_notification_service_id"
         const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
         const val STOP_NOTIFICATION_ACTION = "stop_notification"
         const val START_NOTIFICATION_ACTION = "start_notification"
         const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
         const val TASK_ID_INTENT_EXTRA = "task_id"
+        @JvmStatic
+        var isServiceRunning = false
     }
 
     private val _taskIds = MutableStateFlow<List<Int>>(emptyList())
