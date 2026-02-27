@@ -207,9 +207,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             setupMapToggles();
 
-            LocationHelper.getCurrentLocation(this, userLocation -> {
-                proceedWithLocation(builder, userLocation);
-            });
+            LocationHelper.getCurrentLocation(this).addOnCompleteListener(task ->
+                    proceedWithLocation(builder, task.isSuccessful() ? task.getResult() : null));
         } else {
             finishLoadingPerformanceTrace();
         }

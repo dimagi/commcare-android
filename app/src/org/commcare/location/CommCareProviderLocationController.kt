@@ -10,6 +10,8 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils
 import org.javarosa.core.services.Logger
@@ -105,15 +107,14 @@ class CommCareProviderLocationController(
     }
 
     @SuppressLint("MissingPermission")
-    override fun getCurrentLocation(callback: CommCareLocationController.CurrentLocationCallback) {
+    override fun getCurrentLocation(): Task<Location?> {
         if (!isLocationPermissionGranted(mContext)) {
-            callback.onResult(null)
-            return
+            return Tasks.forResult(null)
         }
         val providers = GeoUtils.evaluateProviders(mLocationManager)
         val location = providers.mapNotNull { mLocationManager.getLastKnownLocation(it) }
             .maxByOrNull { it.time }
-        callback.onResult(location)
+        return Tasks.forResult(location)
     }
 
     override fun destroy() {

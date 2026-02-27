@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.core.content.ContextCompat
+import com.google.android.gms.tasks.Task
 import org.commcare.CommCareApplication
 import org.commcare.preferences.HiddenPreferences
 import org.javarosa.core.services.Logger
@@ -13,10 +14,6 @@ import org.javarosa.core.services.Logger
  * @author $|-|!˅@M
  */
 interface CommCareLocationController {
-    fun interface CurrentLocationCallback {
-        fun onResult(location: Location?)
-    }
-
     fun start()
 
     fun stop()
@@ -25,7 +22,7 @@ interface CommCareLocationController {
 
     fun destroy()
 
-    fun getCurrentLocation(callback: CurrentLocationCallback)
+    fun getCurrentLocation(): Task<Location?>
 }
 
 const val DEFAULT_TIME_THRESHOLD = 2 * 60 * 1000L // 2 minutes in milliseconds

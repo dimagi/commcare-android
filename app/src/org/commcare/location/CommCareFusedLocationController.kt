@@ -14,6 +14,8 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils.locationServicesEnabledGlobally
 import org.javarosa.core.services.Logger
@@ -60,13 +62,12 @@ class CommCareFusedLocationController(
     }
 
     @SuppressLint("MissingPermission")
-    override fun getCurrentLocation(callback: CommCareLocationController.CurrentLocationCallback) {
-        if (isLocationPermissionGranted(mContext)) {
+    @Suppress("UNCHECKED_CAST")
+    override fun getCurrentLocation(): Task<Location?> {
+        return if (isLocationPermissionGranted(mContext)) {
             mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener { location -> callback.onResult(location) }
-                .addOnFailureListener { callback.onResult(null) }
         } else {
-            callback.onResult(null)
+            Tasks.forResult(null)
         }
     }
 
