@@ -257,6 +257,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     ) {
         int progress = 0;
         int progressColor = 0;
+        boolean showPercentageText = true;
         ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
         ConnectJobRecord job = item.getJob();
 
@@ -266,6 +267,11 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
 
         switch (jobType) {
+            case NEW_OPPORTUNITY:
+                progress = 100;
+                progressColor = ContextCompat.getColor(context, R.color.burnt_amber);
+                showPercentageText = false;
+                break;
             case LEARNING:
                 if (!job.passedAssessment()) {
                     progress = item.getLearningProgress();
@@ -285,7 +291,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         binding.progressBar.setStrokeWidth(20);
         binding.progressBar.setProgress(progress);
         binding.progressBar.setProgressColor(progressColor);
-        binding.tvProgressPercent.setText(progress + " %");
+        binding.tvProgressPercent.setText(showPercentageText ? progress + " %" : "");
     }
 
     private void configureJobType(

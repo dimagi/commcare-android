@@ -268,10 +268,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             }
         }
 
+        sortJobListByLastAccessed(inProgressJobs);
+        sortJobListByLastAccessed(inProgressCompleteJobs);
+
         //Jobs with completed delivery moved to the end
         inProgressJobs.addAll(inProgressCompleteJobs);
 
-        sortJobListByLastAccessed(inProgressJobs);
         sortJobListByLastAccessed(newJobs);
         sortJobListByLastAccessed(finishedJobs);
         initRecyclerView();
