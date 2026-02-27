@@ -20,13 +20,14 @@ import org.commcare.tasks.LatestTaskExecutor;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
 import java.util.Date;
 
-import kotlin.Unit;
+import androidx.lifecycle.LifecycleOwnerKt;
 
 /**
  * Logic that populates the sync button's notification text
@@ -45,42 +46,53 @@ public class SyncDetailCalculations {
             HomeCardDisplayData cardDisplayData,
             String notificationText) {
 
-        getUnsentFormsExecutor().submit(SyncDetailCalculations::getNumUnsentForms, numUnsentForms ->  {
-            if (activity.isFinishing() || activity.isDestroyed()) {
-                return;
-            }
+        getUnsentFormsExecutor().submit(
+                LifecycleOwnerKt.getLifecycleScope(activity),
+                SyncDetailCalculations::getNumUnsentForms,
+                new LatestTaskExecutor.Callback<>() {
+                    @Override
+                    public void onResult(Integer numUnsentForms) {
+                        if (activity.isFinishing() || activity.isDestroyed()) {
+                            return;
+                        }
 
-            Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
+                        Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
-            Spannable syncIndicator =
-                    (activity.localize(
-                            "home.unsent.forms.indicator",
-                            new String[]{String.valueOf(numUnsentForms)}));
+                        Spannable syncIndicator =
+                                (activity.localize(
+                                        "home.unsent.forms.indicator",
+                                        new String[]{String.valueOf(numUnsentForms)}));
 
-            String syncStatus = "";
+                        String syncStatus = "";
 
-            if (notificationText != null) {
-                syncStatus = notificationText;
-            } else if (numUnsentForms == 0) {
-                syncStatus = lastSyncTimeAndMessage.second;
-            }
+                        if (notificationText != null) {
+                            syncStatus = notificationText;
+                        } else if (numUnsentForms == 0) {
+                            syncStatus = lastSyncTimeAndMessage.second;
+                        }
 
-            if (numUnsentForms != 0 || HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
-                if (!TextUtils.isEmpty(syncStatus)) {
-                    syncStatus += "\n\n";
-                }
-                syncStatus += syncIndicator;
-            }
+                        if (numUnsentForms != 0 || HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
+                            if (!TextUtils.isEmpty(syncStatus)) {
+                                syncStatus += "\n\n";
+                            }
+                            syncStatus += syncIndicator;
+                        }
 
-            squareButtonViewHolder.subTextView.setText(syncStatus);
+                        squareButtonViewHolder.subTextView.setText(syncStatus);
 
-            setSyncSubtextColor(
-                    squareButtonViewHolder.subTextView,
-                    numUnsentForms,
-                    lastSyncTimeAndMessage.first,
-                    activity.getResources().getColor(cardDisplayData.subTextColor),
-                    activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
-        });
+                        setSyncSubtextColor(
+                                squareButtonViewHolder.subTextView,
+                                numUnsentForms,
+                                lastSyncTimeAndMessage.first,
+                                activity.getResources().getColor(cardDisplayData.subTextColor),
+                                activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
+                    }
+
+                    @Override
+                    public void onError(@NotNull Exception exception) {
+                        Logger.exception("LatestTaskExecutor task failed", exception);
+                    }
+                });
     }
 
     public static LatestTaskExecutor<Integer> getUnsentFormsExecutor() {
