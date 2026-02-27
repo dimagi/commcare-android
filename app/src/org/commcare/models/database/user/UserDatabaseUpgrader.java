@@ -11,6 +11,8 @@ import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.FormRecordV5;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.android.javarosa.DeviceReportRecordPreV30;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
@@ -18,6 +20,7 @@ import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -34,14 +37,22 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.services.SessionManager;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.models.encryption.EncryptionIO.createFileOutputStream;
 import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES;
 import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE;
 
@@ -233,6 +244,12 @@ class UserDatabaseUpgrader {
         if (oldVersion == 28) {
             if (updateTwentyEightTwentyNine(db)) {
                 oldVersion = 29;
+            }
+        }
+
+        if (oldVersion == 29) {
+            if (upgradeTwentyNineThirty(db)) {
+                oldVersion = 30;
             }
         }
     }
@@ -806,6 +823,57 @@ class UserDatabaseUpgrader {
             return true;
         } finally {
             db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyNineThirty(IDatabase db) {
+        // DeviceReportRecord previously stored a per-record aesKey as a @Persisting field, this was replaced with
+        // Android keystore-backed key and the new schema has no separate aesKey column
+        db.beginTransaction();
+        try {
+            SqlStorage<DeviceReportRecordPreV30> oldStorage = new SqlStorage<>(
+                    DeviceReportRecord.STORAGE_KEY,
+                    DeviceReportRecordPreV30.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<DeviceReportRecord> newStorage = new SqlStorage<>(
+                    DeviceReportRecord.STORAGE_KEY,
+                    DeviceReportRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (DeviceReportRecordPreV30 old : oldStorage) {
+                DeviceReportRecord updated = new DeviceReportRecord(old.getFilePath());
+                rekeyDeviceReportFileToKeystoreKey(old.getFilePath(), old.getAesKey());
+                updated.setID(old.getID());
+                newStorage.write(updated);
+            }
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void rekeyDeviceReportFileToKeystoreKey(String filename, byte[] oldAesKey) {
+        try {
+            InputStream is = EncryptionIO.getFileInputStream(filename, new SecretKeySpec(oldAesKey, "AES"));
+
+            String tempPath = filename + ".tmp";
+            StreamsUtil.writeFromInputToOutputNew(is,
+                    createFileOutputStream(
+                            tempPath,
+                            SessionManager.getEncryptionKey(),
+                            SessionManager.getKeyTransformation(),
+                            true
+                    )
+            );
+            File fileToDelete = new File(filename);
+            if (fileToDelete.exists()) {
+                fileToDelete.delete();
+            }
+            new File(tempPath).renameTo(new File(filename));
+        } catch (FileNotFoundException | StreamsUtil.InputIOException | StreamsUtil.OutputIOException e) {
+            Logger.exception("Error while rekeying device report file during user db migration", e);
         }
     }
 

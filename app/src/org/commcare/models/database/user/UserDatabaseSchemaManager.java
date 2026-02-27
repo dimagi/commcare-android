@@ -53,9 +53,10 @@ public class UserDatabaseSchemaManager {
      * v.27 - Adds a column `descriptor` in FormRecord.
      * v.28 - Adds and indexes columns for Case state and category
      * v.29 - Add columns for is_dirty and is_shallow in entity_cache table
+     * v.30 - Drop aesKey column from DeviceReportRecord; encryption now uses shared session key
      */
 
-    public static final int USER_DB_VERSION = 29;
+    public static final int USER_DB_VERSION = 30;
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
     public static String getDbName(String sandboxId) {

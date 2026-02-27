@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -25,7 +26,7 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
 
 /**
  * Methods for dealing with encrypted input/output.
@@ -34,7 +35,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionIO {
 
-    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symmetricKey) throws IOException {
+    public static void encryptFile(String sourceFilePath, String destPath, Key symmetricKey) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
         OutputStream os;
@@ -96,15 +97,34 @@ public class EncryptionIO {
         }
     }
 
-    public static InputStream getFileInputStream(String filepath,
-                                                 SecretKeySpec symetricKey) throws FileNotFoundException {
+    public static InputStream getFileInputStream(String filepath, Key symetricKey) throws FileNotFoundException {
+        return getFileInputStream(filepath, symetricKey, null, false);
+    }
+
+    public static InputStream getFileInputStream(
+            String filepath,
+            Key symetricKey,
+            String transformation,
+            boolean isKeyFromAndroidKeyStore
+    ) throws FileNotFoundException {
         final File file = new File(filepath);
         InputStream is;
         try {
             is = new FileInputStream(file);
+            // TODO: refactor the cipher initialization logic to a separate method
             if (symetricKey != null) {
-                Cipher cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.DECRYPT_MODE, symetricKey);
+                Cipher cipher = Cipher.getInstance(Objects.requireNonNullElse(transformation, "AES"));
+                byte[] iv = null;
+                if (isKeyFromAndroidKeyStore) {
+                    int ivLength = is.read() & 0xFF;
+                    iv = new byte[ivLength];
+                    is.read(iv, 0, ivLength);
+                }
+                if (iv != null) {
+                    cipher.init(Cipher.DECRYPT_MODE, symetricKey, new IvParameterSpec(iv));
+                } else {
+                    cipher.init(Cipher.DECRYPT_MODE, symetricKey);
+                }
                 is = new BufferedInputStream(new CipherInputStream(is, cipher));
             }
 
@@ -118,8 +138,8 @@ public class EncryptionIO {
             //files are smaller than their contents (padded encryption data, etc),
             //so you can't actually know that's correct. We should be relying on the
             //methods we use to read data to make sure it's all coming out.
-        } catch (InvalidKeyException | NoSuchPaddingException
-                | NoSuchAlgorithmException e) {
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | IOException
+                 | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
