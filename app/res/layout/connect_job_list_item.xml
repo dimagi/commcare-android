@@ -43,8 +43,8 @@
 
         <ImageView
             android:id="@+id/iv_completed_check"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_connect_check_circle"
