@@ -174,12 +174,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
-        // We need the composite job because it has the correct number of deliveries.
-        ConnectJobRecord compositeJob = ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
-        assert compositeJob != null;
-
-        if (compositeJob.deliveryComplete() || compositeJob.getLearningCompletePercentage() == 100) {
+        if (job.deliveryComplete()) {
             navigateToDeliveryProgress();
+        } else if (job.getLearningCompletePercentage() == 100 && !job.passedAssessment()) {
+            navigateToLearnProgreess();
         } else if (AppUtils.isAppInstalled(appId)) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
@@ -193,6 +191,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     private void navigateToDeliveryProgress() {
         Navigation.findNavController(getBinding().getRoot())
                 .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment());
+    }
+
+    private void navigateToLearnProgreess() {
+        Navigation.findNavController(getBinding().getRoot())
+                .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment());
     }
 
     private void setActiveJob(ConnectJobRecord job) {
@@ -218,7 +221,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     compositeJob.getDeliveryProgressPercentage() == 100;
             if (compositeJob.isFinished()) {
                 finishedJobs.add(createJobModel(
-                        job,
+                        compositeJob,
                         ConnectLoginJobListModel.JobListEntryType.DELIVERY,
                         DELIVERY_APP,
                         isDeliverAppInstalled,
@@ -233,7 +236,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             switch (job.getStatus()) {
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
                     newJobs.add(createJobModel(
-                            job,
+                            compositeJob,
                             ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY,
                             NEW_APP,
                             true, true, false, false, false, false
@@ -242,7 +245,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
                 case STATUS_LEARNING:
                     inProgressJobs.add(createJobModel(
-                            job,
+                            compositeJob,
                             ConnectLoginJobListModel.JobListEntryType.LEARNING,
                             LEARN_APP,
                             isLearnAppInstalled, false, true, false, false, false
@@ -251,7 +254,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
                 case STATUS_DELIVERING: {
                     ConnectLoginJobListModel model = createJobModel(
-                            job,
+                            compositeJob,
                             ConnectLoginJobListModel.JobListEntryType.DELIVERY,
                             DELIVERY_APP,
                             isDeliverAppInstalled, false, false, true, false,

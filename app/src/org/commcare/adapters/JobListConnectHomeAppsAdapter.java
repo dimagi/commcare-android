@@ -206,7 +206,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnReview.setVisibility(View.VISIBLE);
             binding.btnProceed.setVisibility(View.INVISIBLE);
         } else if (connectLoginJobListModel.isLearningApp() &&
-                connectLoginJobListModel.getLearningProgress() == 100) {
+                connectLoginJobListModel.getJob().passedAssessment()) {
             // Show the "Proceed" button.
             binding.btnResume.setVisibility(View.INVISIBLE);
             binding.btnReview.setVisibility(View.INVISIBLE);
@@ -270,6 +270,9 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
                 if (!job.passedAssessment()) {
                     progress = item.getLearningProgress();
                     progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
+                } else {
+                    progress = item.getDeliveryProgress();
+                    progressColor = ContextCompat.getColor(context, R.color.connect_green);
                 }
                 break;
 
@@ -304,9 +307,9 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnViewOpportunity.setVisibility(View.GONE);
             binding.btnViewInfo.setVisibility(View.VISIBLE);
 
-            if (item.isLearningApp()) {
+            if (item.isLearningApp() && !item.getJob().passedAssessment()) {
                 binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
-            } else if (item.isDeliveryApp()) {
+            } else {
                 boolean finished = item.getJob().isFinished();
                 int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
                 binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
