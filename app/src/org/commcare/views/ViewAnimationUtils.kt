@@ -1,4 +1,4 @@
-package org.commcare.utils
+package org.commcare.views
 
 import android.animation.ValueAnimator
 import android.view.View

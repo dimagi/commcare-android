@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewGroup
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
-import org.commcare.utils.animateHeight
 
 class TopBarErrorViewController(
     private val errorBinding: InlineErrorLayoutBinding,
