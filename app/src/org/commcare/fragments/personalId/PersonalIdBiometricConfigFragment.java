@@ -277,7 +277,13 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
     public void handleFinishedPinActivity(int requestCode, int resultCode) {
         if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
-            navigateForward(resultCode != RESULT_OK);
+            boolean anyBiometricConfigured =
+                    BiometricsHelper.isFingerprintConfigured(getActivity(), biometricManager)
+                    || BiometricsHelper.isPinConfigured(getActivity(), biometricManager);
+            if (!anyBiometricConfigured) {
+                // Nothing configured — navigate to error message display
+                navigateForward(true);
+            }
         }
     }
 
