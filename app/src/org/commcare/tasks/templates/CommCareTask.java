@@ -91,6 +91,10 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 connector.stopTaskTransition(taskId);
             }
         }
+
+        if (shouldRunNetworkNotificationService() && NetworkNotificationService.isServiceRunning()) {
+            CommCareApplication.instance().startForegroundService(getNotificationStopIntent());
+        }
     }
 
     @Override
@@ -112,7 +116,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (NetworkNotificationService.isServiceRunning()) {
+        if (shouldRunNetworkNotificationService() && NetworkNotificationService.isServiceRunning()) {
             CommCareApplication.instance().startForegroundService(getNotificationStopIntent());
         }
     }
@@ -162,7 +166,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (NetworkNotificationService.isServiceRunning()) {
+        if (shouldRunNetworkNotificationService() && NetworkNotificationService.isServiceRunning()) {
             CommCareApplication.instance().startForegroundService(getNotificationUpdateIntent());
         }
     }
