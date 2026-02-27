@@ -12,14 +12,6 @@ import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.commcare.CommCareNoficationManager
 import org.commcare.activities.DispatchActivity
 import org.commcare.dalvik.R
@@ -36,13 +28,12 @@ class NetworkNotificationService : Service() {
         const val START_NOTIFICATION_ACTION = "start_notification"
         const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
         const val TASK_ID_INTENT_EXTRA = "task_id"
+        @Volatile
         @JvmStatic
         var isServiceRunning = false
     }
 
-    private val _taskIds = MutableStateFlow<List<Int>>(emptyList())
-    val taskIds: StateFlow<List<Int>> = _taskIds
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val taskIds = mutableListOf<Int>()
 
     override fun onCreate() {
         super.onCreate()
@@ -55,13 +46,6 @@ class NetworkNotificationService : Service() {
             )
         } else {
             startForeground(NETWORK_NOTIFICATION_ID.hashCode(), buildNotification("network.notification.service.starting"))
-        }
-        serviceScope.launch {
-            taskIds.collect { list ->
-                if (list.isEmpty() && isServiceRunning) {
-                    stopSelf()
-                }
-            }
         }
         isServiceRunning = true
     }
@@ -93,16 +77,21 @@ class NetworkNotificationService : Service() {
 
     private fun removeTaskId(taskId: Int) {
         if (taskId == -1) return
-        _taskIds.update { current -> current - taskId }
+        synchronized(taskIds) {
+            taskIds.remove(taskId)
+            if (taskIds.isEmpty()) stopSelf()
+        }
     }
 
     private fun registerTaskId(
         taskId: Int,
         update: Boolean,
     ) {
-        if (taskId == -1 || (update && taskId in _taskIds.value)) return
-
-        _taskIds.update { current -> current + taskId }
+        if (taskId == -1) return
+        synchronized(taskIds) {
+            if (update && taskId in taskIds) return
+            taskIds.add(taskId)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -128,7 +117,6 @@ class NetworkNotificationService : Service() {
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         isServiceRunning = false
-        serviceScope.cancel()
         super.onDestroy()
     }
 }
