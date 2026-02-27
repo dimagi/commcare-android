@@ -16,8 +16,10 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.models.database.SqlStorage;
+import org.javarosa.xform.util.CalendarUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -25,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
@@ -414,12 +415,14 @@ public class ConnectJobUtils {
     }
 
     public static boolean isExpiryDateUnderFiveDays(Date expiryDate) {
-        long now = System.currentTimeMillis();
-        long diffMillis = expiryDate.getTime() - now;
-
-        long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
-
-        return daysRemaining >= 0 && daysRemaining <= 5;
+        Calendar expiry = Calendar.getInstance();
+        expiry.setTime(expiryDate);
+        CalendarUtils.toMidnight(expiry);
+        Calendar today = Calendar.getInstance();
+        CalendarUtils.toMidnight(today);
+        Calendar upperBound = (Calendar) today.clone();
+        upperBound.add(Calendar.DAY_OF_YEAR, 5);
+        return !expiry.before(today) && !expiry.after(upperBound);
     }
 
 }

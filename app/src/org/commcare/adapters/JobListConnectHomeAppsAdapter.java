@@ -168,6 +168,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.ivInfo.setVisibility(View.VISIBLE);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
         } else {
+            binding.tvDate.setTextColor(
+                    ContextCompat.getColor(mContext, R.color.moon_gray)
+            );
+            binding.ivInfo.clearColorFilter();
             binding.ivInfo.setVisibility(View.GONE);
         }
 
