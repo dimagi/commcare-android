@@ -14,7 +14,7 @@ import org.javarosa.core.services.Logger;
 import static org.commcare.services.NetworkNotificationService.PROGRESS_TEXT_KEY_INTENT_EXTRA;
 import static org.commcare.services.NetworkNotificationService.START_NOTIFICATION_ACTION;
 import static org.commcare.services.NetworkNotificationService.STOP_NOTIFICATION_ACTION;
-import static org.commcare.services.NetworkNotificationService.TASK_ID_INTENT_EXTRA;
+import static org.commcare.services.NetworkNotificationService.TASK_TAG_INTENT_EXTRA;
 import static org.commcare.services.NetworkNotificationService.UPDATE_PROGRESS_NOTIFICATION_ACTION;
 
 /**
@@ -153,7 +153,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private Intent getNetworkServiceBaseIntent() {
         return new Intent(CommCareApplication.instance(), NetworkNotificationService.class)
-                .putExtra(TASK_ID_INTENT_EXTRA, taskId);
+                .putExtra(TASK_TAG_INTENT_EXTRA, TAG);
     }
 
     @Override

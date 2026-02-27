@@ -27,13 +27,13 @@ class NetworkNotificationService : Service() {
         const val STOP_NOTIFICATION_ACTION = "stop_notification"
         const val START_NOTIFICATION_ACTION = "start_notification"
         const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
-        const val TASK_ID_INTENT_EXTRA = "task_id"
+        const val TASK_TAG_INTENT_EXTRA = "task_tag"
         @Volatile
         @JvmStatic
         var isServiceRunning = false
     }
 
-    private val taskIds = mutableListOf<Int>()
+    private val taskTags = mutableListOf<String>()
 
     override fun onCreate() {
         super.onCreate()
@@ -57,10 +57,10 @@ class NetworkNotificationService : Service() {
     ): Int {
         when (intent?.action) {
             START_NOTIFICATION_ACTION -> {
-                registerTaskId(intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1), false)
+                registerTaskId(intent.getStringExtra(TASK_TAG_INTENT_EXTRA), false)
             }
             UPDATE_PROGRESS_NOTIFICATION_ACTION -> {
-                registerTaskId(intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1), true)
+                registerTaskId(intent.getStringExtra(TASK_TAG_INTENT_EXTRA), true)
                 notificationManager.notify(
                     NETWORK_NOTIFICATION_ID.hashCode(),
                     buildNotification(
@@ -69,28 +69,29 @@ class NetworkNotificationService : Service() {
                 )
             }
             STOP_NOTIFICATION_ACTION -> {
-                removeTaskId(intent.getIntExtra(TASK_ID_INTENT_EXTRA, -1))
+                removeTaskId(intent.getStringExtra(TASK_TAG_INTENT_EXTRA))
             }
         }
+
         return START_NOT_STICKY;
     }
 
-    private fun removeTaskId(taskId: Int) {
-        if (taskId == -1) return
-        synchronized(taskIds) {
-            taskIds.remove(taskId)
-            if (taskIds.isEmpty()) stopSelf()
+    private fun removeTaskId(taskTag: String?) {
+        if (taskTag == null) return
+        synchronized(taskTags) {
+            taskTags.remove(taskTag)
+            if (taskTags.isEmpty()) stopSelf()
         }
     }
 
     private fun registerTaskId(
-        taskId: Int,
+        taskTag: String?,
         update: Boolean,
     ) {
-        if (taskId == -1) return
-        synchronized(taskIds) {
-            if (update && taskId in taskIds) return
-            taskIds.add(taskId)
+        if (taskTag == null) return
+        synchronized(taskTags) {
+            if (update && taskTag in taskTags) return
+            taskTags.add(taskTag)
         }
     }
 
