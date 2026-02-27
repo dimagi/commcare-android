@@ -102,6 +102,9 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Atsisakyti prenumeratos</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Atšaukti</string>
     <string name="connect_messaging_channel_unsubscribe_error">Nepavyko atsisakyti prenumeratos</string>
+    <string name="connect_messaging_channel_resubscribe_error">Nepavyko vėl užsiprenumeruoti</string>
+    <string name="connect_messaging_channel_unsubscribe_success">Sėkmingai atsisakyta prenumeratos</string>
+    <string name="connect_messaging_channel_resubscribe_success">Sėkmingai vėl užsiprenumeruota</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">prenumerata atšaukta</string>
     <string name="connect_messaging_channel_list_not_subscribed">Jūs nesate užsiprenumeravę šio pranešimų kanalo.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Vėl užsiprenumeruoti</string>
@@ -173,6 +176,7 @@
     <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
     <string name="connect_job_info_view_resume">Tęsti</string>
     <string name="connect_job_info_view_review">Peržiūrėti</string>
+    <string name="connect_job_info_view_proceed">Tęsti</string>
 
     <string name="error">Klaida</string>
     <string name="failed_to_start_learning">Nepavyko pradėti mokytis</string>
@@ -190,8 +194,8 @@
     <string name="pn_no_notification_available">Pranešimų nėra</string>
     <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
 
-    <string name="connect_complete_by">Atlikti iki %s</string>
-    <string name="connect_expired_on">Galiojimas baigėsi: %s</string>
+    <string name="connect_complete_by">Užduotis baigiasi %s</string>
+    <string name="connect_expired_on">Užduotis baigėsi %s</string>
     <string name="connect_job_you_will_learn">Užbaikite šiuos mokymosi modulius ir vertinimą, kad gautumėte sertifikatą</string>
     <string name="connect_job_preview_start">Pradėti</string>
     <string name="connect_job_delivery_preview_subtitle">Baigę mokymosi vertinimą, pereisite prie pristatymo</string>
