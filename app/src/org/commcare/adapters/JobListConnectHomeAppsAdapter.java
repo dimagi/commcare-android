@@ -267,13 +267,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         switch (jobType) {
             case LEARNING:
-                if (!job.passedAssessment()) {
-                    progress = item.getLearningProgress();
-                    progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-                } else {
-                    progress = item.getDeliveryProgress();
-                    progressColor = ContextCompat.getColor(context, R.color.connect_green);
-                }
+                progress = item.getLearningProgress();
+                progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
                 break;
 
             case DELIVERY:
@@ -307,9 +302,9 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnViewOpportunity.setVisibility(View.GONE);
             binding.btnViewInfo.setVisibility(View.VISIBLE);
 
-            if (item.isLearningApp() && !item.getJob().passedAssessment()) {
+            if (item.isLearningApp()) {
                 binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
-            } else {
+            } else if (item.isDeliveryApp()) {
                 boolean finished = item.getJob().isFinished();
                 int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
                 binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));

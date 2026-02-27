@@ -125,8 +125,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                 R.drawable.ic_disabled_review
         );
 
-        boolean deliveryEnabled = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
-                || job.passedAssessment();
+        boolean deliveryEnabled = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING;
         setProgressIconState(
                 binding.includeJobProgress.pbDelivery,
                 binding.includeJobProgress.ivDelivery,
