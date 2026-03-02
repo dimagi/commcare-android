@@ -289,8 +289,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
 
         binding.groupProgress.setVisibility(View.VISIBLE);
-        int progessBarWidth = dpToPx(6, mContext);
-        binding.progressBar.setStrokeWidth(progessBarWidth);
+        int progessBarWidthPx = dpToPx(6, context);
+        binding.progressBar.setStrokeWidth(progessBarWidthPx);
         binding.progressBar.setProgress(progress);
         binding.progressBar.setProgressColor(progressColor);
         binding.tvProgressPercent.setText(showPercentageText ? progress + " %" : "");
