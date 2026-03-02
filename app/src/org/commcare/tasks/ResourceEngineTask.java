@@ -77,8 +77,8 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
-    public String getNetworkNotificationProgressKey() {
-        return "network.notification.service.downloading.files";
+    public int getNetworkNotificationProgressKey() {
+        return org.commcare.dalvik.R.string.network_notification_service_downloading_files;
     }
 
     @Override

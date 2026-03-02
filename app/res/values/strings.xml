@@ -698,4 +698,8 @@
 
     <string name="connect_complete_by">Complete by %s</string>
     <string name="connect_expired_on">Expired on: %s</string>
+
+    <string name="network_notification_service_starting">Starting network service</string>
+    <string name="network_notification_service_running">Running network requests...</string>
+    <string name="network_notification_service_downloading_files">Downloading application files...</string>
 </resources>

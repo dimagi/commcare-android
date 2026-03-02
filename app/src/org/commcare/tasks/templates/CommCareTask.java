@@ -66,8 +66,8 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         return false;
     }
 
-    public String getNetworkNotificationProgressKey(){
-        return null;
+    public int getNetworkNotificationProgressKey(){
+        return -1;
     }
 
     /**
@@ -181,7 +181,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private Intent getNotificationUpdateIntent() {
         Intent intent = getNetworkServiceBaseIntent().setAction(UPDATE_PROGRESS_NOTIFICATION_ACTION);
-        if (getNetworkNotificationProgressKey() != null) {
+        if (getNetworkNotificationProgressKey() != -1) {
             intent.putExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, getNetworkNotificationProgressKey());
         }
         return intent;

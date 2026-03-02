@@ -16,7 +16,7 @@ import org.commcare.CommCareNoficationManager
 import org.commcare.activities.DispatchActivity
 import org.commcare.dalvik.R
 import org.commcare.utils.NotificationIdentifiers.NETWORK_SERVICE_NOTIFICATION_ID
-import org.javarosa.core.services.locale.Localization
+import org.commcare.utils.StringUtils
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class NetworkNotificationService : Service() {
@@ -47,7 +47,7 @@ class NetworkNotificationService : Service() {
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         startForeground(
             NETWORK_SERVICE_NOTIFICATION_ID,
-            buildNotification("network.notification.service.starting"),
+            buildNotification(R.string.network_notification_service_starting),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
         isServiceRunning = true
@@ -67,7 +67,7 @@ class NetworkNotificationService : Service() {
                 notificationManager.notify(
                     NETWORK_SERVICE_NOTIFICATION_ID,
                     buildNotification(
-                        intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA) ?: "network.notification.service.running",
+                        intent.getIntExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA, R.string.network_notification_service_running),
                     ),
                 )
             }
@@ -100,10 +100,10 @@ class NetworkNotificationService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun buildNotification(notificationTitleKey: String): Notification {
+    private fun buildNotification(notificationTitleStringId: Int): Notification {
         return NotificationCompat
             .Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
-            .setContentTitle(Localization.get(notificationTitleKey))
+            .setContentTitle(StringUtils.getStringRobust(this,notificationTitleStringId))
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.commcare_actionbar_logo)
             .setContentIntent(pendingIntent)
