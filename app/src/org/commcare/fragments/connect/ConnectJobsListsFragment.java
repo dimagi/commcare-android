@@ -177,7 +177,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         if (job.deliveryComplete()) {
             navigateToDeliveryProgress();
         } else if (job.getLearningCompletePercentage() == 100 && !job.passedAssessment()) {
-            navigateToLearnProgreess();
+            navigateToLearnProgress();
         } else if (AppUtils.isAppInstalled(appId)) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
@@ -193,7 +193,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment());
     }
 
-    private void navigateToLearnProgreess() {
+    private void navigateToLearnProgress() {
         Navigation.findNavController(getBinding().getRoot())
                 .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment());
     }
