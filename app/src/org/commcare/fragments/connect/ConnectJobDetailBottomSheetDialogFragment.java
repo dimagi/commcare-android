@@ -79,6 +79,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                     ContextCompat.getColor(requireContext(), R.color.moon_gray)
             );
             binding.ivInfo.clearColorFilter();
+            binding.ivInfo.setVisibility(View.GONE);
         }
         binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit,
                 job.getMaxPossibleVisits()));
