@@ -18,6 +18,11 @@ import org.commcare.dalvik.R
 import org.commcare.utils.NotificationIdentifiers.NETWORK_SERVICE_NOTIFICATION_ID
 import org.commcare.utils.StringUtils
 
+/**
+ * Service responsible for showing a notification when network activity is triggered by CommCareTasks when there
+ * is no active user session on devices running Android 14 and higher. Duplicate tasks are supported.
+ * The service will stop itself when all tasks are complete.
+ */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class NetworkNotificationService : Service() {
 
@@ -45,11 +50,10 @@ class NetworkNotificationService : Service() {
     override fun onCreate() {
         super.onCreate()
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        startForeground(
-            NETWORK_SERVICE_NOTIFICATION_ID,
+        startForeground(NETWORK_SERVICE_NOTIFICATION_ID,
             buildNotification(R.string.network_notification_service_starting),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
-            )
+        )
         isServiceRunning = true
     }
 
@@ -76,7 +80,7 @@ class NetworkNotificationService : Service() {
             }
         }
 
-        return START_NOT_STICKY;
+        return START_NOT_STICKY
     }
 
     private fun removeTaskId(taskTag: String?) {

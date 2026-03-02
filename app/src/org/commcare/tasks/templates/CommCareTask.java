@@ -8,8 +8,9 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.services.NetworkNotificationService;
-import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
+
+import androidx.annotation.StringRes;
 
 import static org.commcare.services.NetworkNotificationService.PROGRESS_TEXT_KEY_INTENT_EXTRA;
 import static org.commcare.services.NetworkNotificationService.START_NOTIFICATION_ACTION;
@@ -66,6 +67,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         return false;
     }
 
+    @StringRes
     public int getNetworkNotificationProgressKey(){
         return -1;
     }
