@@ -20,7 +20,8 @@ class LatestTaskExecutor<T> {
 
     private var currentJob: Job? = null
 
-    fun submit(scope: CoroutineScope,
+    fun submit(
+        scope: CoroutineScope,
         task: Callable<T>,
         callback: Callback<T>,
     ) {
