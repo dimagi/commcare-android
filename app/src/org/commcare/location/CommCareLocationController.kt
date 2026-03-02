@@ -62,11 +62,13 @@ private fun discardLocation(location: Location) {
 private fun getStaleLocationException(
     location: Location,
     currentDeviceTime: Long,
-): Throwable =
-    Exception(
+): Throwable {
+    val driftInMinutes = abs(currentDeviceTime - location.time) / (60 * 1000)
+    return Exception(
         "Stale location with accuracy ${location.accuracy}" +
-            " with time ${location.time}" + " and current device time $currentDeviceTime",
+            " with time ${location.time}" + " and current device time $currentDeviceTime, with drift $driftInMinutes minutes",
     )
+}
 
 private fun logStaleLocationIfGpsTimeDrifted(
     location: Location,
