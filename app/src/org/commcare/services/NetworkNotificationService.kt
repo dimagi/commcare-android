@@ -34,6 +34,13 @@ class NetworkNotificationService : Service() {
     }
 
     private val taskTags = mutableListOf<String>()
+    private val pendingIntent: PendingIntent by lazy {
+        val intent = Intent(this, DispatchActivity::class.java).apply {
+            action = ACTION_MAIN
+            addCategory(CATEGORY_LAUNCHER)
+        }
+        PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -98,13 +105,6 @@ class NetworkNotificationService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun buildNotification(notificationTitleKey: String): Notification {
-        val activityToLaunch = Intent(this, DispatchActivity::class.java)
-        activityToLaunch.setAction(ACTION_MAIN)
-        activityToLaunch.addCategory(CATEGORY_LAUNCHER)
-
-        val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        val pendingIntent = PendingIntent.getActivity(this, 0, activityToLaunch, pendingIntentFlags)
-
         return NotificationCompat
             .Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
             .setContentTitle(Localization.get(notificationTitleKey))
