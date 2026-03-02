@@ -12,8 +12,8 @@ import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -45,6 +45,7 @@ import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.ViewUtils;
 import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
@@ -63,8 +64,9 @@ import static org.commcare.views.EntityView.FORM_IMAGE;
 /**
  * @author Forest Tong (ftong@dimagi.com)
  */
-public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
+public class EntityMapActivity extends CommCareActivity implements
         GoogleMap.OnInfoWindowClickListener {
+    private static final int MAP_LOAD_TASK_ID = 1;
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
     private static final int DEFAULT_MARKER_SIZE = 120;
     private static final int BOUNDARY_POLYGON_ALPHA = 64;
@@ -106,15 +108,36 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        TaskCompletionSource<GoogleMap> mapTcs = new TaskCompletionSource<>();
+        mapFragment.getMapAsync(map -> {
+            CCPerfMonitoring.INSTANCE.stopTracing(mapReadyTrace, new HashMap<>());
+            mapReadyTrace = null;
+            mapLoadedTrace = CCPerfMonitoring.INSTANCE.startTracing(
+                    CCPerfMonitoring.TRACE_ENTITY_MAP_LOADED_TIME);
+            mapTcs.setResult(map);
+        });
+
+        showProgressDialog(MAP_LOAD_TASK_ID);
+        LocationHelper.loadMap(this, this::addEntityData, mapTcs.getTask())
+                .addOnSuccessListener(result -> {
+                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
+                    setupMap(result.getFirst(), result.getSecond());
+                })
+                .addOnFailureListener(e -> {
+                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
+                    if (e instanceof XPathException xe) {
+                        new UserfacingErrorHandling<>().logErrorAndShowDialog(
+                                this, xe, true);
+                    }
+                });
 
         findViewById(R.id.switch_map_layer).setOnClickListener(v -> changeMapLayer());
+    }
 
-        try {
-            addEntityData();
-        } catch (XPathException xe) {
-            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, xe, true);
-        }
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     /**
@@ -127,7 +150,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                     .getDetail(selectDatum.getShortDetail());
             evalImageFieldIndex(detail);
 
-            setToggleLabels(detail);
+            runOnUiThread(() -> setToggleLabels(detail));
 
             var errorEncountered = false;
             for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
@@ -139,8 +162,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             }
 
             if (errorEncountered) {
-                ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
-                        getString(R.string.entity_map_error_message));
+                runOnUiThread(() -> ViewUtils.showSnackBarWithNoDismissAction(
+                        findViewById(R.id.map), getString(R.string.entity_map_error_message)));
             }
         }
     }
@@ -172,15 +195,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
     }
 
-    @Override
-    public void onMapReady(@NonNull final GoogleMap map) {
+    private void setupMap(GoogleMap map, Location location) {
         mMap = map;
-
-        CCPerfMonitoring.INSTANCE.stopTracing(mapReadyTrace, new HashMap<>());
-        mapReadyTrace = null;
-
-        mapLoadedTrace = CCPerfMonitoring.INSTANCE.startTracing(
-                CCPerfMonitoring.TRACE_ENTITY_MAP_LOADED_TIME);
 
         if (!entityLocations.isEmpty()) {
             final LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -207,8 +223,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             setupMapToggles();
 
-            LocationHelper.getCurrentLocation(this).addOnCompleteListener(task ->
-                    proceedWithLocation(builder, task.isSuccessful() ? task.getResult() : null));
+            proceedWithLocation(builder, location);
         } else {
             finishLoadingPerformanceTrace();
         }
