@@ -15,14 +15,13 @@ import androidx.core.app.NotificationCompat
 import org.commcare.CommCareNoficationManager
 import org.commcare.activities.DispatchActivity
 import org.commcare.dalvik.R
+import org.commcare.utils.NotificationIdentifiers.NETWORK_SERVICE_NOTIFICATION_ID
 import org.javarosa.core.services.locale.Localization
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class NetworkNotificationService : Service() {
-    private lateinit var notificationManager: NotificationManager
 
     companion object {
-        private const val NETWORK_NOTIFICATION_ID = "network_notification_service_id"
         const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
         const val STOP_NOTIFICATION_ACTION = "stop_notification"
         const val START_NOTIFICATION_ACTION = "start_notification"
@@ -33,6 +32,7 @@ class NetworkNotificationService : Service() {
         var isServiceRunning = false
     }
 
+    private lateinit var notificationManager: NotificationManager
     private val taskTags = mutableListOf<String>()
     private val pendingIntent: PendingIntent by lazy {
         val intent = Intent(this, DispatchActivity::class.java).apply {
@@ -45,15 +45,11 @@ class NetworkNotificationService : Service() {
     override fun onCreate() {
         super.onCreate()
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(
-                NETWORK_NOTIFICATION_ID.hashCode(),
-                buildNotification("network.notification.service.starting"),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+        startForeground(
+            NETWORK_SERVICE_NOTIFICATION_ID,
+            buildNotification("network.notification.service.starting"),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
-        } else {
-            startForeground(NETWORK_NOTIFICATION_ID.hashCode(), buildNotification("network.notification.service.starting"))
-        }
         isServiceRunning = true
     }
 
@@ -69,7 +65,7 @@ class NetworkNotificationService : Service() {
             UPDATE_PROGRESS_NOTIFICATION_ACTION -> {
                 registerTaskId(intent.getStringExtra(TASK_TAG_INTENT_EXTRA), true)
                 notificationManager.notify(
-                    NETWORK_NOTIFICATION_ID.hashCode(),
+                    NETWORK_SERVICE_NOTIFICATION_ID,
                     buildNotification(
                         intent.getStringExtra(PROGRESS_TEXT_KEY_INTENT_EXTRA) ?: "network.notification.service.running",
                     ),
