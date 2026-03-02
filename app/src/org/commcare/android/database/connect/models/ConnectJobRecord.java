@@ -362,7 +362,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getLearningPercentComplete() {
-        return numLearningModules > 0 ? (100 * learningModulesCompleted / numLearningModules) : 100;
+        // Add 1 to represent the assessment.
+        int totalModules = numLearningModules + 1;
+        int modulesCompleted = learningModulesCompleted + (passedAssessment() ? 1 : 0);
+
+        return totalModules > 0 ? (100 * modulesCompleted / totalModules) : 100;
     }
 
     public String getDailyStartTime() {
