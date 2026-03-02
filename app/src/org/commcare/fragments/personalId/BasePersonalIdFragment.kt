@@ -52,11 +52,16 @@ abstract class BasePersonalIdFragment : Fragment() {
     )
 
     private var globalLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
+    private var lastVisibleHeight = 0
 
     protected fun setupKeyboardScrollListener(scrollView: ScrollView) {
         globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
-            val contentHeight = scrollView.getChildAt(0)?.bottom ?: 0
-            scrollView.smoothScrollTo(0, contentHeight)
+            val visibleHeight = scrollView.height
+            if (lastVisibleHeight > 0 && visibleHeight < lastVisibleHeight) {
+                val contentHeight = scrollView.getChildAt(0)?.bottom ?: 0
+                scrollView.smoothScrollTo(0, contentHeight)
+            }
+            lastVisibleHeight = visibleHeight
         }
         scrollView.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
     }
@@ -68,6 +73,7 @@ abstract class BasePersonalIdFragment : Fragment() {
             }
         }
         globalLayoutListener = null
+        lastVisibleHeight = 0
     }
 
 }
