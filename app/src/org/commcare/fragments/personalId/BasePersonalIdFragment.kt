@@ -57,7 +57,8 @@ abstract class BasePersonalIdFragment : Fragment() {
     protected fun setupKeyboardScrollListener(scrollView: ScrollView) {
         globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
             val visibleHeight = scrollView.height
-            if (lastVisibleHeight > 0 && visibleHeight < lastVisibleHeight) {
+            if (lastVisibleHeight > 0 && lastVisibleHeight / visibleHeight.toDouble() > 1.1) {
+                //Scroll to end when window shrinks by more than 10%
                 val contentHeight = scrollView.getChildAt(0)?.bottom ?: 0
                 scrollView.smoothScrollTo(0, contentHeight)
             }
