@@ -120,11 +120,11 @@ public class EntityMapActivity extends CommCareActivity implements
 
         showProgressDialog(MAP_LOAD_TASK_ID);
         LocationHelper.loadMap(this, this::addEntityData, mapTcs.getTask())
-                .addOnSuccessListener(result -> {
+                .addOnSuccessListener(this, result -> {
                     dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
                     setupMap(result.getFirst(), result.getSecond());
                 })
-                .addOnFailureListener(e -> {
+                .addOnFailureListener(this, e -> {
                     dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
                     if (e instanceof XPathException xe) {
                         new UserfacingErrorHandling<>().logErrorAndShowDialog(
