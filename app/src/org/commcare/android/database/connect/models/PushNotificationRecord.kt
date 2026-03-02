@@ -148,6 +148,8 @@ class PushNotificationRecord :
                 opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
                 opportunityUUID = obj.optString(META_OPPORTUNITY_UUID, "")
                 paymentUUID = obj.optString(META_PAYMENT_UUID, "")
+                key = obj.optString(META_KEY, "")
+                opportunityStatus = obj.optString(META_OPPORTUNITY_STATUS, "")
             }
 
         fun fromV23(pushNotificationRecordV23: PushNotificationRecordV23): PushNotificationRecord =
