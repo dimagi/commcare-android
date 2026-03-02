@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.widget.TextView;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -58,48 +57,62 @@ public class SyncDetailCalculations {
 
                         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
-                        Spannable syncIndicator =
-                                (activity.localize(
-                                        "home.unsent.forms.indicator",
-                                        new String[]{String.valueOf(numUnsentForms)}));
+                        Spannable unsentFormsIndicator = activity.localize(
+                                "home.unsent.forms.indicator",
+                                new String[]{String.valueOf(numUnsentForms)});
+                        squareButtonViewHolder.subTextView.setText(
+                                buildSyncSubtext(
+                                        notificationText,
+                                        numUnsentForms,
+                                        lastSyncTimeAndMessage.second,
+                                        unsentFormsIndicator
+                                )
+                        );
 
-                        String syncStatus = "";
-
-                        if (notificationText != null) {
-                            syncStatus = notificationText;
-                        } else if (numUnsentForms == 0) {
-                            syncStatus = lastSyncTimeAndMessage.second;
-                        }
-
-                        if (numUnsentForms != 0 || HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
-                            if (!TextUtils.isEmpty(syncStatus)) {
-                                syncStatus += "\n\n";
-                            }
-                            syncStatus += syncIndicator;
-                        }
-
-                        squareButtonViewHolder.subTextView.setText(syncStatus);
-
-                        setSyncSubtextColor(
-                                squareButtonViewHolder.subTextView,
-                                numUnsentForms,
-                                lastSyncTimeAndMessage.first,
-                                activity.getResources().getColor(cardDisplayData.subTextColor),
-                                activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
+                        squareButtonViewHolder.subTextView.setTextColor(
+                                getSyncSubtextColor(
+                                        numUnsentForms,
+                                        lastSyncTimeAndMessage.first,
+                                        activity.getResources().getColor(cardDisplayData.subTextColor),
+                                        activity.getResources().getColor(R.color.cc_dark_warm_accent_color)
+                                )
+                        );
                     }
 
                     @Override
                     public void onError(@NotNull Exception exception) {
-                        Logger.exception("LatestTaskExecutor task failed", exception);
+                        Logger.exception("Failed to retrieve unsent forms count ", exception);
                     }
                 });
     }
 
-    public static LatestTaskExecutor<Integer> getUnsentFormsExecutor() {
+    private static LatestTaskExecutor<Integer> getUnsentFormsExecutor() {
         if (unsentFormsExecutor == null) {
             unsentFormsExecutor = new LatestTaskExecutor<>();
         }
         return unsentFormsExecutor;
+    }
+
+    private static String buildSyncSubtext(
+            String notificationText,
+            int numUnsentForms,
+            String lastSyncMessage,
+            Spannable unsentFormsIndicator
+    ) {
+        String syncStatus = "";
+        if (notificationText != null) {
+            syncStatus = notificationText;
+        } else if (numUnsentForms == 0) {
+            syncStatus = lastSyncMessage;
+        }
+
+        if (numUnsentForms != 0 || HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
+            if (!TextUtils.isEmpty(syncStatus)) {
+                syncStatus += "\n\n";
+            }
+            syncStatus += unsentFormsIndicator;
+        }
+        return syncStatus;
     }
 
     public static int getNumUnsentForms() {
@@ -173,16 +186,15 @@ public class SyncDetailCalculations {
         return LAST_SYNC_KEY_BASE + username;
     }
 
-    private static void setSyncSubtextColor(
-            TextView subtext,
+    private static int getSyncSubtextColor(
             int numUnsentForms,
             long lastSyncTime,
             int normalColor,
             int warningColor) {
         if (isSyncStronglyNeeded(numUnsentForms, lastSyncTime)) {
-            subtext.setTextColor(warningColor);
+            return warningColor;
         } else {
-            subtext.setTextColor(normalColor);
+            return normalColor;
         }
     }
 
