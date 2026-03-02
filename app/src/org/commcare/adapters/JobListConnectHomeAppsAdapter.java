@@ -2,6 +2,7 @@ package org.commcare.adapters;
 
 
 import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
+import static org.commcare.utils.ViewUtils.dpToPx;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -288,7 +289,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
 
         binding.groupProgress.setVisibility(View.VISIBLE);
-        binding.progressBar.setStrokeWidth(20);
+        int progessBarWidth = dpToPx(6, mContext);
+        binding.progressBar.setStrokeWidth(progessBarWidth);
         binding.progressBar.setProgress(progress);
         binding.progressBar.setProgressColor(progressColor);
         binding.tvProgressPercent.setText(showPercentageText ? progress + " %" : "");
