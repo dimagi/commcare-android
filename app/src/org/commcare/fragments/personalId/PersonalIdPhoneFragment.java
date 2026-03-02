@@ -51,7 +51,6 @@ import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
 import org.commcare.location.LocationRequestFailureHandler;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.Permissions;
@@ -296,11 +295,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
         body.put("cc_device_id", ReportingUtils.getDeviceId());
-
-        String model = DeviceIdentifier.getDeviceModel();
-        if(model != null) {
-            body.put("device", model);
-        }
 
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {

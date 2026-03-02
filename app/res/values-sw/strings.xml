@@ -186,6 +186,11 @@
     <string name="personalid_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
     <string name="personalid_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>
     <string name="personalid_login_from_different_device">Akaunti yako ya PersonalID inaweza kusanidiwa kwenye kifaa kimoja kwa wakati mmoja na imesanidiwa kwenye kifaa kingine. Tafadhali endelea kwenye kifaa kipya au usanidi akaunti yako kwenye kifaa hiki tena ili kuendelea kutumia PersonalID hapa.</string>
+    <string name="personalid_generic_error_title">Umeondolewa kwenye PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Akaunti inatumiwa kwenye kifaa kingine</string>
+    <string name="personalid_error_message_login_different_device">Tafadhali endelea kwenye kifaa kipya, au usanidi akaunti yako tena.</string>
+    <string name="personalid_reconfigure">Sanidi upya</string>
+    <string name="personalid_dismiss">Ondoa</string>
     <string name="recovery_network_unauthorized">Huna ruhusa ya kufanya ombi hili.</string>
     <string name="recovery_network_server_error">Kulikuwa na hitilafu katika kushughulikia ombi lako.</string>
     <string name="recovery_app_manager">Nenda kwa Kidhibiti Programu</string>
@@ -289,15 +294,11 @@
     <string name="connect_verify_phone_resend_wait">Hukupokea nambari yako ya kuthibitisha? Tuma tena baada ya %d s</string>
     <string name="connect_verify_phone_change">Badilisha nambari ya simu</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
-    <string name="connect_messaging_channel_consent_title">Idhini ya kituo</string>
-    <string name="connect_messaging_channel_consent_description">Je, unakubali kufungua mazungumzo ya ujumbe kwenye kituo hiki?</string>
-    <string name="connect_messaging_channel_consent_accept">Kubali</string>
-    <string name="connect_messaging_channel_consent_decline">Kataa</string>
     <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
     <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
     <string name="connect_job_intro_title">Fursa</string>
-    <string name="connect_job_you_will_learn">Kamilisha moduli zifuatazo za kujifunza na upate cheti</string>
+    <string name="connect_job_you_will_learn">Kamilisha moduli zifuatazo za kujifunza na tathmini ili kupata cheti</string>
     <string name="connect_job_no_learning_required">Hakuna kujifunza kunahitajika</string>
     <string name="connect_job_go_to_learn_app">Nenda kwa Jifunze Programu</string>
     <string name="connect_job_learn_summary">Sehemu %d, saa %d</string>
@@ -382,6 +383,7 @@
     <string name="connect_job_info_view_info">Angalia Taarifa</string>
     <string name="connect_job_info_view_resume">Endelea</string>
     <string name="connect_job_info_view_review">Revisar</string>
+    <string name="connect_job_info_view_proceed">Endelea</string>
     <string name="connect_progress">Maendeleo</string>
     <string name="connect_payment">Malipo</string>
     <string name="connect_delivery_progress_description">Hujamaliza masomo yoyote. Anza kujifunza kupata cheti chako.</string>
@@ -407,7 +409,6 @@
     <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
     <string name="connect_messaging_title">Kutuma ujumbe</string>
     <string name="connect_messaging_channel_list_title">Vituo</string>
-    <string name="connect_messaging_channel_list_unconsented">Kituo ambacho hakijaidhinishwa</string>
     <string name="connect_messaging_message_notification_title">Ujumbe Mpya</string>
     <string name="connect_messaging_message_notification_message">Umepokea ujumbe mpya kutoka kwa %s, bonyeza hapa kutazama.</string>
     <string name="connect_messaging_channel_notification_title">Kituo Kipya</string>
@@ -439,7 +440,6 @@
     <string name="connect_registration_subtitle">Weka Nambari yako ya Simu</string>
     <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya PersonalID</string>
     <string name="connect_backup_code_message">Weka Nambari yako ya Hifadhi Nakala yenye tarakimu 6</string>
-    <string name="connect_messaging_channel_consent_failure_msg">Imeshindwa kutoa idhini kwa kituo</string>
     <string name="connect_messaging_send_message_fail_msg">Imeshindwa kutuma ujumbe</string>
     <string name="connect_messaging_retrieve_messages_fail">Imeshindwa kurejesha ujumbe</string>
     <string name="connect_messaging_resubscribe_dialog_title">Jiandikishe tena kwa %s</string>
@@ -451,6 +451,9 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Acha kufuata</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">Ghairi</string>
     <string name="connect_messaging_channel_unsubscribe_error">Imeshindwa kuacha kufuata</string>
+    <string name="connect_messaging_channel_resubscribe_error">Imeshindwa kujiandikisha tena</string>
+    <string name="connect_messaging_channel_unsubscribe_success">Umefanikiwa kuacha kufuata</string>
+    <string name="connect_messaging_channel_resubscribe_success">Umefanikiwa kujiandikisha tena</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">umeacha kufuata</string>
     <string name="connect_messaging_channel_list_not_subscribed">Hujajiandikisha kwenye kituo hiki cha ujumbe.</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">Jiandikishe tena</string>
@@ -508,7 +511,9 @@
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Endelea bila PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Rekebisha Sasa</string>
     <string name="nav_drawer_opportunities">Fursa</string>
     <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
     <string name="nav_drawer_payments">Malipo</string>
@@ -546,6 +551,9 @@
     <string name="personalid_biometric_error_timeout">Muda wa utendakazi wa kibayometri umekwisha. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
 
-    <string name="connect_complete_by">Kamilisha ifikapo %s</string>
-    <string name="connect_expired_on">Muda wake umeisha mnamo: %s</string>
+    <string name="connect_complete_by">Kazi inaisha tarehe %s</string>
+    <string name="connect_expired_on">Kazi iliisha tarehe %s</string>
+    <string name="connect_job_preview_start">Anza</string>
+    <string name="connect_job_delivery_preview_subtitle">Ukishamaliza tathmini ya kujifunza, utahamia kwenye uwasilishaji</string>
+    <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
 </resources>

@@ -185,6 +185,11 @@ License.
     <string name="personalid_token_unavailable">नेटवर्क में कोई समस्या थी. कृपया फिर से कोशिश करें.</string>
     <string name="personalid_token_request_rejected">सर्वर के साथ PersonalID कॉन्फ़िगरेशन खो गया है, कृपया अपना PersonalID अकाउंट रिकवर करें और फिर से कोशिश करें</string>
     <string name="personalid_login_from_different_device">आपका PersonalID अकाउंट एक समय में सिर्फ़ एक डिवाइस पर ही कॉन्फ़िगर किया जा सकता है और इसे दूसरे डिवाइस पर कॉन्फ़िगर किया गया है। PersonalID का इस्तेमाल जारी रखने के लिए कृपया नए डिवाइस पर जारी रखें या इस डिवाइस पर अपना अकाउंट फिर से कॉन्फ़िगर करें।</string>
+    <string name="personalid_generic_error_title">PersonalID से लॉग आउट किया गया</string>
+    <string name="personalid_error_title_login_different_device">खाता किसी अन्य डिवाइस पर उपयोग में है</string>
+    <string name="personalid_error_message_login_different_device">कृपया नए डिवाइस पर जारी रखें, या अपने खाते को फिर से कॉन्फ़िगर करें।</string>
+    <string name="personalid_reconfigure">पुन: कॉन्फ़िगर करें</string>
+    <string name="personalid_dismiss">खारिज करें</string>
     <string name="recovery_network_unauthorized">आप यह रिक्वेस्ट करने के लिए ऑथराइज़्ड नहीं हैं।</string>
     <string name="recovery_network_server_error">आपकी रिक्वेस्ट प्रोसेस करते समय एक एरर आया।</string>
     <string name="recovery_app_manager">एप्लिकेशन प्रबंधक पर जाएं</string>
@@ -287,15 +292,11 @@ License.
     <string name="connect_verify_phone_resend_wait">आपको अपना कोड प्राप्त नहीं हुआ? कृपया इसे %ds में पुनः भेजें।</string>
     <string name="connect_verify_phone_change">फ़ोन नंबर बदलें</string>
     <string name="connect_verify_phone_verify">कोड सत्यापित करें</string>
-    <string name="connect_messaging_channel_consent_title">चैनल सहमति</string>
-    <string name="connect_messaging_channel_consent_description">क्या आप इस चैनल पर एक चैट थ्रेड खोलने के लिए सहमत हैं?</string>
-    <string name="connect_messaging_channel_consent_accept">स्वीकार करें</string>
-    <string name="connect_messaging_channel_consent_decline">अस्वीकार करें</string>
     <string name="connect_last_update">अपडेट किया गया: %s</string>
     <string name="connect_title">कनेक्ट करें</string>
     <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
     <string name="connect_job_intro_title">अवसर</string>
-    <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल पूरे करें और एक प्रमाण पत्र प्राप्त करें</string>
+    <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल और मूल्यांकन पूरे करें और एक प्रमाण पत्र प्राप्त करें</string>
     <string name="connect_job_no_learning_required">कोई शिक्षण आवश्यक नहीं</string>
     <string name="connect_job_go_to_learn_app">Learn ऐप पर जाएं</string>
     <string name="connect_job_learn_summary">%d मॉड्यूल, %d घंटे</string>
@@ -380,6 +381,7 @@ License.
     <string name="connect_job_info_view_info">जानकारी देखें</string>
     <string name="connect_job_info_view_resume">फिर से शुरू करें</string>
     <string name="connect_job_info_view_review">समीक्षा करें</string>
+    <string name="connect_job_info_view_proceed">आगे बढ़ें</string>
     <string name="connect_progress">प्रगति</string>
     <string name="connect_payment">भुगतान</string>
     <string name="connect_delivery_progress_description">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए अपना सीखना शुरू करें।</string>
@@ -406,7 +408,6 @@ License.
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>
     <string name="connect_messaging_title">मैसेजिंग</string>
     <string name="connect_messaging_channel_list_title">चैनल</string>
-    <string name="connect_messaging_channel_list_unconsented">गैर-सहमति वाला चैनल</string>
     <string name="connect_messaging_message_notification_title">नया संदेश</string>
     <string name="connect_messaging_message_notification_message">आपको %s से एक नया संदेश मिला है, देखने के लिए यहां टैप करें।</string>
     <string name="connect_messaging_channel_notification_title">नया चैनल</string>
@@ -433,7 +434,6 @@ License.
     <string name="connect_registration_subtitle">अपना फ़ोन नंबर दर्ज करें</string>
     <string name="connect_backup_code_message_title">PersonalId बैकअप कोड</string>
     <string name="connect_backup_code_message">अपना 6 अंकों का बैकअप कोड दर्ज करें</string>
-    <string name="connect_messaging_channel_consent_failure_msg">चैनल को सहमति देने में असमर्थ</string>
     <string name="connect_messaging_send_message_fail_msg">संदेश भेजने में विफल</string>
     <string name="connect_messaging_retrieve_messages_fail">संदेश पुनर्प्राप्त करने में विफल</string>
     <string name="connect_messaging_resubscribe_dialog_title">%s की फिर से सदस्यता लें</string>
@@ -445,6 +445,9 @@ License.
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">सदस्यता समाप्त करें</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">रद्द करें</string>
     <string name="connect_messaging_channel_unsubscribe_error">सदस्यता समाप्त करने में विफल</string>
+    <string name="connect_messaging_channel_resubscribe_error">फिर से सदस्यता लेने में विफल</string>
+    <string name="connect_messaging_channel_unsubscribe_success">सफलतापूर्वक सदस्यता समाप्त कर दी गई</string>
+    <string name="connect_messaging_channel_resubscribe_success">सफलतापूर्वक फिर से सदस्यता ले ली गई</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">सदस्यता समाप्त की गई</string>
     <string name="connect_messaging_channel_list_not_subscribed">आप इस मैसेजिंग चैनल की सदस्यता नहीं ले रहे हैं।</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">फिर से सदस्यता लें</string>
@@ -501,6 +504,8 @@ License.
     <string name="nav_drawer_signin_register">साइन इन / रजिस्टर</string>
     <string name="nav_drawer_help">सहायता</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">आप PersonalID में साइन इन नहीं हैं</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>PersonalID के बिना जारी रखें</u></string>
+    <string name="nav_drawer_fix_now">अब ठीक करें</string>
     <string name="nav_drawer_opportunities">अवसर</string>
     <string name="nav_drawer_commcare_apps">कॉमकेयर ऐप्स</string>
     <string name="nav_drawer_payments">भुगतान</string>
@@ -538,6 +543,9 @@ License.
     <string name="personalid_biometric_error_timeout">बायोमेट्रिक ऑपरेशन का समय समाप्त हो गया। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
     <string name="personalid_biometric_error_cannot_configure">हम आपके डिवाइस पर बायोमेट्रिक्स कॉन्फ़िगर नहीं कर सके। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
 
-    <string name="connect_complete_by">%s तक पूरा करें</string>
-    <string name="connect_expired_on">समय सीमा समाप्त: %s</string>
+    <string name="connect_complete_by">कार्य %s को समाप्त होती है</string>
+    <string name="connect_expired_on">कार्य %s को समाप्त हुई</string>
+    <string name="connect_job_preview_start">शुरू करें</string>
+    <string name="connect_job_delivery_preview_subtitle">एक बार जब आप शिक्षण मूल्यांकन पूरा कर लेते हैं, तो आप वितरण चरण में जाएंगे</string>
+    <string name="connect_job_info_view_opportunity">अवसर देखें</string>
 </resources>

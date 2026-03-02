@@ -14,7 +14,7 @@ public class ConnectLoginJobListModel {
         NEW_OPPORTUNITY
     }
     private String name;
-    private String id;
+    private String uuid;
     private String appId;
     private Date date;
     private String description;
@@ -29,11 +29,13 @@ public class ConnectLoginJobListModel {
     private JobListEntryType jobType;
     private String appType;
     private ConnectJobRecord job;
+    private boolean jobFinished;
+    private boolean userCompletedDelivery;
 
     // Constructor
     public ConnectLoginJobListModel(
             String name,
-            String id,
+            String uuid,
             String appId,
             Date date,
             String description,
@@ -47,10 +49,12 @@ public class ConnectLoginJobListModel {
             int deliveryProgress,
             JobListEntryType jobType,
             String appType,
-            ConnectJobRecord job
+            ConnectJobRecord job,
+            boolean jobFinished,
+            boolean userCompletedDelivery
     ) {
         this.name = name;
-        this.id = id;
+        this.uuid = uuid;
         this.appId = appId;
         this.date = date;
         this.description = description;
@@ -65,6 +69,8 @@ public class ConnectLoginJobListModel {
         this.jobType = jobType;
         this.appType = appType;
         this.job = job;
+        this.jobFinished = jobFinished;
+        this.userCompletedDelivery = userCompletedDelivery;
     }
 
     // Default constructor
@@ -88,12 +94,12 @@ public class ConnectLoginJobListModel {
         this.name = name;
     }
 
-    public String getId() {
-        return id;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getAppId() {
@@ -208,12 +214,28 @@ public class ConnectLoginJobListModel {
         this.job = job;
     }
 
+    public boolean getJobFinished() {
+        return jobFinished;
+    }
+
+    public void setJobFinished(boolean jobFinished) {
+        this.jobFinished = jobFinished;
+    }
+
+    public boolean getUserCompletedDelivery() {
+        return userCompletedDelivery;
+    }
+
+    public void setUserCompletedDelivery(boolean userCompletedDelivery) {
+        this.userCompletedDelivery = userCompletedDelivery;
+    }
+
     // Optionally, override toString for easy logging or display
     @Override
     public String toString() {
         return "AddListItem{" +
                 "name='" + name + '\'' +
-                ", id=" + id +
+                ", id=" + uuid +
                 ", date=" + date +
                 ", description='" + description + '\'' +
                 ", organization='" + organization + '\'' +
