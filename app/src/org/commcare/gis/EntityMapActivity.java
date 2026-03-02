@@ -13,7 +13,9 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -55,6 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -118,19 +121,7 @@ public class EntityMapActivity extends CommCareActivity implements
             mapTcs.setResult(map);
         });
 
-        showProgressDialog(MAP_LOAD_TASK_ID);
-        LocationHelper.loadMap(this, this::addEntityData, mapTcs.getTask())
-                .addOnSuccessListener(this, result -> {
-                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
-                    setupMap(result.getFirst(), result.getSecond());
-                })
-                .addOnFailureListener(this, e -> {
-                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
-                    if (e instanceof XPathException xe) {
-                        new UserfacingErrorHandling<>().logErrorAndShowDialog(
-                                this, xe, true);
-                    }
-                });
+        loadMap(mapTcs.getTask());
 
         findViewById(R.id.switch_map_layer).setOnClickListener(v -> changeMapLayer());
     }
@@ -138,6 +129,27 @@ public class EntityMapActivity extends CommCareActivity implements
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
+    }
+
+    private void loadMap(Task<GoogleMap> mapReadyTask) {
+        var executor = Executors.newSingleThreadExecutor();
+        Task<Void> entitiesTask = Tasks.call(executor, () -> { addEntityData(); return null; });
+        entitiesTask.addOnCompleteListener(t -> executor.shutdown());
+
+        Task<Location> locationTask = LocationHelper.getCurrentLocationWithTimeout(this);
+
+        showProgressDialog(MAP_LOAD_TASK_ID);
+        Tasks.whenAll(entitiesTask, locationTask, mapReadyTask)
+                .addOnSuccessListener(this, ignored -> {
+                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
+                    setupMap(mapReadyTask.getResult(), locationTask.getResult());
+                })
+                .addOnFailureListener(this, e -> {
+                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
+                    if (e instanceof XPathException xe) {
+                        new UserfacingErrorHandling<>().logErrorAndShowDialog(this, xe, true);
+                    }
+                });
     }
 
     /**
