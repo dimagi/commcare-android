@@ -73,8 +73,7 @@ abstract class BasePersonalIdFragment : Fragment() {
             scrollView
         ) { v: View?, insets: WindowInsetsCompat? ->
             val imeInsets = insets!!.getInsets(WindowInsetsCompat.Type.ime())
-            val systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val bottomInset = max(imeInsets.bottom, systemBarInsets.bottom)
+            val bottomInset = imeInsets.bottom
             v!!.setPadding(
                 v.paddingLeft,
                 v.paddingTop,
