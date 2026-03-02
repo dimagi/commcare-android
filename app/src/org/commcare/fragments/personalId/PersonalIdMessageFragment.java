@@ -19,11 +19,8 @@ import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import androidx.biometric.BiometricManager;
-
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.utils.BiometricsHelper;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
@@ -77,20 +74,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         binding.connectMessageMessage.setText(message);
         binding.connectMessageButton.setText(buttonText);
         setButton2Text(button2Text);
-        // When this screen is shown due to a biometric enrollment failure, the user may tap
-        // "GO TO SETTINGS" (handled in finish()) to configure fingerprint or PIN in system
-        // settings. On returning, onResume fires before any further user interaction. If a
-        // biometric or PIN is now configured, the enrollment failure is resolved — dismiss
-        // this screen so the user lands back on the biometric config screen, where onResume
-        // will update the button to "Agree & Continue" for explicit authentication.
-        if (callingClass == ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL) {
-            BiometricManager biometricManager =
-                    PersonalIdManager.getInstance().getBiometricManager(requireActivity());
-            if (BiometricsHelper.isFingerprintConfigured(requireContext(), biometricManager)
-                    || BiometricsHelper.isPinConfigured(requireContext(), biometricManager)) {
-                NavHostFragment.findNavController(this).navigateUp();
-            }
-        }
     }
 
     private void loadSavedState(Bundle savedInstanceState) {
