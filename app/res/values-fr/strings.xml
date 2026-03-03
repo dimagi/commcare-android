@@ -358,7 +358,6 @@ License.
     <string name="connect_app_install_unknown_error">L\'installation de l\'application a échoué en raison d\'une erreur inconnue</string>
     <string name="connect_app_installed">Application installée</string>
     <string name="app_with_id_not_found">L\'application CommCare requise n\'est pas installée sur l\'appareil</string>
-    <string name="audio_recording_notification">Notification d\'enregistrement audio</string>
     <string name="user_suspended">L\'utilisateur est suspendu. Veuillez contacter l\'administrateur.</string>
     <string name="enter_otp">Entrez le code SMS</string>
     <string name="create_a_new_recovery_code">Créer un nouveau code de récupération</string>

@@ -358,7 +358,6 @@ License.
     <string name="connect_app_install_unknown_error">अज्ञात त्रुटि के कारण एप्लिकेशन इंस्टॉल करने में विफल रहा</string>
     <string name="connect_app_installed">एप्लिकेशन इंस्टॉल किया गया</string>
     <string name="app_with_id_not_found">आवश्यक CommCare एप्लिकेशन डिवाइस पर इंस्टॉल नहीं है</string>
-    <string name="audio_recording_notification">ऑडियो रिकॉर्डिंग अधिसूचना</string>
     <string name="user_suspended">उपयोगकर्ता निलंबित है। कृपया व्यवस्थापक से संपर्क करें।</string>
     <string name="enter_otp">SMS कोड दर्ज करें</string>
     <string name="create_a_new_recovery_code">एक नया रिकवरी कोड बनाएं</string>

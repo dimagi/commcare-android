@@ -362,7 +362,6 @@
     <string name="connect_app_install_unknown_error">ናይ ኣፕሊኬሽን ምፅዓን ብሰንኪ ዘይተፈልጠ ጌጋ ኣይተዓወተን</string>
     <string name="connect_app_installed">ኣፕሊኬሽን ተፃዒኑ</string>
     <string name="app_with_id_not_found">ዘድሊ CommCare App ኣብ መሳርሒ ኣይተተኸለን</string>
-    <string name="audio_recording_notification">ድምጺ ምቕራጽ (ምቅዳሕ) መፍለጢ</string>
     <string name="user_suspended">ተገልጋላይ ተኣጊዱ ኣሎ። ንመመሓዳሪኦም/ኣድሚን ይርከቡ</string>
     <string name="enter_otp">ናይ ኤስኤምኤስ ኮድ ኣእትዉ</string>
     <string name="create_a_new_recovery_code">ሓድሽ ኮድ ምፍጣር</string>

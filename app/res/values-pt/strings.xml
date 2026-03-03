@@ -375,7 +375,6 @@
     <string name="connect_app_install_unknown_error">Falha na instalação do aplicativo devido a um erro desconhecido</string>
     <string name="connect_app_installed">Aplicação instalada</string>
     <string name="app_with_id_not_found">O aplicativo CommCare necessário não está instalado no dispositivo</string>
-    <string name="audio_recording_notification">Notificação de gravação de áudio</string>
     <string name="user_suspended">O usuário está suspenso. Entre em contato com admin.</string>
     <string name="enter_otp">Digite OTP</string>
     <string name="create_a_new_recovery_code">Crie um novo código de recuperação</string>
