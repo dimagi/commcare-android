@@ -65,7 +65,7 @@
     <string name="permission_external_action_description">Permite que este aplicativo acione operações como login, logout e sincronização no CommCare</string>
     <string name="permission_commcare_logout_label">Permitir logout automático do CommCare</string>
     <string name="permission_commcare_logout_description">Permite que este aplicativo desconecte um usuário do aplicativo CommmCare</string>
-    <string name="title_activity_report_problem">ReportProblemActivity</string>
+    <string name="title_activity_report_problem">Informar problema</string>
     <string name="panes">um</string>
     <string name="restore_session_prompt">Restaurar sessão salva no login</string>
     <string name="managed_configuration_username">Nome de usuário do trabalhador móvel</string>

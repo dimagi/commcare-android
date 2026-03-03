@@ -53,7 +53,7 @@
     <string name="permission_external_action_description">እዚ ኣፕ ኣብ ኮምኬር ከም ምእታው፣ ምውጻእን ምትእስሳርን ዝኣመሰሉ ስርሓት ክጅምር ይፍቀዱ</string>
     <string name="permission_commcare_logout_label">ናይ ዓርሰ ምዉፃእ ንCommCare ፈቃድ ይሃብዎ</string>
     <string name="permission_commcare_logout_description">እዚ ኣፕ ንሓደ ተጠቃሚ ካብ CommmCare App ንኽወጽእ የኽእሎ</string>
-    <string name="title_activity_report_problem">ኣብ ናይ ንጥፈታት ፀገም እንተሃሊዩ የፍልጡ</string>
+    <string name="title_activity_report_problem">ጸገም ጸብጻብ</string>
     <string name="panes">ሓደ</string>
     <string name="restore_session_prompt">ኣብ እዋን ምእታው ዝተዓቀበ ክፍለ ግዜ ምምላስ</string>
     <string name="managed_configuration_username">ሞባይል ሰራሕተኛ ስም ተጠቃሚ</string>
