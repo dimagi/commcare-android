@@ -10,6 +10,7 @@ import org.commcare.preferences.LocationPreferences
 import org.commcare.utils.GeoUtils
 import org.javarosa.core.services.Logger
 import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * @author $|-|!˅@M
@@ -63,7 +64,8 @@ private fun getStaleLocationException(
     location: Location,
     currentDeviceTime: Long,
 ): Throwable {
-    val driftInMinutes = abs(currentDeviceTime - location.time) / (60 * 1000)
+    val driftInMinutes =
+        (currentDeviceTime - location.time).milliseconds.absoluteValue.inWholeMinutes
     return Exception(
         "Stale location with accuracy ${location.accuracy}" +
             " with time ${location.time}" + " and current device time $currentDeviceTime, with drift $driftInMinutes minutes",
