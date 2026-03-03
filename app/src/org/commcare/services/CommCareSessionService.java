@@ -1,6 +1,7 @@
 package org.commcare.services;
 
 import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+import static org.commcare.utils.NotificationIdentifiers.SUBMISSION_NOTIFICATION_ID;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -98,8 +99,6 @@ public class CommCareSessionService extends Service {
 
     // unique id for logged in notification
     private final static int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
-
-    private final static int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
 
     // How long to wait until we force the session to finish logging out. Set
     // at 90 seconds to make sure huge forms on slow phones actually get saved
@@ -480,7 +479,7 @@ public class CommCareSessionService extends Service {
     }
 
     public DataSubmissionListener getListenerForSubmissionNotification() {
-        return this.getListenerForSubmissionNotification(SUBMISSION_NOTIFICATION);
+        return this.getListenerForSubmissionNotification(SUBMISSION_NOTIFICATION_ID);
     }
 
     public DataSubmissionListener getListenerForSubmissionNotification(final int notificationId) {
