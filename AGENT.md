@@ -1,5 +1,8 @@
 # AI Agent Development Guidelines for CommCare Android
 
+## Build
+-  Always use the Gradle wrapper (`./gradlew`) from the commcare-android directory for building commcare-core
+
 ## Project Overview
 - CommCare Android is an open-source Android application for data collection and service delivery in low-resource settings
 - CommCare Core is a shared Java library that provides core functionalities for CommCare's Android and Web Client
@@ -45,6 +48,7 @@ All the changes below should be part of a separate commit after the main code ch
 - CommCare Core is in `../commcare-core/`, always include it to the working directory for the current session
 - Connect and PersonalID share `org.commcare.connect` package
 - PersonalID Fragments are in `org.commcare.fragments.personalId` package
+- This is a multi-module Android project. When asked to find a file or class, search across all modules (commcare-android, commcare-core, etc.) rather than assuming the default module.
 ## Git Usage Guidelines
 - Logical Commits: Break work into logical chunks and commit after completing each coherent piece of functionality
 - Commit Messages: Write concise commit messages that describe the change's purpose, not an exhaustive list of modifications
