@@ -13,9 +13,7 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -32,7 +30,6 @@ import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.location.LocationHelper;
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
@@ -46,18 +43,15 @@ import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.ViewUtils;
-import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
-import org.javarosa.xpath.XPathException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -69,7 +63,7 @@ import static org.commcare.views.EntityView.FORM_IMAGE;
  */
 public class EntityMapActivity extends CommCareActivity implements
         GoogleMap.OnInfoWindowClickListener {
-    private static final int MAP_LOAD_TASK_ID = 1;
+    static final int MAP_LOAD_TASK_ID = 1;
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
     private static final int DEFAULT_MARKER_SIZE = 120;
     private static final int BOUNDARY_POLYGON_ALPHA = 64;
@@ -121,7 +115,7 @@ public class EntityMapActivity extends CommCareActivity implements
             mapTcs.setResult(map);
         });
 
-        loadMap(mapTcs.getTask());
+        EntityMapActivityExtKt.loadMap(this, mapTcs.getTask());
 
         findViewById(R.id.switch_map_layer).setOnClickListener(v -> changeMapLayer());
     }
@@ -131,31 +125,10 @@ public class EntityMapActivity extends CommCareActivity implements
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
-    private void loadMap(Task<GoogleMap> mapReadyTask) {
-        var executor = Executors.newSingleThreadExecutor();
-        Task<Void> entitiesTask = Tasks.call(executor, () -> { addEntityData(); return null; });
-        entitiesTask.addOnCompleteListener(t -> executor.shutdown());
-
-        Task<Location> locationTask = LocationHelper.getCurrentLocationWithTimeout(this);
-
-        showProgressDialog(MAP_LOAD_TASK_ID);
-        Tasks.whenAll(entitiesTask, locationTask, mapReadyTask)
-                .addOnSuccessListener(this, ignored -> {
-                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
-                    setupMap(mapReadyTask.getResult(), locationTask.getResult());
-                })
-                .addOnFailureListener(this, e -> {
-                    dismissProgressDialogForTask(MAP_LOAD_TASK_ID);
-                    if (e instanceof XPathException xe) {
-                        new UserfacingErrorHandling<>().logErrorAndShowDialog(this, xe, true);
-                    }
-                });
-    }
-
     /**
      * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
      */
-    private void addEntityData() {
+    void addEntityData() {
         EntityDatum selectDatum = EntityMapUtils.getNeededEntityDatum();
         if (selectDatum != null) {
             Detail detail = CommCareApplication.instance().getCurrentSession()
@@ -207,7 +180,7 @@ public class EntityMapActivity extends CommCareActivity implements
         }
     }
 
-    private void setupMap(GoogleMap map, Location location) {
+    void setupMap(GoogleMap map, Location location) {
         mMap = map;
 
         if (!entityLocations.isEmpty()) {

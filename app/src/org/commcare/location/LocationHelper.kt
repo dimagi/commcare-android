@@ -2,10 +2,10 @@ package org.commcare.location
 
 import android.content.Context
 import android.location.Location
-import android.os.Handler
-import android.os.Looper
 import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.TaskCompletionSource
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.resume
 
 object LocationHelper {
     const val LOCATION_TIMEOUT_MS: Long = 5000L
@@ -23,20 +23,12 @@ object LocationHelper {
             .getCurrentLocation()
     }
 
-    @JvmStatic
-    fun getCurrentLocationWithTimeout(context: Context): Task<Location?> {
-        val tcs = TaskCompletionSource<Location?>()
-        val handler = Handler(Looper.getMainLooper())
-        val onTimeout = Runnable { tcs.trySetResult(null) }
-
-        handler.postDelayed(onTimeout, LOCATION_TIMEOUT_MS)
-
-        getCurrentLocation(context)
-            .addOnCompleteListener { task: Task<Location?>? ->
-                handler.removeCallbacks(onTimeout)
-                tcs.trySetResult(if (task!!.isSuccessful) task.getResult() else null)
+    suspend fun getCurrentLocationWithTimeout(context: Context): Location? =
+        withTimeoutOrNull(LOCATION_TIMEOUT_MS) {
+            suspendCancellableCoroutine { cont ->
+                getCurrentLocation(context).addOnCompleteListener { task ->
+                    cont.resume(if (task.isSuccessful) task.result else null)
+                }
             }
-
-        return tcs.getTask()
-    }
+        }
 }
