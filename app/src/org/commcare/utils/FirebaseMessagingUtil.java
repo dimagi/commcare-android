@@ -478,7 +478,7 @@ public class FirebaseMessagingUtil {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
         String notificationId = fcmMessageData.getPayloadData().get(NOTIFICATION_ID);
         int notifId = !TextUtils.isEmpty(notificationId)
-                ? notificationId.hashCode()
+                ? NotificationIdentifiers.generateNotificationIdFromString(notificationId)
                 : FCM_NOTIFICATION_ID; // fallback to constant
         mNM.notify(notifId, notificationBuilder.build());
         FirebaseAnalyticsUtil.reportNotificationEvent(
