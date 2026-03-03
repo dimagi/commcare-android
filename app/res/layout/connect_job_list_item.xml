@@ -19,7 +19,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="18dp">
+        android:paddingTop="10dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="18dp"
+        android:paddingEnd="10dp">
 
         <TextView
             android:id="@+id/tvTitle"
@@ -34,13 +37,26 @@
             app:layout_constraintBottom_toTopOf="@+id/llOpportunity"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="8dp"
+            tools:text="Opportunity Title"/>
+
+        <ImageView
+            android:id="@+id/iv_completed_check"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_connect_check_circle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/connect_green" />
 
         <LinearLayout
             android:id="@+id/llOpportunity"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="11dp"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal"
             android:paddingStart="4dp"
             android:paddingTop="4dp"
@@ -55,6 +71,7 @@
                 android:id="@+id/iv_info"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
+                android:layout_marginEnd="4dp"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_location_info" />
 
@@ -63,9 +80,45 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:layout_marginStart="4dp"
+                tools:text="Complete by 26 Jan, 2026"
                 android:fontFamily="sans-serif" />
         </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:id="@+id/btn_view_opportunity"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_opportunity"
+            android:layout_marginTop="16dp"
+            app:textAllCaps="false"
+            android:paddingHorizontal="16dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_rounded_blue_70"
+            app:layout_constraintTop_toBottomOf="@id/llOpportunity"
+            android:visibility="gone"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:id="@+id/btn_proceed"
+            android:textSize="11sp"
+            android:text="@string/connect_job_info_view_proceed"
+            android:layout_marginTop="16dp"
+            app:textAllCaps="false"
+            android:paddingHorizontal="8dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:drawableStart="@drawable/complete_checkmark"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_rounded_blue_70"
+            app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
@@ -73,7 +126,7 @@
             android:id="@+id/btn_resume"
             android:textSize="11sp"
             android:text="@string/connect_job_info_view_resume"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             app:textAllCaps="false"
             android:paddingHorizontal="8dp"
             android:gravity="center"
@@ -91,7 +144,7 @@
             android:id="@+id/btn_review"
             android:textSize="11sp"
             android:text="@string/connect_job_info_view_review"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             app:textAllCaps="false"
             android:paddingHorizontal="8dp"
             android:gravity="center"
@@ -103,22 +156,36 @@
             android:background="@drawable/bg_rounded_corner_violet"
             app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_primary_button_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="btn_view_opportunity, btn_proceed, btn_resume, btn_review" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:id="@+id/btn_view_info"
             android:textSize="11sp"
             android:text="@string/connect_job_info_view_info"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             app:textAllCaps="false"
             app:backgroundTint="@null"
             android:elevation="0dp"
             android:stateListAnimator="@null"
             android:textColor="@color/connect_blue_color"
-            app:layout_constraintStart_toEndOf="@id/btn_resume"
+            app:layout_constraintStart_toEndOf="@id/barrier_primary_button_actions"
             android:background="@drawable/bg_rounded_corner_lavender_70"
             android:layout_marginStart="10dp"
             app:layout_constraintTop_toBottomOf="@id/llOpportunity"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/buttonBottomBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="btn_review,btn_resume,btn_view_info,btn_view_opportunity"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
@@ -131,7 +198,8 @@
             android:id="@+id/progressBar"
             android:layout_width="71dp"
             android:layout_height="71dp"
-            app:layout_constraintBottom_toBottomOf="@+id/btn_view_info"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonBottomBarrier"
             app:layout_constraintStart_toEndOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvTitle" />

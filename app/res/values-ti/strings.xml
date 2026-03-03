@@ -293,7 +293,7 @@
     <string name="connect_no_jobs">ክሳብ ሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምኩምን። ንሓደ ዕድል ምስ ተዓደምካ፡ ኣብ\'ዚ ዝርዝር\'ዚ ክቐርብ\'ዩ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
-    <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
+    <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላትን ምግምጋምን ዛዚምካ ምስክር ወረቐት ውሰድ</string>
     <string name="connect_job_no_learning_required">ትምህርቲ ኣየድልን።</string>
     <string name="connect_job_go_to_learn_app">ናብ Learn App ኪድ</string>
     <string name="connect_job_learn_summary">%d ሞዱላት፣ %d ሰዓታት</string>
@@ -387,6 +387,7 @@
     <string name="connect_job_info_view_info">ሓበሬታ ርአ</string>
     <string name="connect_job_info_view_resume">ቐጽል</string>
     <string name="connect_job_info_view_review">ዳግመ ግምት</string>
+    <string name="connect_job_info_view_proceed">ቀጽል</string>
     <string name="connect_progress">ምዕባለ</string>
     <string name="connect_payment">ክፍሊት</string>
     <string name="connect_delivery_progress_description">ዝኾነ ትምህርቲ ኣይወዳእካን ስልዚ ምስክር ወረቐትካ ንምርካብ ምምሃር ጀምር።</string>
@@ -408,10 +409,6 @@
     <string name="connect_new_opportunities">ሓደስቲ ዕድላት</string>
     <string name="connect_completed">ተዛዚሙ</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
-    <string name="connect_messaging_channel_consent_title">ፍቓድ ንቻነል ሃብ</string>
-    <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
-    <string name="connect_messaging_channel_consent_accept">ተቀበል</string>
-    <string name="connect_messaging_channel_consent_decline">ኣውድቅ</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_too_many_otp_attempts">ንስኻ ነቲ ናይ 6 ኣሃዛት ሓደ ግዜ ዝውውር ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። በጃኻ ጸኒሕካ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
@@ -422,8 +419,6 @@
     <string name="connect_recovery_button_phone">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
     <string name="connect_messaging_channel_list_title">ቻነላት</string>
-    <string name="connect_messaging_channel_list_unconsented">ፍቓድ ዘይብሉ ቻነል</string>
-    <string name="connect_messaging_channel_consent_failure_msg">ንቻነል ፍቓድ ምሃብ ኣይከኣለን</string>
     <string name="connect_messaging_message_notification_title">🔔 ሓድሽ መልእኽቲ 🔔</string>
     <string name="connect_messaging_message_notification_message">ካብ %s ሓድሽ መልእኽቲ መጺኡካ፡ ንምርኣይ ኣብዚ ጠውቕ።</string>
     <string name="connect_messaging_channel_notification_title">🔔 ሓድሽ ቻነል 🔔</string>
@@ -439,6 +434,9 @@
     <string name="connect_messaging_unsubscribe_dialog_unsubscribe">ምዝገባ ሰርዝ</string>
     <string name="connect_messaging_unsubscribe_dialog_cancel">ሰርዝ</string>
     <string name="connect_messaging_channel_unsubscribe_error">ምዝገባ ምስራዝ ኣይተዓወተን</string>
+    <string name="connect_messaging_channel_resubscribe_error">እንደገና ምዝገባ ኣይተዓወተን</string>
+    <string name="connect_messaging_channel_unsubscribe_success">ምዝገባ ብዓወት ተሰሪዙ</string>
+    <string name="connect_messaging_channel_resubscribe_success">ምዝገባ ብዓወት ተሓዲሱ</string>
     <string name="connect_messaging_channel_list_item_unsubscribed">ምዝገባ ተሰሪዙ</string>
     <string name="connect_messaging_channel_list_not_subscribed">ኣብዚ ናይ መልእኽቲ ቻነል ኣይተመዝገብካን።</string>
     <string name="connect_messaging_channel_menu_item_resubscribe">እንደገና ተመዝገብ</string>
@@ -537,6 +535,9 @@
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
-    <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
-    <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
+    <string name="connect_complete_by">ዕዮ ኣብ %s ይወዳእ</string>
+    <string name="connect_expired_on">ዕዮ ኣብ %s ተወዲኡ</string>
+    <string name="connect_job_preview_start">ጀምር</string>
+    <string name="connect_job_delivery_preview_subtitle">ናይ ምምሃር ምግምጋም ምስ ዛዘምካ፡ ናብ ምብጸሕ ክትሰጋገር ኢካ</string>
+    <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
 </resources>

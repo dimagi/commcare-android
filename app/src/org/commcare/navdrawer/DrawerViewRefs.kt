@@ -17,6 +17,7 @@ class DrawerViewRefs(rootView: View) {
     val navDrawerRecycler: RecyclerView = rootView.findViewById(R.id.nav_drawer_recycler)
     val drawerFrame: FrameLayout = rootView.findViewById(R.id.nav_drawer_frame)
     val signInButton: Button = rootView.findViewById(R.id.nav_drawer_sign_in_button)
+    val signedOutText: TextView = rootView.findViewById(R.id.nav_drawer_signed_out_text)
     val versionText: TextView = rootView.findViewById(R.id.app_version)
     val signoutView: LinearLayout = rootView.findViewById(R.id.signout_view)
     val profileCard: CardView = rootView.findViewById(R.id.profile_card)
