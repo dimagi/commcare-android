@@ -17,7 +17,7 @@ object NotificationIdentifiers {
     const val DYNAMIC_NOTIFICATION_MIN_ID = 2000
 
     // Generate a unique notification ID based on the input string. This is useful for notifications when the Id
-    // is dynamicaly created
+    // is dynamically created
     @JvmStatic
     fun generateNotificationIdFromString(text: String): Int {
         return DYNAMIC_NOTIFICATION_MIN_ID + abs(text.hashCode())
