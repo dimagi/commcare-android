@@ -74,6 +74,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
 
             binding.tvDate.setTextColor(redColor);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+            binding.ivInfo.setVisibility(View.VISIBLE);
         } else {
             binding.tvDate.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.moon_gray)
