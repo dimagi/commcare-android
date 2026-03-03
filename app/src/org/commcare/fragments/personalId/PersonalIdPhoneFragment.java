@@ -172,6 +172,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupKeyboardScrollListener(binding.scrollView);
         setupListeners();
+        setUpEnterKeyAction();
         updateContinueButtonState();
     }
 
@@ -228,6 +229,38 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     }
                 }
         );
+    }
+    private void setUpEnterKeyAction() {
+
+        binding.connectPrimaryPhoneInput.setOnEditorActionListener((v, actionId, event) -> {
+
+            boolean isEnterPressed = actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                            actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT ||
+                            (event != null
+                                    && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER
+                                    && event.getAction() == android.view.KeyEvent.ACTION_DOWN);
+
+            if (isEnterPressed) {
+
+                phone = PhoneNumberHelper.buildPhoneNumber(
+                        binding.countryCode.getText().toString(),
+                        binding.connectPrimaryPhoneInput.getText().toString()
+                );
+
+                boolean isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone);
+                boolean isConsentChecked = binding.connectConsentCheck.isChecked();
+
+                if (isValidPhone && isConsentChecked && location != null) {
+                    onContinueClicked();
+                } else {
+                    KeyboardHelper.hideKeyboard(requireActivity());
+                }
+
+                return true;
+            }
+
+            return false;
+        });
     }
 
     private TextWatcher createPhoneNumberWatcher() {

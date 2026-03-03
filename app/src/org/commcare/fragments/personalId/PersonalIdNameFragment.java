@@ -41,6 +41,7 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
         activity = requireActivity();
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
+        setUpEnterKeyAction();
         enableContinueButton(false);
         binding.nameTextValue.addTextChangedListener(createNameWatcher());
         return binding.getRoot();
@@ -132,5 +133,34 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 .actionPersonalidNameToPersonalidMessage(title, message, phase, getString(buttonText), null)
                 .setIsCancellable(isCancellable);
         Navigation.findNavController(binding.getRoot()).navigate(action);
+    }
+
+    private void setUpEnterKeyAction() {
+
+        binding.nameTextValue.setOnEditorActionListener((v, actionId, event) -> {
+
+            boolean isEnterPressed =
+                    actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                            actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT ||
+                            (event != null
+                                    && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER
+                                    && event.getAction() == android.view.KeyEvent.ACTION_DOWN);
+
+            if (isEnterPressed) {
+
+                String name = binding.nameTextValue.getText().toString().trim();
+
+                if (!TextUtils.isEmpty(name)) {
+                    KeyboardHelper.hideKeyboard(requireActivity());
+                    verifyOrAddName();
+                } else {
+                    KeyboardHelper.hideKeyboard(requireActivity());
+                }
+
+                return true;
+            }
+
+            return false;
+        });
     }
 }
