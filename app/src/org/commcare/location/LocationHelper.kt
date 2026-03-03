@@ -10,7 +10,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskCompletionSource
 
 object LocationHelper {
-    const val LOCATION_TIMEOUT_MS: Long = 2000L
+    const val LOCATION_TIMEOUT_MS: Long = 5000L
 
     @JvmStatic
     fun getCurrentLocation(context: Context): Task<Location?> {
