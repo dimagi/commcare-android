@@ -417,9 +417,9 @@ public class ConnectJobUtils {
     public static boolean isExpiryDateUnderFiveDays(Date expiryDate) {
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(expiryDate);
-        CalendarUtils.toMidnight(expiry);
+        CalendarUtils.toMidday(expiry);
         Calendar today = Calendar.getInstance();
-        CalendarUtils.toMidnight(today);
+        CalendarUtils.toMidday(today);
         Calendar upperBound = (Calendar) today.clone();
         upperBound.add(Calendar.DAY_OF_YEAR, 5);
         return !expiry.before(today) && !expiry.after(upperBound);
