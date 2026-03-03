@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.widget.TextView;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -55,28 +56,8 @@ public class SyncDetailCalculations {
                             return;
                         }
 
-                        Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
-
-                        Spannable unsentFormsIndicator = activity.localize(
-                                "home.unsent.forms.indicator",
-                                new String[]{String.valueOf(numUnsentForms)});
-                        squareButtonViewHolder.subTextView.setText(
-                                buildSyncSubtext(
-                                        notificationText,
-                                        numUnsentForms,
-                                        lastSyncTimeAndMessage.second,
-                                        unsentFormsIndicator
-                                )
-                        );
-
-                        squareButtonViewHolder.subTextView.setTextColor(
-                                getSyncSubtextColor(
-                                        numUnsentForms,
-                                        lastSyncTimeAndMessage.first,
-                                        activity.getResources().getColor(cardDisplayData.subTextColor),
-                                        activity.getResources().getColor(R.color.cc_dark_warm_accent_color)
-                                )
-                        );
+                        updateUsentFormsUI(activity, squareButtonViewHolder.subTextView,
+                                cardDisplayData.subTextColor, notificationText, numUnsentForms);
                     }
 
                     @Override
@@ -84,6 +65,37 @@ public class SyncDetailCalculations {
                         Logger.exception("Failed to retrieve unsent forms count ", exception);
                     }
                 });
+    }
+
+    private static void updateUsentFormsUI(
+            StandardHomeActivity activity,
+            TextView squareButtonSubtext,
+            int cardDisplaySubtextColor,
+            String notificationText,
+            int numUnsentForms
+    ) {
+        Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
+
+        Spannable unsentFormsIndicator = activity.localize(
+                "home.unsent.forms.indicator",
+                new String[]{String.valueOf(numUnsentForms)});
+        squareButtonSubtext.setText(
+                buildSyncSubtext(
+                        notificationText,
+                        numUnsentForms,
+                        lastSyncTimeAndMessage.second,
+                        unsentFormsIndicator
+                )
+        );
+
+        squareButtonSubtext.setTextColor(
+                getSyncSubtextColor(
+                        numUnsentForms,
+                        lastSyncTimeAndMessage.first,
+                        activity.getResources().getColor(cardDisplaySubtextColor),
+                        activity.getResources().getColor(R.color.cc_dark_warm_accent_color)
+                )
+        );
     }
 
     private static LatestTaskExecutor<Integer> getUnsentFormsExecutor() {
