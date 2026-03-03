@@ -8,4 +8,5 @@ object NotificationIdentifiers {
     const val SUBMISSION_NOTIFICATION_ID = 1001
     const val NETWORK_SERVICE_NOTIFICATION_ID = 1002
     const val RECORDING_NOTIFICATION_ID = 1003
+    const val MESSAGE_NOTIFICATION_ID = 1004
 }

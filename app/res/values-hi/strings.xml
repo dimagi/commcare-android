@@ -55,7 +55,6 @@ License.
     <string name="submission_notification_title">डेटा सबमिशन</string>
     <string name="submission_logs_title">CommCare लॉग सबमिशन</string>
     <string name="about_dialog">%s\n\n_कॉपीराइट 2016, Dimagi inc, सर्वाधिकार सुरक्षित_ \n\n---------------- \n\n__आभार:__ \n\n%sCommCare की कुछ छवियां thenounproject.com संग्रह से क्रिएटिव कॉमन्स लाइसेंस के तहत विनम्रतापूर्वक उपयोग की जाती हैं:\n\n* तक इमाटो द्वारा "दरवाजा" प्रतीक \n* क्रेओलॉजिका द्वारा "पेंसिल" प्रतीक \n* कार्लो द्वारा "नोटबुक" प्रतीक \n* डिमा द्वारा "एंटीना" प्रतीक \n* पी.जे. ओनोरी द्वारा "मानचित्र मार्कर" प्रतीक \n* लैंडन लॉयड द्वारा सूची \n* नाउन प्रोजेक्ट के सैम मार्टिन द्वारा टूटी स्क्रीन \n\n\n\n"</string>
-    <string name="notification_message_title">CommCare अधिसूचना</string>
     <string name="hello_world">कृपया नीचे अपनी समस्याएं दर्ज करें</string>
     <string name="menu_settings">सेटिंग्स</string>
     <string name="permission_content_provider_label">CommCare सुरक्षित डेटा पढ़ें</string>

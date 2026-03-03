@@ -56,7 +56,6 @@
     <string name="submission_logs_title">Kuwasilisha Kumbukumbu za CommCare</string>
     <string name="remote_form_payload_url">#VALUE!</string>
     <string name="about_dialog">%. \n* Ishara ya "Penseli" kwa Creologica \n* ishara ya "Daftari" na Carlo \n* ishara ya "Antena" kwa Dima \n* ishara ya "Alama ya Ramani" na P.J. Onori \n* Orodha" ya Landan Lloyd \n* skrini iliyovunjwa na Sam Martin kutoka kwa Nomino Project \n\n\n\n"</string>
-    <string name="notification_message_title">Arifa ya CommCare</string>
     <string name="hello_world">Tafadhali weka masuala yako hapa chini</string>
     <string name="menu_settings">Mipangilio</string>
     <string name="permission_content_provider_label">Soma Secure CommCare Data</string>

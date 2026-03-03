@@ -55,7 +55,6 @@
     <string name="submission_notification_title">Envío de datos</string>
     <string name="submission_logs_title">Envío de registros de CommCare</string>
     <string name="about_dialog">%s\n\n_Copyright 2016, Dimagi inc, Todos los derechos reservados_ \n\n---------------- \n\n__Agradecimientos:__ \n\n%sAlgunas imágenes de CommCare se utilizan amablemente bajo licencia Creative Commons de la colección thenounproject.com:\n\n* Símbolo «Puerta» por Tak Imoto \n* Símbolo «Lápiz» por Creologica \n* Símbolo «Cuaderno» por Carlo \n* Símbolo «Antena» por Dima \n* Símbolo «Marcador de mapa» por P.J. Onori \n* Lista por Landan Lloyd \n* Pantalla rota por Sam Martin de Noun Project \n\n\n\n"</string>
-    <string name="notification_message_title">Notificación de CommCare</string>
     <string name="hello_world">Introduce tus problemas a continuación</string>
     <string name="menu_settings">Ajustes</string>
     <string name="permission_content_provider_label">Leer datos seguros de CommCare</string>

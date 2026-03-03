@@ -70,7 +70,6 @@
 
 </string>
 
-    <string name="notification_message_title">CommCare Notification</string>
     <string name="hello_world">Please enter your issues below</string>
     <string name="menu_settings">Settings</string>
     <string name="permission_content_provider_label">Read Secure CommCare Data</string>
