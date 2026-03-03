@@ -244,7 +244,6 @@ License.
     <string name="dependency_missing_dialog_message_plural">जारी रखने से पहले CommCare को आपके डिवाइस पर नीचे दिए गए एप्लिकेशन इंस्टॉल करने की आवश्यकता है।</string>
     <string name="dependency_missing_dialog_go_to_store">स्टोर से इंस्टॉल करें</string>
     <string name="dependency_missing_dialog_playstore_not_found">आपके डिवाइस पर कोई Play Store नहीं मिला</string>
-    <string name="fcm_notification">FCM से अधिसूचना</string>
     <string name="fcm_default_notification_channel">अधिसूचना-चैनल-पुश-अधिसूचनाएं</string>
     <string name="personalid_login_via">PersonalId के माध्यम से (या यहां टैप करें)</string>
     <string name="personalid_welcome_user">स्वागत है %s!</string>

@@ -244,7 +244,6 @@ License.
     <string name="dependency_missing_dialog_message_plural">CommCare a besoin que les applications ci-dessous soient installées sur votre appareil avant de pouvoir continuer.</string>
     <string name="dependency_missing_dialog_go_to_store">Installer depuis le Store</string>
     <string name="dependency_missing_dialog_playstore_not_found">Aucun Play Store trouvé sur votre appareil</string>
-    <string name="fcm_notification">Notification de la FCM</string>
     <string name="fcm_default_notification_channel">canal de notification-notifications-push</string>
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
     <string name="personalid_welcome_user">Bienvenue %s !</string>

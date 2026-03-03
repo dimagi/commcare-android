@@ -235,7 +235,6 @@
     <string name="dependency_missing_dialog_message_plural">CommCare ቅድሚ ምቕጻልካ ኣብ ታሕቲ ዘለዉ ኣፕሊኬሽናት ኣብ መሳርሒኻ/ሞባይለካ ክፀዓኑ ኣለዎም</string>
     <string name="dependency_missing_dialog_go_to_store">ካብ ስቶር/መክዘን ምፅዓን</string>
     <string name="dependency_missing_dialog_playstore_not_found">ኣብ መሳርሒኻ/ሞባልካ ዝኾነ ፕለይ ስቶር/ መከዘኒ ኣፕሊክሸናት ኣይተረኽበን።</string>
-    <string name="fcm_notification">FCM ሓበሬታ መዘካከሪ</string>
     <string name="fcm_default_notification_channel">ሓበሬታ መዘካከሪ-ቻነል-ደፍእ-ሓበሬታ መዘካከሪታት</string>
     <string name="personalid_login_via">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
     <string name="personalid_welcome_user">እንቋዕ ብደሓን መጻእኩም %s!</string>

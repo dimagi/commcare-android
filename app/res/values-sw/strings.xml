@@ -245,7 +245,6 @@
     <string name="dependency_missing_dialog_message_plural">CommCare inahitaji programu zilizo hapa chini kusakinishwa kwenye kifaa chako kabla ya kuendelea-</string>
     <string name="dependency_missing_dialog_go_to_store">Sakinisha kutoka Hifadhi</string>
     <string name="dependency_missing_dialog_playstore_not_found">Hakuna Duka la Google Play lililopatikana kwenye kifaa chako</string>
-    <string name="fcm_notification">Taarifa ya FCM</string>
     <string name="fcm_default_notification_channel">arifa-chaneli-kusukuma-arifa</string>
     <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
     <string name="personalid_welcome_user">Karibu %s!</string>

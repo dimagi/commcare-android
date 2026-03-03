@@ -247,7 +247,6 @@
     <string name="dependency_missing_dialog_message_plural">O CommCare precisa que os aplicativos abaixo sejam instalados no seu dispositivo antes que você possa continuar-</string>
     <string name="dependency_missing_dialog_go_to_store">Instalar da loja</string>
     <string name="dependency_missing_dialog_playstore_not_found">Nenhuma Play Store encontrada no seu dispositivo</string>
-    <string name="fcm_notification">Notificação FCM</string>
     <string name="fcm_default_notification_channel">notificações-canal-notificações push</string>
     <string name="personalid_login_via">Via PersonalId (ou pressione aqui)</string>
     <string name="personalid_welcome_user">Bemvindo %s!</string>

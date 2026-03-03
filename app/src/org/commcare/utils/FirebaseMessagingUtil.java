@@ -63,6 +63,7 @@ import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.utils.NotificationIdentifiers.FCM_NOTIFICATION_ID;
 
 /**
  * This class will be used to handle notification whenever
@@ -73,7 +74,6 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 public class FirebaseMessagingUtil {
     public static final String FCM_TOKEN = "fcm_token";
     public static final String FCM_TOKEN_TIME = "fcm_token_time";
-    private final static int FCM_NOTIFICATION = R.string.fcm_notification;
     public static final String MESSAGING_UPDATE_BROADCAST = "com.dimagi.messaging.update";
 
 
@@ -479,7 +479,7 @@ public class FirebaseMessagingUtil {
         String notificationId = fcmMessageData.getPayloadData().get(NOTIFICATION_ID);
         int notifId = !TextUtils.isEmpty(notificationId)
                 ? notificationId.hashCode()
-                : FCM_NOTIFICATION; // fallback to constant
+                : FCM_NOTIFICATION_ID; // fallback to constant
         mNM.notify(notifId, notificationBuilder.build());
         FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_SHOW,
