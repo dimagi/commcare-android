@@ -4,8 +4,6 @@ import android.content.Context
 import android.location.Location
 import android.os.Handler
 import android.os.Looper
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskCompletionSource
 
@@ -40,21 +38,5 @@ object LocationHelper {
             }
 
         return tcs.getTask()
-    }
-
-    @JvmStatic
-    fun padBounds(bounds: LatLngBounds): LatLngBounds {
-        val latPadding = (bounds.northeast.latitude - bounds.southwest.latitude) * 0.1
-        val lngPadding = (bounds.northeast.longitude - bounds.southwest.longitude) * 0.1
-        return LatLngBounds(
-            LatLng(
-                bounds.southwest.latitude - latPadding,
-                bounds.southwest.longitude - lngPadding
-            ),
-            LatLng(
-                bounds.northeast.latitude + latPadding,
-                bounds.northeast.longitude + lngPadding
-            )
-        )
     }
 }

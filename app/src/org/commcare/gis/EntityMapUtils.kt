@@ -2,6 +2,7 @@ package org.commcare.gis
 
 import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import org.commcare.CommCareApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.Entity
@@ -288,5 +289,21 @@ object EntityMapUtils {
         } else {
             null
         }
+    }
+
+    @JvmStatic
+    fun padBounds(bounds: LatLngBounds): LatLngBounds {
+        val latPadding = (bounds.northeast.latitude - bounds.southwest.latitude) * 0.1
+        val lngPadding = (bounds.northeast.longitude - bounds.southwest.longitude) * 0.1
+        return LatLngBounds(
+            LatLng(
+                bounds.southwest.latitude - latPadding,
+                bounds.southwest.longitude - lngPadding
+            ),
+            LatLng(
+                bounds.northeast.latitude + latPadding,
+                bounds.northeast.longitude + lngPadding
+            )
+        )
     }
 }

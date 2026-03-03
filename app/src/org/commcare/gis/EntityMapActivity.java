@@ -256,7 +256,7 @@ public class EntityMapActivity extends CommCareActivity implements
         }
 
         // Move camera to include all markers
-        LatLngBounds bounds = added ? LocationHelper.padBounds(boundsBuilder.build()) : null;
+        LatLngBounds bounds = added ? EntityMapUtils.padBounds(boundsBuilder.build()) : null;
         mMap.setOnMapLoadedCallback(() -> {
             if (bounds != null) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING), new GoogleMap.CancelableCallback() {
