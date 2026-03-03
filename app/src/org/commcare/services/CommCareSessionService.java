@@ -2,6 +2,7 @@ package org.commcare.services;
 
 import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 import static org.commcare.utils.NotificationIdentifiers.SUBMISSION_NOTIFICATION_ID;
+import static org.commcare.utils.NotificationIdentifiers.SESSION_SERVICE_NOTIFICATION_ID;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -97,9 +98,6 @@ public class CommCareSessionService extends Service {
 
     private IDatabase userDatabase;
 
-    // unique id for logged in notification
-    private final static int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
-
     // How long to wait until we force the session to finish logging out. Set
     // at 90 seconds to make sure huge forms on slow phones actually get saved
     private static final long LOGOUT_TIMEOUT = 1000 * 90;
@@ -180,9 +178,9 @@ public class CommCareSessionService extends Service {
         // Send the notification. This will cause error messages if CommCare doesn't have
         // permission to post notifications
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            this.startForeground(NOTIFICATION, createSessionNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            this.startForeground(SESSION_SERVICE_NOTIFICATION_ID, createSessionNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         } else {
-            this.startForeground(NOTIFICATION, createSessionNotification());
+            this.startForeground(SESSION_SERVICE_NOTIFICATION_ID, createSessionNotification());
         }
     }
 
@@ -208,7 +206,7 @@ public class CommCareSessionService extends Service {
                     .build();
 
             // Send the notification.
-            mNM.notify(NOTIFICATION, notification);
+            mNM.notify(SESSION_SERVICE_NOTIFICATION_ID, notification);
         }
     }
 
@@ -657,7 +655,7 @@ public class CommCareSessionService extends Service {
             sessionExpireDate.setTime(sessionExpireDate.getTime() + SESSION_EXTENSION_TIME);
             sessionLength += SESSION_EXTENSION_TIME;
 
-            mNM.notify(NOTIFICATION, createSessionNotification());
+            mNM.notify(SESSION_SERVICE_NOTIFICATION_ID, createSessionNotification());
         }
     }
 
@@ -676,10 +674,10 @@ public class CommCareSessionService extends Service {
                 notificationText = Localization.get("notification.logged.in",
                         new String[]{Localization.get("app.display.name")});
             } catch (NoLocalizedTextException e) {
-                notificationText = getString(NOTIFICATION);
+                notificationText = getString(R.string.notificationtitle);
             }
         } else {
-            notificationText = getString(NOTIFICATION);
+            notificationText = getString(R.string.notificationtitle);
         }
 
         // Set the icon, scrolling text and timestamp
