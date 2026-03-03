@@ -7,6 +7,7 @@ import org.commcare.CommCareApplication
 object LocationPreferences {
     private const val KEY_LAST_ACCEPTED_LOCATION = "cc-last-accepted-location"
     private const val KEY_LAST_ACCEPTED_LOCATION_TIMESTAMP = "cc-last-accepted-location-timestamp"
+    private const val KEY_LAST_ACCEPTED_LOCATION_GPS_TIME = "cc-last-accepted-location-gps-time"
 
     fun getLastAcceptedLocation(): String? =
         PreferenceManager
@@ -27,6 +28,17 @@ object LocationPreferences {
     fun setLastAcceptedLocationTimestamp(timestamp: Long) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit {
             putLong(KEY_LAST_ACCEPTED_LOCATION_TIMESTAMP, timestamp)
+        }
+    }
+
+    fun getLastAcceptedLocationGpsTime(): Long =
+        PreferenceManager
+            .getDefaultSharedPreferences(CommCareApplication.instance())
+            .getLong(KEY_LAST_ACCEPTED_LOCATION_GPS_TIME, 0L)
+
+    fun setLastAcceptedLocationGpsTime(gpsTime: Long) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit {
+            putLong(KEY_LAST_ACCEPTED_LOCATION_GPS_TIME, gpsTime)
         }
     }
 }

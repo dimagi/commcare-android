@@ -37,11 +37,12 @@ private fun isFirstLocation(lastLocationString: String?): Boolean = lastLocation
 
 private fun isDifferentLocation(
     newLocation: Location,
-    lastLocationString: String,
-): Boolean = GeoUtils.locationToString(newLocation) != lastLocationString
+    lastGpsTime: Long,
+): Boolean = newLocation.time != lastGpsTime
 
 private fun updateLastLocation(location: Location) {
     LocationPreferences.setLastAcceptedLocation(GeoUtils.locationToString(location))
+    LocationPreferences.setLastAcceptedLocationGpsTime(location.time)
 }
 
 private fun acceptLocation(
@@ -93,6 +94,7 @@ fun onLocationReceived(
     val currentDeviceTime = System.currentTimeMillis()
     val lastLocationString = LocationPreferences.getLastAcceptedLocation()
     val lastAcceptedTimestamp = LocationPreferences.getLastAcceptedLocationTimestamp()
+    val lastAcceptedGpsTime = LocationPreferences.getLastAcceptedLocationGpsTime()
 
     if (isFirstLocation(lastLocationString)) {
         updateLastLocation(newLocation)
@@ -101,7 +103,7 @@ fun onLocationReceived(
         return
     }
 
-    if (isDifferentLocation(newLocation, lastLocationString!!)) {
+    if (isDifferentLocation(newLocation, lastAcceptedGpsTime)) {
         updateLastLocation(newLocation)
         setCurrentLocation(newLocation)
         acceptLocation(newLocation, currentDeviceTime, listener)
