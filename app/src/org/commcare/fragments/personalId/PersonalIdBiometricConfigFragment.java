@@ -5,6 +5,7 @@ import static org.commcare.android.database.connect.models.PersonalIdSessionData
 import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
+import static org.commcare.utils.BiometricsHelper.isAnyBiometricConfigured;
 import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 
 import android.os.Bundle;
@@ -88,11 +89,6 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         return PersonalIdManager.getInstance().getBiometricManager(requireActivity());
     }
 
-    private boolean isAnyBiometricConfigured() {
-        return BiometricsHelper.isFingerprintConfigured(getActivity(), biometricManager)
-                || BiometricsHelper.isPinConfigured(getActivity(), biometricManager);
-    }
-
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
         return new BiometricPrompt.AuthenticationCallback() {
             @Override
@@ -120,14 +116,14 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         };
     }
 
-    private void handleBiometricErrMessage(boolean fromBiometricSettingsActivity) {
+    private void handleBiometricErrorMessage(boolean fromBiometricSettingsActivity) {
         NavController navController = getNavController();
         NavBackStackEntry currentEntry = navController.getCurrentBackStackEntry();
         boolean isBiometricErrMessageShowing = currentEntry != null
                 && currentEntry.getDestination().getId() == R.id.personalid_message_display
                 && currentEntry.getArguments() != null
                 && ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL == currentEntry.getArguments().getInt("callingClass");
-        boolean isAnyBiometricConfigured = isAnyBiometricConfigured();
+        boolean isAnyBiometricConfigured = isAnyBiometricConfigured(requireContext(), getBiometricManager());
         //  if any biometric is configured and if a biometric error message is still shown, just remove that error message by navigating up.
         if (isAnyBiometricConfigured && isBiometricErrMessageShowing) {
             navController.navigateUp();
@@ -140,7 +136,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     private void updateUiBasedOnMinSecurityRequired() {
 
         //  update the UI for biometric error message
-        handleBiometricErrMessage(false);
+        handleBiometricErrorMessage(false);
 
         BiometricsHelper.ConfigurationStatus fingerprintStatus = BiometricsHelper.checkFingerprintStatus(
                 requireContext(), biometricManager);
@@ -301,7 +297,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
     public void handleFinishedPinActivity(int requestCode, int resultCode) {
         if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
-            handleBiometricErrMessage(true);
+            handleBiometricErrorMessage(true);
         }
     }
 
