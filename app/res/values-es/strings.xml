@@ -64,7 +64,7 @@
     <string name="permission_external_action_description">Permite que esta aplicación active operaciones como iniciar sesión, cerrar sesión y sincronizar en CommCare</string>
     <string name="permission_commcare_logout_label">Permitir el cierre de sesión automático de CommCare</string>
     <string name="permission_commcare_logout_description">Permite que esta aplicación cierre la sesión de un usuario de la aplicación CommCare</string>
-    <string name="title_activity_report_problem">Informar de un problema de actividad</string>
+    <string name="title_activity_report_problem">Informar problema</string>
     <string name="panes">uno</string>
     <string name="restore_session_prompt">Restaurar la sesión guardada al iniciar sesión</string>
     <string name="managed_configuration_username">Nombre de usuario del trabajador móvil</string>

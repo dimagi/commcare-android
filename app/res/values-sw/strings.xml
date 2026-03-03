@@ -65,7 +65,7 @@
     <string name="permission_external_action_description">Inaruhusu programu hii kuanzisha shughuli kama vile kuingia, kuondoka na kusawazisha katika CommCare</string>
     <string name="permission_commcare_logout_label">Ruhusu Kuondoka kwa Auto CommCare</string>
     <string name="permission_commcare_logout_description">Inaruhusu programu hii kumtoa mtumiaji kutoka kwa Programu ya CommmCare</string>
-    <string name="title_activity_report_problem">RipotiProblemActivity</string>
+    <string name="title_activity_report_problem">Ripoti Tatizo</string>
     <string name="panes">moja</string>
     <string name="restore_session_prompt">Rejesha kipindi kilichohifadhiwa unapoingia</string>
     <string name="managed_configuration_username">Jina la mtumiaji la Mfanyakazi wa Simu</string>

@@ -64,7 +64,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="permission_external_action_description">Yana bawa wannan app damar fara ayyukan kamar shiga, fita da daidaitawa a cikin CommCare</string>
     <string name="permission_commcare_logout_label">Bada izinin Fita daga Kamfanin Sadarwa ta atomatik</string>
     <string name="permission_commcare_logout_description">Yana bawa wannan manhajar damar fita daga mai amfani daga Manhajar CommmCare</string>
-    <string name="title_activity_report_problem">RahotonMatsalaAyyukan</string>
+    <string name="title_activity_report_problem">Bayar da Rahoto</string>
     <string name="panes">ɗaya</string>
     <string name="restore_session_prompt">Mayar da zaman da aka adana bayan shiga</string>
     <string name="managed_configuration_username">Sunan mai amfani na Ma\'aikacin Wayar hannu</string>
