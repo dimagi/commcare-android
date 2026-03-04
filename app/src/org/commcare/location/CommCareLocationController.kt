@@ -33,15 +33,14 @@ fun isLocationPermissionGranted(mContext: Context?): Boolean {
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 }
 
-private fun isFirstLocation(lastLocationString: String?): Boolean = lastLocationString.isNullOrEmpty()
+private fun isFirstLocation(lastLocationGpsTime: Long): Boolean = lastLocationGpsTime == 0L
 
 private fun isDifferentLocation(
     newLocation: Location,
     lastGpsTime: Long,
 ): Boolean = newLocation.time != lastGpsTime
 
-private fun updateLastLocation(location: Location) {
-    LocationPreferences.setLastAcceptedLocation(GeoUtils.locationToString(location))
+private fun updateLastLocationGpsTime(location: Location) {
     LocationPreferences.setLastAcceptedLocationGpsTime(location.time)
 }
 
@@ -92,19 +91,18 @@ fun onLocationReceived(
     setCurrentLocation: (Location) -> Unit,
 ) {
     val currentDeviceTime = System.currentTimeMillis()
-    val lastLocationString = LocationPreferences.getLastAcceptedLocation()
     val lastAcceptedTimestamp = LocationPreferences.getLastAcceptedLocationTimestamp()
     val lastAcceptedGpsTime = LocationPreferences.getLastAcceptedLocationGpsTime()
 
-    if (isFirstLocation(lastLocationString)) {
-        updateLastLocation(newLocation)
+    if (isFirstLocation(lastAcceptedGpsTime)) {
+        updateLastLocationGpsTime(newLocation)
         setCurrentLocation(newLocation)
         acceptLocation(newLocation, currentDeviceTime, listener)
         return
     }
 
     if (isDifferentLocation(newLocation, lastAcceptedGpsTime)) {
-        updateLastLocation(newLocation)
+        updateLastLocationGpsTime(newLocation)
         setCurrentLocation(newLocation)
         acceptLocation(newLocation, currentDeviceTime, listener)
         logStaleLocationIfGpsTimeDrifted(newLocation, currentDeviceTime)
