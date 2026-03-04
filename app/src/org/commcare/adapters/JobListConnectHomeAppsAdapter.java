@@ -318,10 +318,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
                 showPercentageText = false;
                 break;
             case LEARNING:
-                if (!job.passedAssessment()) {
-                    progress = item.getLearningProgress();
-                    progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-                }
+                progress = item.getLearningProgress();
+                progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
                 break;
             case DELIVERY:
                 if (!job.isFinished()) {
