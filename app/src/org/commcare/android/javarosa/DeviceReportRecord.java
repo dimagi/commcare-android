@@ -52,7 +52,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS))
                         + FileUtil.SanitizeFileName(File.separator
                         + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
-        slr.aesKey = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
+        slr.aesKey = SessionManager.generateLegacyKeyOrNull();
         return slr;
     }
 

@@ -2,7 +2,9 @@ package org.commcare.services
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import org.commcare.CommCareApplication
 import org.commcare.android.security.AesKeyStoreHandler
+import org.commcare.android.security.AndroidKeyStore
 import java.security.Key
 
 /**
@@ -22,5 +24,14 @@ class SessionManager {
 
         @JvmStatic
         fun getKeyTransformation(): String = sessionKeyAndTransformation.transformation
+
+        // null represents that the Android Keystore is supported and the key to be used should be retrieved there
+        @JvmStatic
+        fun generateLegacyKeyOrNull(): ByteArray? =
+            if (AndroidKeyStore.isKeystoreAvailable()) {
+                null
+            } else {
+                CommCareApplication.instance().createNewSymmetricKey().encoded
+            }
     }
 }

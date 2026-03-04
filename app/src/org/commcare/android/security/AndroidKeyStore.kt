@@ -1,5 +1,6 @@
 package org.commcare.android.security
 
+import org.javarosa.core.services.Logger
 import java.security.KeyStore
 
 /**
@@ -21,5 +22,15 @@ object AndroidKeyStore {
 
     fun doesKeyExist(alias: String): Boolean {
         return instance.containsAlias(alias)
+    }
+
+    fun isKeystoreAvailable(): Boolean {
+        return try {
+            instance
+            true
+        } catch (e: Exception) {
+            Logger.exception("Android keystore is not supported on this device", e)
+            false
+        }
     }
 }
