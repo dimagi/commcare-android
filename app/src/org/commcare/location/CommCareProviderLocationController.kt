@@ -132,6 +132,15 @@ class CommCareProviderLocationController(
         }
     }
 
+    @SuppressLint("MissingPermission")
+    override suspend fun getLastKnownLocation(): Location? {
+        if (!isLocationPermissionGranted(mContext)) return null
+        val providers = GeoUtils.evaluateProviders(mLocationManager)
+        if (providers.isEmpty()) return null
+        return providers.mapNotNull { mLocationManager.getLastKnownLocation(it) }
+            .maxByOrNull { it.time }
+    }
+
     override fun destroy() {
         mContext = null
         mListener = null

@@ -71,6 +71,16 @@ class CommCareFusedLocationController(
         }
     }
 
+    @SuppressLint("MissingPermission")
+    override suspend fun getLastKnownLocation(): Location? {
+        if (!isLocationPermissionGranted(mContext)) return null
+        return suspendCancellableCoroutine { cont ->
+            mFusedLocationClient.lastLocation
+                .addOnSuccessListener { cont.resume(it) }
+                .addOnFailureListener { cont.resume(null) }
+        }
+    }
+
     override fun start() {
         val locationSettingsRequest =
             LocationSettingsRequest
