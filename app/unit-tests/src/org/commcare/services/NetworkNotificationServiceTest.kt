@@ -28,11 +28,12 @@ class NetworkNotificationServiceTest {
 
     @Before
     fun setUp() {
-        controller = Robolectric.buildService(
-            NetworkNotificationService::class.java,
-            getIntentForAction(START_NOTIFICATION_ACTION, availableTasks[0])
-        )
-        service = controller.create().startCommand(0,0).get()
+        controller =
+            Robolectric.buildService(
+                NetworkNotificationService::class.java,
+                getIntentForAction(START_NOTIFICATION_ACTION, availableTasks[0]),
+            )
+        service = controller.create().startCommand(0, 0).get()
     }
 
     @Test
@@ -96,18 +97,22 @@ class NetworkNotificationServiceTest {
         controller.destroy()
     }
 
-    private fun sendIntent(action: String, taskTag: String) {
+    private fun sendIntent(
+        action: String,
+        taskTag: String,
+    ) {
         service.onStartCommand(getIntentForAction(action, taskTag), 0, 0)
     }
 
-    private fun getIntentForAction(action: String, taskTag: String): Intent {
-        return Intent(
+    private fun getIntentForAction(
+        action: String,
+        taskTag: String,
+    ): Intent =
+        Intent(
             CommCareTestApplication.instance(),
             NetworkNotificationService::class.java,
         ).apply {
             this.action = action
             putExtra(TASK_TAG_INTENT_EXTRA, taskTag)
         }
-    }
-
 }

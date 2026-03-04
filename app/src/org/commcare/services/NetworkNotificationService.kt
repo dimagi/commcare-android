@@ -106,14 +106,15 @@ class NetworkNotificationService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun buildNotification(notificationTitleStringId: Int) = NotificationCompat
-        .Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
-        .setContentTitle(StringUtils.getStringRobust(this, notificationTitleStringId))
-        .setOnlyAlertOnce(true)
-        .setSmallIcon(R.drawable.commcare_actionbar_logo)
-        .setContentIntent(pendingIntent)
-        .setOngoing(true)
-        .build()
+    private fun buildNotification(notificationTitleStringId: Int) =
+        NotificationCompat
+            .Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
+            .setContentTitle(StringUtils.getStringRobust(this, notificationTitleStringId))
+            .setOnlyAlertOnce(true)
+            .setSmallIcon(R.drawable.commcare_actionbar_logo)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .build()
 
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
