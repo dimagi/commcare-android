@@ -113,12 +113,11 @@ class CommCareProviderLocationController(
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): Location? {
         if (!isLocationPermissionGranted(mContext)) return null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return getLastKnownLocation()
+        }
         val providers = GeoUtils.evaluateProviders(mLocationManager)
         if (providers.isEmpty()) return null
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return providers.mapNotNull { mLocationManager.getLastKnownLocation(it) }
-                .maxByOrNull { it.time }
-        }
         return coroutineScope {
             providers.map { provider ->
                 async {
