@@ -93,12 +93,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void updateLearningUI() {
-        int learningProgressPercent = job.getLearningPercentComplete(false);
-        boolean learningComplete = learningProgressPercent >= 100;
+        boolean learningComplete = job.getLearningPercentComplete(false) >= 100;
         boolean attemptedAssessment = job.attemptedAssessment();
         boolean passedAssessment = job.passedAssessment();
 
-        updateProgressViews(learningProgressPercent, passedAssessment);
+        updateProgressViews(job.getLearningPercentComplete(true), passedAssessment);
         updateCertificateView(learningComplete, passedAssessment);
         updateButtons(learningComplete, passedAssessment);
         updateLearningStatus(learningComplete, passedAssessment, attemptedAssessment);
