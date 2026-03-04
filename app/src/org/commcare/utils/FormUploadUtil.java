@@ -33,7 +33,6 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -352,7 +351,7 @@ public class FormUploadUtil {
                     if (!validateSubmissionFile(f)) {
                         return false;
                     }
-                    parts.add(createEncryptedFilePart("xml_submission_file", f, "text/xml", key, null, false));
+                    parts.add(createEncryptedFilePart("xml_submission_file", f, "text/xml", key));
                 } else {
                     parts.add(createFilePart("xml_submission_file", f, "text/xml"));
                 }
@@ -390,7 +389,7 @@ public class FormUploadUtil {
         if (f.length() <= MAX_BYTES) {
             MultipartBody.Part part;
             if (f.getName().endsWith(MediaWidget.AES_EXTENSION)) {
-                part = createEncryptedFilePart(MediaWidget.removeAESExtension(f.getName()), f, contentType, key, null, false);
+                part = createEncryptedFilePart(MediaWidget.removeAESExtension(f.getName()), f, contentType, key);
             } else {
                 part = createFilePart(f.getName(), f, contentType);
             }
@@ -428,8 +427,31 @@ public class FormUploadUtil {
         return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
     }
 
+    public static MultipartBody.Part createKeystoreEncryptedFilePart(
+            String partName,
+            File file,
+            String contentType,
+            EncryptionKeyAndTransform sessionKeyAndTransformation) {
+        return createEncryptedFilePart(
+                partName,
+                file,
+                contentType,
+                sessionKeyAndTransformation.getKey(),
+                sessionKeyAndTransformation.getTransformation(),
+                true
+        );
+    }
 
     public static MultipartBody.Part createEncryptedFilePart(
+            String partName,
+            File file,
+            String contentType,
+            Key key
+    ) {
+        return createEncryptedFilePart(partName, file, contentType, key, null, false);
+    }
+
+    private static MultipartBody.Part createEncryptedFilePart(
             String partName,
             File file,
             String contentType,

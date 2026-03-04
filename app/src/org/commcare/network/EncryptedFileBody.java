@@ -38,8 +38,8 @@ public class EncryptedFileBody extends RequestBody {
         this.contentType = contentType;
         this.file = file;
         this.key = key;
-        this.isKeyFromAndroidKeyStore = isKeyFromAndroidKeyStore;
         this.transformation = transformation;
+        this.isKeyFromAndroidKeyStore = isKeyFromAndroidKeyStore;
     }
 
     @Override
@@ -59,7 +59,12 @@ public class EncryptedFileBody extends RequestBody {
 
         //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
         //it'll get caught when we initialize.
-        Cipher cipher = FormUploadUtil.getDecryptCipher(key, transformation, iv);
+        Cipher cipher;
+        if (!isKeyFromAndroidKeyStore) {
+            cipher = FormUploadUtil.getDecryptCipher(key);
+        } else {
+            cipher = FormUploadUtil.getDecryptCipher(key, transformation, iv);
+        }
         try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
             StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());
         } catch (InputIOException iioe) {

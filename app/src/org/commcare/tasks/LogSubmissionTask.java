@@ -291,17 +291,20 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         generator = new CommcareRequestGenerator(user);
 
         List<MultipartBody.Part> parts = new ArrayList<>();
-
-        parts.add(
+        MultipartBody.Part part = slr.getKey() != null ?
                 FormUploadUtil.createEncryptedFilePart(
                         "xml_submission_file",
                         f,
                         "text/xml",
-                        SessionManager.getEncryptionKey(),
-                        SessionManager.getKeyTransformation(),
-                        true
-                )
-        );
+                        new SecretKeySpec(slr.getKey(), "AES")
+                ):
+                FormUploadUtil.createKeystoreEncryptedFilePart(
+                        "xml_submission_file",
+                        f,
+                        "text/xml",
+                        SessionManager.retrieveSessionKeyAndTransformation()
+                );
+        parts.add(part);
 
 
         Response<ResponseBody> response = null;
