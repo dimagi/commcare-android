@@ -13,7 +13,6 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -24,6 +23,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.common.base.Strings;
 import com.google.firebase.perf.metrics.Trace;
@@ -163,7 +163,7 @@ public class EntityMapActivity extends CommCareActivity implements
     }
 
     private String getToggleLabel(String headerValue, int defaultKey) {
-        if(!Strings.isNullOrEmpty(headerValue)) {
+        if (!Strings.isNullOrEmpty(headerValue)) {
             return headerValue;
         }
 

@@ -15,10 +15,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils
 import org.javarosa.core.services.Logger
+import kotlin.coroutines.resume
 
 /**
  * @author $|-|!˅@M
@@ -124,7 +124,12 @@ class CommCareProviderLocationController(
                     suspendCancellableCoroutine { cont ->
                         val signal = CancellationSignal()
                         cont.invokeOnCancellation { signal.cancel() }
-                        mLocationManager.getCurrentLocation(provider, signal, { it.run() }, cont::resume)
+                        mLocationManager.getCurrentLocation(
+                            provider,
+                            signal,
+                            { it.run() },
+                            cont::resume
+                        )
                     }
                 }
             }.awaitAll().filterNotNull().maxByOrNull { it.time }

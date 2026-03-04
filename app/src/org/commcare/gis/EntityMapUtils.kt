@@ -67,7 +67,8 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getBoundaryHeader(detail: Detail): String? = getHeaderText(detail, TEMPLATE_FORM_GEO_BOUNDARY)
+    fun getBoundaryHeader(detail: Detail): String? =
+        getHeaderText(detail, TEMPLATE_FORM_GEO_BOUNDARY)
 
     @JvmStatic
     fun getEntityBoundary(
@@ -77,7 +78,7 @@ object EntityMapUtils {
     ): List<LatLng>? {
         if (TEMPLATE_FORM_GEO_BOUNDARY == detail.templateForms[fieldIndex]) {
             val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            if(boundaryString.isNotEmpty()) {
+            if (boundaryString.isNotEmpty()) {
                 return parseBoundaryFromString(boundaryString)
             }
         }
@@ -92,7 +93,7 @@ object EntityMapUtils {
     ): Int? {
         if (TEMPLATE_FORM_GEO_BOUNDARY_COLOR == detail.templateForms[fieldIndex]) {
             val colorString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            if(colorString.isNotEmpty()) {
+            if (colorString.isNotEmpty()) {
                 return parseHexColor(colorString)
             }
         }
@@ -100,7 +101,8 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getGeopointsHeader(detail: Detail): String? = getHeaderText(detail, TEMPLATE_FORM_GEO_POINTS)
+    fun getGeopointsHeader(detail: Detail): String? =
+        getHeaderText(detail, TEMPLATE_FORM_GEO_POINTS)
 
     @JvmStatic
     fun getEntityPoints(

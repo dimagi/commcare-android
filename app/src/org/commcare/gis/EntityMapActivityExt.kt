@@ -1,12 +1,12 @@
 package org.commcare.gis
 
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import androidx.lifecycle.lifecycleScope
 import org.commcare.location.LocationHelper
 import org.commcare.views.UserfacingErrorHandling
 import org.javarosa.xpath.XPathException
@@ -38,7 +38,11 @@ fun EntityMapActivity.loadMap(mapReadyTask: Task<GoogleMap>) {
         setupMap(map, location)
 
         if (entityError != null) {
-            UserfacingErrorHandling<EntityMapActivity>().logErrorAndShowDialog(this@loadMap, entityError, true)
+            UserfacingErrorHandling<EntityMapActivity>().logErrorAndShowDialog(
+                this@loadMap,
+                entityError,
+                true
+            )
         }
     }
 }

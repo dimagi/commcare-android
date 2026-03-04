@@ -15,10 +15,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils.locationServicesEnabledGlobally
 import org.javarosa.core.services.Logger
+import kotlin.coroutines.resume
 
 /**
  * @author $|-|!˅@M
@@ -95,7 +95,11 @@ class CommCareFusedLocationController(
                 requestUpdates()
                 restartLocationServiceChangeReceiver() //  if already started listening, it should be stopped before starting new
             }.addOnFailureListener { exception ->
-                mListener?.onLocationRequestFailure(CommCareLocationListener.Failure.ApiException(exception))
+                mListener?.onLocationRequestFailure(
+                    CommCareLocationListener.Failure.ApiException(
+                        exception
+                    )
+                )
             }
     }
 
@@ -119,7 +123,11 @@ class CommCareFusedLocationController(
     fun startLocationServiceChangeReceiver() {
         val intentFilter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mContext?.registerReceiver(mLocationServiceChangeReceiver, intentFilter, Context.RECEIVER_EXPORTED)
+            mContext?.registerReceiver(
+                mLocationServiceChangeReceiver,
+                intentFilter,
+                Context.RECEIVER_EXPORTED
+            )
         } else {
             mContext?.registerReceiver(mLocationServiceChangeReceiver, intentFilter)
         }
@@ -138,7 +146,7 @@ class CommCareFusedLocationController(
             context: Context,
             intent: Intent,
         ) {
-            if (LocationManager.PROVIDERS_CHANGED_ACTION == intent.getAction()) {
+            if (LocationManager.PROVIDERS_CHANGED_ACTION == intent.action) {
                 val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
                 val locationServiceEnabled = locationServicesEnabledGlobally(lm)
                 if (locationServiceEnabled) {
