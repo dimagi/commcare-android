@@ -64,7 +64,7 @@ License.
     <string name="permission_external_action_description">Permet à cette application de déclencher des opérations telles que la connexion, la déconnexion et la synchronisation dans CommCare</string>
     <string name="permission_commcare_logout_label">Autoriser la déconnexion automatique de CommCare</string>
     <string name="permission_commcare_logout_description">Permet à cette application de déconnecter un utilisateur de l\'application CommmCare</string>
-    <string name="title_activity_report_problem">Signaler un problème d\'activité</string>
+    <string name="title_activity_report_problem">Signaler un problème</string>
     <string name="panes">un</string>
     <string name="restore_session_prompt">Restaurer la session enregistrée lors de la connexion</string>
     <string name="managed_configuration_username">Nom d\'utilisateur du travailleur mobile</string>
