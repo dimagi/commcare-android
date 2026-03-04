@@ -5,11 +5,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -29,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 /**
