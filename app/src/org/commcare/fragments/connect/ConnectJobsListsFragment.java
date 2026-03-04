@@ -174,10 +174,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
-        if (job.deliveryComplete()) {
+        if (job.deliveryComplete()) {//
             navigateToDeliveryProgress();
         } else if (!job.passedAssessment()) {
             navigateToLearnProgress();
+        } else if (isLearning && job.passedAssessment()) {
+            navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
             ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
@@ -196,6 +198,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     private void navigateToLearnProgress() {
         Navigation.findNavController(getBinding().getRoot())
                 .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment());
+    }
+
+    private void navigateToDeliveryDetails() {
+        Navigation.findNavController(getBinding().getRoot())
+                .navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryDetailsFragment(true));
     }
 
     private void setActiveJob(ConnectJobRecord job) {
@@ -309,7 +316,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 isLearningApp,
                 isDeliveryApp,
                 processJobRecords(job, jobType),
-                job.getLearningPercentComplete(),
+                job.getLearningPercentComplete(true),
                 job.getDeliveryProgressPercentage(),
                 jobType,
                 appType,

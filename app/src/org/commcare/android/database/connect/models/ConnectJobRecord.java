@@ -291,7 +291,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job, false);
 
         job.status = STATUS_AVAILABLE;
-        if (job.getLearningPercentComplete() > 0) {
+        if (job.getLearningPercentComplete(true) > 0) {
             job.status = STATUS_LEARNING;
             if (job.claimed) {
                 job.status = STATUS_DELIVERING;
@@ -361,10 +361,22 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return paymentAccrued == null || paymentAccrued.isEmpty() ? 0 : Integer.parseInt(paymentAccrued);
     }
 
-    public int getLearningPercentComplete() {
-        // Add 1 to represent the assessment.
-        int totalModules = numLearningModules + 1;
-        int modulesCompleted = learningModulesCompleted + (passedAssessment() ? 1 : 0);
+    /**
+     * Calculates the learning progress percentage.
+     *
+     * @param includeAssessmentModule boolean indicating if the assessment module should be included
+     *                                in the calculation
+     * @return an integer representing the learning progress percentage
+     */
+    public int getLearningPercentComplete(boolean includeAssessmentModule) {
+        int totalModules = numLearningModules;
+        int modulesCompleted = learningModulesCompleted;
+
+        if (includeAssessmentModule) {
+            // Add 1 to the calculation to represent the assessment module.
+            totalModules++;
+            modulesCompleted += (passedAssessment() ? 1 : 0);
+        }
 
         return totalModules > 0 ? (100 * modulesCompleted / totalModules) : 100;
     }
