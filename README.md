@@ -41,9 +41,12 @@ git clone https://github.com/dimagi/commcare-core.git
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
 
-Note: If you are using any functionality that depends on the Google Cloud Project (like
+Note: 
+- Android Secrets should be placed in the `local.properties` -> global or project-level `gradle.properties`, 
+in that order of priority. Failing to do so may result in build or runtime errors.
+- If you are using any functionality that depends on the Google Cloud Project (like
 [Google Integrity APIs](https://developer.android.com/google/play/integrity/standard)), you will need to
-define `GOOGLE_CLOUD_PROJECT_NUMBER` in your local `gradle.properties` file otherwise relevant parts of the
+define `GOOGLE_CLOUD_PROJECT_NUMBER` in your Android secrets otherwise relevant parts of the
 application will crash for you with
 `Caused by: java.lang.IllegalArgumentException: Google Cloud Project Number is not defined`.
 
@@ -100,7 +103,7 @@ You may also run individual unit tests, via auto-configured Gradle tasks, by cli
 ## Instrumentation Tests
 
 The commcare-android repository uses [Espresso](https://developer.android.com/training/testing/espresso/) to write UI tests.
-You need to have two keys in your `gradle.properties` before being able to run any instrumentation tests. **But make sure you never commit these keys to GitHub.**
+You need to have two keys in your Android secrets before being able to run any instrumentation tests. **But make sure you never commit these keys to GitHub.**
 ```properties
 HQ_API_USERNAME=<ASK_ANOTHER_DEV_FOR_KEY>
 HQ_API_PASSWORD=<ASK_ANOTHER_DEV_FOR_KEY>

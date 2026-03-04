@@ -178,4 +178,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
         return showDrawer
     }
+
+	fun isShowingGlobalError(): Boolean {
+        return drawerController?.isShowingError() ?: false
+    }
 }

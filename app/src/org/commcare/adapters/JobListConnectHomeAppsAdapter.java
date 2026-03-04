@@ -1,8 +1,6 @@
 package org.commcare.adapters;
 
 
-import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
-
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -16,7 +14,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
@@ -31,8 +28,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
+import static org.commcare.utils.ViewUtils.dpToPx;
 
+public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private final OnJobSelectionClick launcher;
 
@@ -62,7 +61,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         return switch (viewType) {
             case VIEW_TYPE_SECTION_HEADER -> new SectionHeaderViewHolder(
-                    ConnectJobListItemSectionHeaderBinding.inflate(inflater, parent, false)
+                    ConnectJobListItemSectionHeaderBinding
+                            .inflate(inflater, parent, false)
             );
             case VIEW_TYPE_CORRUPT_JOB -> new CorruptJobViewHolder(
                     ConnectJobListItemCorruptBinding.inflate(inflater, parent, false)
@@ -79,7 +79,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         // Handle the section headers.
         if (holder instanceof SectionHeaderViewHolder sectionHeaderViewHolder) {
-            ConnectJobListItem.SectionHeader header = (ConnectJobListItem.SectionHeader) displayItem;
+            ConnectJobListItem.SectionHeader header =
+                    (ConnectJobListItem.SectionHeader) displayItem;
             boolean showSectionDivider = position > 0;
             bind(sectionHeaderViewHolder.binding, header.getTextResID(), showSectionDivider);
             return;
@@ -166,43 +167,73 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             int redColor = ContextCompat.getColor(mContext, R.color.dark_red_brick_red);
 
             binding.tvDate.setTextColor(redColor);
+            binding.ivInfo.setVisibility(View.VISIBLE);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+        } else {
+            binding.tvDate.setTextColor(
+                    ContextCompat.getColor(mContext, R.color.moon_gray)
+            );
+            binding.ivInfo.clearColorFilter();
+            binding.ivInfo.setVisibility(View.GONE);
         }
 
-        // We need the composite job because it has the correct number of deliveries.
-        ConnectJobRecord compositeJob = ConnectJobUtils
-                .getCompositeJob(mContext, connectLoginJobListModel.getJob().getJobId());
-        boolean deliveryComplete = compositeJob != null && compositeJob.deliveryComplete();
-
-        int dateRes = deliveryComplete
+        int dateRes = connectLoginJobListModel.getJobFinished()
                 ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
         binding.tvDate.setText(
                 mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
         );
 
+        binding.ivCompletedCheck.setVisibility(
+                connectLoginJobListModel.getUserCompletedDelivery()
+                        ? View.VISIBLE
+                        : View.INVISIBLE
+        );
+
         Drawable startDrawableResume = connectLoginJobListModel.isAppInstalled()
                 ? null
                 : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle);
         binding.btnResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                startDrawableResume, null, null, null
+                startDrawableResume,
+                null,
+                null,
+                null
         );
 
         Drawable startDrawableReview = connectLoginJobListModel.isAppInstalled()
                 ? null
                 : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle_faded);
         binding.btnReview.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                startDrawableReview, null, null, null
+                startDrawableReview,
+                null,
+                null,
+                null
         );
 
-        binding.btnResume.setVisibility(deliveryComplete ? View.INVISIBLE : View.VISIBLE);
-        binding.btnReview.setVisibility(deliveryComplete ? View.VISIBLE : View.INVISIBLE);
+        if (connectLoginJobListModel.getJobFinished()) {
+            // Show the "Review" button.
+            binding.btnResume.setVisibility(View.INVISIBLE);
+            binding.btnReview.setVisibility(View.VISIBLE);
+            binding.btnProceed.setVisibility(View.INVISIBLE);
+        } else if (connectLoginJobListModel.isLearningApp() &&
+                connectLoginJobListModel.getLearningProgress() == 100) {
+            // Show the "Proceed" button.
+            binding.btnResume.setVisibility(View.INVISIBLE);
+            binding.btnReview.setVisibility(View.INVISIBLE);
+            binding.btnProceed.setVisibility(View.VISIBLE);
+        } else {
+            // Show the "Resume" button.
+            binding.btnResume.setVisibility(View.VISIBLE);
+            binding.btnReview.setVisibility(View.INVISIBLE);
+            binding.btnProceed.setVisibility(View.INVISIBLE);
+        }
 
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
 
         clickListener(binding, connectLoginJobListModel, launcher);
     }
+
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
             @StringRes int headerTextResId,
@@ -217,12 +248,51 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectLoginJobListModel connectLoginJobListModel,
             OnJobSelectionClick launcher
     ) {
-        binding.btnResume.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
-                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.RESUME));
-        binding.btnViewInfo.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
-                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.VIEW_INFO));
-        binding.btnReview.setOnClickListener(view -> launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(),
-                connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType(), OnJobSelectionClick.Action.RESUME));
+        binding.btnViewOpportunity.setOnClickListener(
+                view -> launcher.onClick(
+                        connectLoginJobListModel.getJob(),
+                        connectLoginJobListModel.isLearningApp(),
+                        connectLoginJobListModel.getAppId(),
+                        connectLoginJobListModel.getJobType(),
+                        OnJobSelectionClick.Action.VIEW_INFO
+                )
+        );
+        binding.btnResume.setOnClickListener(
+                view -> launcher.onClick(
+                        connectLoginJobListModel.getJob(),
+                        connectLoginJobListModel.isLearningApp(),
+                        connectLoginJobListModel.getAppId(),
+                        connectLoginJobListModel.getJobType(),
+                        OnJobSelectionClick.Action.RESUME
+                )
+        );
+        binding.btnViewInfo.setOnClickListener(
+                view -> launcher.onClick(
+                        connectLoginJobListModel.getJob(),
+                        connectLoginJobListModel.isLearningApp(),
+                        connectLoginJobListModel.getAppId(),
+                        connectLoginJobListModel.getJobType(),
+                        OnJobSelectionClick.Action.VIEW_INFO
+                )
+        );
+        binding.btnReview.setOnClickListener(
+                view -> launcher.onClick(
+                        connectLoginJobListModel.getJob(),
+                        connectLoginJobListModel.isLearningApp(),
+                        connectLoginJobListModel.getAppId(),
+                        connectLoginJobListModel.getJobType(),
+                        OnJobSelectionClick.Action.RESUME
+                )
+        );
+        binding.btnProceed.setOnClickListener(
+                view -> launcher.onClick(
+                        connectLoginJobListModel.getJob(),
+                        connectLoginJobListModel.isLearningApp(),
+                        connectLoginJobListModel.getAppId(),
+                        connectLoginJobListModel.getJobType(),
+                        OnJobSelectionClick.Action.RESUME
+                )
+        );
     }
 
     public void handleProgressBarUI(
@@ -232,26 +302,41 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     ) {
         int progress = 0;
         int progressColor = 0;
+        boolean showPercentageText = true;
         ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
+        ConnectJobRecord job = item.getJob();
 
-        if (jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING && !item.getJob().passedAssessment()) {
-            progress = item.getLearningProgress();
-            progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-        } else if (jobType == ConnectLoginJobListModel.JobListEntryType.DELIVERY && !item.getJob().isFinished()) {
-            progress = item.getDeliveryProgress();
-            progressColor = ContextCompat.getColor(context, R.color.connect_green);
-        }
-
-        if (progress > 0) {
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.progressBar.setProgress(progress);
-            binding.progressBar.setProgressColor(progressColor);
-            binding.groupProgress.setVisibility(View.VISIBLE);
-            binding.tvProgressPercent.setText(progress +" %");
-        } else {
-            binding.progressBar.setVisibility(View.GONE);
+        if (job.deliveryComplete()) {
             binding.groupProgress.setVisibility(View.GONE);
+            return;
         }
+
+        switch (jobType) {
+            case NEW_OPPORTUNITY:
+                progress = 100;
+                progressColor = ContextCompat.getColor(context, R.color.burnt_amber);
+                showPercentageText = false;
+                break;
+            case LEARNING:
+                if (!job.passedAssessment()) {
+                    progress = item.getLearningProgress();
+                    progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
+                }
+                break;
+            case DELIVERY:
+                if (!job.isFinished()) {
+                    progress = item.getDeliveryProgress();
+                    progressColor = ContextCompat.getColor(context, R.color.connect_green);
+                }
+                break;
+        }
+
+        binding.groupProgress.setVisibility(View.VISIBLE);
+        int progessBarWidthPx = dpToPx(6, context);
+        binding.progressBar.setStrokeWidth(progessBarWidthPx);
+        binding.progressBar.setProgress(progress);
+        binding.progressBar.setProgressColor(progressColor);
+        binding.tvProgressPercent.setText(showPercentageText ? progress + " %" : "");
     }
 
     private void configureJobType(
@@ -260,13 +345,29 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectJobListItemBinding binding
     ) {
         if (item.isNew()) {
-            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_new_opportunity));
-        } else if (item.isLearningApp()) {
-            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_learning));
-        } else if (item.isDeliveryApp()) {
-            boolean finished = item.getJob().isFinished();
-            int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
-            binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
+            binding.imgJobType.setImageDrawable(
+                    ContextCompat.getDrawable(context, R.drawable.ic_connect_new_opportunity)
+            );
+            binding.btnViewOpportunity.setVisibility(View.VISIBLE);
+            binding.btnResume.setVisibility(View.GONE);
+            binding.btnReview.setVisibility(View.GONE);
+            binding.btnViewInfo.setVisibility(View.GONE);
+            binding.btnProceed.setVisibility(View.GONE);
+        } else {
+            binding.btnViewOpportunity.setVisibility(View.GONE);
+            binding.btnViewInfo.setVisibility(View.VISIBLE);
+
+            if (item.isLearningApp()) {
+                binding.imgJobType.setImageDrawable(
+                        ContextCompat.getDrawable(context, R.drawable.ic_connect_learning)
+                );
+            } else if (item.isDeliveryApp()) {
+                boolean finished = item.getJob().isFinished();
+                int iconId = finished
+                        ? R.drawable.ic_connect_expired
+                        : R.drawable.ic_connect_delivery;
+                binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
+            }
         }
     }
 
@@ -280,27 +381,27 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         if (!inProgressJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_in_progress));
-            for (ConnectLoginJobListModel item : inProgressJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(item, false));
+            for (ConnectLoginJobListModel jobListModel : inProgressJobs) {
+                displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
             }
         }
 
         if (!newJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
-            for (ConnectLoginJobListModel item : newJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(item, false));
+            for (ConnectLoginJobListModel jobListModel : newJobs) {
+                displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
             }
         }
 
         if (!completedJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed));
-            for (ConnectLoginJobListModel item : completedJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(item, false));
+            for (ConnectLoginJobListModel jobListModel : completedJobs) {
+                displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
             }
         }
 
-        for (ConnectLoginJobListModel corruptJob : corruptJobs) {
-            displayItems.add(new ConnectJobListItem.JobItem(corruptJob, true));
+        for (ConnectLoginJobListModel jobListModel : corruptJobs) {
+            displayItems.add(new ConnectJobListItem.JobItem(jobListModel, true));
         }
     }
 }

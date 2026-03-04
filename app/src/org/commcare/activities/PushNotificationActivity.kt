@@ -82,7 +82,7 @@ class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
                             FirebaseAnalyticsUtil.reportNotificationEvent(
                                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                                 AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY,
-                                notificationRecord.action,
+                                notificationRecord.getNotificationActionFromRecord(),
                                 notificationRecord.notificationId,
                             )
                             val activityIntent = getIntentForPNClick(application, notificationRecord)

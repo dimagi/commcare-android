@@ -116,7 +116,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
 
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
-        }.claimJob(requireContext(), user, job.getJobId());
+        }.claimJob(requireContext(), user, job.getJobUUID());
     }
 
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {

@@ -53,7 +53,7 @@
     <string name="permission_external_action_description">እዚ ኣፕ ኣብ ኮምኬር ከም ምእታው፣ ምውጻእን ምትእስሳርን ዝኣመሰሉ ስርሓት ክጅምር ይፍቀዱ</string>
     <string name="permission_commcare_logout_label">ናይ ዓርሰ ምዉፃእ ንCommCare ፈቃድ ይሃብዎ</string>
     <string name="permission_commcare_logout_description">እዚ ኣፕ ንሓደ ተጠቃሚ ካብ CommmCare App ንኽወጽእ የኽእሎ</string>
-    <string name="title_activity_report_problem">ኣብ ናይ ንጥፈታት ፀገም እንተሃሊዩ የፍልጡ</string>
+    <string name="title_activity_report_problem">ጸገም ጸብጻብ</string>
     <string name="panes">ሓደ</string>
     <string name="restore_session_prompt">ኣብ እዋን ምእታው ዝተዓቀበ ክፍለ ግዜ ምምላስ</string>
     <string name="managed_configuration_username">ሞባይል ሰራሕተኛ ስም ተጠቃሚ</string>
@@ -174,6 +174,11 @@
     <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ PersonalID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
     <string name="personalid_login_from_different_device">ናትካ PersonalID ኣካውንት ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክውነን ዝኽእልን ኣብ ካልእ መሳርሒ ድማ ተዋቒሩን ኣሎ። በጃኻ ኣብቲ ሓድሽ መሳርሒ ቀጽሎ ወይ ኣብዚ PersonalID ምጥቃም ክትቅጽል ኣብዚ መሳርሒ ኣካውንትካ እንደገና ኣወሃህቦ።</string>
+    <string name="personalid_generic_error_title">ካብ PersonalID ወጺኡ ኣሎ</string>
+    <string name="personalid_error_title_login_different_device">ኣካውንት ኣብ ካልእ መሳርሒ ኣብ ጥቕሚ ይውዕል ኣሎ</string>
+    <string name="personalid_error_message_login_different_device">በጃኹም ኣብቲ ሓድሽ መሳርሒ ቀጽሉ፡ ወይ ድማ ኣካውንትኩም እንደገና ኣንኣድዎ</string>
+    <string name="personalid_reconfigure">እንደገና ኣንእድ</string>
+    <string name="personalid_dismiss">ኣወግድ</string>
     <string name="recovery_network_unauthorized">ነዚ ሕቶ እዚ ከተቕርቡ ፍቓድ የብልኩምን።</string>
     <string name="recovery_network_server_error">ሕቶኻ ኣብ መስርሕ ጌጋ ኣጋጢሙ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
@@ -288,7 +293,7 @@
     <string name="connect_no_jobs">ክሳብ ሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምኩምን። ንሓደ ዕድል ምስ ተዓደምካ፡ ኣብ\'ዚ ዝርዝር\'ዚ ክቐርብ\'ዩ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
-    <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
+    <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላትን ምግምጋምን ዛዚምካ ምስክር ወረቐት ውሰድ</string>
     <string name="connect_job_no_learning_required">ትምህርቲ ኣየድልን።</string>
     <string name="connect_job_go_to_learn_app">ናብ Learn App ኪድ</string>
     <string name="connect_job_learn_summary">%d ሞዱላት፣ %d ሰዓታት</string>
@@ -382,6 +387,7 @@
     <string name="connect_job_info_view_info">ሓበሬታ ርአ</string>
     <string name="connect_job_info_view_resume">ቐጽል</string>
     <string name="connect_job_info_view_review">ዳግመ ግምት</string>
+    <string name="connect_job_info_view_proceed">ቀጽል</string>
     <string name="connect_progress">ምዕባለ</string>
     <string name="connect_payment">ክፍሊት</string>
     <string name="connect_delivery_progress_description">ዝኾነ ትምህርቲ ኣይወዳእካን ስልዚ ምስክር ወረቐትካ ንምርካብ ምምሃር ጀምር።</string>
@@ -403,10 +409,6 @@
     <string name="connect_new_opportunities">ሓደስቲ ዕድላት</string>
     <string name="connect_completed">ተዛዚሙ</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
-    <string name="connect_messaging_channel_consent_title">ፍቓድ ንቻነል ሃብ</string>
-    <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
-    <string name="connect_messaging_channel_consent_accept">ተቀበል</string>
-    <string name="connect_messaging_channel_consent_decline">ኣውድቅ</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_too_many_otp_attempts">ንስኻ ነቲ ናይ 6 ኣሃዛት ሓደ ግዜ ዝውውር ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። በጃኻ ጸኒሕካ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
@@ -417,14 +419,28 @@
     <string name="connect_recovery_button_phone">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
     <string name="connect_messaging_channel_list_title">ቻነላት</string>
-    <string name="connect_messaging_channel_list_unconsented">ፍቓድ ዘይብሉ ቻነል</string>
-    <string name="connect_messaging_channel_consent_failure_msg">ንቻነል ፍቓድ ምሃብ ኣይከኣለን</string>
     <string name="connect_messaging_message_notification_title">🔔 ሓድሽ መልእኽቲ 🔔</string>
     <string name="connect_messaging_message_notification_message">ካብ %s ሓድሽ መልእኽቲ መጺኡካ፡ ንምርኣይ ኣብዚ ጠውቕ።</string>
     <string name="connect_messaging_channel_notification_title">🔔 ሓድሽ ቻነል 🔔</string>
     <string name="connect_messaging_channel_notification_message">ሓድሽ ናይ መልእኽቲ ቻነል ካብ %s ይርከብ፣ ንምርኣይ ኣብዚ ጠውቑ</string>
     <string name="connect_messaging_send_message_fail_msg">መልእኽቲ ምልኣኽ ዘይምኽኣል</string>
     <string name="connect_messaging_retrieve_messages_fail">መልእኽትታት ምምላስ ኣይከኣለን</string>
+    <string name="connect_messaging_resubscribe_dialog_title">እንደገና ናብ %s ተመዝገብ</string>
+    <string name="connect_messaging_resubscribe_dialog_body">ናብቲ %s ናይ መልእኽቲ ቻነል እንደገና ክትምዝገብ ርግጸኛ ዲኻ?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">እንደገና ተመዝገብ</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">ሰርዝ</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">ካብ %s ምዝገባ ሰርዝ</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">ካብዚ ቻነል ምዝገባኻ ክትሰርዝ ርግጸኛ ዲኻ? ካብዚ ዕድል ደጊምካ መልእኽቲ ኣይክትረክብን ኢኻ።</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">ምዝገባ ሰርዝ</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">ሰርዝ</string>
+    <string name="connect_messaging_channel_unsubscribe_error">ምዝገባ ምስራዝ ኣይተዓወተን</string>
+    <string name="connect_messaging_channel_resubscribe_error">እንደገና ምዝገባ ኣይተዓወተን</string>
+    <string name="connect_messaging_channel_unsubscribe_success">ምዝገባ ብዓወት ተሰሪዙ</string>
+    <string name="connect_messaging_channel_resubscribe_success">ምዝገባ ብዓወት ተሓዲሱ</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">ምዝገባ ተሰሪዙ</string>
+    <string name="connect_messaging_channel_list_not_subscribed">ኣብዚ ናይ መልእኽቲ ቻነል ኣይተመዝገብካን።</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">እንደገና ተመዝገብ</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">ምዝገባ ሰርዝ</string>
     <string name="connect_send_message_hint">መልእኽቲ ጽሓፍ</string>
     <string name="connect_send_message_btn_desc">መልእኽቲ ንምልኣኽ ኣብዚ ጠውቑ</string>
     <string name="connect_message_you">ንስኻ</string>
@@ -483,6 +499,8 @@
     <string name="nav_drawer_signin_register">እቶም ኣእትዉ / ይመዝገቡ</string>
     <string name="nav_drawer_help">እርዳታ</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>ብዘይ PersonalID ቀጽል።</u></string>
+    <string name="nav_drawer_fix_now">ሕጂ ኣዐርዩ።</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
     <string name="nav_drawer_payments">ክፍሊታት</string>
@@ -517,6 +535,9 @@
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
-    <string name="connect_complete_by">ክሳብ %s ኣጠናቅቕ</string>
-    <string name="connect_expired_on">ኣብ %s ግዜኡ ኣስላፉ</string>
+    <string name="connect_complete_by">ዕዮ ኣብ %s ይወዳእ</string>
+    <string name="connect_expired_on">ዕዮ ኣብ %s ተወዲኡ</string>
+    <string name="connect_job_preview_start">ጀምር</string>
+    <string name="connect_job_delivery_preview_subtitle">ናይ ምምሃር ምግምጋም ምስ ዛዘምካ፡ ናብ ምብጸሕ ክትሰጋገር ኢካ</string>
+    <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
 </resources>

@@ -25,13 +25,13 @@ import org.commcare.utils.StringUtils
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class NetworkNotificationService : Service() {
-
     companion object {
         const val UPDATE_PROGRESS_NOTIFICATION_ACTION = "update_progress_notification"
         const val STOP_NOTIFICATION_ACTION = "stop_notification"
         const val START_NOTIFICATION_ACTION = "start_notification"
         const val PROGRESS_TEXT_KEY_INTENT_EXTRA = "progress_text_key"
         const val TASK_TAG_INTENT_EXTRA = "task_tag"
+
         @Volatile
         @JvmStatic
         var isServiceRunning = false
@@ -40,17 +40,19 @@ class NetworkNotificationService : Service() {
     private lateinit var notificationManager: NotificationManager
     private val taskTags = mutableListOf<String>()
     private val pendingIntent: PendingIntent by lazy {
-        val intent = Intent(this, DispatchActivity::class.java).apply {
-            action = ACTION_MAIN
-            addCategory(CATEGORY_LAUNCHER)
-        }
+        val intent =
+            Intent(this, DispatchActivity::class.java).apply {
+                action = ACTION_MAIN
+                addCategory(CATEGORY_LAUNCHER)
+            }
         PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun onCreate() {
         super.onCreate()
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        startForeground(NETWORK_SERVICE_NOTIFICATION_ID,
+        startForeground(
+            NETWORK_SERVICE_NOTIFICATION_ID,
             buildNotification(R.string.network_notification_service_starting),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
         )
@@ -104,16 +106,14 @@ class NetworkNotificationService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun buildNotification(notificationTitleStringId: Int): Notification {
-        return NotificationCompat
-            .Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
-            .setContentTitle(StringUtils.getStringRobust(this,notificationTitleStringId))
-            .setOnlyAlertOnce(true)
-            .setSmallIcon(R.drawable.commcare_actionbar_logo)
-            .setContentIntent(pendingIntent)
-            .setOngoing(true)
-            .build()
-    }
+    private fun buildNotification(notificationTitleStringId: Int) = NotificationCompat
+        .Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
+        .setContentTitle(StringUtils.getStringRobust(this, notificationTitleStringId))
+        .setOnlyAlertOnce(true)
+        .setSmallIcon(R.drawable.commcare_actionbar_logo)
+        .setContentIntent(pendingIntent)
+        .setOngoing(true)
+        .build()
 
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)

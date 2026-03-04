@@ -76,7 +76,9 @@
     <string name="change_settings">Change Settings</string>
     <string name="nav_drawer_signin_register">Logg inn / Registrer deg</string>
     <string name="nav_drawer_help">Hjelp</string>
-    <string name="nav_drawer_not_signed_in_to_personal_id">Du er ikke logget inn med Personlig ID</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Du er ikke logget inn med PersonalID</string>
+    <string name="nav_drawer_continue_without_personal_id"><u>Fortsett uten PersonalID</u></string>
+    <string name="nav_drawer_fix_now">Fiks nå</string>
     <string name="nav_drawer_opportunities">Muligheter</string>
     <string name="nav_drawer_commcare_apps">CommCare-apper</string>
     <string name="nav_drawer_work_history">Arbeidshistorikk</string>
@@ -91,6 +93,22 @@
     <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
     <string name="connect_fetch_delivery_progress_error">Kunne ikke hente leveringsfremdriften</string>
     <string name="personalid_not_login_from_fcm_error">Vennligst logg inn på PersonalId for å se detaljene</string>
+    <string name="connect_messaging_resubscribe_dialog_title">Abonner på %s på nytt</string>
+    <string name="connect_messaging_resubscribe_dialog_body">Er du sikker på at du vil abonnere på meldingskanalen %s på nytt?</string>
+    <string name="connect_messaging_resubscribe_dialog_resubscribe">Abonner på nytt</string>
+    <string name="connect_messaging_resubscribe_dialog_cancel">Avbryt</string>
+    <string name="connect_messaging_unsubscribe_dialog_title">Avslutt abonnement på %s</string>
+    <string name="connect_messaging_unsubscribe_dialog_body">Er du sikker på at du vil avslutte abonnementet på denne kanalen? Du vil ikke lenger motta meldinger fra denne muligheten.</string>
+    <string name="connect_messaging_unsubscribe_dialog_unsubscribe">Avslutt abonnement</string>
+    <string name="connect_messaging_unsubscribe_dialog_cancel">Avbryt</string>
+    <string name="connect_messaging_channel_unsubscribe_error">Kunne ikke avslutte abonnement</string>
+    <string name="connect_messaging_channel_resubscribe_error">Kunne ikke abonnere på nytt</string>
+    <string name="connect_messaging_channel_unsubscribe_success">Avmelding vellykket</string>
+    <string name="connect_messaging_channel_resubscribe_success">Gjenoppretting av abonnement vellykket</string>
+    <string name="connect_messaging_channel_list_item_unsubscribed">avmeldt</string>
+    <string name="connect_messaging_channel_list_not_subscribed">Du abonnerer ikke på denne meldingskanalen.</string>
+    <string name="connect_messaging_channel_menu_item_resubscribe">Abonner på nytt</string>
+    <string name="connect_messaging_channel_menu_item_unsubscribe">Avslutt abonnement</string>
 
     <string name="just_now">Akkurat nå</string>
     <string name="minutes_ago">For %1$d minutter siden</string>
@@ -103,6 +121,11 @@
     <string name="personalid_token_unavailable">Det oppsto et nettverksproblem. Prøv på nytt.</string>
     <string name="personalid_token_request_rejected">Mistet PersonalID-konfigurasjonen med serveren. Gjenopprett PersonalID-kontoen din og prøv på nytt.</string>
     <string name="personalid_login_from_different_device">PersonalID-kontoen din kan bare konfigureres på én enhet om gangen, og den har blitt konfigurert på en annen enhet. Fortsett på den nye enheten, eller konfigurer kontoen din på denne enheten på nytt for å fortsette å bruke PersonalID her.</string>
+    <string name="personalid_generic_error_title">Logget ut av PersonalID</string>
+    <string name="personalid_error_title_login_different_device">Konto i bruk på en annen enhet</string>
+    <string name="personalid_error_message_login_different_device">Vennligst fortsett på den nye enheten, eller konfigurer kontoen din på nytt.</string>
+    <string name="personalid_reconfigure">Konfigurer på nytt</string>
+    <string name="personalid_dismiss">Avvis</string>
     <string name="recovery_network_unauthorized">Du har ikke tillatelse til å sende inn denne forespørselen.</string>
     <string name="recovery_network_server_error">Det oppsto en feil under behandling av forespørselen din.</string>
     <string name="recovery_network_cooldown">For mange forespørselsforsøk. Prøv igjen om en time.</string>
@@ -140,6 +163,7 @@
     <string name="connect_job_info_view_info">Se info</string>
     <string name="connect_job_info_view_resume">Gjenoppta</string>
     <string name="connect_job_info_view_review">Vurder</string>
+    <string name="connect_job_info_view_proceed">Fortsett</string>
 
     <string name="error">Feil</string>
     <string name="failed_to_start_learning">Kunne ikke starte læringen</string>
@@ -157,6 +181,10 @@
     <string name="pn_no_notification_available">Ingen varsler tilgjengelig</string>
     <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
 
-    <string name="connect_complete_by">Fullfør innen %s</string>
-    <string name="connect_expired_on">Utløpt den: %s</string>
+    <string name="connect_complete_by">Oppgave avsluttes %s</string>
+    <string name="connect_expired_on">Oppgaven ble avsluttet %s</string>
+    <string name="connect_job_you_will_learn">Fullfør følgende læringsmoduler og vurdering for å tjene et sertifikat</string>
+    <string name="connect_job_preview_start">Start</string>
+    <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
+    <string name="connect_job_info_view_opportunity">Se mulighet</string>
 </resources>
