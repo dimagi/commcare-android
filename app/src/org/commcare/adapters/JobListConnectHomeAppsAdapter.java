@@ -206,7 +206,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             binding.btnReview.setVisibility(View.VISIBLE);
             binding.btnProceed.setVisibility(View.INVISIBLE);
         } else if (connectLoginJobListModel.isLearningApp() &&
-                connectLoginJobListModel.getJob().passedAssessment()) {
+                connectLoginJobListModel.getLearningProgress() == 100) {
             // Show the "Proceed" button.
             binding.btnResume.setVisibility(View.INVISIBLE);
             binding.btnReview.setVisibility(View.INVISIBLE);
