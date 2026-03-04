@@ -4,6 +4,7 @@ import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.EncryptionKeyAndTransform;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 
@@ -47,6 +48,18 @@ public class EncryptionIO {
         CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, fileSize, sourceFilePath);
     }
 
+    public static OutputStream createFileOutputStreamWithKeystore(
+            String filePath,
+            EncryptionKeyAndTransform encryptionKeyAndTransform
+    ) throws FileNotFoundException {
+        return createFileOutputStream(
+                filePath,
+                encryptionKeyAndTransform.getKey(),
+                encryptionKeyAndTransform.getTransformation(),
+                true
+        );
+    }
+
     public static OutputStream createFileOutputStream(
             String filename,
             Key symmetricKey
@@ -54,7 +67,7 @@ public class EncryptionIO {
         return createFileOutputStream(filename, symmetricKey, null, false);
     }
 
-    public static OutputStream createFileOutputStream(String filename,
+    private static OutputStream createFileOutputStream(String filename,
                                                       Key symmetricKey,
                                                       String transformation,
                                                       boolean isKeyFromAndroidKeyStore

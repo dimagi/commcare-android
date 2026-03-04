@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import org.commcare.CommCareApplication
 import org.commcare.android.security.AesKeyStoreHandler
 import org.commcare.android.security.AndroidKeyStore
+import org.commcare.utils.EncryptionKeyAndTransform
 import java.security.Key
 
 /**
@@ -20,10 +21,7 @@ class SessionManager {
         }
 
         @JvmStatic
-        fun getEncryptionKey(): Key = sessionKeyAndTransformation.key
-
-        @JvmStatic
-        fun getKeyTransformation(): String = sessionKeyAndTransformation.transformation
+        fun retrieveSessionKeyAndTransformation(): EncryptionKeyAndTransform = sessionKeyAndTransformation
 
         // null represents that the Android Keystore is supported and the key to be used should be retrieved there
         @JvmStatic

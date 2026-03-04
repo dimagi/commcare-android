@@ -80,10 +80,9 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
                 EncryptionIO.createFileOutputStream(
                         getFilePath(),
                         new SecretKeySpec(getKey(), "AES")) :
-                EncryptionIO.createFileOutputStream(
+                EncryptionIO.createFileOutputStreamWithKeystore(
                         getFilePath(),
-                        SessionManager.getEncryptionKey(),
-                        SessionManager.getKeyTransformation(),
-                        true);
+                        SessionManager.retrieveSessionKeyAndTransformation()
+                );
     }
 }
