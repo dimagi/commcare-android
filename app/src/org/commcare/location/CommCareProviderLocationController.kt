@@ -10,8 +10,12 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
+import android.os.CancellationSignal
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils
 import org.javarosa.core.services.Logger
@@ -107,14 +111,25 @@ class CommCareProviderLocationController(
     }
 
     @SuppressLint("MissingPermission")
-    override fun getCurrentLocation(): Task<Location?> {
-        if (!isLocationPermissionGranted(mContext)) {
-            return Tasks.forResult(null)
-        }
+    override suspend fun getCurrentLocation(): Location? {
+        if (!isLocationPermissionGranted(mContext)) return null
         val providers = GeoUtils.evaluateProviders(mLocationManager)
-        val location = providers.mapNotNull { mLocationManager.getLastKnownLocation(it) }
-            .maxByOrNull { it.time }
-        return Tasks.forResult(location)
+        if (providers.isEmpty()) return null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return providers.mapNotNull { mLocationManager.getLastKnownLocation(it) }
+                .maxByOrNull { it.time }
+        }
+        return coroutineScope {
+            providers.map { provider ->
+                async {
+                    suspendCancellableCoroutine { cont ->
+                        val signal = CancellationSignal()
+                        cont.invokeOnCancellation { signal.cancel() }
+                        mLocationManager.getCurrentLocation(provider, signal, { it.run() }, cont::resume)
+                    }
+                }
+            }.awaitAll().filterNotNull().maxByOrNull { it.time }
+        }
     }
 
     override fun destroy() {
