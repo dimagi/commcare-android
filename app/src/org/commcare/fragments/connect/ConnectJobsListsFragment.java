@@ -174,7 +174,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
-        if (job.deliveryComplete()) {//
+        if (job.deliveryComplete()) {
             navigateToDeliveryProgress();
         } else if (!job.passedAssessment()) {
             navigateToLearnProgress();
