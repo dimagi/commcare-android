@@ -116,6 +116,12 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         };
     }
 
+    /**
+     * Handles the biometric error message hide and show logic.
+     * Logic 1: If error message is already displayed, check for the condition to hide the error message
+     * Logic 2: If coming from biometric configuration screen, check for the condition to show the error message
+     * @param fromBiometricSettingsActivity
+     */
     private void handleBiometricErrorMessage(boolean fromBiometricSettingsActivity) {
         NavController navController = getNavController();
         NavBackStackEntry currentEntry = navController.getCurrentBackStackEntry();
@@ -123,12 +129,22 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
                 && currentEntry.getDestination().getId() == R.id.personalid_message_display
                 && currentEntry.getArguments() != null
                 && ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL == currentEntry.getArguments().getInt("callingClass");
-        boolean isAnyBiometricConfigured = isAnyBiometricConfigured(requireContext(), getBiometricManager());
-        //  if any biometric is configured and if a biometric error message is still shown, just remove that error message by navigating up.
-        if (isAnyBiometricConfigured && isBiometricErrMessageShowing) {
+        boolean isAnyBiometricConfigured = isAnyBiometricConfigured(requireContext(), biometricManager);
+        String requiredLock = personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock();
+        boolean isFingerprintConfigured = BiometricsHelper.isFingerprintConfigured(requireContext(), biometricManager);
+
+        // Logic 1: Hiding error message: remove the error message by navigating up for the following 2 conditions:
+        // 1. if any biometric/PIN is configured and if the minimum requirement is PIN.
+        // 2. if the minimum requirement is biometric and biometric is configured.
+        if (isAnyBiometricConfigured && isBiometricErrMessageShowing
+                && (PIN.equals(requiredLock) || (BIOMETRIC_TYPE.equals(requiredLock) && isFingerprintConfigured))) {
             navController.navigateUp();
-            //  if coming from the biometric configuration setting screen and failing (no biometric configured), show the error message.
-        } else if (!isAnyBiometricConfigured && fromBiometricSettingsActivity && !isBiometricErrMessageShowing) {
+            // Logic 2: Showing the error message: if coming from the biometric configuration setting screen and the error message is not already displayed,
+            // show for the following 2 conditions:
+            // 1. if no biometric/PIN is configured.
+            // 2. if the minimum requirement is biometric and biometric is not configured.
+        } else if (fromBiometricSettingsActivity && !isBiometricErrMessageShowing
+                && (!isAnyBiometricConfigured || (BIOMETRIC_TYPE.equals(requiredLock) && !isFingerprintConfigured))) {
             navigateForward(true);
         }
     }
