@@ -1,17 +1,13 @@
 package org.commcare.services
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import org.commcare.CommCareApplication
 import org.commcare.android.security.AesKeyStoreHandler
 import org.commcare.android.security.AndroidKeyStore
 import org.commcare.utils.EncryptionKeyAndTransform
-import java.security.Key
 
 /**
  * Currently used to manage the session Android keystore backed encryption key,
  */
-@RequiresApi(Build.VERSION_CODES.M)
 class SessionManager {
     companion object {
         private const val SESSION_KEY_ALIAS = "session_encryption_key"

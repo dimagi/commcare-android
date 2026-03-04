@@ -297,7 +297,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                         f,
                         "text/xml",
                         new SecretKeySpec(slr.getKey(), "AES")
-                ):
+                ) :
                 FormUploadUtil.createKeystoreEncryptedFilePart(
                         "xml_submission_file",
                         f,
