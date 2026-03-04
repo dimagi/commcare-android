@@ -41,6 +41,8 @@ jobs:
           VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           VALIDATE_TRIVY: false
           VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_MARKDOWN: false
+          VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_YAML_PRETTIER: false
           VALIDATE_GOOGLE_JAVA_FORMAT: false
 
