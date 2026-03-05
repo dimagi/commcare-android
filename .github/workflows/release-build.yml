@@ -24,8 +24,11 @@ jobs:
   build:
     name: Release Build
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse-version.outputs.version }}
     steps:
       - name: Parse version
+        id: parse-version
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             VERSION="${{ inputs.version }}"
@@ -38,6 +41,7 @@ jobs:
           fi
           MAJOR_MINOR=${VERSION%.*}
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
           echo "CCCORE_BRANCH=commcare_$MAJOR_MINOR" >> "$GITHUB_ENV"
       - name: Checkout commcare-android
         uses: actions/checkout@v6
@@ -118,6 +122,14 @@ jobs:
         with:
           name: ccc-staging-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
+      - name: Assemble CommCare apk for Instrumentation Testing
+        run: ./gradlew assembleCommcareReleaseAndroidTest
+        working-directory: commcare-android
+      - name: Upload CommCare apk for Instrumentation Testing
+        uses: actions/upload-artifact@v6
+        with:
+          name: commcare-release-androidTest-apk
+          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
       - name: Bundle LTS release AAB
         run: ./gradlew bundleLtsRelease
         working-directory: commcare-android
@@ -131,12 +143,6 @@ jobs:
         with:
           name: app-lts-release-aab
           path: commcare-android/app/build/outputs/bundle/ltsRelease/app-lts-release.aab
-      - name: Submit build
-        working-directory: commcare-android
-        env:
-          PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
-          BUILD_NUMBER: ${{ github.run_number }}
-        run: python scripts/submit_build.py
       - name: Prepare release assets
         run: |
           cp commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk "commcare_${VERSION}.apk"
@@ -151,3 +157,56 @@ jobs:
             --draft \
             "commcare_${VERSION}.apk" \
             "commcare_${VERSION}.aab"
+
+  browserstack-tests:
+    needs: build
+    name: BrowserStack Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          path: commcare-android
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Download release APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-apk
+          path: commcare-release-apk
+      - name: Download androidTest APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-androidTest-apk
+          path: commcare-release-androidTest-apk
+      - name: Run BrowserStack Instrumentation Tests
+        run: python commcare-android/scripts/browserstack.py
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
+          RELEASE_APP_LOCATION: commcare-release-apk/app-commcare-release.apk
+          TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
+          BROWSERSTACK_DEVICES: "Samsung Galaxy S10-9.0"
+
+  submit-build:
+    needs: [build, browserstack-tests]
+    name: Submit Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          path: commcare-android
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.9'
+      - name: Submit build
+        working-directory: commcare-android
+        env:
+          PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
+          VERSION: ${{ needs.build.outputs.version }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: python scripts/submit_build.py
