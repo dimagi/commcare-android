@@ -94,35 +94,33 @@ jobs:
         run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-      - name: Bundle and assemble release variants
+      - name: Assemble CommCare release APK
+        run: ./gradlew assembleCommcareRelease
         working-directory: commcare-android
-        run: |
-          ./gradlew \
-            bundleCommcareRelease \
-            assembleCommcareRelease \
-            assembleCccStagingRelease \
-            bundleLtsRelease
-      - name: Submit build
-        working-directory: commcare-android
-        env:
-          PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
-          BUILD_NUMBER: ${{ github.run_number }}
-        run: python scripts/submit_build.py
       - name: Upload CommCare release APK
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-apk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
+      - name: Bundle CommCare release AAB
+        run: ./gradlew bundleCommcareRelease
+        working-directory: commcare-android
       - name: Upload CommCare release AAB
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-aab
           path: commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab
+      - name: Assemble CCC Staging release APK
+        run: ./gradlew assembleCccStagingRelease
+        working-directory: commcare-android
       - name: Upload CCC Staging release APK
         uses: actions/upload-artifact@v6
         with:
           name: ccc-staging-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
+      - name: Bundle LTS release AAB
+        run: ./gradlew bundleLtsRelease
+        working-directory: commcare-android
       - name: Upload LTS release APK
         uses: actions/upload-artifact@v6
         with:
@@ -133,6 +131,12 @@ jobs:
         with:
           name: app-lts-release-aab
           path: commcare-android/app/build/outputs/bundle/ltsRelease/app-lts-release.aab
+      - name: Submit build
+        working-directory: commcare-android
+        env:
+          PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: python scripts/submit_build.py
       - name: Prepare release assets
         run: |
           cp commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk "commcare_${VERSION}.apk"
