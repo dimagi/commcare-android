@@ -143,20 +143,6 @@ jobs:
         with:
           name: app-lts-release-aab
           path: commcare-android/app/build/outputs/bundle/ltsRelease/app-lts-release.aab
-      - name: Prepare release assets
-        run: |
-          cp commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk "commcare_${VERSION}.apk"
-          cp commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab "commcare_${VERSION}.aab"
-      - name: Create draft release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "commcare_${VERSION}" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "CommCare ${VERSION}" \
-            --draft \
-            "commcare_${VERSION}.apk" \
-            "commcare_${VERSION}.aab"
 
   browserstack-tests:
     needs: build
@@ -190,10 +176,12 @@ jobs:
           TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
           BROWSERSTACK_DEVICES: "Samsung Galaxy S10-9.0"
 
-  submit-build:
+  release:
     needs: [build, browserstack-tests]
-    name: Submit Build
+    name: Release
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v6
@@ -203,10 +191,33 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.9'
+      - name: Download release APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-apk
+          path: commcare-release-apk
+      - name: Download release AAB
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-aab
+          path: commcare-release-aab
+      - name: Prepare release assets
+        run: |
+          cp commcare-release-apk/app-commcare-release.apk "commcare_${VERSION}.apk"
+          cp commcare-release-aab/app-commcare-release.aab "commcare_${VERSION}.aab"
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "commcare_${VERSION}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "CommCare ${VERSION}" \
+            --draft \
+            "commcare_${VERSION}.apk" \
+            "commcare_${VERSION}.aab"
       - name: Submit build
         working-directory: commcare-android
         env:
           PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
-          VERSION: ${{ needs.build.outputs.version }}
           BUILD_NUMBER: ${{ github.run_number }}
         run: python scripts/submit_build.py
