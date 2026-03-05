@@ -144,4 +144,4 @@ jobs:
           RELEASE_APP_LOCATION: commcare-release-apk/app-commcare-release.apk
           TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
           BROWSERSTACK_DEVICES: "Samsung Galaxy S10-9.0"
-          ghprbPullId: ${{ github.event.number }}
+          PR_NUMBER: ${{ github.event.number }}
