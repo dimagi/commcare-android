@@ -34,7 +34,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
 
     @Persisting(1)
     private String fileName;
-    @Persisting(value = 2, nullable = true)
+    @Persisting(value = 2)
     private byte[] aesKey;
 
     public DeviceReportRecord() {
@@ -52,7 +52,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS))
                         + FileUtil.SanitizeFileName(File.separator
                         + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
-        slr.aesKey = SessionManager.generateLegacyKeyOrNull();
+        slr.aesKey = SessionManager.generateLegacyKeyOrEmpty();
         return slr;
     }
 
@@ -75,14 +75,17 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return fileName;
     }
 
+    public boolean shouldUseKeystoreKey(){
+        return getKey().length == 0;
+    }
+
     public final OutputStream openOutputStream() throws FileNotFoundException {
-        return aesKey != null ?
-                EncryptionIO.createFileOutputStream(
-                        getFilePath(),
-                        new SecretKeySpec(getKey(), "AES")) :
+        return shouldUseKeystoreKey() ?
                 EncryptionIO.createFileOutputStreamWithKeystore(
                         getFilePath(),
-                        SessionManager.retrieveSessionKeyAndTransformation()
-                );
+                        SessionManager.retrieveSessionKeyAndTransformation()) :
+                EncryptionIO.createFileOutputStream(
+                        getFilePath(),
+                        new SecretKeySpec(getKey(), "AES"));
     }
 }

@@ -30,5 +30,4 @@ object AndroidKeyStore {
             Logger.exception("Android keystore is not supported on this device", e)
             false
         }
-
 }

@@ -19,11 +19,14 @@ class SessionManager {
         @JvmStatic
         fun retrieveSessionKeyAndTransformation(): EncryptionKeyAndTransform = sessionKeyAndTransformation
 
-        // null represents that the Android Keystore is supported and the key to be used should be retrieved there
+        /**
+         * An empty array indicates that the Android Keystore is supported and the key should be retrieved
+         * from the keystore
+         */
         @JvmStatic
-        fun generateLegacyKeyOrNull(): ByteArray? =
+        fun generateLegacyKeyOrEmpty(): ByteArray =
             if (AndroidKeyStore.isKeystoreAvailable()) {
-                null
+                ByteArray(0)
             } else {
                 CommCareApplication.instance().createNewSymmetricKey().encoded
             }
