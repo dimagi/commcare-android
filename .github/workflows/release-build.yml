@@ -47,10 +47,6 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: commcare-android
-      - name: Install python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.9'
       - name: Checkout commcare-core
         uses: actions/checkout@v6
         with:
