@@ -21,8 +21,8 @@ env:
   REMOTE_HOST: "https://www.commcarehq.org+https://india.commcarehq.org"
 
 jobs:
-  build:
-    name: Release Build
+  build-test-assemble:
+    name: Build
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.parse-version.outputs.version }}
@@ -139,7 +139,7 @@ jobs:
           path: commcare-android/app/build/outputs/bundle/ltsRelease/app-lts-release.aab
 
   browserstack-tests:
-    needs: build
+    needs: build-test-assemble
     name: BrowserStack Tests
     runs-on: ubuntu-latest
     steps:
@@ -175,7 +175,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     env:
-      VERSION: ${{ needs.build.outputs.version }}
+      VERSION: ${{ needs.build-test-assemble.outputs.version }}
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v6
