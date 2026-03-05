@@ -38,8 +38,8 @@
     <string name="install_from_list_prompt">ከም ተጠቃሚ ሞባይል ወይ መርበብ ሓበሬታ ብምእታው ዝርዝር ናይቶም ክፅዕንዎም ዝኽእሉ ኣፕስ ምርኣይ</string>
     <string name="legacy_failure">CommCare ካብቲ ቅድሚ ሕጂ ትጥቀሙሉ ዝነበርኩም CommCare ስርሒት ምዕባይ ኣይድግፍን እዩ። ነዚ ጸገም ንምፍታሕ፡ በጃኹም CommCare ካብ መሳርሒኹም ኣውፅእዎ እሞ ዳግማይ ይፅዓኑ።</string>
     <string name="legacy_failure_title">ዘይስማዕማዕ ኮምኬር ምዕባይ</string>
-    <string name="notificationtitle">ናብ ኮምኬር ኣትዩም</string>
-    <string name="expirenotification">መእተዊ ኮምኬር ግዜኡ ኣኺሉ።</string>
+    <string name="session_notification_title">ናብ ኮምኬር ኣትዩም</string>
+    <string name="session_expire_notification">መእተዊ ኮምኬር ግዜኡ ኣኺሉ።</string>
     <string name="submission_notification_title">ዳታ ምቕራብ/ምርካብ</string>
     <string name="submission_logs_title">ምቕራብ ናይ ኮምኬር ምዝገባታት</string>
     <string name="remote_form_payload_url"></string>

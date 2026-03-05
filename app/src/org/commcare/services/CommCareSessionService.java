@@ -199,7 +199,7 @@ public class CommCareSessionService extends Service {
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
-                    .setContentTitle(this.getString(R.string.expirenotification))
+                    .setContentTitle(this.getString(R.string.session_expire_notification))
                     .setContentText("Click here to log back into your session")
                     .setSmallIcon(R.drawable.commcare_actionbar_logo)
                     .setContentIntent(contentIntent)
@@ -506,7 +506,7 @@ public class CommCareSessionService extends Service {
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
                         CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
-                        .setContentTitle(getString(notificationId))
+                        .setContentTitle(getString(R.string.submission_notification_title))
                         .setContentInfo(getSubmittedFormCount(1, totalItems))
                         .setContentText("0b transmitted")
                         .setSmallIcon(org.commcare.dalvik.R.drawable.commcare_actionbar_logo)
@@ -674,10 +674,10 @@ public class CommCareSessionService extends Service {
                 notificationText = Localization.get("notification.logged.in",
                         new String[]{Localization.get("app.display.name")});
             } catch (NoLocalizedTextException e) {
-                notificationText = getString(R.string.notificationtitle);
+                notificationText = getString(R.string.session_notification_title);
             }
         } else {
-            notificationText = getString(R.string.notificationtitle);
+            notificationText = getString(R.string.session_notification_title);
         }
 
         // Set the icon, scrolling text and timestamp

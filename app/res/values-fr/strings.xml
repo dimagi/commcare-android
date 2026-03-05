@@ -50,8 +50,8 @@ License.
     <string name="install_from_list_prompt">Connectez-vous en tant qu\'utilisateur mobile ou Web pour voir une liste des applications que vous pouvez installer</string>
     <string name="legacy_failure">CommCare ne prend pas en charge la mise à niveau depuis la version précédente. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le réinstaller.</string>
     <string name="legacy_failure_title">Mise à niveau CommCare incompatible</string>
-    <string name="notificationtitle">Connecté à Commcare</string>
-    <string name="expirenotification">Connexion CommCare expirée</string>
+    <string name="session_notification_title">Connecté à Commcare</string>
+    <string name="session_expire_notification">Connexion CommCare expirée</string>
     <string name="submission_notification_title">Soumission de données</string>
     <string name="submission_logs_title">Soumission des journaux CommCare</string>
     <string name="about_dialog">%s\n\n_Copyright 2016, Dimagi inc, Tous droits réservés_ \n\n---------------- \n\n__Remerciements:__ \n\n%sCertaines images de CommCare sont gracieusement utilisées sous licence Creative Commons de la collection thenounproject.com:\n\n* Symbole «Porte» par Tak Imoto \n* Symbole «Crayon» par Creologica \n* Symbole «Carnet» par Carlo \n* Symbole «Antenne» par Dima \n* Symbole «Marqueur de carte» par P.J. Onori \n* Liste par Landan Lloyd \n* Écran cassé par Sam Martin du Noun Project \n\n\n\n"</string>

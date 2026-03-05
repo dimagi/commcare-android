@@ -59,8 +59,8 @@
     <string name="legacy_failure">CommCare does not support upgrading from the previous CommCare version you were using. To resolve this issue, please uninstall CommCare from your device and then reinstall it.</string>
     <string name="legacy_failure_title">Incompatible CommCare Upgrade</string>
     <string name="app_version_string">version.id.long</string>
-    <string name="notificationtitle">Logged Into Commcare</string>
-    <string name="expirenotification">CommCare Login Expired</string>
+    <string name="session_notification_title">Logged Into Commcare</string>
+    <string name="session_expire_notification">CommCare Login Expired</string>
 
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>

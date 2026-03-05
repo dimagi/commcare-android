@@ -51,8 +51,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="install_from_list_prompt">Shiga a matsayin mai amfani da wayar hannu ko yanar gizo don ganin jerin manhajojin da za ku iya girkawa</string>
     <string name="legacy_failure">CommCare ba ya goyon bayan haɓakawa daga sigar CommCare da ta gabata da kuke amfani da ita. Don magance wannan matsalar, da fatan za a cire CommCare daga na\'urarku sannan a sake sanya shi.</string>
     <string name="legacy_failure_title">Haɓaka CommCare mara jituwa</string>
-    <string name="notificationtitle">An shiga cikin Commcare</string>
-    <string name="expirenotification">Shiga CommCare ya ƙare</string>
+    <string name="session_notification_title">An shiga cikin Commcare</string>
+    <string name="session_expire_notification">Shiga CommCare ya ƙare</string>
     <string name="submission_notification_title">Ana ƙaddamar da bayanai</string>
     <string name="submission_logs_title">Ana ƙaddamar da rajistar CommCare</string>
     <string name="notification_message_title">Sanarwa game da CommCare</string>

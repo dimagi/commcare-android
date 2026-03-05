@@ -50,8 +50,8 @@
     <string name="install_from_list_prompt">Faça login como usuário móvel ou da web para ver uma lista de aplicativos que você pode instalar</string>
     <string name="legacy_failure">O CommCare não oferece suporte à atualização da versão anterior do CommCare que você estava usando. Para resolver esse problema, desinstale o CommCare do seu dispositivo e reinstale-o.</string>
     <string name="legacy_failure_title">Atualização incompatível do CommCare</string>
-    <string name="notificationtitle">Conectado ao Commcare</string>
-    <string name="expirenotification">Login do CommCare expirou</string>
+    <string name="session_notification_title">Conectado ao Commcare</string>
+    <string name="session_expire_notification">Login do CommCare expirou</string>
     <string name="submission_notification_title">Envio de dados</string>
     <string name="submission_logs_title">Envio de registros do CommCare</string>
     <string name="remote_form_payload_url"></string>

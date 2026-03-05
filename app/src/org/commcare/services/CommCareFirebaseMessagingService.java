@@ -14,7 +14,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
-import static org.commcare.utils.NotificationIdentifiers.FCM_NOTIFICATION_ID;3
+import static org.commcare.utils.NotificationIdentifiers.FCM_NOTIFICATION_ID;
 
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
