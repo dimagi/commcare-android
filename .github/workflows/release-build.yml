@@ -61,20 +61,30 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Restore keystore
-        run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-
-      - name: Configure signing properties
-        working-directory: commcare-android
+      - name: Generate Gradle properties
         run: |
-          cat >> gradle.properties <<'EOF'
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.parallel=false
+          TEST_BUILD_TYPE=release
           RELEASE_STORE_FILE=/home/runner/.gradle/commcare-odk-keys.keystore
           RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
           RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          GOOGLE_CLOUD_PROJECT_NUMBER=${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+          GOOGLE_SERVICES_API_KEY=${{ secrets.GOOGLE_SERVICES_API_KEY }}
+          FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
+          GOOGLE_PLAY_MAPS_API_KEY=${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}
+          HQ_API_USERNAME=${{ secrets.HQ_API_USERNAME }}
+          HQ_API_PASSWORD=${{ secrets.HQ_API_PASSWORD }}
+          MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
           EOF
+
+      - name: Restore keystore
+        run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
       - name: Run tests
         working-directory: commcare-android
