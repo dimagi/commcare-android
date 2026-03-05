@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'commcare_*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (X.Y.Z)'
+        required: true
+        type: string
 
 concurrency:
   group: release-build-${{ github.ref }}
@@ -19,15 +25,19 @@ jobs:
     name: Release Build
     runs-on: ubuntu-latest
     steps:
-      - name: Parse version from tag
+      - name: Parse version
         run: |
-          TAG=${GITHUB_REF#refs/tags/commcare_}
-          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: tag must be in format commcare_X.Y.Z, got commcare_$TAG"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/commcare_}
+          fi
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: version must be in format X.Y.Z, got $VERSION"
             exit 1
           fi
-          MAJOR_MINOR=${TAG%.*}
-          echo "VERSION=$TAG" >> "$GITHUB_ENV"
+          MAJOR_MINOR=${VERSION%.*}
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "CCCORE_BRANCH=commcare_$MAJOR_MINOR" >> "$GITHUB_ENV"
       - name: Checkout commcare-android
         uses: actions/checkout@v4
@@ -125,8 +135,6 @@ jobs:
 
       - name: Prepare release assets
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          VERSION=${TAG#commcare_}
           cp commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk "commcare_${VERSION}.apk"
           cp commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab "commcare_${VERSION}.aab"
 
@@ -134,9 +142,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          VERSION=${TAG#commcare_}
-          gh release create "$TAG" \
+          gh release create "commcare_${VERSION}" \
             --repo "$GITHUB_REPOSITORY" \
             --title "CommCare ${VERSION}" \
             --draft \
