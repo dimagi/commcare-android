@@ -1,15 +1,19 @@
 package org.commcare.services
 
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import org.commcare.CommCareTestApplication
 import org.commcare.services.NetworkNotificationService.Companion.START_NOTIFICATION_ACTION
 import org.commcare.services.NetworkNotificationService.Companion.STOP_NOTIFICATION_ACTION
 import org.commcare.services.NetworkNotificationService.Companion.TASK_TAG_INTENT_EXTRA
 import org.commcare.services.NetworkNotificationService.Companion.UPDATE_PROGRESS_NOTIFICATION_ACTION
+import org.commcare.utils.NotificationIdentifiers.NETWORK_SERVICE_NOTIFICATION_ID
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -18,12 +22,14 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.android.controller.ServiceController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowNotificationManager
 
 @RunWith(AndroidJUnit4::class)
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.S_V2])
 class NetworkNotificationServiceTest {
     private lateinit var controller: ServiceController<NetworkNotificationService>
     private lateinit var service: NetworkNotificationService
+    private lateinit var notificationManager: ShadowNotificationManager
     private val availableTasks = arrayOf("Task A", "Task B", "Task C")
 
     @Before
@@ -34,11 +40,16 @@ class NetworkNotificationServiceTest {
                 getIntentForAction(START_NOTIFICATION_ACTION, availableTasks[0]),
             )
         service = controller.create().startCommand(0, 0).get()
+        notificationManager =
+            Shadows.shadowOf(
+                service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager,
+            )
     }
 
     @Test
     fun isServiceRunning_shouldBeTrueAfterOnCreate() {
         assertTrue(NetworkNotificationService.isServiceRunning)
+        assertNotNull(notificationManager.getNotification(NETWORK_SERVICE_NOTIFICATION_ID))
     }
 
     @Test
@@ -90,6 +101,16 @@ class NetworkNotificationServiceTest {
         assertFalse(shadow.isStoppedBySelf)
         sendIntent(STOP_NOTIFICATION_ACTION, availableTasks[1])
         assertTrue(shadow.isStoppedBySelf)
+    }
+
+    @Test
+    fun whenAllTasksComplete_shouldClearNotification() {
+        val shadow = Shadows.shadowOf(service)
+        assertFalse(notificationManager.allNotifications.isEmpty())
+        sendIntent(STOP_NOTIFICATION_ACTION, availableTasks[0])
+        assertTrue(shadow.isStoppedBySelf)
+        controller.destroy()
+        assertTrue(notificationManager.allNotifications.isEmpty())
     }
 
     @After
