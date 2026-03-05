@@ -5,11 +5,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -29,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -291,7 +287,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job, false);
 
         job.status = STATUS_AVAILABLE;
-        if (job.getLearningCompletePercentage() > 0) {
+        if (job.getLearningPercentComplete(true) > 0) {
             job.status = STATUS_LEARNING;
             if (job.claimed) {
                 job.status = STATUS_DELIVERING;
@@ -361,8 +357,24 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return paymentAccrued == null || paymentAccrued.isEmpty() ? 0 : Integer.parseInt(paymentAccrued);
     }
 
-    public int getLearningPercentComplete() {
-        return numLearningModules > 0 ? (100 * learningModulesCompleted / numLearningModules) : 100;
+    /**
+     * Calculates the learning progress percentage.
+     *
+     * @param includeAssessmentModule boolean indicating if the assessment module should be included
+     *                                in the calculation
+     * @return an integer representing the learning progress percentage
+     */
+    public int getLearningPercentComplete(boolean includeAssessmentModule) {
+        int totalModules = numLearningModules;
+        int modulesCompleted = learningModulesCompleted;
+
+        if (includeAssessmentModule) {
+            // Add 1 to the calculation to represent the assessment module.
+            totalModules++;
+            modulesCompleted += (passedAssessment() ? 1 : 0);
+        }
+
+        return totalModules > 0 ? (100 * modulesCompleted / totalModules) : 100;
     }
 
     public String getDailyStartTime() {
@@ -497,11 +509,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return maxVisits;
     }
 
-    public int getLearningCompletePercentage() {
-        int numLearning = getNumLearningModules();
-        return numLearning > 0 ? (100 * getCompletedLearningModules() / numLearning) : 100;
-    }
-
     public int getDeliveryProgressPercentage() {
         int completed = getCompletedVisits();
         int total = getMaxVisits();
@@ -509,11 +516,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean attemptedAssessment() {
-        return getLearningCompletePercentage() >= 100 && assessments != null && !assessments.isEmpty();
+        return assessments != null && !assessments.isEmpty();
     }
 
     public boolean passedAssessment() {
-        return status == STATUS_DELIVERING || (getLearningCompletePercentage() >= 100 && getAssessmentScore() >= getLearnAppInfo().getPassingScore());
+        return status == STATUS_DELIVERING
+                || getAssessmentScore() >= getLearnAppInfo().getPassingScore();
     }
 
     public int getAssessmentScore() {

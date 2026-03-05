@@ -84,7 +84,7 @@
 
     <string name="permission_group_internal_action_label">Permission group for CommCare Internal Actions</string>
 
-    <string name="title_activity_report_problem">ReportProblemActivity</string>
+    <string name="title_activity_report_problem">Report Problem</string>
     <string name="panes">one</string>
 
     <string name="restore_session_prompt">Restore saved session upon login</string>

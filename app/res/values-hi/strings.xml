@@ -64,7 +64,7 @@ License.
     <string name="permission_external_action_description">इस एप्लिकेशन को CommCare में लॉग इन, लॉग आउट और सिंक जैसे ऑपरेशन ट्रिगर करने की अनुमति देता है</string>
     <string name="permission_commcare_logout_label">CommCare से स्वचालित लॉगआउट की अनुमति दें</string>
     <string name="permission_commcare_logout_description">इस एप्लिकेशन को CommmCare एप्लिकेशन से किसी उपयोगकर्ता को लॉग आउट करने की अनुमति देता है</string>
-    <string name="title_activity_report_problem">गतिविधि समस्या की रिपोर्ट करें</string>
+    <string name="title_activity_report_problem">समस्या की रिपोर्ट करें</string>
     <string name="panes">एक</string>
     <string name="restore_session_prompt">लॉग इन करते समय सहेजा गया सत्र पुनर्स्थापित करें</string>
     <string name="managed_configuration_username">मोबाइल कार्यकर्ता उपयोगकर्ता नाम</string>
