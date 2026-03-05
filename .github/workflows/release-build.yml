@@ -72,12 +72,6 @@ jobs:
         env:
           PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
           BUILD_NUMBER: ${{ github.run_number }}
-          BASE_LOCATION: ${{ github.workspace }}/commcare-android/app/build/outputs/
-          RELEASE_APP_LOCATION: ${{ github.workspace }}/commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
-          TEST_APP_LOCATION: ${{ github.workspace }}/commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
-          BROWSERSTACK_DEVICES: "Samsung Galaxy S10-9.0"
         run: python scripts/submit_build.py
 
       - name: Upload CommCare release APK
