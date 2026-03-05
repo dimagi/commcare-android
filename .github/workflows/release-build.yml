@@ -11,8 +11,6 @@ concurrency:
 
 env:
   CCCORE: commcare-core
-  CCCORE_BRANCH: commcare_2.61.1
-  VERSION: 2.61.6
   USERNAME: buildserver
   REMOTE_HOST: "https://www.commcarehq.org+https://india.commcarehq.org"
 
@@ -21,6 +19,16 @@ jobs:
     name: Release Build
     runs-on: ubuntu-latest
     steps:
+      - name: Parse version from tag
+        run: |
+          TAG=${GITHUB_REF#refs/tags/commcare_}
+          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: tag must be in format commcare_X.Y.Z, got commcare_$TAG"
+            exit 1
+          fi
+          MAJOR_MINOR=${TAG%.*}
+          echo "VERSION=$TAG" >> "$GITHUB_ENV"
+          echo "CCCORE_BRANCH=commcare_$MAJOR_MINOR" >> "$GITHUB_ENV"
       - name: Checkout commcare-android
         uses: actions/checkout@v4
         with:
