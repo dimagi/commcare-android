@@ -77,6 +77,8 @@ jobs:
         run: |
           cat >> ~/.gradle/gradle.properties <<'EOF'
           versionCode=${{ github.run_number }}
+          org.gradle.daemon=false
+          org.gradle.workers.max=1
           EOF
       - name: Setup JDK
         uses: actions/setup-java@v5
@@ -86,7 +88,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run Tests
-        run: ./gradlew testCommcareDebug -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false --no-daemon --max-workers 1
+        run: ./gradlew testCommcareDebug
         working-directory: commcare-android
       - name: Restore Keystore
         run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
@@ -99,11 +101,7 @@ jobs:
             bundleCommcareRelease \
             assembleCommcareRelease \
             assembleCccStagingRelease \
-            bundleLtsRelease \
-            -Dorg.gradle.daemon=false \
-            -Dorg.gradle.parallel=false \
-            --no-daemon \
-            --max-workers 1
+            bundleLtsRelease
       - name: Submit build
         working-directory: commcare-android
         env:
