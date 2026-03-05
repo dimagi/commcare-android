@@ -18,6 +18,7 @@ import org.commcare.session.RemoteQuerySessionManager.extractMultipleChoices
 import org.commcare.suite.model.QueryPrompt
 import org.commcare.util.DateRangeUtils
 import org.commcare.utils.AndroidXUtils
+import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.views.ManagedUi
 import org.commcare.views.UiElement
 import org.commcare.views.ViewUtil
@@ -53,7 +54,7 @@ class QueryRequestUiController(
     override fun setupUI() {
         buildPromptUI()
         queryButton.setOnClickListener { v ->
-            ViewUtil.hideVirtualKeyboard(queryRequestActivity)
+            hideVirtualKeyboard(queryRequestActivity)
             queryRequestActivity.makeQueryRequest()
         }
     }

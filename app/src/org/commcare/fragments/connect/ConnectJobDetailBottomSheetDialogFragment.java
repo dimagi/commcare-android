@@ -29,7 +29,7 @@ import java.util.Objects;
 
 import static org.commcare.connect.ConnectDateUtils.formatDate;
 import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
-import static org.commcare.utils.ViewUtils.dpToPx;
+import static org.commcare.views.ViewUtil.dpToPx;
 
 public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private FragmentConnectJobDetailBottomSheetDialogBinding binding;

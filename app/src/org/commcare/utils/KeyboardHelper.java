@@ -6,6 +6,8 @@ import android.os.IBinder;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 /**
  * Utility class for handling keyboard interactions.
  * Provides a method to show the keyboard on a given input field.
@@ -38,18 +40,12 @@ public class KeyboardHelper {
         }, 250);
     }
 
-    public static void hideKeyboard(Activity activity) {
-
-        InputMethodManager imm =
-                (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        View view = activity.getCurrentFocus();
-
-        IBinder token = view != null
-                ? view.getWindowToken()
-                : activity.getWindow().getDecorView().getWindowToken();
-
-        imm.hideSoftInputFromWindow(token, 0);
-
+    public static void hideVirtualKeyboard(Activity activity) {
+        InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        View focus = activity.getCurrentFocus();
+        if (focus != null) {
+            inputManager.hideSoftInputFromWindow(focus.getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }

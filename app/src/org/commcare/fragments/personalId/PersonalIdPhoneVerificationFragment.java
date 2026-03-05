@@ -230,15 +230,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void toggleVerifyButton(String otp) {
-
-        boolean isComplete = otp.length() > 5;
-
-        binding.connectPhoneVerifyButton.setEnabled(isComplete);
-
-        if (isComplete) {
-            KeyboardHelper.hideKeyboard(requireActivity());
-            verifyOtp();
-        }
+        binding.connectPhoneVerifyButton.setEnabled(otp.length() > 5);
     }
 
     private void clearOtpError() {
@@ -338,6 +330,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void verifyOtp() {
+        binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();
 

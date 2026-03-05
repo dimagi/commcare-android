@@ -41,7 +41,6 @@ import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.ViewUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -57,6 +56,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import static org.commcare.views.EntityView.FORM_IMAGE;
+import static org.commcare.views.ViewUtil.showSnackBarWithNoDismissAction;
 
 /**
  * @author Forest Tong (ftong@dimagi.com)
@@ -137,7 +137,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             }
 
             if (errorEncountered) {
-                ViewUtils.showSnackBarWithNoDismissAction(findViewById(R.id.map),
+                showSnackBarWithNoDismissAction(findViewById(R.id.map),
                         getString(R.string.entity_map_error_message));
             }
         }
