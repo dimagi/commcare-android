@@ -1,5 +1,6 @@
 package org.commcare.fragments.personalId
 
+import android.app.Activity
 import android.os.Build
 import android.view.View
 import android.widget.Button
@@ -8,6 +9,7 @@ import androidx.biometric.BiometricManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectConstants
 import org.commcare.dalvik.R
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -186,6 +188,122 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
 
         // Verify no navigation occurs on failed biometric authentication and user stays on the same screen
         assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
+    }
+
+    @Test
+    fun testHandleFinishedPinActivity_whenFingerprintEnrolledSuccessfully_staysOnScreen() {
+        // Setup: fingerprint not configured initially
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        setUpBiometricFragment(requiredLock = PersonalIdSessionData.BIOMETRIC_TYPE)
+
+        // Simulate: user enrolls fingerprint in system settings
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
+
+        // Act: system calls back on return from settings (resultCode is unreliable, use RESULT_CANCELED)
+        callHandleFinishedPinActivity()
+
+        // Simulate onResume firing after onActivityResult (standard Android lifecycle order)
+        activityController.pause().resume()
+        ShadowLooper.idleMainLooper()
+
+        // Verify: stays on biometric config screen and button updates to "Agree & Continue"
+        assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
+        verifyFingerButtonState(View.VISIBLE, R.string.connect_verify_agree)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R]) // BiometricManager.Authenticators.DEVICE_CREDENTIAL requires API 30+
+    fun testHandleFinishedPinActivity_whenPinEnrolledSuccessfully_staysOnScreen() {
+        // Setup: nothing configured initially
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        setUpBiometricFragment()
+
+        // Simulate: user configures PIN in system settings
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL))
+            .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
+
+        // Act
+        callHandleFinishedPinActivity()
+
+        // Simulate onResume firing after onActivityResult (standard Android lifecycle order)
+        activityController.pause().resume()
+        ShadowLooper.idleMainLooper()
+
+        // Verify: stays on biometric config screen;
+        assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
+        verifyPinButtonState(View.VISIBLE, R.string.connect_verify_agree)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R]) // BiometricManager.Authenticators.DEVICE_CREDENTIAL requires API 30+
+    fun testHandleFinishedPinActivity_whenNothingConfiguredAfterEnrollment_navigatesToErrorScreen() {
+        // Setup: nothing configured, user launches enrollment but does not complete it
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        setUpBiometricFragment()
+
+        // Act: return from settings with still nothing configured
+        callHandleFinishedPinActivity()
+
+        // Verify: navigates to error message display since there is no fallback biometric
+        assertEquals(R.id.personalid_message_display, navController.currentDestination?.id)
+        val args = navController.backStack.last().arguments
+        assertEquals(fragment.getString(R.string.connect_biometric_enroll_fail_title), args?.getString("title"))
+        assertEquals(fragment.getString(R.string.connect_biometric_enroll_fail_message), args?.getString("message"))
+        assertEquals(true, args?.getBoolean("isCancellable"))
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R]) // BiometricManager.Authenticators.DEVICE_CREDENTIAL requires API 30+
+    fun testHandleFinishedPinActivity_whenPinAlreadyConfiguredAndFingerprintEnrollmentCancelled_staysOnScreen() {
+        // Setup: PIN already configured, fingerprint not configured
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL))
+            .thenReturn(BiometricManager.BIOMETRIC_SUCCESS)
+        setUpBiometricFragment()
+
+        // Act: user cancels fingerprint enrollment; PIN remains configured as a fallback
+        callHandleFinishedPinActivity()
+
+        // Simulate onResume firing after onActivityResult (standard Android lifecycle order)
+        activityController.pause().resume()
+        ShadowLooper.idleMainLooper()
+
+        // Verify: stays on screen — no error, user can authenticate via PIN "Agree & Continue"
+        assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
+        verifyPinButtonState(View.VISIBLE, R.string.connect_verify_agree)
+    }
+
+    @Test
+    fun testHandleFinishedPinActivity_withUnrelatedRequestCode_doesNotNavigate() {
+        // Setup
+        `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
+            .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        setUpBiometricFragment(requiredLock = PersonalIdSessionData.BIOMETRIC_TYPE)
+
+        // Act: an unrelated activity result should be completely ignored
+        callHandleFinishedPinActivity(requestCode = 9999)
+
+        // Verify: no navigation triggered
+        assertEquals(R.id.personalid_biometric_config, navController.currentDestination?.id)
+    }
+
+    private fun callHandleFinishedPinActivity(
+        requestCode: Int = ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE,
+        resultCode: Int = Activity.RESULT_CANCELED,
+    ) {
+        activity.runOnUiThread {
+            fragment.handleFinishedPinActivity(requestCode, resultCode)
+        }
+        ShadowLooper.idleMainLooper()
     }
 
     private fun verifyFingerButtonState(
