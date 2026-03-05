@@ -74,7 +74,6 @@ jobs:
             assembleCommcareRelease \
             assembleCccStagingRelease \
             bundleLtsRelease \
-            assembleCommcareReleaseAndroidTest \
             -Dorg.gradle.daemon=false \
             -Dorg.gradle.parallel=false \
             --no-daemon \
@@ -122,16 +121,6 @@ jobs:
           name: app-cccStaging-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
 
-      - name: Encrypt Android test APK
-        env:
-          HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
-        run: gpg --batch --yes --passphrase "$HQ_API_PASSWORD" --symmetric --cipher-algo AES256 -o commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.gpg commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
-
-      - name: Upload Android test APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-commcare-release-androidTest-apk
-          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.gpg
 
       - name: Prepare release assets
         run: |
