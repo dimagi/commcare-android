@@ -151,7 +151,7 @@ jobs:
       BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
 
   release:
-    needs: [build, browserstack-tests]
+    needs: [build-test-assemble, browserstack-tests]
     name: Release
     runs-on: ubuntu-latest
     env:
