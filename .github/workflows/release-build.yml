@@ -61,6 +61,21 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Restore keystore
+        run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+
+      - name: Configure signing properties
+        working-directory: commcare-android
+        run: |
+          cat >> gradle.properties <<'EOF'
+          RELEASE_STORE_FILE=/home/runner/.gradle/commcare-odk-keys.keystore
+          RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
+          RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          EOF
+
       - name: Run tests
         working-directory: commcare-android
         run: ./gradlew testCommcareDebug -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false --no-daemon --max-workers 1
@@ -120,7 +135,6 @@ jobs:
         with:
           name: app-cccStaging-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
-
 
       - name: Prepare release assets
         run: |
