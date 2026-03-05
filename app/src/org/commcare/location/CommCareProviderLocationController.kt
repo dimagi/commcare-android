@@ -33,11 +33,7 @@ class CommCareProviderLocationController(
         object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Received location update")
-                if (shouldDiscardLocation(location)) {
-                    return
-                }
-                mCurrentLocation = location
-                mListener?.onLocationResult(mCurrentLocation!!)
+                onLocationReceived(location, mListener) { mCurrentLocation = it }
             }
 
             override fun onStatusChanged(

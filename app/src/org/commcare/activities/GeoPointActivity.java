@@ -1,9 +1,5 @@
 package org.commcare.activities;
 
-import static org.commcare.location.CommCareLocationControllerKt.DEFAULT_TIME_THRESHOLD;
-import static org.commcare.location.CommCareLocationControllerKt.isLocationFresh;
-import static org.commcare.location.CommCareLocationControllerKt.logStaleLocationSaved;
-
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -187,7 +183,6 @@ public class GeoPointActivity extends CommonBaseActivity implements TimerListene
 
     private void returnLocation() {
         if (location != null) {
-            logStaleLocationSaved(location);
             Intent i = new Intent();
             i.putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
