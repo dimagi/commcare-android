@@ -73,6 +73,11 @@ jobs:
           HQ_API_PASSWORD=${{ secrets.HQ_API_PASSWORD }}
           MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
           EOF
+      - name: Add release-specific gradle properties
+        run: |
+          cat >> ~/.gradle/gradle.properties <<'EOF'
+          versionCode=${{ github.run_number }}
+          EOF
       - name: Setup JDK
         uses: actions/setup-java@v5
         with:
@@ -91,7 +96,6 @@ jobs:
         working-directory: commcare-android
         run: |
           ./gradlew \
-            -PversionCode=${{ github.run_number }} \
             bundleCommcareRelease \
             assembleCommcareRelease \
             assembleCccStagingRelease \
