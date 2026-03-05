@@ -41,6 +41,7 @@ jobs:
           HQ_API_USERNAME=${{ secrets.HQ_API_USERNAME }}
           HQ_API_PASSWORD=${{ secrets.HQ_API_PASSWORD }}
           MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
+          versionCode=${{ github.run_number }}
           EOF
       - name: Setup JDK
         uses: actions/setup-java@v5
