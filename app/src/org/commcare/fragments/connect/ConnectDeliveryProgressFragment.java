@@ -179,10 +179,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 (success, error) -> {
                     if (isAdded()) {
                         if (success) {
+                            hideError();
                             updatePaymentConfirmationTile(true);
                             redirectToPaymentTab();
                             refresh();
-                            hideError();
                         } else {
                             showError(getString(R.string.failed_to_update_payment));
                         }

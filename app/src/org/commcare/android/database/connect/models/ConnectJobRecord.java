@@ -75,7 +75,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_DAILY_FINISH_TIME = "form_submission_end";
     public static final String META_IS_ACTIVE = "is_active";
     public static final String META_PAYMENT_UNITS = "payment_units";
-    public static final String META_PAYMENT_UNIT = "payment_unit";
+    public static final String META_PAYMENT_UNIT_ID = "payment_unit_id";
     public static final String META_MAX_VISITS = "max_visits";
 
     private static final String WORKING_HOURS_SOURCE_FORMAT = "HH:mm:ss";
@@ -200,8 +200,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
-
-        job.jobId = json.getInt(META_JOB_ID);
+        job.jobId = json.getInt(META_JOB_ID);   //  This will be eventually removed
         job.jobUUID = json.getString(META_JOB_UUID);
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
@@ -268,9 +267,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 JSONArray unitsArray = claim.getJSONArray(META_PAYMENT_UNITS);
                 for (int i = 0; i < unitsArray.length(); i++) {
                     JSONObject unitObj = unitsArray.getJSONObject(i);
-                    int unitId = unitObj.getInt(META_PAYMENT_UNIT);
+                    String unitUUID = unitObj.getString(META_PAYMENT_UNIT_ID);
                     for (int j = 0; j < job.paymentUnits.size(); j++) {
-                        if (job.paymentUnits.get(j).getUnitId() == unitId) {
+                        if (job.paymentUnits.get(j).getUnitUUID().equals(unitUUID)) {
                             int newMax = unitObj.getInt(META_MAX_VISITS);
                             job.paymentUnits.get(j).setMaxTotal(newMax);
                             break;
@@ -288,7 +287,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job, false);
 
         job.status = STATUS_AVAILABLE;
-        if (job.getLearningCompletePercentage() > 0) {
+        if (job.getLearningPercentComplete(true) > 0) {
             job.status = STATUS_LEARNING;
             if (job.claimed) {
                 job.status = STATUS_DELIVERING;
@@ -358,8 +357,24 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return paymentAccrued == null || paymentAccrued.isEmpty() ? 0 : Integer.parseInt(paymentAccrued);
     }
 
-    public int getLearningPercentComplete() {
-        return numLearningModules > 0 ? (100 * learningModulesCompleted / numLearningModules) : 100;
+    /**
+     * Calculates the learning progress percentage.
+     *
+     * @param includeAssessmentModule boolean indicating if the assessment module should be included
+     *                                in the calculation
+     * @return an integer representing the learning progress percentage
+     */
+    public int getLearningPercentComplete(boolean includeAssessmentModule) {
+        int totalModules = numLearningModules;
+        int modulesCompleted = learningModulesCompleted;
+
+        if (includeAssessmentModule) {
+            // Add 1 to the calculation to represent the assessment module.
+            totalModules++;
+            modulesCompleted += (passedAssessment() ? 1 : 0);
+        }
+
+        return totalModules > 0 ? (100 * modulesCompleted / totalModules) : 100;
     }
 
     public String getDailyStartTime() {
@@ -494,11 +509,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return maxVisits;
     }
 
-    public int getLearningCompletePercentage() {
-        int numLearning = getNumLearningModules();
-        return numLearning > 0 ? (100 * getCompletedLearningModules() / numLearning) : 100;
-    }
-
     public int getDeliveryProgressPercentage() {
         int completed = getCompletedVisits();
         int total = getMaxVisits();
@@ -506,11 +516,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean attemptedAssessment() {
-        return getLearningCompletePercentage() >= 100 && assessments != null && !assessments.isEmpty();
+        return assessments != null && !assessments.isEmpty();
     }
 
     public boolean passedAssessment() {
-        return status == STATUS_DELIVERING || (getLearningCompletePercentage() >= 100 && getAssessmentScore() >= getLearnAppInfo().getPassingScore());
+        return status == STATUS_DELIVERING
+                || getAssessmentScore() >= getLearnAppInfo().getPassingScore();
     }
 
     public int getAssessmentScore() {
@@ -602,11 +613,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
             if (!todayOnly || DateUtils.dateDiff(new Date(), delivery.getDate()) == 0) {
                 int oldCount = 0;
-                if (paymentCounts.containsKey(delivery.getSlug())) {
-                    oldCount = paymentCounts.get(delivery.getSlug());
+                if (paymentCounts.containsKey(delivery.getSlugUUID())) {
+                    oldCount = paymentCounts.get(delivery.getSlugUUID());
                 }
 
-                paymentCounts.put(delivery.getSlug(), oldCount + 1);
+                paymentCounts.put(delivery.getSlugUUID(), oldCount + 1);
             }
         }
 
@@ -650,7 +661,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         List<String> totalMaxes = new ArrayList<>();
 
         for (ConnectPaymentUnitRecord unit : getPaymentUnits()) {
-            String key = String.valueOf(unit.getUnitId());
+            String key = unit.getUnitUUID();
 
             int totalCount = total.containsKey(key) ? total.get(key) : 0;
             if (totalCount >= unit.getMaxTotal()) {
