@@ -87,7 +87,7 @@ public class FormUploadUtil {
             //TODO: Something smart here;
         } catch (NoSuchAlgorithmException |
                 NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
+            Logger.exception("Failed to initialize decryption cipher ", e);
         }
         return null;
     }
