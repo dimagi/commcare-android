@@ -86,11 +86,19 @@ jobs:
       - name: Assemble CommCare apk for Instrumentation Testing
         run: ./gradlew assembleCommcareReleaseAndroidTest
         working-directory: commcare-android
+      - name: Encrypt CommCare androidTest apk
+        run: |
+          openssl enc -aes-256-cbc -salt -pbkdf2 \
+            -in commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk \
+            -out commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc \
+            -pass pass:"$HQ_API_PASSWORD"
+        env:
+          HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-androidTest-apk
-          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc
       - name: Generate JaCoCo Report
         run: ./gradlew JacocoTestReport
         working-directory: commcare-android
@@ -123,6 +131,14 @@ jobs:
         with:
           name: commcare-release-androidTest-apk
           path: commcare-release-androidTest-apk
+      - name: Decrypt CommCare androidTest apk
+        run: |
+          openssl enc -aes-256-cbc -d -pbkdf2 \
+            -in commcare-release-androidTest-apk/app-commcare-release-androidTest.apk.enc \
+            -out commcare-release-androidTest-apk/app-commcare-release-androidTest.apk \
+            -pass pass:"$HQ_API_PASSWORD"
+        env:
+          HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
       - name: Run BrowserStack Instrumentation Tests
         run: python commcare-android/scripts/browserstack.py
         env:
