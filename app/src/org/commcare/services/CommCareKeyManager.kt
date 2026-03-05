@@ -8,9 +8,9 @@ import org.commcare.utils.EncryptionKeyAndTransform
 /**
  * Currently used to manage the session Android keystore backed encryption key,
  */
-class SessionManager {
+class CommCareKeyManager {
     companion object {
-        private const val SESSION_KEY_ALIAS = "session_encryption_key"
+        private const val SESSION_KEY_ALIAS = "commcare_encryption_key"
 
         private val sessionKeyAndTransformation by lazy {
             AesKeyStoreHandler(SESSION_KEY_ALIAS, needsUserAuth = false).getKeyOrGenerate()
