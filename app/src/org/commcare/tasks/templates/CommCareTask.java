@@ -23,7 +23,7 @@ import static org.commcare.services.NetworkNotificationService.UPDATE_PROGRESS_N
  */
 public abstract class CommCareTask<Params, Progress, Result, Receiver>
         extends ManagedAsyncTask<Params, Progress, Result> {
-    protected static String TAG;
+    protected String TAG;
 
     public static final int GENERIC_TASK_ID = 32;
     public static final int DONT_WAKELOCK = -1;
