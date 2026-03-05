@@ -39,6 +39,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
 
     private int connectionTimout = ALLOWABLE_CONNECTOR_ACQUISITION_DELAY;
+    private boolean networkNotificationRequested = false;
 
     protected CommCareTask() {
         TAG = CommCareTask.class.getSimpleName();
@@ -94,8 +95,9 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (shouldRunNetworkNotificationService() && NetworkNotificationService.isServiceRunning()) {
+        if (networkNotificationRequested) {
             CommCareApplication.instance().startForegroundService(getNotificationStopIntent());
+            networkNotificationRequested = false;
         }
     }
 
@@ -118,8 +120,9 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (shouldRunNetworkNotificationService() && NetworkNotificationService.isServiceRunning()) {
+        if (networkNotificationRequested) {
             CommCareApplication.instance().startForegroundService(getNotificationStopIntent());
+            networkNotificationRequested = false;
         }
     }
 
@@ -145,6 +148,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
         if (shouldRunNetworkNotificationService()) {
             CommCareApplication.instance().startForegroundService(getNotificationStartIntent());
+            networkNotificationRequested = true;
         }
     }
 
@@ -168,7 +172,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
         }
 
-        if (shouldRunNetworkNotificationService() && NetworkNotificationService.isServiceRunning()) {
+        if (networkNotificationRequested) {
             CommCareApplication.instance().startForegroundService(getNotificationUpdateIntent());
         }
     }
