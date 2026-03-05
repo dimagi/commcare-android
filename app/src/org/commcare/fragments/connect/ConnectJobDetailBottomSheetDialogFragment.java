@@ -127,7 +127,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                 binding.includeJobProgress.pbLearn,
                 binding.includeJobProgress.ivLearn,
                 learnEnabled,
-                job.getLearningCompletePercentage(),
+                job.getLearningPercentComplete(true),
                 ContextCompat.getColor(requireContext(), R.color.violet_blue),
                 R.drawable.ic_connect_learning,
                 R.drawable.ic_disabled_learn
