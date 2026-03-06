@@ -1,5 +1,5 @@
 <!--
-This file is meant as an easy way for us to collate notes and change log across releases. 
+This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
 ## CommCare 2.63
