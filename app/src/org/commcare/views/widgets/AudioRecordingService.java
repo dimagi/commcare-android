@@ -21,6 +21,8 @@ import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
+import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
+
 /**
  * A foreground service intended to be bound to the RecordingFragment for managing audio recording
  * operations. Due to its persistent notification, the system treats it with higher importance, reducing the
@@ -40,10 +42,10 @@ public class AudioRecordingService extends Service {
         super.onCreate();
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(RecordingFragment.RECORDING_NOTIFICATION_ID, createNotification(true),
+            startForeground(RECORDING_NOTIFICATION_ID, createNotification(true),
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
         } else {
-            startForeground(RecordingFragment.RECORDING_NOTIFICATION_ID, createNotification(true));
+            startForeground(RECORDING_NOTIFICATION_ID, createNotification(true));
         }
     }
 
@@ -119,14 +121,14 @@ public class AudioRecordingService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseRecording() {
         recorder.pause();
-        notificationManager.notify(RecordingFragment.RECORDING_NOTIFICATION_ID,
+        notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(false));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
         recorder.resume();
-        notificationManager.notify(RecordingFragment.RECORDING_NOTIFICATION_ID,
+        notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(true));
     }
 

@@ -27,6 +27,7 @@ import androidx.core.app.NotificationCompat;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+import static org.commcare.utils.NotificationIdentifiers.MESSAGE_NOTIFICATION_ID;
 
 /**
  * Handles displaying and clearing pinned notifications for CommCare
@@ -34,7 +35,6 @@ import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 public class CommCareNoficationManager {
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
-    public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
 
     public static final String NOTIFICATION_CHANNEL_ERRORS_ID = "notification-channel-errors";
     public static final String NOTIFICATION_CHANNEL_USER_SESSION_ID = "notification-channel-user-session";
@@ -59,7 +59,7 @@ public class CommCareNoficationManager {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
         synchronized (pendingMessages) {
             if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
+                mNM.cancel(MESSAGE_NOTIFICATION_ID);
                 return;
             }
 
@@ -85,7 +85,7 @@ public class CommCareNoficationManager {
                         .setWhen(System.currentTimeMillis())
                         .build();
 
-                mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
+                mNM.notify(MESSAGE_NOTIFICATION_ID, messageNotification);
             }
         }
     }
@@ -105,7 +105,7 @@ public class CommCareNoficationManager {
             }
 
             if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
+                mNM.cancel(MESSAGE_NOTIFICATION_ID);
             } else {
                 updateMessageNotification();
             }
