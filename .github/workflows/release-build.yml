@@ -1,28 +1,59 @@
-name: commcare-android PR CI
+name: CommCare Android Release Build
 
 on:
-  pull_request:
+  push:
+    tags:
+      - 'commcare_*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (X.Y.Z)'
+        required: true
+        type: string
+
+concurrency:
+  group: release-build-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CCCORE: commcare-core
+  USERNAME: buildserver
+  REMOTE_HOST: "https://www.commcarehq.org+https://india.commcarehq.org"
+
 jobs:
   build-test-assemble:
     name: Build
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse-version.outputs.version }}
     steps:
+      - name: Parse version
+        id: parse-version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/commcare_}
+          fi
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: version must be in format X.Y.Z, got $VERSION"
+            exit 1
+          fi
+          MAJOR_MINOR=${VERSION%.*}
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "CCCORE_BRANCH=commcare_$MAJOR_MINOR" >> "$GITHUB_ENV"
       - name: Checkout commcare-android
         uses: actions/checkout@v6
         with:
           path: commcare-android
-      - name: Install python
-        uses: actions/setup-python@v6
+      - name: Checkout commcare-core
+        uses: actions/checkout@v6
         with:
-          python-version: '3.9'
-      - name: Download cross request script
-        run: |
-          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
-          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
-      - name: Install Python dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Run cross request script
-        run: python checkout_cross_request_repo.py commcare-android ${{ github.event.number }} commcare-core
+          repository: dimagi/commcare-core
+          ref: ${{ env.CCCORE_BRANCH }}
+          path: commcare-core
+          fetch-depth: 0
       - name: Generate Gradle properties
         run: |
           mkdir -p ~/.gradle
@@ -97,21 +128,70 @@ jobs:
         with:
           name: commcare-release-androidTest-apk
           path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc
-      - name: Generate JaCoCo Report
-        run: ./gradlew JacocoTestReport
+      - name: Bundle LTS release AAB
+        run: ./gradlew bundleLtsRelease
         working-directory: commcare-android
-      - name: Upload JaCoCo Report
+      - name: Upload LTS release APK
         uses: actions/upload-artifact@v6
         with:
-          name: jacoco-report
-          path: commcare-android/app/build/reports
+          name: app-lts-release-apk
+          path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
+      - name: Upload LTS release AAB
+        uses: actions/upload-artifact@v6
+        with:
+          name: app-lts-release-aab
+          path: commcare-android/app/build/outputs/bundle/ltsRelease/app-lts-release.aab
 
   browserstack-tests:
     needs: build-test-assemble
     uses: ./.github/workflows/browserstack-tests.yml
-    with:
-      pr-number: '${{ github.event.number }}'
     secrets:
       HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
+
+  release:
+    needs: [build-test-assemble, browserstack-tests]
+    name: Release
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.build-test-assemble.outputs.version }}
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          path: commcare-android
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.9'
+      - name: Download release APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-apk
+          path: commcare-release-apk
+      - name: Download release AAB
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-aab
+          path: commcare-release-aab
+      - name: Prepare release assets
+        run: |
+          cp commcare-release-apk/app-commcare-release.apk "commcare_${VERSION}.apk"
+          cp commcare-release-aab/app-commcare-release.aab "commcare_${VERSION}.aab"
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "commcare_${VERSION}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "CommCare ${VERSION}" \
+            --draft \
+            "commcare_${VERSION}.apk" \
+            "commcare_${VERSION}.aab"
+      - name: Submit build
+        working-directory: commcare-android
+        env:
+          PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: python scripts/submit_build.py
