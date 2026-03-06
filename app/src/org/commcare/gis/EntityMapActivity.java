@@ -45,6 +45,7 @@ import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
