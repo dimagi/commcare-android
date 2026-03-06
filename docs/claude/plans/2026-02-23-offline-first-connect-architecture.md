@@ -327,6 +327,7 @@ class ConnectSyncPreferences(context: Context) {
 ```kotlin
 package org.commcare.connect.repository
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -349,12 +350,19 @@ object ConnectRequestManager {
     private val inFlightRequests = ConcurrentHashMap<String, CompletableDeferred<Result<Any>>>()
 
     /**
-     * Executes a network request with deduplication.
-     * If a request for the same URL is already in progress, waits for that result instead.
+     * Executes a network request with deduplication, surviving caller cancellation.
+     *
+     * The request lambda is launched in an application-scoped coroutine so it continues
+     * even if the calling ViewModel is cleared (e.g. user backs out). The caller awaits
+     * the deferred result, which IS cancellable — cancellation stops the caller from
+     * waiting but does NOT cancel the in-flight request or any DB writes inside the lambda.
+     *
+     * Callers must include all side effects (DB writes, prefs updates) inside the [request]
+     * lambda so they run in the application scope and are not lost on navigation.
      *
      * @param url The unique identifier for this request (typically the API endpoint)
-     * @param request The suspend function that performs the actual network call
-     * @return Result of the network call
+     * @param request Suspend function that performs the network call AND any resulting DB writes
+     * @return Result of the network call, or failure if the caller was cancelled before completion
      */
     suspend fun <T> executeRequest(
         url: String,
@@ -364,7 +372,7 @@ object ConnectRequestManager {
         val existingRequest = inFlightRequests[url]
 
         if (existingRequest != null) {
-            // Wait for the existing request to complete
+            // Wait for the existing request to complete (cancellable by caller)
             @Suppress("UNCHECKED_CAST")
             return existingRequest.await() as Result<T>
         }
@@ -373,24 +381,29 @@ object ConnectRequestManager {
         val deferred = CompletableDeferred<Result<Any>>()
         inFlightRequests[url] = deferred
 
-        return try {
-            // Execute the actual network request
-            val result = request()
-
-            // Complete the deferred with the result
-            deferred.complete(result as Result<Any>)
-
-            result
-        } catch (e: Exception) {
-            // Complete the deferred with failure
-            val failure = Result.failure<Any>(e)
-            deferred.complete(failure)
-
-            Result.failure(e)
-        } finally {
-            // Remove from in-flight map
-            inFlightRequests.remove(url)
+        // Launch in application scope so the request and DB writes survive ViewModel cancellation.
+        // The deferred remains in inFlightRequests until scope.launch finishes, ensuring
+        // any concurrent caller that arrives while the request is in-flight still deduplicates.
+        scope.launch {
+            try {
+                val result = request()
+                deferred.complete(result as Result<Any>)
+            } catch (e: CancellationException) {
+                // Application scope was cancelled (e.g. app shutdown via cancelAll()).
+                // Propagate so the coroutine is properly cleaned up.
+                deferred.cancel(e)
+                throw e
+            } catch (e: Exception) {
+                deferred.complete(Result.failure(e) as Result<Any>)
+            } finally {
+                inFlightRequests.remove(url)
+            }
         }
+
+        // Await the deferred. This IS cancellable — if the caller's scope (e.g. viewModelScope)
+        // is cancelled, this throws CancellationException, but the scope.launch above continues.
+        @Suppress("UNCHECKED_CAST")
+        return deferred.await() as Result<T>
     }
 
     /**
@@ -707,24 +720,27 @@ class ConnectRepository(private val context: Context) {
             return@flow
         }
 
-        // Step 4: Fetch from network with deduplication
+        // Step 4: Fetch from network with deduplication.
+        // DB write and syncPrefs update are inside the lambda so they run in the application
+        // scope and complete even if the user navigates away before the response arrives.
         try {
             val result = ConnectRequestManager.executeRequest(ENDPOINT_OPPORTUNITIES) {
-                fetchOpportunitiesFromNetwork()
+                fetchOpportunitiesFromNetwork().also { networkResult ->
+                    networkResult.onSuccess { responseModel ->
+                        // Step 5: Write to database (runs in app scope, survives navigation)
+                        for (job in responseModel.validJobs) {
+                            ConnectJobUtils.upsertJob(context, job)
+                        }
+
+                        // Step 6: Update sync timestamp (runs in app scope, survives navigation)
+                        syncPrefs.storeLastSyncTime(ENDPOINT_OPPORTUNITIES)
+                    }
+                }
             }
 
             result.onSuccess { responseModel ->
-                // Step 5: Write to database
-                val validJobs = responseModel.validJobs
-                for (job in validJobs) {
-                    ConnectJobUtils.upsertJob(context, job)
-                }
-
-                // Step 6: Update sync timestamp
-                syncPrefs.storeLastSyncTime(ENDPOINT_OPPORTUNITIES)
-
-                // Step 7: Emit success with fresh data
-                emit(DataState.Success(validJobs))
+                // Step 7: Emit success with fresh data (skipped if flow was cancelled)
+                emit(DataState.Success(responseModel.validJobs))
             }.onFailure { throwable ->
                 // Step 8: Emit error (with cached data if available)
                 val errorMessage = throwable.message ?: "Unknown error fetching opportunities"
@@ -1061,29 +1077,32 @@ fun getLearningProgress(
         return@flow
     }
 
-    // Step 4: Fetch from network with deduplication
+    // Step 4: Fetch from network with deduplication.
+    // DB write and syncPrefs update are inside the lambda so they run in the application
+    // scope and complete even if the user navigates away before the response arrives.
     try {
         val result = ConnectRequestManager.executeRequest(endpoint) {
-            fetchLearningProgressFromNetwork(job)
+            fetchLearningProgressFromNetwork(job).also { networkResult ->
+                networkResult.onSuccess { responseModel ->
+                    // Step 5: Update job with learning progress (runs in app scope)
+                    job.learnings = responseModel.connectJobLearningRecords
+                    job.completedLearningModules = responseModel.connectJobLearningRecords.size
+                    job.assessments = responseModel.connectJobAssessmentRecords
+
+                    // Step 6: Write to database (runs in app scope, survives navigation)
+                    ConnectJobUtils.updateJobLearnProgress(context, job)
+
+                    // Step 7: Update sync timestamp (runs in app scope, survives navigation)
+                    syncPrefs.storeLastSyncTime(endpoint)
+                }
+            }
         }
 
-        result.onSuccess { responseModel ->
-            // Step 5: Update job with learning progress
-            job.learnings = responseModel.connectJobLearningRecords
-            job.completedLearningModules = responseModel.connectJobLearningRecords.size
-            job.assessments = responseModel.connectJobAssessmentRecords
-
-            // Step 6: Write to database
-            ConnectJobUtils.updateJobLearnProgress(context, job)
-
-            // Step 7: Update sync timestamp
-            syncPrefs.storeLastSyncTime(endpoint)
-
+        result.onSuccess { _ ->
             // Step 8: Reload updated job from database
-            val updatedJob = ConnectJobUtils.getCompositeJob(context, job.jobUUID)
-                ?: job
+            val updatedJob = ConnectJobUtils.getCompositeJob(context, job.jobUUID) ?: job
 
-            // Step 9: Emit success with fresh data
+            // Step 9: Emit success with fresh data (skipped if flow was cancelled)
             emit(DataState.Success(updatedJob))
         }.onFailure { throwable ->
             // Step 10: Emit error (with cached data if available)
@@ -1631,6 +1650,31 @@ class ConnectRequestManagerTest {
         // Should no longer be in progress
         assertFalse(ConnectRequestManager.isRequestInProgress(url))
     }
+
+    @Test
+    fun testRequestContinuesAfterCallerCancellation() = runBlocking {
+        // Verifies that the request lambda (network + DB write) runs to completion
+        // even when the caller's coroutine is cancelled (simulating user navigation).
+        val url = "/test"
+        var requestCompleted = false
+
+        val callerJob = async {
+            ConnectRequestManager.executeRequest(url) {
+                delay(100) // simulate network latency
+                requestCompleted = true
+                Result.success("data")
+            }
+        }
+
+        delay(10) // let the request start
+        callerJob.cancel() // simulate user backing out (viewModelScope cancelled)
+
+        // Give the app-scoped scope.launch time to complete the request
+        delay(200)
+
+        // The request lambda must have completed despite caller cancellation
+        assertTrue(requestCompleted)
+    }
 }
 ```
 
@@ -1709,8 +1753,8 @@ See Phase 5 manual testing checklist above for 24 specific test scenarios.
 
 **Memory**:
 - Repository and ViewModels use application scope, but they're lightweight singletons
-- Coroutines are properly scoped to `viewModelScope` and cleaned up on ViewModel destruction
-- `ConnectRequestManager` cleans up `inFlightRequests` map after completion
+- `viewModelScope` coroutines (Flow collection) are cleaned up on ViewModel destruction; this does not cancel in-flight network requests
+- `ConnectRequestManager` cleans up `inFlightRequests` map after the application-scoped request completes
 
 **Network**:
 - Request deduplication prevents duplicate concurrent calls
