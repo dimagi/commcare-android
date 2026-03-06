@@ -25,6 +25,7 @@ import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureE
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.GlobalErrorUtil
+import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
 import org.commcare.views.ViewUtil
@@ -73,7 +74,7 @@ class BaseDrawerController(
             ) {
                 override fun onDrawerOpened(drawerView: View) {
                     super.onDrawerOpened(drawerView)
-                    ViewUtil.hideVirtualKeyboard(activity)
+                    hideVirtualKeyboard(activity)
                     FirebaseAnalyticsUtil.reportNavDrawerOpen()
                 }
 

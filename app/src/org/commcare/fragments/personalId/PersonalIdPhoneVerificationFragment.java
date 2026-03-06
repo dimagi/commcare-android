@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -181,6 +183,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         }
 
         setupListeners();
+        setUpOtpEnterAction();
         updateVerificationMessage();
         activity.setTitle(R.string.connect_verify_phone_title);
 
@@ -414,5 +417,41 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             );
             lastOtpMethod = SMS_METHOD_FIREBASE;
         }
+    }
+
+    private void setUpOtpEnterAction() {
+
+        int childCount = binding.customOtpView.getChildCount();
+        if (childCount == 0) return;
+
+        EditText lastEditText =
+                (EditText) binding.customOtpView.getChildAt(childCount - 1);
+
+        lastEditText.setOnEditorActionListener((v, actionId, event) -> {
+
+            boolean isEnterPressed =
+                    actionId == EditorInfo.IME_ACTION_DONE ||
+                            actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT ||
+                            (event != null
+                                    && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER
+                                    && event.getAction() == android.view.KeyEvent.ACTION_DOWN);
+
+            if (!isEnterPressed) {
+                return false;
+            }
+
+            String otp = binding.customOtpView.getOtpValue();
+
+            boolean isComplete = otp.length() == 6;
+            boolean isButtonEnabled = binding.connectPhoneVerifyButton.isEnabled();
+
+            if (isComplete && isButtonEnabled) {
+                verifyOtp();
+            } else {
+                KeyboardHelper.hideVirtualKeyboard(requireActivity());
+            }
+
+            return true;
+        });
     }
 }

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
-import static org.commcare.utils.ViewUtils.dpToPx;
+import static org.commcare.views.ViewUtil.dpToPx;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;

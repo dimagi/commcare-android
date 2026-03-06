@@ -1,6 +1,6 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.utils.ViewUtils.showSnackBarWithDismissAction;
+import static org.commcare.views.ViewUtil.showSnackBarWithDismissAction;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

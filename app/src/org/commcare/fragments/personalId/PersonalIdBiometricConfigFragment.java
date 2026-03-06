@@ -6,7 +6,7 @@ import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
 import static org.commcare.utils.BiometricsHelper.isAnyBiometricConfigured;
-import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
+import static org.commcare.views.ViewUtil.showSnackBarWithOk;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
