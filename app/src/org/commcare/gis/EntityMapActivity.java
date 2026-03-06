@@ -43,7 +43,7 @@ import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.ViewUtils;
+import org.commcare.views.ViewUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -150,7 +150,7 @@ public class EntityMapActivity extends CommCareActivity implements
             }
 
             if (errorEncountered) {
-                runOnUiThread(() -> ViewUtils.showSnackBarWithNoDismissAction(
+                runOnUiThread(() -> ViewUtil.showSnackBarWithNoDismissAction(
                         findViewById(R.id.map), getString(R.string.entity_map_error_message)));
             }
         }
