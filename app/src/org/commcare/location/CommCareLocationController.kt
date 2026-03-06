@@ -23,6 +23,10 @@ interface CommCareLocationController {
     fun getLocation(): Location?
 
     fun destroy()
+
+    suspend fun getCurrentLocation(): Location?
+
+    suspend fun getLastKnownLocation(): Location?
 }
 
 const val DEFAULT_TIME_THRESHOLD = 2 * 60 * 1000L // 2 minutes in milliseconds

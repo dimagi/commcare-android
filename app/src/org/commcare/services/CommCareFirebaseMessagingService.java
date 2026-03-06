@@ -14,6 +14,8 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
+import static org.commcare.utils.NotificationIdentifiers.FCM_NOTIFICATION_ID;
+
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
  * offer an entry point for any message from FCM and trigger the necessary steps based on the action
@@ -66,7 +68,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
-            notificationManager.cancel(R.string.fcm_notification);
+            notificationManager.cancel(FCM_NOTIFICATION_ID);
         }
     }
 }

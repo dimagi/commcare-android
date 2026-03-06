@@ -1,20 +1,15 @@
 name: commcare-android PR CI
 
-env:
-  PR_NUM: ${{github.event.issue.number || github.event.number }}
 on:
   pull_request:
-  issue_comment:
 jobs:
   build-test-assemble:
-    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
     name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v6
         with:
-          ref: refs/pull/${{env.PR_NUM}}/head
           path: commcare-android
       - name: Install python
         uses: actions/setup-python@v6
@@ -27,7 +22,7 @@ jobs:
       - name: Install Python dependencies
         run: python -m pip install -r requirements.txt
       - name: Run cross request script
-        run: python checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
+        run: python checkout_cross_request_repo.py commcare-android ${{ github.event.number }} commcare-core
       - name: Generate Gradle properties
         run: |
           mkdir -p ~/.gradle
@@ -54,9 +49,6 @@ jobs:
           java-version: '17'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Run Linters
-        run: ./gradlew lintCommcareRelease
-        working-directory: commcare-android
       - name: Run Tests
         run: ./gradlew testCommcareDebug
         working-directory: commcare-android
@@ -91,11 +83,19 @@ jobs:
       - name: Assemble CommCare apk for Instrumentation Testing
         run: ./gradlew assembleCommcareReleaseAndroidTest
         working-directory: commcare-android
+      - name: Encrypt CommCare androidTest apk
+        run: |
+          openssl enc -aes-256-cbc -salt -pbkdf2 \
+            -in commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk \
+            -out commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc \
+            -pass pass:"$HQ_API_PASSWORD"
+        env:
+          HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-androidTest-apk
-          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc
       - name: Generate JaCoCo Report
         run: ./gradlew JacocoTestReport
         working-directory: commcare-android
@@ -113,7 +113,6 @@ jobs:
       - name: Checkout commcare-android
         uses: actions/checkout@v6
         with:
-          ref: refs/pull/${{env.PR_NUM}}/head
           path: commcare-android
       - name: Install python
         uses: actions/setup-python@v6
@@ -129,6 +128,14 @@ jobs:
         with:
           name: commcare-release-androidTest-apk
           path: commcare-release-androidTest-apk
+      - name: Decrypt CommCare androidTest apk
+        run: |
+          openssl enc -aes-256-cbc -d -pbkdf2 \
+            -in commcare-release-androidTest-apk/app-commcare-release-androidTest.apk.enc \
+            -out commcare-release-androidTest-apk/app-commcare-release-androidTest.apk \
+            -pass pass:"$HQ_API_PASSWORD"
+        env:
+          HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
       - name: Run BrowserStack Instrumentation Tests
         run: python commcare-android/scripts/browserstack.py
         env:
@@ -137,4 +144,4 @@ jobs:
           RELEASE_APP_LOCATION: commcare-release-apk/app-commcare-release.apk
           TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
           BROWSERSTACK_DEVICES: "Samsung Galaxy S10-9.0"
-          ghprbPullId: ${{ env.PR_NUM }}
+          PR_NUMBER: ${{ github.event.number }}

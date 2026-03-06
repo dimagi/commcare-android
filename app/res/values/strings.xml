@@ -59,8 +59,8 @@
     <string name="legacy_failure">CommCare does not support upgrading from the previous CommCare version you were using. To resolve this issue, please uninstall CommCare from your device and then reinstall it.</string>
     <string name="legacy_failure_title">Incompatible CommCare Upgrade</string>
     <string name="app_version_string">version.id.long</string>
-    <string name="notificationtitle">Logged Into Commcare</string>
-    <string name="expirenotification">CommCare Login Expired</string>
+    <string name="session_notification_title">Logged Into Commcare</string>
+    <string name="session_expire_notification">CommCare Login Expired</string>
 
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
@@ -70,7 +70,6 @@
 
 </string>
 
-    <string name="notification_message_title">CommCare Notification</string>
     <string name="hello_world">Please enter your issues below</string>
     <string name="menu_settings">Settings</string>
     <string name="permission_content_provider_label">Read Secure CommCare Data</string>
@@ -292,7 +291,6 @@
     <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Install from Store</string>
     <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
 
-    <string name="fcm_notification">FCM Notification</string>
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
 
     <string name="entity_map_markers" cc:translatable="true">Markers</string>
@@ -490,7 +488,6 @@
     <string name="connect_app_installed">App installed</string>
 
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
-    <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
 
 
@@ -607,8 +604,8 @@
     <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
-    <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for PersonalID from the menu.</string>
-    <string name="personalid_generic_error_title" cc:translatable="true">Logged out of PersonalID</string>
+    <string name="personalid_generic_error">A problem occurred, please configure your PersonalID account again by selecting Sign Up for PersonalID from the menu.</string>
+    <string name="personalid_generic_error_title">Logged out of PersonalID</string>
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
@@ -718,4 +715,8 @@
 
     <string name="connect_complete_by">Task ends on %s</string>
     <string name="connect_expired_on">Task ended on %s</string>
+
+    <string name="network_notification_service_starting">Starting network service</string>
+    <string name="network_notification_service_running">Running network requests...</string>
+    <string name="network_notification_service_downloading_files">Downloading application files...</string>
 </resources>

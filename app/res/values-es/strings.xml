@@ -50,12 +50,11 @@
     <string name="install_from_list_prompt">Inicia sesión como usuario móvil o web para ver una lista de las aplicaciones que puedes instalar</string>
     <string name="legacy_failure">CommCare no admite la actualización desde la versión anterior. Para resolver este problema, desinstala CommCare de tu dispositivo y luego vuelve a instalarlo.</string>
     <string name="legacy_failure_title">Actualización de CommCare incompatible</string>
-    <string name="notificationtitle">Conectado a CommCare</string>
-    <string name="expirenotification">Conexión de CommCare caducada</string>
+    <string name="session_notification_title">Conectado a CommCare</string>
+    <string name="session_expire_notification">Conexión de CommCare caducada</string>
     <string name="submission_notification_title">Envío de datos</string>
     <string name="submission_logs_title">Envío de registros de CommCare</string>
     <string name="about_dialog">%s\n\n_Copyright 2016, Dimagi inc, Todos los derechos reservados_ \n\n---------------- \n\n__Agradecimientos:__ \n\n%sAlgunas imágenes de CommCare se utilizan amablemente bajo licencia Creative Commons de la colección thenounproject.com:\n\n* Símbolo «Puerta» por Tak Imoto \n* Símbolo «Lápiz» por Creologica \n* Símbolo «Cuaderno» por Carlo \n* Símbolo «Antena» por Dima \n* Símbolo «Marcador de mapa» por P.J. Onori \n* Lista por Landan Lloyd \n* Pantalla rota por Sam Martin de Noun Project \n\n\n\n"</string>
-    <string name="notification_message_title">Notificación de CommCare</string>
     <string name="hello_world">Introduce tus problemas a continuación</string>
     <string name="menu_settings">Ajustes</string>
     <string name="permission_content_provider_label">Leer datos seguros de CommCare</string>
@@ -183,7 +182,6 @@
     <string name="dependency_missing_dialog_message_plural">CommCare necesita que las aplicaciones a continuación estén instaladas en tu dispositivo antes de poder continuar.</string>
     <string name="dependency_missing_dialog_go_to_store">Instalar desde la tienda</string>
     <string name="dependency_missing_dialog_playstore_not_found">No se encontró Play Store en tu dispositivo</string>
-    <string name="fcm_notification">Notificación de FCM</string>
     <string name="fcm_default_notification_channel">canal-de-notificación-notificaciones-push</string>
     <string name="personalid_login_via">Vía PersonalId (o toca aquí)</string>
     <string name="personalid_welcome_user">¡Bienvenido %s!</string>
@@ -361,7 +359,6 @@
     <string name="connect_app_install_unknown_error">La instalación de la aplicación falló debido a un error desconocido</string>
     <string name="connect_app_installed">Aplicación instalada</string>
     <string name="app_with_id_not_found">La aplicación CommCare requerida no está instalada en el dispositivo</string>
-    <string name="audio_recording_notification">Notificación de grabación de audio</string>
     <string name="user_suspended">El usuario está suspendido. Por favor, contacta al administrador.</string>
     <string name="enter_otp">Ingresa el código SMS</string>
     <string name="create_a_new_recovery_code">Crear un nuevo código de recuperación</string>

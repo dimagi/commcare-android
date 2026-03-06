@@ -50,13 +50,12 @@
     <string name="install_from_list_prompt">Ingia kama mtumiaji wa simu au wavuti ili kuona orodha ya programu unazoweza kusakinisha</string>
     <string name="legacy_failure">CommCare haiauni uboreshaji kutoka kwa toleo la awali la CommCare ulilokuwa ukitumia. Ili kutatua suala hili, tafadhali sanidua CommCare kutoka kwa kifaa chako kisha uisakinishe upya.</string>
     <string name="legacy_failure_title">Uboreshaji wa CommCare Usiooana</string>
-    <string name="notificationtitle">Umeingia kwenye Commcare</string>
-    <string name="expirenotification">Muda wa Kuingia kwa CommCare Umekwisha</string>
+    <string name="session_notification_title">Umeingia kwenye Commcare</string>
+    <string name="session_expire_notification">Muda wa Kuingia kwa CommCare Umekwisha</string>
     <string name="submission_notification_title">Kuwasilisha Data</string>
     <string name="submission_logs_title">Kuwasilisha Kumbukumbu za CommCare</string>
     <string name="remote_form_payload_url">#VALUE!</string>
     <string name="about_dialog">%. \n* Ishara ya "Penseli" kwa Creologica \n* ishara ya "Daftari" na Carlo \n* ishara ya "Antena" kwa Dima \n* ishara ya "Alama ya Ramani" na P.J. Onori \n* Orodha" ya Landan Lloyd \n* skrini iliyovunjwa na Sam Martin kutoka kwa Nomino Project \n\n\n\n"</string>
-    <string name="notification_message_title">Arifa ya CommCare</string>
     <string name="hello_world">Tafadhali weka masuala yako hapa chini</string>
     <string name="menu_settings">Mipangilio</string>
     <string name="permission_content_provider_label">Soma Secure CommCare Data</string>
@@ -246,7 +245,6 @@
     <string name="dependency_missing_dialog_message_plural">CommCare inahitaji programu zilizo hapa chini kusakinishwa kwenye kifaa chako kabla ya kuendelea-</string>
     <string name="dependency_missing_dialog_go_to_store">Sakinisha kutoka Hifadhi</string>
     <string name="dependency_missing_dialog_playstore_not_found">Hakuna Duka la Google Play lililopatikana kwenye kifaa chako</string>
-    <string name="fcm_notification">Taarifa ya FCM</string>
     <string name="fcm_default_notification_channel">arifa-chaneli-kusukuma-arifa</string>
     <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
     <string name="personalid_welcome_user">Karibu %s!</string>
@@ -360,7 +358,6 @@
     <string name="connect_app_install_unknown_error">Usakinishaji wa programu haukufaulu kwa sababu ya hitilafu isiyojulikana</string>
     <string name="connect_app_installed">Programu imesakinishwa</string>
     <string name="app_with_id_not_found">Programu ya CommCare Inayohitajika haijasakinishwa kwenye kifaa</string>
-    <string name="audio_recording_notification">Arifa ya Kurekodi Sauti</string>
     <string name="user_suspended">Mtumiaji Amesimamishwa. Tafadhali wasiliana na msimamizi.</string>
     <string name="enter_otp">Weka Msimbo wa SMS</string>
     <string name="create_a_new_recovery_code">Unda Nambari mpya ya Urejeshaji</string>

@@ -50,12 +50,11 @@ License.
     <string name="install_from_list_prompt">Connectez-vous en tant qu\'utilisateur mobile ou Web pour voir une liste des applications que vous pouvez installer</string>
     <string name="legacy_failure">CommCare ne prend pas en charge la mise à niveau depuis la version précédente. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le réinstaller.</string>
     <string name="legacy_failure_title">Mise à niveau CommCare incompatible</string>
-    <string name="notificationtitle">Connecté à Commcare</string>
-    <string name="expirenotification">Connexion CommCare expirée</string>
+    <string name="session_notification_title">Connecté à Commcare</string>
+    <string name="session_expire_notification">Connexion CommCare expirée</string>
     <string name="submission_notification_title">Soumission de données</string>
     <string name="submission_logs_title">Soumission des journaux CommCare</string>
     <string name="about_dialog">%s\n\n_Copyright 2016, Dimagi inc, Tous droits réservés_ \n\n---------------- \n\n__Remerciements:__ \n\n%sCertaines images de CommCare sont gracieusement utilisées sous licence Creative Commons de la collection thenounproject.com:\n\n* Symbole «Porte» par Tak Imoto \n* Symbole «Crayon» par Creologica \n* Symbole «Carnet» par Carlo \n* Symbole «Antenne» par Dima \n* Symbole «Marqueur de carte» par P.J. Onori \n* Liste par Landan Lloyd \n* Écran cassé par Sam Martin du Noun Project \n\n\n\n"</string>
-    <string name="notification_message_title">Notification CommCare</string>
     <string name="hello_world">Veuillez saisir vos problèmes ci-dessous</string>
     <string name="menu_settings">Paramètres</string>
     <string name="permission_content_provider_label">Lire les données sécurisées CommCare</string>
@@ -245,7 +244,6 @@ License.
     <string name="dependency_missing_dialog_message_plural">CommCare a besoin que les applications ci-dessous soient installées sur votre appareil avant de pouvoir continuer.</string>
     <string name="dependency_missing_dialog_go_to_store">Installer depuis le Store</string>
     <string name="dependency_missing_dialog_playstore_not_found">Aucun Play Store trouvé sur votre appareil</string>
-    <string name="fcm_notification">Notification de la FCM</string>
     <string name="fcm_default_notification_channel">canal de notification-notifications-push</string>
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
     <string name="personalid_welcome_user">Bienvenue %s !</string>
@@ -358,7 +356,6 @@ License.
     <string name="connect_app_install_unknown_error">L\'installation de l\'application a échoué en raison d\'une erreur inconnue</string>
     <string name="connect_app_installed">Application installée</string>
     <string name="app_with_id_not_found">L\'application CommCare requise n\'est pas installée sur l\'appareil</string>
-    <string name="audio_recording_notification">Notification d\'enregistrement audio</string>
     <string name="user_suspended">L\'utilisateur est suspendu. Veuillez contacter l\'administrateur.</string>
     <string name="enter_otp">Entrez le code SMS</string>
     <string name="create_a_new_recovery_code">Créer un nouveau code de récupération</string>
