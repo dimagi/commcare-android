@@ -1,13 +1,34 @@
+<!--
+This file is meant as an easy way for us to collate notes and change log across releases. 
+-->
+
 ## CommCare 2.63
 
 #### Release Notes
+
+<!--
+These are published publically on Playstore, Github Releases and CommCare Forums
+-->
 
 ##### What's New
 
 ##### Important Bug Fixes
 
+##### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+
 #### QA Notes
 
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
 
 ## CommCare 2.62
 
