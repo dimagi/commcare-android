@@ -4,17 +4,17 @@ This file is meant as an easy way for us to collate notes and change log across 
 
 ## CommCare 2.63
 
-#### Release Notes
+### Release Notes
 
 <!--
 These are published publically on Playstore, Github Releases and CommCare Forums
 -->
 
-##### What's New
+#### What's New
 
-##### Important Bug Fixes
+#### Important Bug Fixes
 
-##### Internal Release Notes
+#### Internal Release Notes
 
 <!--
 Release notes that are not applicable for wider CommCare users but only for a specific projects. 
@@ -23,7 +23,7 @@ along with the public release notes above
 -->
 
 
-#### QA Notes
+### QA Notes
 
 <!--
 These are for internal use and for us to keep track of important notes that
@@ -33,9 +33,9 @@ we would like to communicate to QA as part of the release testing
 ## CommCare 2.62
 
 
-#### Release Notes
+### Release Notes
 
-##### What's New
+#### What's New
 
 - Redesigned Connect landing page for a smoother experience
 - Hausa language support added in Connect and PersonalID 
@@ -45,14 +45,14 @@ we would like to communicate to QA as part of the release testing
 - Better handling of PersonalID errors on multiple device logins 
 - Enhanced GPS accuracy and reliability for GPS capture inside CommCare form
 
-##### Important Bug Fixes
+#### Important Bug Fixes
 
 - Improved app install reliability on Android 15+ 
 - Fixed WiFi Direct issue when sharing forms with media 
 - Fixed SD card export from forms on Android 15+
 
 
-#### QA Notes
+### QA Notes
 
 - Run the complete Connect and Personal ID regression plan after updating from CommCare 2.61. It's alright to run a set of regression tests together after updating from 2.61 but we should make sure that each test case is run on an app version that's been updated from 2.61 instead of a fresh install.
 
