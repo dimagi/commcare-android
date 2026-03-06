@@ -9,58 +9,75 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import java.util.concurrent.TimeUnit
 
 object ConnectDateUtils {
-    val dateFormat: DateFormat = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
 
     @JvmStatic
     fun formatDate(date: Date?): String {
-        synchronized(dateFormat) {
-            return dateFormat.format(date)
-        }
+        val formatter = DateFormat.getDateInstance(
+            DateFormat.MEDIUM,
+            Locale.getDefault()
+        )
+        return formatter.format(date)
     }
-
-    val paymentDateFormat: DateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
 
     fun paymentDateFormat(date: Date?): String {
-        synchronized(paymentDateFormat) {
-            return paymentDateFormat.format(date)
-        }
+        val formatter = DateFormat.getDateInstance(
+            DateFormat.LONG,
+            Locale.getDefault()
+        )
+        return formatter.format(date)
     }
 
-    fun formatDateTime(date: Date?): String = SimpleDateFormat.getDateTimeInstance().format(date)
+    fun formatDateTime(date: Date?): String {
+        return DateFormat.getDateTimeInstance(
+            DateFormat.MEDIUM,
+            DateFormat.SHORT,
+            Locale.getDefault()
+        ).format(date)
+    }
 
     @Throws(ParseException::class)
     fun convertIsoDate(
         inputDate: String,
-        outputPattern: String,
+        outputStyle: Int = DateFormat.MEDIUM
     ): String {
         require(inputDate.isNotEmpty()) { "Input date string is empty" }
 
-        val cleaned =
-            inputDate
-                .replace(Regex("\\.\\d{1,6}"), "")
-                .replace("+00:00", "Z")
+        val cleaned = inputDate
+            .replace(Regex("\\.\\d{1,6}"), "")
+            .replace("+00:00", "Z")
 
-        val isoFormat =
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-            }
+        val isoFormat = SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            Locale.US
+        ).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
 
         val date =
             isoFormat.parse(cleaned)
                 ?: throw ParseException("Failed to parse ISO date: $cleaned", 0)
 
-        val outputFormat = SimpleDateFormat(outputPattern, Locale.US)
+        val outputFormat = DateFormat.getDateInstance(
+            outputStyle,
+            Locale.getDefault()
+        )
+
         return outputFormat.format(date)
     }
 
     fun parseIsoDateForSorting(dateStr: String): Date? {
         return try {
             if (dateStr.isEmpty()) return null
-            val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-            isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+            val isoFormat = SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                Locale.US
+            ).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+
             isoFormat.parse(dateStr)
         } catch (_: ParseException) {
             null
@@ -84,16 +101,14 @@ object ConnectDateUtils {
             minutes < 60 -> context.getString(R.string.minutes_ago, minutes.toInt())
             hours < 24 -> context.getString(R.string.hours_ago, hours.toInt())
             days < 2 -> {
-                val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                val timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT,Locale.getDefault())
                 context.getString(R.string.yesterday, timeFormat.format(date))
             }
             days <= 7 -> {
-                val dayFormat = SimpleDateFormat("EEEE hh:mm a", Locale.getDefault())
-                dayFormat.format(date)
+                DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT, Locale.getDefault()).format(date)
             }
             else -> {
-                val dateFormat = SimpleDateFormat("MMM d hh:mm a", Locale.getDefault())
-                dateFormat.format(date)
+                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault()).format(date)
             }
         }
     }

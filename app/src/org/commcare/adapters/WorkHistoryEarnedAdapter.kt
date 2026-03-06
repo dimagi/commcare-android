@@ -8,6 +8,7 @@ import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.connect.ConnectDateUtils.convertIsoDate
 import org.commcare.dalvik.databinding.ItemEarnedWorkHistoryBinding
 import org.commcare.utils.StringUtils
+import java.text.DateFormat
 
 class WorkHistoryEarnedAdapter(
     private val listener: OnWorkHistoryItemClickListener,private val profilePic:String?
@@ -30,7 +31,7 @@ class WorkHistoryEarnedAdapter(
     override fun onBindViewHolder(holder: WorkHistoryViewHolder, position: Int) {
         val item = workHistoryList[position]
         val formattedIssuedDate: String =
-            convertIsoDate(item.issuedDate, "dd/MM/yyyy")
+            convertIsoDate(item.issuedDate, DateFormat.SHORT)
 
         with(holder.binding) {
             tvAppName.text = item.title
