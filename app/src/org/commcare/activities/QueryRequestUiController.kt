@@ -48,7 +48,6 @@ class QueryRequestUiController(
     private val queryRequestActivity: QueryRequestActivity,
     private val remoteQuerySessionManager: RemoteQuerySessionManager,
 ) : CommCareActivityUIController {
-
     companion object {
         private const val APPEARANCE_BARCODE_SCAN = "barcode_scan"
         private const val DATE_PICKER_FRAGMENT_TAG = "date_picker_dialog"
@@ -135,7 +134,8 @@ class QueryRequestUiController(
             val isLastPrompt = promptCount++ == userInputDisplays.size
             buildPromptEntry(
                 promptsLayout, promptId,
-                userInputDisplays[promptId]!!, isLastPrompt
+                userInputDisplays[promptId]!!,
+                isLastPrompt,
             )
         }
     }
@@ -147,9 +147,8 @@ class QueryRequestUiController(
         isLastPrompt: Boolean,
     ) {
         if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
-            val promptView: View =
-                LayoutInflater.from(queryRequestActivity)
-                    .inflate(R.layout.query_prompt_layout, promptsLayout, false)
+            val promptView: View = LayoutInflater.from(queryRequestActivity)
+                .inflate(R.layout.query_prompt_layout, promptsLayout, false)
             setLabelText(promptView, queryPrompt)
             val inputView = buildPromptInputView(promptView, queryPrompt, isLastPrompt)
             setUpBarCodeScanButton(promptView, promptId, queryPrompt)
@@ -181,7 +180,8 @@ class QueryRequestUiController(
         promptView: View, queryPrompt: QueryPrompt,
         isLastPrompt: Boolean,
     ): EditText? {
-        val promptEditText = promptView.findViewById<EditText>(R.id.prompt_et)
+        val promptEditText =
+            promptView.findViewById<EditText>(R.id.prompt_et)
         promptEditText.visibility = View.VISIBLE
         promptView.findViewById<View>(R.id.prompt_spinner).visibility = View.GONE
 
@@ -194,14 +194,30 @@ class QueryRequestUiController(
         }
         val userAnswers = remoteQuerySessionManager.userAnswers
         promptEditText.setText(userAnswers[queryPrompt.key])
-        promptEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                answerUserPrompt(queryPrompt.key, s.toString())
-                updateAnswerAndRefresh(queryPrompt, s.toString())
+        promptEditText.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int,
+                ) {
+                }
+
+                override fun afterTextChanged(s: Editable) {
+                    answerUserPrompt(queryPrompt.key, s.toString())
+                    updateAnswerAndRefresh(queryPrompt, s.toString())
+                }
             }
-        })
+        )
         return promptEditText
     }
 
@@ -488,7 +504,9 @@ class QueryRequestUiController(
             getLabel(queryPrompt)
     }
 
-    private fun getLabel(queryPrompt: QueryPrompt): String {
+    private fun getLabel(
+        queryPrompt: QueryPrompt,
+    ): String {
         val displayData = queryPrompt.display.evaluate()
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
     }

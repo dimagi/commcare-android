@@ -291,8 +291,7 @@ class BaseDrawerController(
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotifications(): Boolean =
-        PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -302,9 +301,7 @@ class BaseDrawerController(
         binding.drawerLayout.openDrawer(GravityCompat.START)
     }
 
-    fun isShowingError(): Boolean {
-        return showingError
-    }
+    fun isShowingError(): Boolean = showingError
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
 }
