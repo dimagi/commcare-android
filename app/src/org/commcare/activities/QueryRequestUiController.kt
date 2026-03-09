@@ -149,7 +149,8 @@ class QueryRequestUiController(
     ) {
         if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
             val promptView: View =
-                LayoutInflater.from(queryRequestActivity)
+                LayoutInflater
+                    .from(queryRequestActivity)
                     .inflate(R.layout.query_prompt_layout, promptsLayout, false)
             setLabelText(promptView, queryPrompt)
             val inputView = buildPromptInputView(promptView, queryPrompt, isLastPrompt)
@@ -468,7 +469,10 @@ class QueryRequestUiController(
             val endDate = DateRangeUtils.getDateFromTime(selection.second)
             answerUserPrompt(
                 queryPrompt.key,
-                DateRangeUtils.formatDateRangeAnswer(startDate, endDate)
+                DateRangeUtils.formatDateRangeAnswer(
+                    startDate,
+                    endDate,
+                )
             )
             promptEditText.setText(DateRangeUtils.getHumanReadableDateRange(startDate, endDate))
         }
@@ -490,17 +494,15 @@ class QueryRequestUiController(
                 ResourcesCompat.getDrawable(
                     queryRequestActivity.resources,
                     R.drawable.startup_barcode,
-                    null
-                )
+                    null,
+                ),
             )
             barcodeScannerView.tag = promptId
             barcodeScannerView.setOnClickListener { v: View -> callBarcodeScanIntent(v.tag as String) }
         }
     }
 
-    private fun isBarcodeEnabled(queryPrompt: QueryPrompt): Boolean {
-        return APPEARANCE_BARCODE_SCAN == queryPrompt.appearance
-    }
+    private fun isBarcodeEnabled(queryPrompt: QueryPrompt): Boolean = APPEARANCE_BARCODE_SCAN == queryPrompt.appearance
 
     private fun callBarcodeScanIntent(promptId: String) {
         val intent = WidgetUtils.createScanIntent(queryRequestActivity)
@@ -510,10 +512,11 @@ class QueryRequestUiController(
         } catch (anfe: ActivityNotFoundException) {
             Toast.makeText(
                 queryRequestActivity,
-                "No barcode reader available! You can install one " +
-                        "from the android market.",
+                   "No barcode reader available! You can install one " +
+                   "from the android market.",
                 Toast.LENGTH_LONG,
-            ).show()
+            )
+                .show()
         }
     }
 
@@ -527,12 +530,17 @@ class QueryRequestUiController(
 
     private fun getLabel(
         queryPrompt: QueryPrompt,
-    ): String {
+        ): String {
         val displayData = queryPrompt.display.evaluate()
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
     }
 
     // Thrown when we are setting an invalid value to the prompt,
     // for ex- trying to set multiple values to a single valued prompt
-    class InvalidPromptValueException(message: String) : Throwable(message)
+    class InvalidPromptValueException(
+        message: String,
+    ) : Throwable(
+        message,
+    )
+
 }
