@@ -14,7 +14,6 @@ class WorkHistoryEarnedAdapter(
     private val listener: OnWorkHistoryItemClickListener,
     private val profilePic: String?,
 ) : RecyclerView.Adapter<WorkHistoryEarnedAdapter.WorkHistoryViewHolder>() {
-
     private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
     inner class WorkHistoryViewHolder(
@@ -25,11 +24,12 @@ class WorkHistoryEarnedAdapter(
         parent: ViewGroup,
         viewType: Int,
     ): WorkHistoryViewHolder {
-        val binding = ItemEarnedWorkHistoryBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false,
-        )
+        val binding =
+            ItemEarnedWorkHistoryBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            )
         return WorkHistoryViewHolder(binding)
     }
 
