@@ -13,7 +13,7 @@ import java.util.TimeZone
 object ConnectDateUtils {
 
     @JvmStatic
-    fun formatDate(date: Date?): String {
+    fun formatDate(date: Date): String {
         val formatter = DateFormat.getDateInstance(
             DateFormat.MEDIUM,
             Locale.getDefault()
@@ -21,7 +21,7 @@ object ConnectDateUtils {
         return formatter.format(date)
     }
 
-    fun paymentDateFormat(date: Date?): String {
+    fun paymentDateFormat(date: Date): String {
         val formatter = DateFormat.getDateInstance(
             DateFormat.LONG,
             Locale.getDefault()
@@ -29,7 +29,7 @@ object ConnectDateUtils {
         return formatter.format(date)
     }
 
-    fun formatDateTime(date: Date?): String {
+    fun formatDateTime(date: Date): String {
         return DateFormat.getDateTimeInstance(
             DateFormat.MEDIUM,
             DateFormat.SHORT,
