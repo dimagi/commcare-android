@@ -11,21 +11,22 @@ import java.util.Locale
 import java.util.TimeZone
 
 object ConnectDateUtils {
-
     @JvmStatic
     fun formatDate(date: Date): String {
-        val formatter = DateFormat.getDateInstance(
-            DateFormat.MEDIUM,
-            Locale.getDefault(),
-        )
+        val formatter =
+            DateFormat.getDateInstance(
+                DateFormat.MEDIUM,
+                Locale.getDefault(),
+            )
         return formatter.format(date)
     }
 
     fun paymentDateFormat(date: Date): String {
-        val formatter = DateFormat.getDateInstance(
-            DateFormat.LONG,
-            Locale.getDefault(),
-        )
+        val formatter =
+            DateFormat.getDateInstance(
+                DateFormat.LONG,
+                Locale.getDefault(),
+            )
         return formatter.format(date)
     }
 
@@ -34,7 +35,8 @@ object ConnectDateUtils {
             DateFormat.MEDIUM,
             DateFormat.SHORT,
             Locale.getDefault(),
-        ).format(date)
+        )
+            .format(date)
 
     @Throws(ParseException::class)
     fun convertIsoDate(
@@ -43,25 +45,28 @@ object ConnectDateUtils {
     ): String {
         require(inputDate.isNotEmpty()) { "Input date string is empty" }
 
-        val cleaned = inputDate
-            .replace(Regex("\\.\\d{1,6}"), "")
-            .replace("+00:00", "Z")
+        val cleaned =
+            inputDate
+                .replace(Regex("\\.\\d{1,6}"), "")
+                .replace("+00:00", "Z")
 
-        val isoFormat = SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss'Z'",
-            Locale.US,
-        ).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
+        val isoFormat =
+            SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                Locale.US,
+            ).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
 
         val date =
             isoFormat.parse(cleaned)
                 ?: throw ParseException("Failed to parse ISO date: $cleaned", 0)
 
-        val outputFormat = DateFormat.getDateInstance(
-            outputStyle,
-            Locale.getDefault(),
-        )
+        val outputFormat =
+            DateFormat.getDateInstance(
+                outputStyle,
+                Locale.getDefault(),
+            )
 
         return outputFormat.format(date)
     }
@@ -70,12 +75,13 @@ object ConnectDateUtils {
         return try {
             if (dateStr.isEmpty()) return null
 
-            val isoFormat = SimpleDateFormat(
-                "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                Locale.US,
-            ).apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-            }
+            val isoFormat =
+                SimpleDateFormat(
+                    "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    Locale.US,
+                ).apply {
+                    timeZone = TimeZone.getTimeZone("UTC")
+                }
 
             isoFormat.parse(dateStr)
         } catch (_: ParseException) {
@@ -108,14 +114,16 @@ object ConnectDateUtils {
                     DateFormat.FULL,
                     DateFormat.SHORT,
                     Locale.getDefault(),
-                ).format(date)
+                )
+                    .format(date)
             }
             else -> {
                 DateFormat.getDateTimeInstance(
                     DateFormat.MEDIUM,
                     DateFormat.SHORT,
                     Locale.getDefault(),
-                ).format(date)
+                )
+                    .format(date)
             }
         }
     }
