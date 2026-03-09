@@ -462,11 +462,11 @@ class QueryRequestUiController(
             }
         }
         val dateRangePicker = dateRangePickerBuilder.build()
-        dateRangePicker.addOnPositiveButtonClickListener {
-                selection: Pair<Long, Long>? ->
-            val startDate = DateRangeUtils.getDateFromTime(
-                selection!!.first,
-            )
+        dateRangePicker.addOnPositiveButtonClickListener { selection: Pair<Long, Long>? ->
+            val startDate =
+                DateRangeUtils.getDateFromTime(
+                    selection!!.first,
+                )
             val endDate = DateRangeUtils.getDateFromTime(selection.second)
             answerUserPrompt(
                 queryPrompt.key,
@@ -511,14 +511,11 @@ class QueryRequestUiController(
         try {
             queryRequestActivity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH)
         } catch (anfe: ActivityNotFoundException) {
-            Toast
-                .makeText(
-                    queryRequestActivity,
-                    "No barcode reader available! You can install one " +
-                        "from the android market.",
-                    Toast.LENGTH_LONG,
-                )
-                .show()
+            Toast.makeText(
+                queryRequestActivity,
+                "No barcode reader available! You can install one from the android market.",
+                Toast.LENGTH_LONG,
+            ).show()
         }
     }
 
