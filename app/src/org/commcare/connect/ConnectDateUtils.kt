@@ -16,7 +16,7 @@ object ConnectDateUtils {
     fun formatDate(date: Date): String {
         val formatter = DateFormat.getDateInstance(
             DateFormat.MEDIUM,
-            Locale.getDefault()
+            Locale.getDefault(),
         )
         return formatter.format(date)
     }
@@ -24,23 +24,22 @@ object ConnectDateUtils {
     fun paymentDateFormat(date: Date): String {
         val formatter = DateFormat.getDateInstance(
             DateFormat.LONG,
-            Locale.getDefault()
+            Locale.getDefault(),
         )
         return formatter.format(date)
     }
 
-    fun formatDateTime(date: Date): String {
-        return DateFormat.getDateTimeInstance(
+    fun formatDateTime(date: Date): String =
+        DateFormat.getDateTimeInstance(
             DateFormat.MEDIUM,
             DateFormat.SHORT,
-            Locale.getDefault()
+            Locale.getDefault(),
         ).format(date)
-    }
 
     @Throws(ParseException::class)
     fun convertIsoDate(
         inputDate: String,
-        outputStyle: Int = DateFormat.MEDIUM
+        outputStyle: Int = DateFormat.MEDIUM,
     ): String {
         require(inputDate.isNotEmpty()) { "Input date string is empty" }
 
@@ -50,7 +49,7 @@ object ConnectDateUtils {
 
         val isoFormat = SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss'Z'",
-            Locale.US
+            Locale.US,
         ).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
@@ -61,7 +60,7 @@ object ConnectDateUtils {
 
         val outputFormat = DateFormat.getDateInstance(
             outputStyle,
-            Locale.getDefault()
+            Locale.getDefault(),
         )
 
         return outputFormat.format(date)
@@ -73,7 +72,7 @@ object ConnectDateUtils {
 
             val isoFormat = SimpleDateFormat(
                 "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                Locale.US
+                Locale.US,
             ).apply {
                 timeZone = TimeZone.getTimeZone("UTC")
             }
@@ -101,14 +100,22 @@ object ConnectDateUtils {
             minutes < 60 -> context.getString(R.string.minutes_ago, minutes.toInt())
             hours < 24 -> context.getString(R.string.hours_ago, hours.toInt())
             days < 2 -> {
-                val timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT,Locale.getDefault())
+                val timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault())
                 context.getString(R.string.yesterday, timeFormat.format(date))
             }
             days <= 7 -> {
-                DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT, Locale.getDefault()).format(date)
+                DateFormat.getDateTimeInstance(
+                    DateFormat.FULL,
+                    DateFormat.SHORT,
+                    Locale.getDefault(),
+                ).format(date)
             }
             else -> {
-                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault()).format(date)
+                DateFormat.getDateTimeInstance(
+                    DateFormat.MEDIUM,
+                    DateFormat.SHORT,
+                    Locale.getDefault(),
+                ).format(date)
             }
         }
     }
