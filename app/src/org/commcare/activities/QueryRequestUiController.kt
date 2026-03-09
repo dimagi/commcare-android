@@ -255,9 +255,9 @@ class QueryRequestUiController(
     ) {
         val userAnswers = remoteQuerySessionManager.userAnswers
         val oldAnswer = userAnswers[queryPrompt.key]
-        if ((oldAnswer == null && !"".equals(answer)) || (oldAnswer != null && !oldAnswer.contentEquals(
-                answer,
-            ))
+        if (
+            (oldAnswer == null && !"".equals(answer)) ||
+            (oldAnswer != null && !oldAnswer.contentEquals(answer))
         ) {
             answerUserPrompt(queryPrompt.key, answer)
             remoteQuerySessionManager.refreshItemSetChoices()
@@ -358,9 +358,7 @@ class QueryRequestUiController(
                     )
                 }
 
-                override fun onNothingSelected(
-                    parent: AdapterView<*>?,
-                ) {}
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
         setSpinnerData(queryPrompt, promptSpinner)
@@ -374,11 +372,12 @@ class QueryRequestUiController(
         var selectedPosAndChoices = calculateItemChoices(queryPrompt)
         val selectedPositions = selectedPosAndChoices.first
         val choices = selectedPosAndChoices.second
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-            queryRequestActivity,
-            android.R.layout.simple_spinner_item,
-            SpinnerWidget.getChoicesWithEmptyFirstSlot(choices),
-        )
+        val adapter: ArrayAdapter<String> =
+            ArrayAdapter<String>(
+                queryRequestActivity,
+                android.R.layout.simple_spinner_item,
+                SpinnerWidget.getChoicesWithEmptyFirstSlot(choices),
+            )
         promptSpinner.adapter = adapter
         if (selectedPositions.size > 1) {
             throw InvalidPromptValueException("Can't set multiple values to Spinner")
@@ -455,8 +454,8 @@ class QueryRequestUiController(
                 dateRangePickerBuilder.setSelection(
                     AndroidXUtils.toPair(
                         humanReadableDate!!.first,
-                        humanReadableDate.second
-                    )
+                        humanReadableDate.second,
+                    ),
                 )
             } catch (e: ParseException) {
                 Logger.exception("Error parsing date range $currentDateRangeText", e)
@@ -465,7 +464,7 @@ class QueryRequestUiController(
         val dateRangePicker = dateRangePickerBuilder.build()
         dateRangePicker.addOnPositiveButtonClickListener { selection: Pair<Long, Long>? ->
             val startDate = DateRangeUtils.getDateFromTime(
-                selection!!.first
+                selection!!.first,
             )
             val endDate = DateRangeUtils.getDateFromTime(selection.second)
             answerUserPrompt(
@@ -473,7 +472,7 @@ class QueryRequestUiController(
                 DateRangeUtils.formatDateRangeAnswer(
                     startDate,
                     endDate,
-                )
+                ),
             )
             promptEditText.setText(DateRangeUtils.getHumanReadableDateRange(startDate, endDate))
         }
@@ -513,11 +512,10 @@ class QueryRequestUiController(
         } catch (anfe: ActivityNotFoundException) {
             Toast.makeText(
                 queryRequestActivity,
-                   "No barcode reader available! You can install one " +
-                   "from the android market.",
+                "No barcode reader available! You can install one " +
+                    "from the android market.",
                 Toast.LENGTH_LONG,
-            )
-                .show()
+            ).show()
         }
     }
 
@@ -529,9 +527,7 @@ class QueryRequestUiController(
             getLabel(queryPrompt)
     }
 
-    private fun getLabel(
-        queryPrompt: QueryPrompt,
-        ): String {
+    private fun getLabel(queryPrompt: QueryPrompt): String {
         val displayData = queryPrompt.display.evaluate()
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
     }
@@ -543,5 +539,4 @@ class QueryRequestUiController(
     ) : Throwable(
         message,
     )
-
 }
