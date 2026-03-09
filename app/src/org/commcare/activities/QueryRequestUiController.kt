@@ -511,12 +511,12 @@ class QueryRequestUiController(
         try {
             queryRequestActivity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH)
         } catch (anfe: ActivityNotFoundException) {
-            Toast.makeText(
+            val toast = Toast.makeText(
                 queryRequestActivity,
                 "No barcode reader available! You can install one from the android market.",
                 Toast.LENGTH_LONG,
             )
-                .show()
+            toast.show()
         }
     }
 
