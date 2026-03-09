@@ -139,7 +139,6 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
 
     @Override
     protected void keyboardEnterPressed() {
-        super.keyboardEnterPressed();
         if (!Objects.requireNonNull(binding.nameTextValue.getText()).toString().isEmpty()) {
             verifyOrAddName();
         }

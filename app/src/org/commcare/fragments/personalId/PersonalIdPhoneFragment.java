@@ -233,7 +233,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     @Override
     protected void keyboardEnterPressed() {
-        super.keyboardEnterPressed();
         if (allowedToContinue()) {
             onContinueClicked();
         } else {
