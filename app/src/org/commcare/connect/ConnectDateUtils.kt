@@ -31,12 +31,12 @@ object ConnectDateUtils {
     }
 
     fun formatDateTime(date: Date): String =
-        DateFormat.getDateTimeInstance(
-            DateFormat.MEDIUM,
-            DateFormat.SHORT,
-            Locale.getDefault(),
-        )
-            .format(date)
+        DateFormat
+            .getDateTimeInstance(
+                DateFormat.MEDIUM,
+                DateFormat.SHORT,
+                Locale.getDefault(),
+            ).format(date)
 
     @Throws(ParseException::class)
     fun convertIsoDate(
@@ -110,20 +110,20 @@ object ConnectDateUtils {
                 context.getString(R.string.yesterday, timeFormat.format(date))
             }
             days <= 7 -> {
-                DateFormat.getDateTimeInstance(
-                    DateFormat.FULL,
-                    DateFormat.SHORT,
-                    Locale.getDefault(),
-                )
-                    .format(date)
+                DateFormat
+                    .getDateTimeInstance(
+                        DateFormat.FULL,
+                        DateFormat.SHORT,
+                        Locale.getDefault(),
+                    ).format(date)
             }
             else -> {
-                DateFormat.getDateTimeInstance(
-                    DateFormat.MEDIUM,
-                    DateFormat.SHORT,
-                    Locale.getDefault(),
-                )
-                    .format(date)
+                DateFormat
+                    .getDateTimeInstance(
+                        DateFormat.MEDIUM,
+                        DateFormat.SHORT,
+                        Locale.getDefault(),
+                    ).format(date)
             }
         }
     }
