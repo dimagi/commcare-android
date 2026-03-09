@@ -462,7 +462,8 @@ class QueryRequestUiController(
             }
         }
         val dateRangePicker = dateRangePickerBuilder.build()
-        dateRangePicker.addOnPositiveButtonClickListener { selection: Pair<Long, Long>? ->
+        dateRangePicker.addOnPositiveButtonClickListener {
+                selection: Pair<Long, Long>? ->
             val startDate = DateRangeUtils.getDateFromTime(
                 selection!!.first,
             )
@@ -510,12 +511,14 @@ class QueryRequestUiController(
         try {
             queryRequestActivity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH)
         } catch (anfe: ActivityNotFoundException) {
-            Toast.makeText(
-                queryRequestActivity,
-                "No barcode reader available! You can install one " +
-                    "from the android market.",
-                Toast.LENGTH_LONG,
-            ).show()
+            Toast
+                .makeText(
+                    queryRequestActivity,
+                    "No barcode reader available! You can install one " +
+                        "from the android market.",
+                    Toast.LENGTH_LONG,
+                )
+                .show()
         }
     }
 
@@ -536,7 +539,5 @@ class QueryRequestUiController(
     // for ex- trying to set multiple values to a single valued prompt
     class InvalidPromptValueException(
         message: String,
-    ) : Throwable(
-        message,
-    )
+    ) : Throwable(message)
 }
