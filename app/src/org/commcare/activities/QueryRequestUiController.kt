@@ -515,7 +515,8 @@ class QueryRequestUiController(
                 queryRequestActivity,
                 "No barcode reader available! You can install one from the android market.",
                 Toast.LENGTH_LONG,
-            ).show()
+            )
+                .show()
         }
     }
 
