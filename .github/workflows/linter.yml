@@ -4,7 +4,9 @@ name: Lint Code Base
 on:
   pull_request:
     branches: [ master ]
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     name: Lint Code Base
