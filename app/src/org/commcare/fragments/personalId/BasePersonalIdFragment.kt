@@ -86,8 +86,8 @@ abstract class BasePersonalIdFragment : Fragment() {
             val isEnterPressed =
                 actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT ||
                    (
-                     event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action ==
-                     KeyEvent.ACTION_DOWN
+                       event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action ==
+                           KeyEvent.ACTION_DOWN
                    )
             if (isEnterPressed) {
                 keyboardEnterPressed()

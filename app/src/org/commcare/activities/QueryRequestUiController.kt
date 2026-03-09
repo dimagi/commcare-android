@@ -226,7 +226,7 @@ class QueryRequestUiController(
                         s.toString(),
                     )
                 }
-            }
+            },
         )
         return promptEditText
     }
@@ -256,7 +256,7 @@ class QueryRequestUiController(
         val userAnswers = remoteQuerySessionManager.userAnswers
         val oldAnswer = userAnswers[queryPrompt.key]
         if ((oldAnswer == null && !"".equals(answer)) || (oldAnswer != null && !oldAnswer.contentEquals(
-                answer
+                answer,
             ))
         ) {
             answerUserPrompt(queryPrompt.key, answer)
@@ -285,7 +285,7 @@ class QueryRequestUiController(
                 choices[index]!!,
                 index in selectedPositions,
                 items,
-                queryPrompt
+                queryPrompt,
             )
         }
         return checkboxView
@@ -360,8 +360,7 @@ class QueryRequestUiController(
 
                 override fun onNothingSelected(
                     parent: AdapterView<*>?,
-                ) {
-                }
+                ) {}
             }
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
         setSpinnerData(queryPrompt, promptSpinner)
@@ -378,7 +377,7 @@ class QueryRequestUiController(
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
             queryRequestActivity,
             android.R.layout.simple_spinner_item,
-            SpinnerWidget.getChoicesWithEmptyFirstSlot(choices)
+            SpinnerWidget.getChoicesWithEmptyFirstSlot(choices),
         )
         promptSpinner.adapter = adapter
         if (selectedPositions.size > 1) {
@@ -425,13 +424,13 @@ class QueryRequestUiController(
             ResourcesCompat.getDrawable(
                 queryRequestActivity.resources,
                 R.drawable.ic_create,
-                null
-            )
+                null,
+            ),
         )
         editDateIcon.setOnClickListener {
             showDateRangePicker(
                 promptEditText,
-                queryPrompt
+                queryPrompt,
             )
         }
         return promptEditText
@@ -442,7 +441,9 @@ class QueryRequestUiController(
         queryPrompt: QueryPrompt,
     ) {
         val dateRangePickerBuilder: MaterialDatePicker.Builder<Pair<Long, Long>?> =
-            MaterialDatePicker.Builder.dateRangePicker()
+            MaterialDatePicker
+                .Builder
+                .dateRangePicker()
                 .setTitleText(getLabel(queryPrompt))
                 .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
 
