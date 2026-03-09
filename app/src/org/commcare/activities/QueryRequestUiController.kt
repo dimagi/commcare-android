@@ -133,7 +133,8 @@ class QueryRequestUiController(
             val promptId = en.nextElement() as String
             val isLastPrompt = promptCount++ == userInputDisplays.size
             buildPromptEntry(
-                promptsLayout, promptId,
+                promptsLayout,
+                promptId,
                 userInputDisplays[promptId]!!,
                 isLastPrompt,
             )
@@ -147,8 +148,9 @@ class QueryRequestUiController(
         isLastPrompt: Boolean,
     ) {
         if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
-            val promptView: View = LayoutInflater.from(queryRequestActivity)
-                .inflate(R.layout.query_prompt_layout, promptsLayout, false)
+            val promptView: View =
+                LayoutInflater.from(queryRequestActivity)
+                    .inflate(R.layout.query_prompt_layout, promptsLayout, false)
             setLabelText(promptView, queryPrompt)
             val inputView = buildPromptInputView(promptView, queryPrompt, isLastPrompt)
             setUpBarCodeScanButton(promptView, promptId, queryPrompt)
@@ -177,7 +179,8 @@ class QueryRequestUiController(
     }
 
     private fun buildEditTextView(
-        promptView: View, queryPrompt: QueryPrompt,
+        promptView: View,
+        queryPrompt: QueryPrompt,
         isLastPrompt: Boolean,
     ): EditText? {
         val promptEditText =
@@ -200,7 +203,7 @@ class QueryRequestUiController(
                     s: CharSequence,
                     start: Int,
                     count: Int,
-                    after: Int
+                    after: Int,
                 ) {
                 }
 
@@ -213,8 +216,14 @@ class QueryRequestUiController(
                 }
 
                 override fun afterTextChanged(s: Editable) {
-                    answerUserPrompt(queryPrompt.key, s.toString())
-                    updateAnswerAndRefresh(queryPrompt, s.toString())
+                    answerUserPrompt(
+                        queryPrompt.key,
+                        s.toString(),
+                    )
+                    updateAnswerAndRefresh(
+                        queryPrompt,
+                        s.toString(),
+                    )
                 }
             }
         )
@@ -227,9 +236,15 @@ class QueryRequestUiController(
     ) {
         // todo mobile don't support blank search yet
         if ("".equals(value)) {
-            remoteQuerySessionManager.answerUserPrompt(key, null)
+            remoteQuerySessionManager.answerUserPrompt(
+                key,
+                null,
+            )
         } else {
-            remoteQuerySessionManager.answerUserPrompt(key, value)
+            remoteQuerySessionManager.answerUserPrompt(
+                key,
+                value,
+            )
         }
     }
 
@@ -253,7 +268,8 @@ class QueryRequestUiController(
         promptView: View,
         queryPrompt: QueryPrompt,
     ): View {
-        val checkboxView = promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
+        val checkboxView =
+            promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
         checkboxView.visibility = View.VISIBLE
         checkboxView.tag = QueryPrompt.INPUT_TYPE_CHECKBOX
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
@@ -291,7 +307,7 @@ class QueryRequestUiController(
             val checkboxAnswers = ArrayList<String>()
             for (i in 0 until numberOfChoices) {
                 val checkbox = promptInputView.getChildAt(i) as CheckBox
-                if(checkbox.isChecked){
+                if (checkbox.isChecked) {
                     checkboxAnswers.add(items[checkbox.tag as Int].value)
                 }
             }
@@ -300,7 +316,6 @@ class QueryRequestUiController(
         }
         promptInputView.addView(checkBox)
     }
-
 
     private fun setCheckboxData(
         queryPrompt: QueryPrompt,
@@ -328,7 +343,7 @@ class QueryRequestUiController(
                     parent: AdapterView<*>?,
                     view: View?,
                     position: Int,
-                    id: Long
+                    id: Long,
                 ) {
                     var value = ""
                     if (position > 0) {
@@ -336,10 +351,16 @@ class QueryRequestUiController(
                         val selectChoice = choices[position - 1]
                         value = selectChoice.value
                     }
-                    updateAnswerAndRefresh(queryPrompt, value)
+                    updateAnswerAndRefresh(
+                        queryPrompt,
+                        value,
+                    )
                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                override fun onNothingSelected(
+                    parent: AdapterView<*>?,
+                ) {
+                }
             }
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
         setSpinnerData(queryPrompt, promptSpinner)
@@ -490,8 +511,8 @@ class QueryRequestUiController(
             Toast.makeText(
                 queryRequestActivity,
                 "No barcode reader available! You can install one " +
-                    "from the android market.",
-                Toast.LENGTH_LONG
+                        "from the android market.",
+                Toast.LENGTH_LONG,
             ).show()
         }
     }

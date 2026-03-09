@@ -84,7 +84,9 @@ abstract class BasePersonalIdFragment : Fragment() {
     protected fun setUpEnterKeyAction(editText: EditText) {
         editText.setOnEditorActionListener { _, actionId, event ->
             val isEnterPressed =
-                actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT || (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
+                actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT ||
+                        (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action ==
+                                KeyEvent.ACTION_DOWN)
             if (isEnterPressed) {
                 keyboardEnterPressed()
                 true
