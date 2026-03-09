@@ -7,7 +7,17 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.CompoundButton
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.util.Pair
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -28,13 +38,15 @@ import org.javarosa.core.model.SelectChoice
 import org.javarosa.core.services.Logger
 import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
-import java.util.*
+import java.util.Enumeration
+import java.util.Hashtable
+import java.util.Vector
 import kotlin.collections.ArrayList
 
 @ManagedUi(R.layout.http_request_layout)
 class QueryRequestUiController(
     private val queryRequestActivity: QueryRequestActivity,
-    private val remoteQuerySessionManager: RemoteQuerySessionManager
+    private val remoteQuerySessionManager: RemoteQuerySessionManager,
 ) : CommCareActivityUIController {
 
     companion object {
@@ -65,11 +77,12 @@ class QueryRequestUiController(
             if (input is Spinner) {
                 setSpinnerData(
                     remoteQuerySessionManager.neededUserInputDisplays[entry.key]!!,
-                    input
+                    input,
                 )
             }
         }
     }
+
     fun reloadStateUsingAnswers(answeredPrompts: MutableMap<String, String>) {
         answeredPrompts.forEach { entry ->
             answerUserPrompt(entry.key, entry.value)
@@ -128,8 +141,10 @@ class QueryRequestUiController(
     }
 
     private fun buildPromptEntry(
-        promptsLayout: LinearLayout, promptId: String,
-        queryPrompt: QueryPrompt, isLastPrompt: Boolean
+        promptsLayout: LinearLayout,
+        promptId: String,
+        queryPrompt: QueryPrompt,
+        isLastPrompt: Boolean,
     ) {
         if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
             val promptView: View =
@@ -143,7 +158,11 @@ class QueryRequestUiController(
         }
     }
 
-    private fun buildPromptInputView(promptView: View, queryPrompt: QueryPrompt, isLastPrompt: Boolean): View? {
+    private fun buildPromptInputView(
+        promptView: View,
+        queryPrompt: QueryPrompt,
+        isLastPrompt: Boolean,
+    ): View? {
         val input = queryPrompt.input
         var inputView: View? = null
         if (input == null) {
@@ -160,7 +179,7 @@ class QueryRequestUiController(
 
     private fun buildEditTextView(
         promptView: View, queryPrompt: QueryPrompt,
-        isLastPrompt: Boolean
+        isLastPrompt: Boolean,
     ): EditText? {
         val promptEditText = promptView.findViewById<EditText>(R.id.prompt_et)
         promptEditText.visibility = View.VISIBLE
@@ -186,7 +205,10 @@ class QueryRequestUiController(
         return promptEditText
     }
 
-    private fun answerUserPrompt(key: String, value: String) {
+    private fun answerUserPrompt(
+        key: String,
+        value: String,
+    ) {
         // todo mobile don't support blank search yet
         if ("".equals(value)) {
             remoteQuerySessionManager.answerUserPrompt(key, null)
@@ -195,17 +217,26 @@ class QueryRequestUiController(
         }
     }
 
-    private fun updateAnswerAndRefresh(queryPrompt: QueryPrompt, answer: String) {
+    private fun updateAnswerAndRefresh(
+        queryPrompt: QueryPrompt,
+        answer: String,
+    ) {
         val userAnswers = remoteQuerySessionManager.userAnswers
         val oldAnswer = userAnswers[queryPrompt.key]
-        if ((oldAnswer == null && !"".equals(answer)) || (oldAnswer != null && !oldAnswer.contentEquals(answer))) {
+        if ((oldAnswer == null && !"".equals(answer)) || (oldAnswer != null && !oldAnswer.contentEquals(
+                answer
+            ))
+        ) {
             answerUserPrompt(queryPrompt.key, answer)
             remoteQuerySessionManager.refreshItemSetChoices()
             refreshView()
         }
     }
 
-    private fun buildCheckboxView(promptView: View, queryPrompt: QueryPrompt): View {
+    private fun buildCheckboxView(
+        promptView: View,
+        queryPrompt: QueryPrompt,
+    ): View {
         val checkboxView = promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
         checkboxView.visibility = View.VISIBLE
         checkboxView.tag = QueryPrompt.INPUT_TYPE_CHECKBOX
@@ -215,7 +246,14 @@ class QueryRequestUiController(
         val choices = selectedPosAndChoices.second
         val items = queryPrompt.itemsetBinding!!.choices
         items.forEachIndexed { index, item ->
-            addCheckboxView(checkboxView, item, choices[index]!!, index in selectedPositions, items, queryPrompt)
+            addCheckboxView(
+                checkboxView,
+                item,
+                choices[index]!!,
+                index in selectedPositions,
+                items,
+                queryPrompt
+            )
         }
         return checkboxView
     }
@@ -226,7 +264,7 @@ class QueryRequestUiController(
         choice: String,
         checked: Boolean,
         items: Vector<SelectChoice>,
-        queryPrompt: QueryPrompt
+        queryPrompt: QueryPrompt,
     ) {
         val checkBox = CheckBox(queryRequestActivity)
         checkBox.text = choice
@@ -248,7 +286,11 @@ class QueryRequestUiController(
     }
 
 
-    private fun setCheckboxData(queryPrompt: QueryPrompt, promptView: LinearLayout, answer: String) {
+    private fun setCheckboxData(
+        queryPrompt: QueryPrompt,
+        promptView: LinearLayout,
+        answer: String,
+    ) {
         val promptAnswers = extractMultipleChoices(answer)
         val items = queryPrompt.itemsetBinding!!.choices
         val numberOfChoices = promptView.childCount
@@ -258,28 +300,40 @@ class QueryRequestUiController(
         }
     }
 
-    private fun buildSpinnerView(promptView: View, queryPrompt: QueryPrompt): Spinner? {
+    private fun buildSpinnerView(
+        promptView: View,
+        queryPrompt: QueryPrompt,
+    ): Spinner? {
         val promptSpinner = promptView.findViewById<Spinner>(R.id.prompt_spinner)
         promptSpinner.visibility = View.VISIBLE
-        promptSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                var value = ""
-                if (position > 0) {
-                    val choices = queryPrompt.itemsetBinding!!.choices
-                    val selectChoice = choices[position - 1]
-                    value = selectChoice.value
+        promptSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    var value = ""
+                    if (position > 0) {
+                        val choices = queryPrompt.itemsetBinding!!.choices
+                        val selectChoice = choices[position - 1]
+                        value = selectChoice.value
+                    }
+                    updateAnswerAndRefresh(queryPrompt, value)
                 }
-                updateAnswerAndRefresh(queryPrompt, value)
-            }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
         setSpinnerData(queryPrompt, promptSpinner)
         return promptSpinner
     }
 
-    private fun setSpinnerData(queryPrompt: QueryPrompt, promptSpinner: Spinner) {
+    private fun setSpinnerData(
+        queryPrompt: QueryPrompt,
+        promptSpinner: Spinner,
+    ) {
         var selectedPosAndChoices = calculateItemChoices(queryPrompt)
         val selectedPositions = selectedPosAndChoices.first
         val choices = selectedPosAndChoices.second
@@ -314,12 +368,16 @@ class QueryRequestUiController(
         return Pair(selectedPositions, choices)
     }
 
-    private fun buildDateRangeView(promptView: View, queryPrompt: QueryPrompt): View? {
+    private fun buildDateRangeView(
+        promptView: View,
+        queryPrompt: QueryPrompt,
+    ): View? {
         val promptEditText = promptView.findViewById<EditText>(R.id.prompt_et)
         promptEditText.visibility = View.VISIBLE
         promptEditText.isFocusable = false
         val userAnswers = remoteQuerySessionManager.userAnswers
-        val humanReadableDateRange = DateRangeUtils.getHumanReadableDateRange(userAnswers[queryPrompt.key])
+        val humanReadableDateRange =
+            DateRangeUtils.getHumanReadableDateRange(userAnswers[queryPrompt.key])
         promptEditText.setText(humanReadableDateRange)
 
         // Setup edit button to show date picker
@@ -341,7 +399,10 @@ class QueryRequestUiController(
         return promptEditText
     }
 
-    private fun showDateRangePicker(promptEditText: EditText, queryPrompt: QueryPrompt) {
+    private fun showDateRangePicker(
+        promptEditText: EditText,
+        queryPrompt: QueryPrompt,
+    ) {
         val dateRangePickerBuilder: MaterialDatePicker.Builder<Pair<Long, Long>?> =
             MaterialDatePicker.Builder.dateRangePicker()
                 .setTitleText(getLabel(queryPrompt))
@@ -352,7 +413,12 @@ class QueryRequestUiController(
         if (!TextUtils.isEmpty(currentDateRangeText)) {
             try {
                 val humanReadableDate = DateRangeUtils.parseHumanReadableDate(currentDateRangeText)
-                dateRangePickerBuilder.setSelection(AndroidXUtils.toPair(humanReadableDate!!.first, humanReadableDate.second))
+                dateRangePickerBuilder.setSelection(
+                    AndroidXUtils.toPair(
+                        humanReadableDate!!.first,
+                        humanReadableDate.second
+                    )
+                )
             } catch (e: ParseException) {
                 Logger.exception("Error parsing date range $currentDateRangeText", e)
             }
@@ -363,17 +429,25 @@ class QueryRequestUiController(
                 selection!!.first
             )
             val endDate = DateRangeUtils.getDateFromTime(selection.second)
-            answerUserPrompt(queryPrompt.key, DateRangeUtils.formatDateRangeAnswer(startDate, endDate))
+            answerUserPrompt(
+                queryPrompt.key,
+                DateRangeUtils.formatDateRangeAnswer(startDate, endDate)
+            )
             promptEditText.setText(DateRangeUtils.getHumanReadableDateRange(startDate, endDate))
         }
         dateRangePicker.show(queryRequestActivity.supportFragmentManager, DATE_PICKER_FRAGMENT_TAG)
     }
 
-    private fun setUpBarCodeScanButton(promptView: View, promptId: String, queryPrompt: QueryPrompt) {
+    private fun setUpBarCodeScanButton(
+        promptView: View,
+        promptId: String,
+        queryPrompt: QueryPrompt,
+    ) {
         // Only show for free text input
         if (queryPrompt.input == null) {
             val barcodeScannerView = promptView.findViewById<ImageView>(R.id.assist_view)
-            barcodeScannerView.visibility = if (isBarcodeEnabled(queryPrompt)) View.VISIBLE else View.INVISIBLE
+            barcodeScannerView.visibility =
+                if (isBarcodeEnabled(queryPrompt)) View.VISIBLE else View.INVISIBLE
             barcodeScannerView.setBackgroundColor(queryRequestActivity.resources.getColor(R.color.blue))
             barcodeScannerView.setImageDrawable(
                 ResourcesCompat.getDrawable(
@@ -406,7 +480,10 @@ class QueryRequestUiController(
         }
     }
 
-    private fun setLabelText(promptView: View, queryPrompt: QueryPrompt) {
+    private fun setLabelText(
+        promptView: View,
+        queryPrompt: QueryPrompt,
+    ) {
         (promptView.findViewById<View>(R.id.prompt_label) as TextView).text =
             getLabel(queryPrompt)
     }
