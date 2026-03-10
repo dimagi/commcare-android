@@ -17,6 +17,7 @@ import org.commcare.utils.GlobalErrors
 import org.commcare.utils.optStringSafe
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.coroutines.resume
 
 class ConnectNetworkHelper {
     companion object {
