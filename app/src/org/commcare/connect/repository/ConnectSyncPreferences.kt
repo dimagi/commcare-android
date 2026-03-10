@@ -80,6 +80,8 @@ class ConnectSyncPreferences(
                 val isStale = ageMs >= policy.timeThresholdMs
                 isNewSession || isStale
             }
+
+            else -> true
         }
     }
 

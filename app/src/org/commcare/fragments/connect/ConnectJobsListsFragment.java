@@ -96,7 +96,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                corruptJobs = data.getCorruptJobs();
+                corruptJobs = new ArrayList<>(data.getCorruptJobs());
 
                 if (isAdded()) {
                     setJobListData(data.getValidJobs());
