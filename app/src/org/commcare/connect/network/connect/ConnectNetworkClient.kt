@@ -77,11 +77,11 @@ class ConnectNetworkClient
                 val response = apiCall(authHeader)
 
                 if (response.isSuccessful) {
-                    val stream =
-                        response.body()?.byteStream()
+                    val body =
+                        response.body()
                             ?: return Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR))
                     try {
-                        Result.success(parse(response.code(), stream))
+                        body.use { Result.success(parse(response.code(), it.byteStream())) }
                     } catch (e: Exception) {
                         Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e))
                     }
