@@ -123,6 +123,7 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.PendingCalcs;
+import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -218,6 +219,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
+
+        ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
 
         turnOnStrictMode();
 
