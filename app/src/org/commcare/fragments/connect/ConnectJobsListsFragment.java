@@ -6,8 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,8 +25,8 @@ import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.connect.repository.DataState;
+import org.commcare.connect.viewmodel.ConnectJobsListViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
@@ -61,6 +61,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> completedJobs;
     ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
 
+    private ConnectJobsListViewModel viewModel;
+
     public ConnectJobsListsFragment() {
         // Required empty public constructor
     }
@@ -69,44 +71,57 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_title);
-        refreshData();
+        viewModel = new ViewModelProvider(this).get(ConnectJobsListViewModel.class);
+        observeOpportunities();
+        viewModel.loadOpportunities(false);
         return view;
     }
 
     @Override
     public void refresh() {
-        refreshData();
+        viewModel.loadOpportunities(true);
     }
 
-    public void refreshData() {
-        ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
-        corruptJobs.clear();
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        new ConnectApiHandler<ConnectOpportunitiesResponseModel>(true, this) {
-
-            @Override
-            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                if (!isAdded()) {
-                    return;
-                }
-
-                Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
-                navigateFailure();
+    private void observeOpportunities() {
+        viewModel.getOpportunities().observe(getViewLifecycleOwner(), state -> {
+            if (!isAdded()) {
+                return;
             }
 
-            @Override
-            public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                corruptJobs = new ArrayList<>(data.getCorruptJobs());
-
-                if (isAdded()) {
-                    setJobListData(data.getValidJobs());
+            if (state instanceof DataState.Loading) {
+                showLoading();
+            } else if (state instanceof DataState.Cached) {
+                DataState.Cached<List<ConnectJobRecord>> cached = (DataState.Cached<List<ConnectJobRecord>>) state;
+                hideLoading();
+                hideError();
+                corruptJobs.clear();
+                setJobListData(cached.getData());
+            } else if (state instanceof DataState.Success) {
+                DataState.Success<List<ConnectJobRecord>> success = (DataState.Success<List<ConnectJobRecord>>) state;
+                hideLoading();
+                hideError();
+                corruptJobs.clear();
+                setJobListData(success.getData());
+            } else if (state instanceof DataState.Error) {
+                DataState.Error<List<ConnectJobRecord>> error = (DataState.Error<List<ConnectJobRecord>>) state;
+                hideLoading();
+                String errorMsg = PersonalIdOrConnectApiErrorHandler.handle(
+                        requireActivity(), error.getErrorCode(), error.getThrowable());
+                if (!errorMsg.isEmpty()) {
+                    showError(errorMsg);
+                }
+                List<ConnectJobRecord> cachedData = error.getCachedData();
+                if (cachedData != null) {
+                    setJobListData(cachedData);
+                } else {
+                    navigateFailure();
                 }
             }
-        }.getConnectOpportunities(requireContext(), user);
+        });
     }
 
     private void navigateFailure() {
-        setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), ConnectJobRecord.STATUS_ALL_JOBS, null));
+        setJobListData(new ArrayList<>());
     }
 
 
