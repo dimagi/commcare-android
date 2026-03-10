@@ -2,8 +2,8 @@ package org.commcare.connect.repository
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -18,6 +18,7 @@ import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
+import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -66,6 +67,7 @@ class ConnectRepositoryTest {
 
             val emissions = repository.getOpportunities().toList()
 
+            assertEquals(1, emissions.size)
             assertTrue(emissions.first() is DataState.Loading)
         }
 
@@ -177,7 +179,7 @@ class ConnectRepositoryTest {
     fun testGetLearningProgress_alwaysPolicy_networkCalledEachTime() =
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>(relaxed = true)
-            val mockModel = mockk<org.commcare.connect.network.connect.models.LearningAppProgressResponseModel>(relaxed = true)
+            val mockModel = mockk<LearningAppProgressResponseModel>(relaxed = true)
             every { mockModel.connectJobLearningRecords } returns emptyList()
             every { mockModel.connectJobAssessmentRecords } returns emptyList()
             every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
@@ -191,7 +193,6 @@ class ConnectRepositoryTest {
             // Second call — ALWAYS policy means shouldRefresh always true
             repository.getLearningProgress(mockJob).toList()
 
-            // ALWAYS policy: shouldRefresh returns true both times
-            verify(exactly = 2) { mockSyncPrefs.shouldRefresh(any(), any()) }
+            coVerify(exactly = 2) { mockNetworkClient.getLearningProgress(any(), any()) }
         }
 }
