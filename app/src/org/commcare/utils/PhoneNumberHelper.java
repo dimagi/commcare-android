@@ -103,7 +103,7 @@ public class PhoneNumberHelper {
      * dialing code string (e.g., "+91", "+1"). Returns "" if the ISO code
      * is null, empty, or not recognized.
      */
-    String getCountryCodeForIso(String iso) {
+    private String getCountryCodeForIso(String iso) {
         if (iso == null || iso.isEmpty()) {
             return "";
         }

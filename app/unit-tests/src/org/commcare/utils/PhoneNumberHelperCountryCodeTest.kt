@@ -63,16 +63,6 @@ class PhoneNumberHelperCountryCodeTest {
     }
 
     @Test
-    fun nullSignals_returnsEmpty() {
-        fakeProvider.simCountryIso = null
-        fakeProvider.networkCountryIso = null
-        fakeProvider.localeCountry = null
-
-        val result = helper.getDefaultCountryCode(fakeProvider)
-        assertEquals("", result)
-    }
-
-    @Test
     fun simUnrecognizedIso_fallsThrough_toNetwork() {
         fakeProvider.simCountryIso = "zz"
         fakeProvider.networkCountryIso = "ke"

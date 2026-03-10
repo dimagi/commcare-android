@@ -6,12 +6,12 @@ package org.commcare.utils
  * tests use a fake implementation.
  */
 interface CountryCodeSignalProvider {
-    /** SIM card country ISO (e.g., "in", "ke"). Empty/null if unavailable. */
-    val simCountryIso: String?
+    /** SIM card country ISO (e.g., "in", "ke"). Empty if unavailable. */
+    val simCountryIso: String
 
-    /** Cellular network country ISO (e.g., "in", "ke"). Empty/null if unavailable. */
-    val networkCountryIso: String?
+    /** Cellular network country ISO (e.g., "in", "ke"). Empty if unavailable. */
+    val networkCountryIso: String
 
-    /** Device locale country ISO (e.g., "US", "IN"). Empty/null if unavailable. */
-    val localeCountry: String?
+    /** Device locale country ISO (e.g., "US", "IN"). Empty if unavailable. */
+    val localeCountry: String
 }

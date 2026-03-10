@@ -2,6 +2,7 @@ package org.commcare.utils
 
 import android.content.Context
 import android.telephony.TelephonyManager
+import androidx.core.os.ConfigurationCompat
 
 /**
  * Production implementation that reads country signals from Android system services.
@@ -11,12 +12,13 @@ class DefaultCountryCodeSignalProvider(context: Context) : CountryCodeSignalProv
         context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
     private val appContext: Context = context.applicationContext
 
-    override val simCountryIso: String?
+    override val simCountryIso: String
         get() = telephonyManager?.simCountryIso ?: ""
 
-    override val networkCountryIso: String?
+    override val networkCountryIso: String
         get() = telephonyManager?.networkCountryIso ?: ""
 
-    override val localeCountry: String?
-        get() = appContext.resources.configuration.locale.country
+    override val localeCountry: String
+        get() = ConfigurationCompat.getLocales(appContext.resources.configuration)
+            .get(0)?.country ?: ""
 }

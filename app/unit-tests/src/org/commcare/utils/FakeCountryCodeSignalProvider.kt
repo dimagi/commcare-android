@@ -5,7 +5,7 @@ package org.commcare.utils
  * Set fields directly to simulate any combination of SIM/network/locale.
  */
 class FakeCountryCodeSignalProvider : CountryCodeSignalProvider {
-    override var simCountryIso: String? = ""
-    override var networkCountryIso: String? = ""
-    override var localeCountry: String? = ""
+    override var simCountryIso: String = ""
+    override var networkCountryIso: String = ""
+    override var localeCountry: String = ""
 }
