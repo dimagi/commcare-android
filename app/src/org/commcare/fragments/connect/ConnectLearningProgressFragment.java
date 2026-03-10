@@ -1,11 +1,13 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -13,11 +15,14 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.repository.DataState;
+import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
@@ -31,12 +36,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
-
 public class ConnectLearningProgressFragment extends ConnectJobFragment<FragmentConnectLearningProgressBinding>
         implements RefreshableFragment {
 
     private boolean showAppLaunch = true;
+    private ConnectLearningProgressViewModel viewModel;
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -56,6 +60,14 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         }
 
         requireActivity().setTitle(getString(R.string.connect_learn_title));
+
+        viewModel = new ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(ConnectLearningProgressViewModel.class);
+
+        observeLearningProgress();
+
         setupRefreshButton();
         populateJobCard();
         refreshLearningData();
@@ -80,21 +92,47 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void refreshLearningData() {
-        ConnectJobHelper.INSTANCE.updateLearningProgress(
-                requireContext(),
-                job,
-                (success, error) -> {
-                    if (success && isAdded()) {
-                        updateLearningUI();
-                    } else if (!success && isAdded()) {
-                        Toast.makeText(
-                                requireContext(),
-                                getString(R.string.connect_fetch_learning_progress_error),
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
+        viewModel.loadLearningProgress(job, false);
+    }
+
+    private void observeLearningProgress() {
+        viewModel.getLearningProgress().observe(getViewLifecycleOwner(), dataState -> {
+            if (!isAdded()) {
+                return;
+            }
+
+            if (dataState instanceof DataState.Loading) {
+                showLoading();
+            } else if (dataState instanceof DataState.Cached) {
+                hideLoading();
+                hideError();
+                DataState.Cached<ConnectJobRecord> cached =
+                    (DataState.Cached<ConnectJobRecord>) dataState;
+                job = cached.getData();
+                updateLearningUI();
+
+            } else if (dataState instanceof DataState.Success) {
+                hideLoading();
+                hideError();
+                DataState.Success<ConnectJobRecord> success =
+                    (DataState.Success<ConnectJobRecord>) dataState;
+                job = success.getData();
+                updateLearningUI();
+
+            } else if (dataState instanceof DataState.Error) {
+                hideLoading();
+                DataState.Error<ConnectJobRecord> error =
+                    (DataState.Error<ConnectJobRecord>) dataState;
+                String errorMsg = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), error.getErrorCode(), error.getThrowable());
+                if (!errorMsg.isEmpty()) {
+                    showError(errorMsg);
                 }
-        );
+                if (error.getCachedData() != null) {
+                    job = error.getCachedData();
+                    updateLearningUI();
+                }
+            }
+        });
     }
 
     private void updateLearningUI() {
