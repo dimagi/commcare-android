@@ -116,7 +116,7 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
             }
 
             override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes?,
+                errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
                 dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
