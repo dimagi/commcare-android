@@ -12,25 +12,11 @@ Initial migration covers two fragments:
 - `ConnectJobsListsFragment` (session-based refresh policy)
 - `ConnectLearningProgressFragment` (always refresh policy)
 
+**TDD approach**: Each implementation phase is preceded by a test phase (labeled `a`). Write failing tests first (Red), then implement to pass them (Green), then commit and proceed to the next phase. After each `b` phase passes automated verification, get manual confirmation that the manual testing checklist passes before proceeding.
+
 ## Current State Analysis
 
-**Network Architecture**: Callback-based `ConnectApiHandler` pattern with no centralized repository
-- Fragments create anonymous `ConnectApiHandler` instances
-- API calls: `getConnectOpportunities()` and `getLearningAppProgress()`
-- Database writes happen in callbacks via `ConnectJobUtils`
-- No request deduplication or in-flight request tracking
-- Network-first with database fallback on error
-
-**Existing Patterns**:
-- One good example: `PushNotificationViewModel.kt:31-70` uses cache-then-network with LiveData
-- Some ViewModels exist but not standardized across Connect features
-
-**Key Files**:
-- `app/src/org/commcare/fragments/connect/ConnectJobsListsFragment.java:81-106` - Opportunities API call
-- `app/src/org/commcare/fragments/connect/ConnectLearningProgressFragment.java:81-93` - Learning progress API call
-- `app/src/org/commcare/connect/ConnectJobHelper.kt:62-89` - Learning progress helper
-- `app/src/org/commcare/connect/network/connect/ConnectApiHandler.kt` - Current API handler
-- `app/src/org/commcare/activities/connect/viewmodel/PushNotificationViewModel.kt` - Best existing pattern
+Callback-based `ConnectApiHandler` pattern: fragments create anonymous instances, make API calls, write to DB in callbacks. No deduplication, no caching, no repository. Best existing pattern: `PushNotificationViewModel.kt:31-70`.
 
 ## Desired End State
 
@@ -91,6 +77,8 @@ Fragment (Java) → ViewModel (Kotlin) → Repository (Kotlin) → RequestManage
 ### Overview
 Define the core data structures and contracts that all other phases depend on. This establishes the type-safe state management and refresh policy system.
 
+**Note**: Phase 0 has no preceding test phase. `DataState` and `RefreshPolicy` are pure sealed class type definitions with no logic to test. Phase 1a tests reference these types, providing an implicit compile-time contract check.
+
 ### Changes Required
 
 #### 1. DataState Sealed Class
@@ -101,74 +89,50 @@ Define the core data structures and contracts that all other phases depend on. T
 package org.commcare.connect.repository
 
 import java.util.Date
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.ConnectApiException
 
-/**
- * Represents the state of data in the offline-first architecture.
- * Emitted by Repository Flow and converted to LiveData in ViewModels.
- */
 sealed class DataState<out T> {
-    /**
-     * Initial loading state with no data available yet.
-     */
     object Loading : DataState<Nothing>()
-
-    /**
-     * Cached data available from local storage.
-     * @param data The cached data
-     * @param timestamp When this data was last fetched from network
-     */
     data class Cached<T>(val data: T, val timestamp: Date) : DataState<T>()
-
-    /**
-     * Fresh data successfully fetched from network.
-     * @param data The fresh data
-     */
     data class Success<T>(val data: T) : DataState<T>()
 
-    /**
-     * Error occurred during network fetch.
-     * @param error The error message
-     * @param throwable The exception that caused the error
-     * @param cachedData Optional cached data to display despite error
-     */
+    // cachedData allows fragments to show stale data even on error
     data class Error<T>(
-        val error: String,
+        val errorCode: PersonalIdOrConnectApiErrorCodes = PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
         val throwable: Throwable? = null,
         val cachedData: T? = null
-    ) : DataState<T>()
+    ) : DataState<T>() {
+        companion object {
+            /**
+             * Builds a DataState.Error from a throwable, extracting the typed error code from
+             * ConnectApiException or falling back to UNKNOWN_ERROR.
+             */
+            fun <T> from(throwable: Throwable, cachedData: T? = null): Error<T> = Error(
+                errorCode = (throwable as? ConnectApiException)?.errorCode
+                    ?: PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
+                throwable = throwable,
+                cachedData = cachedData
+            )
+        }
+    }
 }
 ```
 
-#### 2. RefreshPolicy Enum
+#### 2. RefreshPolicy Sealed Class
 **File**: `app/src/org/commcare/connect/repository/RefreshPolicy.kt` (new file)
-**Purpose**: Defines when data should be refreshed from network
 
 ```kotlin
 package org.commcare.connect.repository
 
-/**
- * Defines the refresh policy for repository data fetches.
- */
-enum class RefreshPolicy(val timeThresholdMs: Long = 0) {
-    /**
-     * Always fetch from network, regardless of cache age or session.
-     * Use for data that changes frequently (e.g., learning progress).
-     */
-    ALWAYS,
-
-    /**
-     * Hybrid policy: Fetch from network if EITHER:
-     * 1. A new app session has started since last sync, OR
-     * 2. Cache is older than the configured time threshold
-     *
-     * Use for data that should be fresh per session but also has a max staleness tolerance.
-     * Example: Job opportunities (refresh per session OR if older than 5 minutes)
-     *
-     * @param timeThresholdMs Maximum cache age in milliseconds before forcing refresh
-     */
-    SESSION_AND_TIME_BASED(timeThresholdMs = 60_000) // Default: 1 minute
+sealed class RefreshPolicy {
+    object ALWAYS : RefreshPolicy()
+    // Fetch if new app session since last sync OR cache older than timeThresholdMs
+    data class SESSION_AND_TIME_BASED(val timeThresholdMs: Long = 60_000) : RefreshPolicy()
 }
 ```
+
+Must be a sealed class (not enum) because `SESSION_AND_TIME_BASED` needs different `timeThresholdMs` values at different call sites.
 
 ### Success Criteria
 
@@ -179,1191 +143,20 @@ enum class RefreshPolicy(val timeThresholdMs: Long = 0) {
 #### Manual Verification:
 - [ ] `DataState` sealed class hierarchy is correct (4 states: Loading, Cached, Success, Error)
 - [ ] All DataState states have appropriate properties
-- [ ] RefreshPolicy enum has 3 values with clear documentation
+- [ ] `RefreshPolicy` sealed class has 2 subtypes: `ALWAYS` (object) and `SESSION_AND_TIME_BASED` (data class with `timeThresholdMs`)
 
 ---
 
-## Phase 1: Core Infrastructure
+## Phase 1a: Core Infrastructure Tests (Red)
 
 ### Overview
-Implement the foundational components for sync tracking and request deduplication. These are the "plumbing" that Repository will use.
+Write failing tests for `ConnectSyncPreferences` and `ConnectRequestManager`. These tests also reference `DataState` and `RefreshPolicy` from Phase 0, providing compile-time verification of those contracts. Commit these tests before implementing the production classes in Phase 1b.
+
+**Expected outcome**: Tests fail to compile (classes don't exist yet) or fail at runtime. This is correct — commit the Red state.
 
 ### Changes Required
 
-#### 1. ConnectSyncPreferences
-**File**: `app/src/org/commcare/connect/repository/ConnectSyncPreferences.kt` (new file)
-**Purpose**: Tracks last sync times per endpoint and app session start time
-
-```kotlin
-package org.commcare.connect.repository
-
-import android.content.Context
-import android.content.SharedPreferences
-import org.commcare.CommCareApplication
-import java.util.Date
-
-/**
- * Manages sync timestamps for Connect endpoints.
- * Stores per-endpoint last sync times and session start time for refresh policies.
- */
-class ConnectSyncPreferences(context: Context) {
-
-    companion object {
-        private const val PREFS_NAME = "connect_sync_prefs"
-        private const val KEY_SESSION_START = "session_start_time"
-        private const val KEY_LAST_SYNC_PREFIX = "last_sync_"
-
-        @Volatile
-        private var instance: ConnectSyncPreferences? = null
-
-        fun getInstance(context: Context): ConnectSyncPreferences {
-            return instance ?: synchronized(this) {
-                instance ?: ConnectSyncPreferences(context.applicationContext).also {
-                    instance = it
-                }
-            }
-        }
-    }
-
-    private val prefs: SharedPreferences = context.getSharedPreferences(
-        PREFS_NAME,
-        Context.MODE_PRIVATE
-    )
-
-    init {
-        // Initialize session start time if not already set
-        if (!prefs.contains(KEY_SESSION_START)) {
-            markSessionStart()
-        }
-    }
-
-    /**
-     * Marks the start of a new app session.
-     * Called on app launch.
-     */
-    fun markSessionStart() {
-        prefs.edit()
-            .putLong(KEY_SESSION_START, Date().time)
-            .apply()
-    }
-
-    /**
-     * Gets the timestamp when the current session started.
-     */
-    fun getSessionStartTime(): Date {
-        val timestamp = prefs.getLong(KEY_SESSION_START, Date().time)
-        return Date(timestamp)
-    }
-
-    /**
-     * Stores the last successful sync time for an endpoint.
-     * @param endpoint The API endpoint (e.g., "/opportunities", "/learning_progress/123")
-     */
-    fun storeLastSyncTime(endpoint: String) {
-        val key = KEY_LAST_SYNC_PREFIX + endpoint.replace("/", "_")
-        prefs.edit()
-            .putLong(key, Date().time)
-            .apply()
-    }
-
-    /**
-     * Gets the last successful sync time for an endpoint.
-     * @param endpoint The API endpoint
-     * @return The last sync time, or null if never synced
-     */
-    fun getLastSyncTime(endpoint: String): Date? {
-        val key = KEY_LAST_SYNC_PREFIX + endpoint.replace("/", "_")
-        val timestamp = prefs.getLong(key, -1)
-        return if (timestamp == -1L) null else Date(timestamp)
-    }
-
-    /**
-     * Checks if data should be refreshed based on policy.
-     * @param endpoint The API endpoint
-     * @param policy The refresh policy to apply
-     * @return true if data should be refreshed from network
-     */
-    fun shouldRefresh(
-        endpoint: String,
-        policy: RefreshPolicy
-    ): Boolean {
-        return when (policy) {
-            RefreshPolicy.ALWAYS -> true
-
-            RefreshPolicy.SESSION_AND_TIME_BASED -> {
-                val lastSync = getLastSyncTime(endpoint) ?: return true
-                val sessionStart = getSessionStartTime()
-
-                // Refresh if EITHER condition is true:
-                // 1. New session started since last sync
-                val isNewSession = lastSync.before(sessionStart)
-
-                // 2. Cache is older than time threshold
-                val ageMs = Date().time - lastSync.time
-                val isStale = ageMs >= policy.timeThresholdMs
-
-                isNewSession || isStale
-            }
-        }
-    }
-
-    /**
-     * Clears all sync data (for testing or logout).
-     */
-    fun clearAll() {
-        prefs.edit().clear().apply()
-        markSessionStart()
-    }
-}
-```
-
-**Integration Point**:
-- Call `markSessionStart()` in `CommCareApplication.onCreate()` or main activity launch
-
-#### 2. ConnectRequestManager
-**File**: `app/src/org/commcare/connect/repository/ConnectRequestManager.kt` (new file)
-**Purpose**: Deduplicates in-flight network requests across ViewModels
-
-```kotlin
-package org.commcare.connect.repository
-
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import java.util.concurrent.ConcurrentHashMap
-
-/**
- * Manages in-flight network requests to prevent duplicate concurrent calls.
- * Singleton pattern ensures requests are shared across all ViewModels.
- */
-object ConnectRequestManager {
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    /**
-     * Tracks in-flight requests by URL.
-     * Multiple callers requesting the same URL will share the same Deferred result.
-     */
-    private val inFlightRequests = ConcurrentHashMap<String, CompletableDeferred<Result<Any>>>()
-
-    /**
-     * Executes a network request with deduplication, surviving caller cancellation.
-     *
-     * The request lambda is launched in an application-scoped coroutine so it continues
-     * even if the calling ViewModel is cleared (e.g. user backs out). The caller awaits
-     * the deferred result, which IS cancellable — cancellation stops the caller from
-     * waiting but does NOT cancel the in-flight request or any DB writes inside the lambda.
-     *
-     * Callers must include all side effects (DB writes, prefs updates) inside the [request]
-     * lambda so they run in the application scope and are not lost on navigation.
-     *
-     * @param url The unique identifier for this request (typically the API endpoint)
-     * @param request Suspend function that performs the network call AND any resulting DB writes
-     * @return Result of the network call, or failure if the caller was cancelled before completion
-     */
-    suspend fun <T> executeRequest(
-        url: String,
-        request: suspend () -> Result<T>
-    ): Result<T> {
-        // Check if there's already a request in flight for this URL
-        val existingRequest = inFlightRequests[url]
-
-        if (existingRequest != null) {
-            // Wait for the existing request to complete (cancellable by caller)
-            @Suppress("UNCHECKED_CAST")
-            return existingRequest.await() as Result<T>
-        }
-
-        // Create a new deferred for this request
-        val deferred = CompletableDeferred<Result<Any>>()
-        inFlightRequests[url] = deferred
-
-        // Launch in application scope so the request and DB writes survive ViewModel cancellation.
-        // The deferred remains in inFlightRequests until scope.launch finishes, ensuring
-        // any concurrent caller that arrives while the request is in-flight still deduplicates.
-        scope.launch {
-            try {
-                val result = request()
-                deferred.complete(result as Result<Any>)
-            } catch (e: CancellationException) {
-                // Application scope was cancelled (e.g. app shutdown via cancelAll()).
-                // Propagate so the coroutine is properly cleaned up.
-                deferred.cancel(e)
-                throw e
-            } catch (e: Exception) {
-                deferred.complete(Result.failure(e) as Result<Any>)
-            } finally {
-                inFlightRequests.remove(url)
-            }
-        }
-
-        // Await the deferred. This IS cancellable — if the caller's scope (e.g. viewModelScope)
-        // is cancelled, this throws CancellationException, but the scope.launch above continues.
-        @Suppress("UNCHECKED_CAST")
-        return deferred.await() as Result<T>
-    }
-
-    /**
-     * Checks if a request is currently in progress for the given URL.
-     * Useful for UI loading indicators.
-     */
-    fun isRequestInProgress(url: String): Boolean {
-        return inFlightRequests.containsKey(url)
-    }
-
-    /**
-     * Cancels all in-flight requests (for testing or app shutdown).
-     */
-    fun cancelAll() {
-        inFlightRequests.values.forEach {
-            it.cancel()
-        }
-        inFlightRequests.clear()
-    }
-}
-```
-
-### Success Criteria
-
-#### Automated Verification:
-- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
-- [ ] No linting errors: `ktlint app/src/org/commcare/connect/repository/*.kt`
-
-#### Manual Verification:
-- [ ] `ConnectSyncPreferences` singleton initializes correctly
-- [ ] Session start time is set on first access
-- [ ] `shouldRefresh()` logic correctly implements hybrid policy (session OR time threshold)
-- [ ] Hybrid policy refreshes on new session even with fresh cache
-- [ ] Hybrid policy refreshes on stale cache even in same session
-- [ ] `ConnectRequestManager` deduplication logic is thread-safe (ConcurrentHashMap)
-- [ ] In-flight requests are properly cleaned up after completion
-
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
-
----
-
-## Phase 1.5: Coroutine-Based Network Client
-
-### Overview
-Create a new pure coroutine-based network client (`ConnectApiClient` with suspend functions) that uses Retrofit suspend functions directly without any callbacks. This provides a modern, coroutine-first API alongside the existing callback-based `ConnectApiHandler` for gradual migration.
-
-**Key principle**: This new client does NOT wrap or depend on the old callback-based `ConnectApiHandler`. It's a parallel implementation using Retrofit suspend functions.
-
-### Changes Required
-
-#### 1. Retrofit API Service with Suspend Functions
-**File**: `app/src/org/commcare/connect/network/ApiService.java` (modifications)
-**Purpose**: Add suspend function variants of existing API methods
-
-```kotlin
-// Add these suspend function variants to the existing ApiService interface
-@GET("/api/v1/connect/opportunities")
-suspend fun getConnectOpportunitiesSuspend(
-    @Header("Authorization") authorization: String,
-    @QueryMap params: Map<String, String>
-): Response<JsonObject>
-
-@GET("/api/v1/connect/learning_progress/{jobId}")
-suspend fun getLearningProgressSuspend(
-    @Path("jobId") jobId: String,
-    @Header("Authorization") authorization: String,
-    @QueryMap params: Map<String, String>
-): Response<JsonObject>
-```
-
-**Note**: These coexist with existing callback-based methods. Old code continues using the callback variants.
-
-#### 2. ConnectApiClient (Coroutines)
-**File**: `app/src/org/commcare/connect/network/connect/ConnectApiClient.kt` (new file)
-**Purpose**: Pure suspend function API client without callbacks
-
-```kotlin
-package org.commcare.connect.network.connect
-
-import android.content.Context
-import com.google.gson.JsonObject
-import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ApiService
-import org.commcare.connect.network.ConnectNetworkHelper
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
-import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
-import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
-import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
-import retrofit2.Response
-
-/**
- * Pure coroutine-based API client for Connect network calls.
- * Uses Retrofit suspend functions directly - no callbacks.
- *
- * This is a parallel implementation alongside the callback-based ConnectApiHandler.
- * Gradually migrate to this approach for new code.
- */
-class ConnectApiClient(private val context: Context) {
-
-    companion object {
-        @Volatile
-        private var instance: ConnectApiClient? = null
-
-        fun getInstance(context: Context): ConnectApiClient {
-            return instance ?: synchronized(this) {
-                instance ?: ConnectApiClient(context.applicationContext).also {
-                    instance = it
-                }
-            }
-        }
-    }
-
-    private val apiService: ApiService by lazy {
-        org.commcare.connect.network.ConnectApiClient.getRetrofitClient().create(ApiService::class.java)
-    }
-
-    /**
-     * Fetches job opportunities from the Connect API.
-     * Pure suspend function - no callbacks involved.
-     *
-     * @param user The Connect user credentials
-     * @return Result containing ConnectOpportunitiesResponseModel or exception
-     */
-    suspend fun getConnectOpportunities(
-        user: ConnectUserRecord
-    ): Result<ConnectOpportunitiesResponseModel> {
-        return try {
-            val authHeader = ConnectNetworkHelper.getAuthorizationHeader(user)
-            val params = ConnectNetworkHelper.buildOpportunitiesParams(context)
-
-            val response = apiService.getConnectOpportunitiesSuspend(authHeader, params)
-
-            if (response.isSuccessful && response.body() != null) {
-                val jsonBody = response.body()!!
-                val parser = ConnectOpportunitiesParser(context)
-                val responseModel = parser.parse(response.code(), jsonBody, null)
-                Result.success(responseModel)
-            } else {
-                Result.failure(Exception("API error: ${response.code()} ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    /**
-     * Fetches learning progress for a specific job from the Connect API.
-     * Pure suspend function - no callbacks involved.
-     *
-     * @param user The Connect user credentials
-     * @param job The job to fetch learning progress for
-     * @return Result containing LearningAppProgressResponseModel or exception
-     */
-    suspend fun getLearningProgress(
-        user: ConnectUserRecord,
-        job: ConnectJobRecord
-    ): Result<LearningAppProgressResponseModel> {
-        return try {
-            val authHeader = ConnectNetworkHelper.getAuthorizationHeader(user)
-            val params = ConnectNetworkHelper.buildLearningProgressParams(context, job)
-
-            val response = apiService.getLearningProgressSuspend(
-                jobId = job.jobUUID,
-                authorization = authHeader,
-                params = params
-            )
-
-            if (response.isSuccessful && response.body() != null) {
-                val jsonBody = response.body()!!
-                val parser = LearningAppProgressResponseParser(context)
-                val responseModel = parser.parse(response.code(), jsonBody, job)
-                Result.success(responseModel)
-            } else {
-                Result.failure(Exception("API error: ${response.code()} ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-}
-```
-
-**Key Design Points**:
-- **No callbacks**: Pure suspend functions returning `Result<T>`
-- **Direct Retrofit usage**: Calls `apiService` suspend functions directly
-- **Parallel to old code**: Existing `ConnectApiHandler` remains untouched
-- **Singleton pattern**: Application-scoped instance
-- **Error handling**: Uses Kotlin `Result` type for success/failure
-
-#### 3. Helper Methods (if needed)
-**File**: `app/src/org/commcare/connect/network/ConnectNetworkHelper.java` (add methods if missing)
-
-Ensure these helper methods exist for building request headers and params:
-- `getAuthorizationHeader(user)` - Returns auth header string
-- `buildOpportunitiesParams(context)` - Returns query params map
-- `buildLearningProgressParams(context, job)` - Returns query params map
-
-### Success Criteria
-
-#### Automated Verification:
-- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
-- [ ] No linting errors: `ktlint app/src/org/commcare/connect/network/connect/ConnectApiClient.kt`
-- [ ] Unit tests pass: `./gradlew testDebugUnitTest --tests ConnectApiClientTest`
-
-#### Manual Verification:
-- [ ] `ConnectApiClient.getConnectOpportunities()` successfully fetches and parses opportunities
-- [ ] `ConnectApiClient.getLearningProgress()` successfully fetches and parses learning progress
-- [ ] Suspend functions can be called from coroutine scope without blocking
-- [ ] Error responses are properly wrapped in `Result.failure`
-- [ ] Network errors (timeouts, connection failures) are handled gracefully
-- [ ] Old callback-based `ConnectApiHandler` continues to work unchanged
-- [ ] Both old and new clients can coexist in the same codebase
-
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
-
----
-
-## Phase 2: Repository Foundation + Opportunities Endpoint
-
-### Overview
-Create the `ConnectRepository` class and implement the first endpoint (`getOpportunities`) with session-based refresh policy. This establishes the repository pattern and demonstrates the offline-first flow.
-
-### Changes Required
-
-#### 1. ConnectRepository
-**File**: `app/src/org/commcare/connect/repository/ConnectRepository.kt` (new file)
-**Purpose**: Single source of truth for Connect data with offline-first pattern
-
-```kotlin
-package org.commcare.connect.repository
-
-import android.content.Context
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.suspendCancellableCoroutine
-import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.database.ConnectJobUtils
-import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.base.BaseApiHandler
-import org.commcare.connect.network.connect.ConnectApiHandler
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
-import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
-import kotlin.coroutines.resume
-
-/**
- * Repository for Connect data.
- * Provides offline-first data access with Flow emissions.
- *
- * Uses application-scoped coroutines so requests survive fragment lifecycle.
- */
-class ConnectRepository(private val context: Context) {
-
-    companion object {
-        private const val ENDPOINT_OPPORTUNITIES = "/opportunities"
-        private const val ENDPOINT_LEARNING_PREFIX = "/learning_progress/"
-
-        @Volatile
-        private var instance: ConnectRepository? = null
-
-        fun getInstance(context: Context): ConnectRepository {
-            return instance ?: synchronized(this) {
-                instance ?: ConnectRepository(context.applicationContext).also {
-                    instance = it
-                }
-            }
-        }
-    }
-
-    private val syncPrefs = ConnectSyncPreferences.getInstance(context)
-
-    /**
-     * Gets job opportunities with offline-first pattern.
-     *
-     * Flow emissions:
-     * 1. Loading (if no cached data)
-     * 2. Cached (if cached data exists)
-     * 3. Success (fresh data from network) OR Error (network failed)
-     *
-     * @param forceRefresh If true, ignores cache and always fetches from network
-     * @param policy Refresh policy (default: SESSION_AND_TIME_BASED with 1 minute threshold)
-     * @return Flow of DataState emissions
-     */
-    fun getOpportunities(
-        forceRefresh: Boolean = false,
-        policy: RefreshPolicy = RefreshPolicy.SESSION_AND_TIME_BASED(60_000)
-    ): Flow<DataState<List<ConnectJobRecord>>> = flow {
-        // Step 1: Load cached data from database
-        val cachedJobs = ConnectJobUtils.getCompositeJobs(
-            context,
-            ConnectJobRecord.STATUS_ALL_JOBS,
-            null
-        )
-
-        val lastSyncTime = syncPrefs.getLastSyncTime(ENDPOINT_OPPORTUNITIES)
-
-        // Step 2: Emit cached data if available
-        if (cachedJobs.isNotEmpty() && lastSyncTime != null) {
-            emit(DataState.Cached(cachedJobs, lastSyncTime))
-        } else {
-            emit(DataState.Loading)
-        }
-
-        // Step 3: Determine if we should refresh from network
-        val shouldRefresh = forceRefresh ||
-                syncPrefs.shouldRefresh(ENDPOINT_OPPORTUNITIES, policy)
-
-        if (!shouldRefresh) {
-            // Cache is fresh enough, no need to fetch from network
-            return@flow
-        }
-
-        // Step 4: Fetch from network with deduplication.
-        // DB write and syncPrefs update are inside the lambda so they run in the application
-        // scope and complete even if the user navigates away before the response arrives.
-        try {
-            val result = ConnectRequestManager.executeRequest(ENDPOINT_OPPORTUNITIES) {
-                fetchOpportunitiesFromNetwork().also { networkResult ->
-                    networkResult.onSuccess { responseModel ->
-                        // Step 5: Write to database (runs in app scope, survives navigation)
-                        for (job in responseModel.validJobs) {
-                            ConnectJobUtils.upsertJob(context, job)
-                        }
-
-                        // Step 6: Update sync timestamp (runs in app scope, survives navigation)
-                        syncPrefs.storeLastSyncTime(ENDPOINT_OPPORTUNITIES)
-                    }
-                }
-            }
-
-            result.onSuccess { responseModel ->
-                // Step 7: Emit success with fresh data (skipped if flow was cancelled)
-                emit(DataState.Success(responseModel.validJobs))
-            }.onFailure { throwable ->
-                // Step 8: Emit error (with cached data if available)
-                val errorMessage = throwable.message ?: "Unknown error fetching opportunities"
-                emit(DataState.Error(
-                    error = errorMessage,
-                    throwable = throwable,
-                    cachedData = if (cachedJobs.isNotEmpty()) cachedJobs else null
-                ))
-            }
-        } catch (e: Exception) {
-            val errorMessage = e.message ?: "Unknown error"
-            emit(DataState.Error(
-                error = errorMessage,
-                throwable = e,
-                cachedData = if (cachedJobs.isNotEmpty()) cachedJobs else null
-            ))
-        }
-    }.flowOn(Dispatchers.IO)
-
-    /**
-     * Fetches opportunities from network using new coroutine-based client.
-     * Pure suspend function - no callbacks involved.
-     */
-    private suspend fun fetchOpportunitiesFromNetwork(): Result<ConnectOpportunitiesResponseModel> {
-        val user = ConnectUserDatabaseUtil.getUser(context)
-        val apiClient = ConnectApiClient.getInstance(context)
-        return apiClient.getConnectOpportunities(user)
-    }
-}
-```
-
-### Success Criteria
-
-#### Automated Verification:
-- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
-- [ ] No linting errors: `ktlint app/src/org/commcare/connect/repository/ConnectRepository.kt`
-- [ ] Unit tests pass: `./gradlew testDebugUnitTest --tests ConnectRepositoryTest`
-
-#### Manual Verification:
-- [ ] Repository emits `Loading` when no cached data exists
-- [ ] Repository emits `Cached` when cached data exists in database
-- [ ] Repository emits `Success` after successful network fetch
-- [ ] Repository emits `Error` with cachedData when network fails but cache exists
-- [ ] Database writes occur after successful network response
-- [ ] Session-based policy prevents duplicate fetches within same app session
-- [ ] Force refresh bypasses cache and always fetches from network
-
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
-
----
-
-## Phase 3: Job Opportunities Migration
-
-### Overview
-Create `ConnectJobsListViewModel` and integrate it with the existing Java fragment `ConnectJobsListsFragment`. The fragment will observe LiveData from the ViewModel instead of using direct API callbacks.
-
-### Changes Required
-
-#### 1. ConnectJobsListViewModel
-**File**: `app/src/org/commcare/connect/viewmodel/ConnectJobsListViewModel.kt` (new file)
-**Purpose**: Manages UI state for job opportunities list
-
-```kotlin
-package org.commcare.connect.viewmodel
-
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
-import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.repository.ConnectRepository
-import org.commcare.connect.repository.DataState
-import org.commcare.connect.repository.RefreshPolicy
-
-/**
- * ViewModel for ConnectJobsListsFragment.
- * Manages job opportunities data with hybrid session-and-time-based refresh policy.
- */
-class ConnectJobsListViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = ConnectRepository.getInstance(application)
-
-    private val _opportunities = MutableLiveData<DataState<List<ConnectJobRecord>>>()
-    val opportunities: LiveData<DataState<List<ConnectJobRecord>>> = _opportunities
-
-    /**
-     * Loads job opportunities from repository.
-     * Uses hybrid refresh: fetches from network if new session OR cache older than 1 minute.
-     *
-     * @param forceRefresh If true, ignores cache and always fetches from network
-     */
-    fun loadOpportunities(forceRefresh: Boolean = false) {
-        viewModelScope.launch {
-            repository.getOpportunities(
-                forceRefresh = forceRefresh,
-                policy = RefreshPolicy.SESSION_AND_TIME_BASED(60_000) // 1 minute
-            ).catch { exception ->
-                // Handle any unexpected Flow errors
-                _opportunities.postValue(
-                    DataState.Error(
-                        error = exception.message ?: "Unknown error",
-                        throwable = exception
-                    )
-                )
-            }.collect { dataState ->
-                _opportunities.postValue(dataState)
-            }
-        }
-    }
-}
-```
-
-#### 2. Update ConnectJobsListsFragment
-**File**: `app/src/org/commcare/fragments/connect/ConnectJobsListsFragment.java`
-**Changes**: Replace direct API call with ViewModel observation
-
-**Existing code (lines 81-106)**:
-```java
-public void refreshData() {
-    ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
-    corruptJobs.clear();
-    ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-    new ConnectApiHandler<ConnectOpportunitiesResponseModel>(true, this) {
-
-        @Override
-        public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-            if (!isAdded()) {
-                return;
-            }
-
-            Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
-            navigateFailure();
-        }
-
-        @Override
-        public void onSuccess(ConnectOpportunitiesResponseModel data) {
-            corruptJobs = data.getCorruptJobs();
-
-            if (isAdded()) {
-                setJobListData(data.getValidJobs());
-            }
-        }
-    }.getConnectOpportunities(requireContext(), user);
-}
-```
-
-**New implementation**:
-```java
-package org.commcare.fragments.connect;
-
-// Add new imports
-import androidx.lifecycle.ViewModelProvider;
-import org.commcare.connect.repository.DataState;
-import org.commcare.connect.viewmodel.ConnectJobsListViewModel;
-
-public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnectJobsListBinding>
-        implements RefreshableFragment {
-
-    ArrayList<ConnectLoginJobListModel> inProgressJobs;
-    ArrayList<ConnectLoginJobListModel> newJobs;
-    ArrayList<ConnectLoginJobListModel> completedJobs;
-    ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
-
-    // Add ViewModel field
-    private ConnectJobsListViewModel viewModel;
-
-    @Override
-    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
-        requireActivity().setTitle(R.string.connect_title);
-
-        // Initialize ViewModel
-        viewModel = new ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(ConnectJobsListViewModel.class);
-
-        // Observe opportunities LiveData
-        observeOpportunities();
-
-        // Load opportunities (will use cache if available)
-        viewModel.loadOpportunities(false);
-
-        return view;
-    }
-
-    @Override
-    public void refresh() {
-        // Force refresh from network
-        viewModel.loadOpportunities(true);
-    }
-
-    /**
-     * Observes opportunities LiveData from ViewModel.
-     * Handles all DataState emissions: Loading, Cached, Success, Error.
-     */
-    private void observeOpportunities() {
-        viewModel.getOpportunities().observe(getViewLifecycleOwner(), dataState -> {
-            if (!isAdded()) {
-                return;
-            }
-
-            ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
-
-            if (dataState instanceof DataState.Loading) {
-                // Show loading indicator if needed
-                // For now, we don't show anything since cached data will come next
-
-            } else if (dataState instanceof DataState.Cached) {
-                DataState.Cached<List<ConnectJobRecord>> cached =
-                    (DataState.Cached<List<ConnectJobRecord>>) dataState;
-
-                // Display cached data immediately
-                corruptJobs.clear();
-                setJobListData(cached.getData());
-
-            } else if (dataState instanceof DataState.Success) {
-                DataState.Success<List<ConnectJobRecord>> success =
-                    (DataState.Success<List<ConnectJobRecord>>) dataState;
-
-                // Update UI with fresh data from network
-                corruptJobs.clear();
-                setJobListData(success.getData());
-
-            } else if (dataState instanceof DataState.Error) {
-                DataState.Error<List<ConnectJobRecord>> error =
-                    (DataState.Error<List<ConnectJobRecord>>) dataState;
-
-                // Show error toast
-                Toast.makeText(
-                    requireContext(),
-                    error.getError(),
-                    Toast.LENGTH_LONG
-                ).show();
-
-                // If we have cached data despite error, show it
-                if (error.getCachedData() != null) {
-                    setJobListData(error.getCachedData());
-                } else {
-                    // No cached data, show empty state
-                    navigateFailure();
-                }
-            }
-        });
-    }
-
-    // Keep existing navigateFailure() method but it now just shows empty state
-    private void navigateFailure() {
-        setJobListData(new ArrayList<>());
-    }
-
-    // All other methods remain unchanged
-    // ...
-}
-```
-
-### Success Criteria
-
-#### Automated Verification:
-- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
-- [ ] Java compilation succeeds: `./gradlew compileDebugJava`
-- [ ] No linting errors: `ktlint app/src/org/commcare/connect/viewmodel/*.kt`
-- [ ] Unit tests pass: `./gradlew testDebugUnitTest --tests ConnectJobsListViewModelTest`
-
-#### Manual Verification:
-- [ ] Fragment displays cached job list immediately on screen entry
-- [ ] Network fetch happens in background, UI updates when fresh data arrives
-- [ ] Hybrid policy works: Second navigation in same session doesn't trigger network if cache < 1 minute old
-- [ ] Hybrid policy works: New app session triggers network call even with fresh cache
-- [ ] Hybrid policy works: Cache older than 1 minute triggers network call even in same session
-- [ ] Force refresh (pull-to-refresh) bypasses cache and fetches from network
-- [ ] Error toast displays when network fails
-- [ ] Cached data still displays even when network fails
-- [ ] Empty state shows when no cached data and network fails
-- [ ] No duplicate network requests when rotating device
-
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
-
----
-
-## Phase 4: Learning Progress Endpoint + Migration
-
-### Overview
-Add `getLearningProgress()` to Repository with always-refresh policy, create `ConnectLearningProgressViewModel`, and integrate with `ConnectLearningProgressFragment`.
-
-### Changes Required
-
-#### 1. Add getLearningProgress to ConnectRepository
-**File**: `app/src/org/commcare/connect/repository/ConnectRepository.kt`
-**Changes**: Add new method for learning progress endpoint
-
-```kotlin
-/**
- * Gets learning progress for a specific job with offline-first pattern.
- *
- * Flow emissions:
- * 1. Loading (if no cached data)
- * 2. Cached (if cached job data exists)
- * 3. Success (fresh data from network) OR Error (network failed)
- *
- * @param job The job to fetch learning progress for
- * @param forceRefresh If true, ignores cache and always fetches from network
- * @param policy Refresh policy (default: ALWAYS)
- * @return Flow of DataState emissions
- */
-fun getLearningProgress(
-    job: ConnectJobRecord,
-    forceRefresh: Boolean = false,
-    policy: RefreshPolicy = RefreshPolicy.ALWAYS
-): Flow<DataState<ConnectJobRecord>> = flow {
-    val endpoint = ENDPOINT_LEARNING_PREFIX + job.jobUUID
-
-    // Step 1: Load cached job from database
-    val cachedJob = ConnectJobUtils.getCompositeJob(context, job.jobUUID)
-
-    val lastSyncTime = syncPrefs.getLastSyncTime(endpoint)
-
-    // Step 2: Emit cached data if available
-    if (cachedJob != null && lastSyncTime != null) {
-        emit(DataState.Cached(cachedJob, lastSyncTime))
-    } else {
-        emit(DataState.Loading)
-    }
-
-    // Step 3: Determine if we should refresh from network
-    val shouldRefresh = forceRefresh ||
-            syncPrefs.shouldRefresh(endpoint, policy)
-
-    if (!shouldRefresh) {
-        // Cache is fresh enough, no need to fetch from network
-        return@flow
-    }
-
-    // Step 4: Fetch from network with deduplication.
-    // DB write and syncPrefs update are inside the lambda so they run in the application
-    // scope and complete even if the user navigates away before the response arrives.
-    try {
-        val result = ConnectRequestManager.executeRequest(endpoint) {
-            fetchLearningProgressFromNetwork(job).also { networkResult ->
-                networkResult.onSuccess { responseModel ->
-                    // Step 5: Update job with learning progress (runs in app scope)
-                    job.learnings = responseModel.connectJobLearningRecords
-                    job.completedLearningModules = responseModel.connectJobLearningRecords.size
-                    job.assessments = responseModel.connectJobAssessmentRecords
-
-                    // Step 6: Write to database (runs in app scope, survives navigation)
-                    ConnectJobUtils.updateJobLearnProgress(context, job)
-
-                    // Step 7: Update sync timestamp (runs in app scope, survives navigation)
-                    syncPrefs.storeLastSyncTime(endpoint)
-                }
-            }
-        }
-
-        result.onSuccess { _ ->
-            // Step 8: Reload updated job from database
-            val updatedJob = ConnectJobUtils.getCompositeJob(context, job.jobUUID) ?: job
-
-            // Step 9: Emit success with fresh data (skipped if flow was cancelled)
-            emit(DataState.Success(updatedJob))
-        }.onFailure { throwable ->
-            // Step 10: Emit error (with cached data if available)
-            val errorMessage = throwable.message ?: "Unknown error fetching learning progress"
-            emit(DataState.Error(
-                error = errorMessage,
-                throwable = throwable,
-                cachedData = cachedJob
-            ))
-        }
-    } catch (e: Exception) {
-        val errorMessage = e.message ?: "Unknown error"
-        emit(DataState.Error(
-            error = errorMessage,
-            throwable = e,
-            cachedData = cachedJob
-        ))
-    }
-}.flowOn(Dispatchers.IO)
-
-/**
- * Fetches learning progress from network using new coroutine-based client.
- * Pure suspend function - no callbacks involved.
- */
-private suspend fun fetchLearningProgressFromNetwork(
-    job: ConnectJobRecord
-): Result<LearningAppProgressResponseModel> {
-    val user = ConnectUserDatabaseUtil.getUser(context)
-    val apiClient = ConnectApiClient.getInstance(context)
-    return apiClient.getLearningProgress(user, job)
-}
-```
-
-#### 2. ConnectLearningProgressViewModel
-**File**: `app/src/org/commcare/connect/viewmodel/ConnectLearningProgressViewModel.kt` (new file)
-**Purpose**: Manages UI state for learning progress screen
-
-```kotlin
-package org.commcare.connect.viewmodel
-
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
-import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.repository.ConnectRepository
-import org.commcare.connect.repository.DataState
-import org.commcare.connect.repository.RefreshPolicy
-
-/**
- * ViewModel for ConnectLearningProgressFragment.
- * Manages learning progress data with always-refresh policy.
- */
-class ConnectLearningProgressViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = ConnectRepository.getInstance(application)
-
-    private val _learningProgress = MutableLiveData<DataState<ConnectJobRecord>>()
-    val learningProgress: LiveData<DataState<ConnectJobRecord>> = _learningProgress
-
-    /**
-     * Loads learning progress for a job from repository.
-     * Uses always-refresh policy: fetches from network on every call.
-     *
-     * @param job The job to load learning progress for
-     */
-    fun loadLearningProgress(job: ConnectJobRecord) {
-        viewModelScope.launch {
-            repository.getLearningProgress(
-                job = job,
-                forceRefresh = false,
-                policy = RefreshPolicy.ALWAYS
-            ).catch { exception ->
-                // Handle any unexpected Flow errors
-                _learningProgress.postValue(
-                    DataState.Error(
-                        error = exception.message ?: "Unknown error",
-                        throwable = exception
-                    )
-                )
-            }.collect { dataState ->
-                _learningProgress.postValue(dataState)
-            }
-        }
-    }
-}
-```
-
-#### 3. Update ConnectLearningProgressFragment
-**File**: `app/src/org/commcare/fragments/connect/ConnectLearningProgressFragment.java`
-**Changes**: Replace ConnectJobHelper callback with ViewModel observation
-
-**Existing code (lines 81-93)**:
-```java
-private void refreshLearningData() {
-    ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, (success,error) -> {
-        if (success && isAdded()) {
-            updateLearningUI();
-        } else if (!success && isAdded()) {
-            Toast.makeText(
-                    requireContext(),
-                    getString(R.string.connect_fetch_learning_progress_error),
-                    Toast.LENGTH_LONG
-            ).show();
-        }
-    });
-}
-```
-
-**New implementation**:
-```java
-package org.commcare.fragments.connect;
-
-// Add new imports
-import androidx.lifecycle.ViewModelProvider;
-import org.commcare.connect.repository.DataState;
-import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
-
-public class ConnectLearningProgressFragment extends ConnectJobFragment<FragmentConnectLearningProgressBinding>
-        implements RefreshableFragment {
-
-    private boolean showAppLaunch = true;
-
-    // Add ViewModel field
-    private ConnectLearningProgressViewModel viewModel;
-
-    @Override
-    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
-        if (getArguments() != null) {
-            showAppLaunch = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
-        }
-
-        requireActivity().setTitle(getString(R.string.connect_learn_title));
-
-        // Initialize ViewModel
-        viewModel = new ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(ConnectLearningProgressViewModel.class);
-
-        // Observe learning progress LiveData
-        observeLearningProgress();
-
-        setupRefreshButton();
-        populateJobCard(job);
-        refreshLearningData();
-        return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            refreshLearningData();
-        }
-    }
-
-    @Override
-    public void refresh() {
-        refreshLearningData();
-    }
-
-    private void setupRefreshButton() {
-        getBinding().btnSync.setOnClickListener(v -> refreshLearningData());
-    }
-
-    /**
-     * Observes learning progress LiveData from ViewModel.
-     * Handles all DataState emissions: Loading, Cached, Success, Error.
-     */
-    private void observeLearningProgress() {
-        viewModel.getLearningProgress().observe(getViewLifecycleOwner(), dataState -> {
-            if (!isAdded()) {
-                return;
-            }
-
-            if (dataState instanceof DataState.Loading) {
-                // Show loading indicator if needed
-                // Currently we don't show a loading state
-
-            } else if (dataState instanceof DataState.Cached) {
-                DataState.Cached<ConnectJobRecord> cached =
-                    (DataState.Cached<ConnectJobRecord>) dataState;
-
-                // Update job reference and refresh UI
-                job = cached.getData();
-                updateLearningUI();
-
-            } else if (dataState instanceof DataState.Success) {
-                DataState.Success<ConnectJobRecord> success =
-                    (DataState.Success<ConnectJobRecord>) dataState;
-
-                // Update job reference and refresh UI with fresh data
-                job = success.getData();
-                updateLearningUI();
-
-            } else if (dataState instanceof DataState.Error) {
-                DataState.Error<ConnectJobRecord> error =
-                    (DataState.Error<ConnectJobRecord>) dataState;
-
-                // Show error toast
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.connect_fetch_learning_progress_error),
-                    Toast.LENGTH_LONG
-                ).show();
-
-                // If we have cached data despite error, use it
-                if (error.getCachedData() != null) {
-                    job = error.getCachedData();
-                    updateLearningUI();
-                }
-            }
-        });
-    }
-
-    private void refreshLearningData() {
-        // Load learning progress via ViewModel
-        viewModel.loadLearningProgress(job);
-    }
-
-    // All other methods remain unchanged
-    // ...
-}
-```
-
-### Success Criteria
-
-#### Automated Verification:
-- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
-- [ ] Java compilation succeeds: `./gradlew compileDebugJava`
-- [ ] No linting errors: `ktlint app/src/org/commcare/connect/repository/*.kt app/src/org/commcare/connect/viewmodel/*.kt`
-- [ ] Unit tests pass: `./gradlew testDebugUnitTest --tests ConnectLearningProgressViewModelTest`
-
-#### Manual Verification:
-- [ ] Fragment displays cached learning progress immediately on screen entry
-- [ ] Network fetch happens in background, UI updates when fresh data arrives
-- [ ] Always-refresh policy works: Every navigation to screen triggers network call
-- [ ] Sync button triggers network refresh
-- [ ] Error toast displays when network fails
-- [ ] Cached data still displays even when network fails
-- [ ] Learning progress percentage, modules, and assessments update correctly
-- [ ] Certificate view displays after passing assessment
-- [ ] No duplicate network requests when rotating device or clicking sync rapidly
-
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
-
----
-
-## Phase 5: Testing & Validation
-
-### Overview
-Comprehensive testing of the new offline-first architecture including unit tests, integration tests, and manual end-to-end testing.
-
-### Changes Required
-
-#### 1. Unit Tests for ConnectSyncPreferences
+#### 1. ConnectSyncPreferencesTest
 **File**: `app/unit-tests/src/org/commcare/connect/repository/ConnectSyncPreferencesTest.kt` (new file)
 
 ```kotlin
@@ -1377,10 +170,13 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.commcare.CommCareTestApplication
+import org.robolectric.annotation.Config
 import java.util.Date
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
+@Config(application = CommCareTestApplication::class)
 class ConnectSyncPreferencesTest {
 
     private lateinit var context: Context
@@ -1521,7 +317,7 @@ class ConnectSyncPreferencesTest {
 }
 ```
 
-#### 2. Unit Tests for ConnectRequestManager
+#### 2. ConnectRequestManagerTest
 **File**: `app/unit-tests/src/org/commcare/connect/repository/ConnectRequestManagerTest.kt` (new file)
 
 ```kotlin
@@ -1678,7 +474,1318 @@ class ConnectRequestManagerTest {
 }
 ```
 
-#### 3. Manual Testing Checklist
+### Success Criteria
+
+#### Automated Verification:
+- [ ] No linting errors: `ktlint app/unit-tests/src/org/commcare/connect/repository/ConnectSyncPreferencesTest.kt app/unit-tests/src/org/commcare/connect/repository/ConnectRequestManagerTest.kt`
+- [ ] Kotlin compilation of test files: `./gradlew compileDebugKotlin` (compile failure is expected and acceptable if `ConnectSyncPreferences`/`ConnectRequestManager` don't exist yet)
+- [ ] Tests **fail** (Red — expected): `./gradlew testDebugUnitTest --tests "org.commcare.connect.repository.ConnectSyncPreferencesTest"` and `--tests "org.commcare.connect.repository.ConnectRequestManagerTest"`
+- [ ] Commit failing tests before proceeding to Phase 1b
+
+---
+
+## Phase 1b: Core Infrastructure Implementation (Green)
+
+### Overview
+Implement `ConnectSyncPreferences` and `ConnectRequestManager` to pass the Phase 1a tests.
+
+### Changes Required
+
+#### 1. ConnectSyncPreferences
+**File**: `app/src/org/commcare/connect/repository/ConnectSyncPreferences.kt` (new file)
+**Purpose**: Tracks last sync times per endpoint and app session start time
+
+```kotlin
+package org.commcare.connect.repository
+
+import android.content.Context
+import android.content.SharedPreferences
+import org.commcare.CommCareApplication
+import java.util.Date
+
+/**
+ * Manages sync timestamps for Connect endpoints.
+ * Stores per-endpoint last sync times and session start time for refresh policies.
+ */
+class ConnectSyncPreferences(context: Context) {
+
+    companion object {
+        private const val PREFS_NAME = "connect_sync_prefs"
+        private const val KEY_SESSION_START = "session_start_time"
+        private const val KEY_LAST_SYNC_PREFIX = "last_sync_"
+
+        @Volatile
+        private var instance: ConnectSyncPreferences? = null
+
+        fun getInstance(context: Context): ConnectSyncPreferences {
+            return instance ?: synchronized(this) {
+                instance ?: ConnectSyncPreferences(context.applicationContext).also {
+                    instance = it
+                }
+            }
+        }
+    }
+
+    private val prefs: SharedPreferences = context.getSharedPreferences(
+        PREFS_NAME,
+        Context.MODE_PRIVATE
+    )
+
+    init {
+        if (!prefs.contains(KEY_SESSION_START)) {
+            markSessionStart()
+        }
+    }
+
+    fun markSessionStart() {
+        prefs.edit()
+            .putLong(KEY_SESSION_START, Date().time)
+            .apply()
+    }
+
+    fun getSessionStartTime(): Date {
+        val timestamp = prefs.getLong(KEY_SESSION_START, Date().time)
+        return Date(timestamp)
+    }
+
+    fun storeLastSyncTime(endpoint: String) {
+        val key = KEY_LAST_SYNC_PREFIX + endpoint.replace("/", "_")
+        prefs.edit()
+            .putLong(key, Date().time)
+            .apply()
+    }
+
+    fun getLastSyncTime(endpoint: String): Date? {
+        val key = KEY_LAST_SYNC_PREFIX + endpoint.replace("/", "_")
+        val timestamp = prefs.getLong(key, -1)
+        return if (timestamp == -1L) null else Date(timestamp)
+    }
+
+    fun shouldRefresh(
+        endpoint: String,
+        policy: RefreshPolicy
+    ): Boolean {
+        return when (policy) {
+            RefreshPolicy.ALWAYS -> true
+
+            is RefreshPolicy.SESSION_AND_TIME_BASED -> {
+                val lastSync = getLastSyncTime(endpoint) ?: return true
+                val sessionStart = getSessionStartTime()
+                val isNewSession = lastSync.before(sessionStart)
+                val ageMs = Date().time - lastSync.time
+                val isStale = ageMs >= policy.timeThresholdMs
+                isNewSession || isStale
+            }
+        }
+    }
+
+    /**
+     * Clears all sync data (for testing or logout).
+     */
+    fun clearAll() {
+        prefs.edit().clear().apply()
+        markSessionStart()
+    }
+}
+```
+
+**Integration Point**:
+- Call `markSessionStart()` in `CommCareApplication.onCreate()` — NOT in an Activity (Activity.onCreate fires on rotation/back-nav, resetting the session).
+- The `init{}` block handles first-ever launch (when `KEY_SESSION_START` doesn't exist yet); `Application.onCreate()` handles all subsequent launches.
+
+#### 2. ConnectRequestManager
+**File**: `app/src/org/commcare/connect/repository/ConnectRequestManager.kt` (new file)
+**Purpose**: Deduplicates in-flight network requests across ViewModels
+
+```kotlin
+package org.commcare.connect.repository
+
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
+
+object ConnectRequestManager {
+
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val inFlightRequests = ConcurrentHashMap<String, CompletableDeferred<Result<Any>>>()
+
+    /**
+     * Executes [request] in app scope — survives ViewModel cancellation.
+     * Include DB writes inside [request] so they complete even on back navigation.
+     * Duplicate calls to the same [url] share one in-flight request.
+     */
+    suspend fun <T> executeRequest(
+        url: String,
+        request: suspend () -> Result<T>
+    ): Result<T> {
+        val deferred = CompletableDeferred<Result<Any>>()
+        val existing = inFlightRequests.putIfAbsent(url, deferred)
+        if (existing != null) {
+            @Suppress("UNCHECKED_CAST")
+            return existing.await() as Result<T>
+        }
+
+        // Launch in app scope so request + DB writes survive viewModelScope cancellation.
+        scope.launch {
+            try {
+                val result = request()
+                deferred.complete(result as Result<Any>)
+            } catch (e: CancellationException) {
+                deferred.cancel(e)
+                throw e
+            } catch (e: Exception) {
+                deferred.complete(Result.failure(e) as Result<Any>)
+            } finally {
+                inFlightRequests.remove(url)
+            }
+        }
+
+        // deferred.await() IS cancellable — caller cancellation stops waiting but NOT the launch above.
+        @Suppress("UNCHECKED_CAST")
+        return deferred.await() as Result<T>
+    }
+
+    fun isRequestInProgress(url: String): Boolean = inFlightRequests.containsKey(url)
+
+    // Call on logout to prevent stale data writes from previous-session requests.
+    // Resets scope so the object can be reused after logout (important for tests and re-login).
+    fun cancelAll() {
+        inFlightRequests.values.forEach { it.cancel() }
+        inFlightRequests.clear()
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
+- [ ] No linting errors: `ktlint app/src/org/commcare/connect/repository/*.kt`
+- [ ] Unit tests **pass** (Green): `./gradlew testDebugUnitTest --tests "org.commcare.connect.repository.ConnectSyncPreferencesTest"` and `--tests "org.commcare.connect.repository.ConnectRequestManagerTest"`
+
+#### Manual Verification:
+- [ ] `ConnectSyncPreferences` singleton initializes correctly
+- [ ] Session start time is set on first access
+- [ ] `shouldRefresh()` logic correctly implements hybrid policy (session OR time threshold)
+- [ ] Hybrid policy refreshes on new session even with fresh cache
+- [ ] Hybrid policy refreshes on stale cache even in same session
+- [ ] `ConnectRequestManager` deduplication logic is thread-safe (ConcurrentHashMap)
+- [ ] In-flight requests are properly cleaned up after completion
+
+
+---
+
+## Phase 1.5a: Coroutine Network Client Tests (Red)
+
+### Overview
+Write failing tests for `ConnectNetworkClient`. At this point `ConnectNetworkClient` doesn't exist, so tests will fail to compile or fail at runtime. Commit the Red state before proceeding to Phase 1.5b.
+
+### Changes Required
+
+#### 1. ConnectNetworkClientTest
+**File**: `app/unit-tests/src/org/commcare/connect/network/connect/ConnectNetworkClientTest.kt` (new file)
+**Dependencies to mock**: `ConnectApiService` (via Mockito), `getAuthorizationHeader` (top-level suspend function — use `mockk` or `mockkStatic`)
+
+```kotlin
+package org.commcare.connect.network.connect
+
+// Test method signatures — implement bodies in Phase 1.5b
+class ConnectNetworkClientTest {
+
+    // mock ConnectApiService.getConnectOpportunities to return 200 with valid JSON body;
+    // verify Result.success is returned containing a parsed ConnectOpportunitiesResponseModel
+    @Test fun testGetConnectOpportunities_success_returnsModel(): Unit = TODO()
+
+    // mock ConnectApiService.getConnectOpportunities to return HTTP 401;
+    // verify Result.failure with ConnectApiException(FAILED_AUTH_ERROR)
+    @Test fun testGetConnectOpportunities_httpError_returnsFailure(): Unit = TODO()
+
+    // mock ConnectApiService.getConnectOpportunities to throw IOException;
+    // verify Result.failure with ConnectApiException(NETWORK_ERROR)
+    @Test fun testGetConnectOpportunities_networkException_returnsNetworkError(): Unit = TODO()
+
+    // mock getAuthorizationHeader to return Result.failure;
+    // verify Result.failure is propagated before any API call is made
+    @Test fun testGetConnectOpportunities_authHeaderFailure_returnsFailure(): Unit = TODO()
+
+    // mock ConnectApiService.getLearningProgress to return 200 with valid JSON body;
+    // verify Result.success containing a parsed LearningAppProgressResponseModel
+    @Test fun testGetLearningProgress_success_returnsModel(): Unit = TODO()
+
+    // mock ConnectApiService.getLearningProgress to return HTTP 500;
+    // verify Result.failure with ConnectApiException(SERVER_ERROR)
+    @Test fun testGetLearningProgress_httpError_returnsFailure(): Unit = TODO()
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] No linting errors: `ktlint app/unit-tests/src/org/commcare/connect/network/connect/ConnectNetworkClientTest.kt`
+- [ ] Tests **fail** (Red — expected): `./gradlew testDebugUnitTest --tests "org.commcare.connect.network.connect.ConnectNetworkClientTest"`
+- [ ] Commit failing tests before proceeding to Phase 1.5b
+
+---
+
+## Phase 1.5b: Coroutine-Based Network Client Implementation (Green)
+
+### Overview
+Create a new pure coroutine-based network client (`ConnectNetworkClient`) alongside the existing callback-based `ConnectApiHandler`. Because `ApiService.java` is a Java interface and Kotlin `suspend fun` bytecode is incompatible with Retrofit's Java codegen, suspend methods go in a separate Kotlin interface (`ConnectApiService`).
+
+**Key principle**: `ConnectNetworkClient` does NOT wrap the old `ConnectApiHandler`. It's a parallel implementation using Retrofit suspend functions.
+
+
+### Changes Required
+
+#### 1. ConnectApiService (Kotlin Retrofit Interface)
+**File**: `app/src/org/commcare/connect/network/ConnectApiService.kt` (new file)
+**Purpose**: Kotlin-only Retrofit interface with suspend variants — cannot add `suspend fun` to `ApiService.java`
+
+```kotlin
+package org.commcare.connect.network
+
+import okhttp3.ResponseBody
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.HeaderMap
+import retrofit2.http.Path
+
+interface ConnectApiService {
+
+    @GET("/api/opportunity/")
+    suspend fun getConnectOpportunities(
+        @Header("Authorization") authorization: String,
+        @HeaderMap headers: Map<String, String>,
+    ): Response<ResponseBody>
+
+    @GET("/api/opportunity/{id}/learn_progress")
+    suspend fun getLearningProgress(
+        @Header("Authorization") authorization: String,
+        @Path("id") jobId: String,
+        @HeaderMap headers: Map<String, String>,
+    ): Response<ResponseBody>
+}
+```
+
+**Note**: `ApiService.java` is unchanged. Existing callback-based code continues using it.
+
+#### 2. ConnectNetworkClient
+**File**: `app/src/org/commcare/connect/network/connect/ConnectNetworkClient.kt` (new file)
+**Purpose**: Pure suspend function API client. Named differently from the existing `ConnectApiClient.kt`.
+
+```kotlin
+package org.commcare.connect.network.connect
+
+import android.content.Context
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.network.ConnectApiService
+import org.commcare.connect.network.ConnectNetworkHelper
+import org.commcare.connect.network.base.BaseApiClient
+import org.commcare.connect.network.LoginInvalidatedException
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
+import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
+import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
+import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
+import org.commcare.connect.network.getAuthorizationHeader
+import org.commcare.connect.network.mapHttpErrorCode
+import java.io.IOException
+import java.io.InputStream
+import okhttp3.ResponseBody
+import retrofit2.Response
+
+class ConnectNetworkClient(private val context: Context) {
+
+    companion object {
+        private const val API_VERSION = "1.0"
+
+        @Volatile
+        private var instance: ConnectNetworkClient? = null
+
+        fun getInstance(context: Context): ConnectNetworkClient =
+            instance ?: synchronized(this) {
+                instance ?: ConnectNetworkClient(context.applicationContext).also { instance = it }
+            }
+    }
+
+    private val apiService: ConnectApiService by lazy {
+        BaseApiClient.buildRetrofitClient(ConnectApiClient.BASE_URL).create(ConnectApiService::class.java)
+    }
+
+    private fun versionHeaders(): Map<String, String> =
+        HashMap<String, String>().also { ConnectNetworkHelper.addVersionHeader(it, API_VERSION) }
+
+    suspend fun getConnectOpportunities(user: ConnectUserRecord): Result<ConnectOpportunitiesResponseModel> =
+        executeApiCall(
+            user = user,
+            apiCall = { auth -> apiService.getConnectOpportunities(auth, versionHeaders()) },
+            // ConnectOpportunitiesParser.parse() writes to DB internally; anyInputObject must be Context
+            parse = { code, stream -> ConnectOpportunitiesParser().parse(code, stream, context) },
+        )
+
+    suspend fun getLearningProgress(user: ConnectUserRecord, job: ConnectJobRecord): Result<LearningAppProgressResponseModel> =
+        executeApiCall(
+            user = user,
+            apiCall = { auth -> apiService.getLearningProgress(auth, job.jobUUID, versionHeaders()) },
+            // LearningAppProgressResponseParser.parse() anyInputObject must be ConnectJobRecord
+            parse = { code, stream -> LearningAppProgressResponseParser().parse(code, stream, job) },
+        )
+
+    // IOException → NETWORK_ERROR; parse exception → JSON_PARSING_ERROR; Exception → UNKNOWN_ERROR
+    private suspend fun <T> executeApiCall(
+        user: ConnectUserRecord,
+        apiCall: suspend (authHeader: String) -> Response<ResponseBody>,
+        parse: (responseCode: Int, stream: InputStream) -> T,
+    ): Result<T> {
+        return try {
+            val authHeader = getAuthorizationHeader(context, user)
+                .getOrElse { return Result.failure(it) }
+
+            val response = apiCall(authHeader)
+
+            if (response.isSuccessful) {
+                val stream = response.body()?.byteStream()
+                    ?: return Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR))
+                try {
+                    Result.success(parse(response.code(), stream))
+                } catch (e: Exception) {
+                    Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e))
+                }
+            } else {
+                val errorCode = mapHttpErrorCode(response.code(), response.errorBody()?.string())
+                Result.failure(ConnectApiException(errorCode))
+            }
+        } catch (e: LoginInvalidatedException) {
+            throw e  // must propagate to CommCareExceptionHandler for logout/recovery flow
+        } catch (e: IOException) {
+            Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR, e))
+        } catch (e: Exception) {
+            Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR, e))
+        }
+    }
+}
+```
+
+#### 3. ConnectNetworkHelper (converted to Kotlin)
+**File**: `app/src/org/commcare/connect/network/ConnectNetworkHelper.kt` (converted from Java)
+**Purpose**: Convert the existing `ConnectNetworkHelper.java` to Kotlin, preserving all existing static methods in a `companion object` with `@JvmStatic` so Java callers remain unaffected. Add the new `getAuthorizationHeader` and `mapHttpErrorCode` as top-level functions in the same file.
+
+Token retrieval may require a network call (PersonalId token refresh), so `getAuthorizationHeader` is a `suspend fun` wrapping `ConnectSsoHelper.retrievePersonalIdToken` via `suspendCancellableCoroutine`.
+
+```kotlin
+package org.commcare.connect.network
+
+import android.content.Context
+import com.google.common.collect.ArrayListMultimap
+import com.google.gson.Gson
+import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.core.network.AuthInfo
+import org.commcare.core.network.ModernHttpRequester
+import org.commcare.network.HttpUtils
+import org.commcare.utils.JsonExtensions
+import org.json.JSONException
+import org.json.JSONObject
+import kotlin.coroutines.resume
+
+class ConnectNetworkHelper {
+    companion object {
+        @JvmStatic
+        fun addVersionHeader(headers: HashMap<String, String>, version: String?) {
+            if (version != null) {
+                headers["Accept"] = "application/json;version=$version"
+            }
+        }
+
+        @JvmStatic
+        fun buildPostFormHeaders(
+            params: HashMap<String, Any>,
+            useFormEncoding: Boolean,
+            version: String?,
+            outputHeaders: HashMap<String, String>,
+        ): RequestBody {
+            val requestBody: RequestBody
+            val headers: HashMap<String, String>
+
+            if (useFormEncoding) {
+                val multimap = ArrayListMultimap.create<String, String>()
+                for ((key, value) in params) {
+                    multimap.put(key, value.toString())
+                }
+                requestBody = ModernHttpRequester.getPostBody(multimap)
+                headers = getContentHeadersForXFormPost(requestBody)
+            } else {
+                val json = Gson().toJson(params)
+                requestBody = RequestBody.create(MediaType.parse("application/json"), json)
+                headers = outputHeaders
+            }
+
+            addVersionHeader(headers, version)
+            return requestBody
+        }
+
+        private fun getContentHeadersForXFormPost(postBody: RequestBody): HashMap<String, String> {
+            val headers = HashMap<String, String>()
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            try {
+                headers["Content-Length"] = postBody.contentLength().toString()
+            } catch (e: Exception) {
+                // Empty headers if something goes wrong
+            }
+            return headers
+        }
+
+        @JvmStatic
+        fun checkForLoginFromDifferentDevice(errorBody: String?): Boolean {
+            if (errorBody == null) return false
+            return try {
+                val json = JSONObject(errorBody)
+                "LOGIN_FROM_DIFFERENT_DEVICE" == JsonExtensions.optStringSafe(json, "error_code", null)
+            } catch (e: JSONException) {
+                false
+            }
+        }
+    }
+}
+
+suspend fun getAuthorizationHeader(
+    context: Context,
+    user: ConnectUserRecord,
+): Result<String> = suspendCancellableCoroutine { continuation ->
+    ConnectSsoHelper.retrievePersonalIdToken(
+        context,
+        user,
+        object : ConnectSsoHelper.TokenCallback {
+            override fun tokenRetrieved(token: AuthInfo.TokenAuth) {
+                continuation.resume(Result.success(HttpUtils.getCredential(token)))
+            }
+
+            override fun tokenUnavailable() {
+                continuation.resume(
+                    Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR))
+                )
+            }
+
+            override fun tokenRequestDenied() {
+                continuation.resume(
+                    Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR))
+                )
+            }
+        },
+    )
+}
+
+internal fun mapHttpErrorCode(
+    responseCode: Int,
+    errorBody: String?,
+): PersonalIdOrConnectApiErrorCodes =
+    when (responseCode) {
+        401 -> PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR
+        403 -> PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR
+        429 -> PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR
+        400 -> {
+            if (ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody)) {
+                GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR)
+            }
+            PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR
+        }
+        in 500..509 -> PersonalIdOrConnectApiErrorCodes.SERVER_ERROR
+        else -> PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR
+    }
+```
+
+#### 4. ConnectApiException
+**File**: `app/src/org/commcare/connect/network/base/ConnectApiException.kt` (new file)
+
+```kotlin
+package org.commcare.connect.network.base
+
+// Carries typed error code through Result<T> chain; repository extracts it into DataState.Error.
+class ConnectApiException(
+    val errorCode: PersonalIdOrConnectApiErrorCodes,
+    cause: Throwable? = null,
+) : Exception(errorCode.name, cause)
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
+- [ ] No linting errors: `ktlint app/src/org/commcare/connect/network/ConnectNetworkClient.kt app/src/org/commcare/connect/network/ConnectNetworkHelper.kt`
+- [ ] Unit tests **pass** (Green): `./gradlew testDebugUnitTest --tests "org.commcare.connect.network.connect.ConnectNetworkClientTest"`
+
+#### Manual Verification:
+- [ ] `ConnectNetworkClient.getConnectOpportunities()` successfully fetches and parses opportunities
+- [ ] `ConnectNetworkClient.getLearningProgress()` successfully fetches and parses learning progress
+- [ ] Suspend functions can be called from coroutine scope without blocking
+- [ ] Error responses are properly wrapped in `Result.failure`
+- [ ] Network errors (timeouts, connection failures) are handled gracefully
+- [ ] Old callback-based `ConnectApiHandler` continues to work unchanged
+
+
+---
+
+## Phase 2a: Repository Tests (Red)
+
+### Overview
+Write failing tests for `ConnectRepository`. At this point `ConnectRepository` doesn't exist, so tests will fail to compile or fail at runtime. Commit the Red state before proceeding to Phase 2b.
+
+### Changes Required
+
+#### 1. ConnectRepositoryTest
+**File**: `app/unit-tests/src/org/commcare/connect/repository/ConnectRepositoryTest.kt` (new file)
+**Dependencies to mock**: `ConnectNetworkClient`, `ConnectSyncPreferences`, `ConnectJobUtils` (database layer)
+**Flow testing**: use `kotlinx-coroutines-test` with `runTest` and `turbine` or collect-to-list pattern
+
+```kotlin
+package org.commcare.connect.repository
+
+// Test method signatures — implement bodies in Phase 2b
+class ConnectRepositoryTest {
+
+    // mock ConnectJobUtils to return empty list; verify first (and only) emission is DataState.Loading
+    @Test fun testGetOpportunities_noCache_emitsLoading(): Unit = TODO()
+
+    // mock DB with job list + successful network call; verify emissions in order: DataState.Cached, DataState.Success
+    @Test fun testGetOpportunities_withCache_emitsCachedThenSuccess(): Unit = TODO()
+
+    // mock DB with job list + failed network call; verify emissions: DataState.Cached, then DataState.Error with cachedData != null
+    @Test fun testGetOpportunities_networkFailure_emitsError_withCachedData(): Unit = TODO()
+
+    // mock empty DB + failed network call; verify emissions: DataState.Loading, then DataState.Error with cachedData == null
+    @Test fun testGetOpportunities_networkFailure_noCache_emitsError_withNullCachedData(): Unit = TODO()
+
+    // mock syncPrefs.shouldRefresh to return false; call getOpportunities(forceRefresh=true);
+    // verify network IS called (forceRefresh bypasses shouldRefresh)
+    @Test fun testGetOpportunities_forceRefresh_bypassesShouldRefreshCheck(): Unit = TODO()
+
+    // mock syncPrefs.shouldRefresh to return false + cached data in DB;
+    // call getOpportunities(forceRefresh=false); verify only DataState.Cached is emitted (no network call)
+    @Test fun testGetOpportunities_shouldRefreshFalse_emitsCachedOnly(): Unit = TODO()
+
+    // mock successful network call; verify syncPrefs.storeLastSyncTime() is called after success
+    @Test fun testGetOpportunities_networkSuccess_writesSyncTimestamp(): Unit = TODO()
+
+    // call getLearningProgress twice with same job; verify network is called both times (ALWAYS policy)
+    @Test fun testGetLearningProgress_alwaysPolicy_alwaysFetches(): Unit = TODO()
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] No linting errors: `ktlint app/unit-tests/src/org/commcare/connect/repository/ConnectRepositoryTest.kt`
+- [ ] Tests **fail** (Red — expected): `./gradlew testDebugUnitTest --tests "org.commcare.connect.repository.ConnectRepositoryTest"`
+- [ ] Commit failing tests before proceeding to Phase 2b
+
+---
+
+## Phase 2b: Repository Foundation + Opportunities Endpoint (Green)
+
+### Overview
+Create the `ConnectRepository` class and implement both endpoints (`getOpportunities` and `getLearningProgress`) to pass the Phase 2a tests. This establishes the repository pattern and demonstrates the offline-first flow.
+
+### Changes Required
+
+#### 1. ConnectRepository
+**File**: `app/src/org/commcare/connect/repository/ConnectRepository.kt` (new file)
+**Purpose**: Single source of truth for Connect data with offline-first pattern
+
+```kotlin
+package org.commcare.connect.repository
+
+import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
+import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
+
+class ConnectRepository(private val context: Context) {
+
+    companion object {
+        private const val ENDPOINT_OPPORTUNITIES = "/opportunities"
+        private const val ENDPOINT_LEARNING_PREFIX = "/learning_progress/"
+
+        @Volatile
+        private var instance: ConnectRepository? = null
+
+        fun getInstance(context: Context): ConnectRepository {
+            return instance ?: synchronized(this) {
+                instance ?: ConnectRepository(context.applicationContext).also {
+                    instance = it
+                }
+            }
+        }
+    }
+
+    private val syncPrefs = ConnectSyncPreferences.getInstance(context)
+
+    fun getOpportunities(
+        forceRefresh: Boolean = false,
+        policy: RefreshPolicy = RefreshPolicy.SESSION_AND_TIME_BASED(60_000),
+    ): Flow<DataState<List<ConnectJobRecord>>> = offlineFirstFlow(
+        endpoint = ENDPOINT_OPPORTUNITIES,
+        forceRefresh = forceRefresh,
+        policy = policy,
+        loadCache = {
+            ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)
+                .takeIf { it.isNotEmpty() }
+        },
+        networkCall = { fetchOpportunitiesFromNetwork() },
+        onNetworkSuccess = {}, // ConnectOpportunitiesParser.parse() writes to DB internally via storeJobs()
+
+        mapToEmit = { responseModel -> responseModel.validJobs },
+    )
+
+    fun getLearningProgress(
+        job: ConnectJobRecord,
+        forceRefresh: Boolean = false,
+        policy: RefreshPolicy = RefreshPolicy.ALWAYS,
+    ): Flow<DataState<ConnectJobRecord>> = offlineFirstFlow(
+        endpoint = ENDPOINT_LEARNING_PREFIX + job.jobUUID,
+        forceRefresh = forceRefresh,
+        policy = policy,
+        loadCache = { ConnectJobUtils.getCompositeJob(context, job.jobUUID) },
+        networkCall = { fetchLearningProgressFromNetwork(job) },
+        onNetworkSuccess = { responseModel ->
+            job.learnings = responseModel.connectJobLearningRecords
+            job.completedLearningModules = responseModel.connectJobLearningRecords.size
+            job.assessments = responseModel.connectJobAssessmentRecords
+            ConnectJobUtils.updateJobLearnProgress(context, job)
+        },
+        mapToEmit = { _ -> ConnectJobUtils.getCompositeJob(context, job.jobUUID) ?: job },
+    )
+
+    /**
+     * Emits Loading/Cached, then Success or Error.
+     * [onNetworkSuccess] runs in app scope — put all DB writes here, NOT in [networkCall].
+     * [mapToEmit] runs in Flow scope — safe to re-read DB here after writes complete.
+     */
+    private fun <C, N> offlineFirstFlow(
+        endpoint: String,
+        forceRefresh: Boolean,
+        policy: RefreshPolicy,
+        loadCache: () -> C?,
+        networkCall: suspend () -> Result<N>,
+        onNetworkSuccess: suspend (N) -> Unit,
+        mapToEmit: suspend (N) -> C,
+    ): Flow<DataState<C>> = flow {
+        val cachedData: C? = loadCache()
+        val lastSyncTime = syncPrefs.getLastSyncTime(endpoint)
+
+        if (cachedData != null && lastSyncTime != null) {
+            emit(DataState.Cached(cachedData, lastSyncTime))
+        } else {
+            emit(DataState.Loading)
+        }
+
+        if (!forceRefresh && !syncPrefs.shouldRefresh(endpoint, policy)) return@flow
+
+        try {
+            val result = ConnectRequestManager.executeRequest(endpoint) {
+                networkCall().also { networkResult ->
+                    networkResult.onSuccess { data ->
+                        onNetworkSuccess(data)
+                        syncPrefs.storeLastSyncTime(endpoint)
+                    }
+                }
+            }
+            result
+                .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
+                .onFailure { throwable -> emit(DataState.Error.from(throwable, cachedData)) }
+        } catch (e: Exception) {
+            emit(DataState.Error.from(e, cachedData))
+        }
+    }.flowOn(Dispatchers.IO)
+
+    private suspend fun fetchOpportunitiesFromNetwork(): Result<ConnectOpportunitiesResponseModel> {
+        val user = requireNotNull(ConnectUserDatabaseUtil.getUser(context)) { "No Connect user found" }
+        return ConnectNetworkClient.getInstance(context).getConnectOpportunities(user)
+    }
+
+    private suspend fun fetchLearningProgressFromNetwork(job: ConnectJobRecord): Result<LearningAppProgressResponseModel> {
+        val user = requireNotNull(ConnectUserDatabaseUtil.getUser(context)) { "No Connect user found" }
+        return ConnectNetworkClient.getInstance(context).getLearningProgress(user, job)
+    }
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
+- [ ] No linting errors: `ktlint app/src/org/commcare/connect/repository/ConnectRepository.kt`
+- [ ] Unit tests **pass** (Green): `./gradlew testDebugUnitTest --tests "org.commcare.connect.repository.ConnectRepositoryTest"`
+
+#### Manual Verification:
+- [ ] Repository emits `Loading` when no cached data exists
+- [ ] Repository emits `Cached` when cached data exists in database
+- [ ] Repository emits `Success` after successful network fetch
+- [ ] Repository emits `Error` with cachedData when network fails but cache exists
+- [ ] Database writes occur after successful network response
+- [ ] Session-based policy prevents duplicate fetches within same app session
+- [ ] Force refresh bypasses cache and always fetches from network
+
+
+---
+
+## Phase 3a: Job Opportunities ViewModel + Fragment Tests (Red)
+
+### Overview
+Write failing tests for `ConnectJobsListViewModel` and `ConnectJobsListsFragment`. The ViewModel doesn't exist yet; the fragment exists but hasn't been migrated to use the ViewModel. Commit the Red state before proceeding to Phase 3b.
+
+### Changes Required
+
+#### 1. ConnectJobsListViewModelTest
+**File**: `app/unit-tests/src/org/commcare/connect/viewmodel/ConnectJobsListViewModelTest.kt` (new file)
+**Dependencies**: mock `ConnectRepository`, `InstantTaskExecutorRule` for LiveData synchronous delivery
+
+```kotlin
+package org.commcare.connect.viewmodel
+
+// Test method signatures — implement bodies in Phase 3b
+class ConnectJobsListViewModelTest {
+
+    // mock repository.getOpportunities to emit DataState.Loading then DataState.Success(jobList);
+    // verify LiveData posts Loading then Success in order
+    @Test fun testLoadOpportunities_postsLoadingThenSuccess(): Unit = TODO()
+
+    // mock repository.getOpportunities to emit DataState.Loading then DataState.Error;
+    // verify LiveData posts Error with the correct errorCode
+    @Test fun testLoadOpportunities_postsError_onFailure(): Unit = TODO()
+
+    // call loadOpportunities(forceRefresh = true);
+    // verify repository.getOpportunities was called with forceRefresh = true
+    @Test fun testLoadOpportunities_forceRefresh_passedToRepository(): Unit = TODO()
+}
+```
+
+#### 2. ConnectJobsListsFragmentTest
+**File**: `app/unit-tests/src/org/commcare/fragments/connect/ConnectJobsListsFragmentTest.kt` (new file)
+**Type**: Robolectric, `@RunWith(AndroidJUnit4::class)`, `@Config(application = CommCareTestApplication::class)`
+**Dependencies**: mock `ConnectJobsListViewModel`; post states via a `MutableLiveData` the fragment observes
+
+```kotlin
+package org.commcare.fragments.connect
+
+// Test method signatures — implement bodies in Phase 3b
+@RunWith(AndroidJUnit4::class)
+@Config(application = CommCareTestApplication::class)
+class ConnectJobsListsFragmentTest {
+
+    // post DataState.Loading to the ViewModel LiveData; verify loading indicator is visible
+    @Test fun testFragment_showsLoadingSpinner_onLoadingState(): Unit = TODO()
+
+    // post DataState.Success with a non-empty job list; verify RecyclerView has the correct item count
+    @Test fun testFragment_showsJobList_onSuccessState(): Unit = TODO()
+
+    // post DataState.Cached with a non-empty job list; verify RecyclerView has the correct item count
+    @Test fun testFragment_showsJobList_onCachedState(): Unit = TODO()
+
+    // post DataState.Error with cachedData = null; verify error UI is shown and list is empty/hidden
+    @Test fun testFragment_showsError_onErrorState(): Unit = TODO()
+
+    // post DataState.Error with non-null cachedData; verify list is shown AND error toast appears
+    @Test fun testFragment_showsCachedList_andErrorToast_whenErrorHasCachedData(): Unit = TODO()
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] No linting errors: `ktlint app/unit-tests/src/org/commcare/connect/viewmodel/ConnectJobsListViewModelTest.kt app/unit-tests/src/org/commcare/fragments/connect/ConnectJobsListsFragmentTest.kt`
+- [ ] Tests **fail** (Red — expected): `./gradlew testDebugUnitTest --tests "org.commcare.connect.viewmodel.ConnectJobsListViewModelTest"` and `--tests "org.commcare.fragments.connect.ConnectJobsListsFragmentTest"`
+- [ ] Commit failing tests before proceeding to Phase 3b
+
+---
+
+## Phase 3b: Job Opportunities Migration (Green)
+
+### Overview
+Create `ConnectJobsListViewModel` and integrate it with the existing Java fragment `ConnectJobsListsFragment` to pass the Phase 3a tests. The fragment will observe LiveData from the ViewModel instead of using direct API callbacks.
+
+### Changes Required
+
+#### 1. collectInto Extension Function
+**File**: `app/src/org/commcare/connect/viewmodel/ViewModelExtensions.kt` (new file)
+**Purpose**: Eliminates the repeated `viewModelScope.launch / catch / collect / postValue` boilerplate across all Connect ViewModels.
+
+```kotlin
+package org.commcare.connect.viewmodel
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
+import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.repository.DataState
+
+// viewModelScope uses Dispatchers.Main.immediate — liveData.value = is safe (no postValue).
+fun <T> ViewModel.collectInto(
+    flow: Flow<DataState<T>>,
+    liveData: MutableLiveData<DataState<T>>,
+) {
+    viewModelScope.launch {
+        flow.catch { exception ->
+            liveData.value = DataState.Error.from(exception)
+        }.collect { dataState ->
+            liveData.value = dataState
+        }
+    }
+}
+```
+
+#### 2. ConnectJobsListViewModel
+**File**: `app/src/org/commcare/connect/viewmodel/ConnectJobsListViewModel.kt` (new file)
+**Purpose**: Manages UI state for job opportunities list
+
+```kotlin
+package org.commcare.connect.viewmodel
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
+import org.commcare.connect.repository.RefreshPolicy
+
+class ConnectJobsListViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = ConnectRepository.getInstance(application)
+
+    private val _opportunities = MutableLiveData<DataState<List<ConnectJobRecord>>>()
+    val opportunities: LiveData<DataState<List<ConnectJobRecord>>> = _opportunities
+
+    fun loadOpportunities(forceRefresh: Boolean = false) {
+        collectInto(
+            flow = repository.getOpportunities(forceRefresh, RefreshPolicy.SESSION_AND_TIME_BASED(60_000)),
+            liveData = _opportunities,
+        )
+    }
+}
+```
+
+#### 2. Update ConnectJobsListsFragment
+**File**: `app/src/org/commcare/fragments/connect/ConnectJobsListsFragment.java`
+**Changes**: Replace direct API call with ViewModel observation
+
+**Existing code (lines 81-106)**:
+```java
+public void refreshData() {
+    ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
+    corruptJobs.clear();
+    ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
+    new ConnectApiHandler<ConnectOpportunitiesResponseModel>(true, this) {
+
+        @Override
+        public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+            if (!isAdded()) {
+                return;
+            }
+
+            Toast.makeText(requireContext(), PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+            navigateFailure();
+        }
+
+        @Override
+        public void onSuccess(ConnectOpportunitiesResponseModel data) {
+            corruptJobs = data.getCorruptJobs();
+
+            if (isAdded()) {
+                setJobListData(data.getValidJobs());
+            }
+        }
+    }.getConnectOpportunities(requireContext(), user);
+}
+```
+
+**New implementation**:
+```java
+package org.commcare.fragments.connect;
+
+// Add new imports
+import androidx.lifecycle.ViewModelProvider;
+import org.commcare.connect.repository.DataState;
+import org.commcare.connect.viewmodel.ConnectJobsListViewModel;
+
+public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnectJobsListBinding>
+        implements RefreshableFragment {
+
+    ArrayList<ConnectLoginJobListModel> inProgressJobs;
+    ArrayList<ConnectLoginJobListModel> newJobs;
+    ArrayList<ConnectLoginJobListModel> completedJobs;
+    ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
+
+    private ConnectJobsListViewModel viewModel;
+
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        requireActivity().setTitle(R.string.connect_title);
+
+        viewModel = new ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(ConnectJobsListViewModel.class);
+
+        observeOpportunities();
+        viewModel.loadOpportunities(false);
+
+        return view;
+    }
+
+    @Override
+    public void refresh() {
+        viewModel.loadOpportunities(true);
+    }
+
+    private void observeOpportunities() {
+        viewModel.getOpportunities().observe(getViewLifecycleOwner(), dataState -> {
+            if (!isAdded()) {
+                return;
+            }
+
+            if (dataState instanceof DataState.Loading) {
+                showLoading();
+            } else if (dataState instanceof DataState.Cached) {
+                hideLoading();
+                hideError();
+                DataState.Cached<List<ConnectJobRecord>> cached =
+                    (DataState.Cached<List<ConnectJobRecord>>) dataState;
+                corruptJobs.clear();
+                setJobListData(cached.getData());
+
+            } else if (dataState instanceof DataState.Success) {
+                hideLoading();
+                hideError();
+                DataState.Success<List<ConnectJobRecord>> success =
+                    (DataState.Success<List<ConnectJobRecord>>) dataState;
+                corruptJobs.clear();
+                setJobListData(success.getData());
+
+            } else if (dataState instanceof DataState.Error) {
+                hideLoading();
+                DataState.Error<List<ConnectJobRecord>> error =
+                    (DataState.Error<List<ConnectJobRecord>>) dataState;
+                String errorMsg = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), error.getErrorCode(), error.getThrowable());
+                if (!errorMsg.isEmpty()) {
+                    showError(errorMsg);
+                }
+                if (error.getCachedData() != null) {
+                    setJobListData(error.getCachedData());
+                } else {
+                    navigateFailure();
+                }
+            }
+        });
+    }
+
+    private void navigateFailure() {
+        setJobListData(new ArrayList<>());
+    }
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
+- [ ] Java compilation succeeds: `./gradlew compileDebugJava`
+- [ ] No linting errors: `ktlint app/src/org/commcare/connect/viewmodel/*.kt`
+- [ ] Unit tests **pass** (Green): `./gradlew testDebugUnitTest --tests "org.commcare.connect.viewmodel.ConnectJobsListViewModelTest"` and `--tests "org.commcare.fragments.connect.ConnectJobsListsFragmentTest"`
+
+#### Manual Verification:
+- [ ] Fragment displays cached job list immediately on screen entry
+- [ ] Network fetch happens in background, UI updates when fresh data arrives
+- [ ] Hybrid policy works: Second navigation in same session doesn't trigger network if cache < 1 minute old
+- [ ] Hybrid policy works: New app session triggers network call even with fresh cache
+- [ ] Hybrid policy works: Cache older than 1 minute triggers network call even in same session
+- [ ] Force refresh (pull-to-refresh) bypasses cache and fetches from network
+- [ ] Error toast displays when network fails
+- [ ] Cached data still displays even when network fails
+- [ ] Empty state shows when no cached data and network fails
+- [ ] No duplicate network requests when rotating device
+
+
+---
+
+## Phase 4a: Learning Progress ViewModel + Fragment Tests (Red)
+
+### Overview
+Write failing tests for `ConnectLearningProgressViewModel` and `ConnectLearningProgressFragment`. The ViewModel doesn't exist yet; the fragment exists but hasn't been migrated. Commit the Red state before proceeding to Phase 4b.
+
+### Changes Required
+
+#### 1. ConnectLearningProgressViewModelTest
+**File**: `app/unit-tests/src/org/commcare/connect/viewmodel/ConnectLearningProgressViewModelTest.kt` (new file)
+**Dependencies**: mock `ConnectRepository`, `InstantTaskExecutorRule` for LiveData synchronous delivery
+
+```kotlin
+package org.commcare.connect.viewmodel
+
+// Test method signatures — implement bodies in Phase 4b
+class ConnectLearningProgressViewModelTest {
+
+    // mock repository.getLearningProgress to emit DataState.Loading then DataState.Success(job);
+    // verify LiveData posts Loading then Success in order
+    @Test fun testLoadLearningProgress_postsLoadingThenSuccess(): Unit = TODO()
+
+    // mock repository.getLearningProgress to emit DataState.Loading then DataState.Error;
+    // verify LiveData posts Error with the correct errorCode
+    @Test fun testLoadLearningProgress_postsError_onFailure(): Unit = TODO()
+}
+```
+
+#### 2. ConnectLearningProgressFragmentTest
+**File**: `app/unit-tests/src/org/commcare/fragments/connect/ConnectLearningProgressFragmentTest.kt` (new file)
+**Type**: Robolectric, `@RunWith(AndroidJUnit4::class)`, `@Config(application = CommCareTestApplication::class)`
+**Dependencies**: mock `ConnectLearningProgressViewModel`; post states via a `MutableLiveData` the fragment observes
+
+```kotlin
+package org.commcare.fragments.connect
+
+// Test method signatures — implement bodies in Phase 4b
+@RunWith(AndroidJUnit4::class)
+@Config(application = CommCareTestApplication::class)
+class ConnectLearningProgressFragmentTest {
+
+    // post DataState.Loading; verify loading indicator is visible
+    @Test fun testFragment_showsLoading_onLoadingState(): Unit = TODO()
+
+    // post DataState.Success with a ConnectJobRecord; verify learning progress UI (percentage, modules) is updated
+    @Test fun testFragment_updatesUI_onSuccessState(): Unit = TODO()
+
+    // post DataState.Cached with a ConnectJobRecord; verify learning progress UI is updated
+    @Test fun testFragment_updatesUI_onCachedState(): Unit = TODO()
+
+    // post DataState.Error with non-null cachedData; verify error toast appears and cached UI is shown
+    @Test fun testFragment_showsErrorToast_onErrorState_withCachedData(): Unit = TODO()
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] No linting errors: `ktlint app/unit-tests/src/org/commcare/connect/viewmodel/ConnectLearningProgressViewModelTest.kt app/unit-tests/src/org/commcare/fragments/connect/ConnectLearningProgressFragmentTest.kt`
+- [ ] Tests **fail** (Red — expected): `./gradlew testDebugUnitTest --tests "org.commcare.connect.viewmodel.ConnectLearningProgressViewModelTest"` and `--tests "org.commcare.fragments.connect.ConnectLearningProgressFragmentTest"`
+- [ ] Commit failing tests before proceeding to Phase 4b
+
+---
+
+## Phase 4b: Learning Progress Endpoint + Migration (Green)
+
+### Overview
+Create `ConnectLearningProgressViewModel` and integrate it with `ConnectLearningProgressFragment` to pass the Phase 4a tests.
+
+### Changes Required
+
+#### 1. ConnectLearningProgressViewModel
+**File**: `app/src/org/commcare/connect/viewmodel/ConnectLearningProgressViewModel.kt` (new file)
+**Purpose**: Manages UI state for learning progress screen
+
+```kotlin
+package org.commcare.connect.viewmodel
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
+import org.commcare.connect.repository.RefreshPolicy
+
+class ConnectLearningProgressViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = ConnectRepository.getInstance(application)
+
+    private val _learningProgress = MutableLiveData<DataState<ConnectJobRecord>>()
+    val learningProgress: LiveData<DataState<ConnectJobRecord>> = _learningProgress
+
+    fun loadLearningProgress(job: ConnectJobRecord) {
+        collectInto(
+            flow = repository.getLearningProgress(job, policy = RefreshPolicy.ALWAYS),
+            liveData = _learningProgress,
+        )
+    }
+}
+```
+
+#### 2. Update ConnectLearningProgressFragment
+**File**: `app/src/org/commcare/fragments/connect/ConnectLearningProgressFragment.java`
+**Changes**: Replace ConnectJobHelper callback with ViewModel observation
+
+**Existing code (lines 81-93)**:
+```java
+private void refreshLearningData() {
+    ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, (success,error) -> {
+        if (success && isAdded()) {
+            updateLearningUI();
+        } else if (!success && isAdded()) {
+            Toast.makeText(
+                    requireContext(),
+                    getString(R.string.connect_fetch_learning_progress_error),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    });
+}
+```
+
+**New implementation**:
+```java
+package org.commcare.fragments.connect;
+
+// Add new imports
+import androidx.lifecycle.ViewModelProvider;
+import org.commcare.connect.repository.DataState;
+import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
+
+public class ConnectLearningProgressFragment extends ConnectJobFragment<FragmentConnectLearningProgressBinding>
+        implements RefreshableFragment {
+
+    private boolean showAppLaunch = true;
+
+    private ConnectLearningProgressViewModel viewModel;
+
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        if (getArguments() != null) {
+            showAppLaunch = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
+        }
+
+        requireActivity().setTitle(getString(R.string.connect_learn_title));
+
+        viewModel = new ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(ConnectLearningProgressViewModel.class);
+
+        observeLearningProgress();
+
+        setupRefreshButton();
+        populateJobCard(job);
+        refreshLearningData();
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+            refreshLearningData();
+        }
+    }
+
+    @Override
+    public void refresh() {
+        refreshLearningData();
+    }
+
+    private void setupRefreshButton() {
+        getBinding().btnSync.setOnClickListener(v -> refreshLearningData());
+    }
+
+    private void observeLearningProgress() {
+        viewModel.getLearningProgress().observe(getViewLifecycleOwner(), dataState -> {
+            if (!isAdded()) {
+                return;
+            }
+
+            if (dataState instanceof DataState.Loading) {
+                showLoading();
+            } else if (dataState instanceof DataState.Cached) {
+                hideLoading();
+                hideError();
+                DataState.Cached<ConnectJobRecord> cached =
+                    (DataState.Cached<ConnectJobRecord>) dataState;
+                job = cached.getData();
+                updateLearningUI();
+
+            } else if (dataState instanceof DataState.Success) {
+                hideLoading();
+                hideError();
+                DataState.Success<ConnectJobRecord> success =
+                    (DataState.Success<ConnectJobRecord>) dataState;
+                job = success.getData();
+                updateLearningUI();
+
+            } else if (dataState instanceof DataState.Error) {
+                hideLoading();
+                DataState.Error<ConnectJobRecord> error =
+                    (DataState.Error<ConnectJobRecord>) dataState;
+                String errorMsg = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), error.getErrorCode(), error.getThrowable());
+                if (!errorMsg.isEmpty()) {
+                    showError(errorMsg);
+                }
+                if (error.getCachedData() != null) {
+                    job = error.getCachedData();
+                    updateLearningUI();
+                }
+            }
+        });
+    }
+
+    private void refreshLearningData() {
+        viewModel.loadLearningProgress(job);
+    }
+}
+```
+
+### Success Criteria
+
+#### Automated Verification:
+- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
+- [ ] Java compilation succeeds: `./gradlew compileDebugJava`
+- [ ] No linting errors: `ktlint app/src/org/commcare/connect/repository/*.kt app/src/org/commcare/connect/viewmodel/*.kt`
+- [ ] Unit tests **pass** (Green): `./gradlew testDebugUnitTest --tests "org.commcare.connect.viewmodel.ConnectLearningProgressViewModelTest"` and `--tests "org.commcare.fragments.connect.ConnectLearningProgressFragmentTest"`
+
+#### Manual Verification:
+- [ ] Fragment displays cached learning progress immediately on screen entry
+- [ ] Network fetch happens in background, UI updates when fresh data arrives
+- [ ] Always-refresh policy works: Every navigation to screen triggers network call
+- [ ] Sync button triggers network refresh
+- [ ] Error toast displays when network fails
+- [ ] Cached data still displays even when network fails
+- [ ] Learning progress percentage, modules, and assessments update correctly
+- [ ] Certificate view displays after passing assessment
+- [ ] No duplicate network requests when rotating device or clicking sync rapidly
+
+
+---
+
+## Phase 5: Manual Testing & Validation
+
+### Overview
+End-to-end manual verification of the complete offline-first architecture across both migrated fragments.
+
+### Manual Testing Checklist
 
 **Test Scenarios**:
 
@@ -1717,12 +1824,6 @@ class ConnectRequestManagerTest {
 
 ### Success Criteria
 
-#### Automated Verification:
-- [ ] All unit tests pass: `./gradlew testDebugUnitTest`
-- [ ] No linting errors: `ktlint "app/src/org/commcare/connect/**/*.kt"`
-- [ ] Kotlin compilation succeeds: `./gradlew compileDebugKotlin`
-- [ ] Java compilation succeeds: `./gradlew compileDebugJava`
-
 #### Manual Verification:
 - [ ] All 24 manual test scenarios pass
 - [ ] No regressions in other Connect screens
@@ -1730,24 +1831,8 @@ class ConnectRequestManagerTest {
 - [ ] Memory usage is reasonable (no leaks from coroutines)
 - [ ] Performance is acceptable (no noticeable lag)
 
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful.
 
 ---
-
-## Testing Strategy
-
-### Unit Tests
-- **ConnectSyncPreferencesTest**: Tests all refresh policy logic
-- **ConnectRequestManagerTest**: Tests deduplication and concurrency
-- **ConnectRepositoryTest**: Tests Flow emissions and database writes (mocked)
-- **ConnectJobsListViewModelTest**: Tests ViewModel state transformations
-- **ConnectLearningProgressViewModelTest**: Tests ViewModel with always-refresh policy
-
-### Integration Tests
-Not required for this phase since we're maintaining existing database and network patterns.
-
-### Manual Testing Steps
-See Phase 5 manual testing checklist above for 24 specific test scenarios.
 
 ## Performance Considerations
 
@@ -1780,7 +1865,7 @@ See Phase 5 manual testing checklist above for 24 specific test scenarios.
 
 
 **Session Initialization**:
-Add to `CommCareApplication.onCreate()` or main activity launch:
+Add to `CommCareApplication.onCreate()` (not Activity — Activity fires on rotation):
 ```kotlin
 ConnectSyncPreferences.getInstance(this).markSessionStart()
 ```
@@ -1788,6 +1873,7 @@ ConnectSyncPreferences.getInstance(this).markSessionStart()
 ## References
 
 - Original research: `docs/claude/research/2026-02-23-offline-first-network-architecture.md`
+- TDD iteration design: `docs/claude/plans/2026-03-09-offline-first-tdd-iteration-design.md`
 - Best existing pattern: `app/src/org/commcare/activities/connect/viewmodel/PushNotificationViewModel.kt:31-70`
 - Current sync tracking: `app/src/org/commcare/utils/SyncDetailCalculations.java`
 - CommCareTask pattern: `app/src/org/commcare/tasks/templates/CommCareTask.java`
