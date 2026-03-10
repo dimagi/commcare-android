@@ -1,17 +1,17 @@
-package org.commcare.utils;
+package org.commcare.utils
 
 /**
  * Provides country ISO signals for determining the user's country code.
  * Abstracted for testability — production uses TelephonyManager/Locale,
  * tests use a fake implementation.
  */
-public interface CountryCodeSignalProvider {
+interface CountryCodeSignalProvider {
     /** SIM card country ISO (e.g., "in", "ke"). Empty/null if unavailable. */
-    String getSimCountryIso();
+    val simCountryIso: String?
 
     /** Cellular network country ISO (e.g., "in", "ke"). Empty/null if unavailable. */
-    String getNetworkCountryIso();
+    val networkCountryIso: String?
 
     /** Device locale country ISO (e.g., "US", "IN"). Empty/null if unavailable. */
-    String getLocaleCountry();
+    val localeCountry: String?
 }
