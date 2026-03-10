@@ -59,4 +59,24 @@ class ConnectJobsListsFragmentTest {
         assertNotNull(fragment.view)
         assertTrue(fragment.isAdded)
     }
+
+    // post DataState.Loading to the ViewModel LiveData; verify loading indicator is visible
+    @Test
+    fun testFragment_showsLoadingSpinner_onLoadingState(): Unit = TODO()
+
+    // post DataState.Success with a non-empty job list; verify RecyclerView has the correct item count
+    @Test
+    fun testFragment_showsJobList_onSuccessState(): Unit = TODO()
+
+    // post DataState.Cached with a non-empty job list; verify RecyclerView has the correct item count
+    @Test
+    fun testFragment_showsJobList_onCachedState(): Unit = TODO()
+
+    // post DataState.Error with cachedData = null; verify error UI is shown and list is empty/hidden
+    @Test
+    fun testFragment_showsError_onErrorState(): Unit = TODO()
+
+    // post DataState.Error with non-null cachedData; verify list is shown AND error toast appears
+    @Test
+    fun testFragment_showsCachedList_andErrorToast_whenErrorHasCachedData(): Unit = TODO()
 }
