@@ -28,8 +28,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = "ke"
         fakeProvider.localeCountry = "US"
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("+91", result)
     }
 
@@ -39,8 +38,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = "ke"
         fakeProvider.localeCountry = "US"
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("+254", result)
     }
 
@@ -50,8 +48,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = ""
         fakeProvider.localeCountry = "US"
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("+1", result)
     }
 
@@ -61,8 +58,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = ""
         fakeProvider.localeCountry = ""
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("", result)
     }
 
@@ -72,8 +68,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = null
         fakeProvider.localeCountry = null
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("", result)
     }
 
@@ -83,8 +78,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = "ke"
         fakeProvider.localeCountry = "US"
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("+254", result)
     }
 
@@ -94,8 +88,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = "de"
         fakeProvider.localeCountry = "FR"
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("+44", result)
     }
 
@@ -105,8 +98,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = "de"
         fakeProvider.localeCountry = "FR"
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("+49", result)
     }
 
@@ -116,8 +108,7 @@ class PhoneNumberHelperCountryCodeTest {
         fakeProvider.networkCountryIso = ""
         fakeProvider.localeCountry = ""
 
-        val result = helper.getDefaultCountryCode(
-            ApplicationProvider.getApplicationContext(), fakeProvider)
+        val result = helper.getDefaultCountryCode(fakeProvider)
         assertEquals("+91", result)
     }
 }

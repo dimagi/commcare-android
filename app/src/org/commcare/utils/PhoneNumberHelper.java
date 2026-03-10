@@ -118,7 +118,7 @@ public class PhoneNumberHelper {
      * Retrieves the best country code by trying signals in priority order:
      * SIM > Network > Locale. Uses the provided signal provider.
      */
-    public String getDefaultCountryCode(Context context, CountryCodeSignalProvider provider) {
+    public String getDefaultCountryCode(CountryCodeSignalProvider provider) {
         String[] signals = {
             provider.getSimCountryIso(),
             provider.getNetworkCountryIso(),
@@ -139,7 +139,7 @@ public class PhoneNumberHelper {
      * Convenience overload for production use.
      */
     public String getDefaultCountryCode(Context context) {
-        return getDefaultCountryCode(context, new DefaultCountryCodeSignalProvider(context));
+        return getDefaultCountryCode(new DefaultCountryCodeSignalProvider(context));
     }
 
     /**
