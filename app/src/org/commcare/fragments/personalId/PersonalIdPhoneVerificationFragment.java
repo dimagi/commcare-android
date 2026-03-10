@@ -235,7 +235,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void toggleVerifyButton(String otp) {
-        binding.connectPhoneVerifyButton.setEnabled(otp.length() > 5);
+        binding.connectPhoneVerifyButton.setEnabled(otp.length() == 6);
     }
 
     private void clearOtpError() {
@@ -339,7 +339,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();
 
-        if (otpCode.isEmpty()) {
+        if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
             otpManager.verifyOtp(otpCode);
@@ -423,11 +423,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
     @Override
     protected void keyboardEnterPressed() {
-        String otp = binding.customOtpView.getOtpValue();
-        boolean isComplete = otp.length() == 6;
-        boolean isButtonEnabled = binding.connectPhoneVerifyButton.isEnabled();
-
-        if (isComplete && isButtonEnabled) {
+        if (binding.connectPhoneVerifyButton.isEnabled()) {
             verifyOtp();
         } else {
             KeyboardHelper.hideVirtualKeyboard(requireActivity());
