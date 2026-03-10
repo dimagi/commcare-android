@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
 object ConnectRequestManager {
+    @Volatile
     private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val inFlightRequests = ConcurrentHashMap<String, CompletableDeferred<Result<Any>>>()
 
