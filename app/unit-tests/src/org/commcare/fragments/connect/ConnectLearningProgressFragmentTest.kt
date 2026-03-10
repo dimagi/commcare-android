@@ -60,4 +60,20 @@ class ConnectLearningProgressFragmentTest {
         assertNotNull(fragment.view)
         assertTrue(fragment.isAdded)
     }
+
+    // post DataState.Loading; verify loading indicator is visible
+    @Test
+    fun testFragment_showsLoading_onLoadingState(): Unit = TODO()
+
+    // post DataState.Success with a ConnectJobRecord; verify learning progress UI (percentage, modules) is updated
+    @Test
+    fun testFragment_updatesUI_onSuccessState(): Unit = TODO()
+
+    // post DataState.Cached with a ConnectJobRecord; verify learning progress UI is updated
+    @Test
+    fun testFragment_updatesUI_onCachedState(): Unit = TODO()
+
+    // post DataState.Error with non-null cachedData; verify error toast appears and cached UI is shown
+    @Test
+    fun testFragment_showsErrorToast_onErrorState_withCachedData(): Unit = TODO()
 }
