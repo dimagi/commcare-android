@@ -8,8 +8,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
-import okhttp3.MediaType
-import okhttp3.ResponseBody
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
@@ -37,7 +37,6 @@ class ConnectNetworkClientTest {
 
     @Before
     fun setUp() {
-        // Uses the testability constructor added in Phase 1.5b
         client = ConnectNetworkClient(context, mockApiService)
         mockkStatic("org.commcare.connect.network.ConnectNetworkHelperKt")
         coEvery { getAuthorizationHeader(any(), any()) } returns Result.success("Bearer testtoken")
@@ -66,7 +65,7 @@ class ConnectNetworkClientTest {
     @Test
     fun testGetConnectOpportunities_httpError401_returnsFailedAuth() =
         runBlocking {
-            val errorBody = ResponseBody.create(MediaType.parse("application/json"), "")
+            val errorBody = "".toResponseBody("application/json".toMediaType())
             val mockResponse = Response.error<ResponseBody>(401, errorBody)
             coEvery { mockApiService.getConnectOpportunities(any(), any()) } returns mockResponse
 
@@ -97,7 +96,7 @@ class ConnectNetworkClientTest {
     @Test
     fun testGetConnectOpportunities_http500_returnsServerError() =
         runBlocking {
-            val errorBody = ResponseBody.create(MediaType.parse("application/json"), "")
+            val errorBody = "".toResponseBody("application/json".toMediaType())
             val mockResponse = Response.error<ResponseBody>(500, errorBody)
             coEvery { mockApiService.getConnectOpportunities(any(), any()) } returns mockResponse
 
@@ -132,7 +131,7 @@ class ConnectNetworkClientTest {
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>()
             every { mockJob.jobUUID } returns "test-uuid"
-            val errorBody = ResponseBody.create(MediaType.parse("application/json"), "")
+            val errorBody = "".toResponseBody("application/json".toMediaType())
             val mockResponse = Response.error<ResponseBody>(500, errorBody)
             coEvery { mockApiService.getLearningProgress(any(), any(), any()) } returns mockResponse
 
