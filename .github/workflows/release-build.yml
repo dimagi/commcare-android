@@ -35,8 +35,8 @@ jobs:
           else
             VERSION=${GITHUB_REF#refs/tags/commcare_}
           fi
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: version must be in format X.Y.Z, got $VERSION"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9a-zA-Z]+$ ]]; then
+            echo "Error: version must be in format X.Y.Z (Z may contain letters), got $VERSION"
             exit 1
           fi
           MAJOR_MINOR=${VERSION%.*}
@@ -189,7 +189,9 @@ jobs:
             --draft \
             "commcare_${VERSION}.apk" \
             "commcare_${VERSION}.aab"
+      # Skip submit for test versions (e.g. 2.61.5test) to test the build without submitting it
       - name: Submit build
+        if: ${{ !contains(needs.build-test-assemble.outputs.version, 'test') }}
         working-directory: commcare-android
         env:
           PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
