@@ -42,7 +42,24 @@ jobs:
           MAJOR_MINOR=${VERSION%.*}
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "CCCORE_BRANCH=commcare_$MAJOR_MINOR" >> "$GITHUB_ENV"
+
+          # Find the best commcare-core tag: highest commcare_X.Y.Z <= current version,
+          # falling back to commcare_X.Y branch
+          PATCH=${VERSION##*.}
+          # Strip any trailing letters to get the numeric patch for comparison
+          PATCH_NUM=$(echo "$PATCH" | sed 's/[^0-9].*//')
+          BEST_REF="commcare_$MAJOR_MINOR"
+          BEST_PATCH=-1
+          while IFS=$'\t' read -r _sha ref; do
+            tag=${ref#refs/tags/}
+            tag_patch=${tag##*.}
+            if [[ "$tag_patch" =~ ^[0-9]+$ ]] && (( tag_patch <= PATCH_NUM )) && (( tag_patch > BEST_PATCH )); then
+              BEST_REF="$tag"
+              BEST_PATCH=$tag_patch
+            fi
+          done < <(git ls-remote --tags https://github.com/dimagi/commcare-core.git "commcare_${MAJOR_MINOR}.*")
+          echo "Selected commcare-core ref: $BEST_REF"
+          echo "CCCORE_BRANCH=$BEST_REF" >> "$GITHUB_ENV"
       - name: Checkout commcare-android
         uses: actions/checkout@v6
         with:
