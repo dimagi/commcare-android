@@ -48,11 +48,6 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
         supportActionBar?.title = getString(R.string.personalid_profile_title)
     }
 
-    override fun onResume() {
-        super.onResume()
-        supportActionBar?.title = getString(R.string.personalid_profile_title)
-    }
-
     private fun initTakePhotoLauncher() {
         takePhotoLauncher =
             registerForActivityResult(
@@ -120,6 +115,7 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
         try {
             object : PersonalIdApiHandler<Void>() {
                 override fun onSuccess(data: Void?) {
+                    if (isFinishing || isDestroyed) return
                     dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
                     user.photo = photoBase64
                     ConnectUserDatabaseUtil.storeUser(this@PersonalIdProfileActivity, user)
@@ -136,6 +132,7 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
                     errorCode: PersonalIdOrConnectApiErrorCodes,
                     t: Throwable?,
                 ) {
+                    if (isFinishing || isDestroyed) return
                     dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
                     revertPhoto()
                     binding.photoActionButton.isEnabled = true
@@ -156,6 +153,7 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
                 }
             }.updatePhoto(this, user.userId, user.password, photoBase64)
         } catch (e: Exception) {
+            if (isFinishing || isDestroyed) return
             dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
             revertPhoto()
             binding.photoActionButton.isEnabled = true
