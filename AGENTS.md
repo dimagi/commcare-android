@@ -22,8 +22,9 @@
 - Use unit tests with Robolectric for user interface verification
 - Use Android Instrumentation tests for end-to-end integration testing
 - Mock external dependencies when needed
-- Maintain a high code coverage percentage
 - Ensure test compiles and passes before committing code changes
+- When adding tests, ensure that all methods of a class are covered
+- When appropriate, assert specific expected values rather than just non-null or truthy checks
 
 ## Workflow After Code Changes
 All the changes below should be part of a separate commit after the main code changes:
