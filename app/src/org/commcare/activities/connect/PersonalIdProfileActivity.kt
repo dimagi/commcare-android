@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import org.commcare.activities.CommCareActivity
+import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
@@ -17,7 +18,6 @@ import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalidProfileBinding
 import org.commcare.fragments.MicroImageActivity
-import org.commcare.utils.MediaUtil
 import org.commcare.views.dialogs.CustomProgressDialog
 
 class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() {
@@ -25,12 +25,20 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
         ActivityPersonalidProfileBinding.inflate(layoutInflater)
     }
     private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
-    private val user by lazy { ConnectUserDatabaseUtil.getUser(this) }
+    private lateinit var user: ConnectUserRecord
     private var previousPhoto: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        val loadedUser = ConnectUserDatabaseUtil.getUser(this)
+        if (loadedUser == null) {
+            finish()
+            return
+        }
+        user = loadedUser
+
         initTakePhotoLauncher()
         setupUi()
     }
@@ -45,16 +53,14 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
             registerForActivityResult(
                 ActivityResultContracts.StartActivityForResult(),
             ) { result ->
-                if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                    val photoBase64 =
-                        result.data!!.getStringExtra(
-                            MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY,
-                        )
-                    if (photoBase64 != null) {
-                        previousPhoto = user.photo
-                        displayPhoto(photoBase64)
-                        uploadPhoto(photoBase64)
-                    }
+                if (result.resultCode == Activity.RESULT_OK) {
+                    result.data
+                        ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
+                        ?.let { photoBase64 ->
+                            previousPhoto = user.photo
+                            displayPhoto(photoBase64)
+                            uploadPhoto(photoBase64)
+                        }
                 }
             }
     }
@@ -68,15 +74,7 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
     private fun loadCurrentPhoto() {
         val photo = user.photo
         if (!photo.isNullOrEmpty()) {
-            Glide
-                .with(this)
-                .load(photo)
-                .apply(
-                    RequestOptions
-                        .circleCropTransform()
-                        .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar),
-                ).into(binding.profilePhoto)
+            loadPhotoWithGlide(photo)
             binding.photoActionButton.setText(R.string.personalid_profile_update_photo)
         } else {
             binding.photoActionButton.setText(R.string.personalid_profile_add_photo)
@@ -84,8 +82,20 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
     }
 
     private fun displayPhoto(photoBase64: String) {
-        binding.profilePhoto.setImageBitmap(MediaUtil.decodeBase64EncodedBitmap(photoBase64))
+        loadPhotoWithGlide(photoBase64)
         binding.photoActionButton.setText(R.string.personalid_profile_update_photo)
+    }
+
+    private fun loadPhotoWithGlide(photo: String) {
+        Glide
+            .with(this)
+            .load(photo)
+            .apply(
+                RequestOptions
+                    .circleCropTransform()
+                    .placeholder(R.drawable.nav_drawer_person_avatar)
+                    .error(R.drawable.nav_drawer_person_avatar),
+            ).into(binding.profilePhoto)
     }
 
     private fun launchCamera() {
@@ -138,15 +148,7 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
     private fun revertPhoto() {
         val photo = previousPhoto
         if (!photo.isNullOrEmpty()) {
-            Glide
-                .with(this)
-                .load(photo)
-                .apply(
-                    RequestOptions
-                        .circleCropTransform()
-                        .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar),
-                ).into(binding.profilePhoto)
+            loadPhotoWithGlide(photo)
             binding.photoActionButton.setText(R.string.personalid_profile_update_photo)
         } else {
             binding.profilePhoto.setImageResource(R.drawable.nav_drawer_person_avatar)

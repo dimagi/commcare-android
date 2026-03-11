@@ -221,6 +221,8 @@ public class ApiPersonalId {
 
     public static void updatePhoto(Context context, String userId, String password,
                                     String photoAsBase64, IApiCallback callback) {
+        Objects.requireNonNull(userId);
+        Objects.requireNonNull(password);
         Objects.requireNonNull(photoAsBase64);
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
         String tokenAuth = HttpUtils.getCredential(authInfo);
