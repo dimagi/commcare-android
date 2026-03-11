@@ -2,22 +2,20 @@ package org.commcare.services
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.commcare.preferences.HiddenPreferences
 
 class SessionManager(
-private val context: Context
+    private val context: Context,
+    private val coroutineScope: CoroutineScope
 ) {
     companion object {
         private const val PREF_SESSION = "session_data"
         private const val SESSION_EXPIRATION_ATTR = "session_expiration"
     }
 
-    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var sessionJob: Job? = null
 
     private val prefs by lazy {
@@ -58,7 +56,7 @@ private val context: Context
             return
         }
 
-        sessionJob = appScope.launch {
+        sessionJob = coroutineScope.launch {
             delay(remaining)
             expireSession()
         }
