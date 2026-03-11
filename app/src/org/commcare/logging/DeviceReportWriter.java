@@ -2,6 +2,8 @@ package org.commcare.logging;
 
 import android.os.Build;
 
+import com.google.common.io.CountingOutputStream;
+
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.DeviceReportRecord;
@@ -27,7 +29,7 @@ public class DeviceReportWriter {
     public static final String XMLNS = "http://code.javarosa.org/devicereport";
 
     private final XmlSerializer serializer;
-    private final OutputStream os;
+    private final CountingOutputStream countingOutputStream;
     private final ArrayList<DeviceReportElement> elements = new ArrayList<>();
 
     public DeviceReportWriter(DeviceReportRecord record) throws IOException {
@@ -35,10 +37,10 @@ public class DeviceReportWriter {
     }
 
     public DeviceReportWriter(OutputStream outputStream) throws IOException {
-        os = outputStream;
+        countingOutputStream = new CountingOutputStream(outputStream);
 
         serializer = new KXmlSerializer();
-        serializer.setOutput(os, "UTF-8");
+        serializer.setOutput(countingOutputStream, "UTF-8");
         serializer.setPrefix("", XMLNS);
 
         serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
@@ -80,7 +82,7 @@ public class DeviceReportWriter {
             serializer.endDocument();
         } finally {
             try {
-                os.close();
+                countingOutputStream.close();
             } catch (IOException e) {
             }
         }
