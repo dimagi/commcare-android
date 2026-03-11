@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.location.Location
 import android.os.Bundle
-import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -16,6 +15,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
@@ -56,10 +56,8 @@ class PersonalIdPhoneFragment :
     private lateinit var binding: ScreenPersonalidPhonenoBinding
     private var shouldShowPhoneHintDialog = true
     private lateinit var phoneNumberHelper: PhoneNumberHelper
-    private lateinit var hostActivity: Activity
     private lateinit var personalIdSessionDataViewModel: PersonalIdSessionDataViewModel
     private lateinit var integrityTokenApiRequestHelper: IntegrityTokenApiRequestHelper
-    private var phone: String? = null
     private var location: Location? = null
     private lateinit var locationController: CommCareLocationController
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<Array<String>>
@@ -73,9 +71,8 @@ class PersonalIdPhoneFragment :
         savedInstanceState: Bundle?,
     ): View {
         binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false)
-        hostActivity = requireActivity()
-        phoneNumberHelper = PhoneNumberHelper.getInstance(hostActivity)
-        hostActivity.setTitle(R.string.connect_registration_title)
+        phoneNumberHelper = PhoneNumberHelper.getInstance(requireActivity())
+        requireActivity().setTitle(R.string.connect_registration_title)
         personalIdSessionDataViewModel =
             ViewModelProvider(requireActivity())[PersonalIdSessionDataViewModel::class.java]
         locationController =
@@ -102,7 +99,7 @@ class PersonalIdPhoneFragment :
     }
 
     private fun setLocationToolTip(location: Location?) {
-        binding.groupTooltip.visibility = View.VISIBLE
+        binding.groupTooltip.isVisible = true
 
         val locationFound = location != null
 
@@ -174,17 +171,11 @@ class PersonalIdPhoneFragment :
 
     private fun setupListeners() {
         binding.ivLocationInfo.setOnClickListener {
-            if (binding.groupTooltipInfo.visibility == View.VISIBLE) {
-                binding.groupTooltipInfo.visibility = View.GONE
-            } else {
-                binding.groupTooltipInfo.visibility = View.VISIBLE
-            }
+            binding.groupTooltipInfo.isVisible = !binding.groupTooltipInfo.isVisible
         }
 
         binding.firstLayout.setOnClickListener {
-            if (binding.groupTooltipInfo.visibility == View.VISIBLE) {
-                binding.groupTooltipInfo.visibility = View.GONE
-            }
+            binding.groupTooltipInfo.isVisible = false
         }
 
         binding.connectConsentCheck.setOnClickListener { updateContinueButtonState() }
@@ -195,7 +186,7 @@ class PersonalIdPhoneFragment :
         val focusChangeListener =
             View.OnFocusChangeListener { _, hasFocus ->
                 if (hasFocus && shouldShowPhoneHintDialog) {
-                    PhoneNumberHelper.requestPhoneNumberHint(phoneHintLauncher, hostActivity)
+                    PhoneNumberHelper.requestPhoneNumberHint(phoneHintLauncher, requireActivity())
                     shouldShowPhoneHintDialog = false
                 }
             }
@@ -215,16 +206,15 @@ class PersonalIdPhoneFragment :
                 try {
                     val phoneNumber =
                         Identity
-                            .getSignInClient(hostActivity)
+                            .getSignInClient(requireActivity())
                             .getPhoneNumberFromIntent(result.data!!)
                     displayPhoneNumber(phoneNumber)
                 } catch (e: ApiException) {
                     Toast.makeText(context, R.string.error_occured, Toast.LENGTH_SHORT).show()
                 }
             } else {
-                val focusView = hostActivity.currentFocus
-                if (focusView != null) {
-                    KeyboardHelper.showKeyboardOnInput(hostActivity, focusView)
+                requireActivity().currentFocus?.let {
+                    KeyboardHelper.showKeyboardOnInput(requireActivity(), it)
                 }
             }
         }
@@ -251,7 +241,7 @@ class PersonalIdPhoneFragment :
         }
 
     private fun updateContinueButtonState() {
-        phone =
+        val phone =
             PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.text.toString(),
                 binding.connectPrimaryPhoneInput.text.toString(),
@@ -264,7 +254,7 @@ class PersonalIdPhoneFragment :
     }
 
     private fun displayPhoneNumber(fullPhoneNumber: String?) {
-        if (TextUtils.isEmpty(fullPhoneNumber)) return
+        if (fullPhoneNumber.isNullOrEmpty()) return
 
         val countryCodeFromFullPhoneNumber = phoneNumberHelper.getCountryCode(fullPhoneNumber)
         val nationPhoneNumberFromFullPhoneNumber =
@@ -292,14 +282,14 @@ class PersonalIdPhoneFragment :
 
     private fun startConfigurationRequest() {
         clearError()
-        phone =
+        val phone =
             PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.text.toString(),
                 binding.connectPrimaryPhoneInput.text.toString(),
-            )
+            )!!
 
-        val body = HashMap<String, String>()
-        body["phone_number"] = phone!!
+        val body = hashMapOf<String, String>()
+        body["phone_number"] = phone
         body["application_id"] = requireContext().packageName
         body["gps_location"] = GeoUtils.locationToString(location)
         body["cc_device_id"] = ReportingUtils.getDeviceId()
@@ -311,7 +301,7 @@ class PersonalIdPhoneFragment :
                     requestHash: String,
                     integrityTokenResponse: StandardIntegrityManager.StandardIntegrityToken,
                 ) {
-                    makeStartConfigurationCall(requestHash, body, integrityTokenResponse)
+                    makeStartConfigurationCall(phone, requestHash, body, integrityTokenResponse)
                 }
 
                 override fun onTokenFailure(exception: Exception) {
@@ -320,7 +310,7 @@ class PersonalIdPhoneFragment :
                     FirebaseAnalyticsUtil
                         .reportPersonalIdConfigurationIntegritySubmission(errorCode)
 
-                    makeStartConfigurationCall(null, body, null)
+                    makeStartConfigurationCall(phone, null, body, null)
                 }
             },
         )
@@ -448,6 +438,7 @@ class PersonalIdPhoneFragment :
     }
 
     private fun makeStartConfigurationCall(
+        phone: String,
         requestHash: String?,
         body: HashMap<String, String>,
         integrityTokenResponse: StandardIntegrityManager.StandardIntegrityToken?,
@@ -583,12 +574,12 @@ class PersonalIdPhoneFragment :
     }
 
     private fun clearError() {
-        binding.personalidPhoneError.visibility = View.GONE
+        binding.personalidPhoneError.isVisible = false
         binding.personalidPhoneError.text = ""
     }
 
     private fun showError(error: String) {
-        binding.personalidPhoneError.visibility = View.VISIBLE
+        binding.personalidPhoneError.isVisible = true
         binding.personalidPhoneError.text = error
     }
 
@@ -639,7 +630,7 @@ class PersonalIdPhoneFragment :
     override fun onLocationServiceChange(locationServiceEnabled: Boolean) {
         if (!locationServiceEnabled) {
             location = null
-            setLocationToolTip(location)
+            setLocationToolTip(null)
             updateContinueButtonState()
         }
     }
