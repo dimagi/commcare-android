@@ -50,8 +50,9 @@ import org.commcare.utils.Permissions
 import org.commcare.utils.PhoneNumberHelper
 import org.javarosa.core.services.Logger
 
-class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListener {
-
+class PersonalIdPhoneFragment :
+    BasePersonalIdFragment(),
+    CommCareLocationListener {
     private lateinit var binding: ScreenPersonalidPhonenoBinding
     private var shouldShowPhoneHintDialog = true
     private lateinit var phoneNumberHelper: PhoneNumberHelper
@@ -85,7 +86,10 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         checkGooglePlayServices()
     }
@@ -106,14 +110,20 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
             if (locationFound) R.drawable.ic_place else R.drawable.ic_connect_delivery_rejected,
         )
         binding.tvLocation.setText(
-            if (locationFound) R.string.personalid_using_your_location
-            else R.string.personalid_no_location_found,
+            if (locationFound) {
+                R.string.personalid_using_your_location
+            } else {
+                R.string.personalid_no_location_found
+            },
         )
 
         binding.tooltipText.movementMethod = LinkMovementMethod.getInstance()
         binding.tooltipText.setText(
-            if (locationFound) R.string.personalid_tooltip_location_success_message
-            else R.string.personalid_tooltip_location_failure_message,
+            if (locationFound) {
+                R.string.personalid_tooltip_location_success_message
+            } else {
+                R.string.personalid_tooltip_location_failure_message
+            },
         )
     }
 
@@ -182,12 +192,13 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
 
         val phoneHintLauncher = setupPhoneHintLauncher()
 
-        val focusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && shouldShowPhoneHintDialog) {
-                PhoneNumberHelper.requestPhoneNumberHint(phoneHintLauncher, hostActivity)
-                shouldShowPhoneHintDialog = false
+        val focusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus && shouldShowPhoneHintDialog) {
+                    PhoneNumberHelper.requestPhoneNumberHint(phoneHintLauncher, hostActivity)
+                    shouldShowPhoneHintDialog = false
+                }
             }
-        }
 
         binding.connectPrimaryPhoneInput.addTextChangedListener(createPhoneNumberWatcher())
         binding.countryCode.addTextChangedListener(
@@ -203,7 +214,8 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
             if (result.resultCode == Activity.RESULT_OK && result.data != null) {
                 try {
                     val phoneNumber =
-                        Identity.getSignInClient(hostActivity)
+                        Identity
+                            .getSignInClient(hostActivity)
                             .getPhoneNumberFromIntent(result.data!!)
                     displayPhoneNumber(phoneNumber)
                 } catch (e: ApiException) {
@@ -219,9 +231,19 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
 
     private fun createPhoneNumberWatcher(): TextWatcher =
         object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int,
+            ) {}
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int,
+            ) {
                 updateContinueButtonState()
             }
 
@@ -229,10 +251,11 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
         }
 
     private fun updateContinueButtonState() {
-        phone = PhoneNumberHelper.buildPhoneNumber(
-            binding.countryCode.text.toString(),
-            binding.connectPrimaryPhoneInput.text.toString(),
-        )
+        phone =
+            PhoneNumberHelper.buildPhoneNumber(
+                binding.countryCode.text.toString(),
+                binding.connectPrimaryPhoneInput.text.toString(),
+            )
 
         val isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone)
         val isConsentChecked = binding.connectConsentCheck.isChecked
@@ -269,10 +292,11 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
 
     private fun startConfigurationRequest() {
         clearError()
-        phone = PhoneNumberHelper.buildPhoneNumber(
-            binding.countryCode.text.toString(),
-            binding.connectPrimaryPhoneInput.text.toString(),
-        )
+        phone =
+            PhoneNumberHelper.buildPhoneNumber(
+                binding.countryCode.text.toString(),
+                binding.connectPrimaryPhoneInput.text.toString(),
+            )
 
         val body = HashMap<String, String>()
         body["phone_number"] = phone!!
@@ -312,13 +336,13 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
         LocationRequestFailureHandler.handleFailure(
             failure,
             object : LocationRequestFailureHandler.LocationResolutionCallback {
-                override fun onResolvableException(
-                    exception: com.google.android.gms.common.api.ResolvableApiException,
-                ) {
+                override fun onResolvableException(exception: com.google.android.gms.common.api.ResolvableApiException) {
                     try {
-                        val request = IntentSenderRequest.Builder(
-                            exception.resolution,
-                        ).build()
+                        val request =
+                            IntentSenderRequest
+                                .Builder(
+                                    exception.resolution,
+                                ).build()
                         resolutionLauncher.launch(request)
                     } catch (e: Exception) {
                         navigateToPermissionErrorMessageDisplay(
@@ -336,29 +360,31 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
     }
 
     private fun handleNoLocationServiceProviders() {
-        val onCancelListener = DialogInterface.OnCancelListener {
-            location = null
-            navigateToPermissionErrorMessageDisplay(
-                R.string.personalid_location_permission_error,
-                R.string.personalid_grant_location_service,
-            )
-        }
-
-        val onChangeListener = DialogInterface.OnClickListener { dialog, i ->
-            when (i) {
-                DialogInterface.BUTTON_POSITIVE ->
-                    GeoUtils.goToProperLocationSettingsScreen(requireActivity())
-
-                DialogInterface.BUTTON_NEGATIVE -> {
-                    location = null
-                    navigateToPermissionErrorMessageDisplay(
-                        R.string.personalid_location_permission_error,
-                        R.string.personalid_grant_location_service,
-                    )
-                }
+        val onCancelListener =
+            DialogInterface.OnCancelListener {
+                location = null
+                navigateToPermissionErrorMessageDisplay(
+                    R.string.personalid_location_permission_error,
+                    R.string.personalid_grant_location_service,
+                )
             }
-            dialog.dismiss()
-        }
+
+        val onChangeListener =
+            DialogInterface.OnClickListener { dialog, i ->
+                when (i) {
+                    DialogInterface.BUTTON_POSITIVE ->
+                        GeoUtils.goToProperLocationSettingsScreen(requireActivity())
+
+                    DialogInterface.BUTTON_NEGATIVE -> {
+                        location = null
+                        navigateToPermissionErrorMessageDisplay(
+                            R.string.personalid_location_permission_error,
+                            R.string.personalid_grant_location_service,
+                        )
+                    }
+                }
+                dialog.dismiss()
+            }
 
         GeoUtils.showNoGpsDialog(
             requireActivity() as AppCompatActivity,
@@ -370,51 +396,55 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
     override fun onLocationRequestStart() {}
 
     private fun isOnPermissionErrorScreen(): Boolean =
-        Navigation.findNavController(requireView())
+        Navigation
+            .findNavController(requireView())
             .currentDestination
             ?.id == R.id.personalid_message_display
 
     private fun registerLauncher() {
-        locationPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions(),
-        ) { _ ->
-            val allPermissionsGranted =
-                !Permissions.missingAppPermission(requireActivity(), REQUIRED_PERMISSIONS)
+        locationPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions(),
+            ) { _ ->
+                val allPermissionsGranted =
+                    !Permissions.missingAppPermission(requireActivity(), REQUIRED_PERMISSIONS)
 
-            if (allPermissionsGranted) {
-                locationController.start()
-            } else {
-                if (!isOnPermissionErrorScreen()) {
+                if (allPermissionsGranted) {
+                    locationController.start()
+                } else {
+                    if (!isOnPermissionErrorScreen()) {
+                        navigateToPermissionErrorMessageDisplay(
+                            R.string.personalid_location_permission_error,
+                            R.string.personalid_grant_location_permission,
+                        )
+                    }
+                }
+            }
+
+        resolutionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.StartIntentSenderForResult(),
+            ) { result ->
+                setLocationToolTip(location)
+                if (result.resultCode != Activity.RESULT_OK) {
                     navigateToPermissionErrorMessageDisplay(
                         R.string.personalid_location_permission_error,
-                        R.string.personalid_grant_location_permission,
+                        R.string.personalid_grant_location_service,
                     )
                 }
             }
-        }
 
-        resolutionLauncher = registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult(),
-        ) { result ->
-            setLocationToolTip(location)
-            if (result.resultCode != Activity.RESULT_OK) {
-                navigateToPermissionErrorMessageDisplay(
-                    R.string.personalid_location_permission_error,
-                    R.string.personalid_grant_location_service,
-                )
+        playServicesResolutionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.StartIntentSenderForResult(),
+            ) { result ->
+                if (result.resultCode != Activity.RESULT_OK) {
+                    onConfigurationFailure(
+                        playServicesError!!,
+                        getString(R.string.play_service_update_error),
+                    )
+                }
             }
-        }
-
-        playServicesResolutionLauncher = registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult(),
-        ) { result ->
-            if (result.resultCode != Activity.RESULT_OK) {
-                onConfigurationFailure(
-                    playServicesError!!,
-                    getString(R.string.play_service_update_error),
-                )
-            }
-        }
     }
 
     private fun makeStartConfigurationCall(
@@ -490,10 +520,11 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
                     subError,
                 )
 
-            else -> onConfigurationFailure(
-                subError,
-                getString(R.string.personalid_configuration_process_failed_subtitle),
-            )
+            else ->
+                onConfigurationFailure(
+                    subError,
+                    getString(R.string.personalid_configuration_process_failed_subtitle),
+                )
         }
     }
 
@@ -503,24 +534,28 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
         subError: String,
     ) {
         val integrityDialogResponseCode = tokenResponse!!.showDialog(requireActivity(), codeType)
-        integrityDialogResponseCode.addOnSuccessListener { result ->
-            if (result == DIALOG_SUCCESSFUL) {
-                enableContinueButton(true)
-            } else {
+        integrityDialogResponseCode
+            .addOnSuccessListener { result ->
+                if (result == DIALOG_SUCCESSFUL) {
+                    enableContinueButton(true)
+                } else {
+                    handleIntegrityFailure(
+                        subError,
+                        "User has cancelled the integrity dialog $result",
+                    )
+                }
+            }.addOnFailureListener { e ->
                 handleIntegrityFailure(
                     subError,
-                    "User has cancelled the integrity dialog $result",
+                    "Integrity dialog failed to launch ${e.message}",
                 )
             }
-        }.addOnFailureListener { e ->
-            handleIntegrityFailure(
-                subError,
-                "Integrity dialog failed to launch ${e.message}",
-            )
-        }
     }
 
-    private fun handleIntegrityFailure(subError: String, logMessage: String) {
+    private fun handleIntegrityFailure(
+        subError: String,
+        logMessage: String,
+    ) {
         Logger.log(LogTypes.TYPE_MAINTENANCE, logMessage)
         enableContinueButton(false)
         onConfigurationFailure(
@@ -530,7 +565,8 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
     }
 
     private fun onConfigurationSuccess() {
-        Navigation.findNavController(binding.personalidPhoneContinueButton)
+        Navigation
+            .findNavController(binding.personalidPhoneContinueButton)
             .navigate(navigateToBiometricSetup())
     }
 
@@ -579,7 +615,10 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navDirections)
     }
 
-    private fun navigateToPermissionErrorMessageDisplay(errorMessage: Int, buttonText: Int) {
+    private fun navigateToPermissionErrorMessageDisplay(
+        errorMessage: Int,
+        buttonText: Int,
+    ) {
         if (!isOnPermissionErrorScreen()) {
             navigateToMessageDisplay(
                 getString(R.string.personalid_grant_location_service),
@@ -606,9 +645,10 @@ class PersonalIdPhoneFragment : BasePersonalIdFragment(), CommCareLocationListen
     }
 
     companion object {
-        private val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        )
+        private val REQUIRED_PERMISSIONS =
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            )
     }
 }
