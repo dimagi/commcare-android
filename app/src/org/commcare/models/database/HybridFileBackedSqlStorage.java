@@ -349,7 +349,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(
                     trace,
                     bos.size(),
-                    FilenameUtils.getExtension(filename)
+                    FilenameUtils.getExtension(filename),
+                    false
             );
         }
     }

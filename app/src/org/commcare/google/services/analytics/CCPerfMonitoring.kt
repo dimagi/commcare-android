@@ -30,7 +30,7 @@ object CCPerfMonitoring {
     const val ATTR_MAP_MARKERS = "num_markers"
     const val ATTR_MAP_POLYGONS = "num_polygons"
     const val ATTR_MAP_GEO_POINTS = "num_geo_points"
-
+    const val ATTR_FILE_KEYSTORE_ENCRYPTED = "file_keystore_encrypted"
 
     fun startTracing(traceName: String): Trace? {
         try {
@@ -56,11 +56,17 @@ object CCPerfMonitoring {
         }
     }
 
-    fun stopFileEncryptionTracing(trace: Trace?, fileSizeBytes: Long, fileExtension: String) {
+    fun stopFileEncryptionTracing(
+        trace: Trace?,
+        fileSizeBytes: Long,
+        fileExtension: String,
+        keystoreEncrypted: Boolean
+    ) {
         try {
             val attrs: MutableMap<String, String> = HashMap()
             attrs[ATTR_FILE_SIZE_BYTES] = fileSizeBytes.toString()
             attrs[ATTR_FILE_TYPE] = fileExtension
+            attrs[ATTR_FILE_KEYSTORE_ENCRYPTED] = keystoreEncrypted.toString()
             stopTracing(trace, attrs)
         } catch (e: java.lang.Exception) {
             Logger.exception("Failed to stop tracing: $TRACE_FILE_ENCRYPTION_TIME", e)

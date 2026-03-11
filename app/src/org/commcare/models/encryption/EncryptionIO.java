@@ -49,7 +49,8 @@ public class EncryptionIO {
         CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(
                 trace,
                 fileSize,
-                FilenameUtils.getExtension(sourceFilePath)
+                FilenameUtils.getExtension(sourceFilePath),
+                false
         );
     }
 
