@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="400dp"
+            android:height="5dp"
+            android:viewportWidth="400"
+            android:viewportHeight="5">
+            <path
+                android:fillColor="@color/royal_blue"
+                android:pathData="M0,0 h400 v5 h-400 z" />
+
+           <group android:name="shimmer_group">
+                <path android:pathData="M-800,0 h1600 v5 h-1600 z">
+                    <aapt:attr name="android:fillColor">
+                        <gradient
+                            android:startX="-1200"
+                            android:startY="0"
+                            android:endX="1200"
+                            android:endY="0"
+                            android:type="linear">
+                            <item android:color="@color/shimmer_grey_0" android:offset="0.0" />
+                            <item android:color="@color/shimmer_grey_0" android:offset="0.1" />
+                            <item android:color="@color/shimmer_grey_20" android:offset="0.3" />
+                            <item android:color="@color/shimmer_grey_60" android:offset="0.5" />
+                            <item android:color="@color/shimmer_grey_20" android:offset="0.7" />
+                            <item android:color="@color/shimmer_grey_0" android:offset="0.9" />
+                            <item android:color="@color/shimmer_grey_0" android:offset="1.0" />
+                        </gradient>
+                    </aapt:attr>
+                </path>
+            </group>
+        </vector>
+    </aapt:attr>
+
+    <target android:name="shimmer_group">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="translateX"
+                    android:valueFrom="0"
+                    android:valueTo="1200"
+                    android:duration="1200"
+                    android:repeatCount="infinite"
+                    android:repeatMode="restart"
+                    android:interpolator="@android:interpolator/linear" />
+            </set>
+        </aapt:attr>
+    </target>
+
+</animated-vector>
