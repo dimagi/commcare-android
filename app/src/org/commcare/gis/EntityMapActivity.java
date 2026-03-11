@@ -12,6 +12,7 @@ import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -42,10 +43,12 @@ import org.commcare.utils.MapLayer;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.ViewUtils;
+import org.commcare.views.ViewUtil;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +60,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import static org.commcare.views.EntityView.FORM_IMAGE;
+import static org.commcare.views.ViewUtil.showSnackBarWithNoDismissAction;
 
 /**
  * @author Forest Tong (ftong@dimagi.com)
@@ -147,7 +151,7 @@ public class EntityMapActivity extends CommCareActivity implements
             }
 
             if (errorEncountered) {
-                runOnUiThread(() -> ViewUtils.showSnackBarWithNoDismissAction(
+                runOnUiThread(() -> ViewUtil.showSnackBarWithNoDismissAction(
                         findViewById(R.id.map), getString(R.string.entity_map_error_message)));
             }
         }

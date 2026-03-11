@@ -166,6 +166,7 @@ class PersonalIdPhoneFragment :
         binding.checkText.movementMethod = LinkMovementMethod.getInstance()
         setupKeyboardScrollListener(binding.scrollView)
         setupListeners()
+        setUpEnterKeyAction(binding.connectPrimaryPhoneInput)
         updateContinueButtonState()
     }
 
@@ -240,7 +241,19 @@ class PersonalIdPhoneFragment :
             override fun afterTextChanged(s: android.text.Editable?) {}
         }
 
+    override fun keyboardEnterPressed() {
+        if (allowedToContinue()) {
+            onContinueClicked()
+        } else {
+            KeyboardHelper.hideVirtualKeyboard(requireActivity())
+        }
+    }
+
     private fun updateContinueButtonState() {
+        enableContinueButton(allowedToContinue())
+    }
+
+    private fun allowedToContinue(): Boolean {
         val phone =
             PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.text.toString(),
@@ -249,8 +262,7 @@ class PersonalIdPhoneFragment :
 
         val isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone)
         val isConsentChecked = binding.connectConsentCheck.isChecked
-
-        enableContinueButton(isValidPhone && isConsentChecked && location != null)
+        return isValidPhone && isConsentChecked && location != null
     }
 
     private fun displayPhoneNumber(fullPhoneNumber: String?) {
