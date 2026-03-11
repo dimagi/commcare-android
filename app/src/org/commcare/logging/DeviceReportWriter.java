@@ -3,10 +3,12 @@ package org.commcare.logging;
 import android.os.Build;
 
 import com.google.common.io.CountingOutputStream;
+import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -18,6 +20,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+
+import static org.commcare.utils.FileUtil.XML_EXTENSION;
 
 /**
  * This class generates and serializes a device report to either a byte array
@@ -31,13 +35,15 @@ public class DeviceReportWriter {
     private final XmlSerializer serializer;
     private final CountingOutputStream countingOutputStream;
     private final ArrayList<DeviceReportElement> elements = new ArrayList<>();
+    private boolean encryptionWithKeystore = false;
 
     public DeviceReportWriter(DeviceReportRecord record) throws IOException {
-        this(record.openOutputStream());
+        this(record.openOutputStream(), record.shouldUseKeystoreKey());
     }
 
-    public DeviceReportWriter(OutputStream outputStream) throws IOException {
+    public DeviceReportWriter(OutputStream outputStream, boolean keystoreEncrypted) throws IOException {
         countingOutputStream = new CountingOutputStream(outputStream);
+        encryptionWithKeystore = keystoreEncrypted;
 
         serializer = new KXmlSerializer();
         serializer.setOutput(countingOutputStream, "UTF-8");
@@ -52,6 +58,7 @@ public class DeviceReportWriter {
     }
 
     public void write() throws IllegalArgumentException, IllegalStateException, IOException {
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
         try {
             serializer.startDocument("UTF-8", null);
             serializer.startTag(XMLNS, "device_report");
@@ -82,6 +89,12 @@ public class DeviceReportWriter {
             serializer.endDocument();
         } finally {
             try {
+                CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(
+                        trace,
+                        countingOutputStream.getCount(),
+                        XML_EXTENSION,
+                        encryptionWithKeystore
+                );
                 countingOutputStream.close();
             } catch (IOException e) {
             }
