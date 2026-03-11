@@ -81,6 +81,7 @@ import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
 
 /**
  * @author ctsims
@@ -275,7 +276,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
 
         uiController.clearErrorMessage();
-        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+        hideVirtualKeyboard(LoginActivity.this);
 
         if (loginMode == LoginMode.PASSWORD) {
             DevSessionRestorer.tryAutoLoginPasswordSave(passwordOrPin, false);
@@ -487,7 +488,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     @Override
     public void dataPullCompleted() {
         CrashUtil.registerUserData();
-        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+        hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
         if (handleConnectSignIn(this, getUniformUsername(),
                 uiController.getEnteredPasswordOrPin())) {

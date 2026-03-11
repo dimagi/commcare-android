@@ -22,14 +22,12 @@ import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectJobListItem;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
+import static org.commcare.connect.ConnectDateUtils.formatDate;
 import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
-import static org.commcare.utils.ViewUtils.dpToPx;
+import static org.commcare.views.ViewUtil.dpToPx;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
@@ -142,11 +140,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             super(binding.getRoot());
             this.binding = binding;
         }
-    }
-
-    private static String formatDate(Date date) {
-        SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-        return outputFormat.format(date);
     }
 
     public void bind(

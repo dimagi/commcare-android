@@ -172,6 +172,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupKeyboardScrollListener(binding.scrollView);
         setupListeners();
+        setUpEnterKeyAction(binding.connectPrimaryPhoneInput);
         updateContinueButtonState();
     }
 
@@ -230,6 +231,15 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         );
     }
 
+    @Override
+    protected void keyboardEnterPressed() {
+        if (allowedToContinue()) {
+            onContinueClicked();
+        } else {
+            KeyboardHelper.hideVirtualKeyboard(requireActivity());
+        }
+    }
+
     private TextWatcher createPhoneNumberWatcher() {
         return new TextWatcher() {
             @Override
@@ -248,6 +258,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void updateContinueButtonState() {
+        enableContinueButton(allowedToContinue());
+    }
+
+    private boolean allowedToContinue() {
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
@@ -255,9 +269,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
         boolean isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone);
         boolean isConsentChecked = binding.connectConsentCheck.isChecked();
-
-        enableContinueButton(isValidPhone && isConsentChecked && location != null);
+        return isValidPhone && isConsentChecked && location != null;
     }
+
 
     private void displayPhoneNumber(String fullPhoneNumber) {
 
