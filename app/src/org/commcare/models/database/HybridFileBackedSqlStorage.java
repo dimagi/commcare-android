@@ -5,6 +5,7 @@ import android.database.Cursor;
 
 import com.google.firebase.perf.metrics.Trace;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.AppFilePathBuilder;
@@ -345,7 +346,11 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     e.printStackTrace();
                 }
             }
-            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, bos.size(), filename);
+            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(
+                    trace,
+                    bos.size(),
+                    FilenameUtils.getExtension(filename)
+            );
         }
     }
 
