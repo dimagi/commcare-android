@@ -4,11 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.material.snackbar.Snackbar
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -45,6 +45,11 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
+        supportActionBar?.title = getString(R.string.personalid_profile_title)
+    }
+
+    override fun onResume() {
+        super.onResume()
         supportActionBar?.title = getString(R.string.personalid_profile_title)
     }
 
@@ -103,6 +108,7 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
             Intent(this, MicroImageActivity::class.java).apply {
                 putExtra(MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, PHOTO_MAX_DIMENSION_PX)
                 putExtra(MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, PHOTO_MAX_SIZE_BYTES)
+                putExtra(MicroImageActivity.MICRO_IMAGE_TITLE_EXTRA, getString(R.string.personalid_profile_capture_photo))
             }
         takePhotoLauncher.launch(intent)
     }
@@ -111,38 +117,50 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
         showProgressDialog(TASK_UPDATE_PHOTO)
         binding.photoActionButton.isEnabled = false
 
-        object : PersonalIdApiHandler<Void>() {
-            override fun onSuccess(data: Void?) {
-                dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
-                user.photo = photoBase64
-                ConnectUserDatabaseUtil.storeUser(this@PersonalIdProfileActivity, user)
-                binding.photoActionButton.isEnabled = true
-                Snackbar
-                    .make(
-                        binding.root,
-                        R.string.personalid_profile_photo_updated,
-                        Snackbar.LENGTH_SHORT,
-                    ).show()
-            }
-
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
-                revertPhoto()
-                binding.photoActionButton.isEnabled = true
-                val errorMessage =
-                    PersonalIdOrConnectApiErrorHandler.handle(
-                        this@PersonalIdProfileActivity,
-                        errorCode,
-                        t,
-                    )
-                if (errorMessage.isNotEmpty()) {
-                    Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).show()
+        try {
+            object : PersonalIdApiHandler<Void>() {
+                override fun onSuccess(data: Void?) {
+                    dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
+                    user.photo = photoBase64
+                    ConnectUserDatabaseUtil.storeUser(this@PersonalIdProfileActivity, user)
+                    binding.photoActionButton.isEnabled = true
+                    Toast
+                        .makeText(
+                            this@PersonalIdProfileActivity,
+                            R.string.personalid_profile_photo_updated,
+                            Toast.LENGTH_SHORT,
+                        ).show()
                 }
-            }
-        }.updatePhoto(this, user.userId, user.password, photoBase64)
+
+                override fun onFailure(
+                    errorCode: PersonalIdOrConnectApiErrorCodes,
+                    t: Throwable?,
+                ) {
+                    dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
+                    revertPhoto()
+                    binding.photoActionButton.isEnabled = true
+                    val errorMessage =
+                        PersonalIdOrConnectApiErrorHandler.handle(
+                            this@PersonalIdProfileActivity,
+                            errorCode,
+                            t,
+                        )
+                    if (errorMessage.isNotEmpty()) {
+                        Toast
+                            .makeText(
+                                this@PersonalIdProfileActivity,
+                                errorMessage,
+                                Toast.LENGTH_LONG,
+                            ).show()
+                    }
+                }
+            }.updatePhoto(this, user.userId, user.password, photoBase64)
+        } catch (e: Exception) {
+            dismissProgressDialogForTask(TASK_UPDATE_PHOTO)
+            revertPhoto()
+            binding.photoActionButton.isEnabled = true
+            Toast.makeText(this, R.string.personalid_profile_photo_update_failed, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun revertPhoto() {
@@ -156,8 +174,11 @@ class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>() 
         }
     }
 
-    override fun generateProgressDialog(taskId: Int): CustomProgressDialog =
-        CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId)
+    override fun generateProgressDialog(taskId: Int): CustomProgressDialog {
+        val dialog = CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId)
+        dialog.setCancelable()
+        return dialog
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {

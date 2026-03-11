@@ -21,17 +21,17 @@ PersonalID users can add or update their profile photo from a dedicated profile 
 * **Navigation**
   * `ConnectNavHelper.unlockAndGoToProfile()` - Requires PersonalID unlock before navigation
   * `BaseDrawerController` - Profile card click listener wired to launch profile screen
-  * "Manage profile" text shown only when user is signed in (programmatic visibility)
 
 ## Photo Capture Flow
 
 1. User taps "Add Photo" / "Update Photo"
-2. `MicroImageActivity` launches (front camera, face detection, max 160px / 100KB)
+2. `MicroImageActivity` launches with custom title via `MICRO_IMAGE_TITLE_EXTRA` (front camera, face detection, max 160px / 100KB)
 3. On capture success, base64 photo returned via `ActivityResult`
 4. Photo displayed immediately via Glide with circular crop
-5. `PersonalIdApiHandler.updatePhoto()` sends base64 to server
-6. On success: photo saved to `ConnectUserRecord` via `ConnectUserDatabaseUtil`
-7. On failure: photo reverted to previous state, error shown via Snackbar
+5. Cancellable progress dialog shown during upload
+6. `PersonalIdApiHandler.updatePhoto()` sends base64 to server
+7. On success: photo saved to `ConnectUserRecord` via `ConnectUserDatabaseUtil`, Toast confirmation
+8. On failure: photo reverted to previous state, error shown via Toast
 
 ## Authentication
 

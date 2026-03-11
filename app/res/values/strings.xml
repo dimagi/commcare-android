@@ -626,6 +626,7 @@
     <string name="personalid_profile_update_photo">Update Photo</string>
     <string name="personalid_profile_photo_updated">Photo updated successfully</string>
     <string name="personalid_profile_photo_update_failed">Failed to update photo. Please try again.</string>
+    <string name="personalid_profile_capture_photo">Take Profile Photo</string>
     <string name="personalid_photo_capture_title">Welcome %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>

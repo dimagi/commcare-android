@@ -13,9 +13,9 @@
 
         <ImageView
             android:id="@+id/profile_photo"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="48dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_marginTop="24dp"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:src="@drawable/nav_drawer_person_avatar"

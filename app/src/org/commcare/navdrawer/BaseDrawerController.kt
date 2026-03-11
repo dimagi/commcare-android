@@ -273,7 +273,6 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
-        binding.manageProfile.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.notificationView.visibility =
             if (shouldShowNotifications()) View.VISIBLE else View.GONE
     }
