@@ -35,10 +35,18 @@ All the changes below should be part of a separate commit after the main code ch
 - Commit changes
 
 ## Available ktlint Commands
-- `ktlint file.kt` - Check formatting
-- `ktlint --format file.kt` - Auto-format
+- `./gradlew ktlintFile -PfilePath=path/to/File.kt` - Auto-format and verify a Kotlin file via Gradle
+- `ktlint file.kt` - Check formatting (CLI)
+- `ktlint --format file.kt` - Auto-format (CLI)
 - `ktlint "src/**/*.kt"` - Check all Kotlin files
 - `ktlint --format "src/**/*.kt"` - Format all Kotlin files
+
+## AI Workflow: ktlint
+After editing or creating a Kotlin file, always run the Gradle ktlint task:
+```bash
+./gradlew ktlintFile -PfilePath=<relative-path-to-file>
+```
+This task auto-formats the file and then verifies it is clean. If any violations remain that cannot be auto-fixed, resolve them manually. This should be done before committing.
 
 ## Test File Locations
 - Unit tests: `app/unit-tests/src/`

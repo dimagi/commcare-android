@@ -687,3 +687,56 @@ static def isInstrumentationTestTask(task){
     def instrumentationTestTaskNamePattern = /^(assemble|connected).*AndroidTest/
     return task.name ==~ instrumentationTestTaskNamePattern
 }
+
+// Run ktlint on a specific file: ./gradlew ktlintFile -PfilePath=path/to/File.kt
+// Auto-formats violations, then verifies the file is clean
+tasks.register('ktlintFile') {
+    description = 'Run ktlint format and check on a specific Kotlin file'
+    group = 'verification'
+
+    def filePathProp = providers.gradleProperty('filePath')
+
+    def rootPath = rootDir.absolutePath
+
+    doLast {
+        if (!filePathProp.isPresent()) {
+            throw new GradleException("Missing required property 'filePath'. Usage: ./gradlew ktlintFile -PfilePath=path/to/File.kt")
+        }
+        def filePath = filePathProp.get()
+        def file = new File(filePath)
+        if (!file.isAbsolute()) {
+            file = new File(rootPath, filePath)
+        }
+        if (!file.exists()) {
+            throw new GradleException("File not found: ${file.absolutePath}")
+        }
+        if (!file.name.endsWith('.kt')) {
+            throw new GradleException("Not a Kotlin file: ${file.name}. Only *.kt files are supported.")
+        }
+
+        // Step 1: Auto-format
+        def formatProcess = new ProcessBuilder(['ktlint', '--format', file.absolutePath])
+            .directory(new File(rootPath))
+            .redirectErrorStream(true)
+            .start()
+        def formatOutput = formatProcess.inputStream.text
+        formatProcess.waitFor()
+        if (formatOutput) {
+            println formatOutput
+        }
+
+        // Step 2: Verify no remaining violations
+        def checkProcess = new ProcessBuilder(['ktlint', file.absolutePath])
+            .directory(new File(rootPath))
+            .redirectErrorStream(true)
+            .start()
+        def checkOutput = checkProcess.inputStream.text
+        def checkExitCode = checkProcess.waitFor()
+        if (checkOutput) {
+            println checkOutput
+        }
+        if (checkExitCode != 0) {
+            throw new GradleException("ktlint found violations that could not be auto-fixed. Please resolve manually.")
+        }
+    }
+}
