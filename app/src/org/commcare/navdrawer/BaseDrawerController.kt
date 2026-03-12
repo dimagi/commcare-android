@@ -236,16 +236,6 @@ class BaseDrawerController(
                 )
             }
 
-//            if (hasConnectAccess) {
-//                items.add(
-//                    NavDrawerItem.ParentItem(
-//                        activity.getString(R.string.nav_drawer_payments),
-//                        R.drawable.nav_drawer_payments_icon,
-//                        NavItemType.PAYMENTS,
-//                    )
-//                )
-//            }
-
             navDrawerAdapter.refreshList(items)
         } else {
             setSignedInState(false)
