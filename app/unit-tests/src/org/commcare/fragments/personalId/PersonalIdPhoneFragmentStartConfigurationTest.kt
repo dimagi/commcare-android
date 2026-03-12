@@ -267,6 +267,36 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         )
     }
 
+    @Test
+    fun testStartConfiguration_errorClearedOnRetry() {
+        // Arrange - trigger a retryable error first
+        setupFragmentForRequest()
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(500)
+                .setBody("Internal Server Error"),
+        )
+
+        // Act - first request triggers error
+        clickContinueButton()
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        // Assert - error should be visible
+        val errorView = fragment.view!!.findViewById<android.widget.TextView>(R.id.personalid_phone_error)
+        assertEquals("Error should be visible after first request", View.VISIBLE, errorView!!.visibility)
+
+        // Arrange - enqueue a success response for retry
+        mockWebServer.enqueue(createSuccessResponse())
+
+        // Act - click continue again (retry)
+        clickContinueButton()
+
+        // Assert - error should be cleared when new request starts
+        assertEquals("Error should be cleared on retry", View.GONE, errorView.visibility)
+        assertEquals("Error text should be empty on retry", "", errorView.text.toString())
+    }
+
     // ========== Helper Methods ==========
 
     private fun setupFragmentForRequest() {
