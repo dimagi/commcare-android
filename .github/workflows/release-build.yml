@@ -204,6 +204,7 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --title "CommCare ${VERSION}" \
             --draft \
+            --generate-notes \
             "commcare_${VERSION}.apk" \
             "commcare_${VERSION}.aab"
       # Skip submit for test versions (e.g. 2.61.5test) to test the build without submitting it
