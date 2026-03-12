@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -181,6 +182,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         }
 
         setupListeners();
+        int childCount = binding.customOtpView.getChildCount();
+        if (childCount > 0) {
+            setUpEnterKeyAction((EditText) binding.customOtpView.getChildAt(childCount - 1));
+        }
         updateVerificationMessage();
         activity.setTitle(R.string.connect_verify_phone_title);
 
@@ -230,7 +235,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void toggleVerifyButton(String otp) {
-        binding.connectPhoneVerifyButton.setEnabled(otp.length() > 5);
+        binding.connectPhoneVerifyButton.setEnabled(otp.length() == 6);
     }
 
     private void clearOtpError() {
@@ -334,7 +339,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();
 
-        if (otpCode.isEmpty()) {
+        if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
             otpManager.verifyOtp(otpCode);
@@ -413,6 +418,15 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     otpCallback
             );
             lastOtpMethod = SMS_METHOD_FIREBASE;
+        }
+    }
+
+    @Override
+    protected void keyboardEnterPressed() {
+        if (binding.connectPhoneVerifyButton.isEnabled()) {
+            verifyOtp();
+        } else {
+            KeyboardHelper.hideVirtualKeyboard(requireActivity());
         }
     }
 }
