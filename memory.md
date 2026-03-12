@@ -1,28 +1,30 @@
-# Test Improver Memory - dimagi/commcare-android
+# Test Improver - dimagi/commcare-android
 
 ## Commands
-- Unit tests: `./gradlew testCommcareDebug`
+- Tests: `./gradlew testCommcareDebug`
 - Coverage: `./gradlew JacocoTestReport`
-- Format: `ktlint --format path/to/file.kt`
-- Requires `../commcare-core/` sibling dir (auto in CI)
+- Lint: `ktlint --format path/to/file.kt`
+- Needs `../commcare-core/` sibling (auto in CI)
 
 ## Project
-- Unit tests: `app/unit-tests/src/org/commcare/`
+- Tests in: `app/unit-tests/src/org/commcare/`
 - Pattern: `@RunWith(AndroidJUnit4::class)` + `@Config(application = CommCareTestApplication::class)`
-- Frameworks: JUnit4 + Robolectric 4.8.2 + MockK + Mockito
-- New code: Kotlin. Existing: mixed Java/Kotlin.
+- JUnit4 + Robolectric + MockK/Mockito
+
+## Maintainer Notes
+- "go or no go" for auto-PRs (no iterations)
+- Ktlint: no blank line after class `{`, no chained `.apply{}.parse()` on one line
 
 ## Backlog
-1. ApkDependenciesUtils.kt - 100 lines, no tests (MEDIUM)
-2. ConnectAppUtils.kt - shouldOverridePassword(), security-relevant (MEDIUM)
-3. ConnectDateUtils formatNotificationTime - Context-dependent (LOW)
+1. HashUtils.kt - `computeHash()`: pure SHA-1/SHA-256 (HIGH)
+2. EntityMapUtils.kt - geo data parsing (HIGH)
+3. RequestStats.kt - `getRequestAge()` time bucketing (MEDIUM)
+4. NotificationIdentifiers.kt - `generateNotificationIdFromString()` (LOW)
 
 ## Completed
-- 2026-03-11: PR draft for ConnectDateUtils tests (branch: test-assist/connect-date-utils-tests)
-- 2026-03-11: Created [Test Improver] Monthly Activity 2026-03 issue
+- PR #3602: ConnectDateUtils tests + ktlint fix (2026-03-12)
+- Issue #3601: Monthly Activity 2026-03
 
 ## Round-Robin
-- Task 1 (Commands): 2026-03-11
-- Task 3 (Implement): 2026-03-11
-- Task 7 (Monthly): 2026-03-11
-- Task 2,4,5,6: pending
+- Task 1: 2026-03-11, Task 2: 2026-03-12, Task 3: 2026-03-11
+- Task 4: 2026-03-12, Task 7: 2026-03-12, Tasks 5,6: pending
