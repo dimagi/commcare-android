@@ -18,7 +18,6 @@ import java.util.TimeZone
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class ConnectDateUtilsTest {
-
     // ── convertIsoDate ──────────────────────────────────────────────────────
 
     @Test
@@ -94,9 +93,10 @@ class ConnectDateUtilsTest {
         // 2024-01-01T00:00:00Z == 1704067200000 ms epoch
         val result = ConnectDateUtils.parseIsoDateForSorting("2024-01-01T00:00:00Z")
         assertNotNull(result)
-        val expected = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
-        }.parse("2024-01-01T00:00:00Z")
+        }
+        val expected = sdf.parse("2024-01-01T00:00:00Z")
         assertEquals(expected, result)
     }
 
