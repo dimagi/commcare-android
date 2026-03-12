@@ -621,6 +621,12 @@
     <string name="personalid_configuration_process_pin_needs_update_message">The PIN on this device requires an update. Please apply any available system updates, or try again on a different device.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">Biometrics on this device is out of date. Please apply any available system updates, or try again with a different device.</string>
     <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires your device to have a fingerprint scanner. Please try again on a different device.</string>
+    <string name="personalid_profile_title">Profile</string>
+    <string name="personalid_profile_add_photo">Add Photo</string>
+    <string name="personalid_profile_update_photo">Update Photo</string>
+    <string name="personalid_profile_photo_updated">Photo updated successfully</string>
+    <string name="personalid_profile_photo_update_failed">Failed to update photo. Please try again.</string>
+    <string name="personalid_profile_capture_photo">Take Profile Photo</string>
     <string name="personalid_photo_capture_title">Welcome %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>

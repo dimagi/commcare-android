@@ -6,6 +6,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.PushNotificationActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
+import org.commcare.activities.connect.PersonalIdProfileActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
@@ -58,6 +59,18 @@ object ConnectNavHelper {
 
     fun goToWorkHistory(context: Context) {
         val i = Intent(context, PersonalIdWorkHistoryActivity::class.java)
+        context.startActivity(i)
+    }
+
+    fun unlockAndGoToProfile(
+        activity: CommCareActivity<*>,
+        listener: ConnectActivityCompleteListener,
+    ) {
+        unlockAndGoTo(activity, listener, ::goToProfile)
+    }
+
+    fun goToProfile(context: Context) {
+        val i = Intent(context, PersonalIdProfileActivity::class.java)
         context.startActivity(i)
     }
 

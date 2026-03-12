@@ -219,6 +219,22 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.completeProfile);
     }
 
+    public static void updatePhoto(Context context, String userId, String password,
+                                    String photoAsBase64, IApiCallback callback) {
+        Objects.requireNonNull(userId);
+        Objects.requireNonNull(password);
+        Objects.requireNonNull(photoAsBase64);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("photo", photoAsBase64);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.updatePhoto(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.updatePhoto);
+    }
+
     public static void retrieveWorkHistory(Context context, String userId, String password,
                                            IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);

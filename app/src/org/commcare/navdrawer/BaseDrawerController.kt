@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
@@ -147,6 +148,21 @@ class BaseDrawerController(
             closeDrawer()
         }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
+        binding.profileCard.setOnClickListener {
+            ConnectNavHelper.unlockAndGoToProfile(
+                activity,
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        if (success) {
+                            closeDrawer()
+                        }
+                    }
+                },
+            )
+        }
     }
 
     fun refreshDrawerContent() {
