@@ -33,12 +33,6 @@ class ConnectSyncPreferences(
             Context.MODE_PRIVATE,
         )
 
-    init {
-        if (!prefs.contains(KEY_SESSION_START)) {
-            markSessionStart()
-        }
-    }
-
     fun markSessionStart() {
         prefs
             .edit()
