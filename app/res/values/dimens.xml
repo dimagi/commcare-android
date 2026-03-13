@@ -64,6 +64,7 @@
     <dimen name="cell_padding_horizontal">8dp</dimen>
     <dimen name="row_padding_vertical">8dp</dimen>
     <dimen name="row_padding_horizontal">8dp</dimen>
+
     <!-- Form Entry -->
 
     <dimen name="question_widget_side_padding">16dp</dimen>
@@ -96,25 +97,25 @@
 
     <dimen name="min_button_padding">20dp</dimen>
 
-    <!--    Map layer Button-->
+    <!-- Map layer Button -->
     <dimen name="map_layer_padding">4dp</dimen>
     <dimen name="map_layer_margin">16dp</dimen>
 
-    <!--Custom Preferences Dialog-->
+    <!-- Custom Preferences Dialog -->
     <dimen name="pref_dialog_margin_top">48dp</dimen>
     <dimen name="pref_dialog_margin_bottom">48dp</dimen>
     <dimen name="pref_dialog_content_padding">5dp</dimen>
     <dimen name="pref_dialog_message_margin_bottom">48dp</dimen>
 
-    <!--Question Widget-->
+    <!-- Question Widget -->
     <dimen name="edit_text_question_widget_compact_width">80dp</dimen>
     <dimen name="edit_text_question_widget_padding_horizontal">8dp</dimen>
 
-    <!--Big Layout Button Dimensions-->
+    <!-- Big Layout Button Dimensions -->
     <!-- Should be font medium SP x 4, roughly -->
     <dimen name="rectangle_button_height">40dp</dimen>
 
-    <!--action button on center of screen-->
+    <!-- action button on center of screen -->
     <dimen name="center_button_width">180dp</dimen>
 
     <!-- Audio button -->
