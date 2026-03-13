@@ -1,36 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="NotificationText">
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="NotificationTitle">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="TopPane">
-        <item name="android:layout_marginBottom">8dp</item>
-    </style>
-
-    <style name="MiddlePane">
-        <item name="android:layout_marginBottom">15dp</item>
-    </style>
-
-    <style name="MainSidePaneLeft">
-        <item name="android:paddingRight">10dp</item>
-        <item name="android:paddingLeft">15dp</item>
-    </style>
-
-    <style name="MainSidePaneRight">
-        <item name="android:paddingLeft">10dp</item>
-    </style>
-
     <style name="MainPane">
         <item name="android:paddingRight">15dp</item>
     </style>
-
 
     <dimen name="entity_padding">@dimen/content_min_margin</dimen>
     <dimen name="grid_entity_padding">3dp</dimen>
@@ -41,6 +14,7 @@
         <item name="android:paddingBottom">@dimen/entity_padding</item>
         <item name="android:paddingRight">@dimen/entity_padding</item>
     </style>
+
     <style name="EntityItemImageView">
         <item name="android:paddingLeft">@dimen/entity_item_image_margins</item>
         <item name="android:paddingTop">@dimen/entity_item_image_margins</item>
@@ -56,6 +30,7 @@
     </style>
 
     <style name="EntityItemText" parent="@android:style/TextAppearance.Medium"/>
+
     <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium"/>
 
     <style name="VersionIdText">
@@ -65,21 +40,6 @@
     <style name="WarningTextStyle">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/cc_neutral_color</item>
-    </style>
-
-    <style name="Animation" />
-
-    <style name="Animation.ScreenAnimations">
-        <item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>
-        <item name="android:activityOpenExitAnimation">@anim/push_left_out</item>
-        <item name="android:activityCloseEnterAnimation">@anim/push_right_in</item>
-        <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
-    </style>
-
-    <style name="ButtonBottom">
-        <item name="android:layout_marginLeft">10dp</item>
-        <item name="android:layout_marginRight">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
     </style>
 
     <style name="TextInteractiveFreeFloating">
@@ -150,11 +110,13 @@
         <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="android:gravity">center_vertical</item>
     </style>
+
     <style name="ListContentWithBadge">
         <item name="android:layout_width">@dimen/list_content_with_space_for_badge</item>
         <item name="android:layout_height">@dimen/list_content_with_space_for_badge</item>
         <item name="android:gravity">center_vertical</item>
     </style>
+
     <style name="GridViewContentWithBadge">
         <item name="android:layout_width">@dimen/menu_grid_icon_size</item>
         <item name="android:layout_height">@dimen/menu_grid_icon_size_with_badge</item>
@@ -166,14 +128,6 @@
         <item name="android:colorBackground">@color/cc_core_bg</item>
     </style>
 
-    <style name="ListViewHeaderV2" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:padding">@dimen/content_start</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/cc_light_warm_accent_text</item>
-        <item name="android:clickable">false</item>
-        <item name="android:longClickable">false</item>
-    </style>
     <style name="LoginEditTextV2">
         <item name="android:paddingLeft">8dp</item>
         <item name="android:drawablePadding">8dp</item>
@@ -184,10 +138,6 @@
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>
     </style>
-    <style name="DefaultVerticalPadding">
-        <item name="android:paddingTop">@dimen/content_min_margin</item>
-        <item name="android:paddingBottom">@dimen/content_min_margin</item>
-    </style>
 
     <style name="DefaultPadding">
         <item name="android:paddingLeft">@dimen/content_start</item>
@@ -195,7 +145,6 @@
         <item name="android:paddingTop">@dimen/content_min_margin</item>
         <item name="android:paddingBottom">@dimen/content_min_margin</item>
     </style>
-
 
     <style name="TextViewV2" parent="DefaultPadding">
         <item name="android:background">?attr/filter_select_background_color</item>
@@ -230,40 +179,6 @@
         <item name="android:drawableRight">@drawable/icon_chevron_right_attnpos</item>
     </style>
 
-    <style name="ScreenPinnedButtonNeutralBase" parent="@style/ScreenPinnedButton">
-        <item name="android:background">@color/cc_light_cool_accent_bg</item>
-        <item name="android:textColor">@color/cc_light_cool_accent_text</item>
-        <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
-    </style>
-
-    <style name="ScreenPinnedButtonNeutral" parent="ScreenPinnedButtonNeutralBase">
-        <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
-    </style>
-
-    <style name="PromptedUpdateButtonBase">
-        <item name="android:gravity">center</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginLeft">@dimen/standard_spacer_double</item>
-        <item name="android:layout_marginRight">@dimen/standard_spacer_double</item>
-        <item name="android:layout_marginBottom">@dimen/standard_spacer_double</item>
-        <item name="backgroundTint">@null</item>
-        <item name="android:textColor">@color/cc_neutral_bg</item>
-        <item name="android:padding">@dimen/standard_spacer</item>
-    </style>
-
-    <style name="PromptedUpdateButtonUpdate" parent="PromptedUpdateButtonBase">
-        <item name="android:background">@color/solid_green</item>
-        <item name="android:textSize">@dimen/font_size_xlargest</item>
-    </style>
-
-    <style name="PromptedUpdateButtonUpdateLater" parent="PromptedUpdateButtonBase">
-        <item name="android:background">@color/cc_brand_color</item>
-        <item name="android:textSize">@dimen/font_size_xlarge</item>
-        <item name="android:paddingLeft">@dimen/standard_spacer_large</item>
-        <item name="android:paddingRight">@dimen/standard_spacer_large</item>
-    </style>
-
     <style name="NumberPickerStyle">
         <item name="colorControlNormal">?attr/colorAccent</item>
         <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
@@ -283,6 +198,7 @@
         <item name="android:windowBackground">"@color/black"</item>
         <item name="android:navigationBarColor">@color/black</item>
     </style>
+
     <style name="TabTextStyle">
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
@@ -300,21 +216,22 @@
         <item name="backgroundTint">@color/cc_brand_color</item>
     </style>
 
-        <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
-            <item name="backgroundTint">@color/primary_button_background</item>
-            <item name="android:textColor">@color/white</item>
-            <item name="android:letterSpacing">0</item>
-            <item name="android:gravity">center</item>
-            <item name="android:padding">12dp</item>
-            <item name="height">40dp</item>
-            <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
-            <item name="iconPadding">8dp</item>
-            <item name="android:layout_margin">@dimen/spacer_small</item>
-        </style>
+    <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/primary_button_background</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">12dp</item>
+        <item name="height">40dp</item>
+        <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:layout_margin">@dimen/spacer_small</item>
+    </style>
     
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="shapeAppearanceOverlay">@style/NegativeButtonShapeAppearanceStyle</item>
     </style>
+
     <style name="NegativeButtonShapeAppearanceStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:background">@drawable/button_background_white</item>
         <item name="cornerFamilyTopLeft">rounded</item>

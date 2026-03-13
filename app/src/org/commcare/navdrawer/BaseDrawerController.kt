@@ -1,12 +1,10 @@
 package org.commcare.navdrawer
 
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -28,7 +26,6 @@ import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
-import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
 
 class BaseDrawerController(
@@ -235,16 +232,6 @@ class BaseDrawerController(
                     ),
                 )
             }
-
-//            if (hasConnectAccess) {
-//                items.add(
-//                    NavDrawerItem.ParentItem(
-//                        activity.getString(R.string.nav_drawer_payments),
-//                        R.drawable.nav_drawer_payments_icon,
-//                        NavItemType.PAYMENTS,
-//                    )
-//                )
-//            }
 
             navDrawerAdapter.refreshList(items)
         } else {
