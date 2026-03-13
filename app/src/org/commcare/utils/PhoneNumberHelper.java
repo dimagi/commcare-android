@@ -139,7 +139,7 @@ public class PhoneNumberHelper {
      * Convenience overload for production use.
      */
     public String getDefaultCountryCode() {
-        return getDefaultCountryCode(new DefaultCountryCodeSignalProvider());
+        return getDefaultCountryCode(new CountryCodeSignalProvider());
     }
 
     /**

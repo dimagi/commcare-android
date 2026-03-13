@@ -2,6 +2,8 @@ package org.commcare.utils
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.mockk.every
+import io.mockk.mockk
 import org.commcare.CommCareTestApplication
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -14,91 +16,91 @@ import org.robolectric.annotation.Config
 class PhoneNumberHelperCountryCodeTest {
 
     private lateinit var helper: PhoneNumberHelper
-    private lateinit var fakeProvider: FakeCountryCodeSignalProvider
+    private lateinit var provider: CountryCodeSignalProvider
 
     @Before
     fun setUp() {
         helper = PhoneNumberHelper.getInstance(ApplicationProvider.getApplicationContext())
-        fakeProvider = FakeCountryCodeSignalProvider()
+        provider = mockk()
     }
 
     @Test
     fun simPresent_returnsSimBasedCode() {
-        fakeProvider.simCountryIso = "in"
-        fakeProvider.networkCountryIso = "ke"
-        fakeProvider.localeCountry = "US"
+        every { provider.simCountryIso } returns "in"
+        every { provider.networkCountryIso } returns "ke"
+        every { provider.localeCountry } returns "US"
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("+91", result)
     }
 
     @Test
     fun simAbsent_networkPresent_returnsNetworkBasedCode() {
-        fakeProvider.simCountryIso = ""
-        fakeProvider.networkCountryIso = "ke"
-        fakeProvider.localeCountry = "US"
+        every { provider.simCountryIso } returns ""
+        every { provider.networkCountryIso } returns "ke"
+        every { provider.localeCountry } returns "US"
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("+254", result)
     }
 
     @Test
     fun simAndNetworkAbsent_localePresent_returnsLocaleBasedCode() {
-        fakeProvider.simCountryIso = ""
-        fakeProvider.networkCountryIso = ""
-        fakeProvider.localeCountry = "US"
+        every { provider.simCountryIso } returns ""
+        every { provider.networkCountryIso } returns ""
+        every { provider.localeCountry } returns "US"
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("+1", result)
     }
 
     @Test
     fun allSignalsAbsent_returnsEmpty() {
-        fakeProvider.simCountryIso = ""
-        fakeProvider.networkCountryIso = ""
-        fakeProvider.localeCountry = ""
+        every { provider.simCountryIso } returns ""
+        every { provider.networkCountryIso } returns ""
+        every { provider.localeCountry } returns ""
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("", result)
     }
 
     @Test
     fun simUnrecognizedIso_fallsThrough_toNetwork() {
-        fakeProvider.simCountryIso = "zz"
-        fakeProvider.networkCountryIso = "ke"
-        fakeProvider.localeCountry = "US"
+        every { provider.simCountryIso } returns "zz"
+        every { provider.networkCountryIso } returns "ke"
+        every { provider.localeCountry } returns "US"
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("+254", result)
     }
 
     @Test
     fun priorityOrder_simWinsOverNetworkAndLocale() {
-        fakeProvider.simCountryIso = "gb"
-        fakeProvider.networkCountryIso = "de"
-        fakeProvider.localeCountry = "FR"
+        every { provider.simCountryIso } returns "gb"
+        every { provider.networkCountryIso } returns "de"
+        every { provider.localeCountry } returns "FR"
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("+44", result)
     }
 
     @Test
     fun priorityOrder_networkWinsOverLocale() {
-        fakeProvider.simCountryIso = ""
-        fakeProvider.networkCountryIso = "de"
-        fakeProvider.localeCountry = "FR"
+        every { provider.simCountryIso } returns ""
+        every { provider.networkCountryIso } returns "de"
+        every { provider.localeCountry } returns "FR"
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("+49", result)
     }
 
     @Test
     fun uppercaseIso_worksCorrectly() {
-        fakeProvider.simCountryIso = "IN"
-        fakeProvider.networkCountryIso = ""
-        fakeProvider.localeCountry = ""
+        every { provider.simCountryIso } returns "IN"
+        every { provider.networkCountryIso } returns ""
+        every { provider.localeCountry } returns ""
 
-        val result = helper.getDefaultCountryCode(fakeProvider)
+        val result = helper.getDefaultCountryCode(provider)
         assertEquals("+91", result)
     }
 }
