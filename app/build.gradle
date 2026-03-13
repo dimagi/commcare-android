@@ -720,9 +720,12 @@ tasks.register('ktlintFile') {
             .redirectErrorStream(true)
             .start()
         def formatOutput = formatProcess.inputStream.text
-        formatProcess.waitFor()
+        def formatExitCode = formatProcess.waitFor()
         if (formatOutput) {
             println formatOutput
+        }
+        if (formatExitCode != 0) {
+            throw new GradleException("ktlint --format failed (exit code ${formatExitCode}). Is ktlint installed?\n${formatOutput}")
         }
 
         // Step 2: Verify no remaining violations

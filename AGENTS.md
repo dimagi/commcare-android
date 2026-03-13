@@ -29,17 +29,9 @@
 All the changes below should be part of a separate commit after the main code changes:
 - Clean up any unused code and imports
 - Verify Java code with `checkstyle.xml` and make changes as applicable
-- Run ktlint formatting: `ktlint --format path/to/file.kt`
-- Verify ktlint compliance: `ktlint path/to/file.kt`
+- Run ktlint format and verify: `./gradlew ktlintFile -PfilePath=path/to/file.kt`
 - Run relevant unit tests to ensure no regressions
 - Commit changes
-
-## Available ktlint Commands
-- `./gradlew ktlintFile -PfilePath=path/to/File.kt` - Auto-format and verify a Kotlin file via Gradle
-- `ktlint file.kt` - Check formatting (CLI)
-- `ktlint --format file.kt` - Auto-format (CLI)
-- `ktlint "src/**/*.kt"` - Check all Kotlin files
-- `ktlint --format "src/**/*.kt"` - Format all Kotlin files
 
 ## AI Workflow: ktlint
 After editing or creating a Kotlin file, always run the Gradle ktlint task:
