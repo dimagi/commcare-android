@@ -5,7 +5,6 @@
         <item name="android:paddingRight">15dp</item>
     </style>
 
-
     <dimen name="entity_padding">@dimen/content_min_margin</dimen>
     <dimen name="grid_entity_padding">3dp</dimen>
 
@@ -15,6 +14,7 @@
         <item name="android:paddingBottom">@dimen/entity_padding</item>
         <item name="android:paddingRight">@dimen/entity_padding</item>
     </style>
+
     <style name="EntityItemImageView">
         <item name="android:paddingLeft">@dimen/entity_item_image_margins</item>
         <item name="android:paddingTop">@dimen/entity_item_image_margins</item>
@@ -30,6 +30,7 @@
     </style>
 
     <style name="EntityItemText" parent="@android:style/TextAppearance.Medium"/>
+
     <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium"/>
 
     <style name="VersionIdText">
@@ -109,11 +110,13 @@
         <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="android:gravity">center_vertical</item>
     </style>
+
     <style name="ListContentWithBadge">
         <item name="android:layout_width">@dimen/list_content_with_space_for_badge</item>
         <item name="android:layout_height">@dimen/list_content_with_space_for_badge</item>
         <item name="android:gravity">center_vertical</item>
     </style>
+
     <style name="GridViewContentWithBadge">
         <item name="android:layout_width">@dimen/menu_grid_icon_size</item>
         <item name="android:layout_height">@dimen/menu_grid_icon_size_with_badge</item>
@@ -135,13 +138,13 @@
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>
     </style>
+
     <style name="DefaultPadding">
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>
         <item name="android:paddingTop">@dimen/content_min_margin</item>
         <item name="android:paddingBottom">@dimen/content_min_margin</item>
     </style>
-
 
     <style name="TextViewV2" parent="DefaultPadding">
         <item name="android:background">?attr/filter_select_background_color</item>
@@ -195,6 +198,7 @@
         <item name="android:windowBackground">"@color/black"</item>
         <item name="android:navigationBarColor">@color/black</item>
     </style>
+
     <style name="TabTextStyle">
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
@@ -212,21 +216,22 @@
         <item name="backgroundTint">@color/cc_brand_color</item>
     </style>
 
-        <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
-            <item name="backgroundTint">@color/primary_button_background</item>
-            <item name="android:textColor">@color/white</item>
-            <item name="android:letterSpacing">0</item>
-            <item name="android:gravity">center</item>
-            <item name="android:padding">12dp</item>
-            <item name="height">40dp</item>
-            <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
-            <item name="iconPadding">8dp</item>
-            <item name="android:layout_margin">@dimen/spacer_small</item>
-        </style>
+    <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/primary_button_background</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">12dp</item>
+        <item name="height">40dp</item>
+        <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:layout_margin">@dimen/spacer_small</item>
+    </style>
     
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="shapeAppearanceOverlay">@style/NegativeButtonShapeAppearanceStyle</item>
     </style>
+
     <style name="NegativeButtonShapeAppearanceStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:background">@drawable/button_background_white</item>
         <item name="cornerFamilyTopLeft">rounded</item>
