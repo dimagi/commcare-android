@@ -18,7 +18,9 @@
     <color name="translucent_blue_grey">#806884AD</color>
     <color name="green">#87D13E</color>
     <color name="red">#FF0000</color>
+
     <!-- ODK.Collect colors start here -->
+
     <color name="translucent_background">#e0000000</color>
     <color name="transparent_background">#00000000</color>
     <color name="solid_blue">#0000ff</color>
@@ -71,6 +73,7 @@
 
     <!-- Dark Cool Accent -->
     <color name="cc_dark_cool_accent_color">#9060C8</color>
+
     <!-- Light Cool Accent -->
     <color name="cc_light_cool_accent_bg">#CCF3F4</color>
     <color name="cc_light_cool_accent_text">#00799A</color>
@@ -95,15 +98,16 @@
     <color name="cc_error_text_color">#FFFFFF</color>
     <color name="map_layer_button_color">#D3D3D3</color>
 
-    <!--    Map  Buttons-->
+    <!-- Map Buttons -->
     <color name="gray_400">#BDBDBD</color>
     <color name="orange_500">#FF9800</color>
     <color name="red_700">#D32F2F</color>
+
     <!-- Button colors -->
     <color name="button_disabled">@color/cc_neutral_bg</color>
     <color name="button_primary_color">@color/cc_brand_color</color>
 
-    <!-- Square button colours -->
+    <!-- Square button colors -->
     <color name="start_home_button">#6AB849</color>
     <color name="start_save_button">#1B998B</color>
     <color name="start_sync_button">@color/cc_brand_color</color>
@@ -114,11 +118,7 @@
     <!-- Progress bar colors -->
     <color name="progress_bar_bg">#66000000</color>
 
-    <color name="cconnect_message_unread_badge_color">#ff0000</color>
-    <color name="connect_orange_yellow">#FFEFD5</color>
-    <color name="connect_tealish_blue_color">#E7EAF8</color>
-
-    <!-- New connect colors-->
+    <!-- New Connect colors -->
     <color name="connect_message_receiver_bg">#5C6FD0</color>
     <color name="connect_message_sender_bg">#F1F5F9</color>
     <color name="connect_message_sender_text_color">#334155</color>
