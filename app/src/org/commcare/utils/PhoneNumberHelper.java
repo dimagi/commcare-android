@@ -138,8 +138,8 @@ public class PhoneNumberHelper {
      * Retrieves the best country code using real device signals.
      * Convenience overload for production use.
      */
-    public String getDefaultCountryCode(Context context) {
-        return getDefaultCountryCode(new DefaultCountryCodeSignalProvider(context));
+    public String getDefaultCountryCode() {
+        return getDefaultCountryCode(new DefaultCountryCodeSignalProvider());
     }
 
     /**

@@ -3,14 +3,15 @@ package org.commcare.utils
 import android.content.Context
 import android.telephony.TelephonyManager
 import androidx.core.os.ConfigurationCompat
+import org.commcare.CommCareApplication
 
 /**
  * Production implementation that reads country signals from Android system services.
  */
-class DefaultCountryCodeSignalProvider(context: Context) : CountryCodeSignalProvider {
+class DefaultCountryCodeSignalProvider() : CountryCodeSignalProvider {
+    private val appContext: Context = CommCareApplication.instance()
     private val telephonyManager: TelephonyManager? =
-        context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-    private val appContext: Context = context.applicationContext
+        appContext.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
 
     override val simCountryIso: String
         get() = telephonyManager?.simCountryIso ?: ""

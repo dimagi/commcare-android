@@ -169,7 +169,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     private void initializeUi() {
         if (binding.countryCode.getText().toString().isEmpty()) {
-            binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
+            binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode());
         }
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupKeyboardScrollListener(binding.scrollView);
