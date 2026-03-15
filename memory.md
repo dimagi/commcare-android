@@ -5,6 +5,7 @@
 - Coverage: `./gradlew JacocoTestReport`
 - Lint: `ktlint --format path/to/file.kt`
 - Needs `../commcare-core/` sibling (CI only)
+- Note: PR #3609 adds ktlint Gradle task + Claude hook (pending merge)
 
 ## Project
 - Tests: `app/unit-tests/src/org/commcare/`
@@ -23,17 +24,18 @@
 - `NotificationTestUtil.kt` = good Kotlin builder pattern to follow
 
 ## Backlog
-1. EntityMapUtils.kt - geo parsing (HIGH)
-2. RequestStats.kt - `getRequestAge()` bucketing (MEDIUM)
+1. EntityMapUtils.kt - geo parsing (HIGH) - note: needs Google Maps SDK mocking
+2. RequestStats.kt - `getRequestAge()` bucketing (MEDIUM) - needs CommCareApp mock
 3. NotificationIdentifiers.kt - `generateNotificationIdFromString()` (LOW)
 
 ## Completed
-- PR #3610: HashUtils (2026-03-13)
-- PR #3602: ConnectDateUtils + ktlint (2026-03-12)
+- NetworkUtils.kt (2026-03-15) - branch: test-assist/network-utils-tests-20260315
+- PR #3610: HashUtils (2026-03-13) - 1 approval (conroy-ricketts, tests pass locally)
+- PR #3602: ConnectDateUtils + ktlint (2026-03-12) - 2 approvals (Jignesh, avazirna)
 - Commented #2649: MockWebServer migration (2026-03-14)
 - Commented #2880: Nepali timezone fix (2026-03-14)
 - Issue #3601: Monthly Activity 2026-03
 
 ## Round-Robin
-- T1:2026-03-11 T2:2026-03-12 T3:2026-03-13
-- T4:2026-03-12 T5:2026-03-14 T6:2026-03-14 T7:2026-03-14
+- T1:2026-03-11 T2:2026-03-12 T3:2026-03-15
+- T4:2026-03-15 T5:2026-03-14 T6:2026-03-14 T7:2026-03-15
