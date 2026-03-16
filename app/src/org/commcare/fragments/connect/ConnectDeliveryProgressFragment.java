@@ -245,7 +245,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         @ColorRes int resumeTextColorRes;
         @DrawableRes int viewInfoBackgroundDrawableRes;
         @ColorRes int viewInfoTextColorRes;
-        if (job.deliveryComplete()) {
+        if (job.isFinished()) {
             resumeBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
             resumeTextColorRes = R.color.connect_blue_color;
             viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
