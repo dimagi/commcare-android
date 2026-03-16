@@ -266,8 +266,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             @ColorRes int backgroundColorRes;
 
             if (job.deliveryComplete()) {
-                textColorRes = R.color.connect_blue_color;
-                backgroundColorRes = R.color.porcelain_grey;
+                textColorRes = R.color.rich_amber_gold;
+                backgroundColorRes = R.color.pale_buttery_cream;
             } else {
                 textColorRes = R.color.connect_warning_color;
                 backgroundColorRes = R.color.connect_light_orange_color;
