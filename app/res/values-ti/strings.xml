@@ -172,7 +172,6 @@
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
     <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ PersonalID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
-    <string name="personalid_login_from_different_device">ናትካ PersonalID ኣካውንት ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክውነን ዝኽእልን ኣብ ካልእ መሳርሒ ድማ ተዋቒሩን ኣሎ። በጃኻ ኣብቲ ሓድሽ መሳርሒ ቀጽሎ ወይ ኣብዚ PersonalID ምጥቃም ክትቅጽል ኣብዚ መሳርሒ ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="personalid_generic_error_title">ካብ PersonalID ወጺኡ ኣሎ</string>
     <string name="personalid_error_title_login_different_device">ኣካውንት ኣብ ካልእ መሳርሒ ኣብ ጥቕሚ ይውዕል ኣሎ</string>
     <string name="personalid_error_message_login_different_device">በጃኹም ኣብቲ ሓድሽ መሳርሒ ቀጽሉ፡ ወይ ድማ ኣካውንትኩም እንደገና ኣንኣድዎ</string>
@@ -289,12 +288,9 @@
     <string name="connect_last_update">ዝተመሓየሸ: %s</string>
     <string name="connect_title">ኣራኽብ</string>
     <string name="connect_no_jobs">ክሳብ ሕጂ ናብ ዝኾነ ዕድላት ኣይተዓደምኩምን። ንሓደ ዕድል ምስ ተዓደምካ፡ ኣብ\'ዚ ዝርዝር\'ዚ ክቐርብ\'ዩ።</string>
-    <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
     <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላትን ምግምጋምን ዛዚምካ ምስክር ወረቐት ውሰድ</string>
     <string name="connect_job_no_learning_required">ትምህርቲ ኣየድልን።</string>
-    <string name="connect_job_go_to_learn_app">ናብ Learn App ኪድ</string>
-    <string name="connect_job_learn_summary">%d ሞዱላት፣ %d ሰዓታት</string>
     <string name="connect_learn_progress_title">ምዕባለ ተማሃሩ</string>
     <string name="connect_learn_complete_title">ስልጠና ተዛዚሙ!</string>
     <string name="connect_learn_need_assessment_title">ስልጠና ኣብ ምፅባይ ዝርከብ</string>
@@ -315,7 +311,6 @@
     <string name="connect_learn_review">ትምህርቲ ዳግመ ግምት</string>
     <string name="connect_learn_view_details">ዝርዝር ዕድል ርአ</string>
     <string name="connect_learn_go_to_assessment">ናብ ገምጋም ኪድ</string>
-    <string name="connect_learn_start">ትምህርቲ ጀምር</string>
     <string name="connect_learn_continue">ትምህርቲ ቀፅል</string>
     <string name="connect_delivery_earn_multi">ኣብ ነፍሲ ወከፍ ምብፃሕ ክትከፍል፤</string>
     <string name="connect_delivery_go">ናብ App ኪድ</string>
@@ -341,10 +336,6 @@
     <string name="connect_results_summary_remaining_today">%d ብ ሎሚ</string>
     <string name="connect_results_summary_visits_done">ኩሉ ዝተገብረ ምብጻሕ</string>
     <string name="connect_results_summary_days_over">መዓልታት ተወዲኡ</string>
-    <string name="connect_results_payment_confirm">ኣረጋግፅ</string>
-    <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
-    <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
-    <string name="connect_results_payment_not_confirmed">ኣይተረጋገፀን።</string>
     <string name="connect_payment_confirm_text">ን%d %s ዕድል ዝኸውን %s ተኸፊልካዶ?</string>
     <string name="connect_payment_confirm_yes">እወ!</string>
     <string name="connect_payment_confirm_no">ፀኒሕኻ ሕተት።</string>
@@ -366,7 +357,6 @@
     <string name="confirm_code">ኮድ ምርግጋፅ</string>
     <string name="code">ኮድ</string>
     <string name="choose_a_6_digit_recovery_code">6 ኣሃዝ ዘለዎ ሓድሽ ኮድ ምረጽ</string>
-    <string name="download_app">ዳውንሎድ</string>
     <string name="sync">ምትእስሳር</string>
     <string name="micro_image_activity_title">ስእሊ ገጽ ምቕራጽ</string>
     <string name="connect_job_info_title">ዝርዝር ዕድል</string>
@@ -397,10 +387,6 @@
     <string name="connect_payment_dialog_yes">እወ</string>
     <string name="connect_payment_revert">ንድሕሪት ምምላስ</string>
     <string name="connect_deactivate_account">ኣካውንት ምቁራፅ (ደው ምባል)</string>
-    <string name="connect_new_opportunity">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
-    <string name="connect_learn">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
-    <string name="connect_delivery">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
-    <string name="connect_expired">ኣገልግሎቱ ዝወደአ</string>
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_in_progress">ኣብ መስርሕ</string>
     <string name="connect_new_opportunities">ሓደስቲ ዕድላት</string>
@@ -413,7 +399,6 @@
     <string name="personalid_location_permission_error">PersonalID መሳርሒኻ ናይ ኣገልግሎት ኣቀማምጣ ከም ዝተኸፍተ ገይሩ ክህልዎ የገድድ እዩ። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ setting ናይ ተሌፎንካ ኣክቲቭ ግበሮ።</string>
     <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
-    <string name="connect_recovery_button_phone">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
     <string name="connect_messaging_channel_list_title">ቻነላት</string>
     <string name="connect_messaging_message_notification_title">🔔 ሓድሽ መልእኽቲ 🔔</string>
@@ -496,11 +481,8 @@
     <string name="nav_drawer_signin_register">እቶም ኣእትዉ / ይመዝገቡ</string>
     <string name="nav_drawer_help">እርዳታ</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
-    <string name="nav_drawer_continue_without_personal_id"><u>ብዘይ PersonalID ቀጽል።</u></string>
-    <string name="nav_drawer_fix_now">ሕጂ ኣዐርዩ።</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
-    <string name="nav_drawer_payments">ክፍሊታት</string>
     <string name="nav_drawer_manage_profile">ፕሮፋይል ኣስተዳደር</string>
     <string name="play_service_update_error">PersonalID ንኽትጥቀም፡ ናይ Google Play ኣገልግሎታት ከተሐድስ የድልየካ። ምዕዳጋት ንምርኣይ ናብ Google Play Store ንምኻድ ኣብዚ ጠውቕ።</string>
     <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>

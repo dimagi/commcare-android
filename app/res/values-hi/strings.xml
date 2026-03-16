@@ -183,7 +183,6 @@ License.
     <string name="recovery_network_outdated">यह ऐप पुराना हो गया है। आगे बढ़ने के लिए कृपया Google Play Store पर ऐप को अपडेट करें।</string>
     <string name="personalid_token_unavailable">नेटवर्क में कोई समस्या थी. कृपया फिर से कोशिश करें.</string>
     <string name="personalid_token_request_rejected">सर्वर के साथ PersonalID कॉन्फ़िगरेशन खो गया है, कृपया अपना PersonalID अकाउंट रिकवर करें और फिर से कोशिश करें</string>
-    <string name="personalid_login_from_different_device">आपका PersonalID अकाउंट एक समय में सिर्फ़ एक डिवाइस पर ही कॉन्फ़िगर किया जा सकता है और इसे दूसरे डिवाइस पर कॉन्फ़िगर किया गया है। PersonalID का इस्तेमाल जारी रखने के लिए कृपया नए डिवाइस पर जारी रखें या इस डिवाइस पर अपना अकाउंट फिर से कॉन्फ़िगर करें।</string>
     <string name="personalid_generic_error_title">PersonalID से लॉग आउट किया गया</string>
     <string name="personalid_error_title_login_different_device">खाता किसी अन्य डिवाइस पर उपयोग में है</string>
     <string name="personalid_error_message_login_different_device">कृपया नए डिवाइस पर जारी रखें, या अपने खाते को फिर से कॉन्फ़िगर करें।</string>
@@ -293,11 +292,8 @@ License.
     <string name="connect_last_update">अपडेट किया गया: %s</string>
     <string name="connect_title">कनेक्ट करें</string>
     <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
-    <string name="connect_job_intro_title">अवसर</string>
     <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल और मूल्यांकन पूरे करें और एक प्रमाण पत्र प्राप्त करें</string>
     <string name="connect_job_no_learning_required">कोई शिक्षण आवश्यक नहीं</string>
-    <string name="connect_job_go_to_learn_app">Learn ऐप पर जाएं</string>
-    <string name="connect_job_learn_summary">%d मॉड्यूल, %d घंटे</string>
     <string name="connect_learn_progress_title">प्रगति सीखें</string>
     <string name="connect_learn_complete_title">प्रशिक्षण पूरा हुआ!</string>
     <string name="connect_learn_need_assessment_title">प्रशिक्षण लंबित</string>
@@ -318,7 +314,6 @@ License.
     <string name="connect_learn_review">सीखने की समीक्षा करें</string>
     <string name="connect_learn_view_details">अवसर विवरण देखें</string>
     <string name="connect_learn_go_to_assessment">मूल्यांकन पर जाएं</string>
-    <string name="connect_learn_start">सीखना शुरू करें</string>
     <string name="connect_learn_continue">सीखना जारी रखें</string>
     <string name="connect_delivery_earn_multi">प्रति विज़िट भुगतान:</string>
     <string name="connect_delivery_go">ऐप पर जाएं</string>
@@ -336,10 +331,6 @@ License.
     <string name="connect_downloading_delivery">वितरण ऐप डाउनलोड हो रहा है</string>
     <string name="connect_results_summary_earned">अर्जित</string>
     <string name="connect_results_summary_transferred">स्थानांतरित</string>
-    <string name="connect_results_payment_confirm">पुष्टि करें</string>
-    <string name="connect_results_payment_confirm_undo">पुष्टि रद्द करें</string>
-    <string name="connect_results_payment_confirmed">पुष्टि की गई</string>
-    <string name="connect_results_payment_not_confirmed">पुष्टि नहीं की गई</string>
     <string name="connect_payment_confirm_text">क्या आपको %d %s अवसर के लिए %s का भुगतान किया गया है?</string>
     <string name="connect_payment_confirm_yes">हाँ!</string>
     <string name="connect_payment_confirm_no">बाद में</string>
@@ -362,7 +353,6 @@ License.
     <string name="confirm_code">कोड की पुष्टि करें</string>
     <string name="code">कोड</string>
     <string name="choose_a_6_digit_recovery_code">6 अंकों का रिकवरी कोड चुनें</string>
-    <string name="download_app">डाउनलोड करें</string>
     <string name="sync">सिंक करें</string>
     <string name="micro_image_activity_title">चेहरे की फ़ोटो कैप्चर करें</string>
     <string name="connect_job_info_title">अवसर विवरण</string>
@@ -391,15 +381,10 @@ License.
     <string name="connect_payment_dialog_yes">हाँ</string>
     <string name="connect_payment_revert">वापस करें</string>
     <string name="connect_deactivate_account">खाता निष्क्रिय करें</string>
-    <string name="connect_new_opportunity">नया अवसर</string>
-    <string name="connect_learn">सीखें</string>
-    <string name="connect_delivery">वितरण</string>
-    <string name="connect_expired">समाप्त</string>
     <string name="connect_job_tile_daily_limit_description">दैनिक सीमा पूरी हो गई। फॉर्म जमा करने पर कोई भुगतान नहीं।</string>
     <string name="connect_in_progress">प्रगति में</string>
     <string name="connect_new_opportunities">नए अवसर</string>
     <string name="connect_completed">पूरा हुआ</string>
-    <string name="connect_recovery_button_phone">जारी रखें</string>
     <string name="fcm_sync_failed_body_text">अधिक जानकारी के लिए यहां क्लिक करें</string>
     <string name="connect_verify_phone_resend_code">कोड पुनः भेजें</string>
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>
@@ -501,11 +486,8 @@ License.
     <string name="nav_drawer_signin_register">साइन इन / रजिस्टर</string>
     <string name="nav_drawer_help">सहायता</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">आप PersonalID में साइन इन नहीं हैं</string>
-    <string name="nav_drawer_continue_without_personal_id"><u>PersonalID के बिना जारी रखें</u></string>
-    <string name="nav_drawer_fix_now">अब ठीक करें</string>
     <string name="nav_drawer_opportunities">अवसर</string>
     <string name="nav_drawer_commcare_apps">कॉमकेयर ऐप्स</string>
-    <string name="nav_drawer_payments">भुगतान</string>
     <string name="nav_drawer_manage_profile">प्रोफ़ाइल प्रबंधित करें</string>
     <string name="play_service_update_error">PersonalID का उपयोग करने के लिए, आपको Google Play सेवाएं अपडेट करनी होंगी। अपडेट की जांच के लिए Google Play Store पर जाने के लिए यहां टैप करें।</string>
     <string name="nav_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
