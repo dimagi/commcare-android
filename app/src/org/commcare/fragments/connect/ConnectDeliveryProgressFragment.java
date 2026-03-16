@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
@@ -25,7 +26,6 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
@@ -39,6 +39,7 @@ import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.views.ViewUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +74,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         setupTabViewPager();
-        setupJobCard(job);
+        setupJobCard();
         setupRefreshAndConfirmationActions();
 
         updateLastUpdatedText(job.getLastDeliveryUpdate());
@@ -204,13 +205,9 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         getBinding().connectDeliveryProgressViewPager.setCurrentItem(TAB_PAYMENT, true);
     }
 
-    private void setupJobCard(ConnectJobRecord job) {
+    private void setupJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
 
-        jobCard.acbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
-                .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment())
-        );
-        jobCard.acbResume.setOnClickListener(v -> navigateToDeliverAppHome());
         jobCard.tvJobTitle.setText(job.getTitle());
 
         @StringRes int dateMessageStringRes;
@@ -229,6 +226,38 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         String workingHours = job.getWorkingHours();
         boolean hasHours = workingHours != null;
+        jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
+        jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
+        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
+        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
+        jobCard.connectJobEndDate.setVisibility(View.GONE);
+        jobCard.tvViewMore.setVisibility(View.GONE);
+
+        if (hasHours) {
+            (jobCard.tvJobTime).setText(workingHours);
+        }
+
+        setupJobCardButtons(jobCard);
+    }
+
+    private void setupJobCardButtons(ViewJobCardBinding jobCard) {
+        @DrawableRes int resumeBackgroundDrawableRes;
+        @ColorRes int resumeTextColorRes;
+        @DrawableRes int viewInfoBackgroundDrawableRes;
+        @ColorRes int viewInfoTextColorRes;
+        if (job.deliveryComplete()) {
+            resumeBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
+            resumeTextColorRes = R.color.connect_blue_color;
+            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
+            viewInfoTextColorRes = R.color.white;
+        } else {
+            resumeBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
+            resumeTextColorRes = R.color.white;
+            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
+            viewInfoTextColorRes = R.color.connect_blue_color;
+        }
+
+        // Setup the resume button.
         boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
         Drawable downloadIcon = appInstalled
                 ? null
@@ -236,18 +265,34 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 downloadIcon, null, null, null
         );
-        jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
-        jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
-        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
-        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
-        jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.tvViewMore.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
+        jobCard.acbResume.setBackground(
+                ContextCompat.getDrawable(requireContext(), resumeBackgroundDrawableRes)
+        );
+        jobCard.acbResume.setTextColor(
+                ContextCompat.getColor(requireContext(), resumeTextColorRes)
+        );
+        jobCard.acbResume.setOnClickListener(v -> navigateToDeliverAppHome());
+        int paddingHorizontalPx = ViewUtil.dpToPx(8, requireContext());
+        jobCard.acbResume.setPaddingRelative(
+                paddingHorizontalPx, 0, paddingHorizontalPx, 0
+        );
         jobCard.acbResume.setVisibility(View.VISIBLE);
 
-        if (hasHours) {
-            (jobCard.tvJobTime).setText(workingHours);
-        }
+        // Setup the view info button.
+        jobCard.acbViewInfo.setBackground(
+                ContextCompat.getDrawable(requireContext(), viewInfoBackgroundDrawableRes)
+        );
+        jobCard.acbViewInfo.setTextColor(
+                ContextCompat.getColor(requireContext(), viewInfoTextColorRes)
+        );
+        jobCard.acbViewInfo.setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(
+                                ConnectDeliveryProgressFragmentDirections
+                                        .actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()
+                        )
+        );
+        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
     }
 
     @Override
