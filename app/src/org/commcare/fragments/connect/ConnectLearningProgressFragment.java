@@ -28,7 +28,7 @@ import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.modern.util.Pair;
-import org.commcare.views.ViewUtil;
+import org.commcare.utils.ViewUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -365,7 +365,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                 ContextCompat.getColor(requireContext(), resumeTextColorRes)
         );
         jobCard.acbResume.setOnClickListener(v -> navigateToLearnAppHome());
-        int paddingHorizontalPx = ViewUtil.dpToPx(8, requireContext());
+        int paddingHorizontalPx = ViewUtils.dpToPx(8, requireContext());
         jobCard.acbResume.setPaddingRelative(
                 paddingHorizontalPx, 0, paddingHorizontalPx, 0
         );

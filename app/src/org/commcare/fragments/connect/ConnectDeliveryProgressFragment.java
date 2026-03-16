@@ -39,7 +39,7 @@ import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.views.ViewUtil;
+import org.commcare.utils.ViewUtils;
 import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -272,7 +272,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 ContextCompat.getColor(requireContext(), resumeTextColorRes)
         );
         jobCard.acbResume.setOnClickListener(v -> navigateToDeliverAppHome());
-        int paddingHorizontalPx = ViewUtil.dpToPx(8, requireContext());
+        int paddingHorizontalPx = ViewUtils.dpToPx(8, requireContext());
         jobCard.acbResume.setPaddingRelative(
                 paddingHorizontalPx, 0, paddingHorizontalPx, 0
         );
