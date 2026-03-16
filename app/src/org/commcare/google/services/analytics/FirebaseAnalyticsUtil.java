@@ -21,6 +21,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.EncryptionUtils;
+import org.commcare.utils.FirebaseUtils;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
@@ -83,6 +84,9 @@ public class FirebaseAnalyticsUtil {
         }
 
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        if (analyticsInstance == null) {
+            return;
+        }
         setUserProperties(analyticsInstance);
         analyticsInstance.logEvent(eventName, params);
     }
@@ -411,7 +415,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static boolean analyticsDisabled() {
-        return !MainConfigurablePreferences.isAnalyticsEnabled();
+        return !FirebaseUtils.isFirebaseEnabled() || !MainConfigurablePreferences.isAnalyticsEnabled();
     }
 
     private static boolean rateLimitReporting(double percentOfEventsToReport) {
