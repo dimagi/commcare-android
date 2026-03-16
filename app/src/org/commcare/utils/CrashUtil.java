@@ -17,7 +17,7 @@ public class CrashUtil {
     private static final String DOMAIN = "domain";
     private static final String DEVICE_ID = "device_id";
 
-    private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS;
+    private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS && FirebaseUtils.isFirebaseEnabled();
 
     public static void reportException(Throwable e) {
         if (crashlyticsEnabled) {
