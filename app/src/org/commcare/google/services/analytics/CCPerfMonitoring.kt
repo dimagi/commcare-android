@@ -4,6 +4,7 @@ import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.Trace
 import org.apache.commons.io.FilenameUtils
 import org.commcare.android.logging.ReportingUtils
+import org.commcare.utils.FirebaseUtils
 import org.javarosa.core.services.Logger
 
 object CCPerfMonitoring {
@@ -34,6 +35,9 @@ object CCPerfMonitoring {
 
 
     fun startTracing(traceName: String): Trace? {
+        if (!FirebaseUtils.isFirebaseEnabled()) {
+            return null
+        }
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
             trace.putAttribute(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain())
