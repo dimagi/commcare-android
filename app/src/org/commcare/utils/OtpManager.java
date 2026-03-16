@@ -31,7 +31,7 @@ public class OtpManager {
             if (!FirebaseUtils.isFirebaseEnabled()) {
                 Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                         "Firebase Auth not available - Firebase is not configured");
-                otpCallback.onVerificationFailed("Firebase is not configured. OTP via Firebase is unavailable.");
+                otpCallback.onFailure(OtpErrorType.GENERIC_ERROR, "Firebase is not configured. OTP via Firebase is unavailable.");
                 authService = null;
                 return;
             }
