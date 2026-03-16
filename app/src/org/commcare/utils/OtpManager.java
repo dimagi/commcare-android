@@ -28,16 +28,27 @@ public class OtpManager {
         if (SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(otpMethod)) {
             authService = new PersonalIdAuthService(activity, personalIdSessionData, otpCallback);
         } else {
+            if (!FirebaseUtils.isFirebaseEnabled()) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                        "Firebase Auth not available - Firebase is not configured");
+                otpCallback.onVerificationFailed("Firebase is not configured. OTP via Firebase is unavailable.");
+                authService = null;
+                return;
+            }
             authService = new FirebaseAuthService(activity, personalIdSessionData, otpCallback);
         }
     }
 
     public void requestOtp(String phoneNumber) {
-        authService.requestOtp(phoneNumber);
+        if (authService != null) {
+            authService.requestOtp(phoneNumber);
+        }
     }
 
     public void verifyOtp(String code) {
-        authService.verifyOtp(code);
+        if (authService != null) {
+            authService.verifyOtp(code);
+        }
     }
 
 }
