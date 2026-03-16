@@ -194,6 +194,7 @@ ext {
                     'ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0' +
                     'HaAJkjpnc165Os+aYwIDAQAB')
     GOOGLE_SERVICES_API_KEY = loadProp('GOOGLE_SERVICES_API_KEY', '')
+    FIREBASE_ENABLED = !project.ext.GOOGLE_SERVICES_API_KEY.toString().isEmpty()
     GOOGLE_CLOUD_PROJECT_NUMBER = loadProp('GOOGLE_CLOUD_PROJECT_NUMBER', -1L)
     QA_BETA_APP_ID = ''
     STANDALONE_APP_ID = ''
@@ -315,6 +316,8 @@ android {
         buildConfigField 'String', 'FIREBASE_DATABASE_URL', "\"${project.ext.FIREBASE_DATABASE_URL}\""
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
         buildConfigField 'long', 'GOOGLE_CLOUD_PROJECT_NUMBER', "${project.ext.GOOGLE_CLOUD_PROJECT_NUMBER}"
+        buildConfigField 'boolean', 'FIREBASE_ENABLED', "${project.ext.FIREBASE_ENABLED}"
+        manifestPlaceholders["firebaseInitEnabled"] = project.ext.FIREBASE_ENABLED
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
 
