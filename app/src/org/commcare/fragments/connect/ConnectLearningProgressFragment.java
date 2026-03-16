@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavDirections;
@@ -26,6 +28,7 @@ import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.modern.util.Pair;
+import org.commcare.views.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -316,6 +319,38 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;
+        jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
+        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
+        jobCard.connectJobEndDate.setVisibility(View.GONE);
+        jobCard.tvViewMore.setVisibility(View.GONE);
+
+        if (showHours) {
+            jobCard.tvJobTime.setText(hours);
+        }
+
+        setupJobCardButtons(jobCard);
+    }
+
+    private void setupJobCardButtons(ViewJobCardBinding jobCard) {
+        @DrawableRes int resumeBackgroundDrawableRes;
+        @ColorRes int resumeTextColorRes;
+        @DrawableRes int viewInfoBackgroundDrawableRes;
+        @ColorRes int viewInfoTextColorRes;
+        if (job.deliveryComplete()) {
+            resumeBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
+            resumeTextColorRes = R.color.connect_blue_color;
+            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
+            viewInfoTextColorRes = R.color.white;
+        } else {
+            resumeBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
+            resumeTextColorRes = R.color.white;
+            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
+            viewInfoTextColorRes = R.color.connect_blue_color;
+        }
+
+        // Setup the resume button.
         boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
         Drawable downloadIcon = appInstalled
                 ? null
@@ -323,20 +358,28 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 downloadIcon, null, null, null
         );
-        jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
-        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
-        jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.acbResume.setBackground(
+                ContextCompat.getDrawable(requireContext(), resumeBackgroundDrawableRes)
+        );
+        jobCard.acbResume.setTextColor(
+                ContextCompat.getColor(requireContext(), resumeTextColorRes)
+        );
         jobCard.acbResume.setOnClickListener(v -> navigateToLearnAppHome());
-        jobCard.tvViewMore.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
+        int paddingHorizontalPx = ViewUtil.dpToPx(8, requireContext());
+        jobCard.acbResume.setPaddingRelative(
+                paddingHorizontalPx, 0, paddingHorizontalPx, 0
+        );
         jobCard.acbResume.setVisibility(View.VISIBLE);
 
-        if (showHours) {
-            jobCard.tvJobTime.setText(hours);
-        }
+        // Setup the view info button.
+        jobCard.acbViewInfo.setBackground(
+                ContextCompat.getDrawable(requireContext(), viewInfoBackgroundDrawableRes)
+        );
+        jobCard.acbViewInfo.setTextColor(
+                ContextCompat.getColor(requireContext(), viewInfoTextColorRes)
+        );
+        jobCard.acbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
+        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
     }
 
     private void navigateToJobDetailBottomSheet(View view) {
