@@ -97,15 +97,16 @@ public class FirebaseMessagingUtil {
         sharedPreferences.edit().putLong(FCM_TOKEN_TIME, System.currentTimeMillis()).apply();
     }
 
+    /**
+     * This verification only runs if Firebase is available and configured
+     */
     public static void verifyToken() {
         if (!FirebaseUtils.isFirebaseEnabled()) {
             return;
         }
-        // TODO: Enable FCM in debug mode
-        if (!BuildConfig.DEBUG) {
-            // Retrieve the current Firebase Cloud Messaging (FCM) registration token
-            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(handleFCMTokenRetrieval());
-        }
+
+        // Retrieve the current Firebase Cloud Messaging (FCM) registration token
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(handleFCMTokenRetrieval());
     }
 
     private static OnCompleteListener handleFCMTokenRetrieval() {

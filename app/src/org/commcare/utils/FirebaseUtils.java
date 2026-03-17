@@ -7,10 +7,14 @@ public class FirebaseUtils {
     private FirebaseUtils() {}
 
     /**
-     * Returns whether Firebase services are available and configured.
+     * Returns whether Firebase services are available and configured. Firebase is disabled in debug mode
      * When false, all Firebase API calls must be skipped.
      */
     public static boolean isFirebaseEnabled() {
-        return BuildConfig.FIREBASE_ENABLED;
+        return !BuildConfig.DEBUG && BuildConfig.FIREBASE_ENABLED;
+    }
+
+    public static boolean isCrashlyticsEnabled() {
+        return isFirebaseEnabled() && BuildConfig.USE_CRASHLYTICS;
     }
 }

@@ -223,11 +223,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         turnOnStrictMode();
 
         CommCareApplication.app = this;
-        if (FirebaseUtils.isFirebaseEnabled()) {
-            CrashUtil.init();
-        }
+
+        CrashUtil.init();
         DataChangeLogger.init(this);
-        if (FirebaseUtils.isFirebaseEnabled() && !BuildConfig.DEBUG) {
+        if (FirebaseUtils.isFirebaseEnabled()) {
             FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
         }
 
@@ -272,9 +271,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
-        if (FirebaseUtils.isFirebaseEnabled()) {
-            FirebaseMessagingUtil.verifyToken();
-        }
+        FirebaseMessagingUtil.verifyToken();
 
         customiseOkHttp();
 
