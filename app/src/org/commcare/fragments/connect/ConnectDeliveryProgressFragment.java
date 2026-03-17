@@ -1,16 +1,13 @@
 package org.commcare.fragments.connect;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.ColorRes;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -29,7 +26,6 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
@@ -207,100 +203,17 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private void setupJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
-
-        jobCard.tvJobTitle.setText(job.getTitle());
-
-        @StringRes int dateMessageStringRes;
-        if (job.deliveryComplete()) {
-            dateMessageStringRes = R.string.connect_job_ended;
-        } else {
-            dateMessageStringRes = R.string.connect_learn_complete_by;
-        }
-
-        jobCard.connectJobEndDateSubHeading.setText(
-                getString(
-                        dateMessageStringRes,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+        setupCommonJobCardFields(jobCard);
+        boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
+        setupJobCardButtons(
+                jobCard,
+                appInstalled,
+                v -> navigateToDeliverAppHome(),
+                v -> Navigation.findNavController(v).navigate(
+                        ConnectDeliveryProgressFragmentDirections
+                                .actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()
                 )
         );
-
-        String workingHours = job.getWorkingHours();
-        boolean hasHours = workingHours != null;
-        jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
-        jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
-        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
-        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
-        jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.tvViewMore.setVisibility(View.GONE);
-
-        if (hasHours) {
-            (jobCard.tvJobTime).setText(workingHours);
-        }
-
-        setupJobCardButtons(jobCard);
-    }
-
-    private void setupJobCardButtons(ViewJobCardBinding jobCard) {
-        @DrawableRes int resumeBackgroundDrawableRes;
-        @ColorRes int resumeTextColorRes;
-        @DrawableRes int viewInfoBackgroundDrawableRes;
-        @ColorRes int viewInfoTextColorRes;
-        if (job.isFinished()) {
-            resumeBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
-            resumeTextColorRes = R.color.connect_blue_color;
-            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
-            viewInfoTextColorRes = R.color.white;
-        } else {
-            resumeBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
-            resumeTextColorRes = R.color.white;
-            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
-            viewInfoTextColorRes = R.color.connect_blue_color;
-        }
-
-        // Setup the resume button.
-        boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
-        Drawable downloadIcon = appInstalled
-                ? null
-                : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
-        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                downloadIcon, null, null, null
-        );
-        jobCard.acbResume.setBackground(
-                ContextCompat.getDrawable(requireContext(), resumeBackgroundDrawableRes)
-        );
-        jobCard.acbResume.setTextColor(
-                ContextCompat.getColor(requireContext(), resumeTextColorRes)
-        );
-        jobCard.acbResume.setOnClickListener(v -> navigateToDeliverAppHome());
-        int paddingHorizontalPx = ViewUtils.dpToPx(8, requireContext());
-        jobCard.acbResume.setPaddingRelative(
-                paddingHorizontalPx, 0, paddingHorizontalPx, 0
-        );
-        jobCard.acbResume.setVisibility(View.VISIBLE);
-
-        // Setup the view info button.
-        jobCard.acbViewInfo.setBackground(
-                ContextCompat.getDrawable(requireContext(), viewInfoBackgroundDrawableRes)
-        );
-        jobCard.acbViewInfo.setTextColor(
-                ContextCompat.getColor(requireContext(), viewInfoTextColorRes)
-        );
-        jobCard.acbViewInfo.setOnClickListener(v ->
-                Navigation.findNavController(v)
-                        .navigate(
-                                ConnectDeliveryProgressFragmentDirections
-                                        .actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()
-                        )
-        );
-        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            refresh();
-        }
     }
 
     private void updateCardMessage() {
