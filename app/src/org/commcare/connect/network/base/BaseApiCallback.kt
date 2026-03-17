@@ -18,25 +18,26 @@ abstract class BaseApiCallback<T>(
         responseCode: Int,
         url: String?,
         errorBody: String,
+        t: Throwable
     ) {
         // Common error_code handler used before checking error response code
         when (responseCode) {
             401 ->
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
-                    null,
+                    t,
                 )
 
             403 ->
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
-                    null,
+                    t,
                 )
 
             429 ->
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
-                    null,
+                    t,
                 )
 
             400 -> {
@@ -47,7 +48,7 @@ abstract class BaseApiCallback<T>(
                 ) {
                     baseApiHandler.stopLoadingAndInformError(
                         PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,
-                        null,
+                        t,
                     )
                 }
             }
@@ -55,7 +56,7 @@ abstract class BaseApiCallback<T>(
             in 500..509 ->
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
-                    null,
+                    t,
                 )
 
             else -> {
@@ -70,10 +71,10 @@ abstract class BaseApiCallback<T>(
         }
     }
 
-    override fun processNetworkFailure() {
+    override fun processNetworkFailure(t: Throwable) {
         baseApiHandler.stopLoadingAndInformError(
             PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
-            null,
+            t,
         )
     }
 
