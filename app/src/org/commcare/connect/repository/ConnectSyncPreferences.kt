@@ -75,7 +75,7 @@ class ConnectSyncPreferences(
                 isNewSession || isStale
             }
 
-            else -> true
+            else -> throw IllegalArgumentException("Unknown refresh policy: $policy")
         }
     }
 

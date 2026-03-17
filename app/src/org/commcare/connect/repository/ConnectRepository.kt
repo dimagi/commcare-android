@@ -39,7 +39,7 @@ class ConnectRepository
 
         fun getOpportunities(
             forceRefresh: Boolean = false,
-            policy: RefreshPolicy = RefreshPolicy.SESSION_AND_TIME_BASED(60_000),
+            policy: RefreshPolicy = RefreshPolicy.SESSION_AND_TIME_BASED(),
         ): Flow<DataState<List<ConnectJobRecord>>> =
             offlineFirstFlow(
                 endpoint = ENDPOINT_OPPORTUNITIES,
@@ -67,12 +67,12 @@ class ConnectRepository
                 loadCache = { ConnectJobUtils.getCompositeJob(context, job.jobUUID) },
                 networkCall = { fetchLearningProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
-                    job.setLearnings(responseModel.connectJobLearningRecords)
-                    job.setLearningModulesCompleted(responseModel.connectJobLearningRecords.size)
-                    job.setAssessments(responseModel.connectJobAssessmentRecords)
+                    job.learnings = responseModel.connectJobLearningRecords
+                    job.learningModulesCompleted = responseModel.connectJobLearningRecords.size
+                    job.assessments = responseModel.connectJobAssessmentRecords
                     ConnectJobUtils.updateJobLearnProgress(context, job)
                 },
-                mapToEmit = { _ -> ConnectJobUtils.getCompositeJob(context, job.jobUUID) ?: job },
+                mapToEmit = { _ -> ConnectJobUtils.getCompositeJob(context, job.jobUUID) },
             )
 
         /**
@@ -92,8 +92,8 @@ class ConnectRepository
                 val cachedData: C? = loadCache()
                 val lastSyncTime = syncPrefs.getLastSyncTime(endpoint)
 
-                if (cachedData != null && lastSyncTime != null) {
-                    emit(DataState.Cached(cachedData, lastSyncTime))
+                if (cachedData != null) {
+                    emit(DataState.Cached(cachedData, lastSyncTime!!))
                 } else {
                     emit(DataState.Loading)
                 }

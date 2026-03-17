@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import org.commcare.connect.repository.DataState
 
-// viewModelScope uses Dispatchers.Main.immediate — liveData.value = is safe (no postValue).
 fun <T> ViewModel.collectInto(
     flow: Flow<DataState<T>>,
     liveData: MutableLiveData<DataState<T>>,

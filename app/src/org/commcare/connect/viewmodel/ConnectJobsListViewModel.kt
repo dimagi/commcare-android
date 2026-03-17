@@ -21,7 +21,7 @@ class ConnectJobsListViewModel(
 
     fun loadOpportunities(forceRefresh: Boolean = false) {
         collectInto(
-            flow = repository.getOpportunities(forceRefresh, RefreshPolicy.SESSION_AND_TIME_BASED(60_000)),
+            flow = repository.getOpportunities(forceRefresh),
             liveData = _opportunities,
         )
     }
