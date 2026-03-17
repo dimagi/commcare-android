@@ -8,15 +8,19 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.common.util.Strings;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -75,6 +79,8 @@ public class FirebaseMessagingUtil {
     public static final String FCM_TOKEN = "fcm_token";
     public static final String FCM_TOKEN_TIME = "fcm_token_time";
     public static final String MESSAGING_UPDATE_BROADCAST = "com.dimagi.messaging.update";
+    private static final long SERVICE_NOT_AVAILABLE_RETRY_DELAY_MS = 3000;
+    static final int MAX_CAUSE_CHAIN_DEPTH = 5;
 
 
     public static String getFCMToken() {
@@ -118,8 +124,79 @@ public class FirebaseMessagingUtil {
                 Throwable throwable = task.getException() != null ? task.getException() : new Throwable(
                         "Task to fetch FCM registration token failed");
                 Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()), throwable);
+
+                if (isFisAuthError(throwable)) {
+                    Logger.log(LogTypes.TYPE_FCM,
+                            "FIS_AUTH_ERROR detected, deleting Firebase installation"
+                                    + " and retrying token fetch");
+                    FirebaseInstallations.getInstance().delete().addOnCompleteListener(deleteTask -> {
+                        if (deleteTask.isSuccessful()) {
+                            retryFCMTokenFetch();
+                        } else {
+                            Logger.exception("Failed to delete Firebase installation for FIS_AUTH_ERROR recovery",
+                                    deleteTask.getException() != null ? deleteTask.getException()
+                                            : new Throwable("Firebase installation delete failed"));
+                        }
+                    });
+                } else if (isServiceNotAvailable(throwable)) {
+                    // SERVICE_NOT_AVAILABLE is transient (Google Play Services temporarily busy),
+                    // so delay retry by 3s to give it time to recover before re-attempting.
+                    Logger.log(LogTypes.TYPE_FCM,
+                            "SERVICE_NOT_AVAILABLE detected, retrying token fetch after delay");
+                    new Handler(Looper.getMainLooper()).postDelayed(
+                            FirebaseMessagingUtil::retryFCMTokenFetch, SERVICE_NOT_AVAILABLE_RETRY_DELAY_MS);
+                }
             }
         };
+    }
+
+    /**
+     * Retries FCM token fetch once. This intentionally does not re-enter handleFCMTokenRetrieval()
+     * to avoid recursive retry loops on repeated failures.
+     */
+    private static void retryFCMTokenFetch() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(retryTask -> {
+            if (retryTask.isSuccessful() && !StringUtils.isEmpty(retryTask.getResult())) {
+                Logger.log(LogTypes.TYPE_FCM, "FCM token retry succeeded");
+                updateFCMToken(retryTask.getResult());
+            } else {
+                Logger.exception("FCM token retry also failed",
+                        retryTask.getException() != null ? retryTask.getException()
+                                : new Throwable("Retry returned empty token"));
+            }
+        });
+    }
+
+    private static boolean isFisAuthError(Throwable throwable) {
+        return hasErrorInChain(throwable, "FIS_AUTH_ERROR");
+    }
+
+    private static boolean isServiceNotAvailable(Throwable throwable) {
+        return hasErrorInChain(throwable, "SERVICE_NOT_AVAILABLE");
+    }
+
+    /**
+     * Checks if the given error message exists in the throwable's cause chain,
+     * up to 5 levels deep. Firebase errors like FIS_AUTH_ERROR originate as IOException
+     * but arrive wrapped in ExecutionException, so the top-level throwable may not
+     * contain the actual error string — we need to walk the cause chain to find it.
+     */
+    @VisibleForTesting
+    static boolean hasErrorInChain(Throwable throwable, String errorMessage) {
+        Throwable current = throwable;
+        int maxDepth = MAX_CAUSE_CHAIN_DEPTH;
+        while (current != null && maxDepth-- > 0) {
+            String message = current.getMessage();
+            if (message != null && message.contains(errorMessage)) {
+                return true;
+            }
+            Throwable cause = current.getCause();
+            if (cause == current) {
+                break;
+            }
+            current = cause;
+        }
+        return false;
     }
 
     public static String serializeFCMMessageData(FCMMessageData fcmMessageData) {
