@@ -16,12 +16,14 @@ import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.modern.util.Pair;
+import org.commcare.views.connect.ConnectViewUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,6 +60,14 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         populateJobCard();
         refreshLearningData();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+            refreshLearningData();
+        }
     }
 
     @Override
@@ -284,10 +294,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private void populateJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
-        setupCommonJobCardFields(jobCard);
         boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-        setupJobCardButtons(
+
+        ConnectViewUtils.Companion.setupCardViewForJob(
                 jobCard,
+                job,
                 appInstalled,
                 v -> navigateToLearnAppHome(),
                 this::navigateToJobDetailBottomSheet

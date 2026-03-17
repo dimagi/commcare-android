@@ -26,6 +26,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
@@ -35,6 +36,7 @@ import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.views.connect.ConnectViewUtils;
 import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -202,10 +204,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private void setupJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
-        setupCommonJobCardFields(jobCard);
         boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
-        setupJobCardButtons(
+
+        ConnectViewUtils.Companion.setupCardViewForJob(
                 jobCard,
+                job,
                 appInstalled,
                 v -> navigateToDeliverAppHome(),
                 v -> Navigation.findNavController(v).navigate(
@@ -213,6 +216,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                                 .actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()
                 )
         );
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+            refresh();
+        }
     }
 
     private void updateCardMessage() {
