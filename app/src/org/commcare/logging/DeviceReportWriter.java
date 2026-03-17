@@ -35,15 +35,29 @@ public class DeviceReportWriter {
     private final XmlSerializer serializer;
     private final CountingOutputStream countingOutputStream;
     private final ArrayList<DeviceReportElement> elements = new ArrayList<>();
-    private boolean encryptionWithKeystore = false;
+    private final boolean encryptionWithKeystore;
+    private final boolean skipPerfTracing;
 
     public DeviceReportWriter(DeviceReportRecord record) throws IOException {
-        this(record.openOutputStream(), record.shouldUseKeystoreKey());
+        this(record.openOutputStream(), record.shouldUseKeystoreKey(), false);
     }
 
-    public DeviceReportWriter(OutputStream outputStream, boolean keystoreEncrypted) throws IOException {
+    /**
+     * Constructor for in-memory report generation where the output stream is a ByteArrayOutputStream and no file
+     * encryption occurs. When skipTracing is true, file encryption performance tracing is omitted
+     */
+    public DeviceReportWriter(OutputStream outputStream, boolean skipPerfTracing) throws IOException {
+        this(outputStream, false, skipPerfTracing);
+    }
+
+    private DeviceReportWriter(
+            OutputStream outputStream,
+            boolean keystoreEncrypted,
+            boolean skipPerfTracing
+    ) throws IOException {
         countingOutputStream = new CountingOutputStream(outputStream);
         encryptionWithKeystore = keystoreEncrypted;
+        this.skipPerfTracing = skipPerfTracing;
 
         serializer = new KXmlSerializer();
         serializer.setOutput(countingOutputStream, "UTF-8");
@@ -58,7 +72,10 @@ public class DeviceReportWriter {
     }
 
     public void write() throws IllegalArgumentException, IllegalStateException, IOException {
-        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+        Trace trace = null;
+        if (!skipPerfTracing) {
+            CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+        }
         try {
             serializer.startDocument("UTF-8", null);
             serializer.startTag(XMLNS, "device_report");
