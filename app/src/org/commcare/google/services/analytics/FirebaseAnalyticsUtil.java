@@ -771,6 +771,9 @@ public class FirebaseAnalyticsUtil {
         }
 
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        if (analyticsInstance == null) {
+            return;
+        }
         analyticsInstance.setUserProperty(
                 CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
                 String.valueOf(isPersonalIDDemoUser)
