@@ -12,7 +12,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
-import org.commcare.utils.FirebaseUtils;
 import org.javarosa.core.services.Logger;
 
 import static org.commcare.utils.NotificationIdentifiers.FCM_NOTIFICATION_ID;
@@ -35,9 +34,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        if (!FirebaseUtils.isFirebaseEnabled()) {
-            return;
-        }
         Logger.log(LogTypes.TYPE_FCM,
                 "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
 
@@ -63,9 +59,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String token) {
-        if (!FirebaseUtils.isFirebaseEnabled()) {
-            return;
-        }
         // TODO: Remove the token from the log
         Logger.log(LogTypes.TYPE_FCM, "New registration token was generated: " + token);
         FirebaseMessagingUtil.updateFCMToken(token);

@@ -593,6 +593,7 @@
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
+            android:enabled="${firebaseInitEnabled}"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
