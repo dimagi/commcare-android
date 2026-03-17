@@ -49,7 +49,7 @@ jobs:
           ref: ${{ inputs.commcare_core_sha }}
           path: commcare-core
       - name: Generate GitHub App token
-        if: ${{ always() && inputs.commcare_core_check_name }}
+        if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
@@ -139,7 +139,7 @@ jobs:
           name: jacoco-report
           path: commcare-android/app/build/reports
       - name: Report status to commcare-core
-        if: ${{ always() && inputs.commcare_core_check_name }}
+        if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app-token.outputs.token }}
