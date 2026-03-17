@@ -54,7 +54,7 @@ class ConnectNetworkHelper {
                 headers = outputHeaders
             }
 
-            addVersionHeader(headers, version)
+            addVersionHeader(outputHeaders, version)
             return requestBody
         }
 

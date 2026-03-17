@@ -100,7 +100,7 @@ The original 6-phase plan becomes 11 phases arranged as a/b pairs:
 4. Commit passing implementation
 
 ### Phase 0 (no test step)
-`DataState` and `RefreshPolicy` are pure sealed class definitions with no logic to test.
+`DataState` is a sealed class and `RefreshPolicy` is an abstract class; both are pure definitions with no logic to test.
 Phase 1a tests reference these types, providing an implicit compile-time contract check.
 
 ---
@@ -109,7 +109,7 @@ Phase 1a tests reference these types, providing an implicit compile-time contrac
 
 Each phase depends on all prior phases being complete (compile + tests passing):
 
-```
+```text
 Phase 0 → Phase 1a → Phase 1b → Phase 1.5a → Phase 1.5b
        → Phase 2a → Phase 2b → Phase 3a → Phase 3b
                              → Phase 4a → Phase 4b → Phase 5

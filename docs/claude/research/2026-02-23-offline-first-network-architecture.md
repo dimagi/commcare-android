@@ -39,7 +39,7 @@ The codebase currently uses a **callback-based architecture** built on Android's
 
 The existing architecture uses a specialized AsyncTask pattern:
 
-```
+```text
 Fragment/Activity → CommCareTask → Connector → Background Work → Callback Delivery
 ```
 
@@ -67,7 +67,7 @@ Fragment/Activity → CommCareTask → Connector → Background Work → Callbac
 
 **Layered Pattern** (callback-based, not repository):
 
-```
+```text
 Fragment → ApiHandler (callback) → ApiClient (Retrofit) → Network
                 ↓
           BaseApiHandler (abstract)

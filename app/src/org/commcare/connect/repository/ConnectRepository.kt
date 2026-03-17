@@ -2,6 +2,7 @@ package org.commcare.connect.repository
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -113,6 +114,8 @@ class ConnectRepository
                     result
                         .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
                         .onFailure { throwable -> emit(DataState.Error.from(throwable, cachedData)) }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     emit(DataState.Error.from(e, cachedData))
                 }

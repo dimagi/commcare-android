@@ -2,6 +2,7 @@ package org.commcare.connect.network.connect
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.CancellationException
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
@@ -89,6 +90,8 @@ class ConnectNetworkClient
                     val errorCode = mapHttpErrorCode(response.code(), response.errorBody()?.string())
                     Result.failure(ConnectApiException(errorCode))
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: LoginInvalidatedException) {
                 throw e
             } catch (e: IOException) {

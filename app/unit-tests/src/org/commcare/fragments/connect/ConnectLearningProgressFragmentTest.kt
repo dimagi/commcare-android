@@ -15,6 +15,7 @@ import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,18 +63,22 @@ class ConnectLearningProgressFragmentTest {
     }
 
     // post DataState.Loading; verify loading indicator is visible
+    @Ignore("Not yet implemented")
     @Test
     fun testFragment_showsLoading_onLoadingState(): Unit = TODO()
 
     // post DataState.Success with a ConnectJobRecord; verify learning progress UI (percentage, modules) is updated
+    @Ignore("Not yet implemented")
     @Test
     fun testFragment_updatesUI_onSuccessState(): Unit = TODO()
 
     // post DataState.Cached with a ConnectJobRecord; verify learning progress UI is updated
+    @Ignore("Not yet implemented")
     @Test
     fun testFragment_updatesUI_onCachedState(): Unit = TODO()
 
     // post DataState.Error with non-null cachedData; verify error toast appears and cached UI is shown
+    @Ignore("Not yet implemented")
     @Test
     fun testFragment_showsErrorToast_onErrorState_withCachedData(): Unit = TODO()
 }

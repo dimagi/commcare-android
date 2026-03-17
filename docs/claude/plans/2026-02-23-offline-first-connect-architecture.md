@@ -1858,7 +1858,7 @@ End-to-end manual verification of the complete offline-first architecture across
 
 **Backward Compatibility**:
 - Old `ConnectApiHandler` callback pattern remains available for gradual migration
-- New `ConnectApiClient` coroutine-based client coexists alongside old code
+- New `ConnectNetworkClient` coroutine-based client coexists alongside old code
 - Other Connect fragments continue to work unchanged
 - No database schema changes required
 - No API contract changes
