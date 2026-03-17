@@ -1,16 +1,11 @@
 package org.commcare.fragments.connect;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.ColorRes;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.StringRes;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -21,14 +16,12 @@ import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.modern.util.Pair;
-import org.commcare.utils.ViewUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,14 +58,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         populateJobCard();
         refreshLearningData();
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            refreshLearningData();
-        }
     }
 
     @Override
@@ -299,87 +284,14 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private void populateJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
-
-        jobCard.tvJobTitle.setText(job.getTitle());
-        jobCard.tvJobDescription.setText(job.getDescription());
-
-        @StringRes int dateMessageStringRes;
-        if (job.deliveryComplete()) {
-            dateMessageStringRes = R.string.connect_job_ended;
-        } else {
-            dateMessageStringRes = R.string.connect_learn_complete_by;
-        }
-
-        jobCard.connectJobEndDateSubHeading.setText(
-                getString(
-                        dateMessageStringRes,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
-                )
-        );
-
-        String hours = job.getWorkingHours();
-        boolean showHours = hours != null;
-        jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
-        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
-        jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.tvViewMore.setVisibility(View.GONE);
-
-        if (showHours) {
-            jobCard.tvJobTime.setText(hours);
-        }
-
-        setupJobCardButtons(jobCard);
-    }
-
-    private void setupJobCardButtons(ViewJobCardBinding jobCard) {
-        @DrawableRes int resumeBackgroundDrawableRes;
-        @ColorRes int resumeTextColorRes;
-        @DrawableRes int viewInfoBackgroundDrawableRes;
-        @ColorRes int viewInfoTextColorRes;
-        if (job.isFinished()) {
-            resumeBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
-            resumeTextColorRes = R.color.connect_blue_color;
-            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
-            viewInfoTextColorRes = R.color.white;
-        } else {
-            resumeBackgroundDrawableRes = R.drawable.bg_rounded_blue_70;
-            resumeTextColorRes = R.color.white;
-            viewInfoBackgroundDrawableRes = R.drawable.bg_rounded_corner_lavender_70;
-            viewInfoTextColorRes = R.color.connect_blue_color;
-        }
-
-        // Setup the resume button.
+        setupCommonJobCardFields(jobCard);
         boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-        Drawable downloadIcon = appInstalled
-                ? null
-                : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
-        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                downloadIcon, null, null, null
+        setupJobCardButtons(
+                jobCard,
+                appInstalled,
+                v -> navigateToLearnAppHome(),
+                this::navigateToJobDetailBottomSheet
         );
-        jobCard.acbResume.setBackground(
-                ContextCompat.getDrawable(requireContext(), resumeBackgroundDrawableRes)
-        );
-        jobCard.acbResume.setTextColor(
-                ContextCompat.getColor(requireContext(), resumeTextColorRes)
-        );
-        jobCard.acbResume.setOnClickListener(v -> navigateToLearnAppHome());
-        int paddingHorizontalPx = ViewUtils.dpToPx(8, requireContext());
-        jobCard.acbResume.setPaddingRelative(
-                paddingHorizontalPx, 0, paddingHorizontalPx, 0
-        );
-        jobCard.acbResume.setVisibility(View.VISIBLE);
-
-        // Setup the view info button.
-        jobCard.acbViewInfo.setBackground(
-                ContextCompat.getDrawable(requireContext(), viewInfoBackgroundDrawableRes)
-        );
-        jobCard.acbViewInfo.setTextColor(
-                ContextCompat.getColor(requireContext(), viewInfoTextColorRes)
-        );
-        jobCard.acbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
-        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
     }
 
     private void navigateToJobDetailBottomSheet(View view) {
