@@ -141,17 +141,21 @@ jobs:
       - name: Report status to commcare-core
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         uses: actions/github-script@v7
+        env:
+          COMMCARE_CORE_SHA: ${{ inputs.commcare_core_sha }}
+          COMMCARE_CORE_CHECK_NAME: ${{ inputs.commcare_core_check_name }}
+          JOB_STATUS: ${{ job.status }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
-            const state = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+            const state = process.env.JOB_STATUS === 'success' ? 'success' : 'failure';
             const description = state === 'success' ? 'Tests passed' : 'Tests failed';
             await github.rest.repos.createCommitStatus({
               owner: 'dimagi',
               repo: 'commcare-core',
-              sha: '${{ inputs.commcare_core_sha }}',
+              sha: process.env.COMMCARE_CORE_SHA,
               state,
-              context: '${{ inputs.commcare_core_check_name }}',
+              context: process.env.COMMCARE_CORE_CHECK_NAME,
               description,
               target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
             });
