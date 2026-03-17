@@ -2,8 +2,19 @@ name: commcare-android PR CI
 
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      commcare_core_sha:
+        description: 'commcare-core SHA to test against'
+        required: false
+      commcare_core_pr:
+        description: 'commcare-core PR number for status reporting'
+        required: false
+      commcare_core_check_name:
+        description: 'Status check name to report back to commcare-core'
+        required: false
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ inputs.commcare_core_sha || github.ref }}
   cancel-in-progress: true
 jobs:
   build-test-assemble:
@@ -15,17 +26,37 @@ jobs:
         with:
           path: commcare-android
       - name: Install python
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/setup-python@v6
         with:
           python-version: '3.9'
       - name: Download cross request script
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
       - name: Install Python dependencies
+        if: ${{ github.event_name == 'pull_request' }}
         run: python -m pip install -r requirements.txt
       - name: Run cross request script
+        if: ${{ github.event_name == 'pull_request' }}
         run: python checkout_cross_request_repo.py commcare-android ${{ github.event.number }} commcare-core
+      - name: Checkout commcare-core for cross-repo CI
+        if: ${{ inputs.commcare_core_sha }}
+        uses: actions/checkout@v6
+        with:
+          repository: dimagi/commcare-core
+          ref: ${{ inputs.commcare_core_sha }}
+          path: commcare-core
+      - name: Generate GitHub App token
+        if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CROSS_REPO_CI_APP_ID }}
+          private-key: ${{ secrets.CROSS_REPO_CI_PRIVATE_KEY }}
+          owner: dimagi
+          repositories: commcare-core
       - name: Generate Gradle properties
         run: |
           mkdir -p ~/.gradle
@@ -107,8 +138,30 @@ jobs:
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports
+      - name: Report status to commcare-core
+        if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
+        uses: actions/github-script@v7
+        env:
+          COMMCARE_CORE_SHA: ${{ inputs.commcare_core_sha }}
+          COMMCARE_CORE_CHECK_NAME: ${{ inputs.commcare_core_check_name }}
+          JOB_STATUS: ${{ job.status }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const state = process.env.JOB_STATUS === 'success' ? 'success' : 'failure';
+            const description = state === 'success' ? 'Tests passed' : 'Tests failed';
+            await github.rest.repos.createCommitStatus({
+              owner: 'dimagi',
+              repo: 'commcare-core',
+              sha: process.env.COMMCARE_CORE_SHA,
+              state,
+              context: process.env.COMMCARE_CORE_CHECK_NAME,
+              description,
+              target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
 
   browserstack-tests:
+    if: ${{ github.event_name == 'pull_request' }}
     needs: build-test-assemble
     name: BrowserStack Tests
     runs-on: ubuntu-latest
