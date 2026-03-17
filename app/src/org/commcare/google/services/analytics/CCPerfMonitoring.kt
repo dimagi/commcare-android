@@ -48,11 +48,12 @@ object CCPerfMonitoring {
     }
 
     fun stopTracing(trace: Trace?, attrs: MutableMap<String, String>?) {
+        if (trace == null) return
         try {
-            attrs?.forEach { (key, value) -> trace?.putAttribute(key, value) }
-            trace?.stop()
+            attrs?.forEach { (key, value) -> trace.putAttribute(key, value) }
+            trace.stop()
         } catch (exception: Exception) {
-            Logger.exception("Error stopping perf trace: ${trace?.name?: "Unknown trace"}", exception)
+            Logger.exception("Error stopping perf trace: ${trace.name}", exception)
         }
     }
 
