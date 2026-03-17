@@ -296,7 +296,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
         boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
 
-        ConnectViewUtils.Companion.setupCardViewForJob(
+        ConnectViewUtils.setupCardViewForJob(
                 jobCard,
                 job,
                 appInstalled,

@@ -206,7 +206,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
         boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
-        ConnectViewUtils.Companion.setupCardViewForJob(
+        ConnectViewUtils.setupCardViewForJob(
                 jobCard,
                 job,
                 appInstalled,
