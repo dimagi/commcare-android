@@ -35,7 +35,7 @@ object CCPerfMonitoring {
 
 
     fun startTracing(traceName: String): Trace? {
-        if (!FirebaseUtils.isFirebaseEnabled()) {
+        if (!FirebaseUtils.isFirebaseEnabled) {
             return null
         }
         try {
