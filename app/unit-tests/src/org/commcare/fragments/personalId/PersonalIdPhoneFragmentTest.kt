@@ -142,6 +142,33 @@ class PersonalIdPhoneFragmentTest : BasePersonalIdPhoneFragmentTest() {
         assertFalse("Button should be disabled when location service is off", continueButton.isEnabled)
     }
 
+    @Test
+    fun testLocationServiceDisabled_showsNoLocationFoundTooltip() {
+        // Arrange - first give location so tooltip becomes visible
+        activity.runOnUiThread {
+            fragment.onLocationResult(mockLocation)
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Act - disable location service (sets location to null, calls setLocationToolTip(null))
+        activity.runOnUiThread {
+            fragment.onLocationServiceChange(false)
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert - tooltip group should still be visible
+        val tooltipGroup = fragment.view?.findViewById<View>(R.id.group_tooltip)
+        assertEquals("Tooltip group should be visible", View.VISIBLE, tooltipGroup!!.visibility)
+
+        // Assert - location text should show "no location found" message
+        val locationText = fragment.view?.findViewById<android.widget.TextView>(R.id.tv_location)
+        assertEquals(
+            "Location text should show no-location message",
+            activity.getString(R.string.personalid_no_location_found),
+            locationText!!.text.toString(),
+        )
+    }
+
     // ========== Complete Flow with all inputs ==========
 
     @Test
@@ -179,5 +206,34 @@ class PersonalIdPhoneFragmentTest : BasePersonalIdPhoneFragmentTest() {
 
         // Assert
         assertFalse("Button should be disabled with invalid phone", continueButton!!.isEnabled)
+    }
+
+    // ========== Tooltip Info Toggle Tests ==========
+
+    @Test
+    fun testLocationInfoButton_togglesTooltipInfoVisibility() {
+        val infoButton = fragment.view?.findViewById<View>(R.id.iv_location_info)
+        val tooltipInfoGroup = fragment.view?.findViewById<View>(R.id.group_tooltip_info)
+
+        // Initial state - tooltip info should be GONE
+        assertEquals("Tooltip info should be hidden initially", View.GONE, tooltipInfoGroup!!.visibility)
+
+        // Act - click info button to show
+        activity.runOnUiThread {
+            infoButton?.performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert - should now be VISIBLE
+        assertEquals("Tooltip info should be visible after click", View.VISIBLE, tooltipInfoGroup.visibility)
+
+        // Act - click info button again to hide
+        activity.runOnUiThread {
+            infoButton?.performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert - should be GONE again
+        assertEquals("Tooltip info should be hidden after second click", View.GONE, tooltipInfoGroup.visibility)
     }
 }
