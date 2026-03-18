@@ -12,7 +12,8 @@
                 android:fillColor="@color/royal_blue"
                 android:pathData="M0,0 h400 v5 h-400 z" />
 
-           <group android:name="shimmer_group">
+           <group android:name="shimmer_group"
+                android:translateX="-1200">
                 <path android:pathData="M-800,0 h1600 v5 h-1600 z">
                     <aapt:attr name="android:fillColor">
                         <gradient
@@ -40,7 +41,7 @@
             <set>
                 <objectAnimator
                     android:propertyName="translateX"
-                    android:valueFrom="0"
+                    android:valueFrom="-1200"
                     android:valueTo="1200"
                     android:duration="1200"
                     android:repeatCount="infinite"
