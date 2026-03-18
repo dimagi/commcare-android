@@ -3,8 +3,8 @@
     android:id="@+id/network_loading_bar"
     style="?android:attr/progressBarStyleHorizontal"
     android:layout_width="match_parent"
-    android:layout_height="5dp"
-    android:minHeight="5dp"
-    android:maxHeight="5dp"
+    android:layout_height="8dp"
+    android:minHeight="8dp"
+    android:maxHeight="8dp"
     android:indeterminate="true"
     android:indeterminateDrawable="@drawable/network_loading_gradient" />
