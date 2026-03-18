@@ -183,7 +183,6 @@ License.
     <string name="recovery_network_outdated">Cette application est obsolète. Veuillez mettre à jour l\'application sur le Google Play Store pour continuer.</string>
     <string name="personalid_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
     <string name="personalid_token_request_rejected">Configuration PersonalID perdue sur le serveur. Veuillez récupérer votre compte PersonalID et réessayer.</string>
-    <string name="personalid_login_from_different_device">Votre compte PersonalID ne peut être configuré que sur un seul appareil à la fois et a déjà été configuré sur un autre appareil. Veuillez poursuivre la configuration sur le nouvel appareil ou reconfigurer votre compte sur cet appareil pour continuer à utiliser PersonalID ici.</string>
     <string name="personalid_generic_error_title">Déconnecté de PersonalID</string>
     <string name="personalid_error_title_login_different_device">Compte utilisé sur un autre appareil</string>
     <string name="personalid_error_message_login_different_device">Veuillez continuer sur le nouvel appareil ou configurer à nouveau votre compte.</string>
@@ -293,11 +292,8 @@ License.
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_title">Connecter</string>
     <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
-    <string name="connect_job_intro_title">Opportunité</string>
     <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage et l\'évaluation suivants pour obtenir un certificat</string>
     <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
-    <string name="connect_job_go_to_learn_app">Accéder à l\'application Learn</string>
-    <string name="connect_job_learn_summary">%d modules, %d heures</string>
     <string name="connect_learn_progress_title">Apprendre Progrès</string>
     <string name="connect_learn_complete_title">Formation terminée !</string>
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
@@ -318,7 +314,6 @@ License.
     <string name="connect_learn_review">Révision de l\'apprentissage</string>
     <string name="connect_learn_view_details">Voir les détails de l\'opportunité</string>
     <string name="connect_learn_go_to_assessment">Accéder à l\'évaluation</string>
-    <string name="connect_learn_start">Commencer à apprendre</string>
     <string name="connect_learn_continue">Continuer à apprendre</string>
     <string name="connect_delivery_earn_multi">Paiement par visite :</string>
     <string name="connect_delivery_go">Accéder à l\'application</string>
@@ -336,10 +331,6 @@ License.
     <string name="connect_downloading_delivery">Téléchargement de l\'application de livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>
     <string name="connect_results_summary_transferred">Transféré</string>
-    <string name="connect_results_payment_confirm">Confirmer</string>
-    <string name="connect_results_payment_confirm_undo">Annuler confirmer</string>
-    <string name="connect_results_payment_confirmed">Confirmé</string>
-    <string name="connect_results_payment_not_confirmed">Non confirmé</string>
     <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
     <string name="connect_payment_confirm_yes">Oui!</string>
     <string name="connect_payment_confirm_no">Plus tard</string>
@@ -362,7 +353,6 @@ License.
     <string name="confirm_code">Confirmer le code</string>
     <string name="code">Code</string>
     <string name="choose_a_6_digit_recovery_code">Choisissez un code de récupération à 6 chiffres</string>
-    <string name="download_app">Télécharger</string>
     <string name="sync">Synchroniser</string>
     <string name="micro_image_activity_title">Capturer Photo Visage</string>
     <string name="connect_job_info_title">Détails de l\'opportunité</string>
@@ -391,16 +381,10 @@ License.
     <string name="connect_payment_dialog_yes">Oui</string>
     <string name="connect_payment_revert">Revenir</string>
     <string name="connect_deactivate_account">Désactiver le compte</string>
-    <string name="connect_new_opportunity">Nouvelle opportunité</string>
-    <string name="connect_learn">Apprendre</string>
-    <string name="connect_delivery">Livraison</string>
-    <string name="connect_expired">Expiré</string>
     <string name="connect_job_tile_daily_limit_description">Limite quotidienne atteinte. Aucun paiement pour l\'envoi des formulaires.</string>
     <string name="connect_in_progress">En cours</string>
     <string name="connect_new_opportunities">Nouvelles opportunités</string>
     <string name="connect_completed">Terminé</string>
-
-    <string name="connect_recovery_button_phone">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
     <string name="connect_verify_skip_phone_number">Je vois que vous êtes un utilisateur de démonstration, nous allons donc ignorer l\'OTP</string>
     <string name="connect_messaging_title">Messagerie</string>
@@ -504,11 +488,8 @@ License.
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à PersonalID</string>
-    <string name="nav_drawer_continue_without_personal_id"><u>Continuer sans PersonalID</u></string>
-    <string name="nav_drawer_fix_now">Réparer maintenant</string>
     <string name="nav_drawer_opportunities">Opportunités</string>
     <string name="nav_drawer_commcare_apps">Applications CommCare</string>
-    <string name="nav_drawer_payments">Paiements</string>
     <string name="nav_drawer_manage_profile">Gérer le profil</string>
     <string name="play_service_update_error">Pour utiliser PersonalID, vous devez mettre à jour les services Google Play. Appuyez ici pour accéder au Google Play Store afin de rechercher des mises à jour.</string>
     <string name="nav_drawer_open">Ouvrir le tiroir de navigation</string>
