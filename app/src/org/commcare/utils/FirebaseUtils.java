@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.preferences.MainConfigurablePreferences;
 
 public class FirebaseUtils {
 
@@ -16,5 +17,9 @@ public class FirebaseUtils {
 
     public static boolean isCrashlyticsEnabled() {
         return isFirebaseEnabled() && BuildConfig.USE_CRASHLYTICS;
+    }
+
+    public static boolean isAnalyticsEnabled() {
+        return FirebaseUtils.isFirebaseEnabled() && MainConfigurablePreferences.isAnalyticsEnabled();
     }
 }

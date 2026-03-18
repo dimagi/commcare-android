@@ -79,7 +79,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void reportEvent(String eventName, Bundle params) {
-        if (analyticsDisabled()) {
+        if (!FirebaseUtils.isAnalyticsEnabled()) {
             return;
         }
 
@@ -361,14 +361,14 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportFeatureUsage(String feature) {
-        if (analyticsDisabled()) {
+        if (!FirebaseUtils.isAnalyticsEnabled()) {
             return;
         }
         reportEvent(CCAnalyticsEvent.FEATURE_USAGE, FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
     }
 
     private static void reportFeatureUsage(String feature, String mode) {
-        if (analyticsDisabled()) {
+        if (!FirebaseUtils.isAnalyticsEnabled()) {
             return;
         }
 
@@ -412,10 +412,6 @@ public class FirebaseAnalyticsUtil {
             bundle.putDouble(FirebaseAnalytics.Param.VALUE, timeInSeconds);
             bundle.putDouble(CCAnalyticsParam.TIME_IN_MINUTES, timeInMinutes);
         }
-    }
-
-    private static boolean analyticsDisabled() {
-        return !FirebaseUtils.isFirebaseEnabled() || !MainConfigurablePreferences.isAnalyticsEnabled();
     }
 
     private static boolean rateLimitReporting(double percentOfEventsToReport) {
