@@ -13,6 +13,9 @@ on:
       commcare_core_check_name:
         description: 'Status check name to report back to commcare-core'
         required: false
+      commcare_core_status_sha:
+        description: 'commcare-core PR head SHA for status reporting'
+        required: false
 concurrency:
   group: ${{ github.workflow }}-${{ inputs.commcare_core_sha || github.ref }}
   cancel-in-progress: true
@@ -142,7 +145,7 @@ jobs:
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         uses: actions/github-script@v7
         env:
-          COMMCARE_CORE_SHA: ${{ inputs.commcare_core_sha }}
+          COMMCARE_CORE_STATUS_SHA: ${{ inputs.commcare_core_status_sha || inputs.commcare_core_sha }}
           COMMCARE_CORE_CHECK_NAME: ${{ inputs.commcare_core_check_name }}
           JOB_STATUS: ${{ job.status }}
         with:
@@ -153,7 +156,7 @@ jobs:
             await github.rest.repos.createCommitStatus({
               owner: 'dimagi',
               repo: 'commcare-core',
-              sha: process.env.COMMCARE_CORE_SHA,
+              sha: process.env.COMMCARE_CORE_STATUS_SHA,
               state,
               context: process.env.COMMCARE_CORE_CHECK_NAME,
               description,
