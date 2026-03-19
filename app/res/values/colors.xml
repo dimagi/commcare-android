@@ -190,4 +190,8 @@
     <color name="pale_violet_blue">#C8CAEF</color>
     <color name="light_indigo">#757BD8</color>
     <color name="moon_gray">#909090</color>
+    <color name="royal_blue">#1C26CB</color>
+    <color name="shimmer_grey_0">#00E6E7EB</color>
+    <color name="shimmer_grey_20">#33E6E7EB</color>
+    <color name="shimmer_grey_60">#99E6E7EB</color>
 </resources>
