@@ -4,42 +4,36 @@
 - Tests: `./gradlew testCommcareDebug`
 - Coverage: `./gradlew JacocoTestReport`
 - Lint: `./gradlew ktlintFile -PfilePath=path/to/file.kt`
-- Needs `../commcare-core/` sibling (CI only)
-- Note: Gradle wrapper lock file issue in this environment blocks ktlint
+- Needs `../commcare-core/` sibling; ktlint blocked in this env
 
 ## Project
 - Tests: `app/unit-tests/src/org/commcare/`
 - Pattern: `@RunWith(AndroidJUnit4::class)` + `@Config(application = CommCareTestApplication::class)`
-- JUnit4 + Robolectric + MockK/Mockito
-- mockStatic pattern: setUp/tearDown with MockedStatic, verify() with actual values or any()/eq()
+- JUnit4 + Robolectric + MockK/Mockito; mockStatic pattern in ReportIntegrityResponseParserTest
 
 ## Maintainer Notes
-- "go or no go" for auto-PRs (no iterations)
-- Full-class coverage required per PR (conroy-ricketts)
-- Specific assertions: known values, not just non-null
+- "go or no go" (shubham1g5) — no iterations on auto-PRs
+- Full-class coverage per PR (conroy-ricketts)
+- Specific assertions only; no non-null checks
 - Ktlint: no blank line after class `{`, no chained methods on one line
 
 ## Infrastructure
-- `ModernHttpRequesterMock` uses static state → test leakage risk (tracked #2649)
-- `MainCoroutineRule.kt` uses deprecated `TestCoroutineDispatcher`/`runBlockingTest`
-- `NotificationTestUtil.kt` = good Kotlin builder pattern to follow
-- Context in tests: `ApplicationProvider.getApplicationContext<Context>()`
+- `ModernHttpRequesterMock` static state → leakage (tracked #2649)
+- `MainCoroutineRule.kt` deprecated TestCoroutineDispatcher (only LazyMediaDownloadTest.kt uses it)
 
 ## Backlog
-1. EntityMapUtils.kt - geo parsing (HIGH) - note: needs Google Maps SDK mocking
-2. RetrieveHqTokenResponseParser.kt - needs CommCareApplication.instance().getCurrentApp() mocked (MEDIUM)
+1. ConnectOpportunitiesParser.kt - HIGH effort - complex nested JSON + 3 static mocks
+2. RetrieveHqTokenResponseParser.kt - needs CommCareApplication.instance().getCurrentApp() mock
+3. MainCoroutineRule.kt - modernize to StandardTestDispatcher/runTest (LOW urgency)
 
-## Completed
-- NetworkUtils.kt (2026-03-15) - PR #3612
-- PR #3610: HashUtils (2026-03-13) - 1 approval (conroy-ricketts, tests pass locally)
-- PR #3602: ConnectDateUtils + ktlint (2026-03-12) - 2 approvals (Jignesh, avazirna)
-- DeliveryAppProgressResponseParser.kt (2026-03-16) - PR #3614
-- LearningAppProgressResponseParser.kt (2026-03-17) - PR #3619
-- LinkHqWorkerResponseParser.kt + RetrieveChannelEncryptionKeyResponseParser.kt (2026-03-18) - PR pending (branch: test-assist/connectid-response-parsers-20260318)
-- Commented #2649: MockWebServer migration (2026-03-14)
-- Commented #2880: Nepali timezone fix (2026-03-14)
-- Issue #3601: Monthly Activity 2026-03
+## Open PRs (all Test Improver, all drafts, no reviews yet)
+- #3602 ConnectDateUtils (2 approvals, not draft)
+- #3610 HashUtils (1 approval conroy-ricketts)
+- #3612 NetworkUtils
+- #3614 DeliveryAppProgressResponseParser
+- #3619 LearningAppProgressResponseParser
+- #3626 LinkHqWorkerResponseParser + RetrieveChannelEncryptionKeyResponseParser
 
-## Round-Robin
-- T1:2026-03-11 T2:2026-03-16 T3:2026-03-18
-- T4:2026-03-18 T5:2026-03-14 T6:2026-03-14 T7:2026-03-18
+## Round-Robin (last run dates)
+- T1:2026-03-11 T2:2026-03-19 T3:2026-03-18
+- T4:2026-03-19 T5:2026-03-19 T6:2026-03-14 T7:2026-03-19
