@@ -50,7 +50,9 @@ abstract class BaseApiHandler<T>(
         // The request to get an SSO auth token is denied.
         TOKEN_DENIED_ERROR,
 
-        // The firebase ID token is invalid.
+        // The firebase ID token is invalid (i.e. for PersonalID API calls, the configuration
+        // session auth was invalid as no session could be found with the token, or the firebase
+        // UID was not present when validating the token).
         TOKEN_INVALID_ERROR,
         INVALID_RESPONSE_ERROR,
 
