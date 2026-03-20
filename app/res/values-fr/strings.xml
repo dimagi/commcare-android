@@ -400,7 +400,7 @@ License.
     <string name="connect_new_opportunities">Nouvelles opportunités</string>
     <string name="connect_completed">Terminé</string>
 
-    <string name="connect_recovery_button_phone">Continuer</string>
+    <string name="continue_label">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
     <string name="connect_verify_skip_phone_number">Je vois que vous êtes un utilisateur de démonstration, nous allons donc ignorer l\'OTP</string>
     <string name="connect_messaging_title">Messagerie</string>
@@ -549,4 +549,6 @@ License.
     <string name="connect_job_preview_start">Démarrer</string>
     <string name="connect_job_delivery_preview_subtitle">Une fois que vous avez terminé l\'évaluation d\'apprentissage, vous passerez à la livraison</string>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
+    <string name="commcare_welcome_label">Bienvenue sur CommCare !</string>
+    <string name="installation_method_label">Veuillez choisir une méthode d\'installation ci-dessous</string>
 </resources>

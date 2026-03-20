@@ -73,10 +73,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         View view = inflater.inflate(R.layout.select_install_mode_fragment, container, false);
 
         TextView setupMsg = view.findViewById(R.id.str_setup_message);
-        setupMsg.setText(Localization.get("install.barcode.top"));
+        setupMsg.setText(getString(R.string.commcare_welcome_label));
 
         TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
-        setupMsg2.setText(Localization.get("install.barcode.bottom"));
+        setupMsg2.setText(getString(R.string.installation_method_label));
 
         mConnectButton = view.findViewById(R.id.connect_login_button);
         mOrText = view.findViewById(R.id.login_or);

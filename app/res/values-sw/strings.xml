@@ -401,7 +401,7 @@
     <string name="connect_in_progress">Inaendelea</string>
     <string name="connect_new_opportunities">Fursa Mpya</string>
     <string name="connect_completed">Imekamilika</string>
-    <string name="connect_recovery_button_phone">Endelea</string>
+    <string name="continue_label">Endelea</string>
     <string name="connect_verify_phone_resend_code">Tuma tena Msimbo</string>
     <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
     <string name="connect_messaging_title">Kutuma ujumbe</string>
@@ -553,4 +553,6 @@
     <string name="connect_job_preview_start">Anza</string>
     <string name="connect_job_delivery_preview_subtitle">Ukishamaliza tathmini ya kujifunza, utahamia kwenye uwasilishaji</string>
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
+    <string name="commcare_welcome_label">Karibu CommCare!</string>
+    <string name="installation_method_label">Tafadhali chagua njia ya usakinishaji hapa chini</string>
 </resources>
