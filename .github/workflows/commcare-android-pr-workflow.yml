@@ -31,11 +31,10 @@ jobs:
           submodules: true
       - name: Checkout commcare-core for cross-repo CI
         if: ${{ inputs.commcare_core_sha }}
-        uses: actions/checkout@v6
-        with:
-          repository: dimagi/commcare-core
-          ref: ${{ inputs.commcare_core_sha }}
-          path: commcare-core
+        run: |
+          cd commcare-android/libs/commcare-core
+          git fetch origin ${{ inputs.commcare_core_sha }}
+          git checkout ${{ inputs.commcare_core_sha }}
       - name: Generate GitHub App token
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         id: app-token
