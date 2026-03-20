@@ -110,7 +110,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "INVALID_TOKEN":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
-                        new Throwable("The firebase ID token is invalid.")
+                        new Throwable("The configuration session auth is invalid or the firebase UID was not found.")
                 );
                 return true;
             case "INCORRECT_OTP":
