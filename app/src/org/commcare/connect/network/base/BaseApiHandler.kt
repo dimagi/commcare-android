@@ -107,8 +107,8 @@ abstract class BaseApiHandler<T>(
         FILE_TOO_LARGE_ERROR, ;
 
         fun shouldAllowRetry(): Boolean =
-            this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) || (this == UNKNOWN_ERROR) ||
-                (this == INTEGRITY_ERROR)
+            this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) ||
+                (this == UNKNOWN_ERROR) || (this == INTEGRITY_ERROR)
     }
 
     fun createCallback(
@@ -132,7 +132,10 @@ abstract class BaseApiHandler<T>(
                     )
                 } catch (e: IOException) {
                     Logger.exception("Error parsing API response", e)
-                    stopLoadingAndInformError(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR, e)
+                    stopLoadingAndInformError(
+                        PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
+                        e,
+                    )
                 }
             }
         }
