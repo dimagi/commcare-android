@@ -97,8 +97,8 @@
     <string name="managed_configuration_profile_url_description">The URL to your CommCare Application from the CommCareHQ publish page</string>
     <string name="about_cc" cc:translatable="true">About CommCare</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
-    <string name="commcare_welcome_label">Welcome to CommCare!</string>
-    <string name="installation_method_label">Please choose an installation method below</string>
+    <string name="install_barcode_top">Welcome to CommCare!</string>
+    <string name="install_barcode_bottom">Please choose an installation method below</string>
 
     <string name="accuracy" cc:translatable="true">Accuracy</string>
     <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>
@@ -328,7 +328,7 @@
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
 
 
-    <string name="continue_label">Continue</string>
+    <string name="connect_continue_label">Continue</string>
 
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>

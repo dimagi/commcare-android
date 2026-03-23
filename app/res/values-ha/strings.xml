@@ -237,7 +237,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_in_progress">Ana kai</string>
     <string name="connect_new_opportunities">Sabbin Damammaki</string>
     <string name="connect_completed">An kammala</string>
-    <string name="continue_label">Ci gaba</string>
+    <string name="connect_continue_label">Ci gaba</string>
     <string name="connect_verify_phone_resend_code">Sake aika lambar</string>
     <string name="connect_verify_skip_phone_number">Na ga kai mai amfani ne da demo, don haka za mu tsallake OTP</string>
     <string name="connect_messaging_title">Saƙo</string>
@@ -382,8 +382,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
     <string name="please_wait">Da fatan za a jira wasu lokuta.</string>
-    <string name="commcare_welcome_label">Barka da zuwa CommCare!</string>
-    <string name="installation_method_label">Da fatan za a zaɓi hanyar shigarwa a ƙasa</string>
+    <string name="install_barcode_top">Barka da zuwa CommCare!</string>
+    <string name="install_barcode_bottom">Da fatan za a zaɓi hanyar shigarwa a ƙasa</string>
     <string name="about_dialog" formatted="false">%s\n\n_Haƙƙin mallaka 2016, Dimagi inc, Duk haƙƙoƙi an ajiye su_ \n\n---------------- \n\n__Godiya:__ \n\n%sDaga hotuna a cikin CommCare ana amfani da su cikin ladabi ƙarƙashin lasisi na Creative Commons daga tarin thenounproject.com:\n\n* Alama "Ƙofa" ta Tak Imoto \n* Alama "Fensir" ta Creologica \n* Alama "Littafi" ta Carlo \n* Alama "Antenna" ta Dima \n* Alama "Alamar Taswirar" ta P.J. Onori \n* "Jerin" ta Landan Lloyd \n* Allon da ya karye ta Sam Martin daga Noun Project \n\n
 
 </string>
