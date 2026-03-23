@@ -403,7 +403,7 @@
     <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
-    <string name="connect_continue_label">Continuar</string>
+    <string name="personalid_continue_label">Continuar</string>
     <string name="connect_verify_phone_resend_code">Reenviar código</string>
     <string name="connect_verify_skip_phone_number">Veo que eres un usuario de demostración, así que omitiremos el OTP</string>
     <string name="connect_messaging_title">Mensajería</string>

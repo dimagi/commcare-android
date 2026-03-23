@@ -428,7 +428,7 @@
     <string name="personalid_location_permission_error">O PersonalID exige que os Serviços de Localização estejam ativados no seu dispositivo. Por favor, ative-os nas configurações do seu telemóvel antes de prosseguir.</string>
     <string name="personalid_sync_menu_title">Sincronizar</string>
     <string name="connect_registration_subtitle">Introduza o seu número de telefone</string>
-    <string name="connect_continue_label">Continuar</string>
+    <string name="personalid_continue_label">Continuar</string>
     <string name="connect_messaging_title">Mensagens</string>
     <string name="connect_messaging_channel_list_title">Canais</string>
     <string name="connect_messaging_message_notification_title">🔔 Nova Mensagem 🔔</string>

@@ -400,7 +400,7 @@ License.
     <string name="connect_new_opportunities">Nouvelles opportunités</string>
     <string name="connect_completed">Terminé</string>
 
-    <string name="connect_continue_label">Continuer</string>
+    <string name="personalid_continue_label">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
     <string name="connect_verify_skip_phone_number">Je vois que vous êtes un utilisateur de démonstration, nous allons donc ignorer l\'OTP</string>
     <string name="connect_messaging_title">Messagerie</string>

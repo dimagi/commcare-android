@@ -399,7 +399,7 @@ License.
     <string name="connect_in_progress">प्रगति में</string>
     <string name="connect_new_opportunities">नए अवसर</string>
     <string name="connect_completed">पूरा हुआ</string>
-    <string name="connect_continue_label">जारी रखें</string>
+    <string name="personalid_continue_label">जारी रखें</string>
     <string name="fcm_sync_failed_body_text">अधिक जानकारी के लिए यहां क्लिक करें</string>
     <string name="connect_verify_phone_resend_code">कोड पुनः भेजें</string>
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>

@@ -401,7 +401,7 @@
     <string name="connect_in_progress">Inaendelea</string>
     <string name="connect_new_opportunities">Fursa Mpya</string>
     <string name="connect_completed">Imekamilika</string>
-    <string name="connect_continue_label">Endelea</string>
+    <string name="personalid_continue_label">Endelea</string>
     <string name="connect_verify_phone_resend_code">Tuma tena Msimbo</string>
     <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
     <string name="connect_messaging_title">Kutuma ujumbe</string>

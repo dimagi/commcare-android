@@ -328,7 +328,7 @@
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
 
 
-    <string name="connect_continue_label">Continue</string>
+    <string name="personalid_continue_label">Continue</string>
 
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
