@@ -211,7 +211,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
-                    android:text="@string/review"
+                    android:text="@string/personalid_continue_label"
                     android:drawableRight="@drawable/connect_right_arrow"
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>

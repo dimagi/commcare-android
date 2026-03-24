@@ -403,7 +403,7 @@
     <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
-    <string name="connect_recovery_button_phone">Continuar</string>
+    <string name="personalid_continue_label">Continuar</string>
     <string name="connect_verify_phone_resend_code">Reenviar código</string>
     <string name="connect_verify_skip_phone_number">Veo que eres un usuario de demostración, así que omitiremos el OTP</string>
     <string name="connect_messaging_title">Mensajería</string>
@@ -548,4 +548,6 @@
     <string name="connect_job_preview_start">Iniciar</string>
     <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
+    <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
+    <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
 </resources>
