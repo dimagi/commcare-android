@@ -39,7 +39,6 @@ class ConnectNetworkHelper {
             outputHeaders: HashMap<String, String>,
         ): RequestBody {
             val requestBody: RequestBody
-            val headers: HashMap<String, String>
 
             if (useFormEncoding) {
                 val multimap = ArrayListMultimap.create<String, String>()
@@ -47,11 +46,10 @@ class ConnectNetworkHelper {
                     multimap.put(key, value.toString())
                 }
                 requestBody = ModernHttpRequester.getPostBody(multimap)
-                headers = getContentHeadersForXFormPost(requestBody)
+                outputHeaders.putAll(getContentHeadersForXFormPost(requestBody)
             } else {
                 val json = Gson().toJson(params)
                 requestBody = RequestBody.create("application/json".toMediaType(), json)
-                headers = outputHeaders
             }
 
             addVersionHeader(outputHeaders, version)
