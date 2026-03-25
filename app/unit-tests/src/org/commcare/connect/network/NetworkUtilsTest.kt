@@ -108,7 +108,7 @@ class NetworkUtilsTest {
     }
 
     @Test
-    fun logFailedResponse_otherCode_usesGenericMessage() {
+    fun logFailedResponse_otherCode_doesNotThrow() {
         NetworkUtils.logFailedResponse("Forbidden", 403, "https://example.com/api", "forbidden body")
     }
 
