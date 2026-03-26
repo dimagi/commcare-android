@@ -146,7 +146,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private SecretKeySpec symetricKey = null;
 
     public static AndroidFormController mFormController;
-    private static boolean isFormEntryActive = false;
+    private static volatile boolean isFormEntryActive = false;
 
     private boolean mIncompleteEnabled = true;
     private boolean instanceIsReadOnly = false;
