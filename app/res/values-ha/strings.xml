@@ -122,10 +122,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_verify_configure_pin">Saita PIN</string>
     <string name="connect_verify_agree">Yarda &amp; Ci gaba</string>
     <string name="connect_verify_phone_title">Lambar tabbaci</string>
-    <string name="connect_verify_phone_label">Mun yi ƙoƙarin aiko muku da saƙon SMS wanda ya ƙare da %s.</string>
+    <string name="connect_verify_phone_label">Mun yi ƙoƙarin aika SMS zuwa lambar wayar ku da ta ƙare da %s.</string>
     <string name="connect_verify_phone_resend">Ba ku karɓi lambar ku ba? Sake aika</string>
     <string name="connect_verify_phone_resend_wait">Ba ka karɓi lambar ka ba? Sake aika a cikin %d s</string>
-    <string name="connect_verify_phone_change">Sauyi</string>
+    <string name="connect_verify_phone_change">Canja lamba</string>
     <string name="connect_verify_phone_verify">Tabbatar da lambar</string>
     <string name="connect_last_update">An sabunta: %s</string>
     <string name="connect_title">Haɗa</string>
@@ -246,7 +246,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_tile_daily_visits">Ziyarar Kullum</string>
     <string name="connect_appbar_title_app_lock">Makullin Manhaja</string>
     <string name="personalid_incorrect_otp">Kun shigar da lambar sirri mai lambobi 6 ba daidai ba. Da fatan za a sake gwadawa.</string>
-    <string name="personalid_too_many_otp_attempts">Kun shigar da lambar sirri ta lokaci ɗaya mai lambobi 6 da ba daidai ba sau da yawa. Da fatan za a sake gwadawa daga baya.</string>
+    <string name="personalid_too_many_otp_attempts">Kun yi ƙoƙarin aika OTP sau da yawa. Da fatan za a jira kuma a sake gwadawa lokacin da maballin sake aikawa ya bayyana.</string>
     <string name="personalid_otp_verification_failed_generic">Akwai matsala wajen tabbatar da lambar wayarku. Da fatan za a sake gwadawa.</string>
     <string name="personalid_otp_verification_failed">Akwai matsala. Da fatan za a sake gwadawa.</string>
     <string name="personalid_location_permission_error">PersonalID yana buƙatar na\'urarka ta sami damar kunna Ayyukan Wuri. Da fatan za a kunna wannan a saitunan wayarka kafin a ci gaba.</string>

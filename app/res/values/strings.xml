@@ -352,13 +352,13 @@
     <string name="connect_verify_agree">Agree &amp; Continue</string>
 
     <string name="connect_verify_phone_title">Verification Code</string>
-    <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
+    <string name="connect_verify_phone_label">We attempted to send an SMS to your phone number ending with %s.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_resend_code">Resend Code</string>
     <string name="connect_verify_skip_phone_number">I see you\'re a demo user, so we\'ll skip the OTP</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
-    <string name="connect_verify_phone_change">Change</string>
+    <string name="connect_verify_phone_change">Change Number</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>
 
@@ -622,7 +622,7 @@
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
     <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
-    <string name="personalid_too_many_otp_attempts">You entered the incorrect 6-digit One Time Passcode too many times. Please try again later.</string>
+    <string name="personalid_too_many_otp_attempts">You have made too many attempts to send OTP. Please wait and try again whenever the resend button is visible.</string>
     <string name="personalid_otp_verification_failed_generic">Something went wrong verifying your phone number. Please try again.</string>
     <string name="personalid_otp_verification_failed">Something went wrong. Please try again.</string>
     <string name="personalid_location_permission_error">PersonalID requires your device to have Location Services enabled. Please enable this in your phone\'s settings before proceeding.</string>

@@ -222,10 +222,10 @@
     <string name="connect_verify_configure_pin">Configurar PIN</string>
     <string name="connect_verify_agree">Aceptar y continuar</string>
     <string name="connect_verify_phone_title">El código de verificación</string>
-    <string name="connect_verify_phone_label">Intentamos enviarte un SMS que termina en %s.</string>
+    <string name="connect_verify_phone_label">Intentamos enviar un SMS a su número de teléfono que termina en %s.</string>
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
     <string name="connect_verify_phone_resend_wait">¿No recibiste tu código? Reenvíalo en %ds.</string>
-    <string name="connect_verify_phone_change">Cambiar número de teléfono</string>
+    <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
     <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
@@ -412,7 +412,7 @@
     <string name="connect_job_tile_daily_visits">Visitas diarias</string>
     <string name="connect_appbar_title_app_lock">Bloqueo de aplicación</string>
     <string name="personalid_incorrect_otp">Ha introducido el código de acceso de 6 dígitos incorrecto. Por favor, inténtelo de nuevo.</string>
-    <string name="personalid_too_many_otp_attempts">Ingresó el código de acceso único de 6 dígitos incorrecto demasiadas veces. Por favor, inténtelo de nuevo más tarde.</string>
+    <string name="personalid_too_many_otp_attempts">Ha realizado demasiados intentos de envío de OTP. Por favor, espere e inténtelo de nuevo cuando el botón de reenvío sea visible.</string>
     <string name="personalid_otp_verification_failed_generic">Algo salió mal al verificar su número de teléfono. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_location_permission_error">PersonalID requiere que su dispositivo tenga los Servicios de ubicación habilitados. Por favor, actívelos en la configuración de su teléfono antes de continuar.</string>

@@ -132,7 +132,7 @@
     <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID krever at enheten din har en fingeravtrykksskanner. Prøv igjen på en annen enhet.</string>
     <string name="personalid_authentication_failed">Godkjenning av biometri på Android-enheten din mislyktes. Vennligst bruk eventuelle tilgjengelige systemoppdateringer, eller prøv igjen med en annen enhet.</string>
     <string name="personalid_otp_verification_failed">Noe gikk galt. Prøv igjen.</string>
-    <string name="personalid_too_many_otp_attempts">Du har tastet inn feil 6-sifret engangskode for mange ganger. Prøv igjen senere.</string>
+    <string name="personalid_too_many_otp_attempts">Du har gjort for mange forsøk på å sende OTP. Vennligst vent og prøv igjen når send på nytt-knappen er synlig.</string>
     <string name="connect_enter_otp">Vennligst tast inn den 6-sifrede adgangskoden som ble sendt til ditt telefonnummer.</string>
     <string name="connect_otp_sent">En 6-sifret adgangskode er blitt sendt til ditt telefonnummer.</string>
     <string name="connect_otp_verified">Suksess! Ditt telefonnummer er blitt bekreftet.</string>

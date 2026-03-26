@@ -290,12 +290,12 @@
     <string name="connect_verify_configure_pin">Configurar PIN</string>
     <string name="connect_verify_agree">Concordo &amp; Continuar</string>
     <string name="connect_verify_phone_title">Código de verificação</string>
-    <string name="connect_verify_phone_label">Tentámos enviar-lhe um código no número que termina em %s.</string>
+    <string name="connect_verify_phone_label">Tentámos enviar um SMS para o seu número de telefone que termina em %s.</string>
     <string name="connect_verify_phone_resend">Não recebeu o seu código? Reenviar</string>
     <string name="connect_verify_phone_resend_code">Reenviar código</string>
     <string name="connect_verify_skip_phone_number">Vejo que é um utilizador de demonstração, por isso vamos saltar o OTP</string>
     <string name="connect_verify_phone_resend_wait">Não recebeu o seu código? Reenviar em %d s</string>
-    <string name="connect_verify_phone_change">mudar</string>
+    <string name="connect_verify_phone_change">Alterar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
     <string name="connect_last_update">Atualizado: %s</string>
     <string name="connect_title">Ligar</string>
@@ -408,7 +408,7 @@
     <string name="connect_job_tile_daily_visits">Visitas diárias</string>
     <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
     <string name="personalid_incorrect_otp">Você digitou o código de 6 dígitos incorreto. Por favor, tente novamente.</string>
-    <string name="personalid_too_many_otp_attempts">Introduziu o código de acesso único de 6 dígitos incorreto demasiadas vezes. Por favor, tente novamente mais tarde.</string>
+    <string name="personalid_too_many_otp_attempts">Fez demasiadas tentativas de envio de OTP. Por favor, aguarde e tente novamente quando o botão de reenvio estiver visível.</string>
     <string name="personalid_otp_verification_failed_generic">Algo correu mal ao verificar o seu número de telefone. Por favor, tente novamente.</string>
     <string name="personalid_otp_verification_failed">Algo correu mal. Por favor, tente novamente.</string>
     <string name="personalid_location_permission_error">O PersonalID exige que os Serviços de Localização estejam ativados no seu dispositivo. Por favor, ative-os nas configurações do seu telemóvel antes de prosseguir.</string>
