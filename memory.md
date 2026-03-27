@@ -10,6 +10,7 @@
 - JUnit4 + Robolectric + MockK/Mockito
 - CommCareApplication.instance(): mockkStatic(CommCareApplication::class) + mockk<CommCareApp>()
 - Dates: abs(actual - expected) < 5000L tolerance
+- `pr-comment-handler` workflow (PR #3629, merged 2026-03-19) runs every 4h to auto-implement reviewer feedback on Test Improver PRs
 
 ## Maintainer Notes
 - "go or no go" — close if not ready, no iterations (shubham1g5)
@@ -25,8 +26,8 @@
 - #3619 LearningAppProgressResponseParser (no-go)
 - #3626 LinkHqWorker + RetrieveChannelEncryptionKey (no-go)
 - #3632 ConnectOpportunitiesParser (awaiting review)
-- pending: RetrieveHqTokenResponseParser (2026-03-26)
+- #3635 RetrieveHqTokenResponseParser (awaiting review)
 
 ## Round-Robin
-- T1:2026-03-21 T2:2026-03-23 T3:2026-03-26
-- T4:2026-03-26 T5:2026-03-23 T6:2026-03-21 T7:2026-03-26
+- T1:2026-03-27 T2:2026-03-23 T3:2026-03-26
+- T4:2026-03-27 T5:2026-03-23 T6:2026-03-21 T7:2026-03-27
