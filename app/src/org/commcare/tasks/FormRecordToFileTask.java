@@ -12,13 +12,17 @@ import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -26,6 +30,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Properties;
@@ -83,6 +89,41 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         }
 
         // write any form.properties we want
+        writeProperties(myDir);
+        return FormUploadResult.FULL_SUCCESS;
+    }
+
+    private FormUploadResult copyFileInstanceFromStorageWithKeystore(File formRecordFolder,
+                                                                     EncryptionKeyAndTransform keystoreKey) {
+        File[] files = formRecordFolder.listFiles(File::isFile);
+        Logger.log(TAG, "Trying to get instance with: " + files.length + " files.");
+
+        File myDir = new File(storedFormDirectory, formRecordFolder.getName());
+        myDir.mkdirs();
+
+        logTransferBytes(files);
+
+        try {
+            for (File file : files) {
+                File target = new File(myDir, file.getName());
+                if (file.getName().endsWith(".xml") || file.getName().endsWith(AES_EXTENSION)) {
+                    String targetName = file.getName().endsWith(AES_EXTENSION)
+                            ? removeAESExtension(file.getName()) : file.getName();
+                    try (InputStream is = EncryptionIO.getFileInputStreamWithKeystore(
+                            file.getAbsolutePath(), keystoreKey);
+                         OutputStream os = new FileOutputStream(new File(myDir, targetName))) {
+                        StreamsUtil.writeFromInputToOutputNew(is, os);
+                    }
+                } else {
+                    FileUtil.copyFile(file, target);
+                }
+            }
+        } catch (IOException e) {
+            Log.d(TAG, "Copying file failed with: " + e.getMessage());
+            publishProgress("File writing failed: " + e.getMessage());
+            return FormUploadResult.FAILURE;
+        }
+
         writeProperties(myDir);
         return FormUploadResult.FULL_SUCCESS;
     }
@@ -192,7 +233,12 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
                         //Good!
                         //Time to transfer forms to storage!
-                        results[i] = copyFileInstanceFromStorage(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+                        if (record.usesKeystoreEncryption()) {
+                            results[i] = copyFileInstanceFromStorageWithKeystore(folder,
+                                    CommCareKeyManager.retrieveSessionKeyAndTransformation());
+                        } else {
+                            results[i] = copyFileInstanceFromStorage(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+                        }
                         if (results[i] == FormUploadResult.FAILURE) {
                             publishProgress("Failure during zipping process");
                         }
