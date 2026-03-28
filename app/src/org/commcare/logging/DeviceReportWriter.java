@@ -74,7 +74,7 @@ public class DeviceReportWriter {
     public void write() throws IllegalArgumentException, IllegalStateException, IOException {
         Trace trace = null;
         if (!skipPerfTracing) {
-            CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+            trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
         }
         try {
             serializer.startDocument("UTF-8", null);
