@@ -27,7 +27,8 @@
 - #3626 LinkHqWorker + RetrieveChannelEncryptionKey (no-go)
 - #3632 ConnectOpportunitiesParser (awaiting review)
 - #3635 RetrieveHqTokenResponseParser (awaiting review)
+- #3636 PushNotificationRecord (created 2026-03-28, awaiting review)
 
 ## Round-Robin
-- T1:2026-03-27 T2:2026-03-23 T3:2026-03-26
-- T4:2026-03-27 T5:2026-03-23 T6:2026-03-21 T7:2026-03-27
+- T1:2026-03-27 T2:2026-03-28 T3:2026-03-28
+- T4:2026-03-28 T5:2026-03-23 T6:2026-03-21 T7:2026-03-28
