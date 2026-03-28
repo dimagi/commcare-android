@@ -31,13 +31,14 @@ object CCPerfMonitoring {
     const val ATTR_MAP_POLYGONS = "num_polygons"
     const val ATTR_MAP_GEO_POINTS = "num_geo_points"
     const val ATTR_FILE_KEYSTORE_ENCRYPTED = "file_keystore_encrypted"
+    const val ATTR_CC_APP = "cc_app"
 
     fun startTracing(traceName: String): Trace? {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
-            trace.putAttribute(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain())
-            trace.putAttribute(CCAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId())
-            trace.putAttribute(CCAnalyticsParam.CC_APP_NAME, ReportingUtils.getAppName())
+            trace.putAttribute(ATTR_CC_APP,
+                ReportingUtils.getDomain() + "|" + ReportingUtils.getAppId() + "|" + ReportingUtils.getAppName()
+            )
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
             trace.start()
             return trace
