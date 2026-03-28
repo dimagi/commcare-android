@@ -16,6 +16,8 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.util.LogTypes;
+import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.QuarantineUtil;
 import org.commcare.views.notifications.NotificationMessage;
@@ -70,9 +72,7 @@ public class FormRecordProcessor {
 
         final File f = new File(form);
 
-        final Cipher decrypter =
-                FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
-        InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
+        InputStream is = getDecryptedInputStream(record, f);
 
         AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(c, null) {
             @Override
@@ -224,8 +224,7 @@ public class FormRecordProcessor {
         try {
             //decrypter
             if (useCipher) {
-                Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(r.getAesKey(), "AES")));
-                is = new CipherInputStream(new FileInputStream(recordFile), decrypter);
+                is = getDecryptedInputStream(r, recordFile);
             } else {
                 is = new FileInputStream(recordFile);
             }
@@ -255,8 +254,7 @@ public class FormRecordProcessor {
         KXmlParser parser = new KXmlParser();
         InputStream is = null;
         try {
-            Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(r.getAesKey(), "AES")));
-            is = new CipherInputStream(new FileInputStream(recordFile), decrypter);
+            is = getDecryptedInputStream(r, recordFile);
 
             parser.setInput(is, "UTF-8");
             parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
@@ -276,5 +274,16 @@ public class FormRecordProcessor {
             } catch (IOException ioe) {
             }
         }
+    }
+
+    private static InputStream getDecryptedInputStream(FormRecord record, File file)
+            throws FileNotFoundException {
+        if (record.usesKeystoreEncryption()) {
+            return EncryptionIO.getFileInputStreamWithKeystore(
+                    file.getAbsolutePath(),
+                    CommCareKeyManager.retrieveSessionKeyAndTransformation());
+        }
+        Cipher decrypter = FormUploadUtil.getDecryptCipher(new SecretKeySpec(record.getAesKey(), "AES"));
+        return new CipherInputStream(new FileInputStream(file), decrypter);
     }
 }
