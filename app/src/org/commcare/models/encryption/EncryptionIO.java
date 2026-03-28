@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -27,6 +28,7 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -140,6 +142,27 @@ public class EncryptionIO {
         } catch (InvalidKeyException | NoSuchPaddingException
                 | NoSuchAlgorithmException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static InputStream getFileInputStreamWithKeystore(
+            String filepath,
+            EncryptionKeyAndTransform encryptionKeyAndTransform
+    ) throws FileNotFoundException {
+        final File file = new File(filepath);
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            int ivLength = fis.read();
+            byte[] iv = new byte[ivLength];
+            fis.read(iv);
+            Cipher cipher = Cipher.getInstance(encryptionKeyAndTransform.getTransformation());
+            cipher.init(Cipher.DECRYPT_MODE, encryptionKeyAndTransform.getKey(), new IvParameterSpec(iv));
+            return new BufferedInputStream(new CipherInputStream(fis, cipher));
+        } catch (InvalidKeyException | NoSuchPaddingException
+                | NoSuchAlgorithmException | InvalidAlgorithmParameterException | IOException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Keystore decryption failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
