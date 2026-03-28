@@ -130,6 +130,22 @@ public class FormUploadUtil {
                                                 @Nullable SecretKeySpec key, String url,
                                                 @Nullable DataSubmissionListener listener, User user)
             throws FileNotFoundException {
+        return sendInstanceInternal(submissionNumber, folder, key, null, url, listener, user);
+    }
+
+    public static FormUploadResult sendInstanceWithKeystore(int submissionNumber, File folder,
+                                                            EncryptionKeyAndTransform keystoreKey, String url,
+                                                            @Nullable DataSubmissionListener listener, User user)
+            throws FileNotFoundException {
+        return sendInstanceInternal(submissionNumber, folder, null, keystoreKey, url, listener, user);
+    }
+
+    private static FormUploadResult sendInstanceInternal(int submissionNumber, File folder,
+                                                         @Nullable SecretKeySpec key,
+                                                         @Nullable EncryptionKeyAndTransform keystoreKey,
+                                                         String url,
+                                                         @Nullable DataSubmissionListener listener, User user)
+            throws FileNotFoundException {
 
         File[] files = folder.listFiles();
 
@@ -159,7 +175,7 @@ public class FormUploadUtil {
 
         List<MultipartBody.Part> parts = new ArrayList<>();
 
-        if (!buildMultipartEntity(parts, key, files)) {
+        if (!buildMultipartEntity(parts, key, keystoreKey, files)) {
             return FormUploadResult.RECORD_FAILURE;
         }
 
@@ -339,6 +355,7 @@ public class FormUploadUtil {
      */
     private static boolean buildMultipartEntity(List<MultipartBody.Part> parts,
                                                 @Nullable SecretKeySpec key,
+                                                @Nullable EncryptionKeyAndTransform keystoreKey,
                                                 File[] files)
             throws FileNotFoundException {
 
@@ -347,7 +364,12 @@ public class FormUploadUtil {
 
         for (File f : files) {
             if (f.getName().endsWith(".xml")) {
-                if (key != null) {
+                if (keystoreKey != null) {
+                    if (!validateSubmissionFile(f)) {
+                        return false;
+                    }
+                    parts.add(createKeystoreEncryptedFilePart("xml_submission_file", f, "text/xml", keystoreKey));
+                } else if (key != null) {
                     if (!validateSubmissionFile(f)) {
                         return false;
                     }
