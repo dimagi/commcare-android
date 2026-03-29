@@ -114,7 +114,7 @@ public class FormKeystoreEncryptionTest {
 
         // Decrypt with legacy path
         try (InputStream is = EncryptionIO.getFileInputStream(
-                tempFile.getAbsolutePath(), legacyKey)) {
+                tempFile.getAbsolutePath(), legacyKey, null, false)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             StringBuilder result = new StringBuilder();
             String line;
@@ -149,7 +149,7 @@ public class FormKeystoreEncryptionTest {
         byte[] keyBytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
         SecretKeySpec wrongKey = new SecretKeySpec(keyBytes, "AES");
         try (InputStream is = EncryptionIO.getFileInputStream(
-                tempFile.getAbsolutePath(), wrongKey)) {
+                tempFile.getAbsolutePath(), wrongKey, null, false)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             StringBuilder result = new StringBuilder();
             String line;

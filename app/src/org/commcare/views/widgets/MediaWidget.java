@@ -133,7 +133,7 @@ public abstract class MediaWidget extends QuestionWidget {
         String tempMediaPath = createTempMediaPath(FileUtil.getExtension(removeAESExtension(f.getName())));
         try {
             FileOutputStream fos = new FileOutputStream(tempMediaPath);
-            InputStream is = EncryptionIO.getFileInputStream(f.getPath(), secretKey);
+            InputStream is = EncryptionIO.getFileInputStream(f.getPath(), secretKey, null, false);
             StreamsUtil.writeFromInputToOutputNew(is, fos);
         } catch (IOException e) {
             throw new RuntimeException("Failed to decrypt media at path " + f.getAbsolutePath()

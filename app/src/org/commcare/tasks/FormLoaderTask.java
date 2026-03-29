@@ -260,7 +260,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         // convert files into a byte array
         InputStream is;
         try {
-            is = EncryptionIO.getFileInputStream(filePath, mSymetricKey);
+            is = EncryptionIO.getFileInputStream(filePath, mSymetricKey, null, false);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new RuntimeException("Unable to open encrypted form instance file: " + filePath);
