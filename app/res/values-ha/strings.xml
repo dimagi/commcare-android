@@ -164,6 +164,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_warning_daily_max_reached_single">Kun kai matsakaicin adadin ziyara na yau. Ba za ku iya samun wani ci gaba ba don ƙarin aiki.</string>
     <string name="connect_progress_warning_max_reached_multi">Kun kai matsakaicin adadin ziyara na %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Kun kai iyakar %s na yau da kullun.</string>
+    <string name="connect_progress_relearn_tasks_completed">An kammala duk ayyukan da ake bukata. Kuna iya ci gaba da ayyukan isarwa.</string>
     <string name="connect_download_learn">Sauke Manhajar Koyi</string>
     <string name="connect_downloading_learn">Sauke Manhajar Koyo</string>
     <string name="connect_downloading_delivery">Sauke Manhajar Isarwa</string>

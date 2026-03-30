@@ -179,4 +179,5 @@
     <string name="connect_job_preview_start">Start</string>
     <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
+    <string name="connect_progress_relearn_tasks_completed">Alle nødvendige oppgaver er fullført. Du kan fortsette med leveringsaktiviteter.</string>
 </resources>
