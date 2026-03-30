@@ -116,8 +116,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             boolean showHours = workingHours != null;
             if (job.isRelearnTaskPending()) {
                 cvRelearnTasksPending.setVisibility(View.VISIBLE);
-                tvJobTime.setVisibility(View.INVISIBLE);
-                hoursTitle.setVisibility(View.INVISIBLE);
+                tvJobTime.setVisibility(View.GONE);
+                hoursTitle.setVisibility(View.GONE);
             } else if (showHours) {
                 tvJobTime.setText(workingHours);
                 cvRelearnTasksPending.setVisibility(View.GONE);
