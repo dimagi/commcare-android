@@ -286,10 +286,10 @@
     <string name="connect_verify_configure_pin">Sanidi PIN</string>
     <string name="connect_verify_agree">Kubali na Uendelee</string>
     <string name="connect_verify_phone_title">Nambari ya Uthibitishaji</string>
-    <string name="connect_verify_phone_label">Tulijaribu kukutumia SMS inayoishia na %s.</string>
+    <string name="connect_verify_phone_label">Tulijaribu kutuma SMS kwa nambari yako ya simu inayoishia na %s.</string>
     <string name="connect_verify_phone_resend">Hukupokea nambari yako ya kuthibitisha? Tuma tena</string>
     <string name="connect_verify_phone_resend_wait">Hukupokea nambari yako ya kuthibitisha? Tuma tena baada ya %d s</string>
-    <string name="connect_verify_phone_change">Badilisha nambari ya simu</string>
+    <string name="connect_verify_phone_change">Badilisha nambari</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
     <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
@@ -414,7 +414,7 @@
     <string name="connect_job_tile_daily_visits">Ziara za Kila Siku</string>
     <string name="connect_appbar_title_app_lock">Kufuli ya Programu</string>
     <string name="personalid_incorrect_otp">Umeweka nambari ya siri yenye tarakimu 6 isiyo sahihi. Tafadhali jaribu tena.</string>
-    <string name="personalid_too_many_otp_attempts">Uliweka nambari ya siri ya mara moja yenye tarakimu 6 isiyo sahihi mara nyingi sana. Tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_too_many_otp_attempts">Umejaribu kutuma OTP mara nyingi sana. Tafadhali subiri na ujaribu tena kitufe cha kutuma tena kinapoonekana.</string>
     <string name="personalid_otp_verification_failed_generic">Kitu kilienda vibaya wakati wa kuthibitisha nambari yako ya simu. Tafadhali jaribu tena.</string>
     <string name="personalid_otp_verification_failed">Kitu kilienda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_location_permission_error">PersonalID inahitaji kifaa chako kiwe na Huduma za Mahali zimewashwa. Tafadhali wezesha hii katika mipangilio ya simu yako kabla ya kuendelea.</string>

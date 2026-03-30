@@ -132,7 +132,7 @@
     <string name="personalid_configuration_process_biometric_no_hardware_message">„PersonalID“ reikalauja, kad jūsų įrenginyje būtų pirštų atspaudų skaitytuvas. Bandykite dar kartą kitame įrenginyje.</string>
     <string name="personalid_authentication_failed">Biometrinių duomenų autentifikavimas jūsų „Android“ įrenginyje nepavyko. Įdiekite visus galimus sistemos atnaujinimus arba bandykite dar kartą su kitu įrenginiu.</string>
     <string name="personalid_otp_verification_failed">Įvyko klaida. Bandykite dar kartą.</string>
-    <string name="personalid_too_many_otp_attempts">Per daug kartų įvedėte neteisingą 6 skaitmenų vienkartinį slaptažodį. Bandykite dar kartą vėliau.</string>
+    <string name="personalid_too_many_otp_attempts">Per daug kartų bandėte siųsti OTP. Palaukite ir bandykite dar kartą, kai pakartotinio siuntimo mygtukas bus matomas.</string>
     <string name="connect_enter_otp">Įveskite 6 skaitmenų slaptažodį, kuris buvo išsiųstas jūsų telefono numeriu.</string>
     <string name="connect_otp_sent">6 skaitmenų slaptažodis buvo išsiųstas jūsų telefono numeriu.</string>
     <string name="connect_otp_verified">Puiku! Jūsų telefono numeris patvirtintas.</string>

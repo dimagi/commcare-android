@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.Paint;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -215,6 +216,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             setupOtpManager(useOtpFallback);
             requestOtp();
         });
+        binding.connectPhoneVerifyChange.setPaintFlags(
+                binding.connectPhoneVerifyChange.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
         binding.customOtpView.setOnOtpChangedListener(otp -> {
@@ -375,8 +378,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void navigateToPhoneEntry() {
-        NavDirections directions = PersonalIdPhoneVerificationFragmentDirections.actionPersonalidOtpPageToPersonalidPhoneFragment();
-        Navigation.findNavController(binding.connectResendButton).navigate(directions);
+        Navigation.findNavController(binding.connectResendButton)
+                .popBackStack(R.id.personalid_phone_fragment, false);
     }
 
     private void navigateToNameEntry() {
