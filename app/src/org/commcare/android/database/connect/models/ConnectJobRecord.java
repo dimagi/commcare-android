@@ -642,6 +642,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
+        } else if (allRelearnTasksCompleted()) {
+            return context.getString(R.string.connect_progress_relearn_tasks_completed);
         } else if (isMultiPayment()) {
             return getMultiVisitWarnings(context);
         } else if (getDeliveries().size() >= getMaxVisits()) {

@@ -227,8 +227,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 )
         );
 
-        String workingHours = job.getWorkingHours();
-        boolean hasHours = workingHours != null;
         boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
         Drawable downloadIcon = appInstalled
                 ? null
@@ -236,8 +234,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 downloadIcon, null, null, null
         );
-        jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
-        jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
         jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
         jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
         jobCard.connectJobEndDate.setVisibility(View.GONE);
@@ -245,8 +241,21 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         jobCard.acbViewInfo.setVisibility(View.VISIBLE);
         jobCard.acbResume.setVisibility(View.VISIBLE);
 
-        if (hasHours) {
-            (jobCard.tvJobTime).setText(workingHours);
+        String workingHours = job.getWorkingHours();
+        boolean hasHours = workingHours != null;
+        if (job.isRelearnTaskPending()) {
+            jobCard.cvRelearnTasksPending.setVisibility(View.VISIBLE);
+            jobCard.tvJobTime.setVisibility(View.INVISIBLE);
+            jobCard.tvDailyVisitTitle.setVisibility(View.INVISIBLE);
+        } else if (hasHours) {
+            jobCard.tvJobTime.setText(workingHours);
+            jobCard.cvRelearnTasksPending.setVisibility(View.GONE);
+            jobCard.tvJobTime.setVisibility(View.VISIBLE);
+            jobCard.tvDailyVisitTitle.setVisibility(View.VISIBLE);
+        } else {
+            jobCard.cvRelearnTasksPending.setVisibility(View.GONE);
+            jobCard.tvJobTime.setVisibility(View.GONE);
+            jobCard.tvDailyVisitTitle.setVisibility(View.GONE);
         }
     }
 
@@ -265,12 +274,18 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             @ColorRes int textColorRes;
             @ColorRes int backgroundColorRes;
 
-            if (job.deliveryComplete()) {
+            if (job.allRelearnTasksCompleted()) {
+                textColorRes = R.color.connect_green;
+                backgroundColorRes = R.color.connect_light_green;
+                getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
+            } else if (job.deliveryComplete()) {
                 textColorRes = R.color.connect_blue_color;
                 backgroundColorRes = R.color.porcelain_grey;
+                getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
             } else {
                 textColorRes = R.color.connect_warning_color;
                 backgroundColorRes = R.color.connect_light_orange_color;
+                getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
             }
 
             getBinding().tvConnectMessage.setTextColor(
@@ -281,7 +296,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             );
             getBinding().tvConnectMessage.setText(messageText);
             getBinding().cvConnectMessage.setVisibility(View.VISIBLE);
-            getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
         } else {
             getBinding().cvConnectMessage.setVisibility(View.GONE);
             getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
