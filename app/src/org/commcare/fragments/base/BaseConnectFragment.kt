@@ -1,5 +1,8 @@
 package org.commcare.fragments.base
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,10 +11,16 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import org.commcare.connect.ConnectDateUtils
+import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 import org.commcare.dalvik.databinding.LoadingBinding
+import org.commcare.fragments.RefreshableFragment
 import org.commcare.interfaces.base.BaseConnectView
+import org.commcare.personalId.PersonalIdFeatureFlagChecker
+import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.TopBarErrorViewController
+import java.util.Date
 
 abstract class BaseConnectFragment<B : ViewBinding> :
     Fragment(),
@@ -24,6 +33,9 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private lateinit var rootView: View
     private var topBarErrorViewController: TopBarErrorViewController? = null
 
+    private var connectivityManager: ConnectivityManager? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+
     /**
      * Implement this method in child fragments to inflate their specific binding.
      */
@@ -32,16 +44,20 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         container: ViewGroup?,
     ): B
 
+    /**
+     * Override in subclasses to provide the timestamp of the last successful data sync.
+     * Used to display "Last synced: X ago" in the offline indicator.
+     */
+    open fun getLastSyncTime(): Date? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        // Inflate child fragment's main view
         _binding = inflateBinding(inflater, container)
         val mainView = binding.root
 
-        // Inflate loading layout
         loadingBinding = LoadingBinding.inflate(inflater, container, false)
         val loadingView = loadingBinding.root
 
@@ -81,12 +97,26 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         return rootView
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (shouldMonitorNetwork()) {
+            registerNetworkCallback()
+            if (!ConnectivityStatus.isNetworkAvailable(requireContext())) {
+                showOfflineIndicator()
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unregisterNetworkCallback()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         topBarErrorViewController!!.cleanup()
         topBarErrorViewController = null
         _binding = null
-        // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
         loadingBinding.root.visibility = View.GONE
     }
 
@@ -104,5 +134,58 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     fun hideError() {
         topBarErrorViewController!!.hide()
+    }
+
+    private fun shouldMonitorNetwork(): Boolean =
+        this is RefreshableFragment &&
+            PersonalIdFeatureFlagChecker.isFeatureEnabled(
+                PersonalIdFeatureFlagChecker.FeatureFlag.DATA_REFRESH_INDICATOR,
+            )
+
+    private fun showOfflineIndicator() {
+        val message = buildOfflineMessage()
+        topBarErrorViewController?.showOfflineStatus(message)
+    }
+
+    private fun buildOfflineMessage(): String {
+        val lastSync = getLastSyncTime()
+        return if (lastSync != null) {
+            val relativeTime = ConnectDateUtils.formatNotificationTime(requireContext(), lastSync)
+            getString(R.string.connect_last_synced, relativeTime)
+        } else {
+            getString(R.string.connect_last_synced, getString(R.string.connect_offline))
+        }
+    }
+
+    private fun registerNetworkCallback() {
+        val cm =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                ?: return
+        connectivityManager = cm
+
+        val callback =
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    view?.post {
+                        topBarErrorViewController?.hide()
+                    }
+                }
+
+                override fun onLost(network: Network) {
+                    view?.post {
+                        showOfflineIndicator()
+                    }
+                }
+            }
+        networkCallback = callback
+        cm.registerDefaultNetworkCallback(callback)
+    }
+
+    private fun unregisterNetworkCallback() {
+        networkCallback?.let { callback ->
+            connectivityManager?.unregisterNetworkCallback(callback)
+        }
+        networkCallback = null
+        connectivityManager = null
     }
 }
