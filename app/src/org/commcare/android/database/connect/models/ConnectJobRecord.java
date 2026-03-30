@@ -852,4 +852,26 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setClaimed(boolean claimed) {
         this.claimed = claimed;
     }
+
+    /**
+     * This is a temporary dummy method implementation to show new UI that blocks delivery progress
+     * when there is a pending relearn task for a delivery app.
+     *
+     * @return false until the real method is implemented.
+     */
+    public boolean isRelearnTaskPending() {
+        // TODO: MAKE FALSE
+        return true;
+    }
+
+    /**
+     * This is a temporary dummy method implementation to show a new (non-blocking) card message on
+     * the job tile that confirms any relearn tasks have been completed for a delivery app.
+     *
+     * @return false until the real method is implemented.
+     */
+    public boolean allRelearnTasksCompleted() {
+        // TODO: MAKE FALSE
+        return true;
+    }
 }
