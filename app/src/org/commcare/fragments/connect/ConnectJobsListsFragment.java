@@ -21,12 +21,14 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
@@ -111,6 +113,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
                 if (isAdded()) {
                     setJobListData(data.getValidJobs());
+                    CommCarePreferenceManagerFactory.getCommCarePreferenceManager()
+                            .putLong(ConnectConstants.LAST_OPPORTUNITIES_SYNC_TIME, new Date().getTime());
                 }
             }
         }.getConnectOpportunities(requireContext(), user);
@@ -428,6 +432,14 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 requireActivity(), appId, user.getUserId());
 
         return appRecord != null ? appRecord.getLastAccessed() : new Date();
+    }
+
+    @Override
+    @Nullable
+    public Date getLastSyncTime() {
+        long timestamp = CommCarePreferenceManagerFactory.getCommCarePreferenceManager()
+                .getLong(ConnectConstants.LAST_OPPORTUNITIES_SYNC_TIME, 0);
+        return timestamp > 0 ? new Date(timestamp) : null;
     }
 
     @Override

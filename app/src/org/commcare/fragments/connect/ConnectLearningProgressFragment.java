@@ -363,6 +363,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
+    @Nullable
+    public Date getLastSyncTime() {
+        return job != null ? job.getLastLearnUpdate() : null;
+    }
+
+    @Override
     protected @NotNull FragmentConnectLearningProgressBinding inflateBinding(
             @NotNull LayoutInflater inflater,
             @Nullable ViewGroup container
