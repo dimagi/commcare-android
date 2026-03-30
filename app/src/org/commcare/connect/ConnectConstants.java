@@ -68,4 +68,5 @@ public class ConnectConstants {
     public final static String NOTIFICATION_CHANNEL_ID = "channel";
     public final static String PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME =
             "payment_confirmation_hidden_since_time";
+    public static final String LAST_OPPORTUNITIES_SYNC_TIME = "last_opportunities_sync_time";
 }
