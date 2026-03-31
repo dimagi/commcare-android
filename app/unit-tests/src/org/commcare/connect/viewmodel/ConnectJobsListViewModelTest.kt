@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -86,6 +87,35 @@ class ConnectJobsListViewModelTest {
         assertEquals(2, results.size)
         assertTrue(results[1] is DataState.Error)
         assertEquals(cachedJobs, (results[1] as DataState.Error).cachedData)
+    }
+
+    @Test
+    fun testLoadOpportunities_secondCall_cancelsFirstCollection() {
+        val firstJobs = listOf(mockk<ConnectJobRecord>())
+        val secondJobs = listOf(mockk<ConnectJobRecord>(), mockk())
+
+        // First flow suspends after Loading so it never posts Success
+        every { mockRepository.getOpportunities(false, any()) } returns
+            flow {
+                emit(DataState.Loading)
+                kotlinx.coroutines.awaitCancellation()
+            }
+        every { mockRepository.getOpportunities(true, any()) } returns
+            flowOf(DataState.Success(secondJobs))
+
+        val results = mutableListOf<DataState<List<ConnectJobRecord>>>()
+        viewModel.opportunities.observeForever { results.add(it) }
+
+        mainCoroutineRule.runBlockingTest {
+            viewModel.loadOpportunities(forceRefresh = false)
+            viewModel.loadOpportunities(forceRefresh = true)
+        }
+
+        // Loading from first call, then Success from second — no stale Success from first
+        assertTrue(results.any { it is DataState.Loading })
+        assertTrue(results.last() is DataState.Success)
+        assertEquals(secondJobs, (results.last() as DataState.Success).data)
+        assertTrue(results.none { it is DataState.Success && (it as DataState.Success).data == firstJobs })
     }
 
     @Test

@@ -6,6 +6,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -65,6 +67,32 @@ class ConnectLearningProgressViewModelTest {
         assertEquals(DataState.Loading, results[0])
         assertTrue(results[1] is DataState.Success)
         assertEquals(mockJob, (results[1] as DataState.Success).data)
+    }
+
+    @Test
+    fun testLoadLearningProgress_secondCall_cancelsFirstCollection() {
+        val secondJob = mockk<ConnectJobRecord>(relaxed = true)
+
+        // First flow suspends after Loading so it never posts Success
+        every { mockRepository.getLearningProgress(mockJob, any(), any()) } returns
+            flow {
+                emit(DataState.Loading)
+                awaitCancellation()
+            }
+        every { mockRepository.getLearningProgress(secondJob, any(), any()) } returns
+            flowOf(DataState.Success(secondJob))
+
+        val results = mutableListOf<DataState<ConnectJobRecord>>()
+        viewModel.learningProgress.observeForever { results.add(it) }
+
+        mainCoroutineRule.runBlockingTest {
+            viewModel.loadLearningProgress(mockJob)
+            viewModel.loadLearningProgress(secondJob)
+        }
+
+        assertTrue(results.any { it is DataState.Loading })
+        assertTrue(results.last() is DataState.Success)
+        assertEquals(secondJob, (results.last() as DataState.Success).data)
     }
 
     @Test

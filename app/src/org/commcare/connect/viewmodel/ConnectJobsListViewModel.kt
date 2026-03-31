@@ -5,6 +5,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.Job
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
@@ -19,10 +20,14 @@ class ConnectJobsListViewModel(
     private val _opportunities = MutableLiveData<DataState<List<ConnectJobRecord>>>()
     val opportunities: LiveData<DataState<List<ConnectJobRecord>>> = _opportunities
 
+    private var getOpportunitiesJob: Job? = null
+
     fun loadOpportunities(forceRefresh: Boolean = false) {
-        collectInto(
-            flow = repository.getOpportunities(forceRefresh),
-            liveData = _opportunities,
-        )
+        getOpportunitiesJob?.cancel()
+        getOpportunitiesJob =
+            collectInto(
+                flow = repository.getOpportunities(forceRefresh),
+                liveData = _opportunities,
+            )
     }
 }
