@@ -274,14 +274,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             @ColorRes int textColorRes;
             @ColorRes int backgroundColorRes;
 
-            if (job.allRelearnTasksCompleted()) {
-                textColorRes = R.color.connect_green;
-                backgroundColorRes = R.color.connect_light_green;
-                getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
-            } else if (job.deliveryComplete()) {
+            if (job.deliveryComplete()) {
                 textColorRes = R.color.connect_blue_color;
                 backgroundColorRes = R.color.porcelain_grey;
                 getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
+            } else if (job.allRelearnTasksCompleted()) {
+                textColorRes = R.color.connect_green;
+                backgroundColorRes = R.color.connect_light_green;
+                getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
             } else {
                 textColorRes = R.color.connect_warning_color;
                 backgroundColorRes = R.color.connect_light_orange_color;
