@@ -12,6 +12,8 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- Added relearn task notification UI to Connect opportunity cards
+
 #### Important Bug Fixes
 
 #### Internal Release Notes
@@ -29,6 +31,9 @@ along with the public release notes above
 These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
+
+- Verify that the existing opportunity card UI is unchanged when there are no relearn tasks.
+- Verify that the opportunity card updates as expected when there are either pending relearn tasks or completed relearn tasks.
 
 ## CommCare 2.62
 
