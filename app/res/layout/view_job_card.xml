@@ -107,6 +107,7 @@
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/connect_job_end_date_sub_heading"
             app:layout_constraintBottom_toTopOf="@id/acb_resume"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <TextView
