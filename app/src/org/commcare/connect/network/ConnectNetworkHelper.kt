@@ -46,7 +46,7 @@ class ConnectNetworkHelper {
                     multimap.put(key, value.toString())
                 }
                 requestBody = ModernHttpRequester.getPostBody(multimap)
-                outputHeaders.putAll(getContentHeadersForXFormPost(requestBody)
+                outputHeaders.putAll(getContentHeadersForXFormPost(requestBody))
             } else {
                 val json = Gson().toJson(params)
                 requestBody = RequestBody.create("application/json".toMediaType(), json)
