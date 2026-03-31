@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.commcare.connect.network.LoginInvalidatedException
 import java.util.concurrent.ConcurrentHashMap
 
 object ConnectRequestManager {
@@ -37,6 +38,8 @@ object ConnectRequestManager {
                 deferred.complete(result as Result<Any>)
             } catch (e: CancellationException) {
                 deferred.cancel(e)
+                throw e
+            } catch (e: LoginInvalidatedException) {
                 throw e
             } catch (e: Exception) {
                 deferred.complete(Result.failure<Any>(e))

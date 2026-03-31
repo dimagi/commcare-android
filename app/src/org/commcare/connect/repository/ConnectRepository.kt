@@ -115,6 +115,8 @@ class ConnectRepository
                         .onFailure { throwable -> emit(DataState.Error.from(throwable, cachedData)) }
                 } catch (e: CancellationException) {
                     throw e
+                } catch (e: LoginInvalidatedException) {
+                    throw e
                 } catch (e: Exception) {
                     emit(DataState.Error.from(e, cachedData))
                 }
