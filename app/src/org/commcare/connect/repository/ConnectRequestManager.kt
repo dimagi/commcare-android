@@ -40,6 +40,7 @@ object ConnectRequestManager {
                 deferred.cancel(e)
                 throw e
             } catch (e: LoginInvalidatedException) {
+                deferred.completeExceptionally(e)
                 throw e
             } catch (e: Exception) {
                 deferred.complete(Result.failure<Any>(e))
