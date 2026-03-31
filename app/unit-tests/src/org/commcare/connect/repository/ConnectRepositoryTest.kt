@@ -126,7 +126,7 @@ class ConnectRepositoryTest {
         }
 
     @Test
-    fun testGetOpportunities_networkFailure_noCache_emitsError_withNullCachedData() =
+    fun testGetOpportunities_networkFailure_neverSynced_emitsError_withEmptyCachedData() =
         runBlocking {
             every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
             every { mockSyncPrefs.getLastSyncTime(any()) } returns null
@@ -139,7 +139,24 @@ class ConnectRepositoryTest {
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
             assertTrue(emissions[1] is DataState.Error)
-            assertNull((emissions[1] as DataState.Error).cachedData)
+            // cachedData is emptyList (not null) because loadCache always returns the list
+            assertEquals(emptyList<ConnectJobRecord>(), (emissions[1] as DataState.Error).cachedData)
+        }
+
+    @Test
+    fun testGetOpportunities_syncedEmptyList_emitsCached() =
+        runBlocking {
+            val syncTime = Date()
+            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
+            every { mockSyncPrefs.getLastSyncTime(any()) } returns syncTime
+            every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
+
+            val emissions = repository.getOpportunities().toList()
+
+            assertEquals(1, emissions.size)
+            assertTrue(emissions[0] is DataState.Cached)
+            assertEquals(emptyList<ConnectJobRecord>(), (emissions[0] as DataState.Cached).data)
+            assertEquals(syncTime, (emissions[0] as DataState.Cached).timestamp)
         }
 
     @Test

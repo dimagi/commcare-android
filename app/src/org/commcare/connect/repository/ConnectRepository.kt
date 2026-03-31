@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.flowOn
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.LoginInvalidatedException
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
@@ -47,9 +48,7 @@ class ConnectRepository
                 forceRefresh = forceRefresh,
                 policy = policy,
                 loadCache = {
-                    ConnectJobUtils
-                        .getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)
-                        .takeIf { it.isNotEmpty() }
+                    ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)
                 },
                 networkCall = { fetchOpportunitiesFromNetwork() },
                 onNetworkSuccess = {},
@@ -93,8 +92,8 @@ class ConnectRepository
                 val cachedData: C? = loadCache()
                 val lastSyncTime = syncPrefs.getLastSyncTime(endpoint)
 
-                if (cachedData != null) {
-                    emit(DataState.Cached(cachedData, lastSyncTime!!))
+                if (cachedData != null && lastSyncTime != null) {
+                    emit(DataState.Cached(cachedData, lastSyncTime))
                 } else {
                     emit(DataState.Loading)
                 }
