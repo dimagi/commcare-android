@@ -192,6 +192,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         if (job.getStatus() != STATUS_DELIVERING || job.isFinished() || job.isRelearnTaskPending()) {
             recyclerView.setVisibility(View.GONE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
         }
 
         updateConnectJobMessage();
