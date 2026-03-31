@@ -862,8 +862,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
      * @return false until the real method is implemented.
      */
     public boolean isRelearnTaskPending() {
-        // TODO: MAKE FALSE
-        return true;
+        // TODO: Not yet implemented
+        return false;
     }
 
     /**
@@ -873,7 +873,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
      * @return false until the real method is implemented.
      */
     public boolean allRelearnTasksCompleted() {
-        // TODO: MAKE FALSE
-        return true;
+        // TODO: Not yet implemented
+        return false;
     }
 }
