@@ -8,7 +8,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils.formatDate
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewJobCardBinding
-import org.commcare.utils.ViewUtils
+import org.commcare.views.ViewUtil
 
 object ConnectViewUtils {
     @JvmStatic
@@ -103,7 +103,7 @@ object ConnectViewUtils {
             ContextCompat.getColor(context, resumeTextColorRes),
         )
         jobCard.acbResume.setOnClickListener(resumeListener)
-        val paddingHorizontalPx = ViewUtils.dpToPx(8, context)
+        val paddingHorizontalPx = ViewUtil.dpToPx(8, context)
         jobCard.acbResume.setPaddingRelative(
             paddingHorizontalPx,
             0,
