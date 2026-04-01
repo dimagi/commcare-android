@@ -1,9 +1,5 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.connect.ConnectDateUtils.formatDate;
-import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
-import static org.commcare.utils.ViewUtils.dpToPx;
-
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -24,13 +20,16 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.ConnectDateUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobDetailBottomSheetDialogBinding;
 import org.commcare.views.connect.CircleProgressBar;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+
+import static org.commcare.connect.ConnectDateUtils.formatDate;
+import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
+import static org.commcare.views.ViewUtil.dpToPx;
 
 public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private FragmentConnectJobDetailBottomSheetDialogBinding binding;
@@ -39,16 +38,21 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         view.post(() -> {
-            BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
+            BottomSheetDialog dialog = (BottomSheetDialog)getDialog();
             if (dialog != null) {
-                FrameLayout bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+                FrameLayout bottomSheet =
+                        dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
                 if (bottomSheet != null) {
                     BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
                     behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                     ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
                     layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                     bottomSheet.setLayoutParams(layoutParams);
-                    bottomSheet.setBackground(new ColorDrawable(ContextCompat.getColor(requireContext(), R.color.transparent)));
+                    bottomSheet.setBackground(
+                            new ColorDrawable(
+                                    ContextCompat.getColor(requireContext(), R.color.transparent)
+                            )
+                    );
                 }
             }
         });
@@ -56,8 +60,13 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
 
     @Nullable
     @Override
-    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentConnectJobDetailBottomSheetDialogBinding.inflate(inflater, container, false);
+    public View onCreateView(
+            @NotNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
+        binding = FragmentConnectJobDetailBottomSheetDialogBinding
+                .inflate(inflater, container, false);
         binding.getRoot().setBackgroundResource(R.drawable.rounded_top_corners);
 
         ConnectJobRecord job = ((ConnectActivity)requireActivity()).getActiveJob();
@@ -68,32 +77,47 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         int dateRes = isCompleted
                 ? R.string.connect_expired_on
                 : R.string.connect_complete_by;
-        binding.tvDate.setText(binding.tvDate.getContext().getString(dateRes, formatDate(job.getProjectEndDate())));
-        if (isExpiryDateUnderFiveDays(job.getProjectEndDate())) {
-            int redColor = ContextCompat.getColor(binding.tvDate.getContext(), R.color.dark_red_brick_red);
+        binding.tvDate.setText(
+                requireContext().getString(dateRes, formatDate(job.getProjectEndDate()))
+        );
 
+        if (isExpiryDateUnderFiveDays(job.getProjectEndDate())) {
+            int redColor = ContextCompat.getColor(requireContext(), R.color.dark_red_brick_red);
             binding.tvDate.setTextColor(redColor);
             binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+            binding.ivInfo.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvDate.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.moon_gray)
+            );
+            binding.ivInfo.clearColorFilter();
+            binding.ivInfo.setVisibility(View.GONE);
         }
-        binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit,
-                job.getMaxPossibleVisits()));
-        binding.connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days,
-                job.getDaysRemaining()));
-        binding.connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit,
-                job.getMaxDailyVisits()));
+        binding.connectDeliveryTotalVisitsText.setText(
+                getString(R.string.connect_job_info_visit, job.getMaxPossibleVisits())
+        );
+        binding.connectDeliveryDaysText.setText(
+                getString(R.string.connect_job_info_days, job.getDaysRemaining())
+        );
+        binding.connectDeliveryMaxDailyText.setText(
+                getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits())
+        );
         binding.connectDeliveryBudgetText.setText(buildPaymentText(job));
         binding.imgCloseDialog.setOnClickListener(view -> dismiss());
         handleProgressBarUI(job);
         return binding.getRoot();
     }
-    public void handleProgressBarUI(ConnectJobRecord job) {
 
+    public void handleProgressBarUI(ConnectJobRecord job) {
         setProgressIconState(
                 binding.includeJobProgress.pbNewOpp,
                 binding.includeJobProgress.ivNewOpp,
                 true,
                 100,
-                ContextCompat.getColor(requireContext(), R.color.personal_id_work_history_yellow_pending),
+                ContextCompat.getColor(
+                        requireContext(),
+                        R.color.personal_id_work_history_yellow_pending
+                ),
                 R.drawable.ic_connect_new_opportunity,
                 R.drawable.ic_disabled_new_opportunity
         );
@@ -103,7 +127,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                 binding.includeJobProgress.pbLearn,
                 binding.includeJobProgress.ivLearn,
                 learnEnabled,
-                job.getLearningCompletePercentage(),
+                job.getLearningPercentComplete(true),
                 ContextCompat.getColor(requireContext(), R.color.violet_blue),
                 R.drawable.ic_connect_learning,
                 R.drawable.ic_disabled_learn
@@ -147,7 +171,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
             progressBar.setProgressColor(color);
             icon.setImageResource(enabledIcon);
 
-            int padding = dpToPx(6,requireContext());
+            int padding = dpToPx(6, requireContext());
             icon.setPadding(padding, padding, padding, padding);
 
             setIconSize(icon, 32);
@@ -170,20 +194,27 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         icon.setLayoutParams(params);
     }
 
-
     private String buildPaymentText(ConnectJobRecord job) {
         StringBuilder paymentTextBuilder = new StringBuilder();
 
         if (job.isMultiPayment()) {
             paymentTextBuilder.append(getString(R.string.connect_delivery_earn_multi));
             for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-                paymentTextBuilder.append(String.format("\n• %s: %s", unit.getName(),
-                        job.getMoneyString(unit.getAmount())));
+                paymentTextBuilder.append(
+                        String.format(
+                                "\n• %s: %s",
+                                unit.getName(),
+                                job.getMoneyString(unit.getAmount())
+                        )
+                );
             }
         } else if (!job.getPaymentUnits().isEmpty()) {
             String moneyValue = job.getMoneyString(job.getPaymentUnits().get(0).getAmount());
-            paymentTextBuilder.append(getString(R.string.connect_job_info_visit_charge, moneyValue));
+            paymentTextBuilder.append(
+                    getString(R.string.connect_job_info_visit_charge, moneyValue)
+            );
         }
+
         return paymentTextBuilder.toString();
     }
 }

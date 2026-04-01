@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.62">
+          android:versionName="2.63">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -37,6 +37,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -338,6 +339,12 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Service that maintains an encryption key in memory to securely submit data to the server" />
+        </service>
+        <service
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            android:name="org.commcare.services.NetworkNotificationService">
         </service>
         <service
             android:enabled="true"

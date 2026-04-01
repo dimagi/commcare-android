@@ -51,7 +51,6 @@ import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
 import org.commcare.location.LocationRequestFailureHandler;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.Permissions;
@@ -169,10 +168,13 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void initializeUi() {
-        binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode(getContext()));
+        if (binding.countryCode.getText().toString().isEmpty()) {
+            binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode());
+        }
         binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupKeyboardScrollListener(binding.scrollView);
         setupListeners();
+        setUpEnterKeyAction(binding.connectPrimaryPhoneInput);
         updateContinueButtonState();
     }
 
@@ -231,6 +233,15 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         );
     }
 
+    @Override
+    protected void keyboardEnterPressed() {
+        if (allowedToContinue()) {
+            onContinueClicked();
+        } else {
+            KeyboardHelper.hideVirtualKeyboard(requireActivity());
+        }
+    }
+
     private TextWatcher createPhoneNumberWatcher() {
         return new TextWatcher() {
             @Override
@@ -249,6 +260,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void updateContinueButtonState() {
+        enableContinueButton(allowedToContinue());
+    }
+
+    private boolean allowedToContinue() {
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
@@ -256,9 +271,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
         boolean isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone);
         boolean isConsentChecked = binding.connectConsentCheck.isChecked();
-
-        enableContinueButton(isValidPhone && isConsentChecked && location != null);
+        return isValidPhone && isConsentChecked && location != null;
     }
+
 
     private void displayPhoneNumber(String fullPhoneNumber) {
 
@@ -296,11 +311,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
         body.put("cc_device_id", ReportingUtils.getDeviceId());
-
-        String model = DeviceIdentifier.getDeviceModel();
-        if(model != null) {
-            body.put("device", model);
-        }
 
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {

@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
 import static org.commcare.views.widgets.AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY;
 
 /**
@@ -66,7 +67,6 @@ public class RecordingFragment extends DialogFragment {
     private static final String CLEAR_TEXT_KEY = "recording.clear";
 
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
-    public static final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
