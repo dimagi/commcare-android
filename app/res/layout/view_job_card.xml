@@ -69,7 +69,6 @@
             android:text="@string/connect_job_info_view_resume"
             android:layout_marginTop="16dp"
             app:textAllCaps="false"
-            android:paddingHorizontal="8dp"
             android:gravity="center"
             android:elevation="0dp"
             app:backgroundTint="@null"

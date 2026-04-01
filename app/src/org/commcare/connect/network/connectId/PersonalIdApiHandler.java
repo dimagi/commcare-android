@@ -79,14 +79,14 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             }
 
             @Override
-            public void processFailure(int responseCode, String url, String errorBody) {
+            public void processFailure(int responseCode, String url, String errorBody, Throwable t) {
                 Pair<String, String> errorCodes = getErrorCodes(errorBody);
                 if (!handleErrorCodeIfPresent(
                         errorCodes.getFirst(),
                         errorCodes.getSecond(),
                         sessionData
                 )) {
-                    super.processFailure(responseCode, url, errorBody);
+                    super.processFailure(responseCode, url, errorBody, t);
                 }
             }
         };
