@@ -78,4 +78,13 @@ class LinkHqWorkerResponseParserTest {
             times(1),
         )
     }
+
+    @Test(expected = NullPointerException::class)
+    fun testParse_nullInputObject_throwsNullPointerException() {
+        // Arrange
+        val inputStream = ByteArrayInputStream(byteArrayOf())
+
+        // Act
+        parser.parse(200, inputStream, null)
+    }
 }

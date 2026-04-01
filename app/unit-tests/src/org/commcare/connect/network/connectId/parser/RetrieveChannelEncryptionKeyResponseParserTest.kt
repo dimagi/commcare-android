@@ -123,4 +123,14 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
         // Act
         parser.parse(200, inputStream, channel)
     }
+
+    @Test(expected = NullPointerException::class)
+    fun testParse_nullInputObject_throwsNullPointerException() {
+        // Arrange
+        val json = """{"key": "abc123"}"""
+        val inputStream = ByteArrayInputStream(json.toByteArray())
+
+        // Act
+        parser.parse(200, inputStream, null)
+    }
 }
