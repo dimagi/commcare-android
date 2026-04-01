@@ -125,14 +125,8 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("recovery_pin", backupCode);
 
-        String model = DeviceIdentifier.getDeviceModel();
-        if (model != null) {
-            params.put("device", model);
-        }
-
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
-
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.confirmBackupCode);
@@ -148,6 +142,12 @@ public class ApiPersonalId {
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
                                           String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
+
+        String model = DeviceIdentifier.getDeviceModel();
+        if (model != null) {
+            body.put("device", model);
+        }
+
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.startConfiguration);
     }
@@ -208,11 +208,6 @@ public class ApiPersonalId {
         params.put("photo", photoAsBase64);
         params.put("name", userName);
         params.put("recovery_pin", backupCode);
-
-        String model = DeviceIdentifier.getDeviceModel();
-        if (model != null) {
-            params.put("device", model);
-        }
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
