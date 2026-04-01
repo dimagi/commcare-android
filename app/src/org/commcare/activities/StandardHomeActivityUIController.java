@@ -148,8 +148,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             @ColorRes int backgroundColorRes;
 
             if (job.deliveryComplete()) {
-                textColorRes = R.color.connect_blue_color;
-                backgroundColorRes = R.color.porcelain_grey;
+                textColorRes = R.color.rich_amber_gold;
+                backgroundColorRes = R.color.pale_buttery_cream;
                 connectMessageWarningIcon.setVisibility(View.VISIBLE);
             } else if (job.readyToTransitionToDelivery() || job.shouldShowRelearnTasksCompletedMessage()) {
                 textColorRes = R.color.connect_green;

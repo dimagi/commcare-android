@@ -1,7 +1,6 @@
 package org.commcare.fragments.connect;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -25,7 +23,6 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
@@ -39,6 +36,7 @@ import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.views.connect.ConnectViewUtils;
 import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +71,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         setupTabViewPager();
-        setupJobCard(job);
+        setupJobCard();
         setupRefreshAndConfirmationActions();
 
         updateLastUpdatedText(job.getLastDeliveryUpdate());
@@ -204,59 +202,20 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         getBinding().connectDeliveryProgressViewPager.setCurrentItem(TAB_PAYMENT, true);
     }
 
-    private void setupJobCard(ConnectJobRecord job) {
+    private void setupJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
+        boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
-        jobCard.acbViewInfo.setOnClickListener(v -> Navigation.findNavController(v)
-                .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment())
-        );
-        jobCard.acbResume.setOnClickListener(v -> navigateToDeliverAppHome());
-        jobCard.tvJobTitle.setText(job.getTitle());
-
-        @StringRes int dateMessageStringRes;
-        if (job.deliveryComplete()) {
-            dateMessageStringRes = R.string.connect_job_ended;
-        } else {
-            dateMessageStringRes = R.string.connect_learn_complete_by;
-        }
-
-        jobCard.connectJobEndDateSubHeading.setText(
-                getString(
-                        dateMessageStringRes,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
+        ConnectViewUtils.setupCardViewForJob(
+                jobCard,
+                job,
+                appInstalled,
+                v -> navigateToDeliverAppHome(),
+                v -> Navigation.findNavController(v).navigate(
+                        ConnectDeliveryProgressFragmentDirections
+                                .actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()
                 )
         );
-
-        boolean appInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
-        Drawable downloadIcon = appInstalled
-                ? null
-                : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
-        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                downloadIcon, null, null, null
-        );
-        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
-        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
-        jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.tvViewMore.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
-        jobCard.acbResume.setVisibility(View.VISIBLE);
-
-        String workingHours = job.getWorkingHours();
-        boolean hasHours = workingHours != null;
-        if (job.isRelearnTaskPending()) {
-            jobCard.cvRelearnTasksPending.setVisibility(View.VISIBLE);
-            jobCard.tvJobTime.setVisibility(View.INVISIBLE);
-            jobCard.tvDailyVisitTitle.setVisibility(View.INVISIBLE);
-        } else if (hasHours) {
-            jobCard.tvJobTime.setText(workingHours);
-            jobCard.cvRelearnTasksPending.setVisibility(View.GONE);
-            jobCard.tvJobTime.setVisibility(View.VISIBLE);
-            jobCard.tvDailyVisitTitle.setVisibility(View.VISIBLE);
-        } else {
-            jobCard.cvRelearnTasksPending.setVisibility(View.GONE);
-            jobCard.tvJobTime.setVisibility(View.GONE);
-            jobCard.tvDailyVisitTitle.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -275,8 +234,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             @ColorRes int backgroundColorRes;
 
             if (job.deliveryComplete()) {
-                textColorRes = R.color.connect_blue_color;
-                backgroundColorRes = R.color.porcelain_grey;
+                textColorRes = R.color.rich_amber_gold;
+                backgroundColorRes = R.color.pale_buttery_cream;
                 getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
             } else if (job.shouldShowRelearnTasksCompletedMessage()) {
                 textColorRes = R.color.connect_green;
