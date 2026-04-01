@@ -3,6 +3,7 @@ package org.commcare.fragments.base
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -158,21 +159,23 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     private fun registerNetworkCallback() {
-        val cm =
-            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-                ?: return
-        connectivityManager = cm
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val cm =
+                requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                    ?: return
+            connectivityManager = cm
 
-        val callback =
-            object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) {
-                    view?.post {
-                        topBarErrorViewController?.hide()
+            val callback =
+                object : ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: Network) {
+                        view?.post {
+                            topBarErrorViewController?.hide()
+                        }
                     }
                 }
-            }
-        networkCallback = callback
-        cm.registerDefaultNetworkCallback(callback)
+            networkCallback = callback
+            cm.registerDefaultNetworkCallback(callback)
+        }
     }
 
     private fun unregisterNetworkCallback() {
