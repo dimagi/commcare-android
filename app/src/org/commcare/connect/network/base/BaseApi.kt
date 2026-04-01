@@ -42,7 +42,7 @@ class BaseApi {
                         } catch (e: IOException) {
                             Logger.exception("Error reading response stream", e);
                             // Handle error when reading the stream
-                            callback.processFailure(response.code(), endPoint, "")
+                            callback.processFailure(response.code(), endPoint, "",e)
                         }
                     } else {
                         val stream = if (response.errorBody() != null) response.errorBody()!!
@@ -50,7 +50,7 @@ class BaseApi {
                         try {
                             val errorBody = NetworkUtils.getErrorBody(stream)
                             logFailedResponse(response.message(), response.code(), endPoint, errorBody)
-                            callback.processFailure(response.code(), endPoint, errorBody)
+                            callback.processFailure(response.code(), endPoint, errorBody, Throwable("Unknown failure with ${response.code()} for $endPoint"))
                         } finally {
                             StreamsUtil.closeStream(stream)
                         }
@@ -61,7 +61,7 @@ class BaseApi {
                     dismissProgressDialog(context)
                     // Handle network errors, etc.
                     logNetworkError(t, endPoint)
-                    callback.processNetworkFailure()
+                    callback.processNetworkFailure(t)
                 }
             })
         }

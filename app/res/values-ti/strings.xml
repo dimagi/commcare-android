@@ -399,6 +399,7 @@
     <string name="personalid_location_permission_error">PersonalID መሳርሒኻ ናይ ኣገልግሎት ኣቀማምጣ ከም ዝተኸፍተ ገይሩ ክህልዎ የገድድ እዩ። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ setting ናይ ተሌፎንካ ኣክቲቭ ግበሮ።</string>
     <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
+    <string name="personalid_continue_label">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
     <string name="connect_messaging_channel_list_title">ቻነላት</string>
     <string name="connect_messaging_message_notification_title">🔔 ሓድሽ መልእኽቲ 🔔</string>
@@ -519,6 +520,8 @@
     <string name="connect_job_preview_start">ጀምር</string>
     <string name="connect_job_delivery_preview_subtitle">ናይ ምምሃር ምግምጋም ምስ ዛዘምካ፡ ናብ ምብጸሕ ክትሰጋገር ኢካ</string>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
+    <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
+    <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
     <string name="connect_last_synced">ናይ መወዳእታ ምስንኻል: %s</string>
     <string name="connect_offline">ኦፍላይን</string>
     <string name="connect_never">ፈጺሙ</string>

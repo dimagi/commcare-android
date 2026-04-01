@@ -385,6 +385,7 @@ License.
     <string name="connect_in_progress">प्रगति में</string>
     <string name="connect_new_opportunities">नए अवसर</string>
     <string name="connect_completed">पूरा हुआ</string>
+    <string name="personalid_continue_label">जारी रखें</string>
     <string name="fcm_sync_failed_body_text">अधिक जानकारी के लिए यहां क्लिक करें</string>
     <string name="connect_verify_phone_resend_code">कोड पुनः भेजें</string>
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>
@@ -527,6 +528,8 @@ License.
     <string name="connect_job_preview_start">शुरू करें</string>
     <string name="connect_job_delivery_preview_subtitle">एक बार जब आप शिक्षण मूल्यांकन पूरा कर लेते हैं, तो आप वितरण चरण में जाएंगे</string>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
+    <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
+    <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
     <string name="connect_last_synced">अंतिम सिंक: %s</string>
     <string name="connect_offline">ऑफ़लाइन</string>
     <string name="connect_never">कभी नहीं</string>
