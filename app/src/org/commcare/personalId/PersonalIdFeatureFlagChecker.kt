@@ -26,7 +26,7 @@ class PersonalIdFeatureFlagChecker {
                 FeatureFlag.WORK_HISTORY -> true
                 FeatureFlag.WORK_HISTORY_PENDING_TAB -> false
                 FeatureFlag.NOTIFICATIONS -> true
-                FeatureFlag.DATA_REFRESH_INDICATOR -> true
+                FeatureFlag.DATA_REFRESH_INDICATOR -> false
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
     }

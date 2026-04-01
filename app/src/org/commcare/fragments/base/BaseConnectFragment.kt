@@ -118,6 +118,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         topBarErrorViewController?.cleanup()
         topBarErrorViewController = null
         _binding = null
+        // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
         loadingBinding.root.visibility = View.GONE
     }
 
