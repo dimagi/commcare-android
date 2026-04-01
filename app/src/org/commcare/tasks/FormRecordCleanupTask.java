@@ -14,6 +14,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
@@ -33,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -43,6 +45,9 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.models.encryption.EncryptionIO.getDecryptCipher;
+import static org.commcare.models.encryption.EncryptionIO.getKeystoreDecryptCipher;
 
 /**
  * @author ctsims
@@ -251,8 +256,12 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         InputStream is = null;
         FileInputStream fis = new FileInputStream(path);
         try {
-            Cipher decrypter = Cipher.getInstance("AES");
-            decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
+            Cipher decrypter;
+            if (r.usesKeystoreEncryption()) {
+                decrypter = getKeystoreDecryptCipher(CommCareKeyManager.retrieveSessionKeyAndTransformation(), fis);
+            } else {
+                decrypter = getDecryptCipher(new SecretKeySpec(r.getAesKey(), "AES"));
+            }
             is = new CipherInputStream(fis, decrypter);
 
             // Construct parser for this form's internal data.
@@ -269,6 +278,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         } catch (InvalidKeyException e) {
             e.printStackTrace();
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new RuntimeException("Invalid algorithm parameter while attempting to decode form submission for processing");
         } finally {
             fis.close();
             if (is != null) {

@@ -117,6 +117,36 @@ public class EncryptionIO {
         }
     }
 
+    public static Cipher getKeystoreDecryptCipher(Key key, String transformation, InputStream is)
+            throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+        int ivLength = is.read();
+        byte[]  iv = new byte[ivLength];
+        is.read(iv);
+
+        Cipher cipher = Cipher.getInstance(transformation);
+        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+        return cipher;
+    }
+
+    public static Cipher getKeystoreDecryptCipher(
+            EncryptionKeyAndTransform encryptionKeyAndTransform,
+            InputStream is
+    ) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IOException, NoSuchAlgorithmException,
+            InvalidKeyException {
+        return getKeystoreDecryptCipher(
+                encryptionKeyAndTransform.getKey(),
+                encryptionKeyAndTransform.getTransformation(),
+                is
+        );
+    }
+
+    public static Cipher getDecryptCipher(Key key)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return cipher;
+    }
+
     public static InputStream getFileInputStream(String filepath,
                                                  Key symmetricKey,
                                                  String transformation,
@@ -127,17 +157,11 @@ public class EncryptionIO {
         try {
             is = new FileInputStream(file);
             if (symmetricKey != null) {
-                Cipher cipher = Cipher.getInstance(Objects.requireNonNullElse(transformation, "AES"));
-                byte[] iv = null;
+                Cipher cipher;
                 if (isKeyFromAndroidKeyStore) {
-                    int ivLength = is.read();
-                    iv = new byte[ivLength];
-                    is.read(iv);
-                }
-                if (iv == null) {
-                    cipher.init(Cipher.DECRYPT_MODE, symmetricKey);
+                    cipher = getKeystoreDecryptCipher(symmetricKey, transformation, is);
                 } else {
-                    cipher.init(Cipher.DECRYPT_MODE, symmetricKey, new IvParameterSpec(iv));
+                    cipher = getDecryptCipher(symmetricKey);
                 }
                 is = new BufferedInputStream(new CipherInputStream(is, cipher));
             }
