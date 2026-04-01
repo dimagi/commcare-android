@@ -12,7 +12,7 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
-- Added relearn task notification UI to Connect opportunity cards
+- [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
 
 #### Important Bug Fixes
 
