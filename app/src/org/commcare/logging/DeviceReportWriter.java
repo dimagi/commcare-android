@@ -2,9 +2,13 @@ package org.commcare.logging;
 
 import android.os.Build;
 
+import com.google.common.io.CountingOutputStream;
+import com.google.firebase.perf.metrics.Trace;
+
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -17,6 +21,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static org.commcare.utils.FileUtil.XML_EXTENSION;
+
 /**
  * This class generates and serializes a device report to either a byte array
  * or to a file as designated by a log record
@@ -27,18 +33,34 @@ public class DeviceReportWriter {
     public static final String XMLNS = "http://code.javarosa.org/devicereport";
 
     private final XmlSerializer serializer;
-    private final OutputStream os;
+    private final CountingOutputStream countingOutputStream;
     private final ArrayList<DeviceReportElement> elements = new ArrayList<>();
+    private final boolean encryptionWithKeystore;
+    private final boolean skipPerfTracing;
 
     public DeviceReportWriter(DeviceReportRecord record) throws IOException {
-        this(record.openOutputStream());
+        this(record.openOutputStream(), record.shouldUseKeystoreKey(), false);
     }
 
-    public DeviceReportWriter(OutputStream outputStream) throws IOException {
-        os = outputStream;
+    /**
+     * Constructor for in-memory report generation where the output stream is a ByteArrayOutputStream and no file
+     * encryption occurs. When skipTracing is true, file encryption performance tracing is omitted
+     */
+    public DeviceReportWriter(OutputStream outputStream, boolean skipPerfTracing) throws IOException {
+        this(outputStream, false, skipPerfTracing);
+    }
+
+    private DeviceReportWriter(
+            OutputStream outputStream,
+            boolean keystoreEncrypted,
+            boolean skipPerfTracing
+    ) throws IOException {
+        countingOutputStream = new CountingOutputStream(outputStream);
+        encryptionWithKeystore = keystoreEncrypted;
+        this.skipPerfTracing = skipPerfTracing;
 
         serializer = new KXmlSerializer();
-        serializer.setOutput(os, "UTF-8");
+        serializer.setOutput(countingOutputStream, "UTF-8");
         serializer.setPrefix("", XMLNS);
 
         serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
@@ -50,6 +72,10 @@ public class DeviceReportWriter {
     }
 
     public void write() throws IllegalArgumentException, IllegalStateException, IOException {
+        Trace trace = null;
+        if (!skipPerfTracing) {
+            trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
+        }
         try {
             serializer.startDocument("UTF-8", null);
             serializer.startTag(XMLNS, "device_report");
@@ -80,7 +106,13 @@ public class DeviceReportWriter {
             serializer.endDocument();
         } finally {
             try {
-                os.close();
+                CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(
+                        trace,
+                        countingOutputStream.getCount(),
+                        XML_EXTENSION,
+                        encryptionWithKeystore
+                );
+                countingOutputStream.close();
             } catch (IOException e) {
             }
         }
