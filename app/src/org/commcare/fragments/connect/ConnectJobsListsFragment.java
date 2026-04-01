@@ -28,7 +28,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
-import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
@@ -113,8 +112,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
                 if (isAdded()) {
                     setJobListData(data.getValidJobs());
-                    CommCarePreferenceManagerFactory.getCommCarePreferenceManager()
-                            .putLong(ConnectConstants.LAST_OPPORTUNITIES_SYNC_TIME, new Date().getTime());
                 }
             }
         }.getConnectOpportunities(requireContext(), user);
@@ -437,9 +434,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     @Override
     @Nullable
     public Date getLastSyncTime() {
-        long timestamp = CommCarePreferenceManagerFactory.getCommCarePreferenceManager()
-                .getLong(ConnectConstants.LAST_OPPORTUNITIES_SYNC_TIME, 0);
-        return timestamp > 0 ? new Date(timestamp) : null;
+        return null;
     }
 
     @Override
