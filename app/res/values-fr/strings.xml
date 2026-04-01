@@ -530,4 +530,7 @@ License.
     <string name="connect_job_preview_start">Démarrer</string>
     <string name="connect_job_delivery_preview_subtitle">Une fois que vous avez terminé l\'évaluation d\'apprentissage, vous passerez à la livraison</string>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
+    <string name="connect_last_synced">Dernière synchronisation : %s</string>
+    <string name="connect_offline">Hors ligne</string>
+    <string name="connect_never">Jamais</string>
 </resources>

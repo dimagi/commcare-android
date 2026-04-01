@@ -179,4 +179,7 @@
     <string name="connect_job_preview_start">Start</string>
     <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
+    <string name="connect_last_synced">Sist synkronisert: %s</string>
+    <string name="connect_offline">Frakoblet</string>
+    <string name="connect_never">Aldri</string>
 </resources>

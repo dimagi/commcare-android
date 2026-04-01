@@ -519,4 +519,7 @@
     <string name="connect_job_preview_start">ጀምር</string>
     <string name="connect_job_delivery_preview_subtitle">ናይ ምምሃር ምግምጋም ምስ ዛዘምካ፡ ናብ ምብጸሕ ክትሰጋገር ኢካ</string>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
+    <string name="connect_last_synced">ናይ መወዳእታ ምስንኻል: %s</string>
+    <string name="connect_offline">ኦፍላይን</string>
+    <string name="connect_never">ፈጺሙ</string>
 </resources>
