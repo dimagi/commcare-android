@@ -1,12 +1,10 @@
 package org.commcare.navdrawer
 
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -25,9 +23,9 @@ import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureE
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.GlobalErrorUtil
+import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
-import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
 
 class BaseDrawerController(
@@ -73,7 +71,7 @@ class BaseDrawerController(
             ) {
                 override fun onDrawerOpened(drawerView: View) {
                     super.onDrawerOpened(drawerView)
-                    ViewUtil.hideVirtualKeyboard(activity)
+                    hideVirtualKeyboard(activity)
                     FirebaseAnalyticsUtil.reportNavDrawerOpen()
                 }
 
@@ -235,16 +233,6 @@ class BaseDrawerController(
                 )
             }
 
-//            if (hasConnectAccess) {
-//                items.add(
-//                    NavDrawerItem.ParentItem(
-//                        activity.getString(R.string.nav_drawer_payments),
-//                        R.drawable.nav_drawer_payments_icon,
-//                        NavItemType.PAYMENTS,
-//                    )
-//                )
-//            }
-
             navDrawerAdapter.refreshList(items)
         } else {
             setSignedInState(false)
@@ -290,8 +278,7 @@ class BaseDrawerController(
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotifications(): Boolean =
-        PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -301,9 +288,7 @@ class BaseDrawerController(
         binding.drawerLayout.openDrawer(GravityCompat.START)
     }
 
-    fun isShowingError(): Boolean {
-        return showingError
-    }
+    fun isShowingError(): Boolean = showingError
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
 }

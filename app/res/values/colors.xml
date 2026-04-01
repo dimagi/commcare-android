@@ -3,7 +3,6 @@
 
     <color name="transparent">#00000000</color>
     <color name="black">#000000</color>
-    <color name="grey_darker">#444444</color>
     <color name="grey_dark">#999999</color>
     <color name="grey">#A3A3A3</color>
     <color name="grey_light">#D3D3D3</color>
@@ -14,58 +13,29 @@
     <color name="translucent_grey_light">#A0D3D3D3</color>
     <color name="blue">#3867AD</color>
     <color name="palatinate_blue">#3843D0</color>
-    <color name="blue_grey">#6884AD</color>
-    <color name="blue_light">#7FA1D4</color>
     <color name="translucent_blue">#903867AD</color>
     <color name="translucent_blue_grey">#806884AD</color>
-    <color name="yellow">#FFE88F</color>
-    <color name="yellow_green">#DDECAC</color>
-    <color name="yellow_soft">#FFFF99</color>
     <color name="green">#87D13E</color>
     <color name="red">#FF0000</color>
-    <color name="red_soft">#EE5555</color>
-    <color name="bright_green_grad_start">#2C9746</color>
-    <color name="bright_green_grad_end">#247A38</color>
-    <color name="dark_green_start">#228038</color>
-    <color name="dark_green_end">#1C662D</color>
 
     <!-- ODK.Collect colors start here -->
 
-    <color name="screen_background_black">#ff000000</color>
     <color name="translucent_background">#e0000000</color>
     <color name="transparent_background">#00000000</color>
-
-    <color name="solid_red">#f00</color>
     <color name="solid_blue">#0000ff</color>
     <color name="solid_green">#ff2C9746</color>
-    <color name="solid_yellow">#ffffff00</color>
     <color name="border_grey">#20959699</color>
-    <color name="blue_grad_end">#903867AD</color>
-    <color name="blue_grad_start">#806884AD</color>
     <color name="light_blue">#CCFFFF</color>
     <color name="dark_blue">#000080</color>
-    <color name="light_red">#F5A6A6</color>
-    <color name="dark_red">#20959699</color>
     <color name="lightest_grey">#eeeeee</color>
     <color name="dark_grey">#A3A3A3</color>
     <color name="darker_grey">#999999</color>
     <color name="darkest_grey">#666666</color>
-    <color name="bright_blue_grad_start">#266cc9</color>
-    <color name="bright_blue_grad_end">#1e559e</color>
-    <color name="grey_grad_start">#A0A6A8</color>
-    <color name="grey_grad_end">#868A8C</color>
-    <color name="light_grey_grad_start">#dddddd</color>
-    <color name="light_grey_grad_end">#bbbbbb</color>
     <color name="dark_green_grad_start">#77A240</color>
     <color name="dark_green_grad_end">#495525</color>
-    <color name="pale_blue">#E2ECF0</color>
     <color name="very_light_blue">#AAE3ECFF</color>
     <color name="solid_dark_red">#BF3D3D</color>
-    <color name="solid_dark_orange">#F57E20</color>
     <color name="red_incomplete">#E44434</color>
-
-    <color name="dark_brown">#5C4033</color>
-
     <color name="transclucent_nearly_solid_grey">#AA888888</color>
 
     <!-- COMMCARE OFFICIAL COLOR PALETTE -->
@@ -102,17 +72,13 @@
 
     <!-- Dark Cool Accent -->
     <color name="cc_dark_cool_accent_color">#9060C8</color>
-    <color name="cc_dark_cool_accent_bg">#D6C5EA</color>
-    <color name="cc_dark_cool_accent_text">#5D3F82</color>
 
     <!-- Light Cool Accent -->
-    <color name="cc_light_cool_accent_color">#00BDC5</color>
     <color name="cc_light_cool_accent_bg">#CCF3F4</color>
     <color name="cc_light_cool_accent_text">#00799A</color>
 
     <!-- Dark Warm Accent -->
     <color name="cc_dark_warm_accent_color">#FEAF31</color>
-    <color name="cc_dark_warm_accent_bg">#FFE3C2</color>
     <color name="cc_dark_warm_accent_text">#994f00</color>
 
     <!-- Light Warm Accent -->
@@ -126,56 +92,42 @@
     <!-- Drawer pulldown odd row color -->
     <color name="drawer_pulldown_odd_row_color">#D0E8FF</color>
 
-    <!-- Dialog button color -->
-    <color name="dialog_button_color">#2196F3</color>
-
     <!-- Error Colors -->
     <color name="cc_error_bg_color">#EE5555</color>
     <color name="cc_error_text_color">#FFFFFF</color>
     <color name="map_layer_button_color">#D3D3D3</color>
 
-    <!--    Map  Buttons-->
+    <!-- Map Buttons -->
     <color name="gray_400">#BDBDBD</color>
-    <color name="green_500">#4CAF50</color>
-    <color name="green_700">#388E3C</color>
-    <color name="green_900">#1B5E20</color>
     <color name="orange_500">#FF9800</color>
-    <color name="orange_700">#F57C00</color>
-    <color name="orange_900">#E65100</color>
-    <color name="red_500">#F44336</color>
     <color name="red_700">#D32F2F</color>
-    <color name="red_900">#B71C1C</color>
 
     <!-- Button colors -->
     <color name="button_disabled">@color/cc_neutral_bg</color>
     <color name="button_primary_color">@color/cc_brand_color</color>
 
-    <!-- Square button colours -->
+    <!-- Square button colors -->
     <color name="start_home_button">#6AB849</color>
     <color name="start_save_button">#1B998B</color>
     <color name="start_sync_button">@color/cc_brand_color</color>
     <color name="start_sync_dark_button">#3b4fb6</color>
     <color name="start_logout_button">#373534</color>
-    <color name="url_button_color">#8EA1FF</color>
     <color name="square_button_icon_color">#FFFFFF</color>
 
     <!-- Progress bar colors -->
     <color name="progress_bar_bg">#66000000</color>
 
-    <!-- New connect colors-->
+    <!-- New Connect colors -->
     <color name="connect_message_receiver_bg">#5C6FD0</color>
     <color name="connect_message_sender_bg">#F1F5F9</color>
     <color name="connect_message_sender_text_color">#334155</color>
-    <color name="cconnect_message_unread_badge_color">#ff0000</color>
     <color name="connect_message_large_icon_color">#16006D</color>
     <color name="connect_payment_revert">#EA6944</color>
     <color name="connect_payment_received_check">#94A3B8</color>
     <color name="connect_border_color">#1A3A42C7</color>
-    <color name="connect_status_bar_color">#5c70d1</color>
     <color name="connect_dark_blue_color">#3942C7</color>
     <color name="connect_darker_blue_color">#353BA8</color>
     <color name="connect_blue_color">#3A42C7</color>
-    <color name="connect_blue_color_50">#803A42C7</color>
     <color name="connect_blue_color_10">#1A3A42C7</color>
     <color name="connect_blackist_dark_blue_color">#141859</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>
@@ -183,11 +135,9 @@
     <color name="connect_light_grey">#E5E7EB</color>
     <color name="connect_close">#D1D5DB</color>
     <color name="connect_lighter_grey">#E2E8F0</color>
-    <color name="connect_middle_grey">#94A3B8</color>
     <color name="connect_subtext">#080B3F</color>
     <color name="connect_secondary_text">#6B7280</color>
     <color name="connect_warning_color">#EA6944</color>
-    <color name="connect_subtext_80">#50080B3F</color>
     <color name="connect_text_color">#374151</color>
     <color name="connect_subtext_color">#9CA3AF</color>
     <color name="connect_grey">#9A9A9A</color>
@@ -198,9 +148,6 @@
     <color name="connect_light_green">#E6F5E5</color>
     <color name="connect_red">#EA6944</color>
     <color name="connect_light_grey_transparent">#1AD9D9D9</color>
-    <color name="connect_orange_yellow">#FFEFD5</color>
-    <color name="connect_tealish_blue_color">#E7EAF8</color>
-    <color name="connect_dark_grey">#9CA3AF</color>
     <color name="connect_un_fill_progress">#ebecfa</color>
     <color name="connect_delivery_rejected_icon">#EA6944</color>
     <color name="connect_thumb_up">#16A085</color>
@@ -214,7 +161,6 @@
     <color name="connect_yellow_dot">#EABA13</color>
     <color name="connect_message_read">#3A42C7</color>
     <color name="connect_delivery_approved">#16A085</color>
-    <color name="personal_id_work_history_earned">#FCEFCC</color>
     <color name="personal_id_work_history_earned_activity">#90A1B9</color>
     <color name="personal_id_work_history_earned_grey">#4DFFFFFF</color>
     <color name="personal_id_work_history_grey_pending">#F3F4F6</color>
@@ -244,4 +190,8 @@
     <color name="pale_violet_blue">#C8CAEF</color>
     <color name="light_indigo">#757BD8</color>
     <color name="moon_gray">#909090</color>
+    <color name="royal_blue">#1C26CB</color>
+    <color name="shimmer_grey_0">#00E6E7EB</color>
+    <color name="shimmer_grey_20">#33E6E7EB</color>
+    <color name="shimmer_grey_60">#99E6E7EB</color>
 </resources>

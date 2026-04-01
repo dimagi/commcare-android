@@ -1,6 +1,9 @@
 package org.commcare.fragments.personalId
 
+import android.view.KeyEvent
 import android.view.ViewTreeObserver
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.ScrollView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -55,15 +58,16 @@ abstract class BasePersonalIdFragment : Fragment() {
     private var lastVisibleHeight = 0
 
     protected fun setupKeyboardScrollListener(scrollView: ScrollView) {
-        globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
-            val visibleHeight = scrollView.height
-            if (lastVisibleHeight > 0 && lastVisibleHeight / visibleHeight.toDouble() > 1.1) {
-                //Scroll to end when window shrinks by more than 10%
-                val contentHeight = scrollView.getChildAt(0)?.bottom ?: 0
-                scrollView.smoothScrollTo(0, contentHeight)
+        globalLayoutListener =
+            ViewTreeObserver.OnGlobalLayoutListener {
+                val visibleHeight = scrollView.height
+                if (lastVisibleHeight > 0 && lastVisibleHeight / visibleHeight.toDouble() > 1.1) {
+                    // Scroll to end when window shrinks by more than 10%
+                    val contentHeight = scrollView.getChildAt(0)?.bottom ?: 0
+                    scrollView.smoothScrollTo(0, contentHeight)
+                }
+                lastVisibleHeight = visibleHeight
             }
-            lastVisibleHeight = visibleHeight
-        }
         scrollView.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
     }
 
@@ -77,4 +81,22 @@ abstract class BasePersonalIdFragment : Fragment() {
         lastVisibleHeight = 0
     }
 
+    protected fun setUpEnterKeyAction(editText: EditText) {
+        editText.setOnEditorActionListener { _, actionId, event ->
+            val isEnterPressed =
+                actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT ||
+                    (
+                        event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action ==
+                            KeyEvent.ACTION_DOWN
+                    )
+            if (isEnterPressed) {
+                keyboardEnterPressed()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    protected open fun keyboardEnterPressed() = Unit
 }

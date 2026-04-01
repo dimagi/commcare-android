@@ -94,7 +94,6 @@
                             android:gravity="center"
                             android:hint="@string/connect_phone_country_code_default"
                             android:inputType="number"
-                            android:text="@string/connect_phone_country_code_default"
                             android:textColorHint="@color/connect_grey" />
 
                         <View
