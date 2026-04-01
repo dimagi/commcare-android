@@ -153,7 +153,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
             val relativeTime = ConnectDateUtils.formatNotificationTime(requireContext(), lastSync)
             getString(R.string.connect_last_synced, relativeTime)
         } else {
-            getString(R.string.connect_last_synced, getString(R.string.connect_offline))
+            getString(R.string.connect_last_synced, getString(R.string.connect_never))
         }
     }
 
@@ -168,12 +168,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 override fun onAvailable(network: Network) {
                     view?.post {
                         topBarErrorViewController?.hide()
-                    }
-                }
-
-                override fun onLost(network: Network) {
-                    view?.post {
-                        showOfflineIndicator()
                     }
                 }
             }
