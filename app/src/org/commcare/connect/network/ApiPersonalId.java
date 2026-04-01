@@ -11,7 +11,6 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
-import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -142,12 +141,6 @@ public class ApiPersonalId {
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
                                           String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
-
-        String model = DeviceIdentifier.getDeviceModel();
-        if (model != null) {
-            body.put("device", model);
-        }
-
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.startConfiguration);
     }
