@@ -4,7 +4,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.MockAndroidKeyStoreProvider;
+import org.commcare.utils.MockEncryptionKeyProvider;
 import org.javarosa.core.model.instance.FormInstance;
 import org.junit.After;
 import org.junit.Assert;
@@ -27,6 +29,8 @@ public class HybridFileBackedSqlStorageKeystoreTest {
     @Before
     public void setup() {
         MockAndroidKeyStoreProvider.registerProvider();
+        MockEncryptionKeyProvider provider = new MockEncryptionKeyProvider(CommCareApplication.instance());
+        CommCareKeyManager.setTestKeyAndTransformation(provider.getKeyForEncryption());
         UnencryptedHybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
         HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
 
@@ -36,6 +40,7 @@ public class HybridFileBackedSqlStorageKeystoreTest {
     @After
     public void tearDown() {
         MockAndroidKeyStoreProvider.deregisterProvider();
+        CommCareKeyManager.clearTestKeyAndTransformation();
     }
 
     @Test
