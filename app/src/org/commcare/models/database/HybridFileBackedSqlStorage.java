@@ -331,6 +331,10 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         return key;
     }
 
+    protected static boolean usesKeystoreEncryption(byte[] aesKeyBytes) {
+        return aesKeyBytes == null || aesKeyBytes.length == 0;
+    }
+
     private void writeStreamToFile(ByteArrayOutputStream bos, String filename,
                                    byte[] key) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
@@ -358,8 +362,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     protected DataOutputStream getOutputFileStream(String filename,
                                                    byte[] aesKeyBytes) throws IOException {
-        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-        return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+        if (usesKeystoreEncryption(aesKeyBytes)) {
+            return new DataOutputStream(EncryptionIO.createFileOutputStreamWithKeystore(
+                    filename, CommCareKeyManager.retrieveSessionKeyAndTransformation()));
+        } else {
+            SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+            return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+        }
     }
 
     @Override
