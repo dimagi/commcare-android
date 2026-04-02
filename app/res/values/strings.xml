@@ -97,6 +97,8 @@
     <string name="managed_configuration_profile_url_description">The URL to your CommCare Application from the CommCareHQ publish page</string>
     <string name="about_cc" cc:translatable="true">About CommCare</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
+    <string name="install_barcode_top">Welcome to CommCare!</string>
+    <string name="install_barcode_bottom">Please choose an installation method below</string>
 
     <string name="accuracy" cc:translatable="true">Accuracy</string>
     <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>
@@ -220,11 +222,8 @@
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated" cc:translatable="true">This app is outdated. Please update the app on the Google Play Store in order to proceed.</string>
-    <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue. Please try again.</string>
-    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
     <string name="personalid_token_unavailable">There was a network issue. Please try again.</string>
     <string name="personalid_token_request_rejected">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
-    <string name="personalid_login_from_different_device">Your PersonalID account can only be configured on one device at a time and has been configured on another device. Please continue on the new device or configure your account on this device again to continue using PersonalID here.</string>
     <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
     <string name="recovery_network_server_error">There was an error processing your request.</string>
     <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
@@ -326,8 +325,7 @@
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
 
 
-    <string name="connect_recovery_button_phone">Continue</string>
-
+    <string name="personalid_continue_label">Continue</string>
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>
@@ -356,13 +354,13 @@
     <string name="connect_verify_agree">Agree &amp; Continue</string>
 
     <string name="connect_verify_phone_title">Verification Code</string>
-    <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
+    <string name="connect_verify_phone_label">We attempted to send an SMS to your phone number ending with %s.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_resend_code">Resend Code</string>
     <string name="connect_verify_skip_phone_number">I see you\'re a demo user, so we\'ll skip the OTP</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
-    <string name="connect_verify_phone_change">Change</string>
+    <string name="connect_verify_phone_change">Change Number</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>
 
@@ -402,14 +400,11 @@
     <string name="connect_no_jobs">You haven’t been invited to any opportunities yet. Once you’ve been invited to an opportunity, it will appear in this list.</string>
     <string name="connect_corrupt_job_text">Failed to load this opportunity</string>
 
-    <string name="connect_job_intro_title">Opportunity</string>
 
     <string name="connect_job_learn_details">Learn Details</string>
     <string name="connect_job_you_will_learn">Complete the following learn modules and assessment to earn a certificate</string>
     <string name="connect_job_no_learning_required">No learning required</string>
-    <string name="connect_job_go_to_learn_app">Go to Learn App</string>
 
-    <string name="connect_job_learn_summary">%d modules, %d hours</string>
     <string name="connect_learn_progress_title">Learn Progress</string>
     <string name="connect_learn_complete_title">Training Complete!</string>
     <string name="connect_learn_need_assessment_title">Training Pending</string>
@@ -433,7 +428,6 @@
     <string name="connect_learn_review">Review Learning</string>
     <string name="connect_learn_view_details">View Opportunity Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
-    <string name="connect_learn_start">Start Learning</string>
     <string name="connect_learn_continue">Continue Learning</string>
     <string name="connect_delivery_earn_multi">Pay per visit:</string>
 
@@ -465,10 +459,6 @@
     <string name="connect_results_summary_days_over">Days Over</string>
 
     <string name="connect_results_summary_transferred">Transferred</string>
-    <string name="connect_results_payment_confirm">Confirm</string>
-    <string name="connect_results_payment_confirm_undo">Undo confirm</string>
-    <string name="connect_results_payment_confirmed">Confirmed</string>
-    <string name="connect_results_payment_not_confirmed">Not Confirmed</string>
     <string name="connect_payment_confirm_text">Have you been paid %d %s for %s Opportunity?</string>
     <string name="connect_payment_confirm_yes">Yes!</string>
     <string name="connect_payment_confirm_no">Ask later</string>
@@ -496,7 +486,6 @@
     <string name="confirm_code">Confirm Code</string>
     <string name="code">Code</string>
     <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Backup Code</string>
-    <string name="download_app">Download</string>
     <string name="sync">Sync</string>
     <string name="back">Back</string>
 
@@ -587,10 +576,6 @@
 
     <string name="connect_deactivate_account">Deactivate Account</string>
 
-    <string name="connect_new_opportunity">New Opportunity</string>
-    <string name="connect_learn">Learn</string>
-    <string name="connect_delivery">Delivery</string>
-    <string name="connect_expired">Expired</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
@@ -639,16 +624,13 @@
     <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
     <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
-    <string name="personalid_too_many_otp_attempts">You entered the incorrect 6-digit One Time Passcode too many times. Please try again later.</string>
+    <string name="personalid_too_many_otp_attempts">You have made too many attempts to send OTP. Please wait and try again whenever the resend button is visible.</string>
     <string name="personalid_otp_verification_failed_generic">Something went wrong verifying your phone number. Please try again.</string>
     <string name="personalid_otp_verification_failed">Something went wrong. Please try again.</string>
     <string name="personalid_location_permission_error">PersonalID requires your device to have Location Services enabled. Please enable this in your phone\'s settings before proceeding.</string>
     <string name="personalid_grant_location_permission">Grant Location Permission</string>
     <string name="personalid_grant_location_service">Enable Location Service</string>
     <string name="personalid_sync_menu_title">Sync</string>
-    <string name="camera_permission_title">Permission for camera</string>
-    <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
-    <string name="capture_photo">Capture Photo</string>
 
     <string name="personalid_work_history_title">My Work History</string>
     <string name="personalid_work_history">Work History</string>
@@ -661,11 +643,8 @@
     <string name="nav_drawer_signin_register">Sign In / Register</string>
     <string name="nav_drawer_help">Help</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
-    <string name="nav_drawer_continue_without_personal_id"><u>Continue without PersonalID</u></string>
-    <string name="nav_drawer_fix_now">Fix Now</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
-    <string name="nav_drawer_payments">Payments</string>
     <string name="nav_drawer_manage_profile">Manage Profile</string>
 
 
