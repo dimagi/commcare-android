@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -75,7 +76,12 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
 
-    private FormUploadResult dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException {
+    private FormUploadResult dumpInstance(
+            File folder,
+            Key key,
+            String transformation,
+            boolean isKeystoreKey
+    ) throws FileNotFoundException {
 
         Logger.log(TAG, "Dumping form instance at folder: " + folder);
 
@@ -117,20 +123,23 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         //this.startSubmission(submissionNumber, bytes);
 
-        final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
-
         /* Encrypted files need to copied to the SD Card in their original form, reason
          * being the decryption key is associated with to the user and device and therefore
          * not available in the target device
          */
         for (File file : files) {
             try {
-                if (file.getName().endsWith(".xml"))
-                    FileUtil.copyFile(file, new File(myDir, file.getName()), decrypter, null);
-                else if (file.getName().endsWith(MediaWidget.AES_EXTENSION))
-                    FileUtil.copyFile(file, new File(myDir, MediaWidget.removeAESExtension(file.getName())), decrypter, null);
-                else
+                if (file.getName().endsWith(".xml") || file.getName().endsWith(MediaWidget.AES_EXTENSION)) {
+                    String targetName = file.getName().endsWith(MediaWidget.AES_EXTENSION)
+                            ? MediaWidget.removeAESExtension(file.getName()) : file.getName();
+                    try (InputStream is = EncryptionIO.getFileInputStream(file.getAbsolutePath(), key,
+                            transformation, isKeystoreKey);
+                         OutputStream os = new FileOutputStream(new File(myDir, targetName))) {
+                        StreamsUtil.writeFromInputToOutputNew(is, os);
+                    }
+                } else {
                     FileUtil.copyFile(file, new File(myDir, file.getName()));
+                }
             } catch (IOException ie) {
                 Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
                 publishProgress(("File writing failed: " + ie.getMessage()));
@@ -142,41 +151,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
     private FormUploadResult dumpInstanceWithKeystore(File folder, EncryptionKeyAndTransform keystoreKey)
             throws FileNotFoundException {
-        Logger.log(TAG, "Dumping form instance (keystore) at folder: " + folder);
-
-        File[] files = folder.listFiles(File::isFile);
-        if (files == null) {
-            String state = Environment.getExternalStorageState();
-            if (!Environment.MEDIA_MOUNTED.equals(state)) {
-                throw new SessionUnavailableException("External Storage Removed");
-            } else {
-                throw new FileNotFoundException("No directory found at: " + folder.getAbsoluteFile());
-            }
-        }
-
-        File myDir = new File(dumpFolder, folder.getName());
-        myDir.mkdirs();
-
-        for (File file : files) {
-            try {
-                if (file.getName().endsWith(".xml") || file.getName().endsWith(MediaWidget.AES_EXTENSION)) {
-                    String targetName = file.getName().endsWith(MediaWidget.AES_EXTENSION)
-                            ? MediaWidget.removeAESExtension(file.getName()) : file.getName();
-                    try (InputStream is = EncryptionIO.getFileInputStreamWithKeystore(
-                            file.getAbsolutePath(), keystoreKey);
-                         OutputStream os = new FileOutputStream(new File(myDir, targetName))) {
-                        StreamsUtil.writeFromInputToOutputNew(is, os);
-                    }
-                } else {
-                    FileUtil.copyFile(file, new File(myDir, file.getName()));
-                }
-            } catch (IOException ie) {
-                Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
-                publishProgress("File writing failed: " + ie.getMessage());
-                return FormUploadResult.FAILURE;
-            }
-        }
-        return FormUploadResult.FULL_SUCCESS;
+        return dumpInstance(folder, keystoreKey.getKey(), keystoreKey.getTransformation(), true);
     }
 
     @SuppressLint("NewApi")
@@ -276,7 +251,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                                 results[i] = dumpInstanceWithKeystore(folder,
                                         CommCareKeyManager.retrieveSessionKeyAndTransformation());
                             } else {
-                                results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+                                results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"), null, false);
                             }
 
                         } catch (FileNotFoundException e) {

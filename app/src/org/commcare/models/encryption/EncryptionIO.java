@@ -193,4 +193,12 @@ public class EncryptionIO {
                 true
         );
     }
+
+    public static InputStream getFileInputStreamWithKeystore(
+            String filepath,
+            Key key,
+            String transformation
+    ) throws FileNotFoundException {
+        return getFileInputStream(filepath, key, transformation, true);
+    }
 }

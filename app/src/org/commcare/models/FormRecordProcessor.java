@@ -283,8 +283,12 @@ public class FormRecordProcessor {
             return EncryptionIO.getFileInputStreamWithKeystore(
                     file.getAbsolutePath(),
                     CommCareKeyManager.retrieveSessionKeyAndTransformation());
+        } else {
+            return EncryptionIO.getFileInputStream(
+                    file.getAbsolutePath(),
+                    new SecretKeySpec(record.getAesKey(), "AES"),
+                    null,
+                    false);
         }
-        Cipher decrypter = FormUploadUtil.getDecryptCipher(new SecretKeySpec(record.getAesKey(), "AES"));
-        return new CipherInputStream(new FileInputStream(file), decrypter);
     }
 }

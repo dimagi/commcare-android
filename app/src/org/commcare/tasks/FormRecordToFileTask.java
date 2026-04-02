@@ -18,7 +18,6 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
-import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
@@ -33,11 +32,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import static org.commcare.views.widgets.MediaWidget.AES_EXTENSION;
@@ -70,7 +73,12 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
      * Turn a FormRecord folder from storage into a standard file representation in our file system.
      * Return an int status code from FormUploadUtil corresponding to the outcome of the transfer
      */
-    private FormUploadResult copyFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey) {
+    private FormUploadResult copyFileInstanceFromStorage(
+            File formRecordFolder,
+            Key decryptionKey,
+            String transformation,
+            boolean isKeyFromKeystore
+    ) {
         File[] files = formRecordFolder.listFiles(File::isFile);
         Logger.log(TAG, "Trying to get instance with: " + files.length + " files.");
 
@@ -79,10 +87,14 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
         logTransferBytes(files);
 
-        final Cipher decryptCipher = FormUploadUtil.getDecryptCipher(decryptionKey);
         try {
-            decryptCopyFiles(files, myDir, decryptCipher);
-        } catch (IOException e){
+            if (isKeyFromKeystore) {
+                decryptCopyFilesWithKeystore(files, myDir, decryptionKey, transformation);
+            } else {
+                final Cipher decryptCipher = EncryptionIO.getDecryptCipher(decryptionKey);
+                decryptCopyFiles(files, myDir, decryptCipher);
+            }
+        } catch (IOException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e){
             Log.d(TAG, "Copying file failed with: " + e.getMessage());
             publishProgress(("File writing failed: " + e.getMessage()));
             return FormUploadResult.FAILURE;
@@ -95,51 +107,42 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
     private FormUploadResult copyFileInstanceFromStorageWithKeystore(File formRecordFolder,
                                                                      EncryptionKeyAndTransform keystoreKey) {
-        File[] files = formRecordFolder.listFiles(File::isFile);
-        Logger.log(TAG, "Trying to get instance with: " + files.length + " files.");
-
-        File myDir = new File(storedFormDirectory, formRecordFolder.getName());
-        myDir.mkdirs();
-
-        logTransferBytes(files);
-
-        try {
-            for (File file : files) {
-                File target = new File(myDir, file.getName());
-                if (file.getName().endsWith(".xml") || file.getName().endsWith(AES_EXTENSION)) {
-                    String targetName = file.getName().endsWith(AES_EXTENSION)
-                            ? removeAESExtension(file.getName()) : file.getName();
-                    try (InputStream is = EncryptionIO.getFileInputStreamWithKeystore(
-                            file.getAbsolutePath(), keystoreKey);
-                         OutputStream os = new FileOutputStream(new File(myDir, targetName))) {
-                        StreamsUtil.writeFromInputToOutputNew(is, os);
-                    }
-                } else {
-                    FileUtil.copyFile(file, target);
-                }
-            }
-        } catch (IOException e) {
-            Log.d(TAG, "Copying file failed with: " + e.getMessage());
-            publishProgress("File writing failed: " + e.getMessage());
-            return FormUploadResult.FAILURE;
-        }
-
-        writeProperties(myDir);
-        return FormUploadResult.FULL_SUCCESS;
+       return copyFileInstanceFromStorage(
+               formRecordFolder,
+               keystoreKey.getKey(),
+               keystoreKey.getTransformation(),
+               true
+       );
     }
 
     private void decryptCopyFiles(File[] files, File targetDirectory, Cipher decryptCipher) throws IOException{
         for (File file : files) {
             // This is not the ideal long term solution for determining whether we need decryption, but works
-            if (file.getName().endsWith(".xml")) {
-                FileUtil.copyFile(file, new File(targetDirectory, file.getName()), decryptCipher, null);
-            } else if (file.getName().endsWith(AES_EXTENSION)) {
-                FileUtil.copyFile(file, new File(targetDirectory, removeAESExtension(file.getName())), decryptCipher, null);
+            if (file.getName().endsWith(".xml") || file.getName().endsWith(AES_EXTENSION)) {
+                String targetName = file.getName().endsWith(AES_EXTENSION)
+                        ? removeAESExtension(file.getName()) : file.getName();
+                FileUtil.copyFile(file, new File(targetDirectory, targetName), decryptCipher, null);
             } else {
                 FileUtil.copyFile(file, new File(targetDirectory, file.getName()));
             }
         }
     }
+
+    private void decryptCopyFilesWithKeystore(File[] files, File targetDirectory, Key key, String transformation) throws IOException{
+        for (File file : files) {
+            if (file.getName().endsWith(".xml") || file.getName().endsWith(AES_EXTENSION)) {
+                String targetName = file.getName().endsWith(AES_EXTENSION)
+                        ? removeAESExtension(file.getName()) : file.getName();
+                try (InputStream is = EncryptionIO.getFileInputStreamWithKeystore(file.getAbsolutePath(), key, transformation);
+                     OutputStream os = new FileOutputStream(new File(targetDirectory, targetName))) {
+                    StreamsUtil.writeFromInputToOutputNew(is, os);
+                }
+            } else {
+                FileUtil.copyFile(file, new File(targetDirectory, file.getName()));
+            }
+        }
+    }
+
     private static boolean isSupportedFiletype(File file){
         for (String ext : SUPPORTED_FILE_EXTS) {
             if (file.getName().endsWith(ext)) {
@@ -254,6 +257,10 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
             publishProgress(Localization.get("form.transfer.no.forms"));
             return null;
         }
+    }
+
+    private FormUploadResult copyFileInstanceFromStorage(File folder, SecretKeySpec aes) {
+        return copyFileInstanceFromStorage(folder, aes, null, false);
     }
 
     private static String getExceptionText(Exception e) {
