@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import org.commcare.connect.ConnectDateUtils
@@ -29,7 +30,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var _binding: B? = null
     val binding get() = _binding!!
 
-    private lateinit var loadingBinding: LoadingBinding
+//    private lateinit var loadingBinding: LoadingBinding
+    private lateinit var progressBar: ProgressBar
     private lateinit var errorBinding: InlineErrorLayoutBinding
     private lateinit var rootView: View
     private var topBarErrorViewController: TopBarErrorViewController? = null
@@ -59,14 +61,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         _binding = inflateBinding(inflater, container)
         val mainView = binding.root
 
-        loadingBinding = LoadingBinding.inflate(inflater, container, false)
-        val loadingView = loadingBinding.root
-
-        errorBinding = InlineErrorLayoutBinding.inflate(inflater, container, false)
-        val errorView = errorBinding.root
-        errorView.visibility = View.GONE
-        topBarErrorViewController = TopBarErrorViewController(errorBinding)
-
         val rootFrame =
             FrameLayout(requireContext()).apply {
                 layoutParams =
@@ -86,15 +80,25 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     )
             }
 
-        verticalContainer.addView(errorView)
         verticalContainer.addView(mainView)
-
         rootFrame.addView(verticalContainer)
-        rootFrame.addView(loadingView)
+
+        // Inflate loading layout
+        progressBar = requireActivity().findViewById(R.id.include_network_loading)
+            ?: run {
+                val loadingBinding = LoadingBinding.inflate(inflater, container, false)
+                rootFrame.addView(loadingBinding.root)
+                loadingBinding.progressBar
+            }
+        hideLoading()
+
+        errorBinding = InlineErrorLayoutBinding.inflate(inflater, container, false)
+        val errorView = errorBinding.root
+        errorView.visibility = View.GONE
+        topBarErrorViewController = TopBarErrorViewController(errorBinding)
+        verticalContainer.addView(errorView)
 
         rootView = rootFrame
-
-        hideLoading()
         return rootView
     }
 
@@ -119,15 +123,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         topBarErrorViewController = null
         _binding = null
         // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
-        loadingBinding.root.visibility = View.GONE
+        progressBar.visibility = View.GONE
     }
 
     override fun showLoading() {
-        loadingBinding.root.visibility = View.VISIBLE
+        progressBar.visibility = View.VISIBLE
     }
 
     override fun hideLoading() {
-        loadingBinding.root.visibility = View.GONE
+        progressBar.visibility = View.GONE
     }
 
     fun showError(error: String) {
