@@ -1,6 +1,5 @@
 package org.commcare.connect.network.connect
 
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.coEvery
 import io.mockk.every
@@ -31,27 +30,26 @@ import java.io.IOException
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class ConnectNetworkClientTest {
-    private val context = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
     private val mockApiService = mockk<ConnectApiService>()
     private val mockUser = mockk<ConnectUserRecord>()
     private lateinit var client: ConnectNetworkClient
 
     @Before
     fun setUp() {
-        client = ConnectNetworkClient(context, mockApiService)
-        mockkStatic("org.commcare.connect.network.ConnectNetworkHelperKt")
-        coEvery { getAuthorizationHeader(any(), any()) } returns Result.success("Bearer testtoken")
+        client = ConnectNetworkClient(mockApiService)
+        mockkStatic(::getAuthorizationHeader)
+        coEvery { getAuthorizationHeader(any()) } returns Result.success("Bearer testtoken")
     }
 
     @After
     fun tearDown() {
-        unmockkStatic("org.commcare.connect.network.ConnectNetworkHelperKt")
+        unmockkStatic(::getAuthorizationHeader)
     }
 
     @Test
     fun testGetConnectOpportunities_authHeaderFailure_returnsFailure() =
         runBlocking {
-            coEvery { getAuthorizationHeader(any(), any()) } returns
+            coEvery { getAuthorizationHeader(any()) } returns
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR))
 
             val result = client.getConnectOpportunities(mockUser)
@@ -115,7 +113,7 @@ class ConnectNetworkClientTest {
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>()
             every { mockJob.jobUUID } returns "test-uuid"
-            coEvery { getAuthorizationHeader(any(), any()) } returns
+            coEvery { getAuthorizationHeader(any()) } returns
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR))
 
             val result = client.getLearningProgress(mockUser, mockJob)

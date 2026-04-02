@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
@@ -81,12 +82,11 @@ class ConnectNetworkHelper {
 }
 
 suspend fun getAuthorizationHeader(
-    context: Context,
     user: ConnectUserRecord,
 ): Result<String> =
     suspendCancellableCoroutine { continuation ->
         ConnectSsoHelper.retrievePersonalIdToken(
-            context,
+            CommCareApplication.instance(),
             user,
             object : ConnectSsoHelper.TokenCallback {
                 override fun tokenRetrieved(token: AuthInfo.TokenAuth) {

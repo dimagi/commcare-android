@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
 import okhttp3.ResponseBody
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ConnectApiService
@@ -25,7 +26,6 @@ import java.io.InputStream
 class ConnectNetworkClient
     @VisibleForTesting
     internal constructor(
-        private val context: Context,
         private val apiService: ConnectApiService,
     ) {
         companion object {
@@ -37,7 +37,6 @@ class ConnectNetworkClient
             fun getInstance(context: Context): ConnectNetworkClient =
                 instance ?: synchronized(this) {
                     instance ?: ConnectNetworkClient(
-                        context.applicationContext,
                         BaseApiClient
                             .buildRetrofitClient(ConnectApiClient.BASE_URL)
                             .create(ConnectApiService::class.java),
@@ -52,7 +51,12 @@ class ConnectNetworkClient
             executeApiCall(
                 user = user,
                 apiCall = { auth -> apiService.getConnectOpportunities(auth, versionHeaders()) },
-                parse = { code, stream -> ConnectOpportunitiesParser<ConnectOpportunitiesResponseModel>().parse(code, stream, context) },
+                parse = { code, stream ->
+                    ConnectOpportunitiesParser<ConnectOpportunitiesResponseModel>().parse(
+                        code,
+                        stream,
+                    )
+                },
             )
 
         suspend fun getLearningProgress(
@@ -72,7 +76,7 @@ class ConnectNetworkClient
         ): Result<T> {
             return try {
                 val authHeader =
-                    getAuthorizationHeader(context, user)
+                    getAuthorizationHeader(user)
                         .getOrElse { return Result.failure(it) }
 
                 val response = apiCall(authHeader)
