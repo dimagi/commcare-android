@@ -8,6 +8,7 @@ import com.google.firebase.perf.metrics.Trace;
 import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
@@ -325,7 +326,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
-        byte[] key = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
+        byte[] key = CommCareKeyManager.generateLegacyKeyOrEmpty();
         contentValues.put(DatabaseHelper.AES_COL, key);
         return key;
     }
