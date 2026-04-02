@@ -443,6 +443,8 @@
     <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You may not earn any progress for additional work.</string>
     <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
+    <string name="connect_progress_warning_relearn_tasks_pending">Complete assigned tasks to continue delivering services.</string>
+    <string name="connect_progress_relearn_tasks_completed">All required tasks have been completed. You may continue with delivery activities.</string>
     <string name="connect_download_learn">Download Learn App</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
     <string name="connect_downloading_delivery">Downloading Delivery App</string>
