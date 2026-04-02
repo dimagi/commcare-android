@@ -76,7 +76,7 @@ class ConnectRepository
             )
 
         /**
-         * Emits Loading or Cached first, then Success or Error after network call.
+         * Emits Cached first,then Loading, then Success or Error after network call.
          * DB writes go in [onNetworkSuccess], re-read in [mapToEmit].
          */
         private fun <C, N> offlineFirstFlow(
@@ -94,13 +94,12 @@ class ConnectRepository
 
                 if (cachedData != null && lastSyncTime != null) {
                     emit(DataState.Cached(cachedData, lastSyncTime))
-                } else {
-                    emit(DataState.Loading)
                 }
 
                 if (!forceRefresh && !syncPrefs.shouldRefresh(endpoint, policy)) return@flow
 
                 try {
+                    emit(DataState.Loading)
                     val result =
                         ConnectRequestManager.executeRequest(endpoint) {
                             networkCall().also { networkResult ->
