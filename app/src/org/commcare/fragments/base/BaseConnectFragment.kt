@@ -100,11 +100,11 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun onStart() {
         super.onStart()
-        if (shouldMonitorNetwork()) {
+        if (shouldMonitorNetwork() &&
+            !ConnectivityStatus.isNetworkAvailable(requireContext())
+        ) {
             registerNetworkCallback()
-            if (!ConnectivityStatus.isNetworkAvailable(requireContext())) {
-                showOfflineIndicator()
-            }
+            showOfflineIndicator()
         }
     }
 
