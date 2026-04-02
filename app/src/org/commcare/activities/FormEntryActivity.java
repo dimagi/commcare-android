@@ -144,6 +144,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
 
     private SecretKeySpec symetricKey = null;
+    private boolean isKeyFromKeystore = false;
 
     public static AndroidFormController mFormController;
 
@@ -1522,6 +1523,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException("Base64 encoding not available on this platform");
                 }
+            } else {
+                isKeyFromKeystore = true;
             }
             if (savedInstanceState.containsKey(KEY_HEADER_STRING)) {
                 mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
@@ -1556,6 +1559,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Base64 encoding not available on this platform");
             }
+        } else {
+            isKeyFromKeystore = true;
         }
         if (intent.hasExtra(KEY_HEADER_STRING)) {
             FormEntryActivity.mHeaderString = intent.getStringExtra(KEY_HEADER_STRING);
@@ -1721,5 +1726,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public SecretKeySpec getSymetricKey() {
         return symetricKey;
+    }
+
+    public boolean isKeyFromKeystore() {
+        return isKeyFromKeystore;
     }
 }

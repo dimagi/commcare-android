@@ -398,14 +398,16 @@ public class FormUploadUtil {
                 String contentType = getFileContentType(fileName);
                 if (contentType != null) {
                     numAttachmentsInInstanceFolder++;
-                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType, key);
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType, key, transformation,
+                            isKeyFromKeystore);
                 } else if (isSupportedMultimediaFile(fileName)) {
                     numAttachmentsInInstanceFolder++;
                     String mimeType = FileUtil.getMimeType(fileName);
                     if (StringUtils.isEmpty(mimeType)) {
                         mimeType = "application/octet-stream";
                     }
-                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, mimeType, key);
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, mimeType, key, transformation,
+                            isKeyFromKeystore);
                 } else {
                     Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
                             "Could not add unsupported file type to submission entity: " + f.getName());
@@ -423,11 +425,18 @@ public class FormUploadUtil {
         return true;
     }
 
-    private static int addPartToEntity(List<MultipartBody.Part> parts, File f, String contentType, Key key) {
+    private static int addPartToEntity(
+            List<MultipartBody.Part> parts,
+            File f, String contentType,
+            Key key,
+            String transformation,
+            boolean isKeyFromKeystore
+    ) {
         if (f.length() <= MAX_BYTES) {
             MultipartBody.Part part;
             if (f.getName().endsWith(MediaWidget.AES_EXTENSION)) {
-                part = createEncryptedFilePart(MediaWidget.removeAESExtension(f.getName()), f, contentType, key);
+                part = createEncryptedFilePart(MediaWidget.removeAESExtension(f.getName()), f, contentType, key,
+                        transformation, isKeyFromKeystore);
             } else {
                 part = createFilePart(f.getName(), f, contentType);
             }
