@@ -22,7 +22,6 @@ import org.commcare.connect.network.connect.models.LearningAppProgressResponseMo
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -50,7 +49,7 @@ class ConnectRepositoryTest {
         mockkStatic(ConnectUserDatabaseUtil::class)
         every { ConnectUserDatabaseUtil.getUser(any()) } returns mockUser
 
-        repository = ConnectRepository(context, mockSyncPrefs, mockNetworkClient)
+        repository = ConnectRepository(mockSyncPrefs, mockNetworkClient)
     }
 
     @After
@@ -59,17 +58,25 @@ class ConnectRepositoryTest {
     }
 
     @Test
-    fun testGetOpportunities_noCache_emitsLoading() =
+    fun testGetOpportunities_noCache_emitsLoadingThenSuccess() =
         runBlocking {
             every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
             every { mockSyncPrefs.getLastSyncTime(any()) } returns null
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
+            mockGetOpportunitiesSuccess()
 
             val emissions = repository.getOpportunities().toList()
 
-            assertEquals(1, emissions.size)
-            assertTrue(emissions.first() is DataState.Loading)
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Success)
         }
+
+    private fun mockGetOpportunitiesSuccess(freshJobs: List<ConnectJobRecord> = listOf(mockk<ConnectJobRecord>())) {
+        val mockModel = mockk<ConnectOpportunitiesResponseModel>()
+        every { mockModel.validJobs } returns freshJobs
+        coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns Result.success(mockModel)
+    }
 
     @Test
     fun testGetOpportunities_withCache_shouldRefreshFalse_emitsCachedOnly() =
@@ -91,20 +98,19 @@ class ConnectRepositoryTest {
         runBlocking {
             val cachedJobs = listOf(mockk<ConnectJobRecord>())
             val freshJobs = listOf(mockk<ConnectJobRecord>(), mockk())
-            val mockModel = mockk<ConnectOpportunitiesResponseModel>()
-            every { mockModel.validJobs } returns freshJobs
+            mockGetOpportunitiesSuccess(freshJobs)
 
             every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns cachedJobs
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
-            coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns Result.success(mockModel)
 
             val emissions = repository.getOpportunities().toList()
 
-            assertEquals(2, emissions.size)
+            assertEquals(3, emissions.size)
             assertTrue(emissions[0] is DataState.Cached)
-            assertTrue(emissions[1] is DataState.Success)
-            assertEquals(freshJobs, (emissions[1] as DataState.Success).data)
+            assertTrue(emissions[1] is DataState.Loading)
+            assertTrue(emissions[2] is DataState.Success)
+            assertEquals(freshJobs, (emissions[2] as DataState.Success).data)
         }
 
     @Test
@@ -119,10 +125,11 @@ class ConnectRepositoryTest {
 
             val emissions = repository.getOpportunities().toList()
 
-            assertEquals(2, emissions.size)
+            assertEquals(3, emissions.size)
             assertTrue(emissions[0] is DataState.Cached)
-            assertTrue(emissions[1] is DataState.Error)
-            assertNotNull((emissions[1] as DataState.Error).cachedData)
+            assertTrue(emissions[1] is DataState.Loading)
+            assertTrue(emissions[2] is DataState.Error)
+            assertEquals(cachedJobs, (emissions[2] as DataState.Error).cachedData)
         }
 
     @Test
@@ -139,7 +146,6 @@ class ConnectRepositoryTest {
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
             assertTrue(emissions[1] is DataState.Error)
-            // cachedData is emptyList (not null) because loadCache always returns the list
             assertEquals(emptyList<ConnectJobRecord>(), (emissions[1] as DataState.Error).cachedData)
         }
 
@@ -163,29 +169,26 @@ class ConnectRepositoryTest {
     fun testGetOpportunities_forceRefresh_bypassesShouldRefreshCheck() =
         runBlocking {
             val cachedJobs = listOf(mockk<ConnectJobRecord>())
-            val mockModel = mockk<ConnectOpportunitiesResponseModel>()
-            every { mockModel.validJobs } returns emptyList()
-
             every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns cachedJobs
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
-            every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false // would skip network
-            coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns Result.success(mockModel)
+            every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
+            mockGetOpportunitiesSuccess()
 
             val emissions = repository.getOpportunities(forceRefresh = true).toList()
-
-            // Should have network call (Success emission) despite shouldRefresh=false
-            assertTrue(emissions.any { it is DataState.Success })
+            assertEquals(3, emissions.size)
+            assertTrue(emissions[0] is DataState.Cached)
+            assertTrue(emissions[1] is DataState.Loading)
+            assertTrue(emissions[2] is DataState.Success)
+            assertEquals(emptyList<ConnectJobRecord>(), (emissions[2] as DataState.Success).data)
         }
 
     @Test
     fun testGetOpportunities_networkSuccess_storesLastSyncTime() =
         runBlocking {
-            val mockModel = mockk<ConnectOpportunitiesResponseModel>()
-            every { mockModel.validJobs } returns emptyList()
             every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
             every { mockSyncPrefs.getLastSyncTime(any()) } returns null
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
-            coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns Result.success(mockModel)
+            mockGetOpportunitiesSuccess()
 
             repository.getOpportunities().toList()
 

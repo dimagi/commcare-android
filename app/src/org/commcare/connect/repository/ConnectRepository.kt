@@ -7,8 +7,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
+import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
+import org.commcare.connect.database.ConnectJobUtils.updateJobLearnProgress
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.LoginInvalidatedException
 import org.commcare.connect.network.connect.ConnectNetworkClient
@@ -18,7 +22,6 @@ import org.commcare.connect.network.connect.models.LearningAppProgressResponseMo
 class ConnectRepository
     @VisibleForTesting
     internal constructor(
-        private val context: Context,
         private val syncPrefs: ConnectSyncPreferences,
         private val networkClient: ConnectNetworkClient,
     ) {
@@ -32,7 +35,6 @@ class ConnectRepository
             fun getInstance(context: Context): ConnectRepository =
                 instance ?: synchronized(this) {
                     instance ?: ConnectRepository(
-                        context.applicationContext,
                         ConnectSyncPreferences.getInstance(context),
                         ConnectNetworkClient.getInstance(context),
                     ).also { instance = it }
@@ -48,7 +50,11 @@ class ConnectRepository
                 forceRefresh = forceRefresh,
                 policy = policy,
                 loadCache = {
-                    ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)
+                    getCompositeJobs(
+                        CommCareApplication.instance(),
+                        ConnectJobRecord.STATUS_ALL_JOBS,
+                        null
+                    )
                 },
                 networkCall = { fetchOpportunitiesFromNetwork() },
                 onNetworkSuccess = {},
@@ -64,15 +70,15 @@ class ConnectRepository
                 endpoint = ENDPOINT_LEARNING_PREFIX + job.jobUUID,
                 forceRefresh = forceRefresh,
                 policy = policy,
-                loadCache = { ConnectJobUtils.getCompositeJob(context, job.jobUUID) },
+                loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
                 networkCall = { fetchLearningProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
                     job.learnings = responseModel.connectJobLearningRecords
                     job.learningModulesCompleted = responseModel.connectJobLearningRecords.size
                     job.assessments = responseModel.connectJobAssessmentRecords
-                    ConnectJobUtils.updateJobLearnProgress(context, job)
+                    updateJobLearnProgress(CommCareApplication.instance(), job)
                 },
-                mapToEmit = { _ -> ConnectJobUtils.getCompositeJob(context, job.jobUUID) },
+                mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
             )
 
         /**
@@ -91,12 +97,12 @@ class ConnectRepository
             flow {
                 val cachedData: C? = loadCache()
                 val lastSyncTime = syncPrefs.getLastSyncTime(endpoint)
-
-                if (cachedData != null && lastSyncTime != null) {
+                val isCacheAvailable = cachedData != null && lastSyncTime != null
+                if (isCacheAvailable) {
                     emit(DataState.Cached(cachedData, lastSyncTime))
                 }
 
-                if (!forceRefresh && !syncPrefs.shouldRefresh(endpoint, policy)) return@flow
+                if (isCacheAvailable && !forceRefresh && !syncPrefs.shouldRefresh(endpoint, policy)) return@flow
 
                 try {
                     emit(DataState.Loading)
@@ -122,12 +128,12 @@ class ConnectRepository
             }.flowOn(Dispatchers.IO)
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<ConnectOpportunitiesResponseModel> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(context)) { "No Connect user found" }
+            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
             return networkClient.getConnectOpportunities(user)
         }
 
         private suspend fun fetchLearningProgressFromNetwork(job: ConnectJobRecord): Result<LearningAppProgressResponseModel> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(context)) { "No Connect user found" }
+            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
             return networkClient.getLearningProgress(user, job)
         }
     }
