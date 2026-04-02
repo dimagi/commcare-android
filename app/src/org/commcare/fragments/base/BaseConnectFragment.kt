@@ -115,7 +115,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        topBarErrorViewController?.cleanup()
+        topBarErrorViewController!!.cleanup()
         topBarErrorViewController = null
         _binding = null
         // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
@@ -131,11 +131,11 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     fun showError(error: String) {
-        topBarErrorViewController?.show(error)
+        topBarErrorViewController!!.show(error)
     }
 
     fun hideError() {
-        topBarErrorViewController?.hide()
+        topBarErrorViewController!!.hide()
     }
 
     private fun shouldMonitorNetwork(): Boolean =
