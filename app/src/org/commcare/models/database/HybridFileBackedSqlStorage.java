@@ -341,12 +341,12 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     private void writeStreamToFile(ByteArrayOutputStream bos, String filename,
-                                   byte[] key) throws IOException {
+                                   byte[] aesKeyBytes) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
         DataOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = getOutputFileStream(filename, key);
+            fileOutputStream = getOutputFileStream(filename, aesKeyBytes);
             bos.writeTo(fileOutputStream);
         } finally {
             if (fileOutputStream != null) {
@@ -360,7 +360,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     trace,
                     bos.size(),
                     FilenameUtils.getExtension(filename),
-                    false
+                    usesKeystoreEncryption(aesKeyBytes)
             );
         }
     }
