@@ -75,6 +75,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_title);
+        ((ConnectActivity)requireActivity()).setWaitDialogEnabled(false);
         viewModel = new ViewModelProvider(this).get(ConnectJobsListViewModel.class);
         observeOpportunities();
         viewModel.loadOpportunities(false);
@@ -96,7 +97,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 showLoading();
             } else if (state instanceof DataState.Cached) {
                 DataState.Cached<List<ConnectJobRecord>> cached = (DataState.Cached<List<ConnectJobRecord>>) state;
-                hideLoading();
                 hideError();
                 corruptJobs.clear();
                 setJobListData(cached.getData());
@@ -143,8 +143,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 (job, isLearning, appId, jobType, action) -> {
                     if (action == OnJobSelectionClick.Action.VIEW_INFO) {
                         setActiveJob(job);
-                        if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE_NEW
-                                || job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                        if (job.getStatus() == STATUS_AVAILABLE_NEW
+                                || job.getStatus() == STATUS_AVAILABLE) {
                             navigateToJobIntro();
                         } else {
                             navigateToJobDetailBottomSheet(getView());
@@ -264,7 +264,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
             Objects.requireNonNull(compositeJob);
             boolean userCompletedDelivery =
-                    compositeJob.getStatus() == ConnectJobRecord.STATUS_DELIVERING &&
+                    compositeJob.getStatus() == STATUS_DELIVERING &&
                             compositeJob.getDeliveryProgressPercentage() == 100;
             if (compositeJob.isFinished()) {
                 finishedJobs.add(createJobModel(

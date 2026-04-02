@@ -104,7 +104,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
             if (dataState instanceof DataState.Loading) {
                 showLoading();
             } else if (dataState instanceof DataState.Cached) {
-                hideLoading();
                 hideError();
                 DataState.Cached<ConnectJobRecord> cached =
                     (DataState.Cached<ConnectJobRecord>) dataState;
