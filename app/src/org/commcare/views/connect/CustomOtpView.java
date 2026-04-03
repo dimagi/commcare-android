@@ -106,6 +106,14 @@ public class CustomOtpView extends LinearLayout {
                         break;
                     }
                 }
+            } else if (!hasFocus && passwordMode && !passwordVisible) {
+                // When focus leaves, check if it moved outside the entire view
+                post(() -> {
+                    if (!CustomOtpView.this.hasFocus()) {
+                        lastEditedIndex = -1;
+                        refreshAllDisplays();
+                    }
+                });
             }
         });
 
