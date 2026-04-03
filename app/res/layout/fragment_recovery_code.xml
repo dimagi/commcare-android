@@ -74,12 +74,21 @@
             android:textColor="@color/connect_subtext"
             android:textSize="12sp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/code"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textSize="14sp" />
+
         <LinearLayout
             android:id="@+id/backup_code_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:gravity="center_vertical">
 
@@ -127,12 +136,22 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/confirm_code_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/confirm_code"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textSize="14sp" />
+
         <LinearLayout
             android:id="@+id/confirm_code_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:gravity="center_vertical">
 
