@@ -98,7 +98,7 @@ public class CustomOtpView extends LinearLayout {
         editText.setId(index);
 
         editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus && index > 0 && ((EditText) getChildAt(index)).getText().isEmpty()) {
+            if (hasFocus && index > 0 && ((EditText) getChildAt(index)).getText().length() == 0) {
                 // Move to the first empty edit text if it's focused and empty
                 for (int i = 0; i < digitCount; i++) {
                     if (actualValues[i].isEmpty()) {
