@@ -160,7 +160,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     private fun registerNetworkCallback() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val cm =
                 requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
                     ?: return
