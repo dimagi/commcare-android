@@ -108,6 +108,14 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             }
         });
 
+        NumericCodeView.OnEnterKeyPressedListener enterKeyListener = () -> {
+            if (binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+            }
+        };
+        binding.backupCodeView.setOnEnterKeyPressedListener(enterKeyListener);
+        binding.confirmCodeView.setOnEnterKeyPressedListener(enterKeyListener);
+
         binding.connectBackupCodeButton.setOnClickListener(v -> handleBackupCodeSubmission());
         binding.notMeButton.setOnClickListener(v -> handleNotMeButtonPressed());
 

@@ -35,6 +35,7 @@ public class NumericCodeView extends LinearLayout {
     private int lastEditedIndex = -1;
     private CodeCompleteListener codeCompleteListener;
     private OnCodeChangedListener codeChangedListener;
+    private OnEnterKeyPressedListener enterKeyPressedListener;
     private boolean isErrorState = false;
     private boolean isSelfUpdate = false;
 
@@ -118,6 +119,12 @@ public class NumericCodeView extends LinearLayout {
         });
 
         editText.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (enterKeyPressedListener != null) {
+                    enterKeyPressedListener.onEnterKeyPressed();
+                }
+                return true;
+            }
             if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
                 if (actualValues[index].isEmpty() && index > 0) {
                     // Move to previous field and clear it
@@ -359,6 +366,14 @@ public class NumericCodeView extends LinearLayout {
 
     public interface OnCodeChangedListener {
         void onCodeChanged(String code);
+    }
+
+    public interface OnEnterKeyPressedListener {
+        void onEnterKeyPressed();
+    }
+
+    public void setOnEnterKeyPressedListener(OnEnterKeyPressedListener listener) {
+        this.enterKeyPressedListener = listener;
     }
 
     public void setCode(String code) {
