@@ -118,9 +118,9 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void togglePasswordVisibility(CustomOtpView codeView, ImageView toggle) {
-        boolean nowVisible = !codeView.isPasswordVisible();
-        codeView.setPasswordVisible(nowVisible);
-        toggle.setImageResource(nowVisible
+        boolean newVisibilityState = !codeView.isPasswordVisible();
+        codeView.setPasswordVisible(newVisibilityState);
+        toggle.setImageResource(newVisibilityState
                 ? R.drawable.ic_visibility_off_24
                 : R.drawable.ic_visibility_24);
     }
