@@ -225,6 +225,7 @@ public class CustomOtpView extends LinearLayout {
     }
 
     private void moveToNextBox(int currentIndex) {
+        actualValues[currentIndex + 1] = "";
         EditText nextEditText = (EditText) getChildAt(currentIndex + 1);
         isSelfUpdate = true;
         nextEditText.setText("");
@@ -335,6 +336,7 @@ public class CustomOtpView extends LinearLayout {
         if (getChildCount() > 0) {
             getChildAt(0).requestFocus();
         }
+        notifyOtpChanged();
     }
 
     public void requestFocus(Activity activity) {
@@ -372,5 +374,7 @@ public class CustomOtpView extends LinearLayout {
             }
             editText.clearFocus();
         }
+        notifyOtpChanged();
+        checkOtpCompletion();
     }
 }
