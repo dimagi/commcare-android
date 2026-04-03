@@ -32,11 +32,17 @@ object ConnectViewUtils {
             )
 
         val workingHours = job.getWorkingHours()
-        if (workingHours != null) {
+        if (job.isRelearnTaskPending) {
+            jobCard.cvRelearnTasksPending.visibility = View.VISIBLE
+            jobCard.tvJobTime.visibility = View.INVISIBLE
+            jobCard.tvDailyVisitTitle.visibility = View.INVISIBLE
+        } else if (workingHours != null) {
+            jobCard.cvRelearnTasksPending.visibility = View.GONE
             jobCard.tvJobTime.visibility = View.VISIBLE
             jobCard.tvDailyVisitTitle.visibility = View.VISIBLE
             jobCard.tvJobTime.text = workingHours
         } else {
+            jobCard.cvRelearnTasksPending.visibility = View.GONE
             jobCard.tvJobTime.visibility = View.GONE
             jobCard.tvDailyVisitTitle.visibility = View.GONE
         }

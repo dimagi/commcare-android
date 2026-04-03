@@ -236,9 +236,15 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             if (job.deliveryComplete()) {
                 textColorRes = R.color.rich_amber_gold;
                 backgroundColorRes = R.color.pale_buttery_cream;
+                getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
+            } else if (job.shouldShowRelearnTasksCompletedMessage()) {
+                textColorRes = R.color.connect_green;
+                backgroundColorRes = R.color.connect_light_green;
+                getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
             } else {
                 textColorRes = R.color.connect_warning_color;
                 backgroundColorRes = R.color.connect_light_orange_color;
+                getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
             }
 
             getBinding().tvConnectMessage.setTextColor(
@@ -249,7 +255,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             );
             getBinding().tvConnectMessage.setText(messageText);
             getBinding().cvConnectMessage.setVisibility(View.VISIBLE);
-            getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
         } else {
             getBinding().cvConnectMessage.setVisibility(View.GONE);
             getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);

@@ -97,6 +97,28 @@
             app:layout_constraintStart_toEndOf="@id/acb_resume"
             app:layout_constraintTop_toBottomOf="@id/tv_job_time" />
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_relearn_tasks_pending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/connect_light_orange_color"
+            app:cardCornerRadius="15dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/connect_job_end_date_sub_heading"
+            app:layout_constraintBottom_toTopOf="@id/acb_resume"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_progress_warning_relearn_tasks_pending"
+                android:textSize="12sp"
+                android:textColor="@color/connect_warning_color"
+                android:layout_margin="10dp" />
+
+        </androidx.cardview.widget.CardView>
+
         <TextView
             android:id="@+id/tvDailyVisitTitle"
             android:layout_width="wrap_content"
