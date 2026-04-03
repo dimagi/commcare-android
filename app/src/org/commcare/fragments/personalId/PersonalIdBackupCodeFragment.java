@@ -68,12 +68,14 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
             binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message);
             binding.backupCodeLayout.setVisibility(View.VISIBLE);
+            binding.confirmCodeLabel.setVisibility(View.GONE);
             binding.confirmCodeLayout.setVisibility(View.GONE);
             setUserNameAndPhoto();
         } else {
             titleId = R.string.connect_backup_code_title_set;
             binding.backupCodeSubtitle.setText(getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH));
             binding.backupCodeLayout.setVisibility(View.VISIBLE);
+            binding.confirmCodeLabel.setVisibility(View.VISIBLE);
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
             binding.welcomeBackLayout.setVisibility(View.GONE);
         }
