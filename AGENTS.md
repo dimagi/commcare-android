@@ -22,23 +22,24 @@
 - Use unit tests with Robolectric for user interface verification
 - Use Android Instrumentation tests for end-to-end integration testing
 - Mock external dependencies when needed
-- Maintain a high code coverage percentage
 - Ensure test compiles and passes before committing code changes
+- When adding tests, ensure comprehensive coverage of all public methods in the class
+- When appropriate, assert specific expected values rather than just non-null or truthy checks
 
 ## Workflow After Code Changes
 All the changes below should be part of a separate commit after the main code changes:
 - Clean up any unused code and imports
 - Verify Java code with `checkstyle.xml` and make changes as applicable
-- Run ktlint formatting: `ktlint --format path/to/file.kt`
-- Verify ktlint compliance: `ktlint path/to/file.kt`
+- Run ktlint format and verify: `./gradlew ktlintFile -PfilePath=path/to/file.kt`
 - Run relevant unit tests to ensure no regressions
 - Commit changes
 
-## Available ktlint Commands
-- `ktlint file.kt` - Check formatting
-- `ktlint --format file.kt` - Auto-format
-- `ktlint "src/**/*.kt"` - Check all Kotlin files
-- `ktlint --format "src/**/*.kt"` - Format all Kotlin files
+## AI Workflow: ktlint
+After editing or creating a Kotlin file, always run the Gradle ktlint task:
+```bash
+./gradlew ktlintFile -PfilePath=<relative-path-to-file>
+```
+This task auto-formats the file and then verifies it is clean. If any violations remain that cannot be auto-fixed, resolve them manually. This should be done before committing.
 
 ## Test File Locations
 - Unit tests: `app/unit-tests/src/`

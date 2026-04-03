@@ -120,7 +120,6 @@
     <string name="recovery_network_outdated">Esta aplicación está desactualizada. Por favor, actualice la aplicación en Google Play Store para continuar.</string>
     <string name="personalid_token_unavailable">Hubo un problema con la red. Inténtalo de nuevo.</string>
     <string name="personalid_token_request_rejected">Se perdió la configuración de PersonalID con el servidor, recupere su cuenta de PersonalID y vuelva a intentarlo</string>
-    <string name="personalid_login_from_different_device">Su cuenta de PersonalID solo se puede configurar en un dispositivo a la vez y ya se configuró en otro. Continúe en el nuevo dispositivo o vuelva a configurar su cuenta en este para seguir usando PersonalID aquí.</string>
     <string name="personalid_generic_error_title">Cerró la sesión de PersonalID</string>
     <string name="personalid_error_title_login_different_device">Cuenta en uso en otro dispositivo</string>
     <string name="personalid_error_message_login_different_device">Por favor, continúe en el nuevo dispositivo o configure su cuenta de nuevo.</string>
@@ -223,19 +222,16 @@
     <string name="connect_verify_configure_pin">Configurar PIN</string>
     <string name="connect_verify_agree">Aceptar y continuar</string>
     <string name="connect_verify_phone_title">El código de verificación</string>
-    <string name="connect_verify_phone_label">Intentamos enviarte un SMS que termina en %s.</string>
+    <string name="connect_verify_phone_label">Intentamos enviar un SMS a su número de teléfono que termina en %s.</string>
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
     <string name="connect_verify_phone_resend_wait">¿No recibiste tu código? Reenvíalo en %ds.</string>
-    <string name="connect_verify_phone_change">Cambiar número de teléfono</string>
+    <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
     <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
-    <string name="connect_job_intro_title">Oportunidad</string>
     <string name="connect_job_you_will_learn">Completa los siguientes módulos de aprendizaje y la evaluación para obtener un certificado</string>
     <string name="connect_job_no_learning_required">No se requiere aprendizaje</string>
-    <string name="connect_job_go_to_learn_app">Ir a la aplicación Aprender</string>
-    <string name="connect_job_learn_summary">%d módulos, %d horas</string>
     <string name="connect_learn_progress_title">Progreso del aprendizaje</string>
     <string name="connect_learn_complete_title">¡Formación completada!</string>
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
@@ -256,7 +252,6 @@
     <string name="connect_learn_review">Revisión del aprendizaje</string>
     <string name="connect_learn_view_details">Ver detalles de la oportunidad</string>
     <string name="connect_learn_go_to_assessment">Ir a la evaluación</string>
-    <string name="connect_learn_start">Comenzar a aprender</string>
     <string name="connect_learn_continue">Continuar aprendiendo</string>
     <string name="connect_delivery_earn_multi">Pago por visita:</string>
     <string name="connect_delivery_go">Ir a la aplicación</string>
@@ -334,15 +329,13 @@
     <string name="connect_progress_warning_daily_max_reached_single">Has alcanzado el número máximo de visitas de hoy. Es posible que no obtengas progreso por trabajo adicional.</string>
     <string name="connect_progress_warning_max_reached_multi">Has alcanzado el número máximo de visitas para %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Has alcanzado tu límite diario de %s.</string>
+    <string name="connect_progress_warning_relearn_tasks_pending">Complete las tareas asignadas para continuar prestando servicios.</string>
+    <string name="connect_progress_relearn_tasks_completed">Se han completado todas las tareas requeridas. Puedes continuar con las actividades de entrega.</string>
     <string name="connect_download_learn">Descargar la aplicación Aprender</string>
     <string name="connect_downloading_learn">Descargando la aplicación Aprender</string>
     <string name="connect_downloading_delivery">Descargando la aplicación de Entrega</string>
     <string name="connect_results_summary_earned">Ganado</string>
     <string name="connect_results_summary_transferred">Transferido</string>
-    <string name="connect_results_payment_confirm">Confirmar</string>
-    <string name="connect_results_payment_confirm_undo">Deshacer confirmación</string>
-    <string name="connect_results_payment_confirmed">Confirmado</string>
-    <string name="connect_results_payment_not_confirmed">No confirmado</string>
     <string name="connect_payment_confirm_text">¿Ha recibido el pago de %d %s por la oportunidad de %s?</string>
     <string name="connect_payment_confirm_yes">¡Sí!</string>
     <string name="connect_payment_confirm_no">Más tarde</string>
@@ -365,7 +358,6 @@
     <string name="confirm_code">Confirmar código</string>
     <string name="code">Código</string>
     <string name="choose_a_6_digit_recovery_code">Elige un código de recuperación de 6 dígitos</string>
-    <string name="download_app">Descargar</string>
     <string name="sync">Sincronizar</string>
     <string name="micro_image_activity_title">Tomar foto de perfil</string>
     <string name="connect_job_info_title">Detalles de la oportunidad</string>
@@ -394,16 +386,13 @@
     <string name="connect_payment_dialog_yes">Sí</string>
     <string name="connect_payment_revert">Revertir</string>
     <string name="connect_deactivate_account">Desactivar cuenta</string>
-    <string name="connect_new_opportunity">Nueva oportunidad</string>
-    <string name="connect_learn">Aprender</string>
-    <string name="connect_delivery">Entrega</string>
-    <string name="connect_expired">Expirado</string>
     <string name="connect_in_progress">En progreso</string>
     <string name="connect_new_opportunities">Nuevas oportunidades</string>
     <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
-    <string name="connect_recovery_button_phone">Continuar</string>
+
+    <string name="personalid_continue_label">Continuar</string>
     <string name="connect_verify_phone_resend_code">Reenviar código</string>
     <string name="connect_verify_skip_phone_number">Veo que eres un usuario de demostración, así que omitiremos el OTP</string>
     <string name="connect_messaging_title">Mensajería</string>
@@ -427,7 +416,7 @@
     <string name="connect_job_tile_daily_visits">Visitas diarias</string>
     <string name="connect_appbar_title_app_lock">Bloqueo de aplicación</string>
     <string name="personalid_incorrect_otp">Ha introducido el código de acceso de 6 dígitos incorrecto. Por favor, inténtelo de nuevo.</string>
-    <string name="personalid_too_many_otp_attempts">Ingresó el código de acceso único de 6 dígitos incorrecto demasiadas veces. Por favor, inténtelo de nuevo más tarde.</string>
+    <string name="personalid_too_many_otp_attempts">Ha realizado demasiados intentos de envío de OTP. Por favor, espere e inténtelo de nuevo cuando el botón de reenvío sea visible.</string>
     <string name="personalid_otp_verification_failed_generic">Algo salió mal al verificar su número de teléfono. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_location_permission_error">PersonalID requiere que su dispositivo tenga los Servicios de ubicación habilitados. Por favor, actívelos en la configuración de su teléfono antes de continuar.</string>
@@ -503,11 +492,8 @@
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la PersonalID</string>
-    <string name="nav_drawer_continue_without_personal_id"><u>Continuar sin PersonalID</u></string>
-    <string name="nav_drawer_fix_now">Reparar ahora</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
-    <string name="nav_drawer_payments">Pagos</string>
     <string name="nav_drawer_manage_profile">Administrar perfil</string>
     <string name="play_service_update_error">Para usar PersonalID, necesita actualizar los servicios de Google Play. Toque aquí para ir a Google Play Store y buscar actualizaciones.</string>
     <string name="nav_drawer_open">Abrir el panel de navegación</string>
@@ -548,4 +534,6 @@
     <string name="connect_job_preview_start">Iniciar</string>
     <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
+    <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
+    <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
 </resources>
