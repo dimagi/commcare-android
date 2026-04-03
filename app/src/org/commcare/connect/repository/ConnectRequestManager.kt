@@ -10,6 +10,12 @@ import kotlinx.coroutines.launch
 import org.commcare.connect.network.LoginInvalidatedException
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Manages in-flight Connect API requests to prevent duplicate calls and ensure they complete even if the caller is cancelled.
+ * Requests are deduplicated by [url] — concurrent calls with the same [url] share one in-flight request.
+ * Requests are launched in an app-wide scope so they survive ViewModel cancellation (e.g. on back navigation).
+ * Include DB writes inside the [request] block so they also complete even on back navigation.
+ */
 object ConnectRequestManager {
     @Volatile
     private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -39,11 +45,9 @@ object ConnectRequestManager {
             } catch (e: CancellationException) {
                 deferred.cancel(e)
                 throw e
-            } catch (e: LoginInvalidatedException) {
+            } catch (e: Exception) {
                 deferred.completeExceptionally(e)
                 throw e
-            } catch (e: Exception) {
-                deferred.complete(Result.failure<Any>(e))
             } finally {
                 inFlightRequests.remove(url)
             }

@@ -18,7 +18,7 @@ class ConnectRequestManagerTest {
     @Test
     fun testSingleRequest_succeeds() =
         runBlocking {
-            val url = "/test"
+             val url = "/test"
             var callCount = 0
 
             val result =

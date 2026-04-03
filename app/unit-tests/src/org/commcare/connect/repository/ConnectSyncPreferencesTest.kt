@@ -38,9 +38,9 @@ class ConnectSyncPreferencesTest {
         val sessionStart = syncPrefs.getSessionStartTime()
         assertNotNull(sessionStart)
 
-        // Should be recent (within last minute)
+        // Should be recent (within last 5 secs)
         val ageMs = Date().time - sessionStart.time
-        assertTrue(ageMs < 60_000)
+        assertTrue(ageMs < 5_000)
     }
 
     @Test

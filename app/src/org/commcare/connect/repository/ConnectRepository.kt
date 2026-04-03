@@ -104,7 +104,6 @@ class ConnectRepository
 
                 if (isCacheAvailable && !forceRefresh && !syncPrefs.shouldRefresh(endpoint, policy)) return@flow
 
-                try {
                     emit(DataState.Loading)
                     val result =
                         ConnectRequestManager.executeRequest(endpoint) {
@@ -118,13 +117,6 @@ class ConnectRepository
                     result
                         .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
                         .onFailure { throwable -> emit(DataState.Error.from(throwable, cachedData)) }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: LoginInvalidatedException) {
-                    throw e
-                } catch (e: Exception) {
-                    emit(DataState.Error.from(e, cachedData))
-                }
             }.flowOn(Dispatchers.IO)
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<ConnectOpportunitiesResponseModel> {
