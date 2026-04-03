@@ -1068,7 +1068,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly,
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isKeyFromKeystore, instanceIsReadOnly,
                     formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, savedFormSession) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {

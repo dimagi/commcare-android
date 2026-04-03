@@ -19,6 +19,7 @@ import org.commcare.logic.AndroidFormController;
 import org.commcare.models.database.InterruptedFormState;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
@@ -67,6 +68,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     public static InstanceInitializationFactory iif;
 
     private final SecretKeySpec mSymetricKey;
+    private final boolean isKeyFromKeystore;
     private final boolean mReadOnly;
     private final boolean recordEntrySession;
     private final InterruptedFormState savedFormSession;
@@ -81,9 +83,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
     public static final int FORM_LOADER_TASK_ID = 16;
 
-    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
+    public FormLoaderTask(SecretKeySpec symetricKey, boolean isKeyFromKeystore, boolean readOnly,
                           boolean recordEntrySession, String formRecordPath, R activity, InterruptedFormState savedFormSession) {
         this.mSymetricKey = symetricKey;
+        this.isKeyFromKeystore = isKeyFromKeystore;
         this.mReadOnly = readOnly;
         this.activity = activity;
         this.taskId = FORM_LOADER_TASK_ID;
@@ -260,7 +263,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         // convert files into a byte array
         InputStream is;
         try {
-            is = EncryptionIO.getFileInputStream(filePath, mSymetricKey, null, false);
+            if (isKeyFromKeystore) {
+                is = EncryptionIO.getFileInputStreamWithKeystore(filePath,
+                        CommCareKeyManager.retrieveSessionKeyAndTransformation());
+            } else {
+                is = EncryptionIO.getFileInputStream(filePath, mSymetricKey, null, false);
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new RuntimeException("Unable to open encrypted form instance file: " + filePath);
