@@ -97,8 +97,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_enter_otp">Da fatan za a shigar da lambar sirri mai lambobi 6 da aka aika zuwa lambar wayarku.</string>
     <string name="connect_backup_code_title_set">Lambar Ajiyar Kuɗi</string>
     <string name="connect_backup_code_title_confirm">Tabbatar da Lambar Ajiyar Kuɗi</string>
-    <string name="connect_backup_code_length">Da fatan za a tabbatar ka tuna da lambar madadinka! Dole ne ta zama lambobi %d. Ajiye ta a wuri mai aminci domin za ka buƙaci ta don sake shiga asusunka.</string>
-    <string name="connect_backup_code_mismatch">Lambobin madadin da kuka shigar dole ne su dace. Da fatan za a ajiye su a wuri mai aminci domin za ku buƙaci su don sake shiga asusunku.</string>
+    <string name="connect_backup_code_remember">Da fatan za a tabbatar ka tuna da lambar madadinka! Dole ne ta zama lambobi %d. Ajiye ta a wuri mai aminci domin za ka buƙaci ta don sake shiga asusunka.</string>
+    <string name="connect_backup_code_mismatch">Lambobin madadin da kuka shigar dole ne su dace.</string>
     <string name="connect_backup_fail_title">Lambar Ajiyayyen da Ba Daidai Ba</string>
     <string name="connect_recovery_success_title">An Dawo da Asusu</string>
     <string name="connect_recovery_success_message">An dawo da asusunka! Za ka iya ci gaba da amfani da PersonalID.</string>

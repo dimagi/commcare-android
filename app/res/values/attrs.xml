@@ -57,6 +57,7 @@
         <attr name="otpViewTextSize" format="dimension" />
         <attr name="otpViewErrorBorderColor" format="color" />
         <attr name="otpViewErrorTextColor" format="color" />
+        <attr name="otpViewPasswordMode" format="boolean" />
     </declare-styleable>
     <declare-styleable name="CustomEditText">
         <!-- Border attributes -->

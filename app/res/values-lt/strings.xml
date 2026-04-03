@@ -138,10 +138,10 @@
     <string name="connect_otp_verified">Puiku! Jūsų telefono numeris patvirtintas.</string>
     <string name="personalid_otp_verification_failed_generic">Klaida tikrinant jūsų telefono numerį. Bandykite dar kartą.</string>
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
-    <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti. Laikykite juos saugioje vietoje, nes jums jų prireiks norint vėl pasiekti savo paskyrą.</string>
+    <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
-    <string name="connect_backup_code_length">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
+    <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
     <string name="no_channel_msg">Jūs neprenumeruojate jokių susirašinėjimo kanalų. Kai būsite pridėtas prie kanalo, jis pasirodys šiame sąraše.</string>
     <string name="connect_payment_confirm_text">Ar gavote %d %s už %s galimybę?</string>
     <string name="connect_payment_confirm_yes">Taip, gavau</string>

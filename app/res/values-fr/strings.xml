@@ -259,8 +259,8 @@ License.
     <string name="connect_enter_otp">Veuillez saisir le code d\'accès à 6 chiffres qui a été envoyé à votre numéro de téléphone.</string>
     <string name="connect_backup_code_title_set">Choisissez le code PIN</string>
     <string name="connect_backup_code_title_confirm">Confirmer le code PIN</string>
-    <string name="connect_backup_code_length">Assurez-vous de mémoriser votre code de secours ! Il doit comporter %d chiffres. Conservez-le en lieu sûr, car vous en aurez besoin pour accéder à nouveau à votre compte.</string>
-    <string name="connect_backup_code_mismatch">Les codes de secours que vous saisissez doivent correspondre. Veuillez le conserver en lieu sûr, car vous en aurez besoin pour accéder à nouveau à votre compte.</string>
+    <string name="connect_backup_code_remember">Assurez-vous de mémoriser votre code de secours ! Il doit comporter %d chiffres. Conservez-le en lieu sûr, car vous en aurez besoin pour accéder à nouveau à votre compte.</string>
+    <string name="connect_backup_code_mismatch">Les codes de secours que vous saisissez doivent correspondre.</string>
     <string name="connect_backup_fail_title">Code erroné</string>
     <string name="connect_recovery_success_title">Compte récupéré</string>
     <string name="connect_recovery_success_message">Votre compte a été récupéré ! Vous pouvez reprendre l\'utilisation de PersonalID.</string>

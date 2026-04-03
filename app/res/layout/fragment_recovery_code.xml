@@ -80,7 +80,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp">
+            android:layout_marginEnd="16dp"
+            android:gravity="center_vertical">
 
             <LinearLayout
                 android:layout_width="42dp"
@@ -98,26 +99,32 @@
 
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutTextInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:hintEnabled="false"
-                app:passwordToggleEnabled="true">
+            <org.commcare.views.connect.CustomOtpView
+                android:id="@+id/backup_code_otp_view"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                app:otpViewDigitCount="6"
+                app:otpViewTextColor="@color/connect_blue_color"
+                app:otpViewBorderColor="@color/connect_blue_color"
+                app:otpViewBorderRadius="4dp"
+                app:otpViewBorderWidth="0.5dp"
+                app:otpViewErrorTextColor="@color/connect_red"
+                app:otpViewErrorBorderColor="@color/connect_red"
+                app:otpViewTextSize="6sp"
+                app:otpViewPasswordMode="true" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/connect_backup_code_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginStart="16dp"
-                    android:maxLength="6"
-                    android:background="@drawable/connect_edit_text_bg"
-                    android:textColorHint="@color/connect_grey"
-                    android:paddingHorizontal="16dp"
-                    android:hint="@string/code"
-                    android:imeOptions="actionNext"
-                    android:inputType="numberPassword"/>
-            </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:id="@+id/backup_code_visibility_toggle"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@null"
+                android:padding="4dp"
+                android:src="@drawable/ic_visibility_24"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -126,7 +133,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp" >
+            android:layout_marginEnd="16dp"
+            android:gravity="center_vertical">
 
             <LinearLayout
                 android:layout_width="42dp"
@@ -144,26 +152,32 @@
 
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/connect_backup_code_repeat_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:hintEnabled="false"
-                app:passwordToggleEnabled="true">
+            <org.commcare.views.connect.CustomOtpView
+                android:id="@+id/confirm_code_otp_view"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                app:otpViewDigitCount="6"
+                app:otpViewTextColor="@color/connect_blue_color"
+                app:otpViewBorderColor="@color/connect_blue_color"
+                app:otpViewBorderRadius="4dp"
+                app:otpViewBorderWidth="0.5dp"
+                app:otpViewErrorTextColor="@color/connect_red"
+                app:otpViewErrorBorderColor="@color/connect_red"
+                app:otpViewTextSize="6sp"
+                app:otpViewPasswordMode="true" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/connect_backup_code_repeat_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginStart="16dp"
-                    android:background="@drawable/connect_edit_text_bg"
-                    android:imeOptions="actionDone"
-                    android:textColorHint="@color/connect_grey"
-                    android:paddingHorizontal="16dp"
-                    android:maxLength="6"
-                    android:hint="@string/confirm_code"
-                    android:inputType="numberPassword"/>
-            </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:id="@+id/confirm_code_visibility_toggle"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@null"
+                android:padding="4dp"
+                android:src="@drawable/ic_visibility_24"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
         </LinearLayout>
 
         <TextView

@@ -2,14 +2,10 @@ package org.commcare.fragments.personalId;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -28,9 +24,9 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
+import org.commcare.views.connect.CustomOtpView;
 import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Date;
 
 public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
-    private static final int BACKUP_CODE_LENGTH = 6;
+    private static final int BACKUP_CODE_LENGTH = 6; //Note: This is brittle, defined in several places
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
     private boolean isRecovery = false;
@@ -48,8 +44,8 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     @Override
     public void onResume() {
         super.onResume();
-        KeyboardHelper.showKeyboardOnInput(activity, binding.connectBackupCodeInput);
         validateBackupCodeInputs();
+        binding.backupCodeOtpView.requestFocus(activity);
     }
 
     @Override
@@ -59,9 +55,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         personalIdSessionData = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         configureUiByMode();
-        setupInputFilters();
         setupListeners();
-        setupDoneKeys();
         clearBackupCodeFields();
         activity.setTitle(getString(titleId));
         return binding.getRoot();
@@ -78,6 +72,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             setUserNameAndPhoto();
         } else {
             titleId = R.string.connect_backup_code_title_set;
+            binding.backupCodeSubtitle.setText(getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH));
             binding.backupCodeLayout.setVisibility(View.VISIBLE);
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
             binding.welcomeBackLayout.setVisibility(View.GONE);
@@ -92,73 +87,58 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         }
     }
 
-    private void setupInputFilters() {
-        InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(BACKUP_CODE_LENGTH)};
-        binding.connectBackupCodeInput.setFilters(filters);
-        binding.connectBackupCodeRepeatInput.setFilters(filters);
-    }
-
-    private void setupDoneKeys() {
-        binding.connectBackupCodeInput.setOnEditorActionListener((v, actionId, event) -> {
-            if ((actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE)
-                    && isRecovery && binding.connectBackupCodeButton.isEnabled()) {
-                handleBackupCodeSubmission();
-                return true;
-            }
-
-            return false;
-        });
-
-        binding.connectBackupCodeRepeatInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
-                    && binding.connectBackupCodeButton.isEnabled()) {
-                handleBackupCodeSubmission();
-                return true;
-            }
-
-            return false;
-        });
-    }
-
     private void setupListeners() {
-        TextWatcher backupCodeWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+        CustomOtpView.OnOtpChangedListener otpChangedListener = otp -> validateBackupCodeInputs();
 
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
+        binding.backupCodeOtpView.setOnOtpChangedListener(otpChangedListener);
+        binding.confirmCodeOtpView.setOnOtpChangedListener(otpChangedListener);
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateBackupCodeInputs();
+        binding.backupCodeOtpView.setOtpCompleteListener(otp -> {
+            if (isRecovery && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
             }
-        };
+        });
 
-        binding.connectBackupCodeInput.addTextChangedListener(backupCodeWatcher);
-        binding.connectBackupCodeRepeatInput.addTextChangedListener(backupCodeWatcher);
+        binding.confirmCodeOtpView.setOtpCompleteListener(otp -> {
+            if (binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+            }
+        });
+
         binding.connectBackupCodeButton.setOnClickListener(v -> handleBackupCodeSubmission());
         binding.notMeButton.setOnClickListener(v -> handleNotMeButtonPressed());
+
+        binding.backupCodeVisibilityToggle.setOnClickListener(v -> togglePasswordVisibility(
+                binding.backupCodeOtpView, binding.backupCodeVisibilityToggle));
+        binding.confirmCodeVisibilityToggle.setOnClickListener(v -> togglePasswordVisibility(
+                binding.confirmCodeOtpView, binding.confirmCodeVisibilityToggle));
+    }
+
+    private void togglePasswordVisibility(CustomOtpView otpView, android.widget.ImageView toggle) {
+        boolean nowVisible = !otpView.isPasswordVisible();
+        otpView.setPasswordVisible(nowVisible);
+        toggle.setImageResource(nowVisible
+                ? R.drawable.ic_visibility_off_24
+                : R.drawable.ic_visibility_24);
     }
 
     private void clearBackupCodeFields() {
-        binding.connectBackupCodeInput.setText("");
-        binding.connectBackupCodeRepeatInput.setText("");
+        binding.confirmCodeOtpView.clearOtp();
+        binding.backupCodeOtpView.clearOtp();
     }
 
     private void validateBackupCodeInputs() {
-        String backupCode1 = binding.connectBackupCodeInput.getText().toString();
-        String backupCode2 = binding.connectBackupCodeRepeatInput.getText().toString();
+        String backupCode1 = binding.backupCodeOtpView.getOtpValue();
+        String backupCode2 = binding.confirmCodeOtpView.getOtpValue();
 
         String errorText = "";
         boolean isValid = false;
 
-        if (!backupCode1.isEmpty()) {
-            if (backupCode1.length() != BACKUP_CODE_LENGTH) {
-                errorText = getString(R.string.connect_backup_code_length, BACKUP_CODE_LENGTH);
-            } else if (!isRecovery && !backupCode1.equals(backupCode2)) {
-                errorText = getString(R.string.connect_backup_code_mismatch);
+        if (backupCode1.length() == BACKUP_CODE_LENGTH) {
+            if (!isRecovery && !backupCode1.equals(backupCode2)) {
+                if (backupCode2.length() == BACKUP_CODE_LENGTH) {
+                    errorText = getString(R.string.connect_backup_code_mismatch);
+                }
             } else {
                 isValid = true;
             }
@@ -185,7 +165,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             confirmBackupCode();
         } else {
             personalIdSessionData.setBackupCode(
-                    binding.connectBackupCodeInput.getText().toString());
+                    binding.backupCodeOtpView.getOtpValue());
             navigateToPhoto();
         }
     }
@@ -193,7 +173,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private void confirmBackupCode() {
         clearError();
         enableContinueButton(false);
-        String backupCode = binding.connectBackupCodeInput.getText().toString();
+        String backupCode = binding.backupCodeOtpView.getOtpValue();
 
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
@@ -223,7 +203,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
+                binding.backupCodeOtpView.getOtpValue(), new Date(),
                 personalIdSessionData.getPhotoBase64(),
                 personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
                 personalIdSessionData.getInvitedUser());

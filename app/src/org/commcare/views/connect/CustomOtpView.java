@@ -1,5 +1,6 @@
 package org.commcare.views.connect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.KeyboardHelper;
 
 public class CustomOtpView extends LinearLayout {
 
@@ -27,9 +29,14 @@ public class CustomOtpView extends LinearLayout {
     private int textColor = Color.BLACK;
     private int errorTextColor = Color.RED;
     private float textSize = 10;
+    private boolean passwordMode = false;
+    private boolean passwordVisible = false;
+    private String[] actualValues;
+    private int lastEditedIndex = -1;
     private OtpCompleteListener otpCompleteListener;
     private OnOtpChangedListener otpChangedListener;
     private boolean isErrorState = false;
+    private boolean isSelfUpdate = false;
 
     public CustomOtpView(Context context) {
         super(context);
@@ -47,16 +54,22 @@ public class CustomOtpView extends LinearLayout {
 
         // Read attributes from XML
         if (attrs != null) {
-            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CustomOtpView);
-            digitCount = typedArray.getInt(R.styleable.CustomOtpView_otpViewDigitCount, digitCount);
-            borderColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewBorderColor, borderColor);
-            errorBorderColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewErrorBorderColor, errorBorderColor);
-            borderRadius = typedArray.getDimensionPixelSize(R.styleable.CustomOtpView_otpViewBorderRadius, borderRadius);
-            borderWidth = typedArray.getDimensionPixelSize(R.styleable.CustomOtpView_otpViewBorderWidth, borderWidth);
-            textColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewTextColor, textColor);
-            errorTextColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewErrorTextColor, errorTextColor);
-            textSize = typedArray.getDimension(R.styleable.CustomOtpView_otpViewTextSize, textSize);
-            typedArray.recycle();
+            try (TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CustomOtpView)) {
+                digitCount = typedArray.getInt(R.styleable.CustomOtpView_otpViewDigitCount, digitCount);
+                borderColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewBorderColor, borderColor);
+                errorBorderColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewErrorBorderColor, errorBorderColor);
+                borderRadius = typedArray.getDimensionPixelSize(R.styleable.CustomOtpView_otpViewBorderRadius, borderRadius);
+                borderWidth = typedArray.getDimensionPixelSize(R.styleable.CustomOtpView_otpViewBorderWidth, borderWidth);
+                textColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewTextColor, textColor);
+                errorTextColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewErrorTextColor, errorTextColor);
+                textSize = typedArray.getDimension(R.styleable.CustomOtpView_otpViewTextSize, textSize);
+                passwordMode = typedArray.getBoolean(R.styleable.CustomOtpView_otpViewPasswordMode, false);
+            }
+        }
+
+        actualValues = new String[digitCount];
+        for (int i = 0; i < digitCount; i++) {
+            actualValues[i] = "";
         }
 
         createOtpFields();
@@ -85,10 +98,10 @@ public class CustomOtpView extends LinearLayout {
         editText.setId(index);
 
         editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus && index > 0 && ((EditText) getChildAt(index)).getText().length() == 0) {
+            if (hasFocus && index > 0 && ((EditText) getChildAt(index)).getText().isEmpty()) {
                 // Move to the first empty edit text if it's focused and empty
                 for (int i = 0; i < digitCount; i++) {
-                    if (((EditText) getChildAt(i)).getText().length() == 0) {
+                    if (actualValues[i].isEmpty()) {
                         getChildAt(i).requestFocus();
                         break;
                     }
@@ -98,14 +111,24 @@ public class CustomOtpView extends LinearLayout {
 
         editText.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (editText.getText().toString().isEmpty() && index > 0) {
+                if (actualValues[index].isEmpty() && index > 0) {
                     // Move to previous field and clear it
-                    EditText previousEditText = (EditText)getChildAt(index - 1);
+                    actualValues[index - 1] = "";
+                    lastEditedIndex = -1;
+                    isSelfUpdate = true;
+                    EditText previousEditText = (EditText) getChildAt(index - 1);
                     previousEditText.setText("");
+                    isSelfUpdate = false;
                     previousEditText.requestFocus();
+                    notifyOtpChanged();
                 } else {
-                    // Just clear current field
+                    // Clear current field
+                    actualValues[index] = "";
+                    lastEditedIndex = -1;
+                    isSelfUpdate = true;
                     editText.setText("");
+                    isSelfUpdate = false;
+                    notifyOtpChanged();
                 }
                 return true;
             }
@@ -113,70 +136,129 @@ public class CustomOtpView extends LinearLayout {
         });
 
         editText.addTextChangedListener(new TextWatcher() {
-            private boolean isSelfTriggered = false;
-
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isSelfTriggered) {
+                if (isSelfUpdate) {
                     return;
                 }
 
                 setErrorState(false);
 
-                if (s.length() == 1) {
-                    // Overwrite the existing value and move to the next EditText
+                String input = s.toString();
+
+                if (input.length() == 1) {
+                    if (passwordMode && input.equals("*")) {
+                        return;
+                    }
+                    actualValues[index] = input;
+                    lastEditedIndex = index;
+                    updateMaskedDisplay();
+
                     if (index < digitCount - 1) {
-                        EditText nextEditText = (EditText) getChildAt(index + 1);
-                        nextEditText.setText(""); // Clear next field
-                        nextEditText.requestFocus();
+                        moveToNextBox(index);
                     } else {
                         checkOtpCompletion();
                     }
-                    if (otpChangedListener != null) {
-                        String otp = getOtpValue();
-                        otpChangedListener.onOtpChanged(otp);
-                    }
-                } else if (s.length() > 1) {
-                    // If more than one character, replace with the latest input
-                    char lastChar = s.charAt(s.length() - 1);
+                    notifyOtpChanged();
+                } else if (input.length() > 1) {
+                    // If more than one character, keep only the latest digit
+                    char lastChar = input.charAt(input.length() - 1);
                     String text = "";
-                    if(Character.isDigit(lastChar)) {
+                    if (Character.isDigit(lastChar)) {
                         text = String.valueOf(lastChar);
                     }
-                    editText.setText(text);
-                } else if (otpChangedListener != null) {
-                    String otp = getOtpValue();
-                    otpChangedListener.onOtpChanged(otp);
+                    actualValues[index] = text;
+                    lastEditedIndex = index;
+
+                    isSelfUpdate = true;
+                    editText.setText(getDisplayChar(index));
+                    if (!getDisplayChar(index).isEmpty()) {
+                        editText.setSelection(1);
+                    }
+                    isSelfUpdate = false;
+
+                    if (!text.isEmpty() && index < digitCount - 1) {
+                        moveToNextBox(index);
+                    }
+                    notifyOtpChanged();
+                } else if (!actualValues[index].isEmpty()) {
+                    actualValues[index] = "";
+                    notifyOtpChanged();
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isSelfTriggered) return;
+                if (isSelfUpdate) return;
 
                 if (s.length() > 1) {
-                    // Ensure only the last character is preserved
-                    isSelfTriggered = true;
-                    editText.setText(s.subSequence(s.length() - 1, s.length()));
-                    editText.setSelection(1); // Place cursor after the character
-                    isSelfTriggered = false;
+                    isSelfUpdate = true;
+                    String display = getDisplayChar(index);
+                    editText.setText(display);
+                    if (!display.isEmpty()) {
+                        editText.setSelection(1);
+                    }
+                    isSelfUpdate = false;
                 }
             }
         });
 
-
         return editText;
+    }
+
+    private String getDisplayChar(int index) {
+        if (actualValues[index].isEmpty()) {
+            return "";
+        }
+        if (!passwordMode || passwordVisible) {
+            return actualValues[index];
+        }
+        // In password mode, show the most recently edited digit, mask others
+        if (index == lastEditedIndex) {
+            return actualValues[index];
+        }
+        return "*";
+    }
+
+    private void moveToNextBox(int currentIndex) {
+        EditText nextEditText = (EditText) getChildAt(currentIndex + 1);
+        isSelfUpdate = true;
+        nextEditText.setText("");
+        isSelfUpdate = false;
+        nextEditText.requestFocus();
+    }
+
+    private void updateMaskedDisplay() {
+        if (!passwordMode) return;
+
+        isSelfUpdate = true;
+        for (int i = 0; i < digitCount; i++) {
+            EditText editText = (EditText) getChildAt(i);
+            String display = getDisplayChar(i);
+            if (!editText.getText().toString().equals(display)) {
+                editText.setText(display);
+                if (!display.isEmpty() && editText.hasFocus()) {
+                    editText.setSelection(1);
+                }
+            }
+        }
+        isSelfUpdate = false;
+    }
+
+    private void notifyOtpChanged() {
+        if (otpChangedListener != null) {
+            otpChangedListener.onOtpChanged(getOtpValue());
+        }
     }
 
     public String getOtpValue() {
         StringBuilder otp = new StringBuilder();
         for (int i = 0; i < digitCount; i++) {
-            EditText editText = (EditText) getChildAt(i);
-            otp.append(editText.getText().toString());
+            otp.append(actualValues[i]);
         }
         return otp.toString();
     }
@@ -189,17 +271,12 @@ public class CustomOtpView extends LinearLayout {
     }
 
     private void checkOtpCompletion() {
-        StringBuilder otp = new StringBuilder();
-        for (int i = 0; i < digitCount; i++) {
-            EditText editText = (EditText) getChildAt(i);
-            otp.append(editText.getText().toString());
-        }
+        String otp = getOtpValue();
         if (otp.length() == digitCount && otpCompleteListener != null) {
-            otpCompleteListener.onOtpComplete(otp.toString());
+            otpCompleteListener.onOtpComplete(otp);
         }
     }
 
-    // Public methods for customization
     public void setOtpCompleteListener(OtpCompleteListener listener) {
         this.otpCompleteListener = listener;
     }
@@ -221,6 +298,51 @@ public class CustomOtpView extends LinearLayout {
         }
     }
 
+    public void setPasswordVisible(boolean visible) {
+        this.passwordVisible = visible;
+        refreshAllDisplays();
+    }
+
+    public boolean isPasswordVisible() {
+        return passwordVisible;
+    }
+
+    private void refreshAllDisplays() {
+        isSelfUpdate = true;
+        for (int i = 0; i < digitCount; i++) {
+            EditText editText = (EditText) getChildAt(i);
+            String display = getDisplayChar(i);
+            if (!editText.getText().toString().equals(display)) {
+                editText.setText(display);
+                if (!display.isEmpty() && editText.hasFocus()) {
+                    editText.setSelection(1);
+                }
+            }
+        }
+        isSelfUpdate = false;
+    }
+
+    public void clearOtp() {
+        lastEditedIndex = -1;
+        for (int i = 0; i < digitCount; i++) {
+            actualValues[i] = "";
+        }
+        isSelfUpdate = true;
+        for (int i = 0; i < digitCount; i++) {
+            ((EditText) getChildAt(i)).setText("");
+        }
+        isSelfUpdate = false;
+        if (getChildCount() > 0) {
+            getChildAt(0).requestFocus();
+        }
+    }
+
+    public void requestFocus(Activity activity) {
+        if (getChildCount() > 0) {
+            KeyboardHelper.showKeyboardOnInput(activity, getChildAt(0));
+        }
+    }
+
     public interface OtpCompleteListener {
         void onOtpComplete(String otp);
     }
@@ -234,14 +356,21 @@ public class CustomOtpView extends LinearLayout {
             throw new IllegalArgumentException("OTP length exceeds the digit count");
         }
 
+        lastEditedIndex = -1;
         for (int i = 0; i < digitCount; i++) {
             EditText editText = (EditText) getChildAt(i);
             if (i < otp.length()) {
-                editText.setText(String.valueOf(otp.charAt(i)));
+                actualValues[i] = String.valueOf(otp.charAt(i));
+                isSelfUpdate = true;
+                editText.setText(getDisplayChar(i));
+                isSelfUpdate = false;
             } else {
+                actualValues[i] = "";
+                isSelfUpdate = true;
                 editText.setText("");
+                isSelfUpdate = false;
             }
-            editText.clearFocus(); // Ensure no field remains focused
+            editText.clearFocus();
         }
     }
 }
