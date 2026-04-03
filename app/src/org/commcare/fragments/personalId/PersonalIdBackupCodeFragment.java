@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -116,7 +117,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 binding.confirmCodeView, binding.confirmCodeVisibilityToggle));
     }
 
-    private void togglePasswordVisibility(CustomOtpView codeView, android.widget.ImageView toggle) {
+    private void togglePasswordVisibility(CustomOtpView codeView, ImageView toggle) {
         boolean nowVisible = !codeView.isPasswordVisible();
         codeView.setPasswordVisible(nowVisible);
         toggle.setImageResource(nowVisible
