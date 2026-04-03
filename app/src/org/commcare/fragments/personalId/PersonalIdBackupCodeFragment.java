@@ -45,7 +45,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     public void onResume() {
         super.onResume();
         validateBackupCodeInputs();
-        binding.backupCodeOtpView.requestFocus(activity);
+        binding.backupCodeView.requestFocus(activity);
     }
 
     @Override
@@ -90,18 +90,18 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void setupListeners() {
-        CustomOtpView.OnOtpChangedListener otpChangedListener = otp -> validateBackupCodeInputs();
+        CustomOtpView.OnOtpChangedListener codeChangedListener = code -> validateBackupCodeInputs();
 
-        binding.backupCodeOtpView.setOnOtpChangedListener(otpChangedListener);
-        binding.confirmCodeOtpView.setOnOtpChangedListener(otpChangedListener);
+        binding.backupCodeView.setOnOtpChangedListener(codeChangedListener);
+        binding.confirmCodeView.setOnOtpChangedListener(codeChangedListener);
 
-        binding.backupCodeOtpView.setOtpCompleteListener(otp -> {
+        binding.backupCodeView.setOtpCompleteListener(code -> {
             if (isRecovery && binding.connectBackupCodeButton.isEnabled()) {
                 handleBackupCodeSubmission();
             }
         });
 
-        binding.confirmCodeOtpView.setOtpCompleteListener(otp -> {
+        binding.confirmCodeView.setOtpCompleteListener(code -> {
             if (binding.connectBackupCodeButton.isEnabled()) {
                 handleBackupCodeSubmission();
             }
@@ -111,27 +111,27 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         binding.notMeButton.setOnClickListener(v -> handleNotMeButtonPressed());
 
         binding.backupCodeVisibilityToggle.setOnClickListener(v -> togglePasswordVisibility(
-                binding.backupCodeOtpView, binding.backupCodeVisibilityToggle));
+                binding.backupCodeView, binding.backupCodeVisibilityToggle));
         binding.confirmCodeVisibilityToggle.setOnClickListener(v -> togglePasswordVisibility(
-                binding.confirmCodeOtpView, binding.confirmCodeVisibilityToggle));
+                binding.confirmCodeView, binding.confirmCodeVisibilityToggle));
     }
 
-    private void togglePasswordVisibility(CustomOtpView otpView, android.widget.ImageView toggle) {
-        boolean nowVisible = !otpView.isPasswordVisible();
-        otpView.setPasswordVisible(nowVisible);
+    private void togglePasswordVisibility(CustomOtpView codeView, android.widget.ImageView toggle) {
+        boolean nowVisible = !codeView.isPasswordVisible();
+        codeView.setPasswordVisible(nowVisible);
         toggle.setImageResource(nowVisible
                 ? R.drawable.ic_visibility_off_24
                 : R.drawable.ic_visibility_24);
     }
 
     private void clearBackupCodeFields() {
-        binding.confirmCodeOtpView.clearOtp();
-        binding.backupCodeOtpView.clearOtp();
+        binding.confirmCodeView.clearOtp();
+        binding.backupCodeView.clearOtp();
     }
 
     private void validateBackupCodeInputs() {
-        String backupCode1 = binding.backupCodeOtpView.getOtpValue();
-        String backupCode2 = binding.confirmCodeOtpView.getOtpValue();
+        String backupCode1 = binding.backupCodeView.getOtpValue();
+        String backupCode2 = binding.confirmCodeView.getOtpValue();
 
         String errorText = "";
         boolean isValid = false;
@@ -167,7 +167,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             confirmBackupCode();
         } else {
             personalIdSessionData.setBackupCode(
-                    binding.backupCodeOtpView.getOtpValue());
+                    binding.backupCodeView.getOtpValue());
             navigateToPhoto();
         }
     }
@@ -175,7 +175,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private void confirmBackupCode() {
         clearError();
         enableContinueButton(false);
-        String backupCode = binding.backupCodeOtpView.getOtpValue();
+        String backupCode = binding.backupCodeView.getOtpValue();
 
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
@@ -205,7 +205,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                binding.backupCodeOtpView.getOtpValue(), new Date(),
+                binding.backupCodeView.getOtpValue(), new Date(),
                 personalIdSessionData.getPhotoBase64(),
                 personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
                 personalIdSessionData.getInvitedUser());

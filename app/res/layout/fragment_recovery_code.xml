@@ -109,7 +109,7 @@
             </LinearLayout>
 
             <org.commcare.views.connect.CustomOtpView
-                android:id="@+id/backup_code_otp_view"
+                android:id="@+id/backup_code_view"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
@@ -172,7 +172,7 @@
             </LinearLayout>
 
             <org.commcare.views.connect.CustomOtpView
-                android:id="@+id/confirm_code_otp_view"
+                android:id="@+id/confirm_code_view"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
