@@ -146,7 +146,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     private fun showOfflineIndicator() {
         val message = buildOfflineMessage()
-        topBarErrorViewController?.showOfflineStatus(message)
+        topBarErrorViewController!!.showOfflineStatus(message)
     }
 
     private fun buildOfflineMessage(): String {
@@ -170,7 +170,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
                         view?.post {
-                            topBarErrorViewController?.hide()
+                            topBarErrorViewController!!.hide()
                         }
                     }
                 }
