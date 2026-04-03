@@ -69,29 +69,6 @@ public class FormUploadUtil {
                     ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg", ".pdf", 
                     ".html", ".rtf", ".txt", ".docx", ".xlsx", ".msg"};
 
-    public static Cipher getDecryptCipher(Key key) {
-        return getDecryptCipher(key, null, null);
-    }
-
-    public static Cipher getDecryptCipher(Key key, String transformation, byte[] iv) {
-        Cipher cipher;
-        try {
-            cipher = Cipher.getInstance(Objects.requireNonNullElse(transformation, "AES"));
-            if (iv != null) {
-                cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-            } else {
-                cipher.init(Cipher.DECRYPT_MODE, key);
-            }
-
-            return cipher;
-            //TODO: Something smart here;
-        } catch (NoSuchAlgorithmException |
-                NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
-            Logger.exception("Failed to initialize decryption cipher ", e);
-        }
-        return null;
-    }
-
     /**
      * Send unencrypted data to the server without user facing progress
      * reporting.

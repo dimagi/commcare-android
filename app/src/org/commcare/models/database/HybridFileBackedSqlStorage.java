@@ -8,6 +8,7 @@ import com.google.firebase.perf.metrics.Trace;
 import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
@@ -165,8 +166,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) throws FileNotFoundException {
-        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-        return EncryptionIO.getFileInputStream(filename, aesKey, null, false);
+        if (usesKeystoreEncryption(aesKeyBytes)) {
+            return EncryptionIO.getFileInputStreamWithKeystore(
+                    filename, CommCareKeyManager.retrieveSessionKeyAndTransformation());
+        } else {
+            SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+            return EncryptionIO.getFileInputStream(filename, aesKey, null, false);
+        }
     }
 
     @Override
@@ -325,18 +331,22 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
-        byte[] key = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
+        byte[] key = CommCareKeyManager.generateLegacyKeyOrEmpty();
         contentValues.put(DatabaseHelper.AES_COL, key);
         return key;
     }
 
+    protected static boolean usesKeystoreEncryption(byte[] aesKeyBytes) {
+        return aesKeyBytes == null || aesKeyBytes.length == 0;
+    }
+
     private void writeStreamToFile(ByteArrayOutputStream bos, String filename,
-                                   byte[] key) throws IOException {
+                                   byte[] aesKeyBytes) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
         DataOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = getOutputFileStream(filename, key);
+            fileOutputStream = getOutputFileStream(filename, aesKeyBytes);
             bos.writeTo(fileOutputStream);
         } finally {
             if (fileOutputStream != null) {
@@ -350,15 +360,20 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     trace,
                     bos.size(),
                     FilenameUtils.getExtension(filename),
-                    false
+                    usesKeystoreEncryption(aesKeyBytes)
             );
         }
     }
 
     protected DataOutputStream getOutputFileStream(String filename,
                                                    byte[] aesKeyBytes) throws IOException {
-        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-        return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+        if (usesKeystoreEncryption(aesKeyBytes)) {
+            return new DataOutputStream(EncryptionIO.createFileOutputStreamWithKeystore(
+                    filename, CommCareKeyManager.retrieveSessionKeyAndTransformation()));
+        } else {
+            SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+            return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+        }
     }
 
     @Override
