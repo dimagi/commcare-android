@@ -585,11 +585,6 @@
             android:name="org.commcare.activities.connect.PersonalIdWorkHistoryActivity"
             android:theme="@style/CommonTheme.NoActionBar"/>
 
-        <activity
-            android:name="org.commcare.activities.connect.PersonalIdProfileActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
-
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
             android:exported="false">

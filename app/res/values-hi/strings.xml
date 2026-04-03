@@ -364,7 +364,7 @@ License.
     <string name="choose_a_6_digit_recovery_code">6 अंकों का रिकवरी कोड चुनें</string>
     <string name="download_app">डाउनलोड करें</string>
     <string name="sync">सिंक करें</string>
-    <string name="micro_image_activity_title">चेहरे की फ़ोटो कैप्चर करें</string>
+    <string name="micro_image_activity_title">प्रोफ़ाइल फ़ोटो लें</string>
     <string name="connect_job_info_title">अवसर विवरण</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>

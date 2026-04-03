@@ -265,12 +265,21 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void updatePhoto(Context context, String userId, String password, String photoBase64) {
-        ApiPersonalId.updatePhoto(
+    public void updateProfile(
+            Context context,
+            String userName,
+            String password,
+            String displayName,
+            String secondaryPhone,
+            String photoAsBase64
+    ) {
+        ApiPersonalId.updateUserProfile(
                 context,
-                userId,
+                userName,
                 password,
-                photoBase64,
+                displayName,
+                secondaryPhone,
+                photoAsBase64,
                 createCallback(new NoParsingResponseParser<>(), null)
         );
     }

@@ -41,10 +41,6 @@ public interface ApiService {
     Call<ResponseBody> completeProfile(@Header("Authorization") String token,
                                        @Body Map<String, String> body);
 
-    @POST(ApiEndPoints.updatePhoto)
-    Call<ResponseBody> updatePhoto(@Header("Authorization") String token,
-                                   @Body Map<String, String> body);
-
     @POST(ApiEndPoints.confirmBackupCode)
     Call<ResponseBody> confirmBackupCode(@Header("Authorization") String token,
                                          @Body Map<String, String> confirmBackupCodeRequest);

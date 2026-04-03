@@ -12,9 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import org.commcare.dalvik.R
 
-class DrawerViewRefs(
-    rootView: View,
-) {
+class DrawerViewRefs(rootView: View) {
     val drawerLayout: DrawerLayout = rootView.findViewById(R.id.drawer_layout)
     val navDrawerRecycler: RecyclerView = rootView.findViewById(R.id.nav_drawer_recycler)
     val drawerFrame: FrameLayout = rootView.findViewById(R.id.nav_drawer_frame)

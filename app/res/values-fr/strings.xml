@@ -364,7 +364,7 @@ License.
     <string name="choose_a_6_digit_recovery_code">Choisissez un code de récupération à 6 chiffres</string>
     <string name="download_app">Télécharger</string>
     <string name="sync">Synchroniser</string>
-    <string name="micro_image_activity_title">Capturer Photo Visage</string>
+    <string name="micro_image_activity_title">Prendre une Photo de Profil</string>
     <string name="connect_job_info_title">Détails de l\'opportunité</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>

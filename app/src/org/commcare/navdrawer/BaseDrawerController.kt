@@ -1,26 +1,32 @@
 package org.commcare.navdrawer
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
-import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
+import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
@@ -29,7 +35,6 @@ import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
-import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
 
 class BaseDrawerController(
@@ -40,8 +45,11 @@ class BaseDrawerController(
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
+    private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
     private var hasRefreshed = false
     private var showingError = false
+    private var user: ConnectUserRecord? = null
+    private var previousUserPhotoBase64: String? = null
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -53,8 +61,13 @@ class BaseDrawerController(
     }
 
     fun setupDrawer() {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+            user = ConnectUserDatabaseUtil.getUser(activity)
+        }
+
         setupActionBarDrawerToggle()
         initializeAdapter()
+        initTakePhotoLauncher()
         setupListeners()
         setupViews()
         refreshDrawerContent()
@@ -148,20 +161,8 @@ class BaseDrawerController(
             closeDrawer()
         }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
-        binding.profileCard.setOnClickListener {
-            ConnectNavHelper.unlockAndGoToProfile(
-                activity,
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) {
-                        if (success) {
-                            closeDrawer()
-                        }
-                    }
-                },
-            )
+        binding.imageUserProfile.setOnClickListener {
+            launchCameraForPhotoEdit()
         }
     }
 
@@ -169,18 +170,8 @@ class BaseDrawerController(
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
-
-            val user = ConnectUserDatabaseUtil.getUser(activity)
-            binding.userName.text = user.name
-            Glide
-                .with(binding.imageUserProfile)
-                .load(user.photo)
-                .apply(
-                    RequestOptions
-                        .circleCropTransform()
-                        .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar),
-                ).into(binding.imageUserProfile)
+            binding.userName.text = user!!.name
+            loadUserPhoto(user!!.photo!!)
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
@@ -252,16 +243,6 @@ class BaseDrawerController(
                 )
             }
 
-//            if (hasConnectAccess) {
-//                items.add(
-//                    NavDrawerItem.ParentItem(
-//                        activity.getString(R.string.nav_drawer_payments),
-//                        R.drawable.nav_drawer_payments_icon,
-//                        NavItemType.PAYMENTS,
-//                    )
-//                )
-//            }
-
             navDrawerAdapter.refreshList(items)
         } else {
             setSignedInState(false)
@@ -320,4 +301,73 @@ class BaseDrawerController(
     fun isShowingError(): Boolean = showingError
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
+
+    private fun initTakePhotoLauncher() {
+        takePhotoLauncher =
+            activity.registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult(),
+            ) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    result.data
+                        ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
+                        ?.let { photoBase64 ->
+                            previousUserPhotoBase64 = user!!.photo
+                            loadUserPhoto(photoBase64)
+                            uploadUserPhoto(photoBase64)
+                        }
+                }
+            }
+    }
+
+    private fun launchCameraForPhotoEdit() {
+        val intent = Intent(activity, MicroImageActivity::class.java).apply {
+            putExtra(MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, USER_PHOTO_MAX_DIMENSION_PX)
+            putExtra(MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, USER_PHOTO_MAX_SIZE_BYTES)
+        }
+        takePhotoLauncher.launch(intent)
+    }
+
+    private fun uploadUserPhoto(photoBase64: String) {
+        object : PersonalIdApiHandler<Boolean>() {
+            override fun onSuccess(success: Boolean) {
+                user!!.photo = photoBase64
+                ConnectUserDatabaseUtil.storeUser(activity, user)
+            }
+
+            override fun onFailure(
+                errorCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                revertUserPhoto()
+                val errorMessage = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t)
+                Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show()
+            }
+            // For now, we only allow users to update their photo, hence the null values for "displayName" and "secondaryPhone".
+        }.updateProfile(activity, user!!.userId, user!!.password, null, null, photoBase64)
+    }
+
+    private fun loadUserPhoto(photoBase64: String) {
+        Glide
+            .with(binding.imageUserProfile)
+            .load(photoBase64)
+            .apply(
+                RequestOptions
+                    .circleCropTransform()
+                    .placeholder(R.drawable.nav_drawer_person_avatar)
+                    .error(R.drawable.nav_drawer_person_avatar),
+            ).into(binding.imageUserProfile)
+    }
+
+    private fun revertUserPhoto() {
+        if (!previousUserPhotoBase64.isNullOrEmpty()) {
+            loadUserPhoto(previousUserPhotoBase64!!)
+        } else {
+            binding.imageUserProfile.setImageResource(R.drawable.nav_drawer_person_avatar)
+        }
+    }
+
+    companion object {
+        private const val USER_PHOTO_MAX_DIMENSION_PX = 160
+        private const val USER_PHOTO_MAX_SIZE_BYTES = 100 * 1024 // 100 KB
+    }
 }

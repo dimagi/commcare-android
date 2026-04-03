@@ -12,7 +12,6 @@ public class ApiEndPoints {
     public static final String validateSessionOtp = "/users/confirm_session_otp";
     public static final String updateProfile = "/users/update_profile";
     public static final String completeProfile = "/users/complete_profile";
-    public static final String updatePhoto = "/users/update_photo";
     public static final String confirmBackupCode = "/users/recover/confirm_backup_code";
     public static final String connectOpportunitiesURL = "/api/opportunity/";
     public static final String connectStartLearningURL = "/users/start_learn_app/";

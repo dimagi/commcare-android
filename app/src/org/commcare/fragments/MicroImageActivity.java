@@ -62,7 +62,6 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
     public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key";
     public static final String MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA = "micro_image_max_dimension_px_extra";
     public static final String MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA = "micro_image_max_size_bytes_extra";
-    public static final String MICRO_IMAGE_TITLE_EXTRA = "micro_image_title_extra";
     private static final int DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX = 72;
     private static final int DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
     public static final String BASE_64_IMAGE_PREFIX = "data:image/webp;base64,";
@@ -95,12 +94,7 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            String customTitle = getIntent().getStringExtra(MICRO_IMAGE_TITLE_EXTRA);
-            if (customTitle != null) {
-                actionBar.setTitle(customTitle);
-            } else {
-                actionBar.setTitle(R.string.micro_image_activity_title);
-            }
+            actionBar.setTitle(R.string.micro_image_activity_title);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
