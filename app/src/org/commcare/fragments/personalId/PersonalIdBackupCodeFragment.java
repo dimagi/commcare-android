@@ -27,7 +27,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
-import org.commcare.views.connect.CustomOtpView;
+import org.commcare.views.connect.NumericCodeView;
 import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,18 +91,18 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void setupListeners() {
-        CustomOtpView.OnOtpChangedListener codeChangedListener = code -> validateBackupCodeInputs();
+        NumericCodeView.OnCodeChangedListener codeChangedListener = code -> validateBackupCodeInputs();
 
-        binding.backupCodeView.setOnOtpChangedListener(codeChangedListener);
-        binding.confirmCodeView.setOnOtpChangedListener(codeChangedListener);
+        binding.backupCodeView.setOnCodeChangedListener(codeChangedListener);
+        binding.confirmCodeView.setOnCodeChangedListener(codeChangedListener);
 
-        binding.backupCodeView.setOtpCompleteListener(code -> {
+        binding.backupCodeView.setCodeCompleteListener(code -> {
             if (isRecovery && binding.connectBackupCodeButton.isEnabled()) {
                 handleBackupCodeSubmission();
             }
         });
 
-        binding.confirmCodeView.setOtpCompleteListener(code -> {
+        binding.confirmCodeView.setCodeCompleteListener(code -> {
             if (binding.connectBackupCodeButton.isEnabled()) {
                 handleBackupCodeSubmission();
             }
@@ -117,7 +117,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 binding.confirmCodeView, binding.confirmCodeVisibilityToggle));
     }
 
-    private void togglePasswordVisibility(CustomOtpView codeView, ImageView toggle) {
+    private void togglePasswordVisibility(NumericCodeView codeView, ImageView toggle) {
         boolean newVisibilityState = !codeView.isPasswordVisible();
         codeView.setPasswordVisible(newVisibilityState);
         toggle.setImageResource(newVisibilityState
@@ -126,13 +126,13 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void clearBackupCodeFields() {
-        binding.confirmCodeView.clearOtp();
-        binding.backupCodeView.clearOtp();
+        binding.confirmCodeView.clearCode();
+        binding.backupCodeView.clearCode();
     }
 
     private void validateBackupCodeInputs() {
-        String backupCode1 = binding.backupCodeView.getOtpValue();
-        String backupCode2 = binding.confirmCodeView.getOtpValue();
+        String backupCode1 = binding.backupCodeView.getCodeValue();
+        String backupCode2 = binding.confirmCodeView.getCodeValue();
 
         String errorText = "";
         boolean isValid = false;
@@ -168,7 +168,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             confirmBackupCode();
         } else {
             personalIdSessionData.setBackupCode(
-                    binding.backupCodeView.getOtpValue());
+                    binding.backupCodeView.getCodeValue());
             navigateToPhoto();
         }
     }
@@ -176,7 +176,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private void confirmBackupCode() {
         clearError();
         enableContinueButton(false);
-        String backupCode = binding.backupCodeView.getOtpValue();
+        String backupCode = binding.backupCodeView.getCodeValue();
 
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
@@ -206,7 +206,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                binding.backupCodeView.getOtpValue(), new Date(),
+                binding.backupCodeView.getCodeValue(), new Date(),
                 personalIdSessionData.getPhotoBase64(),
                 personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
                 personalIdSessionData.getInvitedUser());

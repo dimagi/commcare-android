@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import org.commcare.dalvik.R;
 import org.commcare.utils.KeyboardHelper;
 
-public class CustomOtpView extends LinearLayout {
+public class NumericCodeView extends LinearLayout {
 
     private int digitCount = 4;
     private int borderColor = Color.BLACK;
@@ -33,17 +33,17 @@ public class CustomOtpView extends LinearLayout {
     private boolean passwordVisible = false;
     private String[] actualValues;
     private int lastEditedIndex = -1;
-    private OtpCompleteListener otpCompleteListener;
-    private OnOtpChangedListener otpChangedListener;
+    private CodeCompleteListener codeCompleteListener;
+    private OnCodeChangedListener codeChangedListener;
     private boolean isErrorState = false;
     private boolean isSelfUpdate = false;
 
-    public CustomOtpView(Context context) {
+    public NumericCodeView(Context context) {
         super(context);
         init(null);
     }
 
-    public CustomOtpView(Context context, @Nullable AttributeSet attrs) {
+    public NumericCodeView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(attrs);
     }
@@ -54,16 +54,16 @@ public class CustomOtpView extends LinearLayout {
 
         // Read attributes from XML
         if (attrs != null) {
-            try (TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CustomOtpView)) {
-                digitCount = typedArray.getInt(R.styleable.CustomOtpView_otpViewDigitCount, digitCount);
-                borderColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewBorderColor, borderColor);
-                errorBorderColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewErrorBorderColor, errorBorderColor);
-                borderRadius = typedArray.getDimensionPixelSize(R.styleable.CustomOtpView_otpViewBorderRadius, borderRadius);
-                borderWidth = typedArray.getDimensionPixelSize(R.styleable.CustomOtpView_otpViewBorderWidth, borderWidth);
-                textColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewTextColor, textColor);
-                errorTextColor = typedArray.getColor(R.styleable.CustomOtpView_otpViewErrorTextColor, errorTextColor);
-                textSize = typedArray.getDimension(R.styleable.CustomOtpView_otpViewTextSize, textSize);
-                passwordMode = typedArray.getBoolean(R.styleable.CustomOtpView_otpViewPasswordMode, false);
+            try (TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NumericCodeView)) {
+                digitCount = typedArray.getInt(R.styleable.NumericCodeView_codeViewDigitCount, digitCount);
+                borderColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewBorderColor, borderColor);
+                errorBorderColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewErrorBorderColor, errorBorderColor);
+                borderRadius = typedArray.getDimensionPixelSize(R.styleable.NumericCodeView_codeViewBorderRadius, borderRadius);
+                borderWidth = typedArray.getDimensionPixelSize(R.styleable.NumericCodeView_codeViewBorderWidth, borderWidth);
+                textColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewTextColor, textColor);
+                errorTextColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewErrorTextColor, errorTextColor);
+                textSize = typedArray.getDimension(R.styleable.NumericCodeView_codeViewTextSize, textSize);
+                passwordMode = typedArray.getBoolean(R.styleable.NumericCodeView_codeViewPasswordMode, false);
             }
         }
 
@@ -72,18 +72,18 @@ public class CustomOtpView extends LinearLayout {
             actualValues[i] = "";
         }
 
-        createOtpFields();
+        createCodeFields();
     }
 
-    private void createOtpFields() {
+    private void createCodeFields() {
         removeAllViews();
         for (int i = 0; i < digitCount; i++) {
-            EditText otpEditText = createOtpEditText(i);
-            addView(otpEditText);
+            EditText codeEditText = createCodeEditText(i);
+            addView(codeEditText);
         }
     }
 
-    private EditText createOtpEditText(int index) {
+    private EditText createCodeEditText(int index) {
         EditText editText = new EditText(getContext());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 0, LayoutParams.WRAP_CONTENT, 1.0f
@@ -109,7 +109,7 @@ public class CustomOtpView extends LinearLayout {
             } else if (!hasFocus && passwordMode && !passwordVisible) {
                 // When focus leaves, check if it moved outside the entire view
                 post(() -> {
-                    if (!CustomOtpView.this.hasFocus()) {
+                    if (!NumericCodeView.this.hasFocus()) {
                         lastEditedIndex = -1;
                         refreshAllDisplays();
                     }
@@ -128,7 +128,7 @@ public class CustomOtpView extends LinearLayout {
                     previousEditText.setText("");
                     isSelfUpdate = false;
                     previousEditText.requestFocus();
-                    notifyOtpChanged();
+                    notifyCodeChanged();
                 } else {
                     // Clear current field
                     actualValues[index] = "";
@@ -136,7 +136,7 @@ public class CustomOtpView extends LinearLayout {
                     isSelfUpdate = true;
                     editText.setText("");
                     isSelfUpdate = false;
-                    notifyOtpChanged();
+                    notifyCodeChanged();
                 }
                 return true;
             }
@@ -169,9 +169,9 @@ public class CustomOtpView extends LinearLayout {
                     if (index < digitCount - 1) {
                         moveToNextBox(index);
                     } else {
-                        checkOtpCompletion();
+                        checkCodeCompletion();
                     }
-                    notifyOtpChanged();
+                    notifyCodeChanged();
                 } else if (input.length() > 1) {
                     // If more than one character, keep only the latest digit
                     char lastChar = input.charAt(input.length() - 1);
@@ -192,10 +192,10 @@ public class CustomOtpView extends LinearLayout {
                     if (!text.isEmpty() && index < digitCount - 1) {
                         moveToNextBox(index);
                     }
-                    notifyOtpChanged();
+                    notifyCodeChanged();
                 } else if (!actualValues[index].isEmpty()) {
                     actualValues[index] = "";
-                    notifyOtpChanged();
+                    notifyCodeChanged();
                 }
             }
 
@@ -258,18 +258,18 @@ public class CustomOtpView extends LinearLayout {
         isSelfUpdate = false;
     }
 
-    private void notifyOtpChanged() {
-        if (otpChangedListener != null) {
-            otpChangedListener.onOtpChanged(getOtpValue());
+    private void notifyCodeChanged() {
+        if (codeChangedListener != null) {
+            codeChangedListener.onCodeChanged(getCodeValue());
         }
     }
 
-    public String getOtpValue() {
-        StringBuilder otp = new StringBuilder();
+    public String getCodeValue() {
+        StringBuilder code = new StringBuilder();
         for (int i = 0; i < digitCount; i++) {
-            otp.append(actualValues[i]);
+            code.append(actualValues[i]);
         }
-        return otp.toString();
+        return code.toString();
     }
 
     private GradientDrawable createBackgroundDrawable() {
@@ -279,19 +279,19 @@ public class CustomOtpView extends LinearLayout {
         return drawable;
     }
 
-    private void checkOtpCompletion() {
-        String otp = getOtpValue();
-        if (otp.length() == digitCount && otpCompleteListener != null) {
-            otpCompleteListener.onOtpComplete(otp);
+    private void checkCodeCompletion() {
+        String code = getCodeValue();
+        if (code.length() == digitCount && codeCompleteListener != null) {
+            codeCompleteListener.onCodeComplete(code);
         }
     }
 
-    public void setOtpCompleteListener(OtpCompleteListener listener) {
-        this.otpCompleteListener = listener;
+    public void setCodeCompleteListener(CodeCompleteListener listener) {
+        this.codeCompleteListener = listener;
     }
 
-    public void setOnOtpChangedListener(OnOtpChangedListener listener) {
-        this.otpChangedListener = listener;
+    public void setOnCodeChangedListener(OnCodeChangedListener listener) {
+        this.codeChangedListener = listener;
     }
 
     public void setErrorState(boolean isError) {
@@ -331,7 +331,7 @@ public class CustomOtpView extends LinearLayout {
         isSelfUpdate = false;
     }
 
-    public void clearOtp() {
+    public void clearCode() {
         lastEditedIndex = -1;
         for (int i = 0; i < digitCount; i++) {
             actualValues[i] = "";
@@ -344,7 +344,7 @@ public class CustomOtpView extends LinearLayout {
         if (getChildCount() > 0) {
             getChildAt(0).requestFocus();
         }
-        notifyOtpChanged();
+        notifyCodeChanged();
     }
 
     public void requestFocus(Activity activity) {
@@ -353,24 +353,24 @@ public class CustomOtpView extends LinearLayout {
         }
     }
 
-    public interface OtpCompleteListener {
-        void onOtpComplete(String otp);
+    public interface CodeCompleteListener {
+        void onCodeComplete(String code);
     }
 
-    public interface OnOtpChangedListener {
-        void onOtpChanged(String otp);
+    public interface OnCodeChangedListener {
+        void onCodeChanged(String code);
     }
 
-    public void setOtp(String otp) {
-        if (otp.length() > digitCount) {
-            throw new IllegalArgumentException("OTP length exceeds the digit count");
+    public void setCode(String code) {
+        if (code.length() > digitCount) {
+            throw new IllegalArgumentException("Code length exceeds the digit count");
         }
 
         lastEditedIndex = -1;
         for (int i = 0; i < digitCount; i++) {
             EditText editText = (EditText) getChildAt(i);
-            if (i < otp.length()) {
-                actualValues[i] = String.valueOf(otp.charAt(i));
+            if (i < code.length()) {
+                actualValues[i] = String.valueOf(code.charAt(i));
                 isSelfUpdate = true;
                 editText.setText(getDisplayChar(i));
                 isSelfUpdate = false;
@@ -382,7 +382,7 @@ public class CustomOtpView extends LinearLayout {
             }
             editText.clearFocus();
         }
-        notifyOtpChanged();
-        checkOtpCompletion();
+        notifyCodeChanged();
+        checkCodeCompletion();
     }
 }

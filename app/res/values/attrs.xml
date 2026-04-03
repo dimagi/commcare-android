@@ -48,16 +48,16 @@
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string" />
     </declare-styleable>
-    <declare-styleable name="CustomOtpView">
-        <attr name="otpViewDigitCount" format="integer" />
-        <attr name="otpViewBorderColor" format="color" />
-        <attr name="otpViewBorderRadius" format="dimension" />
-        <attr name="otpViewBorderWidth" format="dimension" />
-        <attr name="otpViewTextColor" format="color" />
-        <attr name="otpViewTextSize" format="dimension" />
-        <attr name="otpViewErrorBorderColor" format="color" />
-        <attr name="otpViewErrorTextColor" format="color" />
-        <attr name="otpViewPasswordMode" format="boolean" />
+    <declare-styleable name="NumericCodeView">
+        <attr name="codeViewDigitCount" format="integer" />
+        <attr name="codeViewBorderColor" format="color" />
+        <attr name="codeViewBorderRadius" format="dimension" />
+        <attr name="codeViewBorderWidth" format="dimension" />
+        <attr name="codeViewTextColor" format="color" />
+        <attr name="codeViewTextSize" format="dimension" />
+        <attr name="codeViewErrorBorderColor" format="color" />
+        <attr name="codeViewErrorTextColor" format="color" />
+        <attr name="codeViewPasswordMode" format="boolean" />
     </declare-styleable>
     <declare-styleable name="CustomEditText">
         <!-- Border attributes -->

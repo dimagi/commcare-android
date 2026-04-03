@@ -108,21 +108,21 @@
 
             </LinearLayout>
 
-            <org.commcare.views.connect.CustomOtpView
+            <org.commcare.views.connect.NumericCodeView
                 android:id="@+id/backup_code_view"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
                 android:layout_marginStart="16dp"
-                app:otpViewDigitCount="6"
-                app:otpViewTextColor="@color/connect_blue_color"
-                app:otpViewBorderColor="@color/connect_blue_color"
-                app:otpViewBorderRadius="4dp"
-                app:otpViewBorderWidth="0.5dp"
-                app:otpViewErrorTextColor="@color/connect_red"
-                app:otpViewErrorBorderColor="@color/connect_red"
-                app:otpViewTextSize="6sp"
-                app:otpViewPasswordMode="true" />
+                app:codeViewDigitCount="6"
+                app:codeViewTextColor="@color/connect_blue_color"
+                app:codeViewBorderColor="@color/connect_blue_color"
+                app:codeViewBorderRadius="4dp"
+                app:codeViewBorderWidth="0.5dp"
+                app:codeViewErrorTextColor="@color/connect_red"
+                app:codeViewErrorBorderColor="@color/connect_red"
+                app:codeViewTextSize="6sp"
+                app:codeViewPasswordMode="true" />
 
             <ImageView
                 android:id="@+id/backup_code_visibility_toggle"
@@ -171,21 +171,21 @@
 
             </LinearLayout>
 
-            <org.commcare.views.connect.CustomOtpView
+            <org.commcare.views.connect.NumericCodeView
                 android:id="@+id/confirm_code_view"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
                 android:layout_marginStart="16dp"
-                app:otpViewDigitCount="6"
-                app:otpViewTextColor="@color/connect_blue_color"
-                app:otpViewBorderColor="@color/connect_blue_color"
-                app:otpViewBorderRadius="4dp"
-                app:otpViewBorderWidth="0.5dp"
-                app:otpViewErrorTextColor="@color/connect_red"
-                app:otpViewErrorBorderColor="@color/connect_red"
-                app:otpViewTextSize="6sp"
-                app:otpViewPasswordMode="true" />
+                app:codeViewDigitCount="6"
+                app:codeViewTextColor="@color/connect_blue_color"
+                app:codeViewBorderColor="@color/connect_blue_color"
+                app:codeViewBorderRadius="4dp"
+                app:codeViewBorderWidth="0.5dp"
+                app:codeViewErrorTextColor="@color/connect_red"
+                app:codeViewErrorBorderColor="@color/connect_red"
+                app:codeViewTextSize="6sp"
+                app:codeViewPasswordMode="true" />
 
             <ImageView
                 android:id="@+id/confirm_code_visibility_toggle"
