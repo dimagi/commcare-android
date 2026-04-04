@@ -1,5 +1,6 @@
 package org.commcare.connect.network.connectId.parser
 
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
@@ -24,10 +25,13 @@ import java.io.ByteArrayInputStream
 class RetrieveChannelEncryptionKeyResponseParserTest {
     private lateinit var parser: RetrieveChannelEncryptionKeyResponseParser<Boolean>
     private lateinit var messagingDatabaseMock: MockedStatic<ConnectMessagingDatabaseHelper>
+    private lateinit var context: Context
+    private lateinit var channel: ConnectMessagingChannelRecord
 
     @Before
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        context = ApplicationProvider.getApplicationContext()
+        channel = ConnectMessagingChannelRecord()
         parser = RetrieveChannelEncryptionKeyResponseParser(context)
         messagingDatabaseMock = mockStatic(ConnectMessagingDatabaseHelper::class.java)
     }
@@ -40,7 +44,6 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     @Test
     fun testParse_validJson_setsKeyOnChannel_andReturnsTrue() {
         // Arrange
-        val channel = ConnectMessagingChannelRecord()
         val json = """{"key": "abc123-encryption-key"}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
 
@@ -55,7 +58,6 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     @Test
     fun testParse_emptyResponse_channelKeyUnchanged_andReturnsTrue() {
         // Arrange
-        val channel = ConnectMessagingChannelRecord()
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
         // Act
@@ -69,7 +71,6 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     @Test
     fun testParse_emptyResponse_doesNotCallStoreMessagingChannel() {
         // Arrange
-        val channel = ConnectMessagingChannelRecord()
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
         // Act
@@ -88,8 +89,6 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     @Test
     fun testParse_callsStoreMessagingChannel_once() {
         // Arrange
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val channel = ConnectMessagingChannelRecord()
         val json = """{"key": "secure-key-value"}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
 
@@ -106,7 +105,6 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     @Test(expected = RuntimeException::class)
     fun testParse_invalidJson_throwsRuntimeException() {
         // Arrange
-        val channel = ConnectMessagingChannelRecord()
         val inputStream = ByteArrayInputStream("{ invalid json".toByteArray())
 
         // Act
@@ -116,7 +114,6 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     @Test(expected = RuntimeException::class)
     fun testParse_missingKeyField_throwsRuntimeException() {
         // Arrange
-        val channel = ConnectMessagingChannelRecord()
         val json = """{"other_field": "value"}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
 

@@ -1,11 +1,13 @@
 package org.commcare.connect.network.connectId.parser
 
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -21,10 +23,13 @@ import java.io.ByteArrayInputStream
 class LinkHqWorkerResponseParserTest {
     private lateinit var parser: LinkHqWorkerResponseParser<Boolean>
     private lateinit var connectAppDatabaseMock: MockedStatic<ConnectAppDatabaseUtil>
+    private lateinit var context: Context
+    private lateinit var appRecord: ConnectLinkedAppRecord
 
     @Before
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        context = ApplicationProvider.getApplicationContext()
+        appRecord = ConnectLinkedAppRecord()
         parser = LinkHqWorkerResponseParser(context)
         connectAppDatabaseMock = mockStatic(ConnectAppDatabaseUtil::class.java)
     }
@@ -37,7 +42,6 @@ class LinkHqWorkerResponseParserTest {
     @Test
     fun testParse_setsWorkerLinkedTrue_andReturnsTrue() {
         // Arrange
-        val appRecord = ConnectLinkedAppRecord()
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
         // Act
@@ -51,8 +55,7 @@ class LinkHqWorkerResponseParserTest {
     @Test
     fun testParse_workerLinkedFalseBeforeParse_trueAfter() {
         // Arrange
-        val appRecord = ConnectLinkedAppRecord()
-        assertTrue(!appRecord.getWorkerLinked())
+        assertFalse(appRecord.getWorkerLinked())
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
         // Act
@@ -65,8 +68,6 @@ class LinkHqWorkerResponseParserTest {
     @Test
     fun testParse_callsStoreApp_once() {
         // Arrange
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val appRecord = ConnectLinkedAppRecord()
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
         // Act
