@@ -4,9 +4,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
+import org.javarosa.core.model.utils.DateUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -91,7 +91,7 @@ class DeliveryAppProgressResponseParserTest {
         assertTrue(result.updatedJob)
         assertFalse(result.hasDeliveries)
         assertFalse(result.hasPayment)
-        assertNotNull(job.projectEndDate)
+        assertEquals(DateUtils.parseDate("2025-06-30"), job.projectEndDate)
     }
 
     @Test
@@ -166,6 +166,7 @@ class DeliveryAppProgressResponseParserTest {
         assertTrue(result.hasDeliveries)
         assertTrue(result.hasPayment)
         assertEquals(20, job.maxVisits)
+        assertEquals(DateUtils.parseDate("2025-12-31"), job.projectEndDate)
         assertEquals(300, job.paymentAccrued)
         assertFalse(job.isUserSuspended)
         assertEquals(1, job.deliveries.size)
