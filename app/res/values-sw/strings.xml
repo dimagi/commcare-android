@@ -540,4 +540,7 @@
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_barcode_top">Karibu CommCare!</string>
     <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
+    <string name="connect_last_synced">Ilisawazishwa mwisho: %s</string>
+    <string name="connect_offline">Nje ya mtandao</string>
+    <string name="connect_never">Kamwe</string>
 </resources>

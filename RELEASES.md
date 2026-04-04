@@ -11,6 +11,7 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
+- Offline status shown on refreshable Connect pages when applicable
 
 - [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
 
@@ -34,6 +35,8 @@ we would like to communicate to QA as part of the release testing
 
 - Verify that the existing opportunity card UI is unchanged when there are no relearn tasks.
 - Verify that the opportunity card updates as expected when there are either pending relearn tasks or completed relearn tasks.
+
+- Test the new offline status indicator at the top of refreshable Connect pages (Connect Home, Learning Progress, Delivery Progress). Verify that the error message appears when entering these pages while offline, and that it disappears once the device comes back online.
 
 ## CommCare 2.62
 

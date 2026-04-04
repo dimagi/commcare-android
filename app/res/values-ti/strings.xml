@@ -524,4 +524,7 @@
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
     <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
     <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
+    <string name="connect_last_synced">ናይ መወዳእታ ምስንኻል: %s</string>
+    <string name="connect_offline">ኦፍላይን</string>
+    <string name="connect_never">ፈጺሙ</string>
 </resources>

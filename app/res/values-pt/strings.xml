@@ -541,4 +541,7 @@
     <string name="connect_job_info_view_opportunity">Ver oportunidade</string>
     <string name="install_barcode_top">Bem-vindo ao CommCare!</string>
     <string name="install_barcode_bottom">Por favor, escolha um método de instalação abaixo</string>
+    <string name="connect_last_synced">Última sincronização: %s</string>
+    <string name="connect_offline">Offline</string>
+    <string name="connect_never">Nunca</string>
 </resources>

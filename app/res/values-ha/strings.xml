@@ -530,4 +530,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="wait_for_location_fix">CommCare yana ƙoƙarin samun wurinku. Da fatan za a jira ko danna Soke don soke.</string>
     <string name="notification_channel_user_session_title">Zaman mai amfani</string>
     <string name="notification_channel_user_session_description">Sanarwa da ke ɗauke da bayani game da zaman mai amfani na yanzu, kamar ranar da ake sa ran zaman ya ƙare</string>
+    <string name="connect_last_synced">Aiki na ƙarshe: %s</string>
+    <string name="connect_offline">Babu haɗi</string>
+    <string name="connect_never">Ba taɓa</string>
 </resources>
