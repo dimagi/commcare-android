@@ -6,6 +6,8 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.javarosa.core.model.utils.DateUtils
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,6 +62,7 @@ class LearningAppProgressResponseParserTest {
         assertEquals(1, result.connectJobLearningRecords.size)
         assertEquals(42, result.connectJobLearningRecords[0].moduleId)
         assertEquals(expectedDate, result.connectJobLearningRecords[0].date)
+        assertEquals("00:30:00", result.connectJobLearningRecords[0].duration)
         assertEquals(0, result.connectJobAssessmentRecords.size)
     }
 
@@ -79,6 +82,7 @@ class LearningAppProgressResponseParserTest {
         assertEquals(2, result.connectJobLearningRecords.size)
         assertEquals(1, result.connectJobLearningRecords[0].moduleId)
         assertEquals(2, result.connectJobLearningRecords[1].moduleId)
+        assertEquals(0, result.connectJobAssessmentRecords.size)
     }
 
     @Test
@@ -100,6 +104,7 @@ class LearningAppProgressResponseParserTest {
         assertEquals(85, result.connectJobAssessmentRecords[0].score)
         assertEquals(70, result.connectJobAssessmentRecords[0].passingScore)
         assertEquals(expectedDate, result.connectJobAssessmentRecords[0].date)
+        assertTrue(result.connectJobAssessmentRecords[0].isPassed())
     }
 
     @Test
@@ -117,6 +122,7 @@ class LearningAppProgressResponseParserTest {
         assertEquals(1, result.connectJobAssessmentRecords.size)
         assertEquals(50, result.connectJobAssessmentRecords[0].score)
         assertEquals(70, result.connectJobAssessmentRecords[0].passingScore)
+        assertFalse(result.connectJobAssessmentRecords[0].isPassed())
     }
 
     @Test
@@ -146,6 +152,13 @@ class LearningAppProgressResponseParserTest {
     @Test(expected = RuntimeException::class)
     fun testMissingCompletedModulesKey_throwsRuntimeException() {
         val json = """{"assessments": []}"""
+        val inputStream = ByteArrayInputStream(json.toByteArray())
+        parser.parse(200, inputStream, job)
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun testMissingAssessmentsKey_throwsRuntimeException() {
+        val json = """{"completed_modules": []}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
         parser.parse(200, inputStream, job)
     }
