@@ -146,7 +146,9 @@ class LearningAppProgressResponseParserTest {
         assertEquals(6, result.connectJobLearningRecords[1].moduleId)
         assertEquals(2, result.connectJobAssessmentRecords.size)
         assertEquals(90, result.connectJobAssessmentRecords[0].score)
+        assertTrue(result.connectJobAssessmentRecords[0].isPassed())
         assertEquals(60, result.connectJobAssessmentRecords[1].score)
+        assertFalse(result.connectJobAssessmentRecords[1].isPassed())
     }
 
     @Test(expected = RuntimeException::class)
