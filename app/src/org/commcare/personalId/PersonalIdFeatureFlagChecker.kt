@@ -13,7 +13,6 @@ class PersonalIdFeatureFlagChecker {
             const val WORK_HISTORY = "work_history"
             const val WORK_HISTORY_PENDING_TAB = "work_history_pending_tab"
             const val NOTIFICATIONS = "notifications"
-            const val DATA_REFRESH_INDICATOR = "data_refresh_indicator"
         }
     }
 
@@ -26,7 +25,6 @@ class PersonalIdFeatureFlagChecker {
                 FeatureFlag.WORK_HISTORY -> true
                 FeatureFlag.WORK_HISTORY_PENDING_TAB -> false
                 FeatureFlag.NOTIFICATIONS -> true
-                FeatureFlag.DATA_REFRESH_INDICATOR -> false
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
     }

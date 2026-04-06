@@ -96,7 +96,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         val errorView = errorBinding.root
         errorView.visibility = View.GONE
         topBarErrorViewController = TopBarErrorViewController(errorBinding)
-        verticalContainer.addView(errorView)
+        verticalContainer.addView(errorView, 0)
 
         rootView = rootFrame
         return rootView
@@ -142,11 +142,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         topBarErrorViewController!!.hide()
     }
 
-    private fun shouldMonitorNetwork(): Boolean =
-        this is RefreshableFragment &&
-            PersonalIdFeatureFlagChecker.isFeatureEnabled(
-                PersonalIdFeatureFlagChecker.FeatureFlag.DATA_REFRESH_INDICATOR,
-            )
+    private fun shouldMonitorNetwork(): Boolean = this is RefreshableFragment
 
     private fun showOfflineIndicator() {
         val message = buildOfflineMessage()
