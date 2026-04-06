@@ -1,0 +1,21 @@
+# PR Comment Handler Notes
+
+## Key Reviewers
+- **conroy-ricketts**: Assert specific values (not non-null), date fields via DateUtils, "doesNotThrow" test naming.
+- **Jignesh-dimagi**: Class-level members in setUp(), null input tests with @Test(expected=NullPointerException::class).
+
+## Testing Patterns
+- `@Config(application = CommCareTestApplication::class)` + `@RunWith(AndroidJUnit4::class)`
+- Date: `DateUtils.parseDate("YYYY-MM-DD")` / `DateUtils.parseDateTime("YYYY-MM-DDTHH:MM:SS.mmm")`
+- "doesNotThrow" test: just call method, no assertions
+- Parser tests use `ByteArrayInputStream`
+
+## Build
+- Gradle/ktlint not runnable in sandbox (lock file permission errors)
+- Test: `./gradlew testCommcareDebug --tests "org.commcare.package.TestClass"`
+
+## PR Status (2026-04-06)
+- #3610: APPROVED — ready to merge
+- #3619, #3612, #3626: All review feedback addressed in prior commits
+- #3614: Date assertions added for delivery/payment in testAllFields
+- #3636, #3635, #3645, #3632, #3637: No reviews yet
