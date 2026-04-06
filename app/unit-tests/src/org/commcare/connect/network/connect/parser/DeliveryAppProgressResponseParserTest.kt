@@ -169,8 +169,11 @@ class DeliveryAppProgressResponseParserTest {
         assertEquals(DateUtils.parseDate("2025-12-31"), job.projectEndDate)
         assertEquals(300, job.paymentAccrued)
         assertFalse(job.isUserSuspended)
+        val expectedDate = DateUtils.parseDateTime("2024-01-15T10:00:00.000")
         assertEquals(1, job.deliveries.size)
+        assertEquals(expectedDate, job.deliveries[0].date)
         assertEquals(1, job.payments.size)
+        assertEquals(expectedDate, job.payments[0].date)
     }
 
     @Test(expected = RuntimeException::class)
