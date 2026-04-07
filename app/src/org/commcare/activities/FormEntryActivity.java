@@ -182,6 +182,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    private int attachmentCount = 0;
+    private static final int MAX_ATTACHMENTS = 50;
 
     private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
             new PendingSyncAlertBroadcastReceiver();
@@ -427,6 +429,20 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
                 title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
+    }
+
+    public boolean canAddAttachment() {
+        return attachmentCount < MAX_ATTACHMENTS;
+    }
+
+    public void incrementAttachmentCount() {
+        attachmentCount++;
+    }
+
+    public void decrementAttachmentCount() {
+        if (attachmentCount > 0) {
+            attachmentCount--;
+        }
     }
 
     private void processChooserResponse(Intent intent) {
