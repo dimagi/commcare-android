@@ -16,5 +16,5 @@
 
 ## PR Status (2026-04-07)
 - #3610: APPROVED — ready to merge
-- #3612, #3614, #3619, #3626: All review feedback addressed in prior commits; awaiting re-review from maintainers
+- #3612, #3614, #3619, #3626: All review feedback addressed and confirmed in bot comments (2026-04-06); awaiting re-review/thread resolution from maintainers
 - #3636, #3635, #3645, #3632, #3637: No reviews yet
