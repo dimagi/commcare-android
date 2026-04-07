@@ -10,9 +10,6 @@ For non-invisible changes, describe the user-facing effects.
 - Describe the rationale and design decisions.
 -->
 
-## Feature Flag
-<!-- If this is specific to a feature flag, which one? -->
-
 ## Safety Assurance
 
 ### Safety story
@@ -35,7 +32,7 @@ In particular consider how existing data may be impacted by this change.
 
 ## Labels and Review
 
-- [ ] Do we need to enhance the manual QA test coverage ? If yes, the "QA Note" label is set correctly
-- [ ] Does the PR introduce any major changes worth communicating ? If yes, the "Release Note" label is set and a "Release Note" is specified in PR description.
+- [ ] Do we need to enhance the manual QA test coverage ? If yes,  [RELEASES.md](../RELEASES.md) is updated accordingly
+- [ ] Does the PR introduce any major changes worth communicating ? If yes,  [RELEASES.md](../RELEASES.md) is updated accordingly
 - [ ] Risk label is set correctly
 - [ ] The set of people pinged as reviewers is appropriate for the level of risk of the change

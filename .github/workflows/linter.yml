@@ -4,7 +4,9 @@ name: Lint Code Base
 on:
   pull_request:
     branches: [ master ]
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     name: Lint Code Base
@@ -41,6 +43,8 @@ jobs:
           VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           VALIDATE_TRIVY: false
           VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_MARKDOWN: false
+          VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_YAML_PRETTIER: false
           VALIDATE_GOOGLE_JAVA_FORMAT: false
 

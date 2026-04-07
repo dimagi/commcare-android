@@ -8,15 +8,13 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.CCAnalyticsParam;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
-import java.util.ArrayList;
-import java.util.Map;
+import static org.commcare.utils.NotificationIdentifiers.FCM_NOTIFICATION_ID;
 
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
@@ -39,12 +37,11 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         Logger.log(LogTypes.TYPE_FCM,
                 "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
 
-        String actionType = remoteMessage.getData().get("action");
         String notificationId = remoteMessage.getData().get("notification_id");
         FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_RECEIVED,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_FIREBASE,
-                actionType,
+                FirebaseMessagingUtil.getNotificationActionFromPayload(remoteMessage.getData()),
                 notificationId
         );
 
@@ -56,11 +53,8 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private Boolean startSyncForNotification(RemoteMessage remoteMessage) {
-        ArrayList<Map<String, String>> pns = new ArrayList<>();
-        pns.add(remoteMessage.getData());
-        NotificationsSyncWorkerManager notificationsSyncWorkerManager = new NotificationsSyncWorkerManager(
-                getApplicationContext(), pns, true, true);
-        return notificationsSyncWorkerManager.startPNApiSync();
+        return new NotificationsSyncWorkerManager(getApplicationContext(), true, true).
+                startSyncWorker(remoteMessage.getData());
     }
 
     @Override
@@ -74,7 +68,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
-            notificationManager.cancel(R.string.fcm_notification);
+            notificationManager.cancel(FCM_NOTIFICATION_ID);
         }
     }
 }

@@ -17,11 +17,12 @@ import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+
+import static org.commcare.utils.PushNotificationHelper.MESSAGE;
+import static org.commcare.utils.PushNotificationHelper.truncateMessage;
 
 @Table(ConnectMessagingMessageRecord.STORAGE_KEY)
 public class ConnectMessagingMessageRecord extends Persisted implements Serializable {
-
     /**
      * Name of database that stores Connect payment units
      */
@@ -76,14 +77,19 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
      * @throws JSONException
      * @throws ParseException
      */
-    public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
-        ConnectMessagingMessageRecord connectMessagingMessageRecord = new ConnectMessagingMessageRecord();
+    public static ConnectMessagingMessageRecord fromJson(
+            JSONObject json,
+            List<ConnectMessagingChannelRecord> channels
+    ) throws JSONException, ParseException {
+        ConnectMessagingMessageRecord connectMessagingMessageRecord =
+                new ConnectMessagingMessageRecord();
 
         connectMessagingMessageRecord.messageId = json.getString(META_MESSAGE_ID);
         connectMessagingMessageRecord.channelId = json.getString(META_MESSAGE_CHANNEL_ID);
 
-        ConnectMessagingChannelRecord channel = getChannel(channels, connectMessagingMessageRecord.channelId);
-        if(channel == null) {
+        ConnectMessagingChannelRecord channel =
+                getChannel(channels, connectMessagingMessageRecord.channelId);
+        if (channel == null) {
             return null;
         }
 
@@ -96,11 +102,11 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
         String decrypted = decrypt(cipherText, nonce, tag, channel.getKey());
 
-        if(decrypted == null) {
+        if (decrypted == null) {
             return null;
         }
 
-        connectMessagingMessageRecord.message = decrypted;
+        connectMessagingMessageRecord.message = truncateMessage(decrypted, MESSAGE);
 
         connectMessagingMessageRecord.isOutgoing = false;
         connectMessagingMessageRecord.confirmed = false;
@@ -109,32 +115,12 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         return connectMessagingMessageRecord;
     }
 
-    public static ConnectMessagingMessageRecord fromMessagePayload(Map<String, String> payloadData, String encryptionKey) {
-        String channel = payloadData.get(META_MESSAGE_CHANNEL_ID);
-        String cipher = payloadData.get("ciphertext");
-        String tag = payloadData.get("tag");
-        String nonce = payloadData.get("nonce");
-        String decrypted = decrypt(cipher, nonce, tag, encryptionKey);
-
-        if(decrypted == null) {
-            return null;
-        }
-
-        ConnectMessagingMessageRecord record = new ConnectMessagingMessageRecord();
-        record.setMessageId(payloadData.get(META_MESSAGE_ID));
-        record.setTimeStamp(DateUtils.parseDateTime(payloadData.get(META_MESSAGE_TIMESTAMP)));
-        record.setChannelId(channel);
-        record.setConfirmed(false);
-        record.setMessage(decrypted);
-        record.setUserViewed(false);
-        record.setIsOutgoing(false);
-
-        return record;
-    }
-
-    private static ConnectMessagingChannelRecord getChannel(List<ConnectMessagingChannelRecord> channels, String channelId) {
-        for(ConnectMessagingChannelRecord channel : channels) {
-            if(channel.getChannelId().equals(channelId)) {
+    private static ConnectMessagingChannelRecord getChannel(
+            List<ConnectMessagingChannelRecord> channels,
+            String channelId
+    ) {
+        for (ConnectMessagingChannelRecord channel : channels) {
+            if (channel.getChannelId().equals(channelId)) {
                 return channel;
             }
         }
@@ -148,7 +134,9 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             byte[] nonceBytes = Base64.decode(nonce);
             byte[] tagBytes = Base64.decode(tag);
 
-            ByteBuffer bytes = ByteBuffer.allocate(cipherTextBytes.length + nonceBytes.length + tagBytes.length + 1);
+            ByteBuffer bytes = ByteBuffer.allocate(
+                    cipherTextBytes.length + nonceBytes.length + tagBytes.length + 1
+            );
             bytes.put((byte)nonceBytes.length);
             bytes.put(nonceBytes);
             bytes.put(cipherTextBytes);
@@ -184,8 +172,8 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             buffer.get(tagBytes);
             String tag = Base64.encode(tagBytes);
 
-            return new String[] { cipherText, nonce, tag };
-        } catch(EncryptionUtils.EncryptionException | Base64DecoderException e) {
+            return new String[]{cipherText, nonce, tag};
+        } catch (EncryptionUtils.EncryptionException | Base64DecoderException e) {
             throw new RuntimeException(e);
         }
     }

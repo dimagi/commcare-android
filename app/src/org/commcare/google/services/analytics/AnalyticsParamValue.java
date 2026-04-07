@@ -1,13 +1,10 @@
 package org.commcare.google.services.analytics;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * Created by amstone326 on 10/13/17.
  */
 
 public class AnalyticsParamValue {
-
     // Param values for graphing actions
     static final String GRAPH_ATTACH = "start_viewing_graph";
     static final String GRAPH_DETACH = "stop_viewing_graph";
@@ -36,8 +33,8 @@ public class AnalyticsParamValue {
     public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
     public static final String CC_SETUP_MENU_OFFLINE_INSTALL = "cc_setup_menu_offline_install";
     public static final String CC_SETUP_MENU_INSTALL_FROM_LIST = "cc_setup_menu_install_from_list";
-    public static final String CC_SETUP_MENU_PERSONAL_ID_SIGN_IN = "cc_setup_menu_personal_id_sign_in";
-    public static final String CC_SETUP_MENU_PERSONAL_ID_FORGET = "cc_setup_menu_personal_id_forget";
+    public static final String CC_SETUP_MENU_PERSONAL_ID_FORGET =
+            "cc_setup_menu_personal_id_forget";
     public static final String LOGIN_MENU_PRACTICE_MODE = "login_menu_practice_mode";
     public static final String LOGIN_MENU_ABOUT_COMMCARE = "login_menu_about_commcare";
     public static final String LOGIN_MENU_ACQUIRE_PERMISSIONS = "login_menu_acquire_permissions";
@@ -45,11 +42,14 @@ public class AnalyticsParamValue {
     public static final String LOGIN_MENU_APP_MANAGER = "login_menu_app_manager";
     public static final String LOGIN_MENU_PERSONAL_ID_SIGN_IN = "login_menu_personal_id_sign_in";
     public static final String LOGIN_MENU_PERSONAL_ID_FORGET = "login_menu_personal_id_forget";
+    public static final String CONNECT_MESSAGING_CHANNEL_MENU_UNSUBSCRIBE =
+            "connect_messaging_channel_menu_unsubscribe";
+    public static final String CONNECT_MESSAGING_CHANNEL_MENU_RESUBSCRIBE =
+            "connect_messaging_channel_menu_resubscribe";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
     public static final String SYNC_TRIGGER_AUTO = "auto_sync";
-
 
     public static final String SYNC_MODE_JUST_PULL_DATA = "sync_just_pull";
     public static final String SYNC_MODE_SEND_FORMS = "sync_pull_and_send";
@@ -125,7 +125,6 @@ public class AnalyticsParamValue {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
-    public static final String ENABLE_CONNECT_ID = "enable_connect_id";
     public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
     public static final String ENABLE_MANUAL_FORM_QUARANTINE = "enable_manual_form_quarantine";
     public static final String APP_MANAGER_DEVELOPER_OPTIONS = "app_manager_developer_options";
@@ -157,35 +156,34 @@ public class AnalyticsParamValue {
     public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
     public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
     public static final String UPDATE_RESET_REASON_OVERSHOOT_TRIALS = "update_overshoot_trials";
-    public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
+    public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE =
+            "update_newer_version_available";
 
     public static final String IN_APP_UPDATE_SUCCESS = "success";
 
-    // Param values for connect signin
-    public static final String CCC_SIGN_IN_METHOD_PIN = "pin";
-    public static final String CCC_SIGN_IN_METHOD_FINGERPRINT = "fingerprint";
-
 
     // Param values for connect recovery
-    public static final String CCC_RECOVERY_METHOD_PRIMARY_OTP = "primary_otp";
     public static final String CCC_RECOVERY_METHOD_BACKUPCODE = "backup_code";
 
     // Param values for Form Submission Event
-
     public static final String USER_TRIGGERED = "user_triggered";
     public static final String SYSTEM_TRIGGERED = "system_triggered";
 
-    public static final String PERSONAL_ID_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
-    public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
+    public static final String PERSONAL_ID_FORGOT_USER_LOGIN_PAGE =
+            "user_initiated_from_login_page";
+    public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE =
+            "user_initiated_from_setup_page";
     public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
 
-    // Param values for personal ID configuration failure
-    public static final String START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE = "start_configuration_integrity_device_failure";
-    public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE = "start_configuration_integrity_check_failure";
-    public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE = "start_configuration_locked_account_failure";
+    // Param values for PersonalID configuration failure
+    public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE =
+            "start_configuration_integrity_check_failure";
+    public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE =
+            "start_configuration_locked_account_failure";
     public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";
     public static final String MIN_BIOMETRIC_HARDWARE_ABSENT = "min_biometric_hardware_absent";
-    public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE = "min_biometric_hardware_unavailable";
+    public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE =
+            "min_biometric_hardware_unavailable";
     public static final String MIN_BIOMETRIC_NEEDS_UPDATE = "min_biometric_needs_update";
     public static final String MIN_BIOMETRIC_PIN_NEEDS_UPDATE = "min_biometric_pin_needs_update";
     public static final String START_DELIVERY = "start_delivery";
@@ -199,9 +197,18 @@ public class AnalyticsParamValue {
     public static final String REPORT_NOTIFICATION_METHOD_FIREBASE = "firebase";
     public static final String REPORT_NOTIFICATION_METHOD_PERSONAL_ID_API = "personal_id_api";
 
-    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY = "notification_history";
+    public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY =
+            "notification_history";
     public static final String REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY = "notification_tray";
     public static final String NOTIFICATION_EVENT_TYPE_CLICK = "click_notification";
     public static final String NOTIFICATION_EVENT_TYPE_RECEIVED = "receive_notification";
     public static final String NOTIFICATION_EVENT_TYPE_SHOW = "show_notification";
+
+    // Param values for Connect messaging channels
+    public final static String CCC_MESSAGING_EVENT_TYPE_CONFIRM_UNSUBSCRIBE =
+            "click_unsubscribed_confirm";
+    public final static String CCC_MESSAGING_EVENT_TYPE_CONFIRM_RESUBSCRIBE =
+            "click_resubscribed_confirm";
+    public final static String CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT =
+            "consent_api_success_result";
 }

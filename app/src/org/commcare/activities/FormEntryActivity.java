@@ -146,6 +146,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private SecretKeySpec symetricKey = null;
 
     public static AndroidFormController mFormController;
+    private static volatile boolean isFormEntryActive = false;
 
     private boolean mIncompleteEnabled = true;
     private boolean instanceIsReadOnly = false;
@@ -1027,6 +1028,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void loadForm() {
         mFormController = null;
+        isFormEntryActive = false;
         instanceState.setFormRecordPath(null);
         InterruptedFormState savedFormSession = null;
 
@@ -1131,6 +1133,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         mFormController = fc;
+        isFormEntryActive = true;
         FirebaseAnalyticsUtil.reportFormEntry(getCurrentFormXmlnsFailSafe());
 
         // Newer menus may have already built the menu, before all data was ready
@@ -1250,6 +1253,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if (mSaveToDiskTask.getStatus() == AsyncTask.Status.FINISHED) {
                 mSaveToDiskTask.cancel(false);
             }
+        }
+
+        if (!isChangingConfigurations()) {
+            isFormEntryActive = false;
         }
 
         TextToSpeechConverter.INSTANCE.shutDown();
@@ -1717,5 +1724,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public SecretKeySpec getSymetricKey() {
         return symetricKey;
+    }
+
+    public static boolean isFormEntryInProgress() {
+        return isFormEntryActive;
     }
 }

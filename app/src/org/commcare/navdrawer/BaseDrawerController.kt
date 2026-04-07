@@ -22,9 +22,10 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
+import org.commcare.utils.GlobalErrorUtil
+import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
-import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
 
 class BaseDrawerController(
@@ -36,6 +37,7 @@ class BaseDrawerController(
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
     private var hasRefreshed = false
+    private var showingError = false
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -52,6 +54,10 @@ class BaseDrawerController(
         setupListeners()
         setupViews()
         refreshDrawerContent()
+
+        if (showingError) {
+            openDrawer()
+        }
     }
 
     private fun setupActionBarDrawerToggle() {
@@ -65,7 +71,7 @@ class BaseDrawerController(
             ) {
                 override fun onDrawerOpened(drawerView: View) {
                     super.onDrawerOpened(drawerView)
-                    ViewUtil.hideVirtualKeyboard(activity)
+                    hideVirtualKeyboard(activity)
                     FirebaseAnalyticsUtil.reportNavDrawerOpen()
                 }
 
@@ -111,7 +117,11 @@ class BaseDrawerController(
     }
 
     private fun setupListeners() {
-        binding.signInButton.setOnClickListener {
+        val loginHandler = {
+            if (showingError) {
+                GlobalErrorUtil.dismissGlobalErrors()
+            }
+
             PersonalIdManager
                 .getInstance()
                 .launchPersonalId(
@@ -120,6 +130,10 @@ class BaseDrawerController(
                 )
             closeDrawer()
         }
+
+        binding.signInButton.setOnClickListener { loginHandler() }
+        binding.reconfigureButton.setOnClickListener { loginHandler() }
+
         binding.aboutView.setOnClickListener {
             DialogCreationHelpers.showAboutCommCareDialog(
                 activity,
@@ -219,19 +233,10 @@ class BaseDrawerController(
                 )
             }
 
-//            if (hasConnectAccess) {
-//                items.add(
-//                    NavDrawerItem.ParentItem(
-//                        activity.getString(R.string.nav_drawer_payments),
-//                        R.drawable.nav_drawer_payments_icon,
-//                        NavItemType.PAYMENTS,
-//                    )
-//                )
-//            }
-
             navDrawerAdapter.refreshList(items)
         } else {
             setSignedInState(false)
+            configureErrorState()
         }
     }
 
@@ -240,7 +245,32 @@ class BaseDrawerController(
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.notificationView.visibility =
-            if (shouldShowNotiifcations()) View.VISIBLE else View.GONE
+            if (shouldShowNotifications()) View.VISIBLE else View.GONE
+    }
+
+    private fun configureErrorState() {
+        val globalError = GlobalErrorUtil.checkGlobalErrors()
+        showingError = globalError != null
+
+        if (showingError) {
+            binding.signedOutText.visibility = View.GONE
+            binding.signInButton.visibility = View.GONE
+            binding.errorContainer.visibility = View.VISIBLE
+            binding.errorIcon.visibility = View.VISIBLE
+
+            binding.errorTitle.setText(globalError.titleId)
+            binding.errorMessage.setText(globalError.messageId)
+
+            binding.dismissLink.setOnClickListener {
+                GlobalErrorUtil.dismissGlobalErrors()
+                refreshDrawerContent()
+            }
+        } else {
+            binding.signedOutText.visibility = View.VISIBLE
+            binding.signInButton.visibility = View.VISIBLE
+            binding.errorContainer.visibility = View.GONE
+            binding.errorIcon.visibility = View.GONE
+        }
     }
 
     private fun shouldShowWorkHistory(): Boolean {
@@ -248,7 +278,7 @@ class BaseDrawerController(
         return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
     }
 
-    private fun shouldShowNotiifcations(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -257,6 +287,8 @@ class BaseDrawerController(
     fun openDrawer() {
         binding.drawerLayout.openDrawer(GravityCompat.START)
     }
+
+    fun isShowingError(): Boolean = showingError
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
 }

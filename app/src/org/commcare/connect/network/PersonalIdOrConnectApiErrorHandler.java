@@ -8,6 +8,8 @@ import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 
+import java.util.EnumSet;
+
 /**
  * Utility class for handling standardized API error responses across the configuration flow.
  * <p>
@@ -41,7 +43,7 @@ public class PersonalIdOrConnectApiErrorHandler {
             case NETWORK_ERROR:
                 return context.getString(R.string.recovery_network_unavailable);
             case TOKEN_UNAVAILABLE_ERROR:
-                return context.getString(R.string.recovery_network_token_unavailable);
+                return context.getString(R.string.personalid_token_unavailable);
             case RATE_LIMIT_EXCEEDED_ERROR:
                 return context.getString(R.string.recovery_network_cooldown);
             case FAILED_AUTH_ERROR:
@@ -49,7 +51,7 @@ public class PersonalIdOrConnectApiErrorHandler {
             case SERVER_ERROR:
                 return context.getString(R.string.recovery_network_server_error);
             case TOKEN_DENIED_ERROR:
-                ConnectNetworkHelper.handleTokenDeniedException();
+                TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
                 return "";
             case OLD_API_ERROR:
                 return context.getString(R.string.recovery_network_outdated);
@@ -70,5 +72,20 @@ public class PersonalIdOrConnectApiErrorHandler {
                     return context.getString(R.string.recovery_network_unknown);
                 }
         }
+    }
+
+    /**
+     * Errors that should be shown ONLY in the network banner UI (non-blocking)
+     */
+    private static final EnumSet<BaseApiHandler.PersonalIdOrConnectApiErrorCodes> NETWORK_ERRORS =
+            EnumSet.of(
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
+                    BaseApiHandler.PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR
+            );
+
+    public static boolean isNetworkError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes error) {
+        return NETWORK_ERRORS.contains(error);
     }
 }

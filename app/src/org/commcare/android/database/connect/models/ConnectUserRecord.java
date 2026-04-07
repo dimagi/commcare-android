@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 /**
- * DB model for a Personal ID user and their info
+ * DB model for a PersonalID user and their info
  *
  * @author dviggiano
  */

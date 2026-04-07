@@ -11,6 +11,7 @@ import retrofit2.http.Header;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Url;
 
 public interface ApiService {
 
@@ -59,27 +60,25 @@ public interface ApiService {
 
     @GET(ApiEndPoints.connectLearnProgressURL)
     Call<ResponseBody> getConnectLearningAppProgress(@Header("Authorization") String token,
-                                                     @Path("id") int id,
+                                                     @Path("id") String uuid,
                                                      @HeaderMap Map<String, String> headers);
 
 
     @POST(ApiEndPoints.connectClaimJobURL)
     Call<ResponseBody> connectClaimJob(@Header("Authorization") String token,
-                                       @Path("id") int id,
+                                       @Path("id") String uuid,
                                        @HeaderMap Map<String, String> headers,
                                        @Body RequestBody connectClaimJobRequest);
 
     @GET(ApiEndPoints.connectDeliveriesURL)
     Call<ResponseBody> getConnectDeliveries(@Header("Authorization") String token,
-                                                     @Path("id") int id,
-                                                     @HeaderMap Map<String, String> headers);
+                                            @Path("id") String uuid,
+                                            @HeaderMap Map<String, String> headers);
 
-    @POST(ApiEndPoints.connectPaymentConfirmationURL)
-    Call<ResponseBody> connectPaymentConfirmation(@Header("Authorization") String token,
-                                       @Path("id") String id,
+    @POST(ApiEndPoints.PAYMENT_CONFIRMAITONS)
+    Call<ResponseBody> connectPaymentConfirmations(@Header("Authorization") String token,
                                        @HeaderMap Map<String, String> headers,
-                                       @Body RequestBody connectPaymentConfirmationRequest);
-
+                                       @Body RequestBody connectPaymentConfirmationsRequest);
 
     @POST(ApiEndPoints.sendSessionOtp)
     Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);
@@ -104,7 +103,23 @@ public interface ApiService {
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody updateNotificationRequest);
 
+    @POST(ApiEndPoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL)
+    Call<ResponseBody> updateChannelConsent(@Header("Authorization") String token,
+                                          @HeaderMap Map<String, String> headers,
+                                          @Body RequestBody updateChannelConsentRequest);
+
+    @POST(ApiEndPoints.CONNECT_MESSAGE_SEND_URL)
+    Call<ResponseBody> sendMessagingMessage(@Header("Authorization") String token,
+                                            @HeaderMap Map<String, String> headers,
+                                            @Body RequestBody sendMessagingMessageRequest);
+
+    @POST
+    Call<ResponseBody> makePostRequest(
+            @Url String url,
+            @Header("Authorization") String token,
+            @HeaderMap Map<String, String> headers,
+            @Body RequestBody requestBody);
+
     @GET(ApiEndPoints.RELEASE_TOGGLES)
     Call<ResponseBody> getReleaseToggles(@Header("Authorization") String token);
-
 }

@@ -1,6 +1,13 @@
 package org.commcare.fragments.personalId;
 
-import android.content.Context;
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
+import static org.commcare.utils.BiometricsHelper.isAnyBiometricConfigured;
+import static org.commcare.views.ViewUtil.showSnackBarWithOk;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -30,17 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
-
-import androidx.navigation.fragment.NavHostFragment;
-
-import static android.app.Activity.RESULT_OK;
-
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
-import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
-import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
@@ -72,12 +70,11 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidVerifyBinding.inflate(inflater, container, false);
-        biometricManager = BiometricManager.from(requireActivity());
+        biometricManager = getBiometricManager();
         biometricCallback = setupBiometricCallback();
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> onFingerprintButtonClicked());
         binding.connectVerifyPinButton.setOnClickListener(v -> onPinButtonClicked());
-
         requireActivity().setTitle(R.string.connect_appbar_title_app_lock);
         return binding.getRoot();
     }
@@ -88,8 +85,11 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         updateUiBasedOnMinSecurityRequired();
     }
 
+    private BiometricManager getBiometricManager() {
+        return PersonalIdManager.getInstance().getBiometricManager(requireActivity());
+    }
+
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
-        Context context = requireActivity();
         return new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
@@ -116,7 +116,43 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         };
     }
 
+    /**
+     * Handles the biometric error message hide and show logic.
+     * Logic 1: If error message is already displayed, check for the condition to hide the error message
+     * Logic 2: If coming from biometric configuration screen, check for the condition to show the error message
+     * @param fromBiometricSettingsActivity
+     */
+    private void handleBiometricErrorMessage(boolean fromBiometricSettingsActivity) {
+        NavController navController = getNavController();
+        NavBackStackEntry currentEntry = navController.getCurrentBackStackEntry();
+        boolean isBiometricErrMessageShowing = currentEntry != null
+                && currentEntry.getDestination().getId() == R.id.personalid_message_display
+                && currentEntry.getArguments() != null
+                && ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL == currentEntry.getArguments().getInt("callingClass");
+        boolean isAnyBiometricConfigured = isAnyBiometricConfigured(requireContext(), biometricManager);
+        String requiredLock = personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock();
+        boolean isFingerprintConfigured = BiometricsHelper.isFingerprintConfigured(requireContext(), biometricManager);
+
+        // Logic 1: Hiding error message: remove the error message by navigating up for the following 2 conditions:
+        // 1. if any biometric/PIN is configured and if the minimum requirement is PIN.
+        // 2. if the minimum requirement is biometric and biometric is configured.
+        if (isAnyBiometricConfigured && isBiometricErrMessageShowing
+                && (PIN.equals(requiredLock) || (BIOMETRIC_TYPE.equals(requiredLock) && isFingerprintConfigured))) {
+            navController.navigateUp();
+            // Logic 2: Showing the error message: if coming from the biometric configuration setting screen and the error message is not already displayed,
+            // show for the following 2 conditions:
+            // 1. if no biometric/PIN is configured.
+            // 2. if the minimum requirement is biometric and biometric is not configured.
+        } else if (fromBiometricSettingsActivity && !isBiometricErrMessageShowing
+                && (!isAnyBiometricConfigured || (BIOMETRIC_TYPE.equals(requiredLock) && !isFingerprintConfigured))) {
+            navigateForward(true);
+        }
+    }
+
     private void updateUiBasedOnMinSecurityRequired() {
+
+        //  update the UI for biometric error message
+        handleBiometricErrorMessage(false);
 
         BiometricsHelper.ConfigurationStatus fingerprintStatus = BiometricsHelper.checkFingerprintStatus(
                 requireContext(), biometricManager);
@@ -277,7 +313,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
     public void handleFinishedPinActivity(int requestCode, int resultCode) {
         if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
-            navigateForward(resultCode != RESULT_OK);
+            handleBiometricErrorMessage(true);
         }
     }
 
@@ -295,12 +331,12 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
             if (isConfigured) {
                 storeBiometricInvalidationKey();
                 if (Boolean.FALSE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser())) {
-                    NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
+                    getNavController().navigate(navigateToOtpScreen());
                 } else {
                     View view = getView();
                     if (view != null) {
                         showSnackBarWithOk(view, getString(R.string.connect_verify_skip_phone_number),
-                                v -> NavHostFragment.findNavController(this).navigate(navigateToNameScreen()));
+                                v -> getNavController().navigate(navigateToNameScreen()));
                     }
                 }
             }
@@ -312,8 +348,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
      */
     private void storeBiometricInvalidationKey() {
         CommCareActivity<?> activity = (CommCareActivity<?>) requireActivity();
-        if(BiometricsHelper.isFingerprintConfigured(activity,
-                PersonalIdManager.getInstance().getBiometricManager(activity))) {
+        if(BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
         }
     }

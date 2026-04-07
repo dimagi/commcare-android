@@ -14,6 +14,7 @@ public class MockAndroidKeyStoreProvider extends Provider {
 
     {
         put("KeyStore.AndroidKeyStore", MockKeyStore.class.getName());
+        put("KeyGenerator.AES", MockKeyGeneratorSpi.class.getName());
     }
 
     protected MockAndroidKeyStoreProvider() {

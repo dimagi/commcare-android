@@ -269,4 +269,9 @@ public class BiometricsHelper {
     }
 
     //// end: min security requirements
+
+    public static boolean isAnyBiometricConfigured(Context context, BiometricManager biometricManager) {
+        return BiometricsHelper.isFingerprintConfigured(context, biometricManager)
+                || BiometricsHelper.isPinConfigured(context, biometricManager);
+    }
 }

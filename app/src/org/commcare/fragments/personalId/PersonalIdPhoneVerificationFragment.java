@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.Paint;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -150,7 +152,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             }
         };
 
-        // The last OTP method may be Twilio (via Personal ID) after restoring this fragment.
+        // The last OTP method may be Twilio (via PersonalID) after restoring this fragment.
         Boolean useOtpFallback = SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(lastOtpMethod);
         setupOtpManager(useOtpFallback);
     }
@@ -181,6 +183,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         }
 
         setupListeners();
+        int childCount = binding.customOtpView.getChildCount();
+        if (childCount > 0) {
+            setUpEnterKeyAction((EditText) binding.customOtpView.getChildAt(childCount - 1));
+        }
         updateVerificationMessage();
         activity.setTitle(R.string.connect_verify_phone_title);
 
@@ -205,14 +211,16 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
     private void setupListeners() {
         binding.connectResendButton.setOnClickListener(v -> {
-            // Always fallback to Twilio (via Personal ID) if this is the first time the user reattempts to send the OTP.
+            // Always fallback to Twilio (via PersonalID) if this is the first time the user reattempts to send the OTP.
             Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1;
             setupOtpManager(useOtpFallback);
             requestOtp();
         });
+        binding.connectPhoneVerifyChange.setPaintFlags(
+                binding.connectPhoneVerifyChange.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
-        binding.customOtpView.setOnOtpChangedListener(otp -> {
+        binding.customOtpView.setOnCodeChangedListener(otp -> {
             clearOtpError();
             toggleVerifyButton(otp);
         });
@@ -223,14 +231,14 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         String message = result.getData().getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
                         String otp = extractOtp(message);
-                        binding.customOtpView.setOtp(otp); // Autofill OTP
+                        binding.customOtpView.setCode(otp); // Autofill OTP
                     }
                 }
         );
     }
 
     private void toggleVerifyButton(String otp) {
-        binding.connectPhoneVerifyButton.setEnabled(otp.length() > 5);
+        binding.connectPhoneVerifyButton.setEnabled(otp.length() == 6);
     }
 
     private void clearOtpError() {
@@ -332,9 +340,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private void verifyOtp() {
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
-        String otpCode = binding.customOtpView.getOtpValue();
+        String otpCode = binding.customOtpView.getCodeValue();
 
-        if (otpCode.isEmpty()) {
+        if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
             otpManager.verifyOtp(otpCode);
@@ -370,8 +378,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void navigateToPhoneEntry() {
-        NavDirections directions = PersonalIdPhoneVerificationFragmentDirections.actionPersonalidOtpPageToPersonalidPhoneFragment();
-        Navigation.findNavController(binding.connectResendButton).navigate(directions);
+        Navigation.findNavController(binding.connectResendButton)
+                .popBackStack(R.id.personalid_phone_fragment, false);
     }
 
     private void navigateToNameEntry() {
@@ -397,7 +405,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         // Check if using the OTP fallback is allowed for the current user.
         Boolean allowedToFallback = personalIdSessionData.getOtpFallback();
 
-        // The fallback for the OTP uses Twilio (via Personal ID) rather than Firebase.
+        // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase.
         if (useOtpFallback && allowedToFallback) {
             otpManager = new OtpManager(
                     activity,
@@ -413,6 +421,15 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     otpCallback
             );
             lastOtpMethod = SMS_METHOD_FIREBASE;
+        }
+    }
+
+    @Override
+    protected void keyboardEnterPressed() {
+        if (binding.connectPhoneVerifyButton.isEnabled()) {
+            verifyOtp();
+        } else {
+            KeyboardHelper.hideVirtualKeyboard(requireActivity());
         }
     }
 }

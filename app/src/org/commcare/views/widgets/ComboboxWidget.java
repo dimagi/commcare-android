@@ -7,6 +7,7 @@ import android.util.TypedValue;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.views.Combobox;
+import org.javarosa.core.model.ComboItem;
 import org.javarosa.core.model.ComboboxFilterRule;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -27,14 +28,15 @@ import java.util.Vector;
 public class ComboboxWidget extends QuestionWidget {
 
     private Vector<SelectChoice> choices;
-    private Vector<String> choiceTexts;
+    private Vector<ComboItem> choiceComboItems;
     private Combobox comboBox;
     private boolean wasWidgetChangedOnTextChanged = false;
+    private ComboItem selectedComboItem = null;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxFilterRule filterRule) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = setUpComboboxForWidget(context, choiceTexts, filterRule, mQuestionFontSize);
+        comboBox = setUpComboboxForWidget(context, choiceComboItems, filterRule, mQuestionFontSize);
         addView(comboBox);
 
         comboBox.setEnabled(!prompt.isReadOnly());
@@ -43,35 +45,45 @@ public class ComboboxWidget extends QuestionWidget {
         fillInPreviousAnswer(prompt);
     }
 
-    private static Combobox setUpComboboxForWidget(Context context, Vector<String> choices,
+    private static Combobox setUpComboboxForWidget(Context context, Vector<ComboItem> choices,
                                              ComboboxFilterRule filterRule, int fontSize) {
         ComboboxAdapter adapter =
-                getAdapterForComboboxWidget(context, choices.toArray(new String[]{}),
+                getAdapterForComboboxWidget(context, choices.toArray(new ComboItem[]{}),
                         filterRule, fontSize);
         Combobox combobox = new Combobox(context, choices, adapter);
         combobox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         return combobox;
     }
 
-    private static ComboboxAdapter getAdapterForComboboxWidget(Context context, String[] choices,
+    private static ComboboxAdapter getAdapterForComboboxWidget(Context context, ComboItem[] choices,
                                                                ComboboxFilterRule filterRule,
                                                                int fontSize) {
-        choices = SpinnerWidget.getChoicesWithEmptyFirstSlot(choices);
+        choices = getComboItemChoicesWithEmptyFirstSlot(choices);
         ComboboxAdapter adapter = new ComboboxAdapter(context, choices, filterRule);
         adapter.setCustomTextSize(fontSize);
         return adapter;
     }
 
+    public static ComboItem[] getComboItemChoicesWithEmptyFirstSlot(ComboItem[] originalChoices) {
+        ComboItem[] newChoicesList = new ComboItem[originalChoices.length+1];
+        newChoicesList[0] = new ComboItem("", "", -1);
+        System.arraycopy(originalChoices, 0, newChoicesList, 1, originalChoices.length);
+        return newChoicesList;
+    }
+
     private void initChoices(FormEntryPrompt prompt) {
         choices = getSelectChoices();
-        choiceTexts = new Vector<>();
+        choiceComboItems = new Vector<>();
         for (int i = 0; i < choices.size(); i++) {
-            choiceTexts.add(prompt.getSelectChoiceText(choices.get(i)));
+            choiceComboItems.add(new ComboItem(prompt.getSelectChoiceText(choices.get(i)),choices.get(i).getValue(),choices.get(i).getIndex()));
         }
     }
 
     private void addListeners() {
-        comboBox.setOnItemClickListener((parent, view, position, id) -> widgetEntryChanged());
+        comboBox.setOnItemClickListener((parent, view, position, id) -> {
+            selectedComboItem = (ComboItem) parent.getItemAtPosition(position);
+            widgetEntryChanged();}
+        );
 
         // Note that Combobox has an OnFocusChangeListener defined in its own class, so when
         // re-setting it here we have to make sure to do all of the same things that the original
@@ -109,13 +121,22 @@ public class ComboboxWidget extends QuestionWidget {
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {
         if (prompt.getAnswerValue() != null) {
             String previousAnswerValue = ((Selection)prompt.getAnswerValue().getValue()).getValue();
-            for (int i = 0; i < choices.size(); i++) {
-                if (choices.get(i).getValue().equals(previousAnswerValue)) {
-                    comboBox.setText(choiceTexts.get(i));
-                    break;
+            if (previousAnswerValue != null) {
+                selectedComboItem = getComboItemFromSelectionValue(previousAnswerValue);
+                if (selectedComboItem != null) {
+                    comboBox.setText(selectedComboItem.getDisplayText());
                 }
             }
         }
+    }
+
+    private ComboItem getComboItemFromSelectionValue(String selectionValue) {
+        for (ComboItem comboItem: choiceComboItems) {
+            if (comboItem.getValue().equals(selectionValue)) {
+                return comboItem;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -127,10 +148,21 @@ public class ComboboxWidget extends QuestionWidget {
 
         comboBox.autoCorrectCapitalization();
         String enteredText = comboBox.getText().toString();
-        if (choiceTexts.contains(enteredText)) {
-            int i = choiceTexts.indexOf(enteredText);
-            return new SelectOneData(new Selection(choices.elementAt(i)));
-        } else if ("".equals(enteredText)) {
+        if (selectedComboItem != null && selectedComboItem.getDisplayText().equals(enteredText) &&
+                choiceComboItems.contains(selectedComboItem)) {
+            int selectChoiceIndex = selectedComboItem.getSelectChoiceIndex();
+            return new SelectOneData(new Selection(choices.elementAt(selectChoiceIndex)));
+        } else if (selectedComboItem == null && !"".equals(enteredText)) {
+            // User may have typed in text that matches one of the choices, even if they didn't
+            // explicitly select it from the dropdown
+            ComboItem matchingItem = getComboItemFromDisplayText(enteredText);
+            if (matchingItem != null) {
+                int selectChoiceIndex = matchingItem.getSelectChoiceIndex();
+                return new SelectOneData(new Selection(choices.elementAt(selectChoiceIndex)));
+            }
+        }
+        selectedComboItem = null;
+        if ("".equals(enteredText)) {
             return null;
         } else {
             return new InvalidData("The text entered is not a valid answer choice",
@@ -138,9 +170,19 @@ public class ComboboxWidget extends QuestionWidget {
         }
     }
 
+    private ComboItem getComboItemFromDisplayText(String displayText) {
+        for (ComboItem comboItem: choiceComboItems) {
+            if (comboItem.getDisplayText().equals(displayText)) {
+                return comboItem;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void clearAnswer() {
         comboBox.setText("");
+        selectedComboItem = null;
     }
 
     @Override

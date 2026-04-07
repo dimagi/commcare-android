@@ -1,9 +1,17 @@
 package org.commcare.android.database.connect.models
 
+import android.text.TextUtils
+import androidx.annotation.StringDef
 import org.commcare.android.storage.framework.Persisted
+import org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_DELIVERY
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
+import org.commcare.utils.PushNotificationHelper.MESSAGE_NOTIFICATION_TITLE
+import org.commcare.utils.PushNotificationHelper.NOTIFICATION
+import org.commcare.utils.PushNotificationHelper.truncateMessage
 import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONObject
 import java.io.Serializable
@@ -28,10 +36,16 @@ class PushNotificationRecord :
     @Persisting(4)
     @MetaField(META_TITLE)
     var title: String = ""
+        set(value) {
+            field = truncateMessage(value, MESSAGE_NOTIFICATION_TITLE)
+        }
 
     @Persisting(5)
     @MetaField(META_BODY)
     var body: String = ""
+        set(value) {
+            field = truncateMessage(value, NOTIFICATION)
+        }
 
     @Persisting(6)
     @MetaField(META_CREATED_DATE)
@@ -65,6 +79,36 @@ class PushNotificationRecord :
     @MetaField(META_ACKNOWLEDGED)
     var acknowledged: Boolean = false
 
+    @Persisting(14)
+    @MetaField(META_PAYMENT_UUID)
+    var paymentUUID: String = ""
+
+    @Persisting(15)
+    @MetaField(META_OPPORTUNITY_UUID)
+    var opportunityUUID: String = ""
+
+    @Persisting(16)
+    @MetaField(META_KEY)
+    var key: String = ""
+
+    @Persisting(17)
+    @MetaField(META_OPPORTUNITY_STATUS)
+    @OpportunityStatusType
+    var opportunityStatus: String = ""
+
+    fun getNotificationActionFromRecord() =
+        if (CCC_GENERIC_OPPORTUNITY.equals(action) &&
+            !TextUtils.isEmpty(key)
+        ) {
+            key
+        } else {
+            action
+        }
+
+    @StringDef(OPPORTUNITY_STATUS_LEARN, OPPORTUNITY_STATUS_DELIVERY)
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class OpportunityStatusType
+
     companion object {
         const val STORAGE_KEY = "push_notification_history"
 
@@ -81,8 +125,11 @@ class PushNotificationRecord :
         const val META_PAYMENT_ID = "payment_id"
         const val META_READ_STATUS = "read_status"
         const val META_ACKNOWLEDGED = "acknowledged"
-
         const val META_TIME_STAMP = "timestamp"
+        const val META_OPPORTUNITY_UUID = "opportunity_uuid"
+        const val META_PAYMENT_UUID = "payment_uuid"
+        const val META_KEY = "key"
+        const val META_OPPORTUNITY_STATUS = "opportunity_status"
 
         fun fromJson(obj: JSONObject): PushNotificationRecord =
             PushNotificationRecord().apply {
@@ -99,6 +146,31 @@ class PushNotificationRecord :
                 channel = obj.optString(META_CHANNEL, "")
                 action = obj.optString(META_ACTION, "")
                 opportunityId = obj.optString(META_OPPORTUNITY_ID, "")
+                opportunityUUID = obj.optString(META_OPPORTUNITY_UUID, "")
+                paymentUUID = obj.optString(META_PAYMENT_UUID, "")
+                key = obj.optString(META_KEY, "")
+                opportunityStatus = obj.optString(META_OPPORTUNITY_STATUS, "")
+            }
+
+        fun fromV23(pushNotificationRecordV23: PushNotificationRecordV23): PushNotificationRecord =
+            PushNotificationRecord().apply {
+                notificationId = pushNotificationRecordV23.notificationId
+                title = pushNotificationRecordV23.title
+                body = pushNotificationRecordV23.body
+                notificationType = pushNotificationRecordV23.notificationType
+                confirmationStatus = pushNotificationRecordV23.confirmationStatus
+                paymentId = pushNotificationRecordV23.paymentId
+                readStatus = pushNotificationRecordV23.readStatus
+                createdDate = pushNotificationRecordV23.createdDate
+                connectMessageId = pushNotificationRecordV23.connectMessageId
+                channel = pushNotificationRecordV23.channel
+                action = pushNotificationRecordV23.action
+                acknowledged = pushNotificationRecordV23.acknowledged
+                opportunityId = pushNotificationRecordV23.opportunityId
+                opportunityUUID = pushNotificationRecordV23.opportunityUUID
+                paymentUUID = pushNotificationRecordV23.paymentUUID
+                key = ""
+                opportunityStatus = ""
             }
     }
 }

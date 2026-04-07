@@ -52,8 +52,8 @@
             app:destination="@id/connect_job_learning_progress_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment" />
         <action
-            android:id="@+id/action_connect_job_intro_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
-            app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
+            android:id="@+id/action_connect_job_intro_fragment_to_personalid_message_display_dialog"
+            app:destination="@id/personalid_message_display_dialog" />
     </fragment>
 
     <fragment
@@ -144,6 +144,7 @@
             android:name="unitId"
             app:argType="string" />
     </fragment>
+
     <dialog
         android:id="@+id/connect_job_detail_bottom_sheet_dialog_fragment"
         android:name="org.commcare.fragments.connect.ConnectJobDetailBottomSheetDialogFragment"
@@ -151,6 +152,34 @@
         android:label="ConnectJobDetailBottomSheetDialogFragment">
 
 
+    </dialog>
+    <dialog
+        android:id="@+id/personalid_message_display_dialog"
+        android:name="org.commcare.fragments.personalId.PersonalIdMessageFragment"
+        android:label="fragment_personalid_message"
+        tools:layout="@layout/screen_personalid_message">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="message"
+            app:argType="string" />
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+        <argument
+            android:name="buttonText"
+            app:nullable="false"
+            app:argType="string" />
+        <argument
+            android:name="button2Text"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="isCancellable"
+            android:defaultValue="true"
+            app:argType="boolean" />
     </dialog>
 
 </navigation>

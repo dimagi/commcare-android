@@ -6,6 +6,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ApiConnect
 import org.commcare.connect.network.NoParsingResponseParser
 import org.commcare.connect.network.base.BaseApiHandler
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
@@ -35,12 +36,12 @@ abstract class ConnectApiHandler<T>(
     fun connectStartLearning(
         context: Context,
         user: ConnectUserRecord,
-        jobId: Int,
+        jobUUID: String,
     ) {
         ApiConnect.startLearnApp(
             context,
             user,
-            jobId,
+            jobUUID,
             createCallback(
                 NoParsingResponseParser<T>(),
             ),
@@ -50,25 +51,25 @@ abstract class ConnectApiHandler<T>(
     fun getLearningAppProgress(
         context: Context,
         user: ConnectUserRecord,
-        jobId: Int,
+        job: ConnectJobRecord,
     ) {
         ApiConnect.getLearningAppProgress(
             context,
             user,
-            jobId,
-            createCallback(LearningAppProgressResponseParser<T>(), jobId),
+            job.jobUUID,
+            createCallback(LearningAppProgressResponseParser<T>(), job),
         )
     }
 
     fun claimJob(
         context: Context,
         user: ConnectUserRecord,
-        jobId: Int,
+        jobUUID: String,
     ) {
         ApiConnect.claimJob(
             context,
             user,
-            jobId,
+            jobUUID,
             createCallback(
                 NoParsingResponseParser<T>(),
             ),
@@ -83,24 +84,22 @@ abstract class ConnectApiHandler<T>(
         ApiConnect.getDeliveries(
             context,
             user,
-            job.jobId,
+            job.jobUUID,
             createCallback(DeliveryAppProgressResponseParser<T>(), job),
         )
     }
 
-    fun setPaymentConfirmation(
+    fun setPaymentConfirmations(
         context: Context,
         user: ConnectUserRecord,
-        paymentId: String,
-        confirmation: Boolean,
+        paymentConfirmations: List<ConnectPaymentConfirmationModel>,
     ) {
-        ApiConnect.setPaymentConfirmed(
+        ApiConnect.setPaymentsConfirmed(
             context,
             user,
-            paymentId,
-            confirmation,
+            paymentConfirmations,
             createCallback(
-                NoParsingResponseParser<T>(),
+                NoParsingResponseParser(),
             ),
         )
     }

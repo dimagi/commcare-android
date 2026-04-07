@@ -1,18 +1,27 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 import org.commcare.utils.GeoUtils;
@@ -21,6 +30,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -134,9 +145,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
                 activity.finish();
                 break;
-            case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING:
-                NavHostFragment.findNavController(this).navigateUp();
-                break;
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
                 personalIdSessionData.setAccountExists(false);
                 directions = navigateToBackupCode();
@@ -146,7 +154,9 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 GeoUtils.goToProperLocationSettingsScreen(activity);
                 activity.finish();
                 break;
-
+            default:
+                NavHostFragment.findNavController(this).navigateUp();
+                break;
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
@@ -164,7 +174,16 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private void successFlow(Activity activity) {
         PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
+        storeFeatureReleaseToggles();
         activity.setResult(RESULT_OK);
         activity.finish();
+    }
+
+    private void storeFeatureReleaseToggles() {
+        List<ConnectReleaseToggleRecord> featureReleaseToggles =
+                personalIdSessionData.getFeatureReleaseToggles();
+        if (featureReleaseToggles != null) {
+            ConnectAppDatabaseUtil.storeReleaseToggles(requireContext(), featureReleaseToggles);
+        }
     }
 }

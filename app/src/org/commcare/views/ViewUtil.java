@@ -12,7 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.utils.MediaUtil;
@@ -24,6 +26,8 @@ import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuItemCompat;
+
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Utilities for converting CommCare UI display details into Android objects
@@ -46,16 +50,6 @@ public final class ViewUtil {
             if (b != null) {
                 item.setIcon(new BitmapDrawable(context.getResources(), b));
             }
-        }
-    }
-
-    public static void hideVirtualKeyboard(AppCompatActivity activity) {
-        InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        View focus = activity.getCurrentFocus();
-        if (focus != null) {
-            inputManager.hideSoftInputFromWindow(focus.getWindowToken(),
-                    InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
@@ -174,4 +168,34 @@ public final class ViewUtil {
         }
     }
 
+    /**
+     * Displays a SnackBar with the given message and an "OK" button.
+     * The SnackBar will remain visible indefinitely until the "OK" button is pressed.
+     *
+     * @param view            The view to find a parent from. This view is used to create the SnackBar.
+     * @param message         The message text to show in the SnackBar.
+     * @param okClickListener The callback to be invoked when the "OK" button is clicked.
+     */
+    public static void showSnackBarWithOk(View view, String message, View.OnClickListener okClickListener) {
+        Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+                .setAction("OK", okClickListener)
+                .show();
+    }
+    public static void showSnackBarWithDismissAction(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(view.getContext().getString(R.string.ok), v -> snackbar.dismiss());
+        snackbar.show();
+    }
+
+    public static void showSnackBarWithNoDismissAction(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
+        TextView tv = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
+        tv.setMaxLines(5);
+
+        snackbar.show();
+    }
+
+    public static int dpToPx(int dp, Context context) {
+        return (int) (dp * context.getResources().getDisplayMetrics().density);
+    }
 }

@@ -27,6 +27,7 @@ import androidx.core.app.NotificationCompat;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+import static org.commcare.utils.NotificationIdentifiers.MESSAGE_NOTIFICATION_ID;
 
 /**
  * Handles displaying and clearing pinned notifications for CommCare
@@ -34,12 +35,12 @@ import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 public class CommCareNoficationManager {
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
-    public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
 
     public static final String NOTIFICATION_CHANNEL_ERRORS_ID = "notification-channel-errors";
     public static final String NOTIFICATION_CHANNEL_USER_SESSION_ID = "notification-channel-user-session";
     public static final String NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID = "notification-channel-server-communications";
-    public static final String NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID = "notification-channel-push-notifications";
+    public static final String OLD_NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID = "notification-channel-push-notifications";
+    public static final String NOTIFICATION_CHANNEL_GENERAL_PUSH_NOTIFICATIONS_ID = "notification-channel-general-push-notifications";
     public static final String NOTIFICATION_CHANNEL_MESSAGING_ID = "notification-channel-messaging";
 
     /**
@@ -58,7 +59,7 @@ public class CommCareNoficationManager {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
         synchronized (pendingMessages) {
             if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
+                mNM.cancel(MESSAGE_NOTIFICATION_ID);
                 return;
             }
 
@@ -84,7 +85,7 @@ public class CommCareNoficationManager {
                         .setWhen(System.currentTimeMillis())
                         .build();
 
-                mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
+                mNM.notify(MESSAGE_NOTIFICATION_ID, messageNotification);
             }
         }
     }
@@ -104,7 +105,7 @@ public class CommCareNoficationManager {
             }
 
             if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
+                mNM.cancel(MESSAGE_NOTIFICATION_ID);
             } else {
                 updateMessageNotification();
             }
@@ -191,15 +192,33 @@ public class CommCareNoficationManager {
                 R.string.notification_channel_server_communication_description,
                 NotificationManager.IMPORTANCE_LOW);
 
-        createNotificationChannel(NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID,
+        deleteIfOldPushNotificationExists();
+        createNotificationChannel(NOTIFICATION_CHANNEL_GENERAL_PUSH_NOTIFICATIONS_ID,
                 R.string.notification_channel_push_notfications_title,
                 R.string.notification_channel_push_notfications_description,
-                NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationManager.IMPORTANCE_HIGH);
 
         createNotificationChannel(NOTIFICATION_CHANNEL_MESSAGING_ID,
                 R.string.notification_channel_messaging_title,
                 R.string.notification_channel_messaging_description,
-                NotificationManager.IMPORTANCE_MAX);
+                NotificationManager.IMPORTANCE_HIGH);
+    }
+
+    /**
+     * The importance level cannot be changed once a channel already exists,
+     * so delete this channel and create another with a different channel ID.
+     * Reason: Programmatically changing the importance level doesn't work,
+     * even by deleting and recreating it with the same ID.
+     * Importance level is only modifiable before the channel is submitted to
+     * NotificationManager. createNotificationChannel(NotificationChannel).
+     */
+    @TargetApi(Build.VERSION_CODES.O)
+    private void deleteIfOldPushNotificationExists(){
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        NotificationChannel oldPushNotificationChannel = notificationManager.getNotificationChannel(OLD_NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID);
+        if(oldPushNotificationChannel!=null){
+            notificationManager.deleteNotificationChannel(OLD_NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.O)

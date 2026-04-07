@@ -21,8 +21,11 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.KeyboardHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class PersonalIdNameFragment extends BasePersonalIdFragment {
     private ScreenPersonalidNameBinding binding;
@@ -40,9 +43,18 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
         activity = requireActivity();
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
+        setUpEnterKeyAction(binding.nameTextValue);
         enableContinueButton(false);
         binding.nameTextValue.addTextChangedListener(createNameWatcher());
         return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if( binding.nameTextValue.requestFocus()){
+            KeyboardHelper.showKeyboardOnInput(activity, binding.nameTextValue);
+        }
     }
 
     private TextWatcher createNameWatcher() {
@@ -123,5 +135,12 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 .actionPersonalidNameToPersonalidMessage(title, message, phase, getString(buttonText), null)
                 .setIsCancellable(isCancellable);
         Navigation.findNavController(binding.getRoot()).navigate(action);
+    }
+
+    @Override
+    protected void keyboardEnterPressed() {
+        if (!Objects.requireNonNull(binding.nameTextValue.getText()).toString().isEmpty()) {
+            verifyOrAddName();
+        }
     }
 }

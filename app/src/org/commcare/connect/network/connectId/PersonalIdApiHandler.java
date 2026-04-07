@@ -3,6 +3,9 @@ package org.commcare.connect.network.connectId;
 import android.app.Activity;
 import android.content.Context;
 
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.ApiPersonalId;
@@ -16,8 +19,11 @@ import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.connectId.parser.ConnectTokenResponseParser;
+import org.commcare.connect.network.connectId.parser.LinkHqWorkerResponseParser;
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
+import org.commcare.connect.network.connectId.parser.RetrieveChannelEncryptionKeyResponseParser;
+import org.commcare.connect.network.connectId.parser.RetrieveHqTokenResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveWorkHistoryResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
@@ -38,7 +44,6 @@ import kotlin.Pair;
 import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
-
 
     public PersonalIdApiHandler() {
         super();
@@ -74,10 +79,14 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             }
 
             @Override
-            public void processFailure(int responseCode, String url, String errorBody) {
+            public void processFailure(int responseCode, String url, String errorBody, Throwable t) {
                 Pair<String, String> errorCodes = getErrorCodes(errorBody);
-                if (!handleErrorCodeIfPresent(errorCodes.getFirst(), errorCodes.getSecond(), sessionData)) {
-                    super.processFailure(responseCode, url, errorBody);
+                if (!handleErrorCodeIfPresent(
+                        errorCodes.getFirst(),
+                        errorCodes.getSecond(),
+                        sessionData
+                )) {
+                    super.processFailure(responseCode, url, errorBody, t);
                 }
             }
         };
@@ -102,7 +111,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
             case "INVALID_TOKEN":
-                onFailure(PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR, null);
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
+                        new Throwable(
+                                "The configuration session auth is invalid or the firebase UID was not found."
+                        )
+                );
                 return true;
             case "INCORRECT_OTP":
                 onFailure(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, null);
@@ -127,13 +141,18 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "MISSING_DATA":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.MISSING_DATA_ERROR,
-                        new Throwable("API call failed due to missing data with error subcode: " + errorSubCode)
+                        new Throwable(
+                                "API call failed due to missing data with error subcode: "
+                                        + errorSubCode
+                        )
                 );
                 return true;
             case "PHONE_MISMATCH":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.PHONE_MISMATCH_ERROR,
-                        new Throwable("There was a phone number mismatch when validating the firebase ID token.")
+                        new Throwable(
+                                "There was a phone number mismatch when validating the firebase ID token."
+                        )
                 );
                 return true;
             case "MISSING_TOKEN":
@@ -161,14 +180,15 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "ACTIVE_USER_EXISTS":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
-                        new Throwable("The user attempted to create a new profile with a phone number that is already tied to an existing account.")
+                        new Throwable(
+                                "The user attempted to create a new profile with a phone number that is already tied to an existing account."
+                        )
                 );
                 return true;
             default:
                 return false;
         }
     }
-
 
     public void makeIntegrityReportCall(
             Context context,
@@ -285,7 +305,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void connectToken(Context context, ConnectUserRecord user) {
+    public void retrievePersonalIdToken(Context context, ConnectUserRecord user) {
         ApiPersonalId.retrievePersonalIdToken(
                 context,
                 user,
@@ -306,7 +326,11 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 context,
                 user.getUserId(),
                 user.getPassword(),
-                createCallback((BaseApiResponseParser<T>) new RetrieveNotificationsResponseParser(context), null));
+                createCallback(
+                        (BaseApiResponseParser<T>) new RetrieveNotificationsResponseParser(context),
+                        null
+                )
+        );
     }
 
     public void updateNotifications(
@@ -321,6 +345,75 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 password,
                 createCallback(new NoParsingResponseParser<>(), null),
                 notificationId
+        );
+    }
+
+    public void updateChannelConsent(
+            Context context,
+            ConnectUserRecord user,
+            ConnectMessagingChannelRecord channel
+    ) {
+        ApiPersonalId.updateChannelConsent(
+                context,
+                user.getUserId(),
+                user.getPassword(),
+                channel.getChannelId(),
+                channel.getConsented(),
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
+    public void sendMessagingMessage(
+            Context context,
+            ConnectUserRecord user,
+            ConnectMessagingMessageRecord message,
+            ConnectMessagingChannelRecord channel
+    ) {
+        ApiPersonalId.sendMessagingMessage(
+                context,
+                user.getUserId(),
+                user.getPassword(),
+                message,
+                channel.getKey(),
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
+    public void retrieveChannelEncryptionKey(
+            Context context,
+            ConnectUserRecord user,
+            ConnectMessagingChannelRecord channel
+    ) {
+        ApiPersonalId.retrieveChannelEncryptionKey(
+                context,
+                user,
+                channel.getChannelId(),
+                channel.getKeyUrl(),
+                createCallback(new RetrieveChannelEncryptionKeyResponseParser<>(context), channel)
+        );
+    }
+
+    public void linkHqWorker(
+            Context context,
+            String hqUsername,
+            ConnectLinkedAppRecord appRecord,
+            String connectToken
+    ) {
+        ApiPersonalId.linkHqWorker(
+                context,
+                hqUsername,
+                appRecord,
+                connectToken,
+                createCallback(new LinkHqWorkerResponseParser<>(context), appRecord)
+        );
+    }
+
+    public void retrieveHqToken(Context context, String hqUsername, String connectToken) {
+        ApiPersonalId.retrieveHqToken(
+                context,
+                hqUsername,
+                connectToken,
+                createCallback(new RetrieveHqTokenResponseParser<>(context), hqUsername)
         );
     }
 

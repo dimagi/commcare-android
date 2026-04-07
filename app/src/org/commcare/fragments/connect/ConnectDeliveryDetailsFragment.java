@@ -1,6 +1,6 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.utils.ViewUtils.showSnackBarWithDismissAction;
+import static org.commcare.views.ViewUtil.showSnackBarWithDismissAction;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -116,7 +116,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
 
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
-        }.claimJob(requireContext(), user, job.getJobId());
+        }.claimJob(requireContext(), user, job.getJobUUID());
     }
 
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {

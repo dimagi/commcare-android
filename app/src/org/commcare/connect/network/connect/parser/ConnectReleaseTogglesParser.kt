@@ -15,9 +15,8 @@ class ConnectReleaseTogglesParser : BaseApiResponseParser<List<ConnectReleaseTog
     ): List<ConnectReleaseToggleRecord> {
         val responseJsonString = responseData.bufferedReader().use { it.readText() }
         val responseJson = JSONObject(responseJsonString)
-        val togglesJson = responseJson.getJSONObject("toggles")
 
-        return ConnectReleaseToggleRecord.releaseTogglesFromJson(togglesJson).also {
+        return ConnectReleaseToggleRecord.releaseTogglesFromJson(responseJson).also {
             ConnectAppDatabaseUtil.storeReleaseToggles(anyInputObject as Context, it)
         }
     }

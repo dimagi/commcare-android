@@ -52,14 +52,19 @@ class ConnectReleaseToggleRecord :
         const val META_MODIFIED_AT = "modified_at"
 
         fun releaseTogglesFromJson(json: JSONObject): List<ConnectReleaseToggleRecord> {
+            if (!json.has("toggles")) {
+                return emptyList()
+            }
+
             val releaseToggles = mutableListOf<ConnectReleaseToggleRecord>()
-            val slugKeys = json.keys()
+            val togglesJson = json.getJSONObject("toggles")
+            val slugKeys = togglesJson.keys()
 
             while (slugKeys.hasNext()) {
                 val slugKey = slugKeys.next()
 
                 try {
-                    val releaseToggleJson = json.getJSONObject(slugKey)
+                    val releaseToggleJson = togglesJson.getJSONObject(slugKey)
                     releaseToggles.add(releaseToggleFromJson(slugKey, releaseToggleJson))
                 } catch (e: JSONException) {
                     Logger.exception("JSONException while retrieving a release toggle", e)
@@ -75,13 +80,18 @@ class ConnectReleaseToggleRecord :
             json: JSONObject,
         ): ConnectReleaseToggleRecord =
             ConnectReleaseToggleRecord().apply {
-                val createdAtDateString = json.getString(META_CREATED_AT)
-                val modifiedAtDateString = json.getString(META_MODIFIED_AT)
-
                 slug = slugKey
                 active = json.getBoolean(META_ACTIVE)
-                createdAt = DateUtils.parseDateTime(createdAtDateString)
-                modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+
+                if (json.has(META_CREATED_AT)) {
+                    val createdAtDateString = json.getString(META_CREATED_AT)
+                    createdAt = DateUtils.parseDateTime(createdAtDateString)
+                }
+
+                if (json.has(META_MODIFIED_AT)) {
+                    val modifiedAtDateString = json.getString(META_MODIFIED_AT)
+                    modifiedAt = DateUtils.parseDateTime(modifiedAtDateString)
+                }
             }
     }
 }

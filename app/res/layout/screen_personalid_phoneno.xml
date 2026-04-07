@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
@@ -93,7 +94,6 @@
                             android:gravity="center"
                             android:hint="@string/connect_phone_country_code_default"
                             android:inputType="number"
-                            android:text="@string/connect_phone_country_code_default"
                             android:textColorHint="@color/connect_grey" />
 
                         <View
@@ -259,7 +259,7 @@
                     android:layout_marginEnd="16dp"
                     android:drawableEnd="@drawable/connect_right_arrow"
                     android:gravity="start|center"
-                    android:text="@string/review"
+                    android:text="@string/personalid_continue_label"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/ll_privacy_policy" />
 
