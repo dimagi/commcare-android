@@ -103,13 +103,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
             if (dataState instanceof DataState.Loading) {
                 showLoading();
-            } else if (dataState instanceof DataState.Cached) {
                 hideError();
+            } else if (dataState instanceof DataState.Cached) {
                 DataState.Cached<ConnectJobRecord> cached =
                     (DataState.Cached<ConnectJobRecord>) dataState;
                 job = cached.getData();
                 updateLearningUI();
-
             } else if (dataState instanceof DataState.Success) {
                 hideLoading();
                 hideError();
@@ -117,7 +116,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                     (DataState.Success<ConnectJobRecord>) dataState;
                 job = success.getData();
                 updateLearningUI();
-
             } else if (dataState instanceof DataState.Error) {
                 hideLoading();
                 DataState.Error<ConnectJobRecord> error =
@@ -125,10 +123,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                 String errorMsg = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), error.getErrorCode(), error.getThrowable());
                 if (!errorMsg.isEmpty()) {
                     showError(errorMsg);
-                }
-                if (error.getCachedData() != null) {
-                    job = error.getCachedData();
-                    updateLearningUI();
                 }
             }
         });

@@ -19,7 +19,6 @@ import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.interfaces.base.BaseConnectView
-import org.commcare.personalId.PersonalIdFeatureFlagChecker
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.TopBarErrorViewController
 import java.util.Date

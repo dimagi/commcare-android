@@ -100,7 +100,7 @@ class ConnectLearningProgressViewModelTest {
         every { mockRepository.getLearningProgress(any(), any(), any()) } returns
             flowOf(
                 DataState.Loading,
-                DataState.Error(cachedData = mockJob),
+                DataState.Error(),
             )
 
         val results = mutableListOf<DataState<ConnectJobRecord>>()
@@ -112,6 +112,5 @@ class ConnectLearningProgressViewModelTest {
 
         assertEquals(2, results.size)
         assertTrue(results[1] is DataState.Error)
-        assertEquals(mockJob, (results[1] as DataState.Error).cachedData)
     }
 }

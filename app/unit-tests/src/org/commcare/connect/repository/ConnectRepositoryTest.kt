@@ -129,7 +129,6 @@ class ConnectRepositoryTest {
             assertTrue(emissions[0] is DataState.Cached)
             assertTrue(emissions[1] is DataState.Loading)
             assertTrue(emissions[2] is DataState.Error)
-            assertEquals(cachedJobs, (emissions[2] as DataState.Error).cachedData)
         }
 
     @Test
@@ -146,7 +145,6 @@ class ConnectRepositoryTest {
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
             assertTrue(emissions[1] is DataState.Error)
-            assertEquals(emptyList<ConnectJobRecord>(), (emissions[1] as DataState.Error).cachedData)
         }
 
     @Test
@@ -172,14 +170,15 @@ class ConnectRepositoryTest {
             every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns cachedJobs
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
-            mockGetOpportunitiesSuccess()
+            val freshJobs = listOf(mockk<ConnectJobRecord>(), mockk())
+            mockGetOpportunitiesSuccess(freshJobs)
 
             val emissions = repository.getOpportunities(forceRefresh = true).toList()
             assertEquals(3, emissions.size)
             assertTrue(emissions[0] is DataState.Cached)
             assertTrue(emissions[1] is DataState.Loading)
             assertTrue(emissions[2] is DataState.Success)
-            assertEquals(emptyList<ConnectJobRecord>(), (emissions[2] as DataState.Success).data)
+            assertEquals(freshJobs, (emissions[2] as DataState.Success).data)
         }
 
     @Test

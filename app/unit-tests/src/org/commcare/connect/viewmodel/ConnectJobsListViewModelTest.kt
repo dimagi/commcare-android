@@ -74,7 +74,7 @@ class ConnectJobsListViewModelTest {
         every { mockRepository.getOpportunities(any(), any()) } returns
             flowOf(
                 DataState.Loading,
-                DataState.Error(cachedData = cachedJobs),
+                DataState.Error(),
             )
 
         val results = mutableListOf<DataState<List<ConnectJobRecord>>>()
@@ -86,7 +86,6 @@ class ConnectJobsListViewModelTest {
 
         assertEquals(2, results.size)
         assertTrue(results[1] is DataState.Error)
-        assertEquals(cachedJobs, (results[1] as DataState.Error).cachedData)
     }
 
     @Test

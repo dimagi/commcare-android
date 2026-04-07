@@ -94,10 +94,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             }
 
             if (state instanceof DataState.Loading) {
+                hideError();
                 showLoading();
             } else if (state instanceof DataState.Cached) {
                 DataState.Cached<List<ConnectJobRecord>> cached = (DataState.Cached<List<ConnectJobRecord>>) state;
-                hideError();
                 corruptJobs.clear();
                 setJobListData(cached.getData());
             } else if (state instanceof DataState.Success) {
@@ -114,20 +114,9 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 if (!errorMsg.isEmpty()) {
                     showError(errorMsg);
                 }
-                List<ConnectJobRecord> cachedData = error.getCachedData();
-                if (cachedData != null) {
-                    setJobListData(cachedData);
-                } else {
-                    navigateFailure();
-                }
             }
         });
     }
-
-    private void navigateFailure() {
-        setJobListData(new ArrayList<>());
-    }
-
 
     private void initRecyclerView() {
         boolean noJobsAvailable = corruptJobs.isEmpty() && inProgressJobs.isEmpty()

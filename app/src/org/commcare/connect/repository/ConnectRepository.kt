@@ -116,7 +116,7 @@ class ConnectRepository
                         }
                     result
                         .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
-                        .onFailure { throwable -> emit(DataState.Error.from(throwable, cachedData)) }
+                        .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
             }.flowOn(Dispatchers.IO)
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<ConnectOpportunitiesResponseModel> {
