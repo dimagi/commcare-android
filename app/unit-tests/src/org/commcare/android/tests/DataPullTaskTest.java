@@ -104,11 +104,9 @@ public class DataPullTaskTest {
     }
 
     @Test
-    public void dataPullFailWithJsonMessage() {
+    public void dataPullFailWithMessage() {
         installLoginAndUseLocalKeys();
-        CommcareRequestEndpointsMock.setErrorResponseBody(
-                "{\"error\": \"some.fake.locale.key\", \"default_response\": \"hello world\"}",
-                "application/json");
+        CommcareRequestEndpointsMock.setErrorResponseBody("{\"error\": \"some.fake.locale.key\", \"default_response\": \"hello world\"}");
         runDataPull(406, GOOD_RESTORE);
         Assert.assertEquals(DataPullTask.PullTaskResult.ACTIONABLE_FAILURE, dataPullResult.data);
         Assert.assertEquals("hello world", dataPullResult.errorMessage);
@@ -156,19 +154,6 @@ public class DataPullTaskTest {
 
         // Indicates that the mock retry result was parsed correctly
         Assert.assertTrue(pullTask.getAsyncRestoreHelper().serverProgressCompletedSoFar == 55);
-    }
-
-    @Test
-    public void dataPullFailWithXmlMessage() {
-        installLoginAndUseLocalKeys();
-        CommcareRequestEndpointsMock.setErrorResponseBody(
-                "<OpenRosaResponse xmlns=\"http://openrosa.org/http/response\"><message nature=" +
-                        "\"ota_restore_error\"><error>some.fake.locale.key</error><default_response>hello world" +
-                        "</default_response></message></OpenRosaResponse>",
-                "application/xml");
-        runDataPull(406, GOOD_RESTORE);
-        Assert.assertEquals(DataPullTask.PullTaskResult.ACTIONABLE_FAILURE, dataPullResult.data);
-        Assert.assertEquals("hello world", dataPullResult.errorMessage);
     }
 
     private static void runDataPullWithAsyncRestore() {

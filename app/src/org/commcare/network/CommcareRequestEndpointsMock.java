@@ -29,7 +29,6 @@ import retrofit2.Response;
 public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     private final static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
     private static String errorMessagePayload;
-    private static String errorMessageContentType;
 
     /**
      * Set the response code for the next N requests
@@ -42,9 +41,8 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     /**
      * Set the response body for the next 406 request
      */
-    public static void setErrorResponseBody(String body, String contentType) {
+    public static void setErrorResponseBody(String body) {
         errorMessagePayload = body;
-        errorMessageContentType = contentType;
     }
 
     @Override
@@ -62,8 +60,7 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
                     .build();
             return OkHTTPResponseMockFactory.createResponse(202, headers);
         } else if (responseCode == 406) {
-
-            ResponseBody responseBody = ResponseBody.create(MediaType.parse(errorMessageContentType), errorMessagePayload);
+            ResponseBody responseBody = ResponseBody.create(MediaType.parse("application/json"), errorMessagePayload);
             return Response.error(responseCode, responseBody);
         } else {
             return OkHTTPResponseMockFactory.createResponse(responseCode);
