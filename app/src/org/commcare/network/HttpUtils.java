@@ -14,8 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import okhttp3.Credentials;
 import okhttp3.ResponseBody;
@@ -88,29 +88,13 @@ public class HttpUtils {
         String responseStr = null;
         try {
             responseStr = response.errorBody().string();
-
-            Map<String, String> errorBodyKeyValuePairs = null;
-            if (response.errorBody().contentType().toString().contains("application/json")) {
-                errorBodyKeyValuePairs = parseJsonErrorResponseBody(responseStr);
-            } else {
-                // XML format
-            }
+            JSONObject errorKeyAndDefault = new JSONObject(responseStr);
             message = Localization.getWithDefault(
-                    errorBodyKeyValuePairs.get("error"),
-                    errorBodyKeyValuePairs.get("default_response"));
+                    errorKeyAndDefault.getString("error"),
+                    errorKeyAndDefault.getString("default_response"));
         } catch (JSONException | IOException e) {
             message = responseStr != null ? responseStr : "Unknown issue";
         }
         return message;
-    }
-
-    public static Map<String, String> parseJsonErrorResponseBody(String responseStr) throws JSONException {
-        Map<String, String> map = new HashMap<>();
-        JSONObject jsonObject = new JSONObject(responseStr);
-        if (jsonObject != null) {
-            map.put("error", jsonObject.getString("error"));
-            map.put("default_response", jsonObject.getString("default_response"));
-        }
-        return map;
     }
 }
