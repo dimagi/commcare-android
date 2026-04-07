@@ -11,7 +11,6 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
-import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -125,14 +124,8 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("recovery_pin", backupCode);
 
-        String model = DeviceIdentifier.getDeviceModel();
-        if (model != null) {
-            params.put("device", model);
-        }
-
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
-
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.confirmBackupCode);
@@ -208,11 +201,6 @@ public class ApiPersonalId {
         params.put("photo", photoAsBase64);
         params.put("name", userName);
         params.put("recovery_pin", backupCode);
-
-        String model = DeviceIdentifier.getDeviceModel();
-        if (model != null) {
-            params.put("device", model);
-        }
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);

@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.Paint;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -215,9 +216,11 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             setupOtpManager(useOtpFallback);
             requestOtp();
         });
+        binding.connectPhoneVerifyChange.setPaintFlags(
+                binding.connectPhoneVerifyChange.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
-        binding.customOtpView.setOnOtpChangedListener(otp -> {
+        binding.customOtpView.setOnCodeChangedListener(otp -> {
             clearOtpError();
             toggleVerifyButton(otp);
         });
@@ -228,7 +231,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         String message = result.getData().getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
                         String otp = extractOtp(message);
-                        binding.customOtpView.setOtp(otp); // Autofill OTP
+                        binding.customOtpView.setCode(otp); // Autofill OTP
                     }
                 }
         );
@@ -337,7 +340,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private void verifyOtp() {
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
-        String otpCode = binding.customOtpView.getOtpValue();
+        String otpCode = binding.customOtpView.getCodeValue();
 
         if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
@@ -375,8 +378,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void navigateToPhoneEntry() {
-        NavDirections directions = PersonalIdPhoneVerificationFragmentDirections.actionPersonalidOtpPageToPersonalidPhoneFragment();
-        Navigation.findNavController(binding.connectResendButton).navigate(directions);
+        Navigation.findNavController(binding.connectResendButton)
+                .popBackStack(R.id.personalid_phone_fragment, false);
     }
 
     private void navigateToNameEntry() {
