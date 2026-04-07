@@ -45,6 +45,10 @@ import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
+    // Set during error handling so onFailure overrides can access it without relying on the
+    // PersonalID session data (which is not available during the start configuration API call).
+    protected String integrityErrorSubCode;
+
     public PersonalIdApiHandler() {
         super();
     }
@@ -107,7 +111,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         LogTypes.TYPE_MAINTENANCE,
                         "Integrity error with subcode " + errorSubCode
                 );
-                sessionData.setSessionFailureSubcode(errorSubCode);
+                this.integrityErrorSubCode = errorSubCode;
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
             case "INVALID_TOKEN":

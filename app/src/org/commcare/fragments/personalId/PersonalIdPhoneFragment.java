@@ -476,8 +476,8 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             }
 
             @Override
-            public void onFailure(@androidx.annotation.NonNull PersonalIdOrConnectApiErrorCodes failureCode,
-                                  @androidx.annotation.Nullable Throwable t) {
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes failureCode,
+                                  @Nullable Throwable t) {
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
@@ -490,8 +490,8 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                         );
                         break;
                     case INTEGRITY_ERROR:
-                        handleIntegritySubError(integrityTokenResponse,
-                                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode());
+                        handleIntegritySubError(integrityTokenResponse, integrityErrorSubCode);
+                        break;
                     default:
                         navigateFailure(failureCode, t);
                         break;
