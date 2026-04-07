@@ -12,8 +12,11 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
 import org.commcare.connect.ConnectDateUtils
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 import org.commcare.dalvik.databinding.LoadingBinding
@@ -22,6 +25,10 @@ import org.commcare.interfaces.base.BaseConnectView
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.TopBarErrorViewController
 import java.util.Date
+
+fun interface DataStateConsumer<T> {
+    fun accept(data: T)
+}
 
 abstract class BaseConnectFragment<B : ViewBinding> :
     Fragment(),
@@ -139,6 +146,41 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     fun hideError() {
         topBarErrorViewController!!.hide()
+    }
+
+    /**
+     * Observes a LiveData of DataState and handle UI updates for loading, success, cached, and error states.
+     */
+    protected fun <T> observeDataState(
+        liveData: LiveData<DataState<T>>,
+        onCached: DataStateConsumer<T>,
+        onSuccess: DataStateConsumer<T>,
+    ) {
+        liveData.observe(viewLifecycleOwner) { state ->
+            if (!isAdded) return@observe
+            when (state) {
+                is DataState.Loading -> {
+                    hideError()
+                    showLoading()
+                }
+                is DataState.Cached -> onCached.accept(state.data)
+                is DataState.Success -> {
+                    hideLoading()
+                    hideError()
+                    onSuccess.accept(state.data)
+                }
+                is DataState.Error -> {
+                    hideLoading()
+                    val msg =
+                        PersonalIdOrConnectApiErrorHandler.handle(
+                            requireActivity(),
+                            state.errorCode,
+                            state.throwable,
+                        )
+                    if (msg.isNotEmpty()) showError(msg)
+                }
+            }
+        }
     }
 
     private fun shouldMonitorNetwork(): Boolean = this is RefreshableFragment

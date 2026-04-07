@@ -20,8 +20,6 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.repository.DataState;
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
@@ -96,36 +94,17 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void observeLearningProgress() {
-        viewModel.getLearningProgress().observe(getViewLifecycleOwner(), dataState -> {
-            if (!isAdded()) {
-                return;
-            }
-
-            if (dataState instanceof DataState.Loading) {
-                showLoading();
-                hideError();
-            } else if (dataState instanceof DataState.Cached) {
-                DataState.Cached<ConnectJobRecord> cached =
-                    (DataState.Cached<ConnectJobRecord>) dataState;
-                job = cached.getData();
-                updateLearningUI();
-            } else if (dataState instanceof DataState.Success) {
-                hideLoading();
-                hideError();
-                DataState.Success<ConnectJobRecord> success =
-                    (DataState.Success<ConnectJobRecord>) dataState;
-                job = success.getData();
-                updateLearningUI();
-            } else if (dataState instanceof DataState.Error) {
-                hideLoading();
-                DataState.Error<ConnectJobRecord> error =
-                    (DataState.Error<ConnectJobRecord>) dataState;
-                String errorMsg = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), error.getErrorCode(), error.getThrowable());
-                if (!errorMsg.isEmpty()) {
-                    showError(errorMsg);
+        observeDataState(
+                viewModel.getLearningProgress(),
+                cached -> {
+                    job = cached;
+                    updateLearningUI();
+                },
+                success -> {
+                    job = success;
+                    updateLearningUI();
                 }
-            }
-        });
+        );
     }
 
     private void updateLearningUI() {

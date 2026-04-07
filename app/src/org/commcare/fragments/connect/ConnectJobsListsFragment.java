@@ -23,8 +23,6 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.repository.DataState;
 import org.commcare.connect.viewmodel.ConnectJobsListViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
@@ -88,34 +86,17 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void observeOpportunities() {
-        viewModel.getOpportunities().observe(getViewLifecycleOwner(), state -> {
-            if (!isAdded()) {
-                return;
-            }
-
-            if (state instanceof DataState.Loading) {
-                hideError();
-                showLoading();
-            } else if (state instanceof DataState.Cached) {
-                DataState.Cached<List<ConnectJobRecord>> cached = (DataState.Cached<List<ConnectJobRecord>>) state;
-                corruptJobs.clear();
-                setJobListData(cached.getData());
-            } else if (state instanceof DataState.Success) {
-                DataState.Success<List<ConnectJobRecord>> success = (DataState.Success<List<ConnectJobRecord>>) state;
-                hideLoading();
-                hideError();
-                corruptJobs.clear();
-                setJobListData(success.getData());
-            } else if (state instanceof DataState.Error) {
-                DataState.Error<List<ConnectJobRecord>> error = (DataState.Error<List<ConnectJobRecord>>) state;
-                hideLoading();
-                String errorMsg = PersonalIdOrConnectApiErrorHandler.handle(
-                        requireActivity(), error.getErrorCode(), error.getThrowable());
-                if (!errorMsg.isEmpty()) {
-                    showError(errorMsg);
+        observeDataState(
+                viewModel.getOpportunities(),
+                cached -> {
+                    corruptJobs.clear();
+                    setJobListData(cached);
+                },
+                success -> {
+                    corruptJobs.clear();
+                    setJobListData(success);
                 }
-            }
-        });
+        );
     }
 
     private void initRecyclerView() {
