@@ -226,7 +226,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if(item.getItemId() == R.id.action_sync) {
             RefreshableFragment refreshable = getRefreshableFragment();
             if(refreshable != null) {
-                refreshable.refresh();
+                refreshable.refresh(true);
                 return true;
             }
         }

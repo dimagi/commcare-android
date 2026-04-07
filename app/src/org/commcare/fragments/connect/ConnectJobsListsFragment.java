@@ -19,7 +19,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -76,13 +75,13 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         ((ConnectActivity)requireActivity()).setWaitDialogEnabled(false);
         viewModel = new ViewModelProvider(this).get(ConnectJobsListViewModel.class);
         observeOpportunities();
-        viewModel.loadOpportunities(false);
+        refresh(false);
         return view;
     }
 
     @Override
-    public void refresh() {
-        viewModel.loadOpportunities(true);
+    public void refresh(boolean forceRefresh) {
+        viewModel.loadOpportunities(forceRefresh);
     }
 
     private void observeOpportunities() {

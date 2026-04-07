@@ -15,7 +15,6 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.PersonalIdManager;
@@ -68,7 +67,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         setupRefreshButton();
         populateJobCard();
-        refreshLearningData();
         return view;
     }
 
@@ -76,21 +74,17 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refreshLearningData();
+            refresh(false);
         }
     }
 
     @Override
-    public void refresh() {
-        refreshLearningData();
+    public void refresh(boolean forceRefresh) {
+        viewModel.loadLearningProgress(job, forceRefresh);
     }
 
     private void setupRefreshButton() {
-        getBinding().btnSync.setOnClickListener(v -> refreshLearningData());
-    }
-
-    private void refreshLearningData() {
-        viewModel.loadLearningProgress(job, false);
+        getBinding().btnSync.setOnClickListener(v -> refresh(true));
     }
 
     private void observeLearningProgress() {

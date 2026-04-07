@@ -127,7 +127,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
-    public void refresh() {
+    public void refresh(boolean forceRefresh) {
         setWaitDialogEnabled(false);
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success, error) -> {
             if (success && isAdded()) {
@@ -147,7 +147,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void setupRefreshAndConfirmationActions() {
-        getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh());
+        getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh(true));
 
         getBinding().connectPaymentConfirmNoButton.setOnClickListener(v ->
                 handlePaymentConfirmationNoClick()
@@ -180,7 +180,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                             hideError();
                             updatePaymentConfirmationTile(true);
                             redirectToPaymentTab();
-                            refresh();
+                            refresh(true);
                         } else {
                             showError(getString(R.string.failed_to_update_payment));
                         }
@@ -222,7 +222,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refresh();
+            refresh(false);
         }
     }
 
