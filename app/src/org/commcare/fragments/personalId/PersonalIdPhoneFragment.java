@@ -455,6 +455,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             requestHash = "";
         }
 
+        // Create the session data before we make the API call so that we can get any potential error subcodes on failure.
+        PersonalIdSessionData newSessionData = new PersonalIdSessionData();
+        personalIdSessionDataViewModel.setPersonalIdSessionData(newSessionData);
+
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
@@ -468,7 +472,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 } else {
                     String failureCode =
                             personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode();
-                    // This is called when api returns success but with a a failure code
+                    // This is called when api returns success but with a failure code
                     Logger.log(LogTypes.TYPE_MAINTENANCE, "Start Config API failed with " + failureCode);
                     onConfigurationFailure(failureCode,
                             getString(R.string.personalid_configuration_process_failed_subtitle));
@@ -490,14 +494,15 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                         );
                         break;
                     case INTEGRITY_ERROR:
-                        handleIntegritySubError(integrityTokenResponse, integrityErrorSubCode);
+                        handleIntegritySubError(integrityTokenResponse,
+                                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode());
                         break;
                     default:
                         navigateFailure(failureCode, t);
                         break;
                 }
             }
-        }.makeStartConfigurationCall(requireActivity(), body, token, requestHash);
+        }.makeStartConfigurationCall(requireActivity(), body, token, requestHash, newSessionData);
     }
 
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
