@@ -324,12 +324,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
-    @Nullable
-    public Date getLastSyncTime() {
-        return job != null ? job.getLastDeliveryUpdate() : null;
-    }
-
-    @Override
     protected @NotNull FragmentConnectDeliveryProgressBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentConnectDeliveryProgressBinding.inflate(inflater, container, false);
     }

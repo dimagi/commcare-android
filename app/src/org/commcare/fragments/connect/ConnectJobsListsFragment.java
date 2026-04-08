@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.viewmodel.ConnectJobsListViewModel;
@@ -402,9 +403,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     @Override
-    @Nullable
-    public Date getLastSyncTime() {
-        return null;
+    public String getEndpoint() {
+        return ConnectRepository.ENDPOINT_OPPORTUNITIES;
     }
 
     @Override

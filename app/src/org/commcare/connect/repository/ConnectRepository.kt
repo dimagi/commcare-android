@@ -26,8 +26,8 @@ class ConnectRepository
         private val networkClient: ConnectNetworkClient,
     ) {
         companion object {
-            private const val ENDPOINT_OPPORTUNITIES = "/opportunities"
-            private const val ENDPOINT_LEARNING_PREFIX = "/learning_progress/"
+            const val ENDPOINT_OPPORTUNITIES = "/opportunities"
+            const val ENDPOINT_LEARNING_PREFIX = "/learning_progress/"
 
             @Volatile
             private var instance: ConnectRepository? = null
@@ -53,7 +53,7 @@ class ConnectRepository
                     getCompositeJobs(
                         CommCareApplication.instance(),
                         ConnectJobRecord.STATUS_ALL_JOBS,
-                        null
+                        null,
                     )
                 },
                 networkCall = { fetchOpportunitiesFromNetwork() },
@@ -104,19 +104,19 @@ class ConnectRepository
 
                 if (isCacheAvailable && !forceRefresh && !syncPrefs.shouldRefresh(endpoint, policy)) return@flow
 
-                    emit(DataState.Loading)
-                    val result =
-                        ConnectRequestManager.executeRequest(endpoint) {
-                            networkCall().also { networkResult ->
-                                networkResult.onSuccess { data ->
-                                    onNetworkSuccess(data)
-                                    syncPrefs.storeLastSyncTime(endpoint)
-                                }
+                emit(DataState.Loading)
+                val result =
+                    ConnectRequestManager.executeRequest(endpoint) {
+                        networkCall().also { networkResult ->
+                            networkResult.onSuccess { data ->
+                                onNetworkSuccess(data)
+                                syncPrefs.storeLastSyncTime(endpoint)
                             }
                         }
-                    result
-                        .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
-                        .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
+                    }
+                result
+                    .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
+                    .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
             }.flowOn(Dispatchers.IO)
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<ConnectOpportunitiesResponseModel> {

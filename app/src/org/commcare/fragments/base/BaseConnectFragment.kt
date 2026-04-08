@@ -17,6 +17,8 @@ import androidx.viewbinding.ViewBinding
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.BaseApiHandler
+import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
@@ -55,10 +57,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     ): B
 
     /**
-     * Override in subclasses to provide the timestamp of the last successful data sync.
-     * Used to display "Last synced: X ago" in the offline indicator.
+     * Return the API endpoint this fragment syncs from, used to look up the last sync time.
+     * Return null if this fragment has no associated endpoint.
      */
-    open fun getLastSyncTime(): Date? = null
+    abstract fun getEndpoint(): String?
+
+    fun getLastSyncTime(): Date? {
+        val endpoint = getEndpoint() ?: return null
+        return ConnectSyncPreferences.getInstance(requireContext()).getLastSyncTime(endpoint)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

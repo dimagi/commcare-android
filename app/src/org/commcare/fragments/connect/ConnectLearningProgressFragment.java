@@ -17,6 +17,7 @@ import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
@@ -333,9 +334,8 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
-    @Nullable
-    public Date getLastSyncTime() {
-        return job != null ? job.getLastLearnUpdate() : null;
+    public String getEndpoint() {
+        return ConnectRepository.ENDPOINT_LEARNING_PREFIX + job.getJobUUID();
     }
 
     @Override
