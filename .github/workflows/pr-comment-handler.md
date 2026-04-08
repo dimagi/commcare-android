@@ -90,7 +90,7 @@ Always be:
      - Note the file, line, and reviewer's text.
    - Fetch any general (non-line) review body comments.
 4. If no PR has unresolved actionable comments, exit silently (do not post any comment).
-5. If all comments were already addressed by previous workflow runs, exit silently withoug posting any comment on PR or Issue.
+5. If all unresolved comments were already addressed by previous workflow runs, exit silently without posting any comment on PR or Issue.
 
 ### Step 3: Process Each PR
 
