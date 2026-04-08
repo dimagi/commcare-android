@@ -462,7 +462,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
-                personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
                 FirebaseAnalyticsUtil.flagPersonalIDDemoUser(sessionData.getDemoUser());
