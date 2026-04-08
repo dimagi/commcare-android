@@ -526,6 +526,7 @@
     <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
     <string name="connect_last_synced">ናይ መወዳእታ ምስንኻል: %s</string>
     <string name="connect_sync_successful">ናይ መወዳእታ ምስንኻል: ሕጂ ሕጂ</string>
+    <string name="connect_sync_failed">ምስንኻል ሓዲሽ ነገር ኣይሰለጠን, ናይ መወዳእታ ምስንኻል: %s</string>
     <string name="connect_offline">ኦፍላይን</string>
     <string name="connect_never">ፈጺሙ</string>
 </resources>

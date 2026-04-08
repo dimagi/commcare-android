@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -185,13 +186,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     ) {
                         showOfflineIndicator()
                     } else {
-                        val msg =
-                            PersonalIdOrConnectApiErrorHandler.handle(
-                                requireActivity(),
-                                state.errorCode,
-                                state.throwable,
-                            )
-                        if (msg.isNotEmpty()) showError(msg)
+                        showError(getString(R.string.connect_sync_failed, getRelativeLastSyncTime()))
                     }
                 }
             }
@@ -205,17 +200,22 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private fun shouldMonitorNetwork(): Boolean = this is RefreshableFragment
 
     private fun showOfflineIndicator() {
-        val message = buildOfflineMessage()
+        val relativeTime = getRelativeLastSyncTime()
+        val message = getString(R.string.connect_last_synced, relativeTime)
         topBarErrorViewController!!.showOfflineStatus(message)
     }
 
-    private fun buildOfflineMessage(): String {
+    private fun getRelativeLastSyncTime(): String {
         val lastSync = getLastSyncTime()
         return if (lastSync != null) {
-            val relativeTime = ConnectDateUtils.formatNotificationTime(requireContext(), lastSync)
-            getString(R.string.connect_last_synced, relativeTime)
+            DateUtils
+                .getRelativeTimeSpanString(
+                    lastSync.time,
+                    System.currentTimeMillis(),
+                    DateUtils.MINUTE_IN_MILLIS,
+                ).toString()
         } else {
-            getString(R.string.connect_last_synced, getString(R.string.connect_never))
+            getString(R.string.connect_never)
         }
     }
 

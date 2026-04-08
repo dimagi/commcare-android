@@ -532,6 +532,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="notification_channel_user_session_description">Sanarwa da ke ɗauke da bayani game da zaman mai amfani na yanzu, kamar ranar da ake sa ran zaman ya ƙare</string>
     <string name="connect_last_synced">Aiki na ƙarshe: %s</string>
     <string name="connect_sync_successful">Aiki na ƙarshe: Yanzu haka</string>
+    <string name="connect_sync_failed">An kasa sabunta, Aiki na ƙarshe: %s</string>
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_never">Ba taɓa</string>
 </resources>
