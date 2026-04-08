@@ -213,7 +213,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             String requestHash,
             PersonalIdSessionData sessionData
     ) {
-//        PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.startConfiguration(
                 activity,
                 body,
