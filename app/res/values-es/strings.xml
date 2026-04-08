@@ -537,6 +537,7 @@
     <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
     <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
     <string name="connect_last_synced">Última sincronización: %s</string>
+    <string name="connect_sync_successful">Última sincronización: Justo ahora</string>
     <string name="connect_offline">Sin conexión</string>
     <string name="connect_never">Nunca</string>
 </resources>

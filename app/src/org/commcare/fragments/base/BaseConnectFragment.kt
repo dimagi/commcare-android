@@ -17,7 +17,6 @@ import androidx.viewbinding.ViewBinding
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.BaseApiHandler
-import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
@@ -148,7 +147,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     fun showError(error: String) {
-        topBarErrorViewController!!.show(error)
+        topBarErrorViewController!!.showError(error)
     }
 
     fun isErrorShowing(): Boolean = topBarErrorViewController!!.isErrorShowing()
@@ -176,6 +175,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 is DataState.Success -> {
                     hideLoading()
                     hideError()
+                    showSyncSuccess()
                     onSuccess.accept(state.data)
                 }
                 is DataState.Error -> {
@@ -196,6 +196,10 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 }
             }
         }
+    }
+
+    private fun showSyncSuccess() {
+        topBarErrorViewController!!.showMessage(getString(R.string.connect_sync_successful))
     }
 
     private fun shouldMonitorNetwork(): Boolean = this is RefreshableFragment

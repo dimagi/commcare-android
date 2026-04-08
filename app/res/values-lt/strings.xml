@@ -192,6 +192,7 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_progress_relearn_tasks_completed">Visos reikalingos užduotys atliktos. Galite tęsti pristatymo veiklą.</string>
     <string name="connect_last_synced">Paskutinė sinchronizacija: %s</string>
+    <string name="connect_sync_successful">Paskutinė sinchronizacija: Ką tik</string>
     <string name="connect_offline">Neprisijungęs</string>
     <string name="connect_never">Niekada</string>
 </resources>

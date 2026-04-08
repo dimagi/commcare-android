@@ -3,6 +3,7 @@ package org.commcare.views
 import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewGroup
+import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 
 class TopBarErrorViewController(
@@ -14,13 +15,20 @@ class TopBarErrorViewController(
 
     private var animator: ValueAnimator? = null
 
-    fun show(message: String) {
+    fun showError(message: String) {
+        errorView.setBackgroundColor(errorView.context.getColor(R.color.connect_warning_color))
+        showBar(message, showOffline = false, autoDismiss = true)
+    }
+
+    fun showMessage(message: String) {
+        errorView.setBackgroundColor(errorView.context.getColor(R.color.connect_green))
         showBar(message, showOffline = false, autoDismiss = true)
     }
 
     fun isErrorShowing(): Boolean = errorView.visibility == View.VISIBLE
 
     fun showOfflineStatus(message: String) {
+        errorView.setBackgroundColor(errorView.context.getColor(R.color.connect_warning_color))
         showBar(message, showOffline = true, autoDismiss = false)
     }
 
