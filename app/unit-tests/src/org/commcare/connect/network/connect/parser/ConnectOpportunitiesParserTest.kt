@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import java.io.ByteArrayInputStream
-import java.io.InputStream
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -53,9 +52,44 @@ class ConnectOpportunitiesParserTest {
         unmockkStatic(FirebaseAnalyticsUtil::class)
     }
 
+    private fun validJobJson(id: Int): JSONObject = JSONObject().apply {
+        put("id", id)
+        put("opportunity_id", "job-uuid-$id")
+        put("name", "Test Job $id")
+        put("description", "Description for job $id")
+        put("organization", "Test Org")
+        put("end_date", "2025-12-31")
+        put("start_date", "2025-01-01")
+        put("max_visits_per_user", 100)
+        put("daily_max_visits_per_user", 10)
+        put("budget_per_visit", 50)
+        put("budget_per_user", 5000)
+        put("currency", "USD")
+        put("short_description", "Short description")
+        put("deliver_progress", 0)
+        put("payment_units", JSONArray())
+        put("learn_progress", JSONObject().apply {
+            put("total_modules", 3)
+            put("completed_modules", 0)
+        })
+        put("learn_app", appJson())
+        put("deliver_app", appJson())
+    }
+
+    private fun appJson(): JSONObject = JSONObject().apply {
+        put("cc_domain", "test-domain")
+        put("cc_app_id", "app-id-001")
+        put("name", "Test App")
+        put("description", "Test app description")
+        put("organization", "Test Org")
+        put("passing_score", 80)
+        put("install_url", "https://example.com/install")
+        put("learn_modules", JSONArray())
+    }
+
     @Test
     fun testEmptyResponseBody_returnsEmptyModel_noStoreJobsCalled() {
-        val inputStream: InputStream = ByteArrayInputStream("".toByteArray())
+        val inputStream = ByteArrayInputStream("".toByteArray())
 
         val result = parser.parse(200, inputStream, context)
 
@@ -65,31 +99,33 @@ class ConnectOpportunitiesParserTest {
     }
 
     @Test
-    fun testEmptyJsonArray_returnsEmptyModel_storeJobsCalledOnce() {
-        val inputStream: InputStream = ByteArrayInputStream(JSONArray().toString().toByteArray())
-        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
+    fun testEmptyJsonArray_returnsEmptyModel_storeJobsNotCalled() {
+        val inputStream = ByteArrayInputStream(JSONArray().toString().toByteArray())
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
 
         val result = parser.parse(200, inputStream, context)
 
         assertEquals(0, result.validJobs.size)
         assertEquals(0, result.corruptJobs.size)
-        verify(exactly = 1) { ConnectJobUtils.storeJobs(context, any(), true) }
+        verify(exactly = 0) { ConnectJobUtils.storeJobs(any(), any(), any()) }
     }
 
     @Test
     fun testSingleValidJob_parsedJobAddedToValidJobsList() {
-        val mockJob = mockk<ConnectJobRecord>()
-        val array = JSONArray().apply { put(JSONObject().apply { put("id", 42) }) }
-        val inputStream: InputStream = ByteArrayInputStream(array.toString().toByteArray())
-        every { ConnectJobRecord.fromJson(any()) } returns mockJob
-        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
+        unmockkStatic(ConnectJobRecord::class)
+        val inputStream = ByteArrayInputStream(JSONArray().apply { put(validJobJson(42)) }.toString().toByteArray())
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
+        every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
 
         val result = parser.parse(200, inputStream, context)
 
         assertEquals(1, result.validJobs.size)
         assertEquals(0, result.corruptJobs.size)
+        assertEquals(42, result.validJobs[0].jobId)
+        assertEquals("Test Job 42", result.validJobs[0].title)
+        verify(exactly = 1) { ConnectJobUtils.storeJobs(context, match { it.size == 1 && it[0].jobId == 42 }, true) }
+        verify(exactly = 1) { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(context) }
     }
 
     @Test
@@ -100,7 +136,7 @@ class ConnectOpportunitiesParserTest {
             put(JSONObject().apply { put("id", 1) })
             put(JSONObject().apply { put("id", 2) })
         }
-        val inputStream: InputStream = ByteArrayInputStream(array.toString().toByteArray())
+        val inputStream = ByteArrayInputStream(array.toString().toByteArray())
         every { ConnectJobRecord.fromJson(any()) } returnsMany listOf(mockJob1, mockJob2)
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
@@ -115,7 +151,7 @@ class ConnectOpportunitiesParserTest {
     fun testCorruptJobEntry_fromJsonThrowsJSONException_addsToCorruptJobsList() {
         val corruptJob = mockk<ConnectJobRecord>()
         val array = JSONArray().apply { put(JSONObject().apply { put("id", 99) }) }
-        val inputStream: InputStream = ByteArrayInputStream(array.toString().toByteArray())
+        val inputStream = ByteArrayInputStream(array.toString().toByteArray())
         every { ConnectJobRecord.fromJson(any()) } throws JSONException("parse error")
         every { ConnectJobRecord.corruptJobFromJson(any()) } returns corruptJob
         every { corruptJob.title } returns "Corrupt Job Title"
@@ -133,7 +169,7 @@ class ConnectOpportunitiesParserTest {
     fun testNewJobsGreaterThanZero_schedulesOneTimeFetch() {
         val mockJob = mockk<ConnectJobRecord>()
         val array = JSONArray().apply { put(JSONObject().apply { put("id", 1) }) }
-        val inputStream: InputStream = ByteArrayInputStream(array.toString().toByteArray())
+        val inputStream = ByteArrayInputStream(array.toString().toByteArray())
         every { ConnectJobRecord.fromJson(any()) } returns mockJob
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 2
         every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
@@ -148,7 +184,7 @@ class ConnectOpportunitiesParserTest {
     fun testNewJobsEqualsZero_doesNotScheduleOneTimeFetch() {
         val mockJob = mockk<ConnectJobRecord>()
         val array = JSONArray().apply { put(JSONObject().apply { put("id", 1) }) }
-        val inputStream: InputStream = ByteArrayInputStream(array.toString().toByteArray())
+        val inputStream = ByteArrayInputStream(array.toString().toByteArray())
         every { ConnectJobRecord.fromJson(any()) } returns mockJob
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
@@ -162,7 +198,7 @@ class ConnectOpportunitiesParserTest {
     fun testParseSuccess_reportsApiJobsWithCorrectCounts() {
         val mockJob = mockk<ConnectJobRecord>()
         val array = JSONArray().apply { put(JSONObject().apply { put("id", 1) }) }
-        val inputStream: InputStream = ByteArrayInputStream(array.toString().toByteArray())
+        val inputStream = ByteArrayInputStream(array.toString().toByteArray())
         every { ConnectJobRecord.fromJson(any()) } returns mockJob
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 3
         every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
@@ -176,7 +212,7 @@ class ConnectOpportunitiesParserTest {
     @Test(expected = RuntimeException::class)
     fun testInvalidJson_throwsRuntimeException() {
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
-        val inputStream: InputStream = ByteArrayInputStream("{not an array}".toByteArray())
+        val inputStream = ByteArrayInputStream("{not an array}".toByteArray())
 
         parser.parse(200, inputStream, context)
     }
@@ -184,7 +220,7 @@ class ConnectOpportunitiesParserTest {
     @Test
     fun testInvalidJson_reportsApiCallWithFailure() {
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
-        val inputStream: InputStream = ByteArrayInputStream("[invalid".toByteArray())
+        val inputStream = ByteArrayInputStream("[invalid".toByteArray())
 
         try {
             parser.parse(200, inputStream, context)
