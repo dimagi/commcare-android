@@ -241,12 +241,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             doLogin(loginMode, restoreSession, "AUTO");
         } else if (loginManagedByPersonalId()) {
             //Unlock and then auto login
-            personalIdManager.unlockConnect(this, success -> {
-                if (success) {
+//            personalIdManager.unlockConnect(this, success -> {
+//                if (success) {
                     String pass = personalIdManager.getStoredPasswordForApp(seatedAppId, username);
                     doLogin(loginMode, restoreSession, pass);
-                }
-            });
+//                }
+//            });
         } else {
             //Manual login
             String passwordOrPin = uiController.getEnteredPasswordOrPin();
