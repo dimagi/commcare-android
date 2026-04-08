@@ -16,6 +16,7 @@ import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
@@ -114,7 +115,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
             !ConnectivityStatus.isNetworkAvailable(requireContext())
         ) {
             registerNetworkCallback()
-            showOfflineIndicator()
         }
     }
 
@@ -144,6 +144,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         topBarErrorViewController!!.show(error)
     }
 
+    fun isErrorShowing(): Boolean = topBarErrorViewController!!.isErrorShowing()
+
     fun hideError() {
         topBarErrorViewController!!.hide()
     }
@@ -171,13 +173,19 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 }
                 is DataState.Error -> {
                     hideLoading()
-                    val msg =
-                        PersonalIdOrConnectApiErrorHandler.handle(
-                            requireActivity(),
-                            state.errorCode,
-                            state.throwable,
-                        )
-                    if (msg.isNotEmpty()) showError(msg)
+                    if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR &&
+                        !ConnectivityStatus.isNetworkAvailable(requireContext())
+                    ) {
+                        showOfflineIndicator()
+                    } else {
+                        val msg =
+                            PersonalIdOrConnectApiErrorHandler.handle(
+                                requireActivity(),
+                                state.errorCode,
+                                state.throwable,
+                            )
+                        if (msg.isNotEmpty()) showError(msg)
+                    }
                 }
             }
         }
@@ -210,8 +218,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
             val callback =
                 object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
-                        view?.post {
-                            topBarErrorViewController!!.hide()
+                        if (isErrorShowing()) {
+                            (this@BaseConnectFragment as RefreshableFragment).refresh(false)
                         }
                     }
                 }

@@ -18,6 +18,8 @@ class TopBarErrorViewController(
         showBar(message, showOffline = false, autoDismiss = true)
     }
 
+    fun isErrorShowing(): Boolean = errorView.visibility == View.VISIBLE
+
     fun showOfflineStatus(message: String) {
         showBar(message, showOffline = true, autoDismiss = false)
     }
