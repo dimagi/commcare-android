@@ -41,6 +41,9 @@ public class VideoWidget extends MediaWidget {
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
             Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
             i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                     Video.Media.EXTERNAL_CONTENT_URI.toString());
@@ -64,6 +67,9 @@ public class VideoWidget extends MediaWidget {
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
             try {
                 ((AppCompatActivity)getContext())
                         .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "video/*"),

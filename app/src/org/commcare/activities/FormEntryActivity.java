@@ -445,6 +445,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
+    public void showFormAttachmentLimitReachedError() {
+        String title = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached_title);
+        String msg = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached,
+                String.valueOf(MAX_ATTACHMENTS));
+        CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
+                title, msg, (dialog1, which) -> dialog1.dismiss());
+        showAlertDialog(dialog);
+    }
+
     private void processChooserResponse(Intent intent) {
         // For audio/video capture/chooser, we get the URI from the content provider
         // then the widget copies the file and makes a new entry in the content provider.

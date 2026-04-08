@@ -53,7 +53,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class ImageWidget extends QuestionWidget {
+public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaCapableWidget {
 
     public static final int REQUEST_CAMERA_PERMISSION = 1001;
 
@@ -98,6 +98,9 @@ public class ImageWidget extends QuestionWidget {
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
             mErrorTextView.setVisibility(View.GONE);
             if (Permissions.missingAppPermission((AppCompatActivity)getContext(), Manifest.permission.CAMERA)) {
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
@@ -124,6 +127,9 @@ public class ImageWidget extends QuestionWidget {
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
             if (ImageCaptureProcessing.getCustomImagePath() != null) {
                 // This block is only in use for a Calabash test and
                 // processes the custom file path set from a broadcast triggered by calabash test
@@ -153,7 +159,7 @@ public class ImageWidget extends QuestionWidget {
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
                 !mPrompt.isReadOnly());
         mDiscardButton.setOnClickListener(v -> {
-            deleteMedia();
+            clearMediaData();
             widgetEntryChanged();
         });
         mDiscardButton.setVisibility(View.GONE);
@@ -219,6 +225,17 @@ public class ImageWidget extends QuestionWidget {
         }
     }
 
+    @Override
+    public String getMediaName() {
+        return mBinaryName;
+    }
+
+    @Override
+    public void setMediaName(String mediaName) {
+        mBinaryName = mediaName;
+        incrementAttachmentCount();
+    }
+
     // If there is an image in the raw folder, use that as the display image, since it is better quality
     // otherwise checks if the file to be uploaded exists and decrypt if needed
     public static File getFileToDisplay(String instanceFolder, String binaryName, SecretKeySpec secretKey) {
@@ -265,18 +282,19 @@ public class ImageWidget extends QuestionWidget {
         }
     }
 
-    private void deleteMedia() {
+    public void clearMediaData() {
         MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
         removeView(mImageView);
         mDiscardButton.setVisibility(View.GONE);
+        decrementAttachmentCount();
     }
 
     @Override
     public void clearAnswer() {
         // remove the file
-        deleteMedia();
+        clearMediaData();
         mImageView.setImageBitmap(null);
         mErrorTextView.setVisibility(View.GONE);
 
@@ -298,11 +316,11 @@ public class ImageWidget extends QuestionWidget {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
-            deleteMedia();
+            clearMediaData();
         }
 
         File f = new File(binaryPath.toString());
-        mBinaryName = f.getName();
+        setMediaName(f.getName());
     }
 
     @Override

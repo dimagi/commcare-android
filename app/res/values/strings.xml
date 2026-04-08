@@ -703,4 +703,6 @@
     <string name="network_notification_service_starting">Starting network service</string>
     <string name="network_notification_service_running">Running network requests...</string>
     <string name="network_notification_service_downloading_files">Downloading application files...</string>
+    <string name="form_attachment_limit_reached_title">Attachment limit reached</string>
+    <string name="form_attachment_limit_reached">This form has reached the maximum of %s attachments. To add a new one, remove an existing attachment first.</string>
 </resources>

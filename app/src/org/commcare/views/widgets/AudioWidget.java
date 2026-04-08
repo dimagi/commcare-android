@@ -52,10 +52,18 @@ public class AudioWidget extends MediaWidget {
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
-        mCaptureButton.setOnClickListener(v -> captureAudio(mPrompt));
+        mCaptureButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
+            captureAudio(mPrompt);
+        });
 
         // launch audio filechooser intent on click
         mChooseButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.setType("audio/*");
             try {
