@@ -25,6 +25,8 @@ network:
   - java
 
 safe-outputs:
+  noop:
+    report-as-issue: false
   add-comment:
     max: 10
     target: "*"
@@ -89,14 +91,39 @@ Always be:
      - Check if it has already been addressed (a bot reply, or the thread is resolved). Skip if so.
      - Note the file, line, and reviewer's text.
    - Fetch any general (non-line) review body comments.
-4. If no PR has unresolved actionable comments, exit silently (do not post any comment).
-5. If all unresolved comments were already addressed by previous workflow runs, exit silently without posting any comment on PR or Issue.
+4. For each such PR, also check if it has merge conflicts (mergeable state is `CONFLICTING`).
+5. If no PR has unresolved actionable comments and no PR has merge conflicts, exit silently (do not post any comment).
 
-### Step 3: Process Each PR
+### Step 3: Resolve Merge Conflicts
+
+For each `[Test Improver]` PR that has merge conflicts:
+
+1. Check out the PR's head branch locally.
+2. Fetch the base branch (usually `master` or `main`) and rebase the PR branch onto it:
+   - Prefer rebase over merge to keep a clean history.
+   - If rebase is not safe (e.g., the branch has been force-pushed by a human), skip and post a comment asking for human assistance.
+3. Resolve any conflicts by favouring the intent of the PR's changes:
+   - Read the conflicting files carefully before resolving.
+   - If a conflict is in a test file added by Test Improver, keep the test changes and integrate with whatever changed on the base branch.
+   - If a conflict is ambiguous or risky (e.g., both sides changed the same logic significantly), do not guess — post a comment describing the conflict and ask for human help.
+4. After resolving, run the relevant tests to confirm nothing is broken.
+5. Commit with:
+   ```
+   Resolve merge conflicts with base branch
+
+   🤖 PR Comment Handler
+   ```
+6. Push to the PR branch.
+7. Post a brief comment on the PR:
+   ```
+   🤖 *PR Comment Handler here — I've rebased this branch onto the latest base branch to resolve merge conflicts. Please re-review if the conflict resolution affected your area of interest.*
+   ```
+
+### Step 4: Process Each PR
 
 For each PR that has unresolved actionable comments:
 
-#### 3a. Classify Comments
+#### 4a. Classify Comments
 
 For each unresolved comment, classify it:
 
@@ -105,7 +132,7 @@ For each unresolved comment, classify it:
 - **Opinion / discussion**: The reviewer is sharing a view without a clear action item, or the PR author has already pushed back. → Skip; do not take sides.
 - **Out of scope**: The reviewer asks for changes well beyond this PR's purpose. → Note in summary, suggest a follow-up issue.
 
-#### 3b. Implement Clear Changes
+#### 4b. Implement Clear Changes
 
 For comments classified as **Clear code change**:
 
@@ -125,7 +152,7 @@ For comments classified as **Clear code change**:
    ```
 7. Push to the PR branch.
 
-#### 3c. Post Summary Comment
+#### 4c. Post Summary Comment
 
 After processing all comments on a PR, post a single summary comment:
 
@@ -148,7 +175,7 @@ Please re-review the latest commit. Happy to make further adjustments.
 
 If nothing was implemented (only clarifications needed), say so clearly.
 
-### Step 4: Update Memory
+### Step 5: Update Memory
 
 Update repo memory with:
 - Any new build/test/lint commands discovered
