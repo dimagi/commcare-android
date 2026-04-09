@@ -10,7 +10,7 @@
 
 ## PR Status (2026-04-09)
 - #3610, #3619: APPROVED.
-- #3626: conroy-ricketts APPROVED; Jignesh CHANGES_REQUESTED — all addressed, awaiting re-review.
+- #3626: conroy-ricketts APPROVED (2026-04-08); Jignesh CHANGES_REQUESTED — all addressed, awaiting re-review.
 - #3612, #3614: All addressed 2026-04-08; unresolved threads outdated, awaiting re-review.
-- #3632: All addressed 2026-04-09; awaiting re-review.
+- #3632: All addressed 2026-04-09 (two commits: InputStream types + storeJobs guard + reworked test class); awaiting re-review.
 - #3635, #3636, #3637, #3645: No reviews yet.
