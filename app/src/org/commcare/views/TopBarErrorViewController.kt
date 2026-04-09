@@ -21,7 +21,7 @@ class TopBarErrorViewController(
     }
 
     fun showMessage(message: String) {
-        errorView.setBackgroundColor(errorView.context.getColor(R.color.connect_green))
+        errorView.setBackgroundColor(errorView.context.getColor(R.color.connect_top_bar_success))
         showBar(message, showOffline = false, autoDismiss = true)
     }
 
@@ -46,19 +46,20 @@ class TopBarErrorViewController(
         errorView.removeCallbacks(hideRunnable)
         cancelAnimator()
 
-        val targetHeight = measureHeight()
-
         errorView.layoutParams.height = 0
         errorView.visibility = View.VISIBLE
 
-        animator =
-            errorView.animateHeight(
-                from = 0,
-                to = targetHeight,
-            ) {
-                errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-                animator = null
-            }
+        errorView.post {
+            val targetHeight = measureHeight()
+            animator =
+                errorView.animateHeight(
+                    from = 0,
+                    to = targetHeight,
+                ) {
+                    errorView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    animator = null
+                }
+        }
 
         if (autoDismiss) {
             errorView.postDelayed(hideRunnable, autoDismissMs)
