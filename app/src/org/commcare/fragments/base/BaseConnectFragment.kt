@@ -169,6 +169,11 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     ) {
         liveData.observe(viewLifecycleOwner) { state ->
             if (!isAdded) return@observe
+            if (lastDataState == null && (state is DataState.Success || state is DataState.Error)) {
+                // terminal states should not be shown on initial load to avoid jarring UX
+                // this happens when LiveData emits a cached value immediately upon observation
+                return@observe
+            }
             when (state) {
                 is DataState.Loading -> {
                     hideError()
