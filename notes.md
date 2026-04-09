@@ -12,7 +12,7 @@
 ## Build
 - Gradle/ktlint not runnable in sandbox.
 
-## PR Status (2026-04-08)
+## PR Status (2026-04-09)
 - #3610, #3619, #3626: APPROVED.
-- #3612, #3614, #3632: Feedback addressed 2026-04-08; awaiting re-review.
+- #3612, #3614, #3632: Feedback addressed 2026-04-08 (bot committed + summary posted); CHANGES_REQUESTED review state remains but all threads are outdated — awaiting re-review.
 - #3635, #3636, #3637, #3645: No reviews yet.
