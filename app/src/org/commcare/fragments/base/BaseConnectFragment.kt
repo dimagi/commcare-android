@@ -47,6 +47,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     private var connectivityManager: ConnectivityManager? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var lastDataState: DataState<*>? = null
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -137,6 +138,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         _binding = null
         // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
         progressBar.visibility = View.GONE
+        lastDataState = null
     }
 
     override fun showLoading() {
@@ -151,7 +153,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         topBarErrorViewController!!.showError(error)
     }
 
-    fun isErrorShowing(): Boolean = topBarErrorViewController!!.isErrorShowing()
+    fun isErrorShowing(): Boolean = lastDataState is DataState.Error
 
     fun hideError() {
         topBarErrorViewController!!.hide()
@@ -190,6 +192,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     }
                 }
             }
+            lastDataState = state
         }
     }
 
