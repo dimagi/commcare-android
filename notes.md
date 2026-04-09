@@ -14,5 +14,6 @@
 
 ## PR Status (2026-04-09)
 - #3610, #3619, #3626: APPROVED.
-- #3612, #3614, #3632: Feedback addressed 2026-04-08 (bot committed + summary posted); CHANGES_REQUESTED review state remains but all threads are outdated — awaiting re-review.
+- #3612, #3614: Feedback addressed 2026-04-08 (bot committed + summary posted); remaining threads outdated — awaiting re-review.
+- #3632: Additional feedback addressed 2026-04-09 — moved ConnectJobRecord mock out of setUp, all tests now use real JSON except testCorruptJobEntry. Summary posted.
 - #3635, #3636, #3637, #3645: No reviews yet.
