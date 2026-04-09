@@ -77,13 +77,6 @@ public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConne
         }
     }
 
-    private void setWaitDialogEnabled(boolean enabled) {
-        Activity activity = getActivity();
-        if(activity instanceof ConnectActivity connectActivity) {
-            connectActivity.setWaitDialogEnabled(enabled);
-        }
-    }
-
     private void startAppDownload() {
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         ConnectAppUtils.INSTANCE.downloadApp(record.getInstallUrl(), this);

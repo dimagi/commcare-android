@@ -139,13 +139,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         });
     }
 
-    private void setWaitDialogEnabled(boolean enabled) {
-        Activity activity = getActivity();
-        if(activity instanceof ConnectActivity connectActivity) {
-            connectActivity.setWaitDialogEnabled(enabled);
-        }
-    }
-
     private void setupRefreshAndConfirmationActions() {
         getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh(true));
 

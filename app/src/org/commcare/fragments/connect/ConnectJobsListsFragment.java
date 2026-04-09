@@ -73,7 +73,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_title);
-        ((ConnectActivity)requireActivity()).setWaitDialogEnabled(false);
+        setWaitDialogEnabled(false);
         viewModel = new ViewModelProvider(this).get(ConnectJobsListViewModel.class);
         observeOpportunities();
         refresh(false);

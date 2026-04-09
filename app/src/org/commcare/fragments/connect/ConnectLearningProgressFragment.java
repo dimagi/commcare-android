@@ -58,7 +58,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         }
 
         requireActivity().setTitle(getString(R.string.connect_learn_title));
-
+        setWaitDialogEnabled(false);
         viewModel = new ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())

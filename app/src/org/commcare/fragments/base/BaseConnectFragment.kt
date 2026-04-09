@@ -1,5 +1,6 @@
 package org.commcare.fragments.base
 
+import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -15,6 +16,7 @@ import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
+import org.commcare.activities.connect.ConnectActivity
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
@@ -250,4 +252,12 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         networkCallback = null
         connectivityManager = null
     }
+
+    protected fun setWaitDialogEnabled(enabled: Boolean) {
+        val activity: Activity? = getActivity()
+        if (activity is ConnectActivity) {
+            activity.setWaitDialogEnabled(enabled)
+        }
+    }
+
 }
