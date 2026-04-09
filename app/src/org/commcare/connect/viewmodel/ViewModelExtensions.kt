@@ -14,10 +14,7 @@ fun <T> ViewModel.collectInto(
     liveData: MutableLiveData<DataState<T>>,
 ): Job =
     viewModelScope.launch {
-        flow
-            .catch { exception ->
-                liveData.value = DataState.Error.from(exception)
-            }.collect { dataState ->
-                liveData.value = dataState
-            }
+        flow.collect { dataState ->
+            liveData.value = dataState
+        }
     }

@@ -100,8 +100,6 @@ class ConnectNetworkClient
                 throw e
             } catch (e: IOException) {
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR, e))
-            } catch (e: Exception) {
-                Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR, e))
             }
         }
     }

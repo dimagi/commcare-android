@@ -15,8 +15,6 @@ import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
-import org.commcare.connect.ConnectDateUtils
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
@@ -39,7 +37,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var _binding: B? = null
     val binding get() = _binding!!
 
-//    private lateinit var loadingBinding: LoadingBinding
     private lateinit var progressBar: ProgressBar
     private lateinit var errorBinding: InlineErrorLayoutBinding
     private lateinit var rootView: View
@@ -136,7 +133,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         topBarErrorViewController!!.cleanup()
         topBarErrorViewController = null
         _binding = null
-        // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
         progressBar.visibility = View.GONE
         lastDataState = null
     }
