@@ -38,7 +38,6 @@ class ConnectOpportunitiesParserTest {
     @Before
     fun setUp() {
         parser = ConnectOpportunitiesParser()
-        mockkStatic(ConnectJobRecord::class)
         mockkStatic(ConnectJobUtils::class)
         mockkObject(ConnectReleaseTogglesWorker.Companion)
         mockkStatic(FirebaseAnalyticsUtil::class)
@@ -112,7 +111,6 @@ class ConnectOpportunitiesParserTest {
 
     @Test
     fun testSingleValidJob_parsedJobAddedToValidJobsList() {
-        unmockkStatic(ConnectJobRecord::class)
         val inputStream = ByteArrayInputStream(JSONArray().apply { put(validJobJson(42)) }.toString().toByteArray())
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
         every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
@@ -130,14 +128,11 @@ class ConnectOpportunitiesParserTest {
 
     @Test
     fun testMultipleValidJobs_allAddedToValidJobsList() {
-        val mockJob1 = mockk<ConnectJobRecord>()
-        val mockJob2 = mockk<ConnectJobRecord>()
         val array = JSONArray().apply {
-            put(JSONObject().apply { put("id", 1) })
-            put(JSONObject().apply { put("id", 2) })
+            put(validJobJson(1))
+            put(validJobJson(2))
         }
         val inputStream = ByteArrayInputStream(array.toString().toByteArray())
-        every { ConnectJobRecord.fromJson(any()) } returnsMany listOf(mockJob1, mockJob2)
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
 
@@ -149,6 +144,7 @@ class ConnectOpportunitiesParserTest {
 
     @Test
     fun testCorruptJobEntry_fromJsonThrowsJSONException_addsToCorruptJobsList() {
+        mockkStatic(ConnectJobRecord::class)
         val corruptJob = mockk<ConnectJobRecord>()
         val array = JSONArray().apply { put(JSONObject().apply { put("id", 99) }) }
         val inputStream = ByteArrayInputStream(array.toString().toByteArray())
@@ -167,10 +163,8 @@ class ConnectOpportunitiesParserTest {
 
     @Test
     fun testNewJobsGreaterThanZero_schedulesOneTimeFetch() {
-        val mockJob = mockk<ConnectJobRecord>()
-        val array = JSONArray().apply { put(JSONObject().apply { put("id", 1) }) }
+        val array = JSONArray().apply { put(validJobJson(1)) }
         val inputStream = ByteArrayInputStream(array.toString().toByteArray())
-        every { ConnectJobRecord.fromJson(any()) } returns mockJob
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 2
         every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
@@ -182,10 +176,8 @@ class ConnectOpportunitiesParserTest {
 
     @Test
     fun testNewJobsEqualsZero_doesNotScheduleOneTimeFetch() {
-        val mockJob = mockk<ConnectJobRecord>()
-        val array = JSONArray().apply { put(JSONObject().apply { put("id", 1) }) }
+        val array = JSONArray().apply { put(validJobJson(1)) }
         val inputStream = ByteArrayInputStream(array.toString().toByteArray())
-        every { ConnectJobRecord.fromJson(any()) } returns mockJob
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
 
@@ -196,10 +188,8 @@ class ConnectOpportunitiesParserTest {
 
     @Test
     fun testParseSuccess_reportsApiJobsWithCorrectCounts() {
-        val mockJob = mockk<ConnectJobRecord>()
-        val array = JSONArray().apply { put(JSONObject().apply { put("id", 1) }) }
+        val array = JSONArray().apply { put(validJobJson(1)) }
         val inputStream = ByteArrayInputStream(array.toString().toByteArray())
-        every { ConnectJobRecord.fromJson(any()) } returns mockJob
         every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 3
         every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
         every { FirebaseAnalyticsUtil.reportCccApiJobs(any(), any(), any()) } just Runs
