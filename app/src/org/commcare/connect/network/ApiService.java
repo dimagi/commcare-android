@@ -58,12 +58,6 @@ public interface ApiService {
                                                @HeaderMap Map<String, String> headers,
                                                @Body RequestBody connectStartLearningRequest);
 
-    @GET(ApiEndPoints.connectLearnProgressURL)
-    Call<ResponseBody> getConnectLearningAppProgress(@Header("Authorization") String token,
-                                                     @Path("id") String uuid,
-                                                     @HeaderMap Map<String, String> headers);
-
-
     @POST(ApiEndPoints.connectClaimJobURL)
     Call<ResponseBody> connectClaimJob(@Header("Authorization") String token,
                                        @Path("id") String uuid,
