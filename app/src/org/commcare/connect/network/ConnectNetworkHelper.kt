@@ -1,11 +1,11 @@
 package org.commcare.connect.network
 
-import android.content.Context
 import com.google.common.collect.ArrayListMultimap
 import com.google.gson.Gson
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
@@ -25,7 +25,7 @@ class ConnectNetworkHelper {
         @JvmStatic
         fun addVersionHeader(
             headers: HashMap<String, String>,
-            version: String?,
+            version: String,
         ) {
             if (version != null) {
                 headers["Accept"] = "application/json;version=$version"
@@ -36,7 +36,7 @@ class ConnectNetworkHelper {
         fun buildPostFormHeaders(
             params: HashMap<String, Any>,
             useFormEncoding: Boolean,
-            version: String?,
+            version: String,
             outputHeaders: HashMap<String, String>,
         ): RequestBody {
             val requestBody: RequestBody
@@ -50,7 +50,7 @@ class ConnectNetworkHelper {
                 outputHeaders.putAll(getContentHeadersForXFormPost(requestBody))
             } else {
                 val json = Gson().toJson(params)
-                requestBody = RequestBody.create("application/json".toMediaType(), json)
+                requestBody = json.toRequestBody("application/json".toMediaType())
             }
 
             addVersionHeader(outputHeaders, version)
@@ -62,7 +62,7 @@ class ConnectNetworkHelper {
             headers["Content-Type"] = "application/x-www-form-urlencoded"
             try {
                 headers["Content-Length"] = postBody.contentLength().toString()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Empty headers if something goes wrong
             }
             return headers
@@ -74,7 +74,7 @@ class ConnectNetworkHelper {
             return try {
                 val json = JSONObject(errorBody)
                 "LOGIN_FROM_DIFFERENT_DEVICE" == json.optStringSafe("error_code", null)
-            } catch (e: JSONException) {
+            } catch (_: JSONException) {
                 false
             }
         }

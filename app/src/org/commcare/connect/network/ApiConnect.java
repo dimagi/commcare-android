@@ -21,7 +21,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 
 public class ApiConnect {
-    private static final String API_VERSION_CONNECT = "1.0";
+    public static final String API_VERSION_CONNECT = "1.0";
 
     public static void getConnectOpportunities(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
 

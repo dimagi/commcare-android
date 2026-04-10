@@ -5,6 +5,7 @@ import kotlinx.coroutines.CancellationException
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.network.ApiConnect.API_VERSION_CONNECT
 import org.commcare.connect.network.ConnectApiService
 import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.LoginInvalidatedException
@@ -27,7 +28,6 @@ class ConnectNetworkClient
         private val apiService: ConnectApiService,
     ) {
         companion object {
-            private const val API_VERSION = "1.0"
 
             @Volatile
             private var instance: ConnectNetworkClient? = null
@@ -43,7 +43,7 @@ class ConnectNetworkClient
         }
 
         private fun versionHeaders(): Map<String, String> =
-            HashMap<String, String>().also { ConnectNetworkHelper.addVersionHeader(it, API_VERSION) }
+            HashMap<String, String>().also { ConnectNetworkHelper.addVersionHeader(it, API_VERSION_CONNECT) }
 
         suspend fun getConnectOpportunities(user: ConnectUserRecord): Result<ConnectOpportunitiesResponseModel> =
             executeApiCall(
@@ -92,10 +92,6 @@ class ConnectNetworkClient
                     val errorCode = mapHttpErrorCode(response.code(), response.errorBody()?.string())
                     Result.failure(ConnectApiException(errorCode))
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: LoginInvalidatedException) {
-                throw e
             } catch (e: IOException) {
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR, e))
             }
