@@ -2,19 +2,16 @@ package org.commcare.connect.repository
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectJobUtils.updateJobLearnProgress
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.LoginInvalidatedException
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
@@ -36,7 +33,7 @@ class ConnectRepository
                 instance ?: synchronized(this) {
                     instance ?: ConnectRepository(
                         ConnectSyncPreferences.getInstance(context),
-                        ConnectNetworkClient.getInstance(context),
+                        ConnectNetworkClient.getInstance(),
                     ).also { instance = it }
                 }
         }

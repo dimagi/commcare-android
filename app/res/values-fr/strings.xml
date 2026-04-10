@@ -537,7 +537,7 @@ License.
     <string name="install_barcode_bottom">Veuillez choisir une méthode d\'installation ci-dessous</string>
     <string name="connect_last_synced">Dernière synchronisation : %s</string>
     <string name="connect_sync_successful">Dernière synchronisation : À l\'instant</string>
-    <string name="connect_sync_failed">Échec de la synchronisation des mises à jour, Dernière synchronisation : %s</string>
+    <string name="connect_sync_failed">Échec de la synchronisation des mises à jour, dernière synchronisation : %s</string>
     <string name="connect_offline">Hors ligne</string>
     <string name="connect_never">Jamais</string>
 </resources>

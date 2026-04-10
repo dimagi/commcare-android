@@ -1,10 +1,8 @@
 package org.commcare.connect.network.connect
 
-import android.content.Context
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
 import okhttp3.ResponseBody
-import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ConnectApiService
@@ -34,7 +32,7 @@ class ConnectNetworkClient
             @Volatile
             private var instance: ConnectNetworkClient? = null
 
-            fun getInstance(context: Context): ConnectNetworkClient =
+            fun getInstance(): ConnectNetworkClient =
                 instance ?: synchronized(this) {
                     instance ?: ConnectNetworkClient(
                         BaseApiClient

@@ -23,13 +23,13 @@ class ConnectLearningProgressViewModel(
     private var loadLearnProgressJob: Job? = null
 
     fun loadLearningProgress(
-        job: ConnectJobRecord,
+        opportunity: ConnectJobRecord,
         forceRefresh: Boolean = false,
     ) {
         loadLearnProgressJob?.cancel()
         loadLearnProgressJob =
             collectInto(
-                flow = repository.getLearningProgress(job, forceRefresh, RefreshPolicy.ALWAYS),
+                flow = repository.getLearningProgress(opportunity, forceRefresh, RefreshPolicy.ALWAYS),
                 liveData = _learningProgress,
             )
     }

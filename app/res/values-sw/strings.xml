@@ -542,7 +542,7 @@
     <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
     <string name="connect_last_synced">Ilisawazishwa mwisho: %s</string>
     <string name="connect_sync_successful">Ilisawazishwa mwisho: Sasa hivi</string>
-    <string name="connect_sync_failed">Imeshindwa kusawazisha masasisho, Ilisawazishwa mwisho: %s</string>
+    <string name="connect_sync_failed">Imeshindwa kusawazisha masasisho, ilisawazishwa mwisho: %s</string>
     <string name="connect_offline">Nje ya mtandao</string>
     <string name="connect_never">Kamwe</string>
 </resources>
