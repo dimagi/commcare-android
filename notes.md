@@ -10,9 +10,9 @@
 
 ## PR Status (2026-04-11)
 - #3610: APPROVED (conroy-ricketts + Jignesh).
-- #3619: conroy-ricketts APPROVED (2026-04-08).
-- #3626: conroy-ricketts APPROVED (2026-04-08); Jignesh awaiting re-review; all threads addressed.
-- #3612: rename applied (4db6f0d, thread outdated); awaiting re-review.
-- #3614: inline applied (90470dd, thread outdated); awaiting re-review.
-- #3632: storeJobs guard + real data + mocking reduced (b6cb4fe, 678c180); awaiting re-review.
+- #3619: conroy-ricketts APPROVED. Awaiting Jignesh.
+- #3626: conroy-ricketts APPROVED; Jignesh feedback all addressed; awaiting re-review.
+- #3612: rename applied; awaiting re-review.
+- #3614: inline applied; awaiting re-review.
+- #3632: storeJobs guard + real data + mocking reduced; awaiting re-review.
 - #3635, #3636, #3637, #3645: No reviews yet.
