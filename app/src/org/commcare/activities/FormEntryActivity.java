@@ -139,6 +139,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_LOC_ERROR = "location-not-enabled";
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
     private static final String KEY_IS_READ_ONLY = "instance-is-read-only";
+    private static final String KEY_NUM_FORM_ATTACHMENTS = "number-of-form-attachments";
 
     private FormEntryInstanceState instanceState;
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
@@ -317,6 +318,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         outState.putBoolean(KEY_IS_READ_ONLY, instanceIsReadOnly);
+        outState.putInt(KEY_NUM_FORM_ATTACHMENTS, attachmentCount);
         formEntryRestoreSession.saveFormEntrySession(outState);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -1099,6 +1101,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
+                    receiver.updateFormAttachmentCount();
                 }
 
                 @Override
@@ -1136,6 +1139,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             mFormLoaderTask.executeParallel(formId);
             hasFormLoadBeenTriggered = true;
         }
+    }
+
+    private void updateFormAttachmentCount() {
+        attachmentCount = FileUtil.countNumberOfMediaFilesInDirectory(FormEntryInstanceState.getInstanceFolder());
     }
 
     private InterruptedFormState retrieveAndValidateFormIndex(AndroidSessionWrapper androidSessionWrapper) {
@@ -1526,6 +1533,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void loadStateFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             instanceState.loadState(savedInstanceState);
+            if (savedInstanceState.containsKey(KEY_NUM_FORM_ATTACHMENTS)) {
+                attachmentCount = savedInstanceState.getInt(KEY_NUM_FORM_ATTACHMENTS, 0);
+            }
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
