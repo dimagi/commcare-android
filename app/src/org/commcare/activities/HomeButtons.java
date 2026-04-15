@@ -206,23 +206,26 @@ public class HomeButtons {
 
     private static TextSetter getIncompleteButtonTextSetter(final StandardHomeActivity activity) {
         return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
-            int numIncompleteForms;
-            try {
-                numIncompleteForms = StorageUtils.getNumIncompleteForms();
-            } catch (SessionUnavailableException e) {
-                // stop button setup, since redirection to login is imminent
-                return;
-            }
+            getIncompleteFormsExecutor().submit(
+                    LifecycleOwnerKt.getLifecycleScope(activity),
+                    StorageUtils::getNumIncompleteForms,
+                    new LatestTaskExecutor.Callback<>() {
+                        @Override
+                        public void onResult(Integer numIncompleteForms) {
+                            if (activity.isFinishing() || activity.isDestroyed()) {
+                                return;
+                            }
+                            updateIncompleteFormsUI(activity, squareButtonViewHolder.textView, numIncompleteForms);
+                        }
 
-            if (numIncompleteForms > 0) {
-                Spannable incompleteIndicator =
-                        (activity.localize("home.forms.incomplete.indicator",
-                                new String[]{String.valueOf(numIncompleteForms),
-                                        Localization.get("home.forms.incomplete")}));
-                squareButtonViewHolder.textView.setText(incompleteIndicator);
-            } else {
-                squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
-            }
+                        @Override
+                        public void onError(@NonNull Exception exception) {
+                            if (!(exception instanceof SessionUnavailableException)) {
+                                Logger.exception("Failed to retrieve incomplete forms count ", exception);
+                            }
+                        }
+                    });
+
             squareButtonViewHolder.textView.setTextColor(context.getResources()
                     .getColor(cardDisplayData.textColor));
             squareButtonViewHolder.subTextView.setVisibility(View.GONE);
