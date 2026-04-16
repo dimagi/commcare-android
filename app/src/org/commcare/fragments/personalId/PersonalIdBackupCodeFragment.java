@@ -2,40 +2,40 @@ package org.commcare.fragments.personalId;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.NotificationUtil;
+import org.commcare.views.connect.NumericCodeView;
+import org.javarosa.core.model.utils.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
 public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
-    private static final int BACKUP_CODE_LENGTH = 6;
+    private static final int BACKUP_CODE_LENGTH = 6; //Note: This is brittle, defined in several places
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
     private boolean isRecovery = false;
@@ -45,8 +45,8 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     @Override
     public void onResume() {
         super.onResume();
-        KeyboardHelper.showKeyboardOnInput(activity, binding.connectBackupCodeInput);
         validateBackupCodeInputs();
+        binding.backupCodeView.requestFocus(activity);
     }
 
     @Override
@@ -56,18 +56,10 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         personalIdSessionData = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         configureUiByMode();
-        setupInputFilters();
         setupListeners();
-        setupDoneKeys();
         clearBackupCodeFields();
         activity.setTitle(getString(titleId));
         return binding.getRoot();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 
     private void configureUiByMode() {
@@ -77,14 +69,15 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
             binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message);
             binding.backupCodeLayout.setVisibility(View.VISIBLE);
+            binding.confirmCodeLabel.setVisibility(View.GONE);
             binding.confirmCodeLayout.setVisibility(View.GONE);
-            binding.notMeButton.setVisibility(View.VISIBLE);
             setUserNameAndPhoto();
         } else {
             titleId = R.string.connect_backup_code_title_set;
+            binding.backupCodeSubtitle.setText(getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH));
             binding.backupCodeLayout.setVisibility(View.VISIBLE);
+            binding.confirmCodeLabel.setVisibility(View.VISIBLE);
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
-            binding.notMeButton.setVisibility(View.GONE);
             binding.welcomeBackLayout.setVisibility(View.GONE);
         }
     }
@@ -97,73 +90,66 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         }
     }
 
-    private void setupInputFilters() {
-        InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(BACKUP_CODE_LENGTH)};
-        binding.connectBackupCodeInput.setFilters(filters);
-        binding.connectBackupCodeRepeatInput.setFilters(filters);
-    }
-
-    private void setupDoneKeys() {
-        binding.connectBackupCodeInput.setOnEditorActionListener((v, actionId, event) -> {
-            if ((actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE)
-                    && isRecovery && binding.connectBackupCodeButton.isEnabled()) {
-                handleBackupCodeSubmission();
-                return true;
-            }
-
-            return false;
-        });
-
-        binding.connectBackupCodeRepeatInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
-                    && binding.connectBackupCodeButton.isEnabled()) {
-                handleBackupCodeSubmission();
-                return true;
-            }
-
-            return false;
-        });
-    }
-
     private void setupListeners() {
-        TextWatcher backupCodeWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+        NumericCodeView.OnCodeChangedListener codeChangedListener = code -> validateBackupCodeInputs();
 
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
+        binding.backupCodeView.setOnCodeChangedListener(codeChangedListener);
+        binding.confirmCodeView.setOnCodeChangedListener(codeChangedListener);
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateBackupCodeInputs();
+        binding.backupCodeView.setCodeCompleteListener(code -> {
+            if (isRecovery && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+            }
+        });
+
+        binding.confirmCodeView.setCodeCompleteListener(code -> {
+            if (binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+            }
+        });
+
+        NumericCodeView.OnEnterKeyPressedListener enterKeyListener = () -> {
+            if (binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
             }
         };
+        binding.backupCodeView.setOnEnterKeyPressedListener(enterKeyListener);
+        binding.confirmCodeView.setOnEnterKeyPressedListener(enterKeyListener);
 
-        binding.connectBackupCodeInput.addTextChangedListener(backupCodeWatcher);
-        binding.connectBackupCodeRepeatInput.addTextChangedListener(backupCodeWatcher);
         binding.connectBackupCodeButton.setOnClickListener(v -> handleBackupCodeSubmission());
         binding.notMeButton.setOnClickListener(v -> handleNotMeButtonPressed());
+
+        binding.backupCodeVisibilityToggle.setOnClickListener(v -> togglePasswordVisibility(
+                binding.backupCodeView, binding.backupCodeVisibilityToggle));
+        binding.confirmCodeVisibilityToggle.setOnClickListener(v -> togglePasswordVisibility(
+                binding.confirmCodeView, binding.confirmCodeVisibilityToggle));
+    }
+
+    private void togglePasswordVisibility(NumericCodeView codeView, ImageView toggle) {
+        boolean newVisibilityState = !codeView.isPasswordVisible();
+        codeView.setPasswordVisible(newVisibilityState);
+        toggle.setImageResource(newVisibilityState
+                ? R.drawable.ic_visibility_off_24
+                : R.drawable.ic_visibility_24);
     }
 
     private void clearBackupCodeFields() {
-        binding.connectBackupCodeInput.setText("");
-        binding.connectBackupCodeRepeatInput.setText("");
+        binding.confirmCodeView.clearCode();
+        binding.backupCodeView.clearCode();
     }
 
     private void validateBackupCodeInputs() {
-        String backupCode1 = binding.connectBackupCodeInput.getText().toString();
-        String backupCode2 = binding.connectBackupCodeRepeatInput.getText().toString();
+        String backupCode1 = binding.backupCodeView.getCodeValue();
+        String backupCode2 = binding.confirmCodeView.getCodeValue();
 
         String errorText = "";
         boolean isValid = false;
 
-        if (!backupCode1.isEmpty()) {
-            if (backupCode1.length() != BACKUP_CODE_LENGTH) {
-                errorText = getString(R.string.connect_backup_code_length, BACKUP_CODE_LENGTH);
-            } else if (!isRecovery && !backupCode1.equals(backupCode2)) {
-                errorText = getString(R.string.connect_backup_code_mismatch);
+        if (backupCode1.length() == BACKUP_CODE_LENGTH) {
+            if (!isRecovery && !backupCode1.equals(backupCode2)) {
+                if (backupCode2.length() == BACKUP_CODE_LENGTH) {
+                    errorText = getString(R.string.connect_backup_code_mismatch);
+                }
             } else {
                 isValid = true;
             }
@@ -185,11 +171,12 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void handleBackupCodeSubmission() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
         if (isRecovery) {
             confirmBackupCode();
         } else {
             personalIdSessionData.setBackupCode(
-                    binding.connectBackupCodeInput.getText().toString());
+                    binding.backupCodeView.getCodeValue());
             navigateToPhoto();
         }
     }
@@ -197,16 +184,13 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private void confirmBackupCode() {
         clearError();
         enableContinueButton(false);
-        String backupCode = binding.connectBackupCodeInput.getText().toString();
+        String backupCode = binding.backupCodeView.getCodeValue();
 
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
-                } else if (sessionData.getSessionFailureCode() != null &&
-                                sessionData.getSessionFailureCode().equalsIgnoreCase("LOCKED_ACCOUNT")) {
-                    handleAccountLockout();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
@@ -217,7 +201,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
-                showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+                showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
                 }
@@ -230,11 +214,13 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
+                binding.backupCodeView.getCodeValue(), new Date(),
                 personalIdSessionData.getPhotoBase64(),
-                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock());
+                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
+                personalIdSessionData.getInvitedUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
+        handleSecondDeviceLogin();
         navigateToSuccess();
     }
 
@@ -256,16 +242,30 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
     }
 
-    private void handleAccountLockout() {
-        logRecoveryResult(false);
-        clearBackupCodeFields();
-        navigateWithMessage(getString(R.string.personalid_recovery_lockout_title),
-                getString(R.string.personalid_recovery_lockout_message),
-                ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED);
-    }
-
     private void logRecoveryResult(boolean success) {
         FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+    }
+
+    private void handleSecondDeviceLogin() {
+        if(personalIdSessionData.getPreviousDevice() != null) {
+            int titleId = R.string.personalid_second_device_login_title;
+            String message;
+            if (personalIdSessionData.getLastAccessed() != null) {
+                message = getString(R.string.personalid_second_device_login_message,
+                        personalIdSessionData.getPreviousDevice(),
+                        DateUtils.getShortStringValue(personalIdSessionData.getLastAccessed()));
+            } else {
+                message = getString(R.string.personalid_second_device_login_message_no_date,
+                        personalIdSessionData.getPreviousDevice());
+            }
+
+            NotificationUtil.showNotification(requireContext(),
+                    CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
+                    titleId,
+                    getString(titleId),
+                    message,
+                    null);
+        }
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {

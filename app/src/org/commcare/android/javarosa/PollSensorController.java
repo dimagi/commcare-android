@@ -128,6 +128,11 @@ public enum PollSensorController implements CommCareLocationListener {
         }
     }
 
+    @Override
+    public void onLocationServiceChange(boolean locationServiceEnabled) {
+
+    }
+
     private class PollingTimeoutTask extends TimerTask {
         @Override
         public void run() {

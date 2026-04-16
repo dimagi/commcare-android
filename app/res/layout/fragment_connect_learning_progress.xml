@@ -311,7 +311,7 @@
             android:text="@string/connect_learn_warning_ended"
             android:textAlignment="center"
             android:textColor="@color/red"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_learning_review_button"

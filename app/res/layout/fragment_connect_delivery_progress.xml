@@ -3,18 +3,17 @@
     <androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#e1e0e0"
+    android:background="@color/connect_background_color"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#fff"
+            android:background="@color/connect_background_color"
             android:orientation="vertical">
 
             <ImageView
@@ -107,6 +106,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="-35dp"
                     android:layout_marginRight="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardBackgroundColor="@color/connect_light_orange_color"
                     app:cardCornerRadius="15dp"
                     app:cardElevation="10dp">
@@ -120,6 +120,17 @@
                         android:paddingTop="35dp"
                         android:paddingEnd="15dp">
 
+                        <ImageView
+                            android:id="@+id/ivConnectMessageWarningIcon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_connect_warning"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:paddingEnd="10dp"/>
+
                         <TextView
                             android:id="@+id/tvConnectMessage"
                             android:layout_width="0dp"
@@ -127,9 +138,10 @@
                             android:layout_marginEnd="10dp"
                             android:text="@string/connect_job_tile_daily_limit_description"
                             android:textColor="@color/connect_warning_color"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/text_small"
                             android:textStyle="bold"
-                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/ivConnectMessageWarningIcon"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>

@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.Paint;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,9 +28,10 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.network.base.BaseApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.OtpErrorType;
@@ -41,8 +44,15 @@ import org.joda.time.DateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.commcare.utils.OtpManager.SMS_METHOD_FIREBASE;
+import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
+
 public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment {
-    private static final String KEY_PHONE = "phone";
+    private static final String KEY_PHONE = "KEY_PHONE";
+    private static final String KEY_LAST_OTP_METHOD = "KEY_LAST_OTP_METHOD";
+    private static final String KEY_VERIFY_BUTTON_ENABLED = "KEY_VERIFY_BUTTON_ENABLED";
+    private static final String KEY_OTP_REQUEST_TIME_STRING = "KEY_OTP_REQUEST_TIME_STRING";
+
 
     private Activity activity;
     private String primaryPhone;
@@ -54,8 +64,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
     private ActivityResultLauncher<Intent> smsConsentLauncher;
-
-
+    private String lastOtpMethod;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -69,12 +78,17 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activity = requireActivity();
-        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
-                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
-        primaryPhone = personalIdSessionData.getPhoneNumber();
+        personalIdSessionData = new ViewModelProvider(requireActivity())
+                .get(PersonalIdSessionDataViewModel.class)
+                .getPersonalIdSessionData();
+
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
+            lastOtpMethod = savedInstanceState.getString(KEY_LAST_OTP_METHOD);
+        } else {
+            primaryPhone = personalIdSessionData.getPhoneNumber();
         }
+
         initOtpManager();
     }
 
@@ -100,10 +114,19 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
                 if (otpCallback == null) return;
+
+                // Auto-switch from Firebase to PersonalId for non-recoverable errors
+                if (shouldAutoSwitchToPersonalIdAuth(errorType)) {
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-switching from Firebase to PersonalId auth due to error: " + errorType);
+                    setupOtpManager(true);
+                    requestOtp();
+                    return;
+                }
+
                 String userMessage = switch (errorType) {
                     case INVALID_CREDENTIAL -> getString(R.string.personalid_incorrect_otp);
                     case TOO_MANY_REQUESTS -> getString(R.string.personalid_too_many_otp_attempts);
-                    case MISSING_ACTIVITY -> getString(R.string.personalid_otp_missing_activity);
+                    case MISSING_ACTIVITY -> getString(R.string.personalid_otp_verification_failed_generic);
                     case VERIFICATION_FAILED -> getString(R.string.personalid_otp_verification_failed);
                     default ->
                             getString(R.string.personalid_otp_verification_failed_generic) + (errorMessage != null ? errorMessage : "Unknown error");
@@ -114,44 +137,90 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
             @Override
             public void onPersonalIdApiFailure(
-                    @NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                    @NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode,
+                    Throwable t
+            ) {
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
-                String error = PersonalIdApiErrorHandler.handle(activity, failureCode, t);
-                if(failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
+                String error = PersonalIdOrConnectApiErrorHandler.handle(activity, failureCode, t);
+                if (failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
                     error = getString(R.string.personalid_incorrect_otp);
                 }
                 displayOtpError(error);
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-        otpManager = new OtpManager(activity, personalIdSessionData, otpCallback);
+
+        // The last OTP method may be Twilio (via PersonalID) after restoring this fragment.
+        Boolean useOtpFallback = SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(lastOtpMethod);
+        setupOtpManager(useOtpFallback);
+    }
+
+    /**
+     * Determines if we should auto-switch from Firebase to PersonalId auth based on the error type.
+     * Only switches from Firebase to PersonalId, never the reverse.
+     *
+     * @param errorType The OTP error type from Firebase
+     * @return true if we should switch to PersonalId auth, false otherwise
+     */
+    private boolean shouldAutoSwitchToPersonalIdAuth(OtpErrorType errorType) {
+        if (SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())) {
+            return false;
+        }
+
+        return errorType.isNonRecoverable();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
-        setupInitialState();
-        setupListeners();
 
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        } else {
+            setupInitialState();
+        }
+
+        setupListeners();
+        int childCount = binding.customOtpView.getChildCount();
+        if (childCount > 0) {
+            setUpEnterKeyAction((EditText) binding.customOtpView.getChildAt(childCount - 1));
+        }
+        updateVerificationMessage();
         activity.setTitle(R.string.connect_verify_phone_title);
+
         return binding.getRoot();
     }
 
-
     private void setupInitialState() {
         binding.connectPhoneVerifyButton.setEnabled(false);
-        updateVerificationMessage();
         requestOtp();
     }
 
+    private void restoreState(Bundle savedInstanceState) {
+        boolean verifyButtonEnabled = savedInstanceState.getBoolean(KEY_VERIFY_BUTTON_ENABLED);
+        String otpRequestTimeString = savedInstanceState.getString(KEY_OTP_REQUEST_TIME_STRING);
+
+        if (otpRequestTimeString != null) {
+            otpRequestTime = DateTime.parse(otpRequestTimeString);
+        }
+
+        binding.connectPhoneVerifyButton.setEnabled(verifyButtonEnabled);
+    }
+
     private void setupListeners() {
-        binding.connectResendButton.setOnClickListener(v -> requestOtp());
+        binding.connectResendButton.setOnClickListener(v -> {
+            // Always fallback to Twilio (via PersonalID) if this is the first time the user reattempts to send the OTP.
+            Boolean useOtpFallback = personalIdSessionData.getOtpAttempts() == 1;
+            setupOtpManager(useOtpFallback);
+            requestOtp();
+        });
+        binding.connectPhoneVerifyChange.setPaintFlags(
+                binding.connectPhoneVerifyChange.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
-
-        binding.customOtpView.setOnOtpChangedListener(otp -> {
+        binding.customOtpView.setOnCodeChangedListener(otp -> {
             clearOtpError();
             toggleVerifyButton(otp);
         });
@@ -162,14 +231,14 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         String message = result.getData().getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
                         String otp = extractOtp(message);
-                        binding.customOtpView.setOtp(otp); // Autofill OTP
+                        binding.customOtpView.setCode(otp); // Autofill OTP
                     }
                 }
         );
     }
 
     private void toggleVerifyButton(String otp) {
-        binding.connectPhoneVerifyButton.setEnabled(otp.length() > 5);
+        binding.connectPhoneVerifyButton.setEnabled(otp.length() == 6);
     }
 
     private void clearOtpError() {
@@ -178,7 +247,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void displayOtpError(String message) {
-        if (message != null && !message.isEmpty()){
+        if (message != null && !message.isEmpty()) {
             binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
             binding.connectPhoneVerifyError.setText(message);
             binding.customOtpView.setErrorState(true);
@@ -241,7 +310,6 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
         otpCallback = null;
     }
 
@@ -249,6 +317,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PHONE, primaryPhone);
+        outState.putString(KEY_LAST_OTP_METHOD, lastOtpMethod);
+        outState.putBoolean(KEY_VERIFY_BUTTON_ENABLED, binding.connectPhoneVerifyButton.isEnabled());
+        outState.putString(KEY_OTP_REQUEST_TIME_STRING, otpRequestTime.toString());
     }
 
     private void updateVerificationMessage() {
@@ -262,14 +333,16 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         clearOtpError();
         otpRequestTime = new DateTime();
         otpManager.requestOtp(primaryPhone);
+        personalIdSessionData.setOtpAttempts(personalIdSessionData.getOtpAttempts() + 1);
+        FirebaseAnalyticsUtil.reportOtpRequested(personalIdSessionData.getOtpAttempts());
     }
 
     private void verifyOtp() {
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
-        String otpCode = binding.customOtpView.getOtpValue();
+        String otpCode = binding.customOtpView.getCodeValue();
 
-        if (otpCode.isEmpty()) {
+        if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
             otpManager.verifyOtp(otpCode);
@@ -305,8 +378,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void navigateToPhoneEntry() {
-        NavDirections directions = PersonalIdPhoneVerificationFragmentDirections.actionPersonalidOtpPageToPersonalidPhoneFragment();
-        Navigation.findNavController(binding.connectResendButton).navigate(directions);
+        Navigation.findNavController(binding.connectResendButton)
+                .popBackStack(R.id.personalid_phone_fragment, false);
     }
 
     private void navigateToNameEntry() {
@@ -315,11 +388,48 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     @Override
-    protected void navigateToMessageDisplay(@NotNull String title,
-            @org.jetbrains.annotations.Nullable String message, boolean isCancellable, int phase, int buttonText) {
+    protected void navigateToMessageDisplay(
+            @NotNull String title,
+            @org.jetbrains.annotations.Nullable String message,
+            boolean isCancellable,
+            int phase,
+            int buttonText
+    ) {
         NavDirections directions = PersonalIdPhoneVerificationFragmentDirections
                 .actionPersonalidOtpPageToPersonalidMessage(title, message, phase, getString(buttonText),
                         null).setIsCancellable(isCancellable);
         Navigation.findNavController(binding.getRoot()).navigate(directions);
+    }
+
+    private void setupOtpManager(Boolean useOtpFallback) {
+        // Check if using the OTP fallback is allowed for the current user.
+        Boolean allowedToFallback = personalIdSessionData.getOtpFallback();
+
+        // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase.
+        if (useOtpFallback && allowedToFallback) {
+            otpManager = new OtpManager(
+                    activity,
+                    personalIdSessionData,
+                    otpCallback,
+                    SMS_METHOD_PERSONAL_ID
+            );
+            lastOtpMethod = SMS_METHOD_PERSONAL_ID;
+        } else {
+            otpManager = new OtpManager(
+                    activity,
+                    personalIdSessionData,
+                    otpCallback
+            );
+            lastOtpMethod = SMS_METHOD_FIREBASE;
+        }
+    }
+
+    @Override
+    protected void keyboardEnterPressed() {
+        if (binding.connectPhoneVerifyButton.isEnabled()) {
+            verifyOtp();
+        } else {
+            KeyboardHelper.hideVirtualKeyboard(requireActivity());
+        }
     }
 }

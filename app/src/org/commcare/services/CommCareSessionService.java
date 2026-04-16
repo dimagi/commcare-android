@@ -1,6 +1,8 @@
 package org.commcare.services;
 
 import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+import static org.commcare.utils.NotificationIdentifiers.SUBMISSION_NOTIFICATION_ID;
+import static org.commcare.utils.NotificationIdentifiers.SESSION_SERVICE_NOTIFICATION_ID;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -17,10 +19,9 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
-
-import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -31,7 +32,7 @@ import org.commcare.core.encryption.CryptUtil;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.FormSubmissionHelper;
@@ -95,12 +96,7 @@ public class CommCareSessionService extends Service {
     private String userKeyRecordUUID;
     private int userKeyRecordID;
 
-    private SQLiteDatabase userDatabase;
-
-    // unique id for logged in notification
-    private final static int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
-
-    private final static int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+    private IDatabase userDatabase;
 
     // How long to wait until we force the session to finish logging out. Set
     // at 90 seconds to make sure huge forms on slow phones actually get saved
@@ -182,9 +178,9 @@ public class CommCareSessionService extends Service {
         // Send the notification. This will cause error messages if CommCare doesn't have
         // permission to post notifications
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            this.startForeground(NOTIFICATION, createSessionNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            this.startForeground(SESSION_SERVICE_NOTIFICATION_ID, createSessionNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         } else {
-            this.startForeground(NOTIFICATION, createSessionNotification());
+            this.startForeground(SESSION_SERVICE_NOTIFICATION_ID, createSessionNotification());
         }
     }
 
@@ -199,27 +195,24 @@ public class CommCareSessionService extends Service {
             Intent i = new Intent(this, DispatchActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-            PendingIntent contentIntent = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            else
-                contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
-                    .setContentTitle(this.getString(R.string.expirenotification))
+                    .setContentTitle(this.getString(R.string.session_expire_notification))
                     .setContentText("Click here to log back into your session")
                     .setSmallIcon(R.drawable.commcare_actionbar_logo)
                     .setContentIntent(contentIntent)
                     .build();
 
             // Send the notification.
-            mNM.notify(NOTIFICATION, notification);
+            mNM.notify(SESSION_SERVICE_NOTIFICATION_ID, notification);
         }
     }
 
     //Start CommCare Specific Functionality
 
-    public SQLiteDatabase getUserDbHandle() {
+    public IDatabase getUserDbHandle() {
         synchronized (lock) {
             return userDatabase;
         }
@@ -236,8 +229,7 @@ public class CommCareSessionService extends Service {
                 userDatabase.close();
             }
 
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(), userKeyRecordUUID)
-                    .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+            userDatabase = CommCareApplication.instance().getUserDbOpenHelper(userKeyRecordUUID, UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
 
@@ -269,6 +261,10 @@ public class CommCareSessionService extends Service {
                 setUpSessionExpirationTimer();
             }
         }
+    }
+
+    public Date getSessionExpireDate() {
+        return sessionExpireDate;
     }
 
     private void setUpSessionExpirationTimer() {
@@ -481,7 +477,7 @@ public class CommCareSessionService extends Service {
     }
 
     public DataSubmissionListener getListenerForSubmissionNotification() {
-        return this.getListenerForSubmissionNotification(SUBMISSION_NOTIFICATION);
+        return this.getListenerForSubmissionNotification(SUBMISSION_NOTIFICATION_ID);
     }
 
     public DataSubmissionListener getListenerForSubmissionNotification(final int notificationId) {
@@ -505,15 +501,12 @@ public class CommCareSessionService extends Service {
 
                 // The PendingIntent to launch our activity if the user selects this notification
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
-                PendingIntent contentIntent;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
-                else
-                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
+                PendingIntent contentIntent =
+                        PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
                         CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
-                        .setContentTitle(getString(notificationId))
+                        .setContentTitle(getString(R.string.submission_notification_title))
                         .setContentInfo(getSubmittedFormCount(1, totalItems))
                         .setContentText("0b transmitted")
                         .setSmallIcon(org.commcare.dalvik.R.drawable.commcare_actionbar_logo)
@@ -662,7 +655,7 @@ public class CommCareSessionService extends Service {
             sessionExpireDate.setTime(sessionExpireDate.getTime() + SESSION_EXTENSION_TIME);
             sessionLength += SESSION_EXTENSION_TIME;
 
-            mNM.notify(NOTIFICATION, createSessionNotification());
+            mNM.notify(SESSION_SERVICE_NOTIFICATION_ID, createSessionNotification());
         }
     }
 
@@ -672,10 +665,7 @@ public class CommCareSessionService extends Service {
         callable.setAction("android.intent.action.MAIN");
         callable.addCategory("android.intent.category.LAUNCHER");
 
-        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            pendingIntentFlags = pendingIntentFlags | PendingIntent.FLAG_IMMUTABLE;
-        }
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, pendingIntentFlags);
 
         String notificationText;
@@ -684,10 +674,10 @@ public class CommCareSessionService extends Service {
                 notificationText = Localization.get("notification.logged.in",
                         new String[]{Localization.get("app.display.name")});
             } catch (NoLocalizedTextException e) {
-                notificationText = getString(NOTIFICATION);
+                notificationText = getString(R.string.session_notification_title);
             }
         } else {
-            notificationText = getString(NOTIFICATION);
+            notificationText = getString(R.string.session_notification_title);
         }
 
         // Set the icon, scrolling text and timestamp

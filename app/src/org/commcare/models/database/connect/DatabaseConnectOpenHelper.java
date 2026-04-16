@@ -1,10 +1,10 @@
 package org.commcare.models.database.connect;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -19,16 +19,18 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
-import org.commcare.models.database.user.UserSandboxUtils;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
-import org.commcare.util.Base64;
-import org.commcare.util.Base64DecoderException;
 import org.commcare.utils.CrashUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 
@@ -55,16 +57,27 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.13 - Added ConnectJobDeliveryFlagRecord table
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
      * V.16 - Added  personal_id_credential table
+     * V.17 - Added a new column has_connect_access to ConnectUserRecord
+     * V.18 - Added new columns to personal_id_credential table (previously the table was unused)
+     * V.19 - Added push_notification_history
+     * V.20 - Added acknowledged column in push_notification_history
+     * V.21 - Added ConnectReleaseToggleRecord table
+     * V.22 - Added a new field UUID for ConnectAppRecord, ConnectLearnModuleSummaryRecord, ConnectJobLearningRecord, ConnectJobDeliveryRecord
+     *          ConnectJobAssessmentRecord, ConnectPaymentUnitRecord, ConnectJobRecord, ConnectJobPaymentRecord and PushNotificationRecord
+     * V.23 - Added a field slugUUID (reference to payment unit uuid) in ConnectJobDeliveryRecord
+     * V.24 - Added key (kind of action for ccc_generic_opportunity) and opportunityStatus (values will be learn/delivery)) in PushNotificationRecord record
      */
-    private static final int CONNECT_DB_VERSION = 16;
+    private static final int CONNECT_DB_VERSION = 24;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
     private final Context mContext;
+    private final String key;
 
-    public DatabaseConnectOpenHelper(Context context) {
-        super(context, CONNECT_DB_LOCATOR, null, CONNECT_DB_VERSION);
+    public DatabaseConnectOpenHelper(Context context, String key) {
+        super(context, CONNECT_DB_LOCATOR, key, null, CONNECT_DB_VERSION, 0, null, null, false);
         this.mContext = context;
+        this.key = key;
     }
 
     private static File getDbFile() {
@@ -79,18 +92,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         getDbFile().delete();
     }
 
-    public static void rekeyDB(SQLiteDatabase db, String newPassphrase) throws Base64DecoderException {
-        if(db != null) {
-            byte[] newBytes = Base64.decode(newPassphrase);
-            String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
-
-            db.execSQL("PRAGMA rekey = '" + newKeyEncoded + "';");
-            db.close();
-        }
-    }
-
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
+        IDatabase database = new EncryptedDatabaseAdapter(db);
         database.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(ConnectUserRecord.class);
@@ -132,7 +136,14 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder(PersonalIdCredential.class);
+            builder = new TableBuilder(PersonalIdWorkHistory.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(PushNotificationRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectReleaseToggleRecord.class);
+            builder.setUnique(ConnectReleaseToggleRecord.META_SLUG);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
@@ -146,13 +157,14 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         try {
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
+            Logger.exception("Opening database failed", sqle);
             DbUtil.trySqlCipherDbUpdate(key, mContext, CONNECT_DB_LOCATOR);
             try {
-                return super.getWritableDatabase(key);
+                return super.getWritableDatabase();
             } catch (SQLiteException e) {
                 // Handle the exception, log the error, or inform the user
                 CrashUtil.log(e.getMessage());
@@ -164,7 +176,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("Connect", oldVersion, newVersion));
-        new ConnectDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);
+        new ConnectDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Connect", oldVersion, newVersion));
     }
 }

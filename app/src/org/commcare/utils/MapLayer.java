@@ -6,9 +6,13 @@ package org.commcare.utils;
  */
 public enum MapLayer {
 
+    // Basic map
     NORMAL(1),
+    // Satellite imagery without labels
     SATELLITE(2),
+    // Topographic data
     TERRAIN(3),
+    // Satellite imagery with roads and labels
     HYBRID(4);
 
     private final int value;

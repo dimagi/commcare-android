@@ -1,7 +1,14 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
+import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,11 +24,14 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
@@ -68,7 +78,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
-    private boolean connectIdManagedLogin;
+    private boolean personalIdManagedLogin;
     private boolean connectManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
@@ -85,6 +95,8 @@ public class DispatchActivity extends AppCompatActivity {
     static final String REBUILD_SESSION = "rebuild_session";
     private boolean redirectToConnectHome = false;
     private boolean redirectToConnectOpportunityInfo = false;
+    private String redirectToLoginAppId = null;
+    private boolean forceSingleAppMode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +110,11 @@ public class DispatchActivity extends AppCompatActivity {
             alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(KEY_APP_FILES_CHECK_OCCURRED);
             waitingForActivityResultFromLogin = savedInstanceState.getBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT);
         }
+    }
+
+
+    private Intent checkIfAnyPNIntentPresent(){
+        return FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
     }
 
     /**
@@ -151,7 +168,18 @@ public class DispatchActivity extends AppCompatActivity {
         }
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (currentApp == null) {
+
+        Intent pnIntent = checkIfAnyPNIntentPresent();
+        if (pnIntent != null) {
+            String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
+            FirebaseAnalyticsUtil.reportNotificationEvent(
+                    AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
+                    AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
+                    getNotificationActionFromIntent(pnIntent),
+                    pnIntent.getStringExtra(NOTIFICATION_ID)
+            );
+            startActivity(pnIntent);
+        }else if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
@@ -296,9 +324,14 @@ public class DispatchActivity extends AppCompatActivity {
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
             i.putExtra(IS_LAUNCH_FROM_CONNECT, getLaunchedFromConnect());
 
-            String sesssionEndpointAppID = getSessionEndpointAppId();
-            if (sesssionEndpointAppID != null) {
-                i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
+            String sessionEndpointAppID = getSessionEndpointAppId();
+            if(sessionEndpointAppID == null && redirectToLoginAppId != null) {
+                sessionEndpointAppID = redirectToLoginAppId;
+                redirectToLoginAppId = null;
+            }
+            if (sessionEndpointAppID != null) {
+                i.putExtra(EXTRA_APP_ID, sessionEndpointAppID);
+                i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, forceSingleAppMode);
             }
 
             startActivityForResult(i, LOGIN_USER);
@@ -335,7 +368,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
-        i.putExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, connectIdManagedLogin);
+        i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
         startFromLogin = false;
         clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
@@ -456,6 +489,8 @@ public class DispatchActivity extends AppCompatActivity {
         if (intent != null) {
             needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
             redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
+            redirectToLoginAppId = intent.getStringExtra(EXTRA_APP_ID);
+            forceSingleAppMode = intent.getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
@@ -483,8 +518,8 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                    connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, false);
-                    connectManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECT_MANAGED_LOGIN, false);
+                    personalIdManagedLogin = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+                    connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
                 return;

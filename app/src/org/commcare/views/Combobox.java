@@ -6,6 +6,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 
 import org.commcare.adapters.ComboboxAdapter;
+import org.javarosa.core.model.ComboItem;
 
 import java.util.Vector;
 
@@ -22,14 +23,14 @@ import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
  */
 public class Combobox extends AppCompatAutoCompleteTextView {
 
-    private Vector<String> choices;
+    private Vector<ComboItem> choices;
     private Vector<String> choicesAllLowerCase;
     private CharSequence lastAcceptableStringEntered = "";
     private int lastValidCursorLocation;
     private boolean fixingInvalidEntry;
     private ComboboxAdapter customAdapter;
 
-    public Combobox(Context context, Vector<String> choices, ComboboxAdapter adapter) {
+    public Combobox(Context context, Vector<ComboItem> choices, ComboboxAdapter adapter) {
         super(context);
         this.customAdapter = adapter;
 
@@ -40,11 +41,11 @@ public class Combobox extends AppCompatAutoCompleteTextView {
         setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
     }
 
-    private void setupChoices(Vector<String> choices) {
+    private void setupChoices(Vector<ComboItem> choices) {
         this.choices = choices;
         this.choicesAllLowerCase = new Vector<>();
-        for (String s : this.choices) {
-            choicesAllLowerCase.add(s.toLowerCase());
+        for (ComboItem s : this.choices) {
+            choicesAllLowerCase.add(s.getDisplayText().toLowerCase());
         }
     }
 
@@ -101,7 +102,7 @@ public class Combobox extends AppCompatAutoCompleteTextView {
         if (enteredText != null && !choices.contains(enteredText) &&
                 choicesAllLowerCase.contains(enteredText.toLowerCase())) {
             int index = choicesAllLowerCase.indexOf(enteredText.toLowerCase());
-            setText(choices.get(index));
+            setText(choices.get(index).getDisplayText());
         }
     }
 

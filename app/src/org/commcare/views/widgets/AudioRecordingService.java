@@ -21,6 +21,8 @@ import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
+import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
+
 /**
  * A foreground service intended to be bound to the RecordingFragment for managing audio recording
  * operations. Due to its persistent notification, the system treats it with higher importance, reducing the
@@ -40,10 +42,10 @@ public class AudioRecordingService extends Service {
         super.onCreate();
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(RecordingFragment.RECORDING_NOTIFICATION_ID, createNotification(true),
+            startForeground(RECORDING_NOTIFICATION_ID, createNotification(true),
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
         } else {
-            startForeground(RecordingFragment.RECORDING_NOTIFICATION_ID, createNotification(true));
+            startForeground(RECORDING_NOTIFICATION_ID, createNotification(true));
         }
     }
 
@@ -75,10 +77,7 @@ public class AudioRecordingService extends Service {
         activityToLaunch.setAction("android.intent.action.MAIN");
         activityToLaunch.addCategory("android.intent.category.LAUNCHER");
 
-        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            pendingIntentFlags = pendingIntentFlags | PendingIntent.FLAG_IMMUTABLE;
-        }
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, activityToLaunch, pendingIntentFlags);
 
         return new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
@@ -122,14 +121,14 @@ public class AudioRecordingService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseRecording() {
         recorder.pause();
-        notificationManager.notify(RecordingFragment.RECORDING_NOTIFICATION_ID,
+        notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(false));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
         recorder.resume();
-        notificationManager.notify(RecordingFragment.RECORDING_NOTIFICATION_ID,
+        notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(true));
     }
 

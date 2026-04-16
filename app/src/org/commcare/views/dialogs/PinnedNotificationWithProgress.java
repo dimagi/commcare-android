@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
@@ -14,6 +13,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.UpdateActivity;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
+import org.commcare.utils.NotificationIdentifiers;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -33,7 +33,7 @@ public class PinnedNotificationWithProgress<R>
     public PinnedNotificationWithProgress(Context ctx, String titleText,
                                           String progressText,
                                           int largeIconResource) {
-        this.notificationId = titleText.hashCode();
+        this.notificationId = NotificationIdentifiers.generateNotificationIdFromString(titleText);
         this.progressText = progressText;
         this.titleText = titleText;
 
@@ -67,9 +67,7 @@ public class PinnedNotificationWithProgress<R>
     }
 
     private PendingIntent buildPendingIntent(Context ctx) {
-        int intentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            intentFlags = intentFlags | PendingIntent.FLAG_IMMUTABLE;
+        int intentFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
         Intent i = new Intent(ctx, UpdateActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

@@ -46,6 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
             android:text="@string/connect_verify_phone_change"
             android:textColor="@color/connect_blue_color"
             android:textSize="16sp"
@@ -66,7 +67,8 @@
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:background="@drawable/connect_side_icon_bg"
-                android:gravity="center">
+                android:gravity="center"
+                android:layout_gravity="center">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -76,19 +78,19 @@
 
             </LinearLayout>
 
-            <org.commcare.views.connect.CustomOtpView
+            <org.commcare.views.connect.NumericCodeView
                 android:id="@+id/customOtpView"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                app:otpViewDigitCount="6"
+                app:codeViewDigitCount="6"
                 android:layout_marginStart="16dp"
-                app:otpViewTextColor="@color/connect_blue_color"
-                app:otpViewBorderColor="@color/connect_blue_color"
-                app:otpViewBorderRadius="4dp"
-                app:otpViewBorderWidth="0.5dp"
-                app:otpViewErrorTextColor="@color/connect_red"
-                app:otpViewErrorBorderColor="@color/connect_red"
-                app:otpViewTextSize="6sp" />
+                app:codeViewTextColor="@color/connect_blue_color"
+                app:codeViewBorderColor="@color/connect_blue_color"
+                app:codeViewBorderRadius="4dp"
+                app:codeViewBorderWidth="0.5dp"
+                app:codeViewErrorTextColor="@color/connect_red"
+                app:codeViewErrorBorderColor="@color/connect_red"
+                app:codeViewTextSize="6sp" />
 
         </LinearLayout>
 

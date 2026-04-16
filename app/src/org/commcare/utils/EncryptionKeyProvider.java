@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.os.Build;
 
 import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.android.security.KeyStoreHandler;
@@ -33,16 +32,14 @@ public class EncryptionKeyProvider {
     }
 
     /**
-     * If RSA key exists, use it. Otherwise only use RSA for pre Android M devices
+     * If RSA key exists, use it. Otherwise use AES keys
      */
     private KeyStoreHandler getHandler(boolean isEncryptMode) {
         RsaKeyStoreHandler rsaKeystoreHandler = new RsaKeyStoreHandler(context, keyAlias, isEncryptMode);
         if (rsaKeystoreHandler.doesKeyExist()) {
             return rsaKeystoreHandler;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return new AesKeyStoreHandler(keyAlias, needsUserAuth);
         } else {
-            return rsaKeystoreHandler;
+            return new AesKeyStoreHandler(keyAlias, needsUserAuth);
         }
     }
 

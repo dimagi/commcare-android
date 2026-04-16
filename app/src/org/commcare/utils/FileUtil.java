@@ -8,12 +8,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 
+import androidx.annotation.RequiresApi;
 import androidx.exifinterface.media.ExifInterface;
 
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
@@ -48,6 +52,7 @@ import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Vector;
@@ -59,6 +64,8 @@ import javax.crypto.CipherOutputStream;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 /**
  * @author ctsims
  */
@@ -67,6 +74,7 @@ public class FileUtil {
     private static final int WARNING_SIZE = 3000;
 
     private static final String LOG_TOKEN = "cc-file-util";
+    public static final String XML_EXTENSION = "xml";
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_GPS_LATITUDE,
@@ -319,14 +327,24 @@ public class FileUtil {
         }
     }
 
+    // Android 15+, mount sources are no longer available via "mount" command. Use StorageManager API to retrieve
+    // external storage volumes
+    public static ArrayList<String> getExternalMounts(Context c) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return getExternalMountsWithStorageManager(c);
+        } else {
+            return getSystemLevelExternalMounts();
+        }
+    }
+
+
     /**
      * http://stackoverflow.com/questions/11281010/how-can-i-get-external-sd-card-path-for-android-4-0
      * <p>
      * Used in SD Card functionality to get the location of the SD card for reads and writes
      * Returns a list of available mounts; for our purposes, we just use the first
      */
-
-    public static ArrayList<String> getExternalMounts() {
+    private static ArrayList<String> getSystemLevelExternalMounts() {
         final ArrayList<String> out = new ArrayList<>();
         String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|sdfat).*rw.*";
         String s = "";
@@ -359,6 +377,23 @@ public class FileUtil {
             }
         }
         return out;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    private static ArrayList<String> getExternalMountsWithStorageManager(Context ctxt) {
+        StorageManager storageManager = getSystemService(ctxt, StorageManager.class);
+        List<StorageVolume> volumes = storageManager.getStorageVolumes();
+        ArrayList<String> extMounts = new ArrayList<>();
+        for (StorageVolume vol :volumes) {
+            if (vol.isPrimary() || !vol.isRemovable() || !vol.getState().equals(Environment.MEDIA_MOUNTED)) {
+                continue;
+            }
+            File volDir = vol.getDirectory();
+            if (volDir != null) {
+                extMounts.add(volDir.getAbsolutePath());
+            }
+        }
+        return extMounts;
     }
 
     /**
@@ -424,7 +459,7 @@ public class FileUtil {
      * specific path that we're allowed to write to
      */
     @SuppressLint("NewApi")
-    private static String getExternalDirectoryKitKat(Context c) {
+    public static String getDumpDirectory(Context c) {
         File[] extMounts = c.getExternalFilesDirs(null);
         // first entry is emualted storage. Second if it exists is secondary (real) SD.
 
@@ -448,13 +483,6 @@ public class FileUtil {
         }
 
         return sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
-    }
-
-    /*
-     * If we're on KitKat use the new OS path
-     */
-    public static String getDumpDirectory(Context c) {
-        return getExternalDirectoryKitKat(c);
     }
 
     public static Properties loadProperties(File file) throws IOException {

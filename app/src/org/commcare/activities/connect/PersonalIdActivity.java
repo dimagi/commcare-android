@@ -73,11 +73,5 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     protected boolean shouldShowBreadcrumbBar() {
         return false;
     }
-
-    @Override
-    public void setTitle(CharSequence title) {
-        super.setTitle(title);
-        getSupportActionBar().setTitle(title);
-    }
 }
 

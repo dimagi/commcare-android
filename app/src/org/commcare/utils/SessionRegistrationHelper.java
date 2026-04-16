@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -98,7 +99,10 @@ public class SessionRegistrationHelper {
      */
     public static void redirectToLogin(Context context) {
         Intent i = new Intent(context.getApplicationContext(), DispatchActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (!(context instanceof Activity)) {
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         context.startActivity(i);
     }
 }

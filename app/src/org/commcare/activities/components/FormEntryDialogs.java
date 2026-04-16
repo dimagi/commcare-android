@@ -1,5 +1,7 @@
 package org.commcare.activities.components;
 
+import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -44,7 +46,7 @@ public class FormEntryDialogs {
 
         View.OnClickListener exitFormListener = v -> {
             dialog.dismiss();
-            ViewUtil.hideVirtualKeyboard(activity);
+            hideVirtualKeyboard(activity);
             activity.discardChangesAndExit();
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(

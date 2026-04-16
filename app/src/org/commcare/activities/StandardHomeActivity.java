@@ -1,23 +1,27 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-
-import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -43,11 +47,17 @@ public class StandardHomeActivity
 
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    private boolean personalIdManagedLogin = false;
+
+    private boolean rootContainerReadyToShowDrawer = false;
+
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+        personalIdManagedLogin = getIntent()
+                .getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
     }
 
     @Override
@@ -111,7 +121,7 @@ public class StandardHomeActivity
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
-        updateConnectJobProgress();
+        fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
@@ -126,7 +136,7 @@ public class StandardHomeActivity
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
-        uiController.updateConnectProgress();
+        uiController.updateConnectJobProgress();
     }
 
     @Override
@@ -183,7 +193,6 @@ public class StandardHomeActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-
         int itemId = item.getItemId();
         if (itemId == R.id.action_update) {
             launchUpdateActivity(false);
@@ -234,6 +243,50 @@ public class StandardHomeActivity
     }
 
     @Override
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case COMMCARE_APPS -> {
+                if(recordId != null) {
+                    String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    if(!recordId.equals(currentSeatedId)) {
+                        //Navigate to LoginActivity for selected app
+                        CommCareApplication.instance().closeUserSession();
+                        Intent i = new Intent();
+                        i.putExtra(EXTRA_APP_ID, recordId);
+                        i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
+                        setResult(RESULT_OK, i);
+                        finish();
+                    }
+                }
+            }
+            case OPPORTUNITIES -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
+                    closeDrawer();
+                } else {
+                    navigateToConnectMenu();
+                }
+            }
+            case MESSAGING -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToMessaging(this);
+                    closeDrawer();
+                } else {
+                    navigateToMessaging();
+                }
+            }
+            case WORK_HISTORY -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToWorkHistory(this);
+                    closeDrawer();
+                } else {
+                    navigateToWorkHistory();
+                }
+            }
+        }
+    }
+
+    @Override
     public void initUIController() {
         uiController = new StandardHomeActivityUIController(this);
     }
@@ -262,6 +315,29 @@ public class StandardHomeActivity
         return false;
     }
 
+
+    /**
+     * Its not good idea to have such patches but its seems like no choice here.
+     * BaseDrawerActivity is trying to add the drawer before root view of this activity is created. Reason for this is
+     * this home activity is going through lot of process for sessions and then creating root view from `home_screen.xml`
+     * @param status
+     */
+    protected void toggleDrawerSetUp(boolean status){
+        this.rootContainerReadyToShowDrawer = status;
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+        if (!rootContainerReadyToShowDrawer)
+            return false;   // wait for root content to get load through xml
+        return shouldShowDrawerAfterCheck();
+    }
+
+    @Override
+    protected boolean shouldHighlightSeatedApp() {
+        return true;
+    }
+
     @Override
     public void refreshUI() {
         uiController.refreshView();
@@ -272,12 +348,12 @@ public class StandardHomeActivity
         invalidateOptionsMenu();
     }
 
-    public void updateConnectJobProgress() {
+    public void fetchJobProgressOverNetwork() {
         ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
+            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, null,null,(success, error) -> {
                 if (success) {
-                    uiController.updateConnectProgress();
+                    uiController.updateConnectJobProgress();
                 }
             });
         }

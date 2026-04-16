@@ -7,7 +7,6 @@ import java.lang.Exception
  * @author $|-|!˅@M
  */
 interface CommCareLocationListener {
-
     // Inform the listener that we've starting listening for location updates, and it can show a
     // progress dialog or something similar in place.
     fun onLocationRequestStart()
@@ -20,8 +19,13 @@ interface CommCareLocationListener {
 
     fun onLocationRequestFailure(failure: Failure)
 
+    fun onLocationServiceChange(locationServiceEnabled: Boolean)
+
     sealed class Failure {
         object NoProvider : Failure()
-        data class ApiException(val exception: Exception) : Failure()
+
+        data class ApiException(
+            val exception: Exception,
+        ) : Failure()
     }
 }

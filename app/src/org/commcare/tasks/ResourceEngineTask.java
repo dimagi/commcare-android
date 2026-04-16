@@ -72,6 +72,16 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
+    public boolean requireNetworkNotification() {
+        return true;
+    }
+
+    @Override
+    public int getNetworkNotificationProgressKey() {
+        return org.commcare.dalvik.R.string.network_notification_service_downloading_files;
+    }
+
+    @Override
     protected AppInstallStatus doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
 

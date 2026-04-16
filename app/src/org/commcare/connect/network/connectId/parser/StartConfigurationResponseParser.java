@@ -1,9 +1,12 @@
 package org.commcare.connect.network.connectId.parser;
 
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.utils.JsonExtensions;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Parses a JSON response from the start configuration API call
@@ -25,5 +28,10 @@ public class StartConfigurationResponseParser implements PersonalIdApiResponsePa
         sessionData.setSmsMethod(JsonExtensions.optStringSafe(json, "sms_method", null));
         sessionData.setSessionFailureCode(JsonExtensions.optStringSafe(json, "failure_code", null));
         sessionData.setSessionFailureSubcode(JsonExtensions.optStringSafe(json, "failure_subcode", null));
+        sessionData.setOtpFallback(json.optBoolean("otp_fallback", false));
+
+        List<ConnectReleaseToggleRecord> featureReleaseToggles =
+                ConnectReleaseToggleRecord.Companion.releaseTogglesFromJson(json);
+        sessionData.setFeatureReleaseToggles(featureReleaseToggles);
     }
 }

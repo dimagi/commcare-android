@@ -6,6 +6,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.utils.DateUtils;
@@ -51,7 +52,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS))
                         + FileUtil.SanitizeFileName(File.separator
                         + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
-        slr.aesKey = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
+        slr.aesKey = CommCareKeyManager.generateLegacyKeyOrEmpty();
         return slr;
     }
 
@@ -74,8 +75,17 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return fileName;
     }
 
+    public boolean shouldUseKeystoreKey(){
+        return getKey().length == 0;
+    }
+
     public final OutputStream openOutputStream() throws FileNotFoundException {
-        return EncryptionIO.createFileOutputStream(getFilePath(),
-                new SecretKeySpec(getKey(), "AES"));
+        return shouldUseKeystoreKey() ?
+                EncryptionIO.createFileOutputStreamWithKeystore(
+                        getFilePath(),
+                        CommCareKeyManager.retrieveSessionKeyAndTransformation()) :
+                EncryptionIO.createFileOutputStream(
+                        getFilePath(),
+                        new SecretKeySpec(getKey(), "AES"));
     }
 }

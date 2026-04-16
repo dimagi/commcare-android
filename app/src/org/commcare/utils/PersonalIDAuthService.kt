@@ -2,8 +2,6 @@ package org.commcare.utils
 
 import android.app.Activity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 
 
