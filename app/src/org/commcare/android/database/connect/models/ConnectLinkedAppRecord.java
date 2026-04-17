@@ -176,6 +176,10 @@ public class ConnectLinkedAppRecord extends Persisted {
         lastAccessed = date;
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
     public static ConnectLinkedAppRecord fromV9(ConnectLinkedAppRecordV9 oldRecord) {
         ConnectLinkedAppRecord newRecord = new ConnectLinkedAppRecord();
 

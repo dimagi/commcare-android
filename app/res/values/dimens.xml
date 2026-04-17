@@ -2,20 +2,17 @@
 <resources>
 
     <!-- Text sizes -->
-    <dimen name="text_smaller">9dp</dimen>
-    <dimen name="text_small">14dp</dimen>
-    <dimen name="text_medium">18dp</dimen>
-    <dimen name="text_large">21dp</dimen>
+    <dimen name="text_smaller">9sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_medium">18sp</dimen>
+    <dimen name="text_large">21sp</dimen>
+    <dimen name="text_larger">28sp</dimen>
+    <dimen name="text_largest">40sp</dimen>
 
     <!-- Miscellaneous -->
 
     <dimen name="title_round_bleed">-12dp</dimen>
-    <dimen name="title_round_depth">12dp</dimen>
-    <dimen name="title_round_border_width">2dp</dimen>
-
     <dimen name="title_padding">10dp</dimen>
-    <dimen name="title_paddingLeft">20dp</dimen>
-    <dimen name="tab_gradient_radius">300dp</dimen>
     <dimen name="detail_view_tab_indicator_height">3dp</dimen>
     <dimen name="detail_view_tab_padding_horizontal">24dp</dimen>
 
@@ -28,8 +25,6 @@
     <dimen name="min_button_height">52dp</dimen>
     <dimen name="min_button_width">88dp</dimen>
     <dimen name="rounded_button_corner_radius">22dp</dimen>
-    <dimen name="spacer">10dp</dimen>
-
     <dimen name="action_icon_size">60dp</dimen>
 
     <dimen name="list_text_height">48dp</dimen>
@@ -62,34 +57,18 @@
     <dimen name="font_size_large">16sp</dimen>
     <dimen name="font_size_xlarge">21sp</dimen>
     <dimen name="font_size_xlarger">23sp</dimen>
-    <dimen name="font_size_xlargest">28sp</dimen>
     <dimen name="font_size_40">40sp</dimen>
-
-    <dimen name="font_size_dp_small">12dp</dimen>
     <dimen name="font_size_dp_medium">15dp</dimen>
     <dimen name="font_size_dp_large">18dp</dimen>
-    <dimen name="font_size_dp_xlarge">21dp</dimen>
-    <dimen name="font_size_dp_xlarger">23dp</dimen>
-    <dimen name="font_size_dp_xlargest">28dp</dimen>
-
     <dimen name="cell_padding_vertical">8dp</dimen>
     <dimen name="cell_padding_horizontal">8dp</dimen>
     <dimen name="row_padding_vertical">8dp</dimen>
     <dimen name="row_padding_horizontal">8dp</dimen>
 
-    <dimen name="graph_x_margin">40dp</dimen>
-    <dimen name="graph_y_margin">5dp</dimen>
-    <dimen name="graph_text_margin">35dp</dimen>
-
     <!-- Form Entry -->
 
     <dimen name="question_widget_side_padding">16dp</dimen>
     <dimen name="question_widget_side_inv">-16dp</dimen>
-
-    <!--  Text sizes -->
-
-    <dimen name="text_larger">28dp</dimen>
-    <dimen name="text_largest">40dp</dimen>
 
     <!-- Menu list row dimensions -->
 
@@ -118,42 +97,33 @@
 
     <dimen name="min_button_padding">20dp</dimen>
 
-    <!--    Map layer Button-->
+    <!-- Map layer Button -->
     <dimen name="map_layer_padding">4dp</dimen>
     <dimen name="map_layer_margin">16dp</dimen>
 
-    <!--Custom Preferences Dialog-->
+    <!-- Custom Preferences Dialog -->
     <dimen name="pref_dialog_margin_top">48dp</dimen>
     <dimen name="pref_dialog_margin_bottom">48dp</dimen>
     <dimen name="pref_dialog_content_padding">5dp</dimen>
     <dimen name="pref_dialog_message_margin_bottom">48dp</dimen>
 
-    <!--Question Widget-->
+    <!-- Question Widget -->
     <dimen name="edit_text_question_widget_compact_width">80dp</dimen>
     <dimen name="edit_text_question_widget_padding_horizontal">8dp</dimen>
 
-    <!--Big Layout Button Dimensions-->
+    <!-- Big Layout Button Dimensions -->
     <!-- Should be font medium SP x 4, roughly -->
     <dimen name="rectangle_button_height">40dp</dimen>
 
-
-    <!--action button on center of screen-->
+    <!-- action button on center of screen -->
     <dimen name="center_button_width">180dp</dimen>
 
     <!-- Audio button -->
     <dimen name="audio_button_size">55dp</dimen>
 
-    <!--  Map Info View  -->
-    <dimen name="map_info_view_text_size">12sp</dimen>
-    <dimen name="map_info_view_text_padding">4dp</dimen>
-
-    <dimen name="dp40">40dp</dimen>
     <dimen name="dp6">6dp</dimen>
     <dimen name="dp60">60dp</dimen>
     <dimen name="dp48">48dp</dimen>
-
-    <!-- text margin in Map Info View -->
-    <dimen name="text_margin">16dp</dimen>
 
     <dimen name="progress_ring_thickness">5dp</dimen>
 
@@ -162,4 +132,8 @@
     <dimen name="connect_message_corner_radius">16dp</dimen>
 
     <dimen name="corner_radius_small_5dp">5dp</dimen>
+    <dimen name="nav_drawer_width">264dp</dimen>
+
+    <dimen name="side_nav_horizontal_padding">10dp</dimen>
+    <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
 </resources>

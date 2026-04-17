@@ -11,6 +11,7 @@ import org.commcare.CommCareNoficationManager
 import org.commcare.dalvik.R
 import org.commcare.tasks.DataSubmissionListener
 import org.commcare.utils.FormUploadResult
+import org.commcare.utils.NotificationIdentifiers.SUBMISSION_NOTIFICATION_ID
 
 class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
     : CoroutineWorker(appContext, workerParams), CancellationChecker, FormSubmissionProgressListener {
@@ -31,7 +32,7 @@ class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
             .setContentTitle(context.getString(notificationId))
             .setSmallIcon(R.drawable.commcare_actionbar_logo)
 
-        return ForegroundInfo(notificationId, notificationBuilder.build())
+        return ForegroundInfo(SUBMISSION_NOTIFICATION_ID, notificationBuilder.build())
     }
 
     override suspend fun doWork(): Result {

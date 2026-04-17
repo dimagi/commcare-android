@@ -20,16 +20,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.ChannelAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelListBinding;
-import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.List;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.commcare.activities.connect.ConnectMessagingActivity.CHANNEL_ID;
 
 public class ConnectMessageChannelListFragment extends Fragment {
@@ -46,25 +46,24 @@ public class ConnectMessageChannelListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         binding = FragmentChannelListBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
-
         requireActivity().setTitle(R.string.connect_messaging_channel_list_title);
-
         binding.rvChannel.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(getContext());
+        List<ConnectMessagingChannelRecord> channels =
+                ConnectMessagingDatabaseHelper.getMessagingChannels(getContext());
 
         channelAdapter = new ChannelAdapter(channels, this::selectChannel);
-
         binding.rvChannel.setAdapter(channelAdapter);
 
         MessageManager.sendUnsentMessages(requireActivity());
 
-
-        return view;
+        return binding.getRoot();
     }
 
     @Override
@@ -73,7 +72,8 @@ public class ConnectMessageChannelListFragment extends Fragment {
         String channelId = getArguments() != null ? getArguments().getString(CHANNEL_ID) : null;
         if (channelId != null) {
             getArguments().remove(CHANNEL_ID);
-            ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+            ConnectMessagingChannelRecord channel =
+                    ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
         }
     }
@@ -83,15 +83,23 @@ public class ConnectMessageChannelListFragment extends Fragment {
         super.onResume();
         isActive = true;
 
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
-                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+                updateReceiver,
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
+        );
 
-        MessageManager.retrieveMessages(requireActivity(), success -> {
-            refreshUi();
-        });
+        MessageManager.retrieveMessages(
+                requireActivity(),
+                (success, error) -> refreshUi()
+        );
 
-        if (getActivity() != null && getActivity() instanceof CommCareActivity && ((CommCareActivity)getActivity()).getSupportActionBar() != null) {
-            ((CommCareActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        boolean shouldDisplayHomeAsUp = getActivity() != null
+                && getActivity() instanceof CommCareActivity
+                && ((CommCareActivity) getActivity()).getSupportActionBar() != null;
+        if (shouldDisplayHomeAsUp) {
+            ((CommCareActivity) getActivity())
+                    .getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);
         }
 
     }
@@ -111,31 +119,30 @@ public class ConnectMessageChannelListFragment extends Fragment {
     };
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
-        Navigation.findNavController(requireView()).navigate(channel.getConsented() ? getConnectMessageFragmentDirection(channel) : getChannelConsetBottomSheetDirection(channel));
+        Navigation.findNavController(requireView())
+                .navigate(getConnectMessageFragmentDirection(channel));
     }
 
-    private NavDirections getConnectMessageFragmentDirection(ConnectMessagingChannelRecord channel) {
+    private NavDirections getConnectMessageFragmentDirection(
+            ConnectMessagingChannelRecord channel
+    ) {
         return ConnectMessageChannelListFragmentDirections
                 .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
-    }
-
-    private NavDirections getChannelConsetBottomSheetDirection(ConnectMessagingChannelRecord channel) {
-        return ConnectMessageChannelListFragmentDirections
-                .actionChannelListFragmentToChannelConsentBottomSheet(channel.getChannelId(),
-                        channel.getChannelName());
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 
     public void refreshUi() {
         Context context = getContext();
         if (context != null) {
-            List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
-            channelAdapter.setChannels(channels);
+            List<ConnectMessagingChannelRecord> channels =
+                    ConnectMessagingDatabaseHelper.getMessagingChannels(context);
+            if (!channels.isEmpty()) {
+                channelAdapter.setChannels(channels);
+                binding.rvChannel.setVisibility(VISIBLE);
+                binding.tvNoChannelMsg.setVisibility(GONE);
+            } else {
+                binding.rvChannel.setVisibility(GONE);
+                binding.tvNoChannelMsg.setVisibility(VISIBLE);
+            }
         }
     }
 }

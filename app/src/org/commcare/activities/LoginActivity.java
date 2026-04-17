@@ -1,18 +1,10 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
-
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,12 +13,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
 
 import com.scottyab.rootbeer.RootBeer;
 
@@ -51,6 +37,8 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
+import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -80,14 +68,30 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
+import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
+import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
+
 /**
  * @author ctsims
  */
-public class LoginActivity extends CommCareActivity<LoginActivity>
+public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
     public static final String EXTRA_APP_ID = "extra_app_id";
+    public static final String EXTRA_FORCE_SINGLE_APP_MODE = "extra_force_single_app_mode";
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_PRACTICE_MODE = Menu.FIRST;
@@ -103,9 +107,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
-    public static final  String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+    public static final String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
-    public static final  String LOGIN_MODE = "login-mode";
+    public static final String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
 
     private static final int TASK_KEY_EXCHANGE = 1;
@@ -120,19 +124,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect = false;
+
+    /**
+     *   This lets us launch CommCare in a single app mode from external applications
+     *   and should only be used internally when we don't want user to have the option to switch to other apps
+     *   for eg. for launch from Connect Opportunities
+     */
     private String presetAppId;
-    public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
-    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private PersonalIdManager personalIdManager;
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         checkManagedConfiguration();
 
         if (shouldFinish()) {
@@ -143,12 +149,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-
-        uiController.checkForGlobalErrors();
-
-        personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
-
+        initPersonaIdManager();
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
         connectLaunchPerformed = false;
@@ -162,6 +163,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
+
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
             new UserfacingErrorHandling<>().createErrorDialog(this,
@@ -173,12 +175,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
+    private void initPersonaIdManager() {
+        if (personalIdManager == null) {
+            personalIdManager = PersonalIdManager.getInstance();
+            personalIdManager.init(this);
+        }
+    }
+
     private boolean shouldDoConnectLogin() {
         return appLaunchedFromConnect && !connectLaunchPerformed;
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.M)
     public void requestNeededPermissions(int requestCode) {
         ActivityCompat.requestPermissions(this, Permissions.getAppPermissions(),
                 requestCode);
@@ -268,7 +276,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         uiController.clearErrorMessage();
-        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+        hideVirtualKeyboard(LoginActivity.this);
 
         if (loginMode == LoginMode.PASSWORD) {
             DevSessionRestorer.tryAutoLoginPasswordSave(passwordOrPin, false);
@@ -284,11 +292,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private boolean isUsernameValid(String username) {
-        if ((username !=null && !username.isEmpty()) &&
-                (!username.contains("@") || username.endsWith("@" + HiddenPreferences.getUserDomain()))) {
-            return true;
-        }
-        return false;
+        return (username != null && !username.isEmpty()) &&
+                (!username.contains("@") || username.endsWith("@" + HiddenPreferences.getUserDomain()));
     }
 
     @Override
@@ -320,9 +325,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // Otherwise, refresh the activity for current conditions
+        selectedAppIndex = -1;
         uiController.refreshView();
 
-        if(shouldDoConnectLogin() && !seatAppIfNeeded(presetAppId)) {
+        // if the app is already seated, we can login immediately
+        if(shouldDoConnectLogin() && isAppSeated(presetAppId)) {
             connectLaunchPerformed = true;
             initiateLoginAttempt(uiController.isRestoreSessionChecked());
         }
@@ -388,7 +395,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else if (requestCode == ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE) {
+        } else if (requestCode == ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH) {
             personalIdManager.handleFinishedActivity(this, resultCode);
         }
 
@@ -437,7 +444,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
-            if(ConnectAppUtils.INSTANCE.shouldOverridePassword(loginManagedByPersonalId())) {
+            if (ConnectAppUtils.INSTANCE.shouldOverridePassword(loginManagedByPersonalId())) {
                 passwordOrPin = ConnectAppUtils.INSTANCE.getPasswordOverride(
                         this, username, appLaunchedFromConnect);
             }
@@ -481,18 +488,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void dataPullCompleted() {
         CrashUtil.registerUserData();
-        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+        hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-        if(handleConnectSignIn(this, getUniformUsername(),
-                uiController.getEnteredPasswordOrPin())){
+        if (handleConnectSignIn(this, getUniformUsername(),
+                uiController.getEnteredPasswordOrPin())) {
             setResultAndFinish(false);
         }
     }
 
     /**
      * Handles sign in related ops for Connect
-     * @param context Android activity we are signing in from
-     * @param username Username for user signing in
+     *
+     * @param context            Android activity we are signing in from
+     * @param username           Username for user signing in
      * @param enteredPasswordPin user entered password or pin for non-connect apps
      * @return if we should finish after calling this method
      */
@@ -504,7 +512,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             if (job != null) {
                 personalIdManager.updateAppAccess(context, appId, username);
-                ConnectJobHelper.INSTANCE.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
+                ConnectJobHelper.INSTANCE.updateJobProgress(context, job,null,null, (success, error) -> setResultAndFinish(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link PersonalId-managed login
                 personalIdManager.checkPersonalIdLink(context,
@@ -525,7 +533,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
 
-
     private void setResultAndFinish(boolean navigateToConnectJobs) {
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
@@ -539,12 +546,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        personalIdManager.unlockConnect(this, success -> {
-            if(success) {
-                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
-                setResult(RESULT_OK);
-                finish();
-            }
+        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
+            setResult(RESULT_OK);
+            finish();
         });
     }
 
@@ -573,15 +577,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_ACQUIRE_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_FORGOT_PIN, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
-        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.login_menu_connect_sign_in));
-        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.login_menu_connect_forget));
+        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.personalid_signup));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.personalid_forget_user));
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
+        menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(true);
         menu.findItem(MENU_FORGOT_PIN).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         menu.findItem(MENU_PERSONAL_ID_SIGN_IN).setVisible(
                 !personalIdManager.isloggedIn() && personalIdManager.checkDeviceCompability());
@@ -593,13 +597,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-        boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
                 return true;
             case MENU_ABOUT_COMMCARE:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
+                DialogCreationHelpers.showAboutCommCareDialog(this);
                 return true;
             case MENU_ACQUIRE_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -622,7 +625,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.refreshView();
                 return true;
             default:
-                return otherResult;
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -953,11 +956,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void registerPersonalIdUser() {
-        personalIdManager.launchPersonalId(this, ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE);
+        personalIdManager.launchPersonalId(this, ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH);
     }
 
     protected boolean seatAppIfNeeded(String appId) {
-        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+        boolean selectedNewApp = !isAppSeated(appId);
         if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -969,6 +972,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
         return selectedNewApp;
+    }
+
+    private boolean isAppSeated(String appId) {
+        return appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
     }
 
     protected void evaluateConnectAppState() {
@@ -1002,7 +1009,33 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         this.connectAppState = connectAppState;
     }
 
+    @Override
+    protected boolean shouldShowDrawer() {
+        return shouldShowDrawerAfterCheck();
+    }
+
+    @Override
+    protected boolean shouldHighlightSeatedApp() {
+        return true;
+    }
+
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
+    }
+
+    @Override
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+        if (itemType == BaseDrawerController.NavItemType.COMMCARE_APPS) {
+            if (recordId != null) {
+                if (!appIdDropdownList.isEmpty()) {
+                    selectedAppIndex = appIdDropdownList.indexOf(recordId);
+                }
+                presetAppId = null;
+                seatAppIfNeeded(recordId);
+                closeDrawer();
+            }
+        } else {
+            super.handleDrawerItemClick(itemType, recordId);
+        }
     }
 }

@@ -11,18 +11,21 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.KeyboardHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class PersonalIdNameFragment extends BasePersonalIdFragment {
     private ScreenPersonalidNameBinding binding;
@@ -40,9 +43,18 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
         activity = requireActivity();
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
+        setUpEnterKeyAction(binding.nameTextValue);
         enableContinueButton(false);
         binding.nameTextValue.addTextChangedListener(createNameWatcher());
         return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if( binding.nameTextValue.requestFocus()){
+            KeyboardHelper.showKeyboardOnInput(activity, binding.nameTextValue);
+        }
     }
 
     private TextWatcher createNameWatcher() {
@@ -62,12 +74,6 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
         };
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     private void setListeners() {
         binding.personalidNameContinueButton.setOnClickListener(v -> verifyOrAddName());
     }
@@ -77,6 +83,7 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
     }
 
     private void verifyOrAddName() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
         clearError();
         enableContinueButton(false);
         new PersonalIdApiHandler<PersonalIdSessionData>() {
@@ -100,7 +107,7 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
 
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+        showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));
 
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
@@ -128,5 +135,12 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 .actionPersonalidNameToPersonalidMessage(title, message, phase, getString(buttonText), null)
                 .setIsCancellable(isCancellable);
         Navigation.findNavController(binding.getRoot()).navigate(action);
+    }
+
+    @Override
+    protected void keyboardEnterPressed() {
+        if (!Objects.requireNonNull(binding.nameTextValue.getText()).toString().isEmpty()) {
+            verifyOrAddName();
+        }
     }
 }

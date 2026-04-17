@@ -5,7 +5,6 @@ package org.commcare.google.services.analytics;
  */
 
 public class CCAnalyticsEvent {
-
     static final String ADVANCED_ACTION_SELECTED = "advanced_action_selected";
     static final String APP_MANAGER_ACTION = "app_manager_action";
     static final String APP_INSTALL = "cc_app_install";
@@ -24,7 +23,6 @@ public class CCAnalyticsEvent {
     static final String SELECT_OPTIONS_MENU_ITEM = "select_options_menu_item";
     static final String OPTIONS_MENU_OPENED = "options_menu_opened";
     static final String SYNC_ATTEMPT = "sync_attempt";
-    static final String TIMED_SESSION = "timed_session";
     static final String VIEW_ARCHIVED_FORMS_LIST = "view_archived_forms_list";
     static final String VIEW_QUESTION_MEDIA = "view_question_media";
     static final String COMMON_COMMCARE_EVENT = "common_commcare_event";
@@ -46,12 +44,17 @@ public class CCAnalyticsEvent {
     static final String CCC_API_CLAIM_JOB = "ccc_api_claim_job";
     static final String CCC_API_DELIVERY_PROGRESS = "ccc_api_delivery_progress";
     static final String CCC_API_PAYMENT_CONFIRMATION = "ccc_api_payment_confirmation";
-    static final String CCC_PAYMENT_CONFIRMATION_CHECK = "ccc_payment_confirmation_check";
     static final String CCC_PAYMENT_CONFIRMATION_DISPLAY = "ccc_payment_confirmation_display";
     static final String CCC_PAYMENT_CONFIRMATION_INTERACT = "ccc_payment_confirmation_interact";
     static final String CCC_NOTIFICATION_TYPE = "ccc_notification_type";
-    static final String CCC_REKEYED_DB = "ccc_rekeyed_db";
     static final String CCC_BIOMETRIC_INVALIDATED = "ccc_biometric_invalidated";
+    static final String CCC_MESSAGING = "ccc_messaging";
     static final String PERSONAL_ID_CONFIGURATION_FAILURE = "personal_id_configuration_failure";
-
+    static final String NAV_DRAWER_OPEN = "nav_drawer_open";
+    static final String NAV_DRAWER_ITEM_SELECTED = "nav_drawer_item_selected";
+    static final String PERSONAL_ID_CONTINUE_CLICKED = "personal_id_continue_clicked";
+    static final String PERSONAL_ID_MESSAGE_SENT = "personal_id_message_sent";
+    static final String PERSONAL_ID_LINKING = "personal_id_linking";
+    static final String OTP_REQUESTED = "otp_requested";
+    static final String PERSONAL_ID_RELEASE_TOGGLES = "personal_id_release_toggles";
 }

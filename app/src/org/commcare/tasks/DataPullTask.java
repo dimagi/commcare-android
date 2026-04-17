@@ -2,9 +2,9 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
-import androidx.core.util.Pair;
+import com.google.firebase.perf.metrics.Trace;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import androidx.core.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -13,7 +13,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.util.InvalidCaseGraphException;
-import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.LoginInvalidatedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
@@ -22,7 +22,9 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.CommcareRequestEndpoints;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
@@ -32,6 +34,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
@@ -57,7 +60,9 @@ import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.crypto.SecretKey;
@@ -101,10 +106,11 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
     private boolean skipFixtures;
+    private boolean userTriggeredSync;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement, boolean skipFixtures) {
+                        boolean blockRemoteKeyManagement, boolean skipFixtures, boolean userTriggeredSync) {
         this.skipFixtures = skipFixtures;
         this.server = server;
         this.username = username;
@@ -116,12 +122,13 @@ public abstract class DataPullTask<R>
         this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
         TAG = DataPullTask.class.getSimpleName();
+        this.userTriggeredSync = userTriggeredSync;
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context, boolean skipFixtures) {
+                        String server, Context context, boolean skipFixtures, boolean userTriggeredSync) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false, skipFixtures);
+                false, skipFixtures, userTriggeredSync);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -262,8 +269,24 @@ public abstract class DataPullTask<R>
 
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
         asyncRestoreHelper.retryAtTime = -1;
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_APP_SYNC_DURATION);
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
+
+            if (result != null) {
+                try {
+                    Map<String, String> attrs = new HashMap<>();
+                    attrs.put(CCPerfMonitoring.ATTR_SYNC_ITEMS_COUNT, String.valueOf(mTotalItems));
+                    attrs.put(CCPerfMonitoring.ATTR_SYNC_TYPE, userTriggeredSync ?
+                            AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
+                    attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS,
+                            PullTaskResult.DOWNLOAD_SUCCESS.equals(result.data) ? PrefValues.YES : PrefValues.NO);
+                    CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+                } catch (Exception e) {
+                    Logger.exception("Failed to stop tracing ", e);
+                }
+            }
+
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
                 asyncRestoreHelper.startReportingServerProgress();
                 return getRequestResultOrRetry(factory);
@@ -292,14 +315,23 @@ public abstract class DataPullTask<R>
             responseError = PullTaskResult.BAD_CERTIFICATE;
         }catch (TokenUnavailableException e) {
             responseError = PullTaskResult.TOKEN_UNAVAILABLE;
-        } catch (TokenDeniedException e) {
-            responseError = PullTaskResult.TOKEN_DENIED;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
         } catch (UnknownSyncError e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
+        }
+
+        try {
+            Map<String, String> attrs = new HashMap<>();
+            attrs.put(CCPerfMonitoring.ATTR_SYNC_ITEMS_COUNT, String.valueOf(mTotalItems));
+            attrs.put(CCPerfMonitoring.ATTR_SYNC_TYPE, userTriggeredSync ?
+                    AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO);
+            attrs.put(CCPerfMonitoring.ATTR_SYNC_SUCESS, PrefValues.NO);
+            CCPerfMonitoring.INSTANCE.stopTracing(trace, attrs);
+        } catch (Exception e) {
+            Logger.exception("Failed to stop tracing ", e);
         }
 
         wipeLoginIfItOccurred();
@@ -378,6 +410,7 @@ public abstract class DataPullTask<R>
             updateUserSyncToken(syncToken);
 
             onSuccessfulSync();
+
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } catch (XmlPullParserException e) {
             wipeLoginIfItOccurred();
@@ -560,7 +593,7 @@ public abstract class DataPullTask<R>
         //this is the temporary implementation of everything past this point
 
         //Wipe storage
-        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+        IDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         userDb.beginTransaction();
         wipeStorageForFourTwelveSync(userDb);
 
@@ -582,7 +615,7 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
+    private void wipeStorageForFourTwelveSync(IDatabase userDb) {
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
@@ -635,7 +668,7 @@ public abstract class DataPullTask<R>
             UnfullfilledRequirementsException {
         initParsers(factory);
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        IDatabase db = CommCareApplication.instance().getUserDbHandle();
         db.beginTransaction();
         try {
             parseStream(stream, factory);

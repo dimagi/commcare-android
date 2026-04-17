@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommonBaseActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
@@ -19,7 +20,6 @@ import org.javarosa.core.services.locale.Localization;
 import javax.annotation.Nullable;
 
 import androidx.annotation.CallSuper;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Parent activity that provides all of the functionality common to any NFC action that CommCare
@@ -27,7 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
  *
  * @author Aliza Stone
  */
-public abstract class NfcActivity extends AppCompatActivity {
+public abstract class NfcActivity extends CommonBaseActivity {
 
     protected static final String NFC_PAYLOAD_MULT_TYPES_ARG = "types";
     protected static final String NFC_PAYLOAD_SINGLE_TYPE_ARG = "type";

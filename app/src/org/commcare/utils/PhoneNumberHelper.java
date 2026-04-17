@@ -2,19 +2,12 @@ package org.commcare.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.auth.api.identity.SignInClient;
-import com.google.android.gms.common.api.ApiException;
-
-import org.commcare.connect.ConnectConstants;
-
-import java.util.Locale;
 
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
@@ -24,9 +17,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.javarosa.core.services.Logger;
 
 /**
  * Helper class for functionality related to phone numbers
@@ -47,7 +38,6 @@ public class PhoneNumberHelper {
         }
         return instance;
     }
-
 
     /**
      * Combines the country code and phone number into a single formatted string.
@@ -73,6 +63,7 @@ public class PhoneNumberHelper {
             Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
             return phoneNumberUtil.isValidNumber(phoneNumber);
         } catch (NumberParseException e) {
+            Logger.exception("Exception occurred while verifying phone number", e);
             return false;
         }
     }
@@ -87,7 +78,7 @@ public class PhoneNumberHelper {
                 return phoneNumber.getCountryCode();
             }
         } catch (NumberParseException e) {
-            // Ignore
+            Logger.exception("Exception occurred while getting country code", e);
         }
         return -1;
     }
@@ -102,25 +93,53 @@ public class PhoneNumberHelper {
                 return phoneNumber.getNationalNumber();
             }
         } catch (NumberParseException e) {
-            // Ignore
+            Logger.exception("Exception occurred while getting national number", e);
         }
         return -1;
     }
 
     /**
-     * Retrieves the country code for the user's current locale.
+     * Converts a 2-letter ISO country code (e.g., "in", "US") to a formatted
+     * dialing code string (e.g., "+91", "+1"). Returns "" if the ISO code
+     * is null, empty, or not recognized.
      */
-    public int getCountryCodeFromLocale(Context context) {
-        Locale locale = context.getResources().getConfiguration().locale;
-        return phoneNumberUtil.getCountryCodeForRegion(locale.getCountry());
-    }
-
-    public String setDefaultCountryCode(Context context) {
-        int code = getCountryCodeFromLocale(context);
+    private String getCountryCodeForIso(String iso) {
+        if (iso == null || iso.isEmpty()) {
+            return "";
+        }
+        int code = phoneNumberUtil.getCountryCodeForRegion(iso.toUpperCase());
         if (code > 0) {
             return "+" + code;
         }
         return "";
+    }
+
+    /**
+     * Retrieves the best country code by trying signals in priority order:
+     * SIM > Network > Locale. Uses the provided signal provider.
+     */
+    public String getDefaultCountryCode(CountryCodeSignalProvider provider) {
+        String[] signals = {
+            provider.getSimCountryIso(),
+            provider.getNetworkCountryIso(),
+            provider.getLocaleCountry()
+        };
+
+        for (String iso : signals) {
+            String code = getCountryCodeForIso(iso);
+            if (!code.isEmpty()) {
+                return code;
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Retrieves the best country code using real device signals.
+     * Convenience overload for production use.
+     */
+    public String getDefaultCountryCode() {
+        return getDefaultCountryCode(new CountryCodeSignalProvider());
     }
 
     /**
@@ -134,23 +153,12 @@ public class PhoneNumberHelper {
                         IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent).build();
                         phoneNumberHintLauncher.launch(intentSenderRequest);
                     } catch (Exception e) {
+                        Logger.exception("Exception occurred while showing google phone number picker", e);
                         e.printStackTrace();
                     }
-                });
-    }
-
-    /**
-     * Handles the result of a phone number picker request.
-     */
-    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity) {
-        if (requestCode == ConnectConstants.CREDENTIAL_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
-            SignInClient signInClient = Identity.getSignInClient(activity);
-            try {
-                return signInClient.getPhoneNumberFromIntent(intent);
-            } catch (ApiException ignored) {
-            }
-        }
-        return "";
+                }
+                ).addOnFailureListener(e -> Logger.exception("Exception occurred while showing google phone number picker", e)
+                );
     }
 
     public String formatCountryCode(int code) {
@@ -159,10 +167,6 @@ public class PhoneNumberHelper {
             return codeText.startsWith("+") ? codeText : "+" + codeText;
         }
         return "";
-    }
-
-    public String removeCountryCode(String fullNumber, String codeText) {
-        return fullNumber.startsWith(codeText) ? fullNumber.substring(codeText.length()) : fullNumber;
     }
 
     public TextWatcher getCountryCodeWatcher(EditText editText) {
@@ -180,11 +184,6 @@ public class PhoneNumberHelper {
             public void afterTextChanged(Editable s) {
             }
         };
-    }
-
-    public void storePrimaryPhone(Context context, ConnectUserRecord user, String phone) {
-        user.setPrimaryPhone(phone);
-        ConnectUserDatabaseUtil.storeUser(context, user);
     }
 }
 

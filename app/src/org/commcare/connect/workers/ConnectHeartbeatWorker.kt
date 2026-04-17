@@ -12,18 +12,14 @@ class ConnectHeartbeatWorker(val context: Context, workerParams: WorkerParameter
         CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        val personalIdManager = PersonalIdManager.getInstance()
+        if (!personalIdManager.isloggedIn()) {
+            return Result.failure()
+        }
+        val user = personalIdManager.getUser(applicationContext)
 
-        return suspendCoroutine{ continuation ->
-
-            if (!PersonalIdManager.getInstance().isloggedIn()) {
-                continuation.resume(Result.failure())
-            }
-
-            val user = PersonalIdManager.getInstance().getUser(context)
-
+        return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
-
-
                 override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
                     continuation.resume(Result.failure())
                 }
@@ -32,7 +28,6 @@ class ConnectHeartbeatWorker(val context: Context, workerParams: WorkerParameter
                     continuation.resume(Result.success())
                 }
             }.heartbeatRequest(context, user)
-
         }
     }
 }

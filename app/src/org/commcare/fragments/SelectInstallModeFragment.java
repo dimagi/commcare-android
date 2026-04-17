@@ -24,6 +24,7 @@ import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -73,10 +74,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         View view = inflater.inflate(R.layout.select_install_mode_fragment, container, false);
 
         TextView setupMsg = view.findViewById(R.id.str_setup_message);
-        setupMsg.setText(Localization.get("install.barcode.top"));
+        setupMsg.setText(StringUtils.getStringRobust(requireContext(),R.string.install_barcode_top));
 
         TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
-        setupMsg2.setText(Localization.get("install.barcode.bottom"));
+        setupMsg2.setText(StringUtils.getStringRobust(requireContext(),R.string.install_barcode_bottom));
 
         mConnectButton = view.findViewById(R.id.connect_login_button);
         mOrText = view.findViewById(R.id.login_or);
@@ -198,16 +199,11 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         }
     }
 
-    public void showConnectErrorMessage(String message) {
-        TextView view = getActivity().findViewById(R.id.error_msg);
-        view.setText(message);
-        view.setVisibility(View.VISIBLE);
-    }
-
     /**
      * Updates the visibility and click listener of the Connect button and related UI elements.
+     *
      * @param connectEnabled Whether the connect feature should be enabled
-     * @param listener Click listener to be set when the button is enabled
+     * @param listener       Click listener to be set when the button is enabled
      */
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
         if (mConnectButton != null) {

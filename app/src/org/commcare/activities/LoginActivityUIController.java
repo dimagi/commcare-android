@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
@@ -25,8 +26,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -34,7 +35,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
-import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -50,6 +50,9 @@ import java.util.Vector;
 import javax.annotation.Nullable;
 
 import androidx.preference.PreferenceManager;
+
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
 /**
  * Handles login activity UI
@@ -94,9 +97,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
-
-    @UiElement(R.id.error_msg)
-    private TextView errorMessage;
 
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
@@ -177,7 +177,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         });
 
         notificationButton.setText(Localization.get("error.button.text"));
-        notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
+        notificationButton.setOnClickListener(
+                view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
         setUpConnectUiListeners();
     }
 
@@ -235,13 +236,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
 
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        boolean noApps = readyApps.isEmpty();
         if (readyApps.size() == 1 || presetAppRecord != null) {
             // Set this app as the last selected app, for use in choosing what app to initialize on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
-            setSingleAppUIState();
+            if (shouldForceSingleAppMode()) {
+                setSingleAppUIState();
+            } else {
+                activity.populateAppSpinner(readyApps);
+            }
             activity.seatAppIfNeeded(r.getUniqueId());
         } else {
             activity.populateAppSpinner(readyApps);
@@ -264,6 +268,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
+    }
+
+    private boolean shouldForceSingleAppMode() {
+        return activity.getIntent().getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
     }
 
     @Nullable
@@ -292,11 +300,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (lastUser != null) {
             // If there was a last user for this app, show it
             username.setText(lastUser);
-            passwordOrPin.requestFocus();
+            requestFocusIfNoError(passwordOrPin);
         } else {
             // Otherwise, clear the username text so it does not show a username from a different app
             username.setText("");
-            username.requestFocus();
+            requestFocusIfNoError(username);
         }
 
         // Since the entered username may have changed, need to re-check if we should be in PIN mode
@@ -313,6 +321,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+    }
+
+    private void requestFocusIfNoError(EditText view) {
+        if (!activity.isShowingGlobalError()) {
+            view.requestFocus();
+        }
     }
 
     private void checkEnteredUsernameForMatch() {
@@ -406,19 +420,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
-    protected void checkForGlobalErrors() {
-        String errors = GlobalErrorUtil.handleGlobalErrors();
-        if(errors.length() > 0) {
-            errorMessage.setVisibility(View.VISIBLE);
-            errorMessage.setText(errors);
-        }
-    }
-
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),
+                null, null, null);
+        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(
+                getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
 
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(message);
@@ -493,7 +501,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         String lastUser = prefs.getString(HiddenPreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);
-            passwordOrPin.requestFocus();
+            requestFocusIfNoError(passwordOrPin);
         }
     }
 
@@ -555,21 +563,23 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         } else {
-            loginButton.setText(activity.getString(R.string.login_button_connectid));
+            loginButton.setText(activity.getString(R.string.personalid_login_with));
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.grey_light));
-            passwordOrPin.setText(R.string.login_password_by_connect);
+            passwordOrPin.setText(R.string.personalid_login_via);
             passwordOrPin.clearFocus();
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         setLoginInputsVisibility(appState != Connect);
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
-            setConnectButtonVisible(true);
-            String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
-                    ConnectUserDatabaseUtil.getUser(activity).getName());
-            welcomeMessage.setText(welcomeText);
-        } else {
-            setConnectButtonVisible(false);
+        boolean isPersonalIdLoggedIn = PersonalIdManager.getInstance().isloggedIn();
+        if (isPersonalIdLoggedIn) {
+            setWelcomeMessage();
         }
+        setConnectButtonVisible(isPersonalIdLoggedIn && ConnectUserDatabaseUtil.hasConnectAccess(activity));
+    }
+
+    private void setWelcomeMessage() {
+        String welcomeText = activity.getString(R.string.personalid_welcome_user,
+                ConnectUserDatabaseUtil.getUser(activity).getName());
+        welcomeMessage.setText(welcomeText);
     }
 }

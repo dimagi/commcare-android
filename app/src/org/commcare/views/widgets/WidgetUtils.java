@@ -66,7 +66,7 @@ public class WidgetUtils {
      */
     public static Intent createScanIntent(Context context, String... formats) {
         if (MainConfigurablePreferences.useIntentCalloutForScanner()) {
-            Intent scanIntent = new Intent(Intents.Scan.ACTION);
+            Intent scanIntent = new Intent(Intents.Scan.ACTION).addCategory(Intent.CATEGORY_DEFAULT);
             if (scanIntent.resolveActivity(context.getPackageManager()) != null) {
                 if (formats != null) {
                     scanIntent.putExtra(Intents.Scan.FORMATS, TextUtils.join(",", formats));

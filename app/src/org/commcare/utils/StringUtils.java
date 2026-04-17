@@ -3,6 +3,7 @@ package org.commcare.utils;
 import android.content.Context;
 import android.text.Spannable;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -48,5 +49,30 @@ public class StringUtils {
             ret = c.getString(resId, args);
         }
         return MarkupUtil.styleSpannable(c, ret);
+    }
+
+    /**
+     * Returns the total length of all strings in the array.
+     */
+    public static int getSumOfLengths(String[] array) {
+        int total = 0;
+        for (String s : array) {
+            if (s != null) {
+                total += s.length();
+            }
+        }
+        return total;
+    }
+
+    public static String getLocalizedLevel(String levelCode, Context context) {
+        return switch (levelCode) {
+            case "1MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_1_month_active);
+            case "2MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_2_month_active);
+            case "3MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_3_month_active);
+            case "6MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_6_month_active);
+            case "9MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_9_month_active);
+            case "12MON_ACTIVE" -> context.getString(R.string.personalid_work_history_level_12_month_active);
+            default -> levelCode;
+        };
     }
 }

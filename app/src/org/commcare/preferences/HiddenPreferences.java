@@ -56,7 +56,6 @@ public class HiddenPreferences {
     private final static String RAW_MEDIA_CLEANUP_COMPLETE = "raw_media_cleanup_complete";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
-    private final static String USE_MAPBOX_MAP = "cc-use-mapbox-map";
     private final static String LABEL_REQUIRED_QUESTIONS_WITH_ASTERISK = "cc-label-required-questions-with-asterisk";
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -111,6 +110,7 @@ public class HiddenPreferences {
     private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
     private static final String ENABLE_CUSTOM_MAP_MARKER = "cc-enable-custom-map-marker";
+    private static final String DISCARD_STALE_LOCATIONS = "cc-discard-stale-locations";
 
     /**
      * The domain name in the application profile file comes in the <domain>.commcarehq.org form,
@@ -365,7 +365,8 @@ public class HiddenPreferences {
     }
 
     public static String getAppVersionTag() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
+        return app == null ? "" : app.getAppPreferences()
                 .getString(APP_VERSION_TAG, "");
     }
 
@@ -505,11 +506,6 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
-    }
-
-    public static boolean shouldUseMapboxMap() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(USE_MAPBOX_MAP, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static void setDisableBackgroundWorkTime(boolean disableBackgroundWork) {
@@ -675,4 +671,10 @@ public class HiddenPreferences {
                 .remove(INTERRUPTED_FORM_INDEX + currentUserId)
                 .apply();
     }
+
+    public static boolean shouldDiscardStaleLocations() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(DISCARD_STALE_LOCATIONS, PrefValues.NO).equals(PrefValues.YES);
+    }
+
 }
