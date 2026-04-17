@@ -1,0 +1,147 @@
+# Claude Dependabot PR Review Workflow
+#
+# This workflow automatically runs Claude analysis on Dependabot PRs to:
+# - Identify dependency changes and their versions
+# - Look up changelogs for updated packages
+# - Assess breaking changes and security impacts
+# - Provide actionable recommendations for the development team
+#
+# Triggered on: Dependabot PRs (opened, synchronize)
+# Requirements: ANTHROPIC_API_KEY secret must be configured
+
+name: Claude Dependabot PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to analyze'
+        required: true
+        type: string
+
+jobs:
+  dependabot-review:
+    # Only run on Dependabot PRs, or manual dispatch for testing
+    if: github.actor == 'dependabot[bot]' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+
+    steps:
+      - name: Resolve PR ref
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ inputs.pr_number || github.event.pull_request.number }}"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          REF=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json headRefOid --jq '.headRefOid')
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.ref }}
+          fetch-depth: 2
+
+      - name: Checkout commcare-core
+        uses: actions/checkout@v4
+        with:
+          repository: dimagi/commcare-core
+          ref: master
+          path: commcare-core
+
+      - name: Run Claude Dependabot Analysis
+        id: claude_review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          allowed_bots: "dependabot[bot]"
+          claude_args: |
+            --allowedTools "Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,WebFetch"
+          prompt: |
+            You are reviewing PR #${{ steps.pr.outputs.pr_number }}.
+
+            You are Claude, an AI assistant specialized in reviewing Dependabot dependency update PRs
+            for CommCare Android — a mixed Java/Kotlin Android application built with Android Gradle
+            Plugin (AGP). Dependencies are declared in the root build.gradle, in app/build.gradle and 
+            submodule build.gradle files, and are managed via Gradle. 
+            The project uses SQLCipher, Retrofit/OkHttp, Firebase, AndroidX, and two submodules: 
+            commcare-core which lives in a root sibling folder and commcare-support-library which lives 
+            in a subfolder /commcare-support-library/ 
+
+            Your primary tasks are:
+            1. **Analyze the dependency changes** in this Dependabot PR
+            2. **Look up changelogs** for all updated dependencies to understand what changed
+            3. **Identify breaking changes** and assess potential impact on the CommCare android codebase
+            4. **Provide actionable recommendations** for the development team
+
+            ## Analysis Process:
+
+            1. **Identify Changed Dependencies**:
+               - Use `gh pr diff` to see what dependencies were updated
+               - Parse build.gradle files for dependency changes
+               - List all package versions: old → new
+
+            2. **Changelog Research**:
+               - For each updated dependency, look up its changelog/release notes in:
+                  - AndroidX: https://developer.android.com/jetpack/androidx/releases/{artifact-group}
+                  - Firebase: https://firebase.google.com/support/release-notes/android
+                  - Play Services: https://developers.google.com/android/guides/releases
+                  - For other libraries, check GitHub releases at the repo URL
+               - Focus on versions between the old and new versions
+               - Identify: breaking changes, deprecations, security fixes, new features
+
+            3. **Breaking Change Assessment**:
+               - Categorize changes: BREAKING, MAJOR, MINOR, PATCH, SECURITY
+               - Assess impact on CommCare Android's usage patterns
+               - Check if CommCare Android uses affected APIs/features
+               - Look for migration guides or upgrade instructions
+
+            4. **Codebase Impact Analysis**:
+               - Search the codebase for usage of changed APIs
+               - Check usage of updated packages in the codebase
+               - Identify any tests that might be affected by the changes
+               - Identify files that might be affected by breaking changes
+
+            ## Output Format:
+
+            Post a PR comment with a comprehensive review for MAJOR bumps. For MINOR and PATCH 
+            bumps, use a condensed format with only a summary, risk level and merge recommendation.  
+            Structure your comment with the following sections:
+
+            ### 🔍 Dependency Analysis Summary
+            - List of updated packages with version changes
+            - Overall risk assessment (LOW/MEDIUM/HIGH)
+
+            ### 📋 Detailed Changelog Review
+            For each updated dependency:
+            - **Package**: name (old_version → new_version)
+            - **Changes**: Summary of key changes
+            - **Breaking Changes**: List any breaking changes
+            - **Security Fixes**: Note security improvements
+            - **Migration Notes**: Any upgrade steps needed
+
+            ### ⚠️ Impact Assessment
+            - **Breaking Changes Found**: Yes/No with details
+            - **Affected Files**: List CommCare files that may need updates
+            - **Test Impact**: Any tests that may need updating
+            - **Configuration Changes**: Required config updates
+
+            ### 🛠️ Recommendations
+            - **Action Required**: What the team should do
+            - **Testing Focus**: Areas to test thoroughly
+            - **Follow-up Tasks**: Any additional work needed
+            - **Merge Recommendation**: APPROVE / REVIEW_NEEDED / HOLD
+
+            ### 📚 Useful Links
+            - Links to relevant changelogs, migration guides, documentation
+
+            Be thorough but concise. Focus on actionable insights that help the development
+            team make informed decisions about the dependency updates.
