@@ -252,8 +252,8 @@
     <string name="connect_backup_code_title_confirm">ናይ ምሕዋይ ኮድ ኣረጋግጽ</string>
     <string name="connect_backup_code_message_title">PersonalId ናይ ምሕዋይ ኮድ</string>
     <string name="connect_backup_code_message">6 ኣሃዝ ዘለዎ ናይ ምሕዋይ ኮድካ ኣእቱ</string>
-    <string name="connect_backup_code_length">በጃኻ ነቲ ናይ መተካእታ ኮድካ ምዝካርካ ኣረጋግጽ! %d ኣሃዛት ክኸውን ኣለዎ። እንደገና ናብ ሕሳብካ ንምእታው ስለ ዘድልየካ፡ ኣብ ውሑስ ቦታ ኣቐምጦ።</string>
-    <string name="connect_backup_code_mismatch">እቲ እተእትዎ ናይ መተካእታ ኮዳት ክመሳሰል ኣለዎ። እንደገና ናብ ሕሳብካ ንምእታው ስለ ዘድልየካ፡ ኣብ ውሑስ ቦታ ኣቐምጦ።</string>
+    <string name="connect_backup_code_remember">በጃኻ ነቲ ናይ መተካእታ ኮድካ ምዝካርካ ኣረጋግጽ! %d ኣሃዛት ክኸውን ኣለዎ። እንደገና ናብ ሕሳብካ ንምእታው ስለ ዘድልየካ፡ ኣብ ውሑስ ቦታ ኣቐምጦ።</string>
+    <string name="connect_backup_code_mismatch">እቲ እተእትዎ ናይ መተካእታ ኮዳት ክመሳሰል ኣለዎ።</string>
     <string name="connect_backup_fail_title">ጌጋ ኮድ</string>
     <string name="connect_recovery_success_title">ኣካውንት ናብ ንቡር ተመሊሱ</string>
     <string name="connect_recovery_success_message">ሕሳብካ ተመልሱልካ ኣሎ! PersonalID ምጥቃም ክትቅጽል ትኽእል ኢኻ።</string>
@@ -278,12 +278,12 @@
     <string name="connect_verify_configure_pin">ፒን ምውቃር</string>
     <string name="connect_verify_agree">ስምምዕ &amp; ቀፅል</string>
     <string name="connect_verify_phone_title">ናይ ምርግጋፅ ኮድ</string>
-    <string name="connect_verify_phone_label">ብ %s ዝውዳእ መልአኽቲ ( SMS ) ክንሰደልኩም ፈቲንና።</string>
+    <string name="connect_verify_phone_label">ብ %s ዝውዳእ ናይ ስልኪ ቁጽርኹም SMS ክንሰድድ ፈቲንና።</string>
     <string name="connect_verify_phone_resend">ኮድካ ኣይተቐበልካን ዲኻ? ዳግማይ ስደድ</string>
     <string name="connect_verify_phone_resend_code">ዳግማይ ምልኣኽ ኮድ</string>
     <string name="connect_verify_skip_phone_number">ዲሞ ተጠቃሚ ምዃንካ ይርእየካ ኣለኹ ስለዚ OTP ክንዝልፎ ኢና።</string>
     <string name="connect_verify_phone_resend_wait">ኮድካ ኣይተቐበልካን ዲኻ? ኣብ %d s ዳግማይ ስደድ</string>
-    <string name="connect_verify_phone_change">ቁፅሪ ተሌፎን ቐይር።</string>
+    <string name="connect_verify_phone_change">ቁጽሪ ቐይር</string>
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
     <string name="connect_last_update">ዝተመሓየሸ: %s</string>
     <string name="connect_title">ኣራኽብ</string>
@@ -324,6 +324,8 @@
     <string name="connect_progress_warning_daily_max_reached_single">ንሎሚ ዝለዓለ ቁፅሪ ምብፃሕ በፂሕኩም ኣለኹም። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>
     <string name="connect_progress_warning_daily_max_reached_multi">ንመዓልታዊ ገደብ %s በፂሕካ ኣለኻ።</string>
+    <string name="connect_progress_warning_relearn_tasks_pending">ኣገልግሎት ምሃብ ንምቕጻል ዝተመደቡ ዕማማት ኣጠናቕቑ።</string>
+    <string name="connect_progress_relearn_tasks_completed">ኩሎም ዝድለዩ ስራሕቲ ተዛዚሞም ኣለዉ። ምስ ናይ ኣወሃህባ ንጥፈታት ክትቅጽል ትኽእል ኢኻ።</string>
     <string name="connect_download_learn">Download ተማሃሩ ኣፕ</string>
     <string name="connect_downloading_learn">ምውራድ ( Downloading ) ናይ ትምህርቲ ኣፕ ( App )</string>
     <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
@@ -393,12 +395,13 @@
     <string name="connect_completed">ተዛዚሙ</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
-    <string name="personalid_too_many_otp_attempts">ንስኻ ነቲ ናይ 6 ኣሃዛት ሓደ ግዜ ዝውውር ኮድ ብጌጋ ብዙሕ ግዜ ኣእቲኻዮ። በጃኻ ጸኒሕካ እንደገና ፈትን።</string>
+    <string name="personalid_too_many_otp_attempts">OTP ንምልኣኽ ብዙሕ ግዜ ፈቲንካ ኢኻ። በጃኻ ተጸበ እሞ እቲ ናይ ደጊም ምልኣኽ መልጎም ክረአ ከሎ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed">ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_location_permission_error">PersonalID መሳርሒኻ ናይ ኣገልግሎት ኣቀማምጣ ከም ዝተኸፍተ ገይሩ ክህልዎ የገድድ እዩ። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ setting ናይ ተሌፎንካ ኣክቲቭ ግበሮ።</string>
     <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
+    <string name="personalid_continue_label">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
     <string name="connect_messaging_channel_list_title">ቻነላት</string>
     <string name="connect_messaging_message_notification_title">🔔 ሓድሽ መልእኽቲ 🔔</string>
@@ -519,4 +522,9 @@
     <string name="connect_job_preview_start">ጀምር</string>
     <string name="connect_job_delivery_preview_subtitle">ናይ ምምሃር ምግምጋም ምስ ዛዘምካ፡ ናብ ምብጸሕ ክትሰጋገር ኢካ</string>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
+    <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
+    <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
+    <string name="connect_last_synced">ናይ መወዳእታ ምስንኻል: %s</string>
+    <string name="connect_offline">ኦፍላይን</string>
+    <string name="connect_never">ፈጺሙ</string>
 </resources>

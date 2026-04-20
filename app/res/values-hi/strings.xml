@@ -259,8 +259,8 @@ License.
     <string name="connect_enter_otp">कृपया 6-अंकीय पासकोड दर्ज करें जो आपके फ़ोन नंबर पर भेजा गया था।</string>
     <string name="connect_backup_code_title_set">पिन चुनें</string>
     <string name="connect_backup_code_title_confirm">पिन की पुष्टि करें</string>
-    <string name="connect_backup_code_length">कृपया अपना बैकअप कोड याद रखना सुनिश्चित करें! यह %d अंकों का होना चाहिए। इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते तक दोबारा पहुंचने के लिए इसकी आवश्यकता होगी।</string>
-    <string name="connect_backup_code_mismatch">आपके द्वारा दर्ज किए गए बैकअप कोड मेल खाने चाहिए। कृपया इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते को फिर से एक्सेस करने के लिए इसकी आवश्यकता होगी।</string>
+    <string name="connect_backup_code_remember">कृपया अपना बैकअप कोड याद रखना सुनिश्चित करें! यह %d अंकों का होना चाहिए। इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते तक दोबारा पहुंचने के लिए इसकी आवश्यकता होगी।</string>
+    <string name="connect_backup_code_mismatch">आपके द्वारा दर्ज किए गए बैकअप कोड मेल खाने चाहिए।</string>
     <string name="connect_backup_fail_title">गलत कोड</string>
     <string name="connect_recovery_success_title">खाता पुनर्प्राप्त किया गया</string>
     <string name="connect_recovery_success_message">आपका खाता पुनर्प्राप्त कर लिया गया है! आप PersonalID का उपयोग फिर से शुरू कर सकते हैं।</string>
@@ -284,10 +284,10 @@ License.
     <string name="connect_verify_configure_pin">पिन कॉन्फ़िगर करें</string>
     <string name="connect_verify_agree">सहमत हों और जारी रखें</string>
     <string name="connect_verify_phone_title">सत्यापन कोड</string>
-    <string name="connect_verify_phone_label">हमने आपको %s पर समाप्त होने वाला एक SMS भेजने का प्रयास किया है।</string>
+    <string name="connect_verify_phone_label">हमने %s पर समाप्त होने वाले आपके फ़ोन नंबर पर एक SMS भेजने का प्रयास किया है।</string>
     <string name="connect_verify_phone_resend">आपको अपना कोड प्राप्त नहीं हुआ? पुनः भेजें</string>
     <string name="connect_verify_phone_resend_wait">आपको अपना कोड प्राप्त नहीं हुआ? कृपया इसे %ds में पुनः भेजें।</string>
-    <string name="connect_verify_phone_change">फ़ोन नंबर बदलें</string>
+    <string name="connect_verify_phone_change">नंबर बदलें</string>
     <string name="connect_verify_phone_verify">कोड सत्यापित करें</string>
     <string name="connect_last_update">अपडेट किया गया: %s</string>
     <string name="connect_title">कनेक्ट करें</string>
@@ -326,6 +326,8 @@ License.
     <string name="connect_progress_warning_daily_max_reached_single">आप आज के लिए अधिकतम विज़िट संख्या तक पहुँच चुके हैं। हो सकता है कि आप आगे कोई कार्य एक्सेस न कर पाएँ।</string>
     <string name="connect_progress_warning_max_reached_multi">आप %s के लिए अधिकतम विज़िट तक पहुँच गए हैं।</string>
     <string name="connect_progress_warning_daily_max_reached_multi">आप %s के लिए अपनी दैनिक सीमा तक पहुँच गए हैं।</string>
+    <string name="connect_progress_warning_relearn_tasks_pending">सेवाएँ प्रदान करना जारी रखने के लिए सौंपे गए कार्य पूरे करें।</string>
+    <string name="connect_progress_relearn_tasks_completed">सभी आवश्यक कार्य पूरे हो गए हैं। आप वितरण गतिविधियों के साथ जारी रख सकते हैं।</string>
     <string name="connect_download_learn">लर्न ऐप डाउनलोड करें</string>
     <string name="connect_downloading_learn">Learn ऐप डाउनलोड हो रहा है</string>
     <string name="connect_downloading_delivery">वितरण ऐप डाउनलोड हो रहा है</string>
@@ -385,6 +387,7 @@ License.
     <string name="connect_in_progress">प्रगति में</string>
     <string name="connect_new_opportunities">नए अवसर</string>
     <string name="connect_completed">पूरा हुआ</string>
+    <string name="personalid_continue_label">जारी रखें</string>
     <string name="fcm_sync_failed_body_text">अधिक जानकारी के लिए यहां क्लिक करें</string>
     <string name="connect_verify_phone_resend_code">कोड पुनः भेजें</string>
     <string name="connect_verify_skip_phone_number">मैं देख रहा हूं कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP को छोड़ देंगे</string>
@@ -409,7 +412,7 @@ License.
     <string name="connect_job_tile_daily_visits">दैनिक विज़िट</string>
     <string name="connect_appbar_title_app_lock">ऐप लॉक</string>
     <string name="personalid_incorrect_otp">आपने गलत 6-अंकीय पासकोड दर्ज किया है। कृपया पुन: प्रयास करें।</string>
-    <string name="personalid_too_many_otp_attempts">आपने बहुत बार गलत 6-अंकीय वन टाइम पासकोड दर्ज किया है। कृपया बाद में पुन: प्रयास करें।</string>
+    <string name="personalid_too_many_otp_attempts">आपने OTP भेजने के बहुत अधिक प्रयास किए हैं। कृपया प्रतीक्षा करें और जब पुनः भेजें बटन दिखाई दे तब पुनः प्रयास करें।</string>
     <string name="personalid_otp_verification_failed_generic">आपके फ़ोन नंबर का सत्यापन करते समय कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
     <string name="personalid_otp_verification_failed">कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
     <string name="personalid_location_permission_error">PersonalID के लिए आवश्यक है कि आपके डिवाइस पर लोकेशन सेवाएं सक्षम हों। कृपया आगे बढ़ने से पहले इसे अपने फ़ोन की सेटिंग में सक्षम करें।</string>
@@ -527,4 +530,9 @@ License.
     <string name="connect_job_preview_start">शुरू करें</string>
     <string name="connect_job_delivery_preview_subtitle">एक बार जब आप शिक्षण मूल्यांकन पूरा कर लेते हैं, तो आप वितरण चरण में जाएंगे</string>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
+    <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
+    <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
+    <string name="connect_last_synced">अंतिम सिंक: %s</string>
+    <string name="connect_offline">ऑफ़लाइन</string>
+    <string name="connect_never">कभी नहीं</string>
 </resources>

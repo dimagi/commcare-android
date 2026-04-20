@@ -132,16 +132,16 @@
     <string name="personalid_configuration_process_biometric_no_hardware_message">„PersonalID“ reikalauja, kad jūsų įrenginyje būtų pirštų atspaudų skaitytuvas. Bandykite dar kartą kitame įrenginyje.</string>
     <string name="personalid_authentication_failed">Biometrinių duomenų autentifikavimas jūsų „Android“ įrenginyje nepavyko. Įdiekite visus galimus sistemos atnaujinimus arba bandykite dar kartą su kitu įrenginiu.</string>
     <string name="personalid_otp_verification_failed">Įvyko klaida. Bandykite dar kartą.</string>
-    <string name="personalid_too_many_otp_attempts">Per daug kartų įvedėte neteisingą 6 skaitmenų vienkartinį slaptažodį. Bandykite dar kartą vėliau.</string>
+    <string name="personalid_too_many_otp_attempts">Per daug kartų bandėte siųsti OTP. Palaukite ir bandykite dar kartą, kai pakartotinio siuntimo mygtukas bus matomas.</string>
     <string name="connect_enter_otp">Įveskite 6 skaitmenų slaptažodį, kuris buvo išsiųstas jūsų telefono numeriu.</string>
     <string name="connect_otp_sent">6 skaitmenų slaptažodis buvo išsiųstas jūsų telefono numeriu.</string>
     <string name="connect_otp_verified">Puiku! Jūsų telefono numeris patvirtintas.</string>
     <string name="personalid_otp_verification_failed_generic">Klaida tikrinant jūsų telefono numerį. Bandykite dar kartą.</string>
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
-    <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti. Laikykite juos saugioje vietoje, nes jums jų prireiks norint vėl pasiekti savo paskyrą.</string>
+    <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
-    <string name="connect_backup_code_length">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
+    <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
     <string name="no_channel_msg">Jūs neprenumeruojate jokių susirašinėjimo kanalų. Kai būsite pridėtas prie kanalo, jis pasirodys šiame sąraše.</string>
     <string name="connect_payment_confirm_text">Ar gavote %d %s už %s galimybę?</string>
     <string name="connect_payment_confirm_yes">Taip, gavau</string>
@@ -189,4 +189,9 @@
     <string name="connect_job_preview_start">Pradėti</string>
     <string name="connect_job_delivery_preview_subtitle">Baigę mokymosi vertinimą, pereisite prie pristatymo</string>
     <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
+    <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
+    <string name="connect_progress_relearn_tasks_completed">Visos reikalingos užduotys atliktos. Galite tęsti pristatymo veiklą.</string>
+    <string name="connect_last_synced">Paskutinė sinchronizacija: %s</string>
+    <string name="connect_offline">Neprisijungęs</string>
+    <string name="connect_never">Niekada</string>
 </resources>

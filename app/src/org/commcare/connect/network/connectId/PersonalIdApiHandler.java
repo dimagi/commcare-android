@@ -1,7 +1,5 @@
 package org.commcare.connect.network.connectId;
 
-import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
-
 import android.app.Activity;
 import android.content.Context;
 
@@ -43,8 +41,9 @@ import java.util.Map;
 
 import kotlin.Pair;
 
-public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
+import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
 
+public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     public PersonalIdApiHandler() {
         super();
@@ -80,10 +79,19 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             }
 
             @Override
-            public void processFailure(int responseCode, String url, String errorBody) {
+            public void processFailure(
+                    int responseCode,
+                    String url,
+                    String errorBody,
+                    Throwable t
+            ) {
                 Pair<String, String> errorCodes = getErrorCodes(errorBody);
-                if (!handleErrorCodeIfPresent(errorCodes.getFirst(), errorCodes.getSecond(), sessionData)) {
-                    super.processFailure(responseCode, url, errorBody);
+                if (!handleErrorCodeIfPresent(
+                        errorCodes.getFirst(),
+                        errorCodes.getSecond(),
+                        sessionData
+                )) {
+                    super.processFailure(responseCode, url, errorBody, t);
                 }
             }
         };
@@ -108,7 +116,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
             case "INVALID_TOKEN":
-                onFailure(PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR, null);
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
+                        new Throwable(
+                                "The configuration session auth is invalid or the firebase UID was not found."
+                        )
+                );
                 return true;
             case "INCORRECT_OTP":
                 onFailure(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, null);
@@ -133,13 +146,18 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "MISSING_DATA":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.MISSING_DATA_ERROR,
-                        new Throwable("API call failed due to missing data with error subcode: " + errorSubCode)
+                        new Throwable(
+                                "API call failed due to missing data with error subcode: "
+                                        + errorSubCode
+                        )
                 );
                 return true;
             case "PHONE_MISMATCH":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.PHONE_MISMATCH_ERROR,
-                        new Throwable("There was a phone number mismatch when validating the firebase ID token.")
+                        new Throwable(
+                                "There was a phone number mismatch when validating the firebase ID token."
+                        )
                 );
                 return true;
             case "MISSING_TOKEN":
@@ -167,14 +185,15 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "ACTIVE_USER_EXISTS":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
-                        new Throwable("The user attempted to create a new profile with a phone number that is already tied to an existing account.")
+                        new Throwable(
+                                "The user attempted to create a new profile with a phone number that is already tied to an existing account."
+                        )
                 );
                 return true;
             default:
                 return false;
         }
     }
-
 
     public void makeIntegrityReportCall(
             Context context,
@@ -196,9 +215,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             Activity activity,
             Map<String, String> body,
             String integrityToken,
-            String requestHash
+            String requestHash,
+            PersonalIdSessionData sessionData
     ) {
-        PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.startConfiguration(
                 activity,
                 body,
@@ -312,7 +331,11 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 context,
                 user.getUserId(),
                 user.getPassword(),
-                createCallback((BaseApiResponseParser<T>) new RetrieveNotificationsResponseParser(context), null));
+                createCallback(
+                        (BaseApiResponseParser<T>) new RetrieveNotificationsResponseParser(context),
+                        null
+                )
+        );
     }
 
     public void updateNotifications(
@@ -329,7 +352,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 notificationId
         );
     }
-
 
     public void updateChannelConsent(
             Context context,
@@ -362,7 +384,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-
     public void retrieveChannelEncryptionKey(
             Context context,
             ConnectUserRecord user,
@@ -382,7 +403,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             String hqUsername,
             ConnectLinkedAppRecord appRecord,
             String connectToken
-    ){
+    ) {
         ApiPersonalId.linkHqWorker(
                 context,
                 hqUsername,
@@ -412,5 +433,4 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 )
         );
     }
-
 }

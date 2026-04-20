@@ -197,8 +197,8 @@
     <string name="connect_enter_otp">Por favor, ingrese el código de acceso de 6 dígitos que se envió a su número de teléfono.</string>
     <string name="connect_backup_code_title_set">Elegir PIN</string>
     <string name="connect_backup_code_title_confirm">Confirmar PIN</string>
-    <string name="connect_backup_code_length"> ¡Asegúrese de recordar su código de respaldo! Debe tener %d dígitos. Guárdelo en un lugar seguro, ya que lo necesitará para acceder a su cuenta de nuevo.</string>
-    <string name="connect_backup_code_mismatch">Los códigos de respaldo que ingrese deben coincidir. Por favor, guárdelo en un lugar seguro, ya que lo necesitará para acceder a su cuenta de nuevo.</string>
+    <string name="connect_backup_code_remember"> ¡Asegúrese de recordar su código de respaldo! Debe tener %d dígitos. Guárdelo en un lugar seguro, ya que lo necesitará para acceder a su cuenta de nuevo.</string>
+    <string name="connect_backup_code_mismatch">Los códigos de respaldo que ingrese deben coincidir.</string>
     <string name="connect_backup_fail_title">Código incorrecto</string>
     <string name="connect_recovery_success_title">Cuenta recuperada</string>
     <string name="connect_recovery_success_message">¡Su cuenta ha sido recuperada! Puede reanudar el uso de PersonalID.</string>
@@ -222,10 +222,10 @@
     <string name="connect_verify_configure_pin">Configurar PIN</string>
     <string name="connect_verify_agree">Aceptar y continuar</string>
     <string name="connect_verify_phone_title">El código de verificación</string>
-    <string name="connect_verify_phone_label">Intentamos enviarte un SMS que termina en %s.</string>
+    <string name="connect_verify_phone_label">Intentamos enviar un SMS a su número de teléfono que termina en %s.</string>
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
     <string name="connect_verify_phone_resend_wait">¿No recibiste tu código? Reenvíalo en %ds.</string>
-    <string name="connect_verify_phone_change">Cambiar número de teléfono</string>
+    <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
     <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
@@ -329,6 +329,8 @@
     <string name="connect_progress_warning_daily_max_reached_single">Has alcanzado el número máximo de visitas de hoy. Es posible que no obtengas progreso por trabajo adicional.</string>
     <string name="connect_progress_warning_max_reached_multi">Has alcanzado el número máximo de visitas para %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Has alcanzado tu límite diario de %s.</string>
+    <string name="connect_progress_warning_relearn_tasks_pending">Complete las tareas asignadas para continuar prestando servicios.</string>
+    <string name="connect_progress_relearn_tasks_completed">Se han completado todas las tareas requeridas. Puedes continuar con las actividades de entrega.</string>
     <string name="connect_download_learn">Descargar la aplicación Aprender</string>
     <string name="connect_downloading_learn">Descargando la aplicación Aprender</string>
     <string name="connect_downloading_delivery">Descargando la aplicación de Entrega</string>
@@ -389,6 +391,8 @@
     <string name="connect_completed">Completado</string>
 
     <string name="connect_job_tile_daily_limit_description">Límite diario alcanzado. No hay pago por el envío de formularios.</string>
+
+    <string name="personalid_continue_label">Continuar</string>
     <string name="connect_verify_phone_resend_code">Reenviar código</string>
     <string name="connect_verify_skip_phone_number">Veo que eres un usuario de demostración, así que omitiremos el OTP</string>
     <string name="connect_messaging_title">Mensajería</string>
@@ -412,7 +416,7 @@
     <string name="connect_job_tile_daily_visits">Visitas diarias</string>
     <string name="connect_appbar_title_app_lock">Bloqueo de aplicación</string>
     <string name="personalid_incorrect_otp">Ha introducido el código de acceso de 6 dígitos incorrecto. Por favor, inténtelo de nuevo.</string>
-    <string name="personalid_too_many_otp_attempts">Ingresó el código de acceso único de 6 dígitos incorrecto demasiadas veces. Por favor, inténtelo de nuevo más tarde.</string>
+    <string name="personalid_too_many_otp_attempts">Ha realizado demasiados intentos de envío de OTP. Por favor, espere e inténtelo de nuevo cuando el botón de reenvío sea visible.</string>
     <string name="personalid_otp_verification_failed_generic">Algo salió mal al verificar su número de teléfono. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_location_permission_error">PersonalID requiere que su dispositivo tenga los Servicios de ubicación habilitados. Por favor, actívelos en la configuración de su teléfono antes de continuar.</string>
@@ -530,4 +534,9 @@
     <string name="connect_job_preview_start">Iniciar</string>
     <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
+    <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
+    <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
+    <string name="connect_last_synced">Última sincronización: %s</string>
+    <string name="connect_offline">Sin conexión</string>
+    <string name="connect_never">Nunca</string>
 </resources>

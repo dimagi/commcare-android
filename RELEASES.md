@@ -11,6 +11,10 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
+- Offline status shown on refreshable Connect pages when applicable
+
+- [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
+- [6-box Backup Codes] Using 6-box numeric inputs to collect backup codes from the user
 
 #### Important Bug Fixes
 
@@ -29,6 +33,16 @@ along with the public release notes above
 These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
+
+- Verify that the existing opportunity card UI is unchanged when there are no relearn tasks.
+- Verify that the opportunity card updates as expected when there are either pending relearn tasks or completed relearn tasks.
+- Verify 6-box input functionality in Backup Code page, including:
+  - Showing one or two of the controls depending on recovery/registration mode (respectively)
+  - Handling password-style visibility with associated "eye" toggle
+  - Verifying matching codes (or error message) in registration mode
+  - Text cursor functionality (i.e. backspacing, clicking an earlier box to jump back)
+
+- Test the new offline status indicator at the top of refreshable Connect pages (Connect Home, Learning Progress, Delivery Progress). Verify that the error message appears when entering these pages while offline, and that it disappears once the device comes back online.
 
 ## CommCare 2.62
 

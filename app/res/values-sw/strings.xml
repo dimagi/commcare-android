@@ -260,8 +260,8 @@
     <string name="connect_enter_otp">Tafadhali weka nambari ya siri ya tarakimu 6 iliyotumwa kwa nambari yako ya simu.</string>
     <string name="connect_backup_code_title_set">Chagua PIN</string>
     <string name="connect_backup_code_title_confirm">Thibitisha PIN</string>
-    <string name="connect_backup_code_length">Tafadhali hakikisha unakumbuka nambari yako ya siri ya akiba! Ni lazima iwe na tarakimu %d. Iweke mahali salama kwani utaihitaji ili kuingia tena kwenye akaunti yako.</string>
-    <string name="connect_backup_code_mismatch">Nambari za siri za akiba unazoingiza ni lazima zifanane. Tafadhali iweke mahali salama kwani utaihitaji ili kuingia tena kwenye akaunti yako.</string>
+    <string name="connect_backup_code_remember">Tafadhali hakikisha unakumbuka nambari yako ya siri ya akiba! Ni lazima iwe na tarakimu %d. Iweke mahali salama kwani utaihitaji ili kuingia tena kwenye akaunti yako.</string>
+    <string name="connect_backup_code_mismatch">Nambari za siri za akiba unazoingiza ni lazima zifanane.</string>
     <string name="connect_backup_fail_title">Msimbo usio sahihi</string>
     <string name="connect_recovery_success_title">Akaunti Imerejeshwa</string>
     <string name="connect_recovery_success_message">Akaunti yako imerejeshwa! Unaweza kuendelea kutumia PersonalID.</string>
@@ -286,10 +286,10 @@
     <string name="connect_verify_configure_pin">Sanidi PIN</string>
     <string name="connect_verify_agree">Kubali na Uendelee</string>
     <string name="connect_verify_phone_title">Nambari ya Uthibitishaji</string>
-    <string name="connect_verify_phone_label">Tulijaribu kukutumia SMS inayoishia na %s.</string>
+    <string name="connect_verify_phone_label">Tulijaribu kutuma SMS kwa nambari yako ya simu inayoishia na %s.</string>
     <string name="connect_verify_phone_resend">Hukupokea nambari yako ya kuthibitisha? Tuma tena</string>
     <string name="connect_verify_phone_resend_wait">Hukupokea nambari yako ya kuthibitisha? Tuma tena baada ya %d s</string>
-    <string name="connect_verify_phone_change">Badilisha nambari ya simu</string>
+    <string name="connect_verify_phone_change">Badilisha nambari</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
     <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
@@ -328,6 +328,8 @@
     <string name="connect_progress_warning_daily_max_reached_single">Umefikia idadi yako ya juu zaidi ya kutembelewa leo. Huenda usiweze kufikia majukumu yoyote zaidi.</string>
     <string name="connect_progress_warning_max_reached_multi">Umefikia idadi ya juu zaidi ya kutembelewa kwa %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Umefikia kikomo chako cha kila siku kwa %s.</string>
+    <string name="connect_progress_warning_relearn_tasks_pending">Kamilisha kazi zilizopewa ili kuendelea kutoa huduma.</string>
+    <string name="connect_progress_relearn_tasks_completed">Kazi zote zinazohitajika zimekamilika. Unaweza kuendelea na shughuli za uwasilishaji.</string>
     <string name="connect_download_learn">Pakua Programu ya Jifunze</string>
     <string name="connect_downloading_learn">Inapakua Programu ya Jifunze</string>
     <string name="connect_downloading_delivery">Inapakua Programu ya Uwasilishaji</string>
@@ -387,6 +389,7 @@
     <string name="connect_in_progress">Inaendelea</string>
     <string name="connect_new_opportunities">Fursa Mpya</string>
     <string name="connect_completed">Imekamilika</string>
+    <string name="personalid_continue_label">Endelea</string>
     <string name="connect_verify_phone_resend_code">Tuma tena Msimbo</string>
     <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
     <string name="connect_messaging_title">Kutuma ujumbe</string>
@@ -414,7 +417,7 @@
     <string name="connect_job_tile_daily_visits">Ziara za Kila Siku</string>
     <string name="connect_appbar_title_app_lock">Kufuli ya Programu</string>
     <string name="personalid_incorrect_otp">Umeweka nambari ya siri yenye tarakimu 6 isiyo sahihi. Tafadhali jaribu tena.</string>
-    <string name="personalid_too_many_otp_attempts">Uliweka nambari ya siri ya mara moja yenye tarakimu 6 isiyo sahihi mara nyingi sana. Tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_too_many_otp_attempts">Umejaribu kutuma OTP mara nyingi sana. Tafadhali subiri na ujaribu tena kitufe cha kutuma tena kinapoonekana.</string>
     <string name="personalid_otp_verification_failed_generic">Kitu kilienda vibaya wakati wa kuthibitisha nambari yako ya simu. Tafadhali jaribu tena.</string>
     <string name="personalid_otp_verification_failed">Kitu kilienda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_location_permission_error">PersonalID inahitaji kifaa chako kiwe na Huduma za Mahali zimewashwa. Tafadhali wezesha hii katika mipangilio ya simu yako kabla ya kuendelea.</string>
@@ -535,4 +538,9 @@
     <string name="connect_job_preview_start">Anza</string>
     <string name="connect_job_delivery_preview_subtitle">Ukishamaliza tathmini ya kujifunza, utahamia kwenye uwasilishaji</string>
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
+    <string name="install_barcode_top">Karibu CommCare!</string>
+    <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
+    <string name="connect_last_synced">Ilisawazishwa mwisho: %s</string>
+    <string name="connect_offline">Nje ya mtandao</string>
+    <string name="connect_never">Kamwe</string>
 </resources>
