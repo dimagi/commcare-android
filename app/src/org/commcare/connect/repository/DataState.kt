@@ -24,5 +24,8 @@ sealed class DataState<out T> {
                 throwable = throwable
             )
         }
+
+        fun isNetworkError(): Boolean =
+            errorCode == PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR || errorCode == PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR
     }
 }

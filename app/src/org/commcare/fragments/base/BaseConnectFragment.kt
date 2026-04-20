@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
 import org.commcare.activities.connect.ConnectActivity
+import org.commcare.connect.network.TokenExceptionHandler.handleTokenDeniedException
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
@@ -186,7 +187,9 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 }
                 is DataState.Error -> {
                     hideLoading()
-                    if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR &&
+                    if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR) {
+                        handleTokenDeniedException()
+                    } else if (state.isNetworkError() &&
                         !ConnectivityStatus.isNetworkAvailable(requireContext())
                     ) {
                         showOfflineIndicator()
