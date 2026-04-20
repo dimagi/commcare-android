@@ -8,13 +8,13 @@ import retrofit2.http.HeaderMap
 import retrofit2.http.Path
 
 interface ConnectApiService {
-    @GET("/api/opportunity/")
+    @GET(ApiEndPoints.connectOpportunitiesURL)
     suspend fun getConnectOpportunities(
         @Header("Authorization") authorization: String,
         @HeaderMap headers: Map<String, String>,
     ): Response<ResponseBody>
 
-    @GET("/api/opportunity/{id}/learn_progress")
+    @GET(ApiEndPoints.connectLearnProgressURL)
     suspend fun getLearningProgress(
         @Header("Authorization") authorization: String,
         @Path("id") jobId: String,
