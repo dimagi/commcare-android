@@ -2,6 +2,7 @@ package org.commcare.models.encryption;
 
 import com.google.firebase.perf.metrics.Trace;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.EncryptionKeyAndTransform;
@@ -45,7 +46,12 @@ public class EncryptionIO {
         int fileSize = is.available();
         StreamsUtil.writeFromInputToOutputNew(is, os);
 
-        CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, fileSize, sourceFilePath);
+        CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(
+                trace,
+                fileSize,
+                FilenameUtils.getExtension(sourceFilePath),
+                false
+        );
     }
 
     public static OutputStream createFileOutputStreamWithKeystore(

@@ -15,9 +15,25 @@ class TopBarErrorViewController(
     private var animator: ValueAnimator? = null
 
     fun show(message: String) {
-        errorBinding.tvErrorMessage.text = message
-        errorView.removeCallbacks(hideRunnable)
+        showBar(message, showOffline = false, autoDismiss = true)
+    }
 
+    fun showOfflineStatus(message: String) {
+        showBar(message, showOffline = true, autoDismiss = false)
+    }
+
+    private fun showBar(
+        message: String,
+        showOffline: Boolean,
+        autoDismiss: Boolean,
+    ) {
+        errorBinding.tvErrorMessage.text = message
+
+        val offlineVisibility = if (showOffline) View.VISIBLE else View.GONE
+        errorBinding.ivOffline.visibility = offlineVisibility
+        errorBinding.tvOfflineLabel.visibility = offlineVisibility
+
+        errorView.removeCallbacks(hideRunnable)
         cancelAnimator()
 
         val targetHeight = measureHeight()
@@ -34,7 +50,9 @@ class TopBarErrorViewController(
                 animator = null
             }
 
-        errorView.postDelayed(hideRunnable, autoDismissMs)
+        if (autoDismiss) {
+            errorView.postDelayed(hideRunnable, autoDismissMs)
+        }
     }
 
     fun hide() {

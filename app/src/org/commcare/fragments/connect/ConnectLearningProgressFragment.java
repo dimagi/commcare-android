@@ -1,14 +1,11 @@
 package org.commcare.fragments.connect;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.StringRes;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -26,6 +23,7 @@ import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.modern.util.Pair;
+import org.commcare.views.connect.ConnectViewUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -296,47 +294,15 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private void populateJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
-
-        jobCard.tvJobTitle.setText(job.getTitle());
-        jobCard.tvJobDescription.setText(job.getDescription());
-
-        @StringRes int dateMessageStringRes;
-        if (job.deliveryComplete()) {
-            dateMessageStringRes = R.string.connect_job_ended;
-        } else {
-            dateMessageStringRes = R.string.connect_learn_complete_by;
-        }
-
-        jobCard.connectJobEndDateSubHeading.setText(
-                getString(
-                        dateMessageStringRes,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
-                )
-        );
-
-        String hours = job.getWorkingHours();
-        boolean showHours = hours != null;
         boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-        Drawable downloadIcon = appInstalled
-                ? null
-                : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
-        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                downloadIcon, null, null, null
-        );
-        jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
-        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
-        jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
-        jobCard.acbResume.setOnClickListener(v -> navigateToLearnAppHome());
-        jobCard.tvViewMore.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
-        jobCard.acbResume.setVisibility(View.VISIBLE);
 
-        if (showHours) {
-            jobCard.tvJobTime.setText(hours);
-        }
+        ConnectViewUtils.setupCardViewForJob(
+                jobCard,
+                job,
+                appInstalled,
+                v -> navigateToLearnAppHome(),
+                this::navigateToJobDetailBottomSheet
+        );
     }
 
     private void navigateToJobDetailBottomSheet(View view) {
@@ -360,6 +326,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                     );
             Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
         }
+    }
+
+    @Override
+    @Nullable
+    public Date getLastSyncTime() {
+        return job != null ? job.getLastLearnUpdate() : null;
     }
 
     @Override

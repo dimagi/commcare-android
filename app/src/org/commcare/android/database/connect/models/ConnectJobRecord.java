@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
+import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -27,6 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
+import static org.commcare.connect.ConnectConstants.RELEARN_TASKS_COMPLETED_TIME;
 
 /**
  * Data class for holding info related to a Connect job
@@ -642,6 +646,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
+        } else if (shouldShowRelearnTasksCompletedMessage()) {
+            return context.getString(R.string.connect_progress_relearn_tasks_completed);
         } else if (isMultiPayment()) {
             return getMultiVisitWarnings(context);
         } else if (getDeliveries().size() >= getMaxVisits()) {
@@ -851,5 +857,31 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public void setClaimed(boolean claimed) {
         this.claimed = claimed;
+    }
+
+    /**
+     * This is a temporary dummy method implementation to show new UI that blocks delivery progress
+     * when there is a pending relearn task for a delivery app.
+     *
+     * @return false until the real method is implemented.
+     */
+    public boolean isRelearnTaskPending() {
+        // TODO: Not yet implemented
+        return false;
+    }
+
+    public boolean shouldShowRelearnTasksCompletedMessage() {
+        // TODO: When parsing relearn tasks from Server, we need to check if all relearn tasks have
+        //  a completed status. If so, AND the RELEARN_TASKS_COMPLETED_TIME shared pref is currently
+        //  set to -1, set the RELEARN_TASKS_COMPLETED_TIME shared pref to either the current date
+        //  or the latest date_modified from the Server response. Whenever there is at least one
+        //  pending task, always reset the RELEARN_TASKS_COMPLETED_TIME shared pref back to -1.
+
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        assert preferenceManager != null;
+        long relearnTasksCompletedTimeMs = preferenceManager.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+        long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
+
+        return relearnTasksCompletedTimeMs != -1 && timeElapsedSinceTasksCompleted < DateUtils.HOUR_IN_MS * 6;
     }
 }
