@@ -1806,14 +1806,14 @@ If the product requires this feature to be guarded by a release toggle (`Connect
 # Plan: Create Jira Sub-task Tickets for CCCT-2204
 
 ## Context
-CCCT-2204 ("Tech Spec - Adding email to PersonalID signup / recovery flow") requires implementation tickets to be created as an acceptance criterion. The implementation plan above defines 7 logical chunks of work. This section defines 8 Jira Sub-tasks to be created under parent **CCCT-2204** (project id: 10229, component: Mobile).
+CCCT-2204 ("Tech Spec - Adding email to PersonalID signup / recovery flow") requires implementation tickets to be created as an acceptance criterion. The implementation plan above defines 7 logical chunks of Android work plus the backend endpoints it depends on. This section defines 9 Jira Sub-tasks to be created under parent **CCCT-2204** (project id: 10229). Tickets 1–8 are Mobile; Ticket 9 is Web/Backend (CommCare Connect server).
 
 **Jira metadata:**
 - API base: `https://dimagi.atlassian.net/rest/api/3`
 - Project id: `10229` (CCCT)
 - Sub-task issue type id: `10007`
 - Parent: `CCCT-2204`
-- Component: `Mobile`
+- Component: `Mobile` for Tickets 1–8, `Web` for Ticket 9
 
 ---
 
@@ -1944,9 +1944,90 @@ Two-offer-with-30-day-gap dialog shown to users with `emailVerified = false` aft
 
 ---
 
+### Ticket 9 — Web/Backend Email OTP API
+**Summary:** `[Web] Add /users/send_email_otp and /users/verify_email_otp endpoints for PersonalID email verification`
+**Component:** Web (CommCare Connect server)
+
+**Description:**
+Expose two new authenticated HTTP endpoints on the CommCare Connect server that the Android PersonalID client will call during signup and legacy-user email collection. The endpoints issue and verify a time-limited OTP sent to a user-supplied email address.
+
+**Authentication:**
+- Both endpoints require the standard PersonalID token (same Bearer token scheme used by the existing `/users/*` endpoints such as `validate_secondary_phone` and `confirm_secondary_phone`).
+- Header: `Authorization: Bearer <personal_id_token>`
+
+**Endpoint 1 — POST `/users/send_email_otp`**
+
+Sends a one-time verification code to the given email address.
+
+- Request body (JSON):
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- Field rules:
+  - `email` (string, required): must pass server-side email format validation; must not already be verified against a different PersonalID account (return `409 CONFLICT` if so).
+- Response: `200 OK` on success; body is optional. Suggested payload for forward-compatibility:
+  ```json
+  {
+    "otp_expires_in_seconds": 300,
+    "resend_available_in_seconds": 120
+  }
+  ```
+- Error responses:
+  - `400 BAD_REQUEST` — malformed email
+  - `401 UNAUTHORIZED` — missing/invalid token
+  - `409 CONFLICT` — email already verified on another account
+  - `429 TOO_MANY_REQUESTS` — resend requested before cooldown elapsed (client cooldown is 2 minutes — server should enforce independently)
+
+**Endpoint 2 — POST `/users/verify_email_otp`**
+
+Verifies the OTP entered by the user and marks the email as verified on the PersonalID account.
+
+- Request body (JSON):
+  ```json
+  {
+    "email": "user@example.com",
+    "otp": "123456"
+  }
+  ```
+- Field rules:
+  - `email` (string, required): must match the email the OTP was issued to.
+  - `otp` (string, required): 6-digit numeric code.
+- Response: `200 OK` on successful verification. Server persists `email` and `email_verified = true` on the user record. Suggested payload:
+  ```json
+  {
+    "email_verified": true
+  }
+  ```
+- Error responses:
+  - `400 BAD_REQUEST` — malformed email or OTP
+  - `401 UNAUTHORIZED` — missing/invalid token
+  - `403 FORBIDDEN` — OTP incorrect (client tolerates up to 3 attempts before offering to skip)
+  - `410 GONE` — OTP expired
+  - `429 TOO_MANY_REQUESTS` — too many verification attempts
+
+**Server-side behaviour:**
+- Generate a 6-digit numeric OTP, valid for ~5 minutes.
+- Store OTP hashed (not plaintext), associated with `(personal_id_user, email)`.
+- Invalidate prior OTPs for the same user when a new one is issued.
+- Rate-limit resend per user and per email (suggested: 2-minute minimum between sends).
+- On successful verification, set `email` and `email_verified = true` on the PersonalID user record.
+- Send the OTP via the existing transactional email provider; subject and body copy to be coordinated with product.
+
+**Coordination notes:**
+- Android Ticket 2 depends on these endpoints and their payload shape. Confirm final endpoint paths and field names before Android implementation begins — the Android plan currently treats them as provisional.
+- Endpoints must be deployed (at minimum to staging) before Android Ticket 2 integration testing.
+
+**Depends on:** none (upstream of Android Ticket 2)
+
+---
+
 ## Dependency Order
 
 ```
+Ticket 9 (Web API) ──► Ticket 2 (Android API/Session)
+
 Ticket 1 (DB)
     └── Ticket 2 (API/Session)
             ├── Ticket 3 (Email Entry Fragment)
@@ -1959,4 +2040,6 @@ Ticket 1 (DB)
 Ticket 7 (Navigation) ──► Ticket 8 (Legacy Prompt)
 ```
 
-Safe parallel work: Tickets 3 and 5 can be built concurrently after Ticket 2.
+Safe parallel work:
+- Ticket 9 (Web) can be built in parallel with Android Ticket 1 (DB) — they are fully independent.
+- Tickets 3 and 5 can be built concurrently after Ticket 2.
