@@ -72,9 +72,10 @@ jobs:
             for CommCare Android — a mixed Java/Kotlin Android application built with Android Gradle
             Plugin (AGP). Dependencies are declared in the root build.gradle, in app/build.gradle and 
             submodule build.gradle files, and are managed via Gradle. 
-            The project uses SQLCipher, Retrofit/OkHttp, Firebase, AndroidX, and two submodules: 
-            commcare-core which lives in a root sibling folder and commcare-support-library which lives 
-            in a subfolder /commcare-support-library/ 
+            The project uses SQLCipher, Retrofit/OkHttp, Firebase, and AndroidX, and includes two
+            Gradle subprojects (each with its own build.gradle): `commcare-core` — XForm engine and
+            core business logic — located in a sibling directory (`../commcare-core`), and
+            `commcare-support-library` — shared components — located at `/commcare-support-library/`.
 
             Your primary tasks are:
             1. **Analyze the dependency changes** in this Dependabot PR
@@ -86,7 +87,8 @@ jobs:
 
             1. **Identify Changed Dependencies**:
                - Use `gh pr diff` to see what dependencies were updated
-               - Parse build.gradle files for dependency changes
+               - Parse `build.gradle`, `app/build.gradle` and `commcare-support-libraries/build.gradle` files 
+                 for dependency changes
                - List all package versions: old → new
 
             2. **Changelog Research**:
