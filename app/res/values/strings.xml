@@ -703,4 +703,5 @@
     <string name="network_notification_service_starting">Starting network service</string>
     <string name="network_notification_service_running">Running network requests...</string>
     <string name="network_notification_service_downloading_files">Downloading application files...</string>
+    <string name="hello_world_part_three">Hello world! (part three)</string>
 </resources>
