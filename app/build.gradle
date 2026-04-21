@@ -214,6 +214,7 @@ afterEvaluate {
     processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
 }
 
 /**
@@ -315,6 +316,7 @@ android {
         buildConfigField 'String', 'FIREBASE_DATABASE_URL', "\"${project.ext.FIREBASE_DATABASE_URL}\""
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
         buildConfigField 'long', 'GOOGLE_CLOUD_PROJECT_NUMBER', "${project.ext.GOOGLE_CLOUD_PROJECT_NUMBER}"
+        buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'false'
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
 
@@ -497,6 +499,21 @@ android {
             // enable crashlytics
             buildConfigField 'boolean', 'USE_CRASHLYTICS', 'true'
             ext.enableCrashlytics = true
+        }
+
+        qaAutomation {
+            initWith release
+            matchingFallbacks = ['release']
+            buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'true'
+        }
+    }
+
+    variantFilter { variant ->
+        if (variant.buildType.name == 'qaAutomation') {
+            def flavorName = variant.flavors.isEmpty() ? '' : variant.flavors[0].name
+            if (flavorName != 'commcare' && flavorName != 'cccStaging') {
+                variant.setIgnore(true)
+            }
         }
     }
 

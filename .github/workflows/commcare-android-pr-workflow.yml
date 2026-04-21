@@ -117,6 +117,22 @@ jobs:
         with:
           name: ccc-staging-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
+      - name: Assemble CommCare qaAutomation apk
+        run: ./gradlew assembleCommcareQaAutomation
+        working-directory: commcare-android
+      - name: Upload CommCare qaAutomation apk
+        uses: actions/upload-artifact@v6
+        with:
+          name: commcare-qaAutomation-release-apk
+          path: commcare-android/app/build/outputs/apk/commcare/qaAutomation/app-commcare-qaAutomation.apk
+      - name: Assemble CCC Staging qaAutomation apk
+        run: ./gradlew assembleCccStagingQaAutomation
+        working-directory: commcare-android
+      - name: Upload CCC Staging qaAutomation apk
+        uses: actions/upload-artifact@v6
+        with:
+          name: ccc-staging-qaAutomation-release-apk
+          path: commcare-android/app/build/outputs/apk/cccStaging/qaAutomation/app-cccStaging-qaAutomation.apk
       - name: Assemble CommCare apk for Instrumentation Testing
         run: ./gradlew assembleCommcareReleaseAndroidTest
         working-directory: commcare-android
