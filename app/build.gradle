@@ -215,6 +215,7 @@ afterEvaluate {
     processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCccStagingQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
 }
 
 /**
@@ -326,7 +327,7 @@ android {
     }
 
     applicationVariants.all { variant ->
-        if (variant.buildType.name == 'release') {
+        if (variant.buildType.name in ['release', 'qaAutomation']) {
             variant.outputs.each { output ->
                 output.versionCodeOverride = computeVersionCode()
             }
