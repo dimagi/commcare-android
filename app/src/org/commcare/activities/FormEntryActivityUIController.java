@@ -417,71 +417,82 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         // Any info stored about the last changed widget is useless when we move to a new view
         resetLastChangedWidget();
 
-        if (FormEntryActivity.mFormController.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
-            int event;
+        if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_END_OF_FORM) {
+            return;
+        }
 
-            try {
-                group_skip:
-                do {
-                    event = FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_OVER_GROUP);
-                    switch (event) {
-                        case FormEntryController.EVENT_QUESTION:
-                            QuestionsView next = createView();
-                            if (!resuming) {
-                                showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
-                            } else {
-                                showView(next, AnimationType.FADE, false);
-                            }
-                            break group_skip;
-                        case FormEntryController.EVENT_END_OF_FORM:
-                            // auto-advance questions might advance past the last form quesion
-                            // In special case when questionsView is null (there is no question),
-                            // to avoid exit dialog without saving option, shown from refreshCurrentView(),
-                            // save and exit method called.
-                            if (questionsView != null) {
-                                refreshCurrentView();
-                            } else {
-                                activity.triggerUserFormComplete();
-                            }
-                            break group_skip;
-                        case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
-                            createRepeatDialog();
-                            break group_skip;
-                        case FormEntryController.EVENT_GROUP:
-                            //We only hit this event if we're at the _opening_ of a field
-                            //list, so it seems totally fine to do it this way, technically
-                            //though this should test whether the index is the field list
-                            //host.
-                            if (FormEntryActivity.mFormController.indexIsInFieldList()
-                                    && FormEntryActivity.mFormController.getQuestionPrompts().length != 0) {
-                                QuestionsView nextGroupView = createView();
-                                if (!resuming) {
-                                    showView(nextGroupView, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
-                                } else {
-                                    showView(nextGroupView, AnimationType.FADE, false);
-                                }
-                                break group_skip;
-                            }
-                            // otherwise it's not a field-list group, so just skip it
-                            break;
-                        case FormEntryController.EVENT_REPEAT:
-                            Log.i(TAG, "repeat: " + FormEntryActivity.mFormController.getFormIndex().getReference());
-                            // skip repeats
-                            break;
-                        case FormEntryController.EVENT_REPEAT_JUNCTURE:
-                            Log.i(TAG, "repeat juncture: "
-                                    + FormEntryActivity.mFormController.getFormIndex().getReference());
-                            // skip repeat junctures until we implement them
-                            break;
-                        default:
-                            Log.w(TAG,
-                                    "JavaRosa added a new EVENT type and didn't tell us... shame on them.");
-                            break;
-                    }
-                } while (event != FormEntryController.EVENT_END_OF_FORM);
-            } catch (XPathException e) {
-                new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
+        renderNavResult(stepToRenderableEvent(), resuming);
+    }
+
+    /**
+     * Walks the form forward via {@link FormEntryController#stepToNextEvent} until a renderable
+     * event is reached. Pure controller-state access; no view creation or UI side effects.
+     */
+    private NavResult stepToRenderableEvent() {
+        try {
+            while (true) {
+                int event = FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_OVER_GROUP);
+                switch (event) {
+                    case FormEntryController.EVENT_QUESTION:
+                        return NavResult.Question.INSTANCE;
+                    case FormEntryController.EVENT_END_OF_FORM:
+                        return NavResult.EndOfForm.INSTANCE;
+                    case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
+                        return NavResult.PromptNewRepeat.INSTANCE;
+                    case FormEntryController.EVENT_GROUP:
+                        //We only hit this event if we're at the _opening_ of a field
+                        //list, so it seems totally fine to do it this way, technically
+                        //though this should test whether the index is the field list
+                        //host.
+                        if (FormEntryActivity.mFormController.indexIsInFieldList()
+                                && FormEntryActivity.mFormController.getQuestionPrompts().length != 0) {
+                            return NavResult.FieldListGroup.INSTANCE;
+                        }
+                        // otherwise it's not a field-list group, so just skip it
+                        break;
+                    case FormEntryController.EVENT_REPEAT:
+                        Log.i(TAG, "repeat: " + FormEntryActivity.mFormController.getFormIndex().getReference());
+                        // skip repeats
+                        break;
+                    case FormEntryController.EVENT_REPEAT_JUNCTURE:
+                        Log.i(TAG, "repeat juncture: "
+                                + FormEntryActivity.mFormController.getFormIndex().getReference());
+                        // skip repeat junctures until we implement them
+                        break;
+                    default:
+                        Log.w(TAG,
+                                "JavaRosa added a new EVENT type and didn't tell us... shame on them.");
+                        break;
+                }
             }
+        } catch (XPathException e) {
+            return new NavResult.Error(e);
+        }
+    }
+
+    private void renderNavResult(NavResult result, boolean resuming) {
+        if (result instanceof NavResult.Question || result instanceof NavResult.FieldListGroup) {
+            QuestionsView next = createView();
+            if (!resuming) {
+                showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
+            } else {
+                showView(next, AnimationType.FADE, false);
+            }
+        } else if (result instanceof NavResult.PromptNewRepeat) {
+            createRepeatDialog();
+        } else if (result instanceof NavResult.EndOfForm) {
+            // auto-advance questions might advance past the last form question
+            // In special case when questionsView is null (there is no question),
+            // to avoid exit dialog without saving option, shown from refreshCurrentView(),
+            // save and exit method called.
+            if (questionsView != null) {
+                refreshCurrentView();
+            } else {
+                activity.triggerUserFormComplete();
+            }
+        } else if (result instanceof NavResult.Error) {
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(
+                    activity, ((NavResult.Error)result).getException(), FormEntryConstants.EXIT);
         }
     }
 
