@@ -29,16 +29,22 @@ class AsyncFormNavigator(
     }
 
     private var job: Job? = null
+    private var currentNavId: Long = 0
 
     fun navigate(resuming: Boolean, onStart: StartCallback, onResult: ResultCallback) {
+        val navId = ++currentNavId
         onStart.onStart()
         job = lifecycleOwner.lifecycleScope.launch {
             val result = withContext(Dispatchers.Default) { stepWork.step() }
+            if (navId != currentNavId) {
+                return@launch
+            }
             onResult.onResult(result)
         }
     }
 
     fun cancel() {
+        currentNavId++
         job?.cancel()
         job = null
     }
