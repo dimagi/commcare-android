@@ -81,6 +81,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     private BlockingActionsManager blockingActionsManager;
 
     private boolean formRelevanciesUpdateInProgress = false;
+    private boolean navigationInFlight = false;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
     private TextView finishText;
@@ -152,14 +153,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 Localization.get("form.entry.loading.next.question"));
         asyncFormNavigator = new AsyncFormNavigator(
                 activity,
-                this::stepToRenderableEvent,
-                visible -> {
-                    if (visible) {
-                        formLoadingOverlay.show();
-                    } else {
-                        formLoadingOverlay.hide();
-                    }
-                });
+                this::stepToRenderableEvent);
 
         activity.requestMajorLayoutUpdates();
 
@@ -437,7 +431,15 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             return;
         }
 
-        asyncFormNavigator.navigate(result -> renderNavResult(result, resuming));
+        navigationInFlight = true;
+        asyncFormNavigator.navigate(
+                resuming,
+                formLoadingOverlay::show,
+                result -> {
+                    navigationInFlight = false;
+                    formLoadingOverlay.hide();
+                    renderNavResult(result, resuming);
+                });
     }
 
     /**
@@ -625,8 +627,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected boolean shouldIgnoreNavigationAction() {
-        return blockingActionsManager.isBlocked()
-                || (asyncFormNavigator != null && asyncFormNavigator.isNavigationInFlight());
+        return blockingActionsManager.isBlocked() || navigationInFlight;
     }
 
     protected boolean shouldIgnoreSwipeAction() {
