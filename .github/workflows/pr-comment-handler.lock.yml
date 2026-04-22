@@ -30,7 +30,7 @@
 # - Skips ambiguous or contested comments rather than guessing
 # Always transparent, never merges PRs, defers to human judgement on contested changes.
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"ef11af9f93cfc3ac0d7ff8e6f4688f0562f9a9167594bbf948cd8c67b8ea7660","compiler_version":"v0.57.2","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"8d2433b41cad2962ad79c96ad6461d068bfe47d86619f866447e78f84212f310","compiler_version":"v0.57.2","strict":true}
 
 name: "PR Comment Handler"
 "on":
@@ -1279,7 +1279,7 @@ jobs:
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
           GH_AW_NOOP_MESSAGE: ${{ steps.noop.outputs.noop_message }}
-          GH_AW_NOOP_REPORT_AS_ISSUE: "true"
+          GH_AW_NOOP_REPORT_AS_ISSUE: "false"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
