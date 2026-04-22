@@ -84,6 +84,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
     private TextView finishText;
+    private View loadingOverlay;
+    private AsyncFormNavigator asyncFormNavigator;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -144,6 +146,11 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
 
         mViewPane = activity.findViewById(R.id.form_entry_pane);
+        loadingOverlay = activity.findViewById(R.id.form_entry_loading_overlay);
+        asyncFormNavigator = new AsyncFormNavigator(
+                activity,
+                this::stepToRenderableEvent,
+                visible -> loadingOverlay.setVisibility(visible ? View.VISIBLE : View.GONE));
 
         activity.requestMajorLayoutUpdates();
 
@@ -421,7 +428,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             return;
         }
 
-        renderNavResult(stepToRenderableEvent(), resuming);
+        asyncFormNavigator.navigate(result -> renderNavResult(result, resuming));
     }
 
     /**
@@ -609,7 +616,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected boolean shouldIgnoreNavigationAction() {
-        return blockingActionsManager.isBlocked();
+        return blockingActionsManager.isBlocked()
+                || (asyncFormNavigator != null && asyncFormNavigator.isNavigationInFlight());
     }
 
     protected boolean shouldIgnoreSwipeAction() {
