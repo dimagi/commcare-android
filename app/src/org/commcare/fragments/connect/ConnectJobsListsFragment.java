@@ -57,8 +57,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> inProgressJobs;
     ArrayList<ConnectLoginJobListModel> newJobs;
     ArrayList<ConnectLoginJobListModel> finishedJobs;
-    ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
-
     private ConnectJobsListViewModel viewModel;
 
     public ConnectJobsListsFragment() {
@@ -89,18 +87,16 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         observeDataState(
                 viewModel.getOpportunities(),
                 cached -> {
-                    corruptJobs.clear();
                     setJobListData(cached);
                 },
                 success -> {
-                    corruptJobs.clear();
                     setJobListData(success);
                 }
         );
     }
 
     private void initRecyclerView() {
-        boolean noJobsAvailable = corruptJobs.isEmpty() && inProgressJobs.isEmpty()
+        boolean noJobsAvailable = inProgressJobs.isEmpty()
                 && newJobs.isEmpty() && finishedJobs.isEmpty();
         getBinding().connectNoJobsText.setVisibility(noJobsAvailable ? View.VISIBLE : View.GONE);
 
@@ -109,7 +105,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 inProgressJobs,
                 newJobs,
                 finishedJobs,
-                corruptJobs,
                 (job, isLearning, appId, jobType, action) -> {
                     if (action == OnJobSelectionClick.Action.VIEW_INFO) {
                         setActiveJob(job);
