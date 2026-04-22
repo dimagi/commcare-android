@@ -142,4 +142,13 @@ class ConnectNetworkClientTest {
                 (result.exceptionOrNull() as ConnectApiException).errorCode,
             )
         }
+
+    @Test
+    fun testGetConnectOpportunities_success_returnsOpportunities() =
+        runBlocking {
+            val responseBody = "".toResponseBody("application/json".toMediaType())
+            coEvery { mockApiService.getConnectOpportunities(any(), any()) } returns Response.success(responseBody)
+            val result = client.getConnectOpportunities(mockUser)
+            assertTrue(result.isSuccess)
+        }
 }
