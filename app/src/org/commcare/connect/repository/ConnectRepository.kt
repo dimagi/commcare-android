@@ -10,11 +10,11 @@ import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
-import org.commcare.connect.database.ConnectJobUtils.updateJobLearnProgress
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
+import org.commcare.connect.network.connect.models.applyToJob
 
 class ConnectRepository
     @VisibleForTesting
@@ -70,10 +70,7 @@ class ConnectRepository
                 loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
                 networkCall = { fetchLearningProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
-                    job.learnings = responseModel.connectJobLearningRecords
-                    job.learningModulesCompleted = responseModel.connectJobLearningRecords.size
-                    job.assessments = responseModel.connectJobAssessmentRecords
-                    updateJobLearnProgress(CommCareApplication.instance(), job)
+                    responseModel.applyToJob(job, CommCareApplication.instance())
                 },
                 mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
             )

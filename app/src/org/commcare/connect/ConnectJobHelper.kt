@@ -2,16 +2,20 @@ package org.commcare.connect
 
 import android.content.Context
 import android.widget.Toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectApiHandler
+import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
-import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
+import org.commcare.connect.network.connect.models.applyToJob
 import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
@@ -64,28 +68,23 @@ object ConnectJobHelper {
         job: ConnectJobRecord,
         listener: ConnectActivityCompleteListener,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<LearningAppProgressResponseModel>() {
-            override fun onSuccess(learningAppProgressResponseModel: LearningAppProgressResponseModel) {
-                job.learnings = learningAppProgressResponseModel.connectJobLearningRecords
-                job.completedLearningModules =
-                    learningAppProgressResponseModel.connectJobLearningRecords.size
-                job.assessments = learningAppProgressResponseModel.connectJobAssessmentRecords
-                ConnectJobUtils.updateJobLearnProgress(context, job)
-                if (job.passedAssessment()) {
-                    FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
-                }
-                listener.connectActivityComplete(true)
-            }
-
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
-                listener.connectActivityComplete(false)
-            }
-        }.getLearningAppProgress(context, user, job)
+        val user = ConnectUserDatabaseUtil.getUser(context)!!
+        CoroutineScope(Dispatchers.IO).launch {
+            val result = ConnectNetworkClient.getInstance().getLearningProgress(user, job)
+            result.fold(
+                onSuccess = { model ->
+                    model.applyToJob(job, context)
+                    if (job.passedAssessment()) {
+                        FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
+                    }
+                    listener.connectActivityComplete(true)
+                },
+                onFailure = {
+                    FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
+                    listener.connectActivityComplete(false)
+                },
+            )
+        }
     }
 
     fun updateDeliveryProgress(
