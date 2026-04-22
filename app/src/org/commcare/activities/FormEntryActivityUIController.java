@@ -630,6 +630,15 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         return blockingActionsManager.isBlocked() || navigationInFlight;
     }
 
+    protected void cancelNavigation() {
+        if (!navigationInFlight) {
+            return;
+        }
+        asyncFormNavigator.cancel();
+        navigationInFlight = false;
+        formLoadingOverlay.hide();
+    }
+
     protected boolean shouldIgnoreSwipeAction() {
         return isAnimatingSwipe || isDialogShowing;
     }
