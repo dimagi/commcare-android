@@ -406,6 +406,7 @@ android {
         // by a similar customization.
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+        qaAutomation.setRoot('build-types/qaAutomation')
     }
 
     // Our flavours doesn't differ on a particular dimension yet, so just specify a dummy
