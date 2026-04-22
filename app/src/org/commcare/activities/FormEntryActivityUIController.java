@@ -84,7 +84,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
     private TextView finishText;
-    private View loadingOverlay;
+    private FormLoadingOverlay formLoadingOverlay;
     private AsyncFormNavigator asyncFormNavigator;
 
     enum AnimationType {
@@ -146,11 +146,20 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
 
         mViewPane = activity.findViewById(R.id.form_entry_pane);
-        loadingOverlay = activity.findViewById(R.id.form_entry_loading_overlay);
+        formLoadingOverlay = new FormLoadingOverlay(
+                activity.findViewById(R.id.form_entry_loading_overlay),
+                activity.findViewById(R.id.form_entry_loading_label),
+                Localization.get("form.entry.loading.next.question"));
         asyncFormNavigator = new AsyncFormNavigator(
                 activity,
                 this::stepToRenderableEvent,
-                visible -> loadingOverlay.setVisibility(visible ? View.VISIBLE : View.GONE));
+                visible -> {
+                    if (visible) {
+                        formLoadingOverlay.show();
+                    } else {
+                        formLoadingOverlay.hide();
+                    }
+                });
 
         activity.requestMajorLayoutUpdates();
 
