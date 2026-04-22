@@ -33,6 +33,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FirebaseUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.OtpErrorType;
 import org.commcare.utils.OtpManager;
@@ -152,8 +153,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             }
         };
 
+        // Use fallback option when Firebase is not configured.
         // The last OTP method may be Twilio (via PersonalID) after restoring this fragment.
-        Boolean useOtpFallback = SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(lastOtpMethod);
+        Boolean useOtpFallback = SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(lastOtpMethod) ||
+                !FirebaseUtils.isFirebaseEnabled();
         setupOtpManager(useOtpFallback);
     }
 

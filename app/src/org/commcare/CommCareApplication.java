@@ -119,6 +119,7 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
+import org.commcare.utils.FirebaseUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
@@ -222,9 +223,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         turnOnStrictMode();
 
         CommCareApplication.app = this;
+
         CrashUtil.init();
         DataChangeLogger.init(this);
-        if (!BuildConfig.DEBUG) {
+        if (FirebaseUtils.isFirebaseEnabled()) {
             FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
         }
 
@@ -440,6 +442,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     synchronized public FirebaseAnalytics getAnalyticsInstance() {
+        if (!FirebaseUtils.isFirebaseEnabled()) {
+            return null;
+        }
         if (analyticsInstance == null) {
             analyticsInstance = FirebaseAnalytics.getInstance(this);
         }

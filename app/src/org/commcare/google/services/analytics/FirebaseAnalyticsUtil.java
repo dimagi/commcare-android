@@ -21,6 +21,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.EncryptionUtils;
+import org.commcare.utils.FirebaseUtils;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
@@ -78,11 +79,14 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void reportEvent(String eventName, Bundle params) {
-        if (analyticsDisabled()) {
+        if (!FirebaseUtils.isAnalyticsEnabled()) {
             return;
         }
 
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        if (analyticsInstance == null) {
+            return;
+        }
         setUserProperties(analyticsInstance);
         analyticsInstance.logEvent(eventName, params);
     }
@@ -357,14 +361,14 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportFeatureUsage(String feature) {
-        if (analyticsDisabled()) {
+        if (!FirebaseUtils.isAnalyticsEnabled()) {
             return;
         }
         reportEvent(CCAnalyticsEvent.FEATURE_USAGE, FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
     }
 
     private static void reportFeatureUsage(String feature, String mode) {
-        if (analyticsDisabled()) {
+        if (!FirebaseUtils.isAnalyticsEnabled()) {
             return;
         }
 
@@ -408,10 +412,6 @@ public class FirebaseAnalyticsUtil {
             bundle.putDouble(FirebaseAnalytics.Param.VALUE, timeInSeconds);
             bundle.putDouble(CCAnalyticsParam.TIME_IN_MINUTES, timeInMinutes);
         }
-    }
-
-    private static boolean analyticsDisabled() {
-        return !MainConfigurablePreferences.isAnalyticsEnabled();
     }
 
     private static boolean rateLimitReporting(double percentOfEventsToReport) {
@@ -767,6 +767,9 @@ public class FirebaseAnalyticsUtil {
         }
 
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        if (analyticsInstance == null) {
+            return;
+        }
         analyticsInstance.setUserProperty(
                 CCAnalyticsParam.IS_PERSONAL_ID_DEMO_USER,
                 String.valueOf(isPersonalIDDemoUser)

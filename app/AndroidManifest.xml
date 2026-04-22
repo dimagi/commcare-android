@@ -229,6 +229,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="${applicationId}.firebaseinitprovider"
+            android:enabled="${firebaseInitEnabled}"
+            android:exported="false"
+            tools:replace="android:enabled" />
 
         <activity
             android:name="org.commcare.activities.CommCarePreferenceActivity"
@@ -587,6 +593,7 @@
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
+            android:enabled="${firebaseInitEnabled}"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

@@ -46,6 +46,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.FCMMessageData;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FirebaseUtils;
 import org.javarosa.core.services.Logger;
 
 import java.util.HashMap;
@@ -102,12 +103,16 @@ public class FirebaseMessagingUtil {
         sharedPreferences.edit().putLong(FCM_TOKEN_TIME, System.currentTimeMillis()).apply();
     }
 
+    /**
+     * This verification only runs if Firebase is available and configured
+     */
     public static void verifyToken() {
-        // TODO: Enable FCM in debug mode
-        if (!BuildConfig.DEBUG) {
-            // Retrieve the current Firebase Cloud Messaging (FCM) registration token
-            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(handleFCMTokenRetrieval());
+        if (!FirebaseUtils.isFirebaseEnabled()) {
+            return;
         }
+
+        // Retrieve the current Firebase Cloud Messaging (FCM) registration token
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(handleFCMTokenRetrieval());
     }
 
     private static OnCompleteListener handleFCMTokenRetrieval() {

@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.dalvik.BuildConfig;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -17,7 +16,7 @@ public class CrashUtil {
     private static final String DOMAIN = "domain";
     private static final String DEVICE_ID = "device_id";
 
-    private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS;
+    private static boolean crashlyticsEnabled = FirebaseUtils.isCrashlyticsEnabled();
 
     public static void reportException(Throwable e) {
         if (crashlyticsEnabled) {
