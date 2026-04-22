@@ -70,7 +70,6 @@ class ConnectJobsListViewModelTest {
 
     @Test
     fun testLoadOpportunities_postsError_onFailure() {
-        val cachedJobs = listOf(mockk<ConnectJobRecord>())
         every { mockRepository.getOpportunities(any(), any()) } returns
             flowOf(
                 DataState.Loading,
@@ -114,7 +113,7 @@ class ConnectJobsListViewModelTest {
         assertTrue(results.any { it is DataState.Loading })
         assertTrue(results.last() is DataState.Success)
         assertEquals(secondJobs, (results.last() as DataState.Success).data)
-        assertTrue(results.none { it is DataState.Success && (it as DataState.Success).data == firstJobs })
+        assertTrue(results.none { it is DataState.Success && it.data == firstJobs })
     }
 
     @Test

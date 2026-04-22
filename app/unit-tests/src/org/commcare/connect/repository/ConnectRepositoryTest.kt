@@ -1,6 +1,5 @@
 package org.commcare.connect.repository
 
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -21,7 +20,6 @@ import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseM
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +30,6 @@ import java.util.Date
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class ConnectRepositoryTest {
-    private val context = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
     private lateinit var mockSyncPrefs: ConnectSyncPreferences
     private lateinit var mockNetworkClient: ConnectNetworkClient
     private lateinit var mockUser: ConnectUserRecord

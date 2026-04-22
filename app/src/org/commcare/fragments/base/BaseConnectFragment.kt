@@ -256,7 +256,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     protected fun setWaitDialogEnabled(enabled: Boolean) {
-        val activity: Activity? = getActivity()
+        val activity = getActivity()
         if (activity is ConnectActivity) {
             activity.setWaitDialogEnabled(enabled)
         }

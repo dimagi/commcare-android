@@ -27,9 +27,7 @@ class ConnectNetworkHelper {
             headers: HashMap<String, String>,
             version: String,
         ) {
-            if (version != null) {
-                headers["Accept"] = "application/json;version=$version"
-            }
+            headers["Accept"] = "application/json;version=$version"
         }
 
         @JvmStatic
