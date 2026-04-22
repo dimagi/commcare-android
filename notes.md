@@ -5,8 +5,8 @@
 - Jignesh-dimagi: class-level setUp() members, @Test(expected=...).
 
 ## Status 2026-04-22 (verified — no new reviews since 2026-04-09)
-- #3612: All threads addressed. Awaiting conroy re-review.
-- #3614: All threads addressed. Awaiting conroy re-review.
-- #3626: All threads addressed (setUp members + null NPE tests). conroy APPROVED. Awaiting Jignesh.
-- #3632: All threads addressed (storeJobs guard + real JSON data). Awaiting conroy.
+- #3612: Rename to `logFailedResponse_403_doesNotThrow` implemented (commit `4db6f0d`). Awaiting conroy re-review.
+- #3614: DateUtils.parseDateTime inlined into assertEquals (commit `90470dd`). Awaiting conroy re-review.
+- #3626: Class-level members + null NPE tests implemented. conroy APPROVED. Awaiting Jignesh re-review (CHANGES_REQUESTED still open from 2026-03-24).
+- #3632: storeJobs guard + real JSON data + removed mockkStatic implemented (commits `b6cb4fe`, `678c180`). Awaiting conroy re-review.
 - #3635, #3636, #3637, #3645: No reviews.
