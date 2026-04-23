@@ -863,14 +863,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public boolean isRelearnTaskPending() {
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        assert preferenceManager != null;
 
         return preferenceManager.getLong(getPendingRelearnTasksKey(jobUUID), 0) == 1;
     }
 
     public boolean shouldShowRelearnTasksCompletedMessage() {
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        assert preferenceManager != null;
         long relearnTasksCompletedTimeMs = preferenceManager.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
         long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
 
@@ -879,7 +877,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static void syncRelearnTasksPrefs(String jobUUID, List<ParsedConnectTask> tasks) {
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        assert preferenceManager != null;
 
         if (tasks == null || tasks.isEmpty()) {
             preferenceManager.putLong(getPendingRelearnTasksKey(jobUUID), 0);
