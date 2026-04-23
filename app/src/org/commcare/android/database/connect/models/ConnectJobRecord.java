@@ -865,9 +865,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public boolean isRelearnTaskPending() {
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         assert preferenceManager != null;
-        assert jobUUID != null;
 
-        return preferenceManager.getLong(RELEARN_TASK_PENDING_PREFIX + jobUUID, 0) == 1;
+        return preferenceManager.getLong(getPendingRelearnTasksKey(jobUUID), 0) == 1;
     }
 
     public boolean shouldShowRelearnTasksCompletedMessage() {
@@ -882,12 +881,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static void syncRelearnTasksPrefs(String jobUUID, List<ParsedConnectTask> tasks) {
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         assert preferenceManager != null;
-        assert jobUUID != null;
-
-        String pendingKey = RELEARN_TASK_PENDING_PREFIX + jobUUID;
 
         if (tasks == null || tasks.isEmpty()) {
-            preferenceManager.putLong(pendingKey, 0);
+            preferenceManager.putLong(getPendingRelearnTasksKey(jobUUID), 0);
             return;
         }
 
@@ -904,7 +900,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
         }
 
-        preferenceManager.putLong(pendingKey, anyAssigned ? 1 : 0);
+        preferenceManager.putLong(getPendingRelearnTasksKey(jobUUID), anyAssigned ? 1 : 0);
 
         // If at least one task is currently assigned, then we know that not all of them were completed.
         if (anyAssigned) {
@@ -914,10 +910,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         long currentTasksCompletedTime = preferenceManager.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
         if (currentTasksCompletedTime == -1) {
-            // Set the completion time for all tasks to the latest date a task was modified, or fall
-            // back to the current date if there is no latest modified date.
+            // Set the completion time for all tasks to the latest date any task was modified, or
+            // fallback to the current date if there is no latest modified date.
             long newTasksCompletedTime = latestModified != null ? latestModified.getTime() : new Date().getTime();
             preferenceManager.putLong(RELEARN_TASKS_COMPLETED_TIME, newTasksCompletedTime);
         }
+    }
+
+    private static String getPendingRelearnTasksKey(String jobUUID) {
+        return RELEARN_TASK_PENDING_PREFIX + jobUUID;
     }
 }
