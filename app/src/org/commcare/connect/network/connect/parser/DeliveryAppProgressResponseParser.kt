@@ -5,12 +5,11 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.network.base.BaseApiResponseParser
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
+import org.commcare.connect.network.connect.models.ParsedConnectTask
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.model.utils.DateUtils
-import org.javarosa.core.services.Logger
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import java.io.InputStream
 import java.util.Date
 
@@ -25,13 +24,14 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
         var updatedJob = false
         var hasDeliveries = false
         var hasPayment = false
+        var hasTasks = false
+        val parsedTasks: MutableList<ParsedConnectTask> = mutableListOf()
 
         responseData.use { `in` ->
 
             try {
                 val responseAsString = String(StreamsUtil.inputStreamToByteArray(`in`))
                 if (responseAsString.length > 0) {
-                    // Parse the JSON
                     val json = JSONObject(responseAsString)
 
                     if (json.has("max_payments")) {
@@ -84,12 +84,39 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
 
                         job.payments = payments
                     }
+
+                    if (json.has("assigned_tasks")) {
+                        hasTasks = true
+                        val array = json.getJSONArray("assigned_tasks")
+                        for (i in 0 until array.length()) {
+                            val obj = array[i] as JSONObject
+                            parsedTasks.add(parseTask(obj))
+                        }
+                    }
                 }
             } catch (e: JSONException) {
                 throw RuntimeException(e)
             }
         }
 
-        return DeliveryAppProgressResponseModel(updatedJob, hasDeliveries, hasPayment) as T
+        return DeliveryAppProgressResponseModel(
+            updatedJob,
+            hasDeliveries,
+            hasPayment,
+            hasTasks,
+            parsedTasks,
+        ) as T
+    }
+
+    private fun parseTask(obj: JSONObject): ParsedConnectTask {
+        val status = obj.getString("status")
+        val dateModified: Date? =
+            if (obj.has("date_modified") && !obj.isNull("date_modified")) {
+                val raw = obj.getString("date_modified")
+                if (raw.isEmpty()) null else DateUtils.parseDateTime(raw)
+            } else {
+                null
+            }
+        return ParsedConnectTask(status, dateModified)
     }
 }
