@@ -214,6 +214,8 @@ afterEvaluate {
     processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCccStagingQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
 }
 
 /**
@@ -315,6 +317,7 @@ android {
         buildConfigField 'String', 'FIREBASE_DATABASE_URL', "\"${project.ext.FIREBASE_DATABASE_URL}\""
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
         buildConfigField 'long', 'GOOGLE_CLOUD_PROJECT_NUMBER', "${project.ext.GOOGLE_CLOUD_PROJECT_NUMBER}"
+        buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'false'
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
 
@@ -324,7 +327,7 @@ android {
     }
 
     applicationVariants.all { variant ->
-        if (variant.buildType.name == 'release') {
+        if (variant.buildType.name in ['release', 'qaAutomation']) {
             variant.outputs.each { output ->
                 output.versionCodeOverride = computeVersionCode()
             }
@@ -403,6 +406,7 @@ android {
         // by a similar customization.
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+        qaAutomation.setRoot('build-types/qaAutomation')
     }
 
     // Our flavours doesn't differ on a particular dimension yet, so just specify a dummy
@@ -497,6 +501,21 @@ android {
             // enable crashlytics
             buildConfigField 'boolean', 'USE_CRASHLYTICS', 'true'
             ext.enableCrashlytics = true
+        }
+
+        qaAutomation {
+            initWith release
+            matchingFallbacks = ['release']
+            buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'true'
+        }
+    }
+
+    variantFilter { variant ->
+        if (variant.buildType.name == 'qaAutomation') {
+            def flavorName = variant.flavors.isEmpty() ? '' : variant.flavors[0].name
+            if (flavorName != 'commcare' && flavorName != 'cccStaging') {
+                variant.setIgnore(true)
+            }
         }
     }
 
