@@ -122,7 +122,10 @@ Expected: **SUCCESS**. Existing call sites in the parser still compile: the new 
 ```bash
 git add app/src/org/commcare/connect/network/connect/models/DeliveryAppProgressResponseModel.kt
 git commit -m "$(cat <<'EOF'
-CCCT-2294 Add hasTasks and parsedTasks to DeliveryAppProgressResponseModel
+CCCT-2294 Parse Relearn Tasks For UI
+
+Add hasTasks + parsedTasks fields to DeliveryAppProgressResponseModel so
+the parser can hand the transient task list to the sync helper.
 
 [AI]
 EOF
@@ -397,7 +400,11 @@ Expected: **PASS** — 4 tests.
 ```bash
 git add app/src/org/commcare/connect/network/connect/parser/DeliveryAppProgressResponseParser.kt app/unit-tests/src/org/commcare/connect/network/connect/parser/DeliveryAppProgressResponseParserTest.kt
 git commit -m "$(cat <<'EOF'
-CCCT-2294 Parse assigned_tasks into ParsedConnectTask list
+CCCT-2294 Parse Relearn Tasks For UI
+
+Parse the assigned_tasks array in DeliveryAppProgressResponseParser into
+a transient List<ParsedConnectTask> on the response model; discard
+unused per-task fields.
 
 [AI]
 EOF
@@ -430,7 +437,10 @@ Expected: **SUCCESS**.
 ```bash
 git add app/src/org/commcare/connect/ConnectConstants.java
 git commit -m "$(cat <<'EOF'
-CCCT-2294 Add RELEARN_TASK_PENDING_PREFIX pref key
+CCCT-2294 Parse Relearn Tasks For UI
+
+Add RELEARN_TASK_PENDING_PREFIX pref-key constant used for the per-job
+pending-task flag.
 
 [AI]
 EOF
@@ -757,7 +767,7 @@ Expected: **PASS** — 13 tests.
 ```bash
 git add app/src/org/commcare/android/database/connect/models/ConnectJobRecord.java app/unit-tests/src/org/commcare/android/database/connect/models/ConnectJobRecordRelearnTasksTest.kt
 git commit -m "$(cat <<'EOF'
-CCCT-2294 Drive relearn-task prefs from parsed tasks
+CCCT-2294 Parse Relearn Tasks For UI
 
 isRelearnTaskPending() now reads a per-job long pref
 (RELEARN_TASK_PENDING_PREFIX + jobUUID). New static
@@ -808,7 +818,11 @@ Expected: **PASS** — 17 tests total (13 + 4).
 ```bash
 git add app/src/org/commcare/connect/ConnectJobHelper.kt
 git commit -m "$(cat <<'EOF'
-CCCT-2294 Sync relearn-task prefs from delivery progress response
+CCCT-2294 Parse Relearn Tasks For UI
+
+Wire syncRelearnTasksPrefs into ConnectJobHelper.updateDeliveryProgress
+so the per-job pending pref and completed-time pref update on every
+delivery-progress response.
 
 [AI]
 EOF
@@ -873,7 +887,10 @@ Expected: **PASS** — 17 tests.
 ```bash
 git add -A
 git commit -m "$(cat <<'EOF'
-CCCT-2294 Cleanup: ktlint, unused imports, checkstyle
+CCCT-2294 Parse Relearn Tasks For UI
+
+Post-implementation cleanup: ktlint formatting, unused imports,
+checkstyle fixes.
 
 [AI]
 EOF
