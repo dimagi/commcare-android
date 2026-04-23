@@ -69,4 +69,5 @@ public class ConnectConstants {
     public final static String PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME =
             "payment_confirmation_hidden_since_time";
     public final static String RELEARN_TASKS_COMPLETED_TIME = "relearn_tasks_completed_time";
+    public final static String RELEARN_TASK_PENDING_PREFIX = "relearn_task_pending_";
 }
