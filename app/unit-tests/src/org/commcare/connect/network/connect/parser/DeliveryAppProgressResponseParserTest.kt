@@ -7,7 +7,6 @@ import org.commcare.connect.network.connect.models.ConnectTaskStatus
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.javarosa.core.model.utils.DateUtils
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -35,7 +34,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun parse_withAssignedTasks_populatesParsedTasksAndSetsFlag() {
+    fun parse_withAssignedTasks_populatesParsedTasks() {
         val json =
             """
             {
@@ -60,7 +59,6 @@ class DeliveryAppProgressResponseParserTest {
 
         val model = parse(json, job())
 
-        assertTrue(model.hasTasks)
         assertEquals(2, model.parsedTasks.size)
         assertEquals(ConnectTaskStatus.ASSIGNED, model.parsedTasks[0].status)
         assertNull(model.parsedTasks[0].dateModified)
@@ -72,18 +70,16 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun parse_withoutAssignedTasks_leavesFlagFalseAndParsedTasksEmpty() {
+    fun parse_withoutAssignedTasks_leavesParsedTasksEmpty() {
         val model = parse("{}", job())
 
-        assertFalse(model.hasTasks)
         assertTrue(model.parsedTasks.isEmpty())
     }
 
     @Test
-    fun parse_withEmptyAssignedTasksArray_setsFlagTrueAndListEmpty() {
+    fun parse_withEmptyAssignedTasksArray_producesEmptyParsedTasks() {
         val model = parse("""{ "assigned_tasks": [] }""", job())
 
-        assertTrue(model.hasTasks)
         assertTrue(model.parsedTasks.isEmpty())
     }
 

@@ -24,7 +24,6 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
         var updatedJob = false
         var hasDeliveries = false
         var hasPayment = false
-        var hasTasks = false
         val parsedTasks: MutableList<ParsedConnectTask> = mutableListOf()
 
         responseData.use { `in` ->
@@ -86,7 +85,6 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
                     }
 
                     if (json.has("assigned_tasks")) {
-                        hasTasks = true
                         val array = json.getJSONArray("assigned_tasks")
                         for (i in 0 until array.length()) {
                             val obj = array[i] as JSONObject
@@ -103,7 +101,6 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
             updatedJob,
             hasDeliveries,
             hasPayment,
-            hasTasks,
             parsedTasks,
         ) as T
     }
