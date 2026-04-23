@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.network.connect.models.ConnectTaskStatus;
+import org.commcare.connect.network.connect.models.ParsedConnectTask;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
@@ -30,6 +32,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import static org.commcare.connect.ConnectConstants.RELEARN_TASK_PENDING_PREFIX;
 import static org.commcare.connect.ConnectConstants.RELEARN_TASKS_COMPLETED_TIME;
 
 /**
@@ -859,29 +862,67 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.claimed = claimed;
     }
 
-    /**
-     * This is a temporary dummy method implementation to show new UI that blocks delivery progress
-     * when there is a pending relearn task for a delivery app.
-     *
-     * @return false until the real method is implemented.
-     */
     public boolean isRelearnTaskPending() {
-        // TODO: Not yet implemented
-        return false;
+        ICommCarePreferenceManager prefs = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        if (prefs == null || jobUUID == null) {
+            return false;
+        }
+        return prefs.getLong(RELEARN_TASK_PENDING_PREFIX + jobUUID, 0) == 1;
     }
 
     public boolean shouldShowRelearnTasksCompletedMessage() {
-        // TODO: When parsing relearn tasks from Server, we need to check if all relearn tasks have
-        //  a completed status. If so, AND the RELEARN_TASKS_COMPLETED_TIME shared pref is currently
-        //  set to -1, set the RELEARN_TASKS_COMPLETED_TIME shared pref to either the current date
-        //  or the latest date_modified from the Server response. Whenever there is at least one
-        //  pending task, always reset the RELEARN_TASKS_COMPLETED_TIME shared pref back to -1.
-
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
         assert preferenceManager != null;
         long relearnTasksCompletedTimeMs = preferenceManager.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
         long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
 
         return relearnTasksCompletedTimeMs != -1 && timeElapsedSinceTasksCompleted < DateUtils.HOUR_IN_MS * 6;
+    }
+
+    /**
+     * Writes the two relearn-task shared prefs from a freshly-parsed task list:
+     *  - RELEARN_TASK_PENDING_PREFIX + jobUUID: 1 when any task is assigned, 0 otherwise
+     *  - RELEARN_TASKS_COMPLETED_TIME: reset to -1 when any task is assigned; set to the
+     *    latest dateModified (or current time) on the all-completed transition; left
+     *    alone when already set.
+     * No-op when prefs or jobUUID are null.
+     */
+    public static void syncRelearnTasksPrefs(String jobUUID, List<ParsedConnectTask> tasks) {
+        ICommCarePreferenceManager prefs = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        if (prefs == null || jobUUID == null) {
+            return;
+        }
+
+        String pendingKey = RELEARN_TASK_PENDING_PREFIX + jobUUID;
+
+        if (tasks == null || tasks.isEmpty()) {
+            prefs.putLong(pendingKey, 0);
+            return;
+        }
+
+        boolean anyAssigned = false;
+        Date latestModified = null;
+        for (ParsedConnectTask t : tasks) {
+            if (ConnectTaskStatus.ASSIGNED.equals(t.getStatus())) {
+                anyAssigned = true;
+            }
+            Date modified = t.getDateModified();
+            if (modified != null && (latestModified == null || modified.after(latestModified))) {
+                latestModified = modified;
+            }
+        }
+
+        prefs.putLong(pendingKey, anyAssigned ? 1 : 0);
+
+        if (anyAssigned) {
+            prefs.putLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+            return;
+        }
+
+        long current = prefs.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+        if (current == -1) {
+            long ts = latestModified != null ? latestModified.getTime() : new Date().getTime();
+            prefs.putLong(RELEARN_TASKS_COMPLETED_TIME, ts);
+        }
     }
 }
