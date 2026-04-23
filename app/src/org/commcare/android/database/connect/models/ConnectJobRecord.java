@@ -879,50 +879,45 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return relearnTasksCompletedTimeMs != -1 && timeElapsedSinceTasksCompleted < DateUtils.HOUR_IN_MS * 6;
     }
 
-    /**
-     * Writes the two relearn-task shared prefs from a freshly-parsed task list:
-     *  - RELEARN_TASK_PENDING_PREFIX + jobUUID: 1 when any task is assigned, 0 otherwise
-     *  - RELEARN_TASKS_COMPLETED_TIME: reset to -1 when any task is assigned; set to the
-     *    latest dateModified (or current time) on the all-completed transition; left
-     *    alone when already set.
-     * No-op when prefs or jobUUID are null.
-     */
     public static void syncRelearnTasksPrefs(String jobUUID, List<ParsedConnectTask> tasks) {
-        ICommCarePreferenceManager prefs = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        if (prefs == null || jobUUID == null) {
-            return;
-        }
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        assert preferenceManager != null;
+        assert jobUUID != null;
 
         String pendingKey = RELEARN_TASK_PENDING_PREFIX + jobUUID;
 
         if (tasks == null || tasks.isEmpty()) {
-            prefs.putLong(pendingKey, 0);
+            preferenceManager.putLong(pendingKey, 0);
             return;
         }
 
         boolean anyAssigned = false;
         Date latestModified = null;
-        for (ParsedConnectTask t : tasks) {
-            if (ConnectTaskStatus.ASSIGNED.equals(t.getStatus())) {
+        for (ParsedConnectTask task : tasks) {
+            if (ConnectTaskStatus.ASSIGNED.equals(task.getStatus())) {
                 anyAssigned = true;
             }
-            Date modified = t.getDateModified();
+
+            Date modified = task.getDateModified();
             if (modified != null && (latestModified == null || modified.after(latestModified))) {
                 latestModified = modified;
             }
         }
 
-        prefs.putLong(pendingKey, anyAssigned ? 1 : 0);
+        preferenceManager.putLong(pendingKey, anyAssigned ? 1 : 0);
 
+        // If at least one task is currently assigned, then we know that not all of them were completed.
         if (anyAssigned) {
-            prefs.putLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+            preferenceManager.putLong(RELEARN_TASKS_COMPLETED_TIME, -1);
             return;
         }
 
-        long current = prefs.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
-        if (current == -1) {
-            long ts = latestModified != null ? latestModified.getTime() : new Date().getTime();
-            prefs.putLong(RELEARN_TASKS_COMPLETED_TIME, ts);
+        long currentTasksCompletedTime = preferenceManager.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+        if (currentTasksCompletedTime == -1) {
+            // Set the completion time for all tasks to the latest date a task was modified, or fall
+            // back to the current date if there is no latest modified date.
+            long newTasksCompletedTime = latestModified != null ? latestModified.getTime() : new Date().getTime();
+            preferenceManager.putLong(RELEARN_TASKS_COMPLETED_TIME, newTasksCompletedTime);
         }
     }
 }
