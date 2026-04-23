@@ -863,11 +863,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean isRelearnTaskPending() {
-        ICommCarePreferenceManager prefs = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        if (prefs == null || jobUUID == null) {
-            return false;
-        }
-        return prefs.getLong(RELEARN_TASK_PENDING_PREFIX + jobUUID, 0) == 1;
+        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+        assert preferenceManager != null;
+        assert jobUUID != null;
+
+        return preferenceManager.getLong(RELEARN_TASK_PENDING_PREFIX + jobUUID, 0) == 1;
     }
 
     public boolean shouldShowRelearnTasksCompletedMessage() {
