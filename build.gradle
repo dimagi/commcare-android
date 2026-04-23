@@ -38,4 +38,5 @@ ext {
     retrofit_version = '2.9.0'
     espresso_version = '3.6.1'
     work_version = '2.10.3'
+    legacy_support_version = '1.0.0'
 }

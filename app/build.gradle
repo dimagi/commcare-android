@@ -83,8 +83,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
+    implementation "androidx.legacy:legacy-support-v4:$legacy_support_version"
+    implementation "androidx.legacy:legacy-preference-v14:$legacy_support_version"
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.72'
     implementation 'com.google.android.gms:play-services-maps:19.2.0'
@@ -115,7 +115,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf:21.0.1'
     implementation 'com.google.firebase:firebase-crashlytics:18.3.7'
     
-    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+    implementation "androidx.legacy:legacy-support-core-ui:$legacy_support_version"
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
