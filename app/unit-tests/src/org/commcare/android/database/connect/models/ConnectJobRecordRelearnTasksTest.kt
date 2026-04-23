@@ -62,8 +62,9 @@ class ConnectJobRecordRelearnTasksTest {
     fun sync_nullPrefsManager_noop() {
         every { CommCarePreferenceManagerFactory.getCommCarePreferenceManager() } returns null
 
-        // Just asserting no exception — prefs is unreachable when the factory returns null.
         ConnectJobRecord.syncRelearnTasksPrefs(jobUUID, listOf(task(ConnectTaskStatus.ASSIGNED)))
+
+        verify(exactly = 0) { prefs.putLong(any(), any()) }
     }
 
     @Test
