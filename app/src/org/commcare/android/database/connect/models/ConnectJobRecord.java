@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.network.connect.models.ConnectTaskStatus;
 import org.commcare.connect.network.connect.models.ParsedConnectTask;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
@@ -890,7 +889,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         boolean anyAssigned = false;
         Date latestModified = null;
         for (ParsedConnectTask task : tasks) {
-            if (ConnectTaskStatus.ASSIGNED.equals(task.getStatus())) {
+            if (task.getAssigned()) {
                 anyAssigned = true;
             }
 

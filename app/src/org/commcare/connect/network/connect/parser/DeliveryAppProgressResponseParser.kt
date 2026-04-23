@@ -106,13 +106,13 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
     }
 
     private fun parseTask(json: JSONObject): ParsedConnectTask {
-        val status = json.getString("status")
+        val assigned = json.getString("status") == "assigned"
         var dateModified: Date? = null
 
         if (json.has("date_modified")) {
             dateModified = DateUtils.parseDate(json.getString("date_modified"))
         }
 
-        return ParsedConnectTask(status, dateModified)
+        return ParsedConnectTask(assigned, dateModified)
     }
 }
