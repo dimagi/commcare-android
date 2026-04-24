@@ -42,6 +42,7 @@ import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.android.database.connect.models.PushNotificationRecordV21;
 import org.commcare.android.database.connect.models.PushNotificationRecordV23;
+import org.commcare.android.database.connect.models.PushNotificationRecordV24;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -170,6 +171,11 @@ public class ConnectDatabaseUpgrader {
 
         if (oldVersion == 23) {
             upgradeTwentyThreeTwentyFour(db);
+            oldVersion = 24;
+        }
+
+        if (oldVersion == 24) {
+            upgradeTwentyFourTwentyFive(db);
         }
     }
 
@@ -1012,12 +1018,42 @@ public class ConnectDatabaseUpgrader {
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
                     PushNotificationRecord.STORAGE_KEY,
-                    PushNotificationRecord.class,
+                    PushNotificationRecordV24.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
                 PushNotificationRecordV23 oldRecord = (PushNotificationRecordV23)r;
-                PushNotificationRecord newRecord = PushNotificationRecord.Companion.fromV23(oldRecord);
+                PushNotificationRecord newRecord = PushNotificationRecordV24.Companion.fromV23(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyFourTwentyFive(IDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    PushNotificationRecord.STORAGE_KEY,
+                    PushNotificationRecord.META_SESSION_ENDPOINT_ID,
+                    "TEXT"));
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    PushNotificationRecordV24.STORAGE_KEY,
+                    PushNotificationRecordV24.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    PushNotificationRecord.STORAGE_KEY,
+                    PushNotificationRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                PushNotificationRecordV24 oldRecord = (PushNotificationRecordV24)r;
+                PushNotificationRecord newRecord = PushNotificationRecord.Companion.fromV24(oldRecord);
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }

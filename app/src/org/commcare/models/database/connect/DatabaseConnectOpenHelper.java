@@ -66,8 +66,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      *          ConnectJobAssessmentRecord, ConnectPaymentUnitRecord, ConnectJobRecord, ConnectJobPaymentRecord and PushNotificationRecord
      * V.23 - Added a field slugUUID (reference to payment unit uuid) in ConnectJobDeliveryRecord
      * V.24 - Added key (kind of action for ccc_generic_opportunity) and opportunityStatus (values will be learn/delivery)) in PushNotificationRecord record
+     * V.25 - Added sessionEndpointId in PushNotificationRecord
      */
-    private static final int CONNECT_DB_VERSION = 24;
+    private static final int CONNECT_DB_VERSION = 25;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
