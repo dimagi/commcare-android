@@ -36,6 +36,7 @@ import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -52,6 +53,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
@@ -350,11 +354,48 @@ public class FirebaseMessagingUtil {
         return null;
     }
 
-    private static Intent handleCccGenericOpportunityNotifcation(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        Intent intent = getConnectActivityNotification(context, fcmMessageData);
+    private static Intent handleCccGenericOpportunityNotifcation(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+        String sessionEndpointId = fcmMessageData.getPayloadData()
+                .get(PushNotificationRecord.META_SESSION_ENDPOINT_ID);
+        Intent intent;
+        if (!TextUtils.isEmpty(sessionEndpointId)) {
+            intent =  handleSessionEndpointNotification(context, fcmMessageData, showNotification, sessionEndpointId);
+            if (intent != null) {
+                return intent;
+            }
+        }
+        intent = getConnectActivityNotification(context, fcmMessageData);
         if (showNotification)
-            showNotification(context, buildNotification(context, intent, fcmMessageData),
-                    fcmMessageData);
+            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
+        return intent;
+    }
+
+    private static Intent handleSessionEndpointNotification(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification,
+            String sessionEndpointId) {
+        String opportunityID = fcmMessageData.getPayloadData().get(OPPORTUNITY_UUID);
+        String opportunityStatus = fcmMessageData.getPayloadData().get(OPPORTUNITY_STATUS);
+        String appId = null;
+        try {
+            appId = ConnectJobUtils.getAppIdForOpportunity(context, opportunityID, opportunityStatus);
+        } catch (IllegalArgumentException e) {
+            Logger.exception("Could not resolve appId for opportunity", e);
+        }
+
+        if (appId == null) {
+            // we can't launch the session endpoint,
+            // so exit and handle as a normal notification without session endpoint details
+            return null;
+        }
+
+        Intent intent = new Intent(context, DispatchActivity.class);
+        intent.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
+        intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
+        intent.putExtra(IS_LAUNCH_FROM_CONNECT, true);
+        if (showNotification) {
+            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
+        }
         return intent;
     }
 
