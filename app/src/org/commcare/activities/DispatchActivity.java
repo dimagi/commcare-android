@@ -171,7 +171,6 @@ public class DispatchActivity extends AppCompatActivity {
 
         Intent pnIntent = checkIfAnyPNIntentPresent();
         if (pnIntent != null) {
-            String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
