@@ -28,29 +28,13 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: commcare-android
-      - name: Install python
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.9'
-      - name: Download cross request script
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
-          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
-      - name: Install Python dependencies
-        if: ${{ github.event_name == 'pull_request' }}
-        run: python -m pip install -r requirements.txt
-      - name: Run cross request script
-        if: ${{ github.event_name == 'pull_request' }}
-        run: python checkout_cross_request_repo.py commcare-android ${{ github.event.number }} commcare-core
+          submodules: true
       - name: Checkout commcare-core for cross-repo CI
         if: ${{ inputs.commcare_core_sha }}
-        uses: actions/checkout@v6
-        with:
-          repository: dimagi/commcare-core
-          ref: ${{ inputs.commcare_core_sha }}
-          path: commcare-core
+        run: |
+          cd commcare-android/libs/commcare-core
+          git fetch origin ${{ inputs.commcare_core_sha }}
+          git checkout ${{ inputs.commcare_core_sha }}
       - name: Generate GitHub App token
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         id: app-token
