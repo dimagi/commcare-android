@@ -554,7 +554,7 @@ public class ConnectJobUtils {
         ConnectAppRecord appInfo = isLearning
                 ? job.getLearnAppInfo()
                 : job.getDeliveryAppInfo();
-        return appInfo.getAppId()
+        return appInfo.getAppId();
     }
 
     public static List<ConnectJobPaymentRecord> getPaymentsSortedByDate(ConnectJobRecord job) {
