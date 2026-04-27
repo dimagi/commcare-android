@@ -41,7 +41,7 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
                     }
 
                     val context = anyInputObject as Context
-                    val newJobs = ConnectJobUtils.storeJobs(context, jobs, true)
+                    val newJobs = if (jobs.isEmpty()) 0 else ConnectJobUtils.storeJobs(context, jobs, true)
 
                     // Fetch feature release toggles if there is a new job.
                     if (newJobs > 0) {
