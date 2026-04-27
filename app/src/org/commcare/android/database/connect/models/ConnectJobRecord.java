@@ -864,7 +864,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public boolean isRelearnTaskPending() {
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
 
-        return preferenceManager.getLong(getPendingRelearnTasksKey(jobUUID), 0) == 1
+        return preferenceManager.getBoolean(getPendingRelearnTasksKey(jobUUID), false)
                 && status == STATUS_DELIVERING;
     }
 
@@ -881,7 +881,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
 
         if (tasks == null || tasks.isEmpty()) {
-            preferenceManager.putLong(getPendingRelearnTasksKey(jobUUID), 0);
+            preferenceManager.putBoolean(getPendingRelearnTasksKey(jobUUID), false);
             return;
         }
 
@@ -898,7 +898,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
         }
 
-        preferenceManager.putLong(getPendingRelearnTasksKey(jobUUID), anyAssigned ? 1 : 0);
+        preferenceManager.putBoolean(getPendingRelearnTasksKey(jobUUID), anyAssigned);
 
         // If at least one task is currently assigned, then we know that not all of them were completed.
         if (anyAssigned) {

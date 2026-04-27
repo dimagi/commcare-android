@@ -20,6 +20,19 @@ public class AndroidPreferenceManager implements ICommCarePreferenceManager {
         return getPreferences().getLong(key, defaultValue);
     }
 
+    @Override
+    public void putBoolean(String key, boolean value) {
+        SharedPreferences preferences = getPreferences();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    @Override
+    public boolean getBoolean(String key, boolean defaultValue) {
+        return getPreferences().getBoolean(key, defaultValue);
+    }
+
     private SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
     }
