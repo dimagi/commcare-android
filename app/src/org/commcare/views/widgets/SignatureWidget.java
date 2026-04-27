@@ -22,7 +22,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -62,7 +61,7 @@ import static org.commcare.views.widgets.ImageWidget.getFileToDisplay;
  *
  * @author BehrAtherton@gmail.com
  */
-public class SignatureWidget extends QuestionWidget {
+public class SignatureWidget extends QuestionWidget implements QuestionWidget.MediaCapableWidget {
     private final static String t = "SignatureWidget";
 
     private final Button mSignButton;
@@ -98,7 +97,12 @@ public class SignatureWidget extends QuestionWidget {
 
         // launch capture intent on click
         final FormIndex questionIndex = prompt.getIndex();
-        mSignButton.setOnClickListener(v -> launchSignatureActivity(questionIndex, null));
+        mSignButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
+            launchSignatureActivity(questionIndex, null);
+        });
 
         // finish complex layout
         addView(mSignButton);
@@ -139,8 +143,24 @@ public class SignatureWidget extends QuestionWidget {
             mImageView.setOnClickListener(v -> launchSignatureActivity(questionIndex, toDisplay));
             addView(mImageView);
 
-            mSignButton.setOnClickListener(v -> launchSignatureActivity(questionIndex, toDisplay));
+            mSignButton.setOnClickListener(v -> {
+                if (isAttachmentLimitReached()) {
+                    return;
+                }
+                launchSignatureActivity(questionIndex, toDisplay);
+            });
         }
+    }
+
+    @Override
+    public String getMediaName() {
+        return mBinaryName;
+    }
+
+    @Override
+    public void setMediaName(String mediaName) {
+        mBinaryName = mediaName;
+        incrementAttachmentCount();
     }
 
     private void launchSignatureActivity(FormIndex questionIndex, @Nullable File toDisplay) {
@@ -166,17 +186,19 @@ public class SignatureWidget extends QuestionWidget {
         }
     }
 
-    private void deleteMedia() {
+    @Override
+    public void clearMediaData() {
         MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
+        decrementAttachmentCount();
     }
 
 
     @Override
     public void clearAnswer() {
         // remove the file
-        deleteMedia();
+        clearMediaData();
         mImageView.setImageBitmap(null);
         mErrorTextView.setVisibility(View.GONE);
 
@@ -200,11 +222,11 @@ public class SignatureWidget extends QuestionWidget {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
-            deleteMedia();
+            clearMediaData();
         }
 
         File f = new File(binaryPath.toString());
-        mBinaryName = f.getName();
+        setMediaName(f.getName());
         Log.i(t, "Setting current answer to " + f.getName());
     }
 

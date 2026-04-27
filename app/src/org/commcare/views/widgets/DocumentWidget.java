@@ -29,6 +29,9 @@ public class DocumentWidget extends MediaWidget {
                 !mPrompt.isReadOnly());
 
         mChooseButton.setOnClickListener(v -> {
+            if (isAttachmentLimitReached()) {
+                return;
+            }
             try {
                 ((AppCompatActivity)getContext())
                         .startActivityForResult(WidgetUtils.createPickMediaIntent(getContext(), "application/*,text/*"),

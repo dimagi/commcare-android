@@ -32,6 +32,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
+import org.commcare.views.widgets.MediaWidget;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -991,5 +992,29 @@ public class FileUtil {
             returnCursor.moveToFirst();
             return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
         }
+    }
+
+    public static int countNumberOfMediaFilesInDirectory(String dirPath) {
+        int count = 0;
+        try {
+            File dir = new File(dirPath);
+            if (dir.exists() && dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isFile() &&
+                                !file.getName().endsWith(XML_EXTENSION) &&
+                                (FormUploadUtil.isSupportedMultimediaFile(file.getName()) ||
+                                        file.getName().endsWith(MediaWidget.AES_EXTENSION))) {
+                            count++;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // log non-fatal exception and return count as 0
+            Logger.exception("Error counting media files: ", e);
+        }
+        return count;
     }
 }
