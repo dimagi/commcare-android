@@ -42,25 +42,25 @@ dependencies {
     testImplementation 'androidx.test:core:1.6.1'
     testImplementation 'androidx.test:runner:1.6.2'
     testImplementation 'androidx.test.ext:junit:1.2.1'
-    testImplementation 'androidx.work:work-testing:2.7.1'
-    testImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    testImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
+    testImplementation "androidx.work:work-testing:$work_version"
+    testImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    testImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
     testImplementation 'org.json:json:20250517'
     testImplementation 'org.mockito:mockito-core:5.5.0'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
     testImplementation "androidx.navigation:navigation-testing:$nav_version"
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.ext:truth:1.6.0'
     androidTestImplementation 'androidx.test:rules:1.6.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
-    androidTestImplementation ('androidx.test.espresso:espresso-contrib:3.6.1') {
+    androidTestImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
+    androidTestImplementation ("androidx.test.espresso:espresso-contrib:$espresso_version") {
         exclude(group: 'com.google.protobuf', module: 'protobuf-lite')
     }
 
@@ -83,8 +83,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
+    implementation "androidx.legacy:legacy-support-v4:$legacy_support_version"
+    implementation "androidx.legacy:legacy-preference-v14:$legacy_support_version"
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.72'
     implementation 'com.google.android.gms:play-services-maps:19.2.0'
@@ -93,9 +93,9 @@ dependencies {
     implementation 'net.zetetic:sqlcipher-android:4.9.0@aar'
     implementation 'androidx.sqlite:sqlite:2.2.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.1.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation 'com.google.android.gms:play-services-identity:18.1.0'
     implementation 'com.google.android.gms:play-services-base:18.5.0'
 
@@ -115,7 +115,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf:21.0.1'
     implementation 'com.google.firebase:firebase-crashlytics:18.3.7'
     
-    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+    implementation "androidx.legacy:legacy-support-core-ui:$legacy_support_version"
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
@@ -130,13 +130,13 @@ dependencies {
     implementation "io.noties.markwon:ext-tables:$markwon_version"
     implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
     
-    implementation 'androidx.work:work-runtime:2.10.3'
-    implementation 'androidx.work:work-runtime-ktx:2.10.3'
+    implementation "androidx.work:work-runtime:$work_version"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
 
-    implementation('com.squareup.okhttp3:okhttp-tls:4.11.0') {
+    implementation("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
 
