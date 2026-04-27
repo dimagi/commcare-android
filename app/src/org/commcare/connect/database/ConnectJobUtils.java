@@ -2,6 +2,7 @@ package org.commcare.connect.database;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
@@ -25,9 +26,11 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN;
 import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectJobUtils {
@@ -530,6 +533,28 @@ public class ConnectJobUtils {
             return records.isEmpty() ? null : records.firstElement();
         }
         return null;
+    }
+
+    /**
+     * Returns the CommCare appId for the given opportunity. Will return the learn appId if the opportunity
+     * status is "learn" and delivery appId otherwise.
+     */
+    public static String getAppIdForOpportunity(
+            Context context,
+            String opportunityID,
+            String opportunityStatus) {
+        if (TextUtils.isEmpty(opportunityID)) {
+            throw new IllegalArgumentException("opportunityID can't be empty");
+        }
+        ConnectJobRecord job = getCompositeJob(context, opportunityID);
+        if (job == null) {
+            throw new IllegalArgumentException("No Opportunity found for given opportunityID " + opportunityID);
+        }
+        boolean isLearning = OPPORTUNITY_STATUS_LEARN.equals(opportunityStatus);
+        ConnectAppRecord appInfo = isLearning
+                ? job.getLearnAppInfo()
+                : job.getDeliveryAppInfo();
+        return appInfo.getAppId()
     }
 
     public static List<ConnectJobPaymentRecord> getPaymentsSortedByDate(ConnectJobRecord job) {
