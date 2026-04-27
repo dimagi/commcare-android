@@ -88,7 +88,7 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
                         val array = json.getJSONArray("assigned_tasks")
                         for (i in 0 until array.length()) {
                             val obj = array[i] as JSONObject
-                            parsedTasks.add(parseTask(obj))
+                            parsedTasks.add(ParsedConnectTask.fromJson(obj))
                         }
                     }
                 }
@@ -103,16 +103,5 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
             hasPayment,
             parsedTasks,
         ) as T
-    }
-
-    private fun parseTask(json: JSONObject): ParsedConnectTask {
-        val assigned = json.getString("status") == "assigned"
-        var dateModified: Date? = null
-
-        if (json.has("date_modified")) {
-            dateModified = DateUtils.parseDate(json.getString("date_modified"))
-        }
-
-        return ParsedConnectTask(assigned, dateModified)
     }
 }

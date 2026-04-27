@@ -1,5 +1,7 @@
 package org.commcare.connect.network.connect.models
 
+import org.javarosa.core.model.utils.DateUtils
+import org.json.JSONObject
 import java.util.Date
 
 /**
@@ -12,4 +14,17 @@ import java.util.Date
 data class ParsedConnectTask(
     val assigned: Boolean,
     val dateModified: Date?,
-)
+) {
+    companion object {
+        fun fromJson(json: JSONObject): ParsedConnectTask {
+            val assigned = json.getString("status") == "assigned"
+            var dateModified: Date? = null
+
+            if (json.has("date_modified")) {
+                dateModified = DateUtils.parseDate(json.getString("date_modified"))
+            }
+
+            return ParsedConnectTask(assigned, dateModified)
+        }
+    }
+}
