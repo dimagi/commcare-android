@@ -206,6 +206,7 @@ object PushNotificationApiHelper {
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         pn.put(NOTIFICATION_KEY, pnRecord.key)
         pn.put(OPPORTUNITY_STATUS, pnRecord.opportunityStatus)
+        pn.put(PushNotificationRecord.META_SESSION_ENDPOINT_ID, pnRecord.sessionEndpointId)
         return pn
     }
 
