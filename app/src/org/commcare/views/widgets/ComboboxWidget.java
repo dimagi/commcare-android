@@ -81,9 +81,9 @@ public class ComboboxWidget extends QuestionWidget {
 
     private void addListeners() {
         comboBox.setOnItemClickListener((parent, view, position, id) -> {
-            selectedComboItem = (ComboItem) parent.getItemAtPosition(position);
-            widgetEntryChanged();}
-        );
+            selectedComboItem = (ComboItem) comboBox.getAdapter().getItem(position);
+            widgetEntryChanged();
+        });
 
         // Note that Combobox has an OnFocusChangeListener defined in its own class, so when
         // re-setting it here we have to make sure to do all of the same things that the original
