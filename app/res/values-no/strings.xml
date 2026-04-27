@@ -182,6 +182,8 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_progress_relearn_tasks_completed">Alle nødvendige oppgaver er fullført. Du kan fortsette med leveringsaktiviteter.</string>
     <string name="connect_last_synced">Sist synkronisert: %s</string>
+    <string name="connect_sync_successful">Sist synkronisert: Akkurat nå</string>
+    <string name="connect_sync_failed">Kunne ikke synkronisere oppdateringer, sist synkronisert: %s</string>
     <string name="connect_offline">Frakoblet</string>
     <string name="connect_never">Aldri</string>
 </resources>

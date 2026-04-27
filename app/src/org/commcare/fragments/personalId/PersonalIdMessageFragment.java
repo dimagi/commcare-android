@@ -23,6 +23,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 import org.commcare.utils.GeoUtils;
 
@@ -175,6 +176,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
         storeFeatureReleaseToggles();
+        ConnectSyncPreferences.Companion.getInstance(activity).markSessionStart();
         activity.setResult(RESULT_OK);
         activity.finish();
     }

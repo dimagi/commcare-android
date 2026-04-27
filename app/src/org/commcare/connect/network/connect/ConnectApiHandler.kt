@@ -48,19 +48,6 @@ abstract class ConnectApiHandler<T>(
         )
     }
 
-    fun getLearningAppProgress(
-        context: Context,
-        user: ConnectUserRecord,
-        job: ConnectJobRecord,
-    ) {
-        ApiConnect.getLearningAppProgress(
-            context,
-            user,
-            job.jobUUID,
-            createCallback(LearningAppProgressResponseParser<T>(), job),
-        )
-    }
-
     fun claimJob(
         context: Context,
         user: ConnectUserRecord,

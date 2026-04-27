@@ -1,6 +1,7 @@
 package org.commcare.connect.network.connect.parser
 
 import android.content.Context
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.BaseApiResponseParser
@@ -40,7 +41,7 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
                         }
                     }
 
-                    val context = anyInputObject as Context
+                    val context = CommCareApplication.instance()
                     val newJobs = ConnectJobUtils.storeJobs(context, jobs, true)
 
                     // Fetch feature release toggles if there is a new job.

@@ -533,6 +533,8 @@ License.
     <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
     <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
     <string name="connect_last_synced">अंतिम सिंक: %s</string>
+    <string name="connect_sync_successful">अंतिम सिंक: अभी-अभी</string>
+    <string name="connect_sync_failed">अपडेट सिंक करने में विफल, अंतिम सिंक: %s</string>
     <string name="connect_offline">ऑफ़लाइन</string>
     <string name="connect_never">कभी नहीं</string>
 </resources>

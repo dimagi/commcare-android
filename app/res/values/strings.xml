@@ -397,6 +397,8 @@
 
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_last_synced">Last synced: %s</string>
+    <string name="connect_sync_successful">Last synced: Just Now</string>
+    <string name="connect_sync_failed">Failed to sync updates, last synced: %s</string>
     <string name="connect_offline">Offline</string>
     <string name="connect_never">Never</string>
     <string name="connect_title">Connect</string>

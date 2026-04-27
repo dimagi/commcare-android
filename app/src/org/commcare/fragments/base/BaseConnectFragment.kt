@@ -1,27 +1,38 @@
 package org.commcare.fragments.base
 
+import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
-import org.commcare.connect.ConnectDateUtils
+import org.commcare.activities.connect.ConnectActivity
+import org.commcare.connect.network.TokenExceptionHandler.handleTokenDeniedException
+import org.commcare.connect.network.base.BaseApiHandler
+import org.commcare.connect.repository.ConnectSyncPreferences
+import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.InlineErrorLayoutBinding
 import org.commcare.dalvik.databinding.LoadingBinding
+import org.commcare.dalvik.databinding.NetworkStatusBarLayoutBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.interfaces.base.BaseConnectView
-import org.commcare.personalId.PersonalIdFeatureFlagChecker
 import org.commcare.utils.ConnectivityStatus
-import org.commcare.views.TopBarErrorViewController
+import org.commcare.views.NetworkStatusBarViewController
 import java.util.Date
+
+fun interface DataStateConsumer<T> {
+    fun accept(data: T)
+}
 
 abstract class BaseConnectFragment<B : ViewBinding> :
     Fragment(),
@@ -29,13 +40,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var _binding: B? = null
     val binding get() = _binding!!
 
-    private lateinit var loadingBinding: LoadingBinding
-    private lateinit var errorBinding: InlineErrorLayoutBinding
+    private lateinit var progressBar: ProgressBar
+    private lateinit var errorBinding: NetworkStatusBarLayoutBinding
     private lateinit var rootView: View
-    private var topBarErrorViewController: TopBarErrorViewController? = null
+    private var mNetworkStatusBarViewController: NetworkStatusBarViewController? = null
 
     private var connectivityManager: ConnectivityManager? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var lastDataState: DataState<*>? = null
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -46,10 +58,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     ): B
 
     /**
-     * Override in subclasses to provide the timestamp of the last successful data sync.
-     * Used to display "Last synced: X ago" in the offline indicator.
+     * Return the API endpoint this fragment syncs from, used to look up the last sync time.
+     * Return null if this fragment has no associated endpoint.
      */
-    open fun getLastSyncTime(): Date? = null
+    abstract fun getEndpoint(): String?
+
+    fun getLastSyncTime(): Date? {
+        val endpoint = getEndpoint() ?: return null
+        return ConnectSyncPreferences.getInstance(requireContext()).getLastSyncTime(endpoint)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,14 +75,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     ): View {
         _binding = inflateBinding(inflater, container)
         val mainView = binding.root
-
-        loadingBinding = LoadingBinding.inflate(inflater, container, false)
-        val loadingView = loadingBinding.root
-
-        errorBinding = InlineErrorLayoutBinding.inflate(inflater, container, false)
-        val errorView = errorBinding.root
-        errorView.visibility = View.GONE
-        topBarErrorViewController = TopBarErrorViewController(errorBinding)
 
         val rootFrame =
             FrameLayout(requireContext()).apply {
@@ -86,15 +95,25 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     )
             }
 
-        verticalContainer.addView(errorView)
         verticalContainer.addView(mainView)
-
         rootFrame.addView(verticalContainer)
-        rootFrame.addView(loadingView)
+
+        // Inflate loading layout
+        progressBar = requireActivity().findViewById(R.id.include_network_loading)
+            ?: run {
+                val loadingBinding = LoadingBinding.inflate(inflater, container, false)
+                rootFrame.addView(loadingBinding.root)
+                loadingBinding.progressBar
+            }
+        hideLoading()
+
+        errorBinding = NetworkStatusBarLayoutBinding.inflate(inflater, container, false)
+        val errorView = errorBinding.root
+        errorView.visibility = View.GONE
+        mNetworkStatusBarViewController = NetworkStatusBarViewController(errorBinding)
+        verticalContainer.addView(errorView, 0)
 
         rootView = rootFrame
-
-        hideLoading()
         return rootView
     }
 
@@ -104,7 +123,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
             !ConnectivityStatus.isNetworkAvailable(requireContext())
         ) {
             registerNetworkCallback()
-            showOfflineIndicator()
         }
     }
 
@@ -115,47 +133,97 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        topBarErrorViewController!!.cleanup()
-        topBarErrorViewController = null
+        mNetworkStatusBarViewController!!.cleanup()
+        mNetworkStatusBarViewController = null
         _binding = null
-        // No need to nullify loadingBinding since it's lateinit — but safe practice to hide it
-        loadingBinding.root.visibility = View.GONE
+        progressBar.visibility = View.GONE
+        lastDataState = null
     }
 
     override fun showLoading() {
-        loadingBinding.root.visibility = View.VISIBLE
+        progressBar.visibility = View.VISIBLE
     }
 
     override fun hideLoading() {
-        loadingBinding.root.visibility = View.GONE
+        progressBar.visibility = View.GONE
     }
 
     fun showError(error: String) {
-        topBarErrorViewController!!.show(error)
+        mNetworkStatusBarViewController!!.showError(error)
     }
+
+    fun isErrorShowing(): Boolean = lastDataState is DataState.Error
 
     fun hideError() {
-        topBarErrorViewController!!.hide()
+        mNetworkStatusBarViewController!!.hide()
     }
 
-    private fun shouldMonitorNetwork(): Boolean =
-        this is RefreshableFragment &&
-            PersonalIdFeatureFlagChecker.isFeatureEnabled(
-                PersonalIdFeatureFlagChecker.FeatureFlag.DATA_REFRESH_INDICATOR,
-            )
+    /**
+     * Observes a LiveData of DataState and handle UI updates for loading, success, cached, and error states.
+     */
+    protected fun <T> observeDataState(
+        liveData: LiveData<DataState<T>>,
+        onCached: DataStateConsumer<T>,
+        onSuccess: DataStateConsumer<T>,
+    ) {
+        liveData.observe(viewLifecycleOwner) { state ->
+            if (lastDataState == null && (state is DataState.Success || state is DataState.Error)) {
+                // terminal states should not be shown on initial load to avoid jarring UX
+                // this happens when LiveData emits a cached value immediately upon observation
+                return@observe
+            }
+            when (state) {
+                is DataState.Loading -> {
+                    hideError()
+                    showLoading()
+                }
+                is DataState.Cached -> onCached.accept(state.data)
+                is DataState.Success -> {
+                    hideLoading()
+                    hideError()
+                    showSyncSuccess()
+                    onSuccess.accept(state.data)
+                }
+                is DataState.Error -> {
+                    hideLoading()
+                    if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR) {
+                        handleTokenDeniedException()
+                    } else if (state.isNetworkError() &&
+                        !ConnectivityStatus.isNetworkAvailable(requireContext())
+                    ) {
+                        showOfflineIndicator()
+                    } else {
+                        showError(getString(R.string.connect_sync_failed, getRelativeLastSyncTime()))
+                    }
+                }
+            }
+            lastDataState = state
+        }
+    }
+
+    private fun showSyncSuccess() {
+        mNetworkStatusBarViewController!!.showMessage(getString(R.string.connect_sync_successful))
+    }
+
+    private fun shouldMonitorNetwork(): Boolean = this is RefreshableFragment
 
     private fun showOfflineIndicator() {
-        val message = buildOfflineMessage()
-        topBarErrorViewController!!.showOfflineStatus(message)
+        val relativeTime = getRelativeLastSyncTime()
+        val message = getString(R.string.connect_last_synced, relativeTime)
+        mNetworkStatusBarViewController!!.showOfflineStatus(message)
     }
 
-    private fun buildOfflineMessage(): String {
+    private fun getRelativeLastSyncTime(): String {
         val lastSync = getLastSyncTime()
         return if (lastSync != null) {
-            val relativeTime = ConnectDateUtils.formatNotificationTime(requireContext(), lastSync)
-            getString(R.string.connect_last_synced, relativeTime)
+            DateUtils
+                .getRelativeTimeSpanString(
+                    lastSync.time,
+                    System.currentTimeMillis(),
+                    DateUtils.MINUTE_IN_MILLIS,
+                ).toString()
         } else {
-            getString(R.string.connect_last_synced, getString(R.string.connect_never))
+            getString(R.string.connect_never)
         }
     }
 
@@ -169,8 +237,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
             val callback =
                 object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
-                        view?.post {
-                            topBarErrorViewController!!.hide()
+                        if (isErrorShowing()) {
+                            (this@BaseConnectFragment as RefreshableFragment).refresh(false)
                         }
                     }
                 }
@@ -185,5 +253,12 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         }
         networkCallback = null
         connectivityManager = null
+    }
+
+    protected fun setWaitDialogEnabled(enabled: Boolean) {
+        val activity = getActivity()
+        if (activity is ConnectActivity) {
+            activity.setWaitDialogEnabled(enabled)
+        }
     }
 }
