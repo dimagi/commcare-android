@@ -147,6 +147,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * invalidated in the calling activity and that the current session should be resynced
      */
     public static final int RESULT_RESTART = 3;
+    private static final String CC_APP_HOME_ENDPOINT = "cc_app_home";
 
     private int mDeveloperModeClicks = 0;
 
@@ -232,13 +233,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * @return If we are launched with a session endpoint, returns whether the endpoint was
-     * successfully processed without errors. If this was not an external launch using session
-     * endpoint, returns true
+     * @return Whether we should proceed with next step in session navigation after processing the session endpoint
      */
     private boolean processSessionEndpoint() {
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
-            Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
+            String sessionEndpointId = getIntent().getStringExtra(SESSION_ENDPOINT_ID);
+            if (sessionEndpointId == CC_APP_HOME_ENDPOINT) {
+                return false;
+            }
+            Endpoint endpoint = validateIntentForSessionEndpoint(sessionEndpointId);
             if (endpoint != null) {
                 Bundle intentArgumentsAsBundle = getIntent().getBundleExtra(
                         SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
@@ -278,8 +281,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return true;
     }
 
-    private Endpoint validateIntentForSessionEndpoint(Intent intent) {
-        String sessionEndpointId = intent.getStringExtra(SESSION_ENDPOINT_ID);
+    private Endpoint validateIntentForSessionEndpoint(String sessionEndpointId) {
         Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(
                 sessionEndpointId);
         if (endpoint == null) {
