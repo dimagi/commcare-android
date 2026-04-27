@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile App Styleguide</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #3B3BCC;
+    --primary-dark: #1E1E6E;
+    --primary-light: #6B6BDD;
+    --primary-tint: #E8E8FA;
+    --surface: #FFFFFF;
+    --bg: #F4F4F8;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6B6B80;
+    --text-tertiary: #9999AA;
+    --border: rgba(0,0,0,0.1);
+    --danger: #E24B4A;
+    --success: #639922;
+    --warning: #BA7517;
+    --info: #378ADD;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-pill: 20px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', monospace;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text-primary); line-height: 1.6; }
+  .page { max-width: 900px; margin: 0 auto; padding: 48px 24px; }
+  h1 { font-size: 32px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+  .subtitle { font-size: 15px; color: var(--text-secondary); margin-bottom: 48px; }
+  .toc { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 48px; }
+  .toc h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 14px; }
+  .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+  .toc a { font-size: 14px; color: var(--primary); text-decoration: none; padding: 3px 0; display: block; }
+  .toc a:hover { text-decoration: underline; }
+  .section { margin-bottom: 64px; }
+  .section-header { border-bottom: 2px solid var(--primary-tint); padding-bottom: 12px; margin-bottom: 28px; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
+  .section-title { font-size: 22px; font-weight: 600; color: var(--text-primary); }
+  .usage-box { background: #F0F4FF; border-left: 3px solid var(--primary); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 14px 16px; margin-bottom: 20px; }
+  .usage-box strong { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--primary); display: block; margin-bottom: 6px; }
+  .usage-box p, .usage-box li { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+  .usage-box ul { padding-left: 16px; }
+  .usage-box li { margin-bottom: 2px; }
+  .visual-area { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px; }
+  .visual-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 10px; font-weight: 500; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .col { display: flex; flex-direction: column; gap: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 0; }
+  th { background: var(--bg); text-align: left; padding: 8px 12px; font-weight: 600; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-primary); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: var(--font-mono); font-size: 12px; background: var(--bg); padding: 2px 6px; border-radius: 4px; color: var(--primary-dark); }
+  .spec-block { background: #1A1A2E; color: #A8D8A8; font-family: var(--font-mono); font-size: 12px; border-radius: var(--radius-md); padding: 16px 20px; line-height: 1.8; overflow-x: auto; margin-top: 16px; }
+  .spec-block .c { color: #778899; }
+
+  /* ── Color swatches ── */
+  .swatch-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+  .swatch { text-align: center; }
+  .swatch-box { width: 60px; height: 60px; border-radius: var(--radius-md); border: 0.5px solid var(--border); margin-bottom: 6px; }
+  .swatch-name { font-size: 11px; font-weight: 500; color: var(--text-primary); }
+  .swatch-hex { font-size: 10px; font-family: var(--font-mono); color: var(--text-tertiary); }
+
+  /* ── Typography ── */
+  .type-stack { display: flex; flex-direction: column; gap: 0; }
+  .type-row { display: flex; align-items: baseline; gap: 20px; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+  .type-row:last-child { border-bottom: none; }
+  .type-spec { min-width: 160px; font-size: 11px; font-family: var(--font-mono); color: var(--text-tertiary); flex-shrink: 0; }
+
+  /* ── Buttons ── */
+  .btn { border-radius: var(--radius-md); padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: default; border: none; display: inline-block; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-secondary { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border: 0.5px solid var(--border); }
+  .btn-danger { background: var(--danger); color: #fff; }
+
+  /* ── Toggle ── */
+  .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+  .toggle { width: 40px; height: 22px; border-radius: 11px; position: relative; }
+  .toggle-on { background: var(--primary); }
+  .toggle-off { background: #CCC; }
+  .toggle-dot { width: 16px; height: 16px; border-radius: 50%; background: #fff; position: absolute; top: 3px; }
+  .toggle-on .toggle-dot { right: 3px; }
+  .toggle-off .toggle-dot { left: 3px; }
+
+  /* ── Inputs ── */
+  .input-demo { display: block; padding: 10px 12px; border-radius: var(--radius-md); font-size: 14px; font-family: var(--font); width: 200px; }
+  .input-default { background: var(--bg); border: 0.5px solid var(--border); color: var(--text-tertiary); }
+  .input-focused { background: var(--bg); border: 1.5px solid var(--primary); box-shadow: 0 0 0 3px rgba(59,59,204,0.12); color: var(--text-primary); }
+  .input-error { background: var(--bg); border: 1.5px solid var(--danger); box-shadow: 0 0 0 3px rgba(226,75,74,0.12); color: var(--text-primary); }
+  .input-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .input-err-msg { font-size: 11px; color: #A32D2D; margin-top: 4px; }
+
+  /* ── Badges ── */
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 500; }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .badge-success { background: #EAF3DE; color: #3B6D11; }
+  .badge-success .badge-dot { background: #639922; }
+  .badge-warning { background: #FAEEDA; color: #854F0B; }
+  .badge-warning .badge-dot { background: var(--warning); }
+  .badge-danger { background: #FCEBEB; color: #A32D2D; }
+  .badge-danger .badge-dot { background: var(--danger); }
+  .badge-info { background: #E6F1FB; color: #185FA5; }
+  .badge-info .badge-dot { background: var(--info); }
+  .badge-neutral { background: var(--bg); color: var(--text-secondary); }
+  .badge-neutral .badge-dot { background: var(--text-tertiary); }
+
+  /* ── Progress ── */
+  .progress-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; margin: 6px 0; width: 200px; }
+  .progress-fill { height: 100%; border-radius: 3px; }
+  .progress-blue { background: var(--primary); }
+  .progress-green { background: var(--success); }
+  .progress-circ { position: relative; width: 52px; height: 52px; }
+  .progress-circ svg { transform: rotate(-90deg); }
+  .progress-circ-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; }
+
+  /* ── Cards ── */
+  .card-dark { background: var(--primary); color: #fff; border-radius: var(--radius-lg); padding: 14px 16px; width: 190px; }
+  .card-light { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; width: 190px; }
+  .card-title { font-size: 11px; opacity: 0.7; margin-bottom: 4px; }
+  .card-val { font-size: 20px; font-weight: 500; }
+  .card-sub { font-size: 11px; opacity: 0.6; margin-top: 4px; }
+  .list-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid var(--border); width: 240px; }
+  .list-row:last-child { border-bottom: none; }
+  .list-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+  .list-name { font-size: 13px; font-weight: 500; }
+  .list-meta { font-size: 11px; color: var(--text-tertiary); }
+
+  /* ── Action bar ── */
+  .action-bar { background: var(--surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .action-bar-title { font-size: 14px; font-weight: 500; }
+  .action-bar-btn { background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: default; }
+  .action-bar-back { font-size: 18px; color: var(--text-secondary); margin-right: 8px; }
+
+  /* ── Side menu ── */
+  .side-menu { background: var(--primary-dark); border-radius: 10px; padding: 16px 12px; width: 160px; }
+  .sm-user { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .sm-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; font-weight: 600; }
+  .sm-name { font-size: 12px; color: #fff; font-weight: 500; }
+  .sm-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 2px; }
+  .sm-item.active { background: rgba(255,255,255,0.15); color: #fff; }
+  .sm-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .sm-sep { border-top: 0.5px solid rgba(255,255,255,0.1); margin: 12px 0; }
+
+  /* ── General bars ── */
+  .gen-bar { background: var(--bg); border-radius: var(--radius-md); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .gen-bar-label { font-size: 13px; color: var(--text-primary); }
+  .gen-bar-right { font-size: 13px; color: var(--text-secondary); }
+
+  /* ── Drawer ── */
+  .drawer { background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px 16px 0 0; padding: 20px 16px 16px; width: 280px; }
+  .drawer-handle { width: 32px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 16px; }
+  .drawer-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
+
+  /* ── Spacing ── */
+  .spacing-row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+  .sp-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .sp-box { background: rgba(59,59,204,0.12); border: 1px solid rgba(59,59,204,0.25); border-radius: 3px; }
+  .sp-label { font-size: 10px; font-family: var(--font-mono); color: var(--text-tertiary); }
+
+  /* ── Radius ── */
+  .radius-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+  .radius-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .radius-box { width: 48px; height: 48px; background: var(--bg); border: 0.5px solid var(--border); }
+  .radius-lbl { font-size: 10px; font-family: var(--font-mono); color: var(--text-tertiary); text-align: center; }
+
+  /* ── Icons ── */
+  .icon-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .icon-box { width: 40px; height: 40px; border-radius: 8px; background: var(--bg); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--text-primary); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Mobile App Styleguide</h1>
+  <p class="subtitle">Visual reference and usage guidelines for developers building new UI screens.</p>
+
+  <div class="toc">
+    <h2>Contents</h2>
+    <div class="toc-grid">
+      <a href="#colors">Color Palette</a>
+      <a href="#typography">Typography</a>
+      <a href="#spacing">Spacing Scale</a>
+      <a href="#radius">Border Radius</a>
+      <a href="#buttons">Buttons</a>
+      <a href="#toggle">Toggle</a>
+      <a href="#inputs">Input Fields</a>
+      <a href="#indicators">Indicators & Badges</a>
+      <a href="#progress">Progress</a>
+      <a href="#cards">Cards</a>
+      <a href="#actionbar">Action Bar</a>
+      <a href="#sidemenu">Side Menu</a>
+      <a href="#generalbars">General Bars</a>
+      <a href="#drawer">Drawer</a>
+      <a href="#icons">Icons & Graphics</a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ COLOR ══ -->
+  <div class="section" id="colors">
+    <div class="section-header">
+      <div class="section-label">01</div>
+      <div class="section-title">Color Palette</div>
+    </div>
+
+    <div class="visual-area">
+      <div class="visual-label">Primary</div>
+      <div class="swatch-grid" style="margin-bottom:20px;">
+        <div class="swatch"><div class="swatch-box" style="background:#3B3BCC;"></div><div class="swatch-name">Primary</div><div class="swatch-hex">#3B3BCC</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#1E1E6E;"></div><div class="swatch-name">Primary Dark</div><div class="swatch-hex">#1E1E6E</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#6B6BDD;"></div><div class="swatch-name">Primary Light</div><div class="swatch-hex">#6B6BDD</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#E8E8FA; border-color:rgba(0,0,0,0.12);"></div><div class="swatch-name">Primary Tint</div><div class="swatch-hex">#E8E8FA</div></div>
+      </div>
+      <div class="visual-label">Neutral</div>
+      <div class="swatch-grid" style="margin-bottom:20px;">
+        <div class="swatch"><div class="swatch-box" style="background:#FFFFFF; border-color:rgba(0,0,0,0.15);"></div><div class="swatch-name">Surface</div><div class="swatch-hex">#FFFFFF</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#F4F4F8; border-color:rgba(0,0,0,0.12);"></div><div class="swatch-name">Background</div><div class="swatch-hex">#F4F4F8</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#1A1A2E;"></div><div class="swatch-name">Text Primary</div><div class="swatch-hex">#1A1A2E</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#6B6B80;"></div><div class="swatch-name">Text Secondary</div><div class="swatch-hex">#6B6B80</div></div>
+      </div>
+      <div class="visual-label">Semantic</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-box" style="background:#E24B4A;"></div><div class="swatch-name">Danger</div><div class="swatch-hex">#E24B4A</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#639922;"></div><div class="swatch-name">Success</div><div class="swatch-hex">#639922</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#BA7517;"></div><div class="swatch-name">Warning</div><div class="swatch-hex">#BA7517</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#378ADD;"></div><div class="swatch-name">Info</div><div class="swatch-hex">#378ADD</div></div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>Usage</strong>
+      <ul>
+        <li><strong>Primary (#3B3BCC)</strong> — CTAs, active states, focused inputs, selected nav items</li>
+        <li><strong>Primary Dark (#1E1E6E)</strong> — Side menu background, dark card surfaces</li>
+        <li><strong>Primary Tint (#E8E8FA)</strong> — Avatar fills, chip backgrounds, icon container fills</li>
+        <li><strong>Semantic colors</strong> — Reserved for status communication only; do not use for decoration</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ TYPOGRAPHY ══ -->
+  <div class="section" id="typography">
+    <div class="section-header">
+      <div class="section-label">02</div>
+      <div class="section-title">Typography</div>
+    </div>
+    <div class="visual-area">
+      <div class="type-stack">
+        <div class="type-row"><div class="type-spec">28px / 500<br>heading-xl</div><div style="font-size:28px;font-weight:500;">Screen title</div></div>
+        <div class="type-row"><div class="type-spec">22px / 500<br>heading-lg</div><div style="font-size:22px;font-weight:500;">Section header</div></div>
+        <div class="type-row"><div class="type-spec">18px / 500<br>heading-md</div><div style="font-size:18px;font-weight:500;">Card title</div></div>
+        <div class="type-row"><div class="type-spec">15px / 500<br>body-emphasis</div><div style="font-size:15px;font-weight:500;">Label / item title</div></div>
+        <div class="type-row"><div class="type-spec">14px / 400<br>body</div><div style="font-size:14px;">Body text, descriptions, and general content</div></div>
+        <div class="type-row"><div class="type-spec">12px / 400<br>caption</div><div style="font-size:12px;color:var(--text-secondary);">Timestamps, metadata, helper text</div></div>
+        <div class="type-row"><div class="type-spec">11px / 500<br>overline</div><div style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-tertiary);">Section label</div></div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>Usage</strong>
+      <ul>
+        <li><strong>heading-xl</strong> — Top of screen, used once per screen</li>
+        <li><strong>heading-lg / heading-md</strong> — Sub-sections and card headers</li>
+        <li><strong>body-emphasis</strong> — List item titles, form labels, emphasized inline text</li>
+        <li><strong>body</strong> — Default for all content; use liberally</li>
+        <li><strong>caption</strong> — Secondary metadata only; never for primary information</li>
+        <li><strong>overline</strong> — Always uppercase, always above a group of related items</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ SPACING ══ -->
+  <div class="section" id="spacing">
+    <div class="section-header">
+      <div class="section-label">03</div>
+      <div class="section-title">Spacing Scale</div>
+    </div>
+    <div class="visual-area">
+      <div class="spacing-row">
+        <div class="sp-item"><div class="sp-box" style="width:4px;height:4px;"></div><div class="sp-label">4px</div></div>
+        <div class="sp-item"><div class="sp-box" style="width:8px;height:8px;"></div><div class="sp-label">8px</div></div>
+        <div class="sp-item"><div class="sp-box" style="width:12px;height:12px;"></div><div class="sp-label">12px</div></div>
+        <div class="sp-item"><div class="sp-box" style="width:16px;height:16px;"></div><div class="sp-label">16px</div></div>
+        <div class="sp-item"><div class="sp-box" style="width:20px;height:20px;"></div><div class="sp-label">20px</div></div>
+        <div class="sp-item"><div class="sp-box" style="width:24px;height:24px;"></div><div class="sp-label">24px</div></div>
+        <div class="sp-item"><div class="sp-box" style="width:32px;height:32px;"></div><div class="sp-label">32px</div></div>
+        <div class="sp-item"><div class="sp-box" style="width:48px;height:48px;"></div><div class="sp-label">48px</div></div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Value</th><th>Common use</th></tr></thead>
+      <tbody>
+        <tr><td><code>4px</code></td><td>Icon-to-label gaps, tight internal padding</td></tr>
+        <tr><td><code>8px</code></td><td>Between related elements inside a component</td></tr>
+        <tr><td><code>12px</code></td><td>Compact component padding</td></tr>
+        <tr><td><code>16px</code></td><td>Standard component padding, list row vertical padding</td></tr>
+        <tr><td><code>24px</code></td><td>Between stacked components</td></tr>
+        <tr><td><code>32px</code></td><td>Section breaks, between major layout areas</td></tr>
+        <tr><td><code>48px</code></td><td>Screen-level top/bottom padding</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════ RADIUS ══ -->
+  <div class="section" id="radius">
+    <div class="section-header">
+      <div class="section-label">04</div>
+      <div class="section-title">Border Radius</div>
+    </div>
+    <div class="visual-area">
+      <div class="radius-row">
+        <div class="radius-item"><div class="radius-box" style="border-radius:4px;"></div><div class="radius-lbl">4px<br>sm</div></div>
+        <div class="radius-item"><div class="radius-box" style="border-radius:8px;"></div><div class="radius-lbl">8px<br>md</div></div>
+        <div class="radius-item"><div class="radius-box" style="border-radius:12px;"></div><div class="radius-lbl">12px<br>lg</div></div>
+        <div class="radius-item"><div class="radius-box" style="border-radius:16px;"></div><div class="radius-lbl">16px<br>xl</div></div>
+        <div class="radius-item"><div class="radius-box" style="border-radius:24px;"></div><div class="radius-lbl">24px<br>pill</div></div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><code>radius-sm</code></td><td>4px</td><td>Tags, small internal elements</td></tr>
+        <tr><td><code>radius-md</code></td><td>8px</td><td>Buttons, inputs, badges, chips</td></tr>
+        <tr><td><code>radius-lg</code></td><td>12px</td><td>Cards, modals, panels</td></tr>
+        <tr><td><code>radius-xl</code></td><td>16px</td><td>Drawers (top corners only), large surfaces</td></tr>
+        <tr><td><code>radius-pill</code></td><td>24px</td><td>Status indicators, avatar pill containers</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════ BUTTONS ══ -->
+  <div class="section" id="buttons">
+    <div class="section-header">
+      <div class="section-label">05</div>
+      <div class="section-title">Buttons</div>
+    </div>
+    <div class="visual-area">
+      <div class="row" style="align-items:flex-end; gap:24px;">
+        <div class="col">
+          <div class="visual-label">Primary</div>
+          <span class="btn btn-primary">Confirm</span>
+          <span class="btn btn-primary btn-sm">Small</span>
+        </div>
+        <div class="col">
+          <div class="visual-label">Secondary</div>
+          <span class="btn btn-secondary">Cancel</span>
+          <span class="btn btn-secondary btn-sm">Small</span>
+        </div>
+        <div class="col">
+          <div class="visual-label">Ghost</div>
+          <span class="btn btn-ghost">Skip</span>
+          <span class="btn btn-ghost btn-sm">Small</span>
+        </div>
+        <div class="col">
+          <div class="visual-label">Danger</div>
+          <span class="btn btn-danger">Delete</span>
+        </div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use each variant</strong>
+      <ul>
+        <li><strong>Primary</strong> — The single main action on a screen (Submit, Save, Confirm). One per screen or card.</li>
+        <li><strong>Secondary</strong> — Supporting action alongside a primary (Cancel, Edit). Lower visual weight.</li>
+        <li><strong>Ghost</strong> — Optional or navigational actions (Skip, View all, Learn more).</li>
+        <li><strong>Danger</strong> — Destructive or irreversible actions only (Delete, Remove). Always confirm before executing.</li>
+        <li><strong>Small</strong> — Use inside cards, action bars, or compact layouts where default size is too heavy.</li>
+      </ul>
+    </div>
+    <div class="spec-block"><span class="c">/* Spec */</span>
+border-radius: 8px;  font-weight: 500;  min-width: 80px;
+
+Primary:    background #3B3BCC;  color #FFFFFF;
+Secondary:  background transparent;  color #3B3BCC;  border 1.5px solid #3B3BCC;
+Ghost:      background transparent;  color text-secondary;  border 0.5px solid border;
+Danger:     background #E24B4A;  color #FFFFFF;
+
+Default:  padding 10px 20px;  font-size 14px;
+Small:    padding 6px 14px;   font-size 12px;</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ TOGGLE ══ -->
+  <div class="section" id="toggle">
+    <div class="section-header">
+      <div class="section-label">06</div>
+      <div class="section-title">Toggle</div>
+    </div>
+    <div class="visual-area">
+      <div class="row">
+        <div class="toggle-wrap"><div class="toggle toggle-on"><div class="toggle-dot"></div></div><span style="font-size:13px;color:var(--text-secondary);">On</span></div>
+        <div class="toggle-wrap"><div class="toggle toggle-off"><div class="toggle-dot"></div></div><span style="font-size:13px;color:var(--text-secondary);">Off</span></div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use</strong>
+      <p>Use for binary settings that take effect <em>immediately</em> without a save action (e.g., enable notifications, activate a feature). Do not use for form values that require submission — use a checkbox instead.</p>
+    </div>
+    <div class="spec-block">width 40px;  height 22px;  border-radius 11px;
+knob: 16px circle, 3px from active edge
+
+On:   background #3B3BCC;
+Off:  background #CCCCCC;</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ INPUTS ══ -->
+  <div class="section" id="inputs">
+    <div class="section-header">
+      <div class="section-label">07</div>
+      <div class="section-title">Input Fields</div>
+    </div>
+    <div class="visual-area">
+      <div class="row" style="gap:24px; align-items:flex-start;">
+        <div>
+          <div class="input-label">Default</div>
+          <div class="input-demo input-default">Placeholder</div>
+        </div>
+        <div>
+          <div class="input-label">Focused</div>
+          <div class="input-demo input-focused">John Appleseed</div>
+        </div>
+        <div>
+          <div class="input-label">Error</div>
+          <div class="input-demo input-error">invalid@</div>
+          <div class="input-err-msg">Invalid email address</div>
+        </div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use each state</strong>
+      <ul>
+        <li><strong>Default</strong> — Field has not been interacted with</li>
+        <li><strong>Focused</strong> — Field is actively selected (on tap)</li>
+        <li><strong>Error</strong> — Validation failed. Always pair with an error message below the field. Never rely on color alone.</li>
+        <li><strong>Disabled</strong> — Field is not editable. Prefer hiding over disabling when possible.</li>
+      </ul>
+    </div>
+    <div class="spec-block">height: 42px;  padding: 10px 12px;  border-radius: 8px;  font-size: 14px;
+
+Default:  border 0.5px solid rgba(0,0,0,0.1);
+Focused:  border 1.5px solid #3B3BCC;  box-shadow 0 0 0 3px rgba(59,59,204,0.12);
+Error:    border 1.5px solid #E24B4A;  box-shadow 0 0 0 3px rgba(226,75,74,0.12);
+Disabled: opacity 0.5;</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ INDICATORS ══ -->
+  <div class="section" id="indicators">
+    <div class="section-header">
+      <div class="section-label">08</div>
+      <div class="section-title">Indicators & Badges</div>
+    </div>
+    <div class="visual-area">
+      <div class="row">
+        <span class="badge badge-success"><span class="badge-dot"></span>Active</span>
+        <span class="badge badge-warning"><span class="badge-dot"></span>Pending</span>
+        <span class="badge badge-danger"><span class="badge-dot"></span>Failed</span>
+        <span class="badge badge-info"><span class="badge-dot"></span>In progress</span>
+        <span class="badge badge-neutral"><span class="badge-dot"></span>Inactive</span>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use</strong>
+      <p>Use to communicate the <em>current state</em> of an item in a list, card, or detail view. Badges are read-only — not interactive. Map semantic color to meaning consistently across the app.</p>
+    </div>
+    <table style="margin-top:16px;">
+      <thead><tr><th>Variant</th><th>Background</th><th>Text</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td>Success</td><td><code>#EAF3DE</code></td><td><code>#3B6D11</code></td><td>Completed, active, verified</td></tr>
+        <tr><td>Warning</td><td><code>#FAEEDA</code></td><td><code>#854F0B</code></td><td>Pending, awaiting action, expiring soon</td></tr>
+        <tr><td>Danger</td><td><code>#FCEBEB</code></td><td><code>#A32D2D</code></td><td>Failed, overdue, blocked</td></tr>
+        <tr><td>Info</td><td><code>#E6F1FB</code></td><td><code>#185FA5</code></td><td>In progress, processing</td></tr>
+        <tr><td>Neutral</td><td><code>#F4F4F8</code></td><td>text-secondary</td><td>Inactive, archived, not started</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════ PROGRESS ══ -->
+  <div class="section" id="progress">
+    <div class="section-header">
+      <div class="section-label">09</div>
+      <div class="section-title">Progress</div>
+    </div>
+    <div class="visual-area">
+      <div class="row" style="gap:32px; align-items:center;">
+        <div>
+          <div class="visual-label">Linear — 40%</div>
+          <div class="progress-track"><div class="progress-fill progress-blue" style="width:40%;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);width:200px;"><span>Progress</span><span>40%</span></div>
+        </div>
+        <div>
+          <div class="visual-label">Linear — 75% (complete)</div>
+          <div class="progress-track"><div class="progress-fill progress-green" style="width:75%;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);width:200px;"><span>Progress</span><span>75%</span></div>
+        </div>
+        <div>
+          <div class="visual-label">Circular — 68%</div>
+          <div class="progress-circ">
+            <svg width="52" height="52" viewBox="0 0 52 52">
+              <circle cx="26" cy="26" r="20" fill="none" stroke="#F0F0F4" stroke-width="5"/>
+              <circle cx="26" cy="26" r="20" fill="none" stroke="#3B3BCC" stroke-width="5" stroke-dasharray="125.7" stroke-dashoffset="40.2" stroke-linecap="round"/>
+            </svg>
+            <div class="progress-circ-label">68%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use each variant</strong>
+      <ul>
+        <li><strong>Linear</strong> — Multi-step flows, file uploads, loading with a clear start and end</li>
+        <li><strong>Circular</strong> — Compact spaces (cards, list rows), standalone percentage metric</li>
+        <li>Always show the numeric percentage alongside the visual — never rely on the bar alone</li>
+        <li>Switch fill color to <code>#639922</code> (success) when task is near completion or done</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ CARDS ══ -->
+  <div class="section" id="cards">
+    <div class="section-header">
+      <div class="section-label">10</div>
+      <div class="section-title">Cards</div>
+    </div>
+    <div class="visual-area">
+      <div class="row" style="gap:24px; align-items:flex-start;">
+        <div>
+          <div class="visual-label">Dark (primary)</div>
+          <div class="card-dark">
+            <div class="card-title">Total balance</div>
+            <div class="card-val">$3,847</div>
+            <div class="card-sub">+12% this month</div>
+          </div>
+        </div>
+        <div>
+          <div class="visual-label">Light (surface)</div>
+          <div class="card-light">
+            <div class="card-title" style="color:var(--text-tertiary);">Pending tasks</div>
+            <div class="card-val" style="color:var(--text-primary);">14</div>
+            <div class="card-sub" style="color:var(--text-secondary); opacity:1;">Due this week</div>
+          </div>
+        </div>
+        <div>
+          <div class="visual-label">List row</div>
+          <div style="width:240px;">
+            <div class="list-row">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="list-avatar" style="background:#E8E8FA;color:#3B3BCC;">AB</div>
+                <div><div class="list-name">Alex Brown</div><div class="list-meta">2 min ago</div></div>
+              </div>
+              <span class="badge badge-success" style="font-size:11px;padding:2px 8px;">Done</span>
+            </div>
+            <div class="list-row">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="list-avatar" style="background:#FAEEDA;color:#854F0B;">MJ</div>
+                <div><div class="list-name">Maria James</div><div class="list-meta">1 hr ago</div></div>
+              </div>
+              <span class="badge badge-warning" style="font-size:11px;padding:2px 8px;">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use each variant</strong>
+      <ul>
+        <li><strong>Dark card</strong> — Hero metric or featured content. High visual weight — use once per screen.</li>
+        <li><strong>Light card</strong> — Secondary metrics, grouped data, content panels. Can stack multiple.</li>
+        <li><strong>List row</strong> — Repeating items (people, transactions, tasks). Maintain consistent row height throughout a list.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ ACTION BAR ══ -->
+  <div class="section" id="actionbar">
+    <div class="section-header">
+      <div class="section-label">11</div>
+      <div class="section-title">Action Bar</div>
+    </div>
+    <div class="visual-area">
+      <div class="col" style="gap:12px; max-width:320px;">
+        <div class="visual-label">320px — title + action</div>
+        <div class="action-bar" style="width:100%;">
+          <div class="action-bar-title">Filter title</div>
+          <button class="action-bar-btn">Apply</button>
+        </div>
+        <div class="visual-label" style="margin-top:8px;">360px — back + action</div>
+        <div class="action-bar" style="width:100%;">
+          <div style="display:flex;align-items:center;">
+            <span class="action-bar-back">‹</span>
+            <span class="action-bar-title">Detail view</span>
+          </div>
+          <button class="action-bar-btn">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use</strong>
+      <ul>
+        <li>Persistent navigation header at the <em>top of every screen</em></li>
+        <li>Use the back variant (‹ title) when the screen is reachable via navigation and the user needs a way back</li>
+        <li>Action button is optional — only include if there is a primary screen-level action</li>
+        <li>Do not use for tab switching or bottom navigation</li>
+      </ul>
+    </div>
+    <div class="spec-block">height: 48px;  padding: 10px 14px;
+background: surface;  border-radius: 10px;  border: 0.5px solid border;
+
+Title:   14px, font-weight 500
+Button:  primary button, small variant
+Back:    18px chevron, text-secondary, 8px right margin</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ SIDE MENU ══ -->
+  <div class="section" id="sidemenu">
+    <div class="section-header">
+      <div class="section-label">12</div>
+      <div class="section-title">Side Menu</div>
+    </div>
+    <div class="visual-area">
+      <div class="side-menu">
+        <div class="sm-user">
+          <div class="sm-avatar">JD</div>
+          <div class="sm-name">Jane Doe</div>
+        </div>
+        <div class="sm-item active"><span class="sm-dot"></span>Dashboard</div>
+        <div class="sm-item"><span class="sm-dot"></span>Tasks</div>
+        <div class="sm-item"><span class="sm-dot"></span>Scheduled</div>
+        <div class="sm-item"><span class="sm-dot"></span>Reports</div>
+        <div class="sm-sep"></div>
+        <div class="sm-item"><span class="sm-dot"></span>Settings</div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use</strong>
+      <ul>
+        <li>App-level navigation with 4+ top-level destinations that can't fit a tab bar</li>
+        <li>Revealed on tap of a hamburger or profile icon — not always visible</li>
+        <li>Do not use for secondary navigation within a section — use tabs or segmented controls instead</li>
+        <li>Separate utility items (Settings, Logout) from primary nav with a divider</li>
+      </ul>
+    </div>
+    <div class="spec-block">background: #1E1E6E;  border-radius: 10px;  padding: 16px 12px;
+
+Nav item — default:  rgba(255,255,255,0.65), border-radius 6px
+Nav item — active:   background rgba(255,255,255,0.15), color #FFFFFF
+Avatar:  28px circle, rgba(255,255,255,0.2) fill</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ GENERAL BARS ══ -->
+  <div class="section" id="generalbars">
+    <div class="section-header">
+      <div class="section-label">13</div>
+      <div class="section-title">General Bars</div>
+    </div>
+    <div class="visual-area">
+      <div class="col" style="gap:6px; max-width:300px;">
+        <div class="gen-bar"><span class="gen-bar-label">Notifications</span><span class="gen-bar-right">12 ›</span></div>
+        <div class="gen-bar"><span class="gen-bar-label">Privacy</span><span class="gen-bar-right">›</span></div>
+        <div class="gen-bar"><span class="gen-bar-label">Language</span><span class="gen-bar-right">English ›</span></div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use</strong>
+      <ul>
+        <li>Settings rows, preference lists, and list items that navigate to a detail view</li>
+        <li>Right-side content options: chevron (›), value + chevron, count + chevron, or toggle</li>
+        <li>Group related rows together; add an overline-style section label above each group</li>
+        <li>Do not use for primary actions — use buttons. Do not use for data-heavy content — use cards.</li>
+      </ul>
+    </div>
+    <div class="spec-block">padding: 10px 14px;  border-radius: 8px;  background: background;
+gap between rows: 6px;
+
+Label:  13px, text-primary, left-aligned
+Right:  13px, text-secondary, right-aligned</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ DRAWER ══ -->
+  <div class="section" id="drawer">
+    <div class="section-header">
+      <div class="section-label">14</div>
+      <div class="section-title">Drawer</div>
+    </div>
+    <div class="visual-area">
+      <div class="drawer">
+        <div class="drawer-handle"></div>
+        <div class="drawer-title">Choose action</div>
+        <div class="col" style="gap:6px;">
+          <div class="gen-bar" style="width:100%;"><span class="gen-bar-label">Edit item</span></div>
+          <div class="gen-bar" style="width:100%;"><span class="gen-bar-label" style="color:#A32D2D;">Delete item</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>When to use</strong>
+      <ul>
+        <li>Contextual actions tied to a selected item (long-press actions, share options, item settings)</li>
+        <li>Use instead of a modal when: 2–5 discrete actions, content is contextual, background screen should remain visible</li>
+        <li>Destructive actions go last and use <code>#A32D2D</code> text color</li>
+        <li><strong>Do not use</strong> for forms or multi-step flows — use a full modal or new screen instead</li>
+      </ul>
+    </div>
+    <div class="spec-block">border-radius: 16px 16px 0 0;  padding: 20px 16px 16px;
+background: surface;  border-top: 0.5px solid border;
+
+Handle:  32×4px, border-radius 2px, centered, margin-bottom 16px
+Title:   15px, font-weight 500
+Rows:    general bar style, full width
+Danger:  label color #A32D2D</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ ICONS ══ -->
+  <div class="section" id="icons">
+    <div class="section-header">
+      <div class="section-label">15</div>
+      <div class="section-title">Icons & Graphics</div>
+    </div>
+    <div class="visual-area">
+      <div class="icon-grid" style="margin-bottom:16px;">
+        <div class="icon-box">☰</div>
+        <div class="icon-box">←</div>
+        <div class="icon-box">→</div>
+        <div class="icon-box">✕</div>
+        <div class="icon-box">+</div>
+        <div class="icon-box">✓</div>
+        <div class="icon-box">⋯</div>
+        <div class="icon-box">↓</div>
+        <div class="icon-box">↑</div>
+        <div class="icon-box">⚙</div>
+        <div class="icon-box">◎</div>
+        <div class="icon-box">◉</div>
+      </div>
+      <div style="display:flex;gap:24px;align-items:center;">
+        <div style="text-align:center;">
+          <div style="width:44px;height:44px;border:1.5px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 6px;">⚙</div>
+          <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-tertiary);">20px<br>standard</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:44px;height:44px;border:1.5px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto 6px;">⚙</div>
+          <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-tertiary);">16px<br>compact</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:44px;height:44px;border:1.5px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 6px;">⚙</div>
+          <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-tertiary);">24px<br>featured</div>
+        </div>
+        <div style="margin-left:16px;font-size:12px;color:var(--text-secondary);line-height:1.8;">Dashed border = 44×44px minimum touch target.<br>Icon sits centered within the tap area.</div>
+      </div>
+    </div>
+    <div class="usage-box">
+      <strong>Usage rules</strong>
+      <ul>
+        <li>Icons always support a label — do not use as the sole means of communication unless the icon is universally understood (✕ close, ← back)</li>
+        <li>Minimum touch target: <strong>44×44px</strong> regardless of icon size</li>
+        <li>Active/selected state: <code>#3B3BCC</code> · Disabled: text-tertiary at 40% opacity</li>
+        <li>Use the existing Figma icon set — do not introduce icons from external libraries without design review</li>
+      </ul>
+    </div>
+    <table>
+      <thead><tr><th>Context</th><th>Size</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>Navigation / action bar</td><td>20px</td><td>Standard interactive icons</td></tr>
+        <tr><td>List rows, compact UI</td><td>16px</td><td>Inline with text</td></tr>
+        <tr><td>Featured / empty states</td><td>24px</td><td>Standalone illustrative icons</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="border-top:0.5px solid var(--border);padding-top:24px;margin-top:24px;font-size:12px;color:var(--text-tertiary);">
+    Mobile App Styleguide · Last updated April 2026
+  </div>
+
+</div>
+</body>
+</html>
