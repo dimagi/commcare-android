@@ -11,6 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_REQUIRE_APP_SYNC
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_SESSION_ENDPOINT_ID
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
@@ -206,7 +208,8 @@ object PushNotificationApiHelper {
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         pn.put(NOTIFICATION_KEY, pnRecord.key)
         pn.put(OPPORTUNITY_STATUS, pnRecord.opportunityStatus)
-        pn.put(PushNotificationRecord.META_SESSION_ENDPOINT_ID, pnRecord.sessionEndpointId)
+        pn.put(META_SESSION_ENDPOINT_ID, pnRecord.sessionEndpointId)
+        pn.put(META_REQUIRE_APP_SYNC, pnRecord.requireAppSync.toString())
         return pn
     }
 

@@ -100,6 +100,11 @@ class PushNotificationRecord :
     @MetaField(META_SESSION_ENDPOINT_ID)
     var sessionEndpointId: String = ""
 
+    // if we do need to do an app sync, only matters when a session endpoint id is present.
+    @Persisting(19)
+    @MetaField(META_REQUIRE_APP_SYNC)
+    var requireAppSync: Boolean = true
+
     fun getNotificationActionFromRecord() =
         if (CCC_GENERIC_OPPORTUNITY.equals(action) &&
             !TextUtils.isEmpty(key)
@@ -135,6 +140,7 @@ class PushNotificationRecord :
         const val META_KEY = "key"
         const val META_OPPORTUNITY_STATUS = "opportunity_status"
         const val META_SESSION_ENDPOINT_ID = "session_endpoint_id"
+        const val META_REQUIRE_APP_SYNC = "require_app_sync"
 
         fun fromJson(obj: JSONObject): PushNotificationRecord =
             PushNotificationRecord().apply {
@@ -156,6 +162,7 @@ class PushNotificationRecord :
                 key = obj.optString(META_KEY, "")
                 opportunityStatus = obj.optString(META_OPPORTUNITY_STATUS, "")
                 sessionEndpointId = obj.optString(META_SESSION_ENDPOINT_ID, "")
+                requireAppSync = obj.optBoolean(META_REQUIRE_APP_SYNC, true)
             }
 
         fun fromV24(v24: PushNotificationRecordV24): PushNotificationRecord =
@@ -178,6 +185,7 @@ class PushNotificationRecord :
                 key = v24.key
                 opportunityStatus = v24.opportunityStatus
                 sessionEndpointId = ""
+                requireAppSync = true
             }
     }
 }
