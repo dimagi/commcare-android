@@ -172,11 +172,11 @@ public class ApiPersonalId {
 
     public static void updateUserProfile(Context context, String username,
                                          String password, String displayName,
-                                         String secondaryPhone, IApiCallback callback) {
-        //Update the phone number with the server
+                                         String secondaryPhone, String photoAsBase64, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
         HashMap<String, String> params = new HashMap<>();
+
         if (secondaryPhone != null) {
             params.put("secondary_phone", secondaryPhone);
         }
@@ -184,6 +184,11 @@ public class ApiPersonalId {
         if (displayName != null) {
             params.put("name", displayName);
         }
+
+        if (photoAsBase64 != null) {
+            params.put("photo", photoAsBase64);
+        }
+
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.updateProfile);
