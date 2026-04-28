@@ -911,7 +911,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
     }
 
-    private ConnectJobPreferences getJobPreferences() {
+    public ConnectJobPreferences getJobPreferences() {
         if (jobPreferences == null) {
             jobPreferences = new ConnectJobPreferences(jobUUID);
         }

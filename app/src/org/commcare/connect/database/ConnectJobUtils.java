@@ -16,6 +16,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.ConnectJobPreferences;
 import org.javarosa.xform.util.CalendarUtils;
 
 import java.util.ArrayList;
@@ -27,8 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
-
-import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectJobUtils {
 
@@ -267,7 +266,8 @@ public class ConnectJobUtils {
             Context context,
             List<ConnectJobPaymentRecord> payments,
             String jobUUID,
-            boolean pruneMissing
+            boolean pruneMissing,
+            ConnectJobPreferences jobPrefs
     ) {
         SqlStorage<ConnectJobPaymentRecord> storage = ConnectDatabaseHelper.getConnectStorage(
                 context,
@@ -311,12 +311,8 @@ public class ConnectJobUtils {
             }
         }
 
-        // Check if there is a brand new payment so that we can reset the timer for the payment
-        // confirmation tile.
         if (newPaymentReceived) {
-            ICommCarePreferenceManager preferenceManager =
-                    CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-            preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+            jobPrefs.resetPaymentConfirmationHiddenSinceTime();
         }
     }
 

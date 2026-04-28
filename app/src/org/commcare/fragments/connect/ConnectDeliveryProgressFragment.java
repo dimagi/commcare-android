@@ -35,6 +35,7 @@ import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.preferences.ConnectJobPreferences;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.views.connect.ConnectViewUtils;
 import org.javarosa.core.model.utils.DateUtils;
@@ -44,8 +45,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment<FragmentConnectDeliveryProgressBinding>
         implements RefreshableFragment {
@@ -161,8 +160,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void handlePaymentConfirmationNoClick() {
         updatePaymentConfirmationTile(true);
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, new Date().getTime());
+        job.getJobPreferences().setPaymentConfirmationHiddenSinceTime(new Date().getTime());
     }
 
     private void handlePaymentConfirmYesButtonClick() {
@@ -277,13 +275,13 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             }
         }
 
-        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        long hiddenSinceTimeMs = preferenceManager.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+        ConnectJobPreferences jobPrefs = job.getJobPreferences();
+        long hiddenSinceTimeMs = jobPrefs.getPaymentConfirmationHiddenSinceTime();
         long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
 
         boolean showTile = !paymentsToConfirm.isEmpty()
                 && ConnectivityStatus.isNetworkAvailable(requireContext())
-                && (hiddenSinceTimeMs == -1 || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
+                && (jobPrefs.paymentConfirmationHiddenSinceTimeNotSet() || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
 
         if (showTile) {
             getBinding().connectPaymentConfirmLabel.setText(

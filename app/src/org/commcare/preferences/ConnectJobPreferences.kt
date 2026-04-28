@@ -26,10 +26,24 @@ class ConnectJobPreferences(jobUUID: String) {
         setRelearnTasksCompletedTime(RELEARN_TASKS_COMPLETED_TIME_NOT_SET)
     }
 
+    fun getPaymentConfirmationHiddenSinceTime(): Long = prefs.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME_NOT_SET)
+
+    fun paymentConfirmationHiddenSinceTimeNotSet(): Boolean = getPaymentConfirmationHiddenSinceTime() == PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME_NOT_SET
+
+    fun setPaymentConfirmationHiddenSinceTime(hiddenSinceTimeMs: Long) {
+        prefs.edit { putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, hiddenSinceTimeMs) }
+    }
+
+    fun resetPaymentConfirmationHiddenSinceTime() {
+        setPaymentConfirmationHiddenSinceTime(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME_NOT_SET)
+    }
+
     companion object {
         private const val PREF_NAME_PREFIX = "connect_job_prefs_"
         private const val KEY_RELEARN_TASK_PENDING = "relearn_task_pending"
         private const val KEY_RELEARN_TASKS_COMPLETED_TIME_MS = "relearn_tasks_completed_time_ms"
         private const val RELEARN_TASKS_COMPLETED_TIME_NOT_SET = -1L
+        private const val PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME = "payment_confirmation_hidden_since_time"
+        private const val PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME_NOT_SET = -1L
     }
 }
