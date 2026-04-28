@@ -866,16 +866,19 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean shouldShowRelearnTasksCompletedMessage() {
-        long relearnTasksCompletedTimeMs = getJobPreferences().getRelearnTasksCompletedTimeMs();
+        ConnectJobPreferences jobPrefs = getJobPreferences();
+        long relearnTasksCompletedTimeMs = jobPrefs.getRelearnTasksCompletedTimeMs();
         long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
 
-        return relearnTasksCompletedTimeMs != -1 && timeElapsedSinceTasksCompleted < RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS
+        return !jobPrefs.relearnTasksCompletedTimeNotSet() && timeElapsedSinceTasksCompleted < RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS
                 && status == STATUS_DELIVERING;
     }
 
     public void syncRelearnTasksPrefs(List<ParsedConnectTask> tasks) {
+        ConnectJobPreferences jobPrefs = getJobPreferences();
+
         if (tasks == null || tasks.isEmpty()) {
-            getJobPreferences().setRelearnTaskPending(false);
+            jobPrefs.setRelearnTaskPending(false);
             return;
         }
 
@@ -892,20 +895,19 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
         }
 
-        getJobPreferences().setRelearnTaskPending(anyAssigned);
+        jobPrefs.setRelearnTaskPending(anyAssigned);
 
         // If at least one task is currently assigned, then we know that not all of them were completed.
         if (anyAssigned) {
-            getJobPreferences().setRelearnTasksCompletedTime(-1);
+            jobPrefs.resetRelearnTasksCompletedTime();
             return;
         }
 
-        long currentTasksCompletedTime = getJobPreferences().getRelearnTasksCompletedTimeMs();
-        if (currentTasksCompletedTime == -1) {
+        if (jobPrefs.relearnTasksCompletedTimeNotSet()) {
             // Set the completion time for all tasks to the latest date any task was modified, or
             // fallback to the current date if there is no latest modified date.
             long newTasksCompletedTime = latestModified != null ? latestModified.getTime() : new Date().getTime();
-            getJobPreferences().setRelearnTasksCompletedTime(newTasksCompletedTime);
+            jobPrefs.setRelearnTasksCompletedTime(newTasksCompletedTime);
         }
     }
 
