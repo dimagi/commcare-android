@@ -85,7 +85,26 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
             filterCards[i].setOnClickListener(v -> onFilterSelected(filter, filterCards, filterLabels));
         }
 
+        updatePendingFilterVisibility();
         setFilterHighlight(filterCards[0], filterLabels[0], true);
+    }
+
+    private void updatePendingFilterVisibility() {
+        boolean hasPending = hasPendingDeliveries();
+        getBinding().pendingFilterButton.setVisibility(hasPending ? View.VISIBLE : View.GONE);
+        if (!hasPending && PENDING_IDENTIFIER.equals(currentFilter)) {
+            getBinding().allFilterButton.performClick();
+        }
+    }
+
+    private boolean hasPendingDeliveries() {
+        for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
+            if (delivery.getUnitName().equalsIgnoreCase(unitName)
+                    && PENDING_IDENTIFIER.equalsIgnoreCase(delivery.getStatus())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void onFilterSelected(String selectedFilter, CardView[] filterCards, TextView[] filterLabels) {
@@ -126,6 +145,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     private void refreshData() {
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success,error) -> {
             if (success) {
+                updatePendingFilterVisibility();
                 adapter.updateDeliveries(getFilteredDeliveries());
             }
         });
