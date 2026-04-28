@@ -85,7 +85,25 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
             filterCards[i].setOnClickListener(v -> onFilterSelected(filter, filterCards, filterLabels));
         }
 
+        updatePendingFilterVisibility();
         setFilterHighlight(filterCards[0], filterLabels[0], true);
+    }
+
+    private void updatePendingFilterVisibility() {
+        boolean hasPending = hasPendingDeliveries();
+        getBinding().pendingFilterButton.setVisibility(hasPending ? View.VISIBLE : View.GONE);
+        if (!hasPending && PENDING_IDENTIFIER.equals(currentFilter)) {
+            getBinding().allFilterButton.performClick();
+        }
+    }
+
+    private boolean hasPendingDeliveries() {
+        for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
+            if (matchesFilter(delivery, PENDING_IDENTIFIER)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void onFilterSelected(String selectedFilter, CardView[] filterCards, TextView[] filterLabels) {
@@ -126,6 +144,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     private void refreshData() {
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success,error) -> {
             if (success) {
+                updatePendingFilterVisibility();
                 adapter.updateDeliveries(getFilteredDeliveries());
             }
         });
@@ -142,15 +161,18 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
 
     private List<ConnectJobDeliveryRecord> getFilteredDeliveries() {
         List<ConnectJobDeliveryRecord> filteredList = new ArrayList<>();
-
         for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
-            boolean matchesUnit = delivery.getUnitName().equalsIgnoreCase(unitName);
-            boolean matchesFilter = currentFilter.equals(ALL_IDENTIFIER) || delivery.getStatus().equalsIgnoreCase(currentFilter);
-            if (matchesUnit && matchesFilter) {
+            if (matchesFilter(delivery, currentFilter)) {
                 filteredList.add(delivery);
             }
         }
         return filteredList;
+    }
+
+    private boolean matchesFilter(ConnectJobDeliveryRecord delivery, String filter) {
+        boolean matchesUnit = delivery.getUnitName().equalsIgnoreCase(unitName);
+        boolean matchesStatus = filter.equals(ALL_IDENTIFIER) || delivery.getStatus().equalsIgnoreCase(filter);
+        return matchesUnit && matchesStatus;
     }
 
     @Override
