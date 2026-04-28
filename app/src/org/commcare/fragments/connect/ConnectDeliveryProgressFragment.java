@@ -27,6 +27,7 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
@@ -158,7 +159,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void handlePaymentConfirmationNoClick() {
         updatePaymentConfirmationTile(true);
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-        job.getJobPreferences().setPaymentConfirmationHiddenSinceTime(new Date().getTime());
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(job.getJobUUID());
+        jobPrefs.setPaymentConfirmationHiddenSinceTime(new Date().getTime());
     }
 
     private void handlePaymentConfirmYesButtonClick() {
@@ -273,7 +275,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             }
         }
 
-        ConnectJobPreferences jobPrefs = job.getJobPreferences();
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(job.getJobUUID());
         long hiddenSinceTimeMs = jobPrefs.getPaymentConfirmationHiddenSinceTime();
         long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
 

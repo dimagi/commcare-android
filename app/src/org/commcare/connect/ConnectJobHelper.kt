@@ -116,7 +116,7 @@ object ConnectJobHelper {
                     if (job.payments.isNotEmpty()) {
                         events.add(PAID_DELIVERY)
                     }
-                    ConnectJobUtils.storePayments(context, job.payments, job.jobUUID, true, job.jobPreferences)
+                    ConnectJobUtils.storePayments(context, job.payments, job.jobUUID, true)
                 }
 
                 job.syncRelearnTasksPrefs(deliveryAppProgressResponseModel.parsedTasks)

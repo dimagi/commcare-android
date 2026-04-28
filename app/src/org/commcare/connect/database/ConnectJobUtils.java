@@ -35,6 +35,10 @@ public class ConnectJobUtils {
         new JobStoreManager(context).storeJobs(context, list, false);
     }
 
+    public static ConnectJobPreferences getJobPreferences(String jobUUID) {
+        return new ConnectJobPreferences(jobUUID);
+    }
+
     public static ConnectJobRecord getCompositeJob(Context context, String jobUUID) {
         Vector<ConnectJobRecord> jobs = ConnectDatabaseHelper.getConnectStorage(
                 context,
@@ -264,8 +268,7 @@ public class ConnectJobUtils {
             Context context,
             List<ConnectJobPaymentRecord> payments,
             String jobUUID,
-            boolean pruneMissing,
-            ConnectJobPreferences jobPrefs
+            boolean pruneMissing
     ) {
         SqlStorage<ConnectJobPaymentRecord> storage = ConnectDatabaseHelper.getConnectStorage(
                 context,
@@ -310,7 +313,7 @@ public class ConnectJobUtils {
         }
 
         if (newPaymentReceived) {
-            jobPrefs.resetPaymentConfirmationHiddenSinceTime();
+            getJobPreferences(jobUUID).resetPaymentConfirmationHiddenSinceTime();
         }
     }
 
