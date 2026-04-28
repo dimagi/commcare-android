@@ -9,7 +9,10 @@ import org.commcare.activities.CommCareFormDumpActivity;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
@@ -19,6 +22,7 @@ import org.commcare.utils.StorageUtils;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
 import org.commcare.views.widgets.MediaWidget;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -26,8 +30,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -68,7 +76,12 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
 
-    private FormUploadResult dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException {
+    private FormUploadResult dumpInstance(
+            File folder,
+            Key key,
+            String transformation,
+            boolean isKeystoreKey
+    ) throws FileNotFoundException {
 
         Logger.log(TAG, "Dumping form instance at folder: " + folder);
 
@@ -110,20 +123,23 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         //this.startSubmission(submissionNumber, bytes);
 
-        final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
-
         /* Encrypted files need to copied to the SD Card in their original form, reason
          * being the decryption key is associated with to the user and device and therefore
          * not available in the target device
          */
         for (File file : files) {
             try {
-                if (file.getName().endsWith(".xml"))
-                    FileUtil.copyFile(file, new File(myDir, file.getName()), decrypter, null);
-                else if (file.getName().endsWith(MediaWidget.AES_EXTENSION))
-                    FileUtil.copyFile(file, new File(myDir, MediaWidget.removeAESExtension(file.getName())), decrypter, null);
-                else
+                if (file.getName().endsWith(".xml") || file.getName().endsWith(MediaWidget.AES_EXTENSION)) {
+                    String targetName = file.getName().endsWith(MediaWidget.AES_EXTENSION)
+                            ? MediaWidget.removeAESExtension(file.getName()) : file.getName();
+                    try (InputStream is = EncryptionIO.getFileInputStream(file.getAbsolutePath(), key,
+                            transformation, isKeystoreKey);
+                         OutputStream os = new FileOutputStream(new File(myDir, targetName))) {
+                        StreamsUtil.writeFromInputToOutputNew(is, os);
+                    }
+                } else {
                     FileUtil.copyFile(file, new File(myDir, file.getName()));
+                }
             } catch (IOException ie) {
                 Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
                 publishProgress(("File writing failed: " + ie.getMessage()));
@@ -131,6 +147,11 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
             }
         }
         return FormUploadResult.FULL_SUCCESS;
+    }
+
+    private FormUploadResult dumpInstanceWithKeystore(File folder, EncryptionKeyAndTransform keystoreKey)
+            throws FileNotFoundException {
+        return dumpInstance(folder, keystoreKey.getKey(), keystoreKey.getTransformation(), true);
     }
 
     @SuppressLint("NewApi")
@@ -226,7 +247,12 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                         //Good!
                         //Time to Send!
                         try {
-                            results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+                            if (record.usesKeystoreEncryption()) {
+                                results[i] = dumpInstanceWithKeystore(folder,
+                                        CommCareKeyManager.retrieveSessionKeyAndTransformation());
+                            } else {
+                                results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"), null, false);
+                            }
 
                         } catch (FileNotFoundException e) {
                             if (CommCareApplication.instance().isStorageAvailable()) {

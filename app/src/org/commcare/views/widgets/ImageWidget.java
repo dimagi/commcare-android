@@ -27,6 +27,7 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
@@ -42,6 +43,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.security.Key;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -193,9 +195,17 @@ public class ImageWidget extends QuestionWidget {
             } else if (encryptedFile.exists()) {
                 checkFileSize(encryptedFile);
             }
-
-            File toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
-                    ((FormEntryActivity)getContext()).getSymetricKey());
+            File toDisplay;
+            if (((FormEntryActivity)getContext()).isKeyFromKeystore()) {
+                toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
+                        CommCareKeyManager.retrieveSessionKeyAndTransformation().getKey(),
+                        CommCareKeyManager.retrieveSessionKeyAndTransformation().getTransformation(),
+                        true
+                );
+            } else {
+                toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
+                        ((FormEntryActivity)getContext()).getSymetricKey(), null, false);
+            }
 
             if (toDisplay.exists()) {
                 Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay,
@@ -221,7 +231,13 @@ public class ImageWidget extends QuestionWidget {
 
     // If there is an image in the raw folder, use that as the display image, since it is better quality
     // otherwise checks if the file to be uploaded exists and decrypt if needed
-    public static File getFileToDisplay(String instanceFolder, String binaryName, SecretKeySpec secretKey) {
+    public static File getFileToDisplay(
+            String instanceFolder,
+            String binaryName,
+            Key key,
+            String transformation,
+            boolean isKeyFromKeystore
+    ) {
         File imageBeingSubmitted = new File(instanceFolder + "/" + binaryName);
         File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(instanceFolder) + "/" + binaryName);
         if (!toDisplay.exists()) {
@@ -231,7 +247,7 @@ public class ImageWidget extends QuestionWidget {
                 File encryptedFile = new File(imageBeingSubmitted.getAbsolutePath() + MediaWidget.AES_EXTENSION);
                 if (encryptedFile.exists()) {
                     // we need to decrypt the file and store it in a temp path to display
-                    String mTempPath = MediaWidget.decryptMedia(encryptedFile, secretKey);
+                    String mTempPath = MediaWidget.decryptMedia(encryptedFile, key, transformation, isKeyFromKeystore);
                     toDisplay = new File(mTempPath);
                 }
             }
