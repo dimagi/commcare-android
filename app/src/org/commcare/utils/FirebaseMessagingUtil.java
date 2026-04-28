@@ -375,8 +375,9 @@ public class FirebaseMessagingUtil {
     private static Intent handleSessionEndpointNotification(
             Context context, FCMMessageData fcmMessageData, boolean showNotification,
             String sessionEndpointId) {
-        String opportunityID = fcmMessageData.getPayloadData().get(OPPORTUNITY_UUID);
-        String opportunityStatus = fcmMessageData.getPayloadData().get(OPPORTUNITY_STATUS);
+        Map<String, String> payloadData = fcmMessageData.getPayloadData();
+        String opportunityID = payloadData.get(OPPORTUNITY_UUID);
+        String opportunityStatus = payloadData.get(OPPORTUNITY_STATUS);
         String appId = null;
         try {
             appId = ConnectJobUtils.getAppIdForOpportunity(context, opportunityID, opportunityStatus);
@@ -394,7 +395,10 @@ public class FirebaseMessagingUtil {
         intent.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
         intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
         intent.putExtra(IS_LAUNCH_FROM_CONNECT, true);
-        intent.putExtra(CC_LAUNCH_REQUIRE_SYNC, true);
+        // Default to true when the field is absent — older server payloads always require sync
+        String requireAppSyncStr = payloadData.get(PushNotificationRecord.META_REQUIRE_APP_SYNC);
+        boolean requireSync = requireAppSyncStr == null || Boolean.parseBoolean(requireAppSyncStr);
+        intent.putExtra(CC_LAUNCH_REQUIRE_SYNC, requireSync);
         if (showNotification) {
             showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
         }
