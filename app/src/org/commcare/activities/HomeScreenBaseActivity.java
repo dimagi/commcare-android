@@ -182,6 +182,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private FirebaseMessagingDataSyncer dataSyncer;
     private boolean isVisible;
 
+    // Set when a session endpoint launch requires a blocking sync before navigating to the endpoint
+    private boolean pendingEndpointNavigationAfterSync = false;
+
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
 
@@ -226,8 +229,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
             wasExternal = true;
-            if (processSessionEndpoint()) {
-                sessionNavigator.startNextSessionStep();
+            if (getIntent().getBooleanExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC, false)) {
+                getIntent().removeExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC);
+                pendingEndpointNavigationAfterSync = true;
+                redirectedInOnCreate = true;
+                triggerSync(false);
+            } else {
+                if (processSessionEndpoint()) {
+                    sessionNavigator.startNextSessionStep();
+                }
             }
         }
     }
@@ -1322,6 +1332,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onResumeSessionSafe() {
+        if (pendingEndpointNavigationAfterSync) {
+            pendingEndpointNavigationAfterSync = false;
+            if (processSessionEndpoint()) {
+                sessionNavigator.startNextSessionStep();
+            }
+            return;
+        }
+
         if (!redirectedInOnCreate && !sessionNavigationProceedingAfterOnResume) {
             refreshActionBar();
             attemptDispatchHomeScreen();
