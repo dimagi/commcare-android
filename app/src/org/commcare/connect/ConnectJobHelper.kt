@@ -119,10 +119,7 @@ object ConnectJobHelper {
                     ConnectJobUtils.storePayments(context, job.payments, job.jobUUID, true)
                 }
 
-                ConnectJobRecord.syncRelearnTasksPrefs(
-                    job.jobUUID,
-                    deliveryAppProgressResponseModel.parsedTasks,
-                )
+                job.syncRelearnTasksPrefs(deliveryAppProgressResponseModel.parsedTasks)
 
                 events.forEach { event ->
                     FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event)

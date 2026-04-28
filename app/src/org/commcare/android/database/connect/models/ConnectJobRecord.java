@@ -7,12 +7,11 @@ import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.network.connect.models.ParsedConnectTask;
-import org.commcare.core.services.CommCarePreferenceManagerFactory;
-import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.preferences.ConnectJobPreferences;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
@@ -30,9 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-
-import static org.commcare.connect.ConnectConstants.RELEARN_TASK_PENDING_PREFIX;
-import static org.commcare.connect.ConnectConstants.RELEARN_TASKS_COMPLETED_TIME;
 
 /**
  * Data class for holding info related to a Connect job
@@ -187,6 +183,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     static Date startDate = new Date();
 
     private boolean claimed;
+
+    private transient ConnectJobPreferences jobPreferences;
 
     public ConnectJobRecord() {
         lastUpdate = new Date();
@@ -864,26 +862,20 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean isRelearnTaskPending() {
-        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-
-        return preferenceManager.getBoolean(getPendingRelearnTasksKey(jobUUID), false)
-                && status == STATUS_DELIVERING;
+        return getJobPreferences().isRelearnTaskPending() && status == STATUS_DELIVERING;
     }
 
     public boolean shouldShowRelearnTasksCompletedMessage() {
-        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        long relearnTasksCompletedTimeMs = preferenceManager.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+        long relearnTasksCompletedTimeMs = getJobPreferences().getRelearnTasksCompletedTimeMs();
         long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
 
         return relearnTasksCompletedTimeMs != -1 && timeElapsedSinceTasksCompleted < RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS
                 && status == STATUS_DELIVERING;
     }
 
-    public static void syncRelearnTasksPrefs(String jobUUID, List<ParsedConnectTask> tasks) {
-        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-
+    public void syncRelearnTasksPrefs(List<ParsedConnectTask> tasks) {
         if (tasks == null || tasks.isEmpty()) {
-            preferenceManager.putBoolean(getPendingRelearnTasksKey(jobUUID), false);
+            getJobPreferences().setRelearnTaskPending(false);
             return;
         }
 
@@ -900,24 +892,28 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
         }
 
-        preferenceManager.putBoolean(getPendingRelearnTasksKey(jobUUID), anyAssigned);
+        getJobPreferences().setRelearnTaskPending(anyAssigned);
 
         // If at least one task is currently assigned, then we know that not all of them were completed.
         if (anyAssigned) {
-            preferenceManager.putLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+            getJobPreferences().setRelearnTasksCompletedTime(-1);
             return;
         }
 
-        long currentTasksCompletedTime = preferenceManager.getLong(RELEARN_TASKS_COMPLETED_TIME, -1);
+        long currentTasksCompletedTime = getJobPreferences().getRelearnTasksCompletedTimeMs();
         if (currentTasksCompletedTime == -1) {
             // Set the completion time for all tasks to the latest date any task was modified, or
             // fallback to the current date if there is no latest modified date.
             long newTasksCompletedTime = latestModified != null ? latestModified.getTime() : new Date().getTime();
-            preferenceManager.putLong(RELEARN_TASKS_COMPLETED_TIME, newTasksCompletedTime);
+            getJobPreferences().setRelearnTasksCompletedTime(newTasksCompletedTime);
         }
     }
 
-    private static String getPendingRelearnTasksKey(String jobUUID) {
-        return RELEARN_TASK_PENDING_PREFIX + jobUUID;
+    private ConnectJobPreferences getJobPreferences() {
+        if (jobPreferences == null) {
+            jobPreferences = new ConnectJobPreferences(jobUUID);
+        }
+
+        return jobPreferences;
     }
 }
