@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.commcare.activities.DispatchActivity.CC_LAUNCH_REQUIRE_SYNC;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
@@ -393,6 +394,7 @@ public class FirebaseMessagingUtil {
         intent.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
         intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
         intent.putExtra(IS_LAUNCH_FROM_CONNECT, true);
+        intent.putExtra(CC_LAUNCH_REQUIRE_SYNC, true);
         if (showNotification) {
             showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
         }
