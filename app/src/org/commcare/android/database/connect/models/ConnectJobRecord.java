@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ParsedConnectTask;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
@@ -183,8 +184,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     static Date startDate = new Date();
 
     private boolean claimed;
-
-    private transient ConnectJobPreferences jobPreferences;
 
     public ConnectJobRecord() {
         lastUpdate = new Date();
@@ -862,11 +861,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean isRelearnTaskPending() {
-        return getJobPreferences().isRelearnTaskPending() && status == STATUS_DELIVERING;
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
+        return jobPrefs.isRelearnTaskPending() && status == STATUS_DELIVERING;
     }
 
     public boolean shouldShowRelearnTasksCompletedMessage() {
-        ConnectJobPreferences jobPrefs = getJobPreferences();
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
         long relearnTasksCompletedTimeMs = jobPrefs.getRelearnTasksCompletedTimeMs();
         long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
 
@@ -875,7 +875,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public void syncRelearnTasksPrefs(List<ParsedConnectTask> tasks) {
-        ConnectJobPreferences jobPrefs = getJobPreferences();
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
 
         if (tasks == null || tasks.isEmpty()) {
             jobPrefs.setRelearnTaskPending(false);
@@ -909,13 +909,5 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             long newTasksCompletedTime = latestModified != null ? latestModified.getTime() : new Date().getTime();
             jobPrefs.setRelearnTasksCompletedTime(newTasksCompletedTime);
         }
-    }
-
-    private ConnectJobPreferences getJobPreferences() {
-        if (jobPreferences == null) {
-            jobPreferences = new ConnectJobPreferences(jobUUID);
-        }
-
-        return jobPreferences;
     }
 }
