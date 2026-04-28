@@ -42,6 +42,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -617,8 +618,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void onConfigurationSuccess() {
-        Navigation.findNavController(binding.personalidPhoneContinueButton)
-                .navigate(navigateToBiometricSetup());
+        NavDirections directions = BuildConfig.IS_QA_AUTOMATION
+                ? navigateToPersonalIdName()
+                : navigateToBiometricSetup();
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(directions);
     }
 
     private void navigateFailure(
@@ -643,6 +646,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     private NavDirections navigateToBiometricSetup() {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
+    }
+
+    private NavDirections navigateToPersonalIdName() {
+        return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidName();
     }
 
     @Override

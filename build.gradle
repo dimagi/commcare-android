@@ -13,7 +13,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'org.jacoco:org.jacoco.core:0.8.11'
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.15.1'
-        classpath 'com.google.firebase:perf-plugin:1.4.2'
+        classpath 'com.google.firebase:perf-plugin:2.0.2'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 }
@@ -34,4 +34,9 @@ ext {
     markwon_version = '4.6.2'
     lifecycle_version = '2.5.1'
     cameraX_version = '1.4.0'
+    okhttp_version = '4.11.0'
+    retrofit_version = '2.9.0'
+    espresso_version = '3.6.1'
+    work_version = '2.10.3'
+    legacy_support_version = '1.0.0'
 }
