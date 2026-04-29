@@ -98,7 +98,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(v -> {
-            if (isAttachmentLimitReached()) {
+            if (warnIfAttachmentLimitReached()) {
                 return;
             }
             mErrorTextView.setVisibility(View.GONE);
@@ -127,7 +127,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(v -> {
-            if (isAttachmentLimitReached()) {
+            if (warnIfAttachmentLimitReached()) {
                 return;
             }
             if (ImageCaptureProcessing.getCustomImagePath() != null) {

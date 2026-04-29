@@ -2,7 +2,6 @@ package org.commcare.views.widgets;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
@@ -29,7 +28,7 @@ public class DocumentWidget extends MediaWidget {
                 !mPrompt.isReadOnly());
 
         mChooseButton.setOnClickListener(v -> {
-            if (isAttachmentLimitReached()) {
+            if (warnIfAttachmentLimitReached()) {
                 return;
             }
             try {

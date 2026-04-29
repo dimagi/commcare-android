@@ -98,7 +98,7 @@ public class SignatureWidget extends QuestionWidget implements QuestionWidget.Me
         // launch capture intent on click
         final FormIndex questionIndex = prompt.getIndex();
         mSignButton.setOnClickListener(v -> {
-            if (isAttachmentLimitReached()) {
+            if (warnIfAttachmentLimitReached()) {
                 return;
             }
             launchSignatureActivity(questionIndex, null);
@@ -144,7 +144,7 @@ public class SignatureWidget extends QuestionWidget implements QuestionWidget.Me
             addView(mImageView);
 
             mSignButton.setOnClickListener(v -> {
-                if (isAttachmentLimitReached()) {
+                if (warnIfAttachmentLimitReached()) {
                     return;
                 }
                 launchSignatureActivity(questionIndex, toDisplay);

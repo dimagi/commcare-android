@@ -4,9 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.MediaStore.Audio;
-import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
@@ -53,7 +51,7 @@ public class AudioWidget extends MediaWidget {
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(v -> {
-            if (isAttachmentLimitReached()) {
+            if (warnIfAttachmentLimitReached()) {
                 return;
             }
             captureAudio(mPrompt);
@@ -61,7 +59,7 @@ public class AudioWidget extends MediaWidget {
 
         // launch audio filechooser intent on click
         mChooseButton.setOnClickListener(v -> {
-            if (isAttachmentLimitReached()) {
+            if (warnIfAttachmentLimitReached()) {
                 return;
             }
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);

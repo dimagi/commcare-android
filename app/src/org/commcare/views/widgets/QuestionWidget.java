@@ -231,7 +231,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    protected boolean isAttachmentLimitReached() {
+    protected boolean warnIfAttachmentLimitReached() {
         if (getContext() instanceof FormEntryActivity activity && this instanceof MediaCapableWidget mediaCapableWidget) {
             if (mediaCapableWidget.getBinaryName() == null && !activity.canAddAttachment()) {
                 activity.showFormAttachmentLimitReachedError();
