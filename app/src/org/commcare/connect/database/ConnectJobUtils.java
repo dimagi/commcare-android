@@ -13,9 +13,8 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.core.services.CommCarePreferenceManagerFactory;
-import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.ConnectJobPreferences;
 import org.javarosa.xform.util.CalendarUtils;
 
 import java.util.ArrayList;
@@ -28,14 +27,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
-
 public class ConnectJobUtils {
 
     public static void upsertJob(Context context, ConnectJobRecord job) {
         List<ConnectJobRecord> list = new ArrayList<>();
         list.add(job);
         new JobStoreManager(context).storeJobs(context, list, false);
+    }
+
+    public static ConnectJobPreferences getJobPreferences(String jobUUID) {
+        return new ConnectJobPreferences(jobUUID);
     }
 
     public static ConnectJobRecord getCompositeJob(Context context, String jobUUID) {
@@ -311,12 +312,8 @@ public class ConnectJobUtils {
             }
         }
 
-        // Check if there is a brand new payment so that we can reset the timer for the payment
-        // confirmation tile.
         if (newPaymentReceived) {
-            ICommCarePreferenceManager preferenceManager =
-                    CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-            preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+            getJobPreferences(jobUUID).resetPaymentConfirmationHiddenSinceTime();
         }
     }
 
