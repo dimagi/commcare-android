@@ -23,24 +23,43 @@ class ConnectJobPreferences(
     fun getRelearnTasksCompletedTimeMs(): Long =
         prefs.getLong(
             KEY_RELEARN_TASKS_COMPLETED_TIME_MS,
-            RELEARN_TASKS_COMPLETED_TIME_NOT_SET,
+            TIMESTAMP_NOT_SET,
         )
 
     fun relearnTasksCompletedTimeNotSet(): Boolean =
-        getRelearnTasksCompletedTimeMs() == RELEARN_TASKS_COMPLETED_TIME_NOT_SET
+        getRelearnTasksCompletedTimeMs() == TIMESTAMP_NOT_SET
 
     fun setRelearnTasksCompletedTime(completedTimeMs: Long) {
         prefs.edit { putLong(KEY_RELEARN_TASKS_COMPLETED_TIME_MS, completedTimeMs) }
     }
 
     fun resetRelearnTasksCompletedTime() {
-        setRelearnTasksCompletedTime(RELEARN_TASKS_COMPLETED_TIME_NOT_SET)
+        setRelearnTasksCompletedTime(TIMESTAMP_NOT_SET)
+    }
+
+    fun getPaymentConfirmationHiddenSinceTime(): Long =
+        prefs.getLong(
+            PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME,
+            TIMESTAMP_NOT_SET,
+        )
+
+    fun paymentConfirmationHiddenSinceTimeNotSet(): Boolean =
+        getPaymentConfirmationHiddenSinceTime() == TIMESTAMP_NOT_SET
+
+    fun setPaymentConfirmationHiddenSinceTime(hiddenSinceTimeMs: Long) {
+        prefs.edit { putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, hiddenSinceTimeMs) }
+    }
+
+    fun resetPaymentConfirmationHiddenSinceTime() {
+        setPaymentConfirmationHiddenSinceTime(TIMESTAMP_NOT_SET)
     }
 
     companion object {
         private const val PREF_NAME_PREFIX = "connect_job_prefs_"
         private const val KEY_RELEARN_TASK_PENDING = "relearn_task_pending"
         private const val KEY_RELEARN_TASKS_COMPLETED_TIME_MS = "relearn_tasks_completed_time_ms"
-        private const val RELEARN_TASKS_COMPLETED_TIME_NOT_SET = -1L
+        private const val PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME =
+            "payment_confirmation_hidden_since_time"
+        private const val TIMESTAMP_NOT_SET = -1L
     }
 }
