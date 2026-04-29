@@ -12,6 +12,7 @@ import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.network.ApiService
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.connectId.PersonalIdApiClient
+import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.utils.HashUtils
 import org.json.JSONObject
@@ -20,6 +21,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -144,6 +146,11 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
     @Test
     fun testStartConfiguration_successResponse_moveToBiometric() {
+        assumeFalse(
+            "Biometric navigation is bypassed under the qaAutomation build type",
+            BuildConfig.IS_QA_AUTOMATION,
+        )
+
         // Arrange
         setupFragmentForRequest()
         mockWebServer.enqueue(createSuccessResponse())
