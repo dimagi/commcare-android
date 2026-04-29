@@ -13,7 +13,8 @@ class ConnectJobPreferences(
             Context.MODE_PRIVATE,
         )
 
-    fun isRelearnTaskPending(): Boolean = prefs.getBoolean(KEY_RELEARN_TASK_PENDING, false)
+    fun isRelearnTaskPending(): Boolean =
+        prefs.getBoolean(KEY_RELEARN_TASK_PENDING, false)
 
     fun setRelearnTaskPending(relearnTaskPending: Boolean) {
         prefs.edit { putBoolean(KEY_RELEARN_TASK_PENDING, relearnTaskPending) }
@@ -25,7 +26,8 @@ class ConnectJobPreferences(
             TIMESTAMP_NOT_SET,
         )
 
-    fun relearnTasksCompletedTimeNotSet(): Boolean = getRelearnTasksCompletedTimeMs() == TIMESTAMP_NOT_SET
+    fun relearnTasksCompletedTimeNotSet(): Boolean =
+        getRelearnTasksCompletedTimeMs() == TIMESTAMP_NOT_SET
 
     fun setRelearnTasksCompletedTime(completedTimeMs: Long) {
         prefs.edit { putLong(KEY_RELEARN_TASKS_COMPLETED_TIME_MS, completedTimeMs) }
@@ -41,7 +43,8 @@ class ConnectJobPreferences(
             TIMESTAMP_NOT_SET,
         )
 
-    fun paymentConfirmationHiddenSinceTimeNotSet(): Boolean = getPaymentConfirmationHiddenSinceTime() == TIMESTAMP_NOT_SET
+    fun paymentConfirmationHiddenSinceTimeNotSet(): Boolean =
+        getPaymentConfirmationHiddenSinceTime() == TIMESTAMP_NOT_SET
 
     fun setPaymentConfirmationHiddenSinceTime(hiddenSinceTimeMs: Long) {
         prefs.edit { putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, hiddenSinceTimeMs) }
