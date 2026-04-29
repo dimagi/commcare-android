@@ -248,7 +248,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private boolean processSessionEndpoint() {
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
             String sessionEndpointId = getIntent().getStringExtra(SESSION_ENDPOINT_ID);
-            if (sessionEndpointId == CC_APP_HOME_ENDPOINT) {
+            if (CC_APP_HOME_ENDPOINT.equals(sessionEndpointId)) {
                 return false;
             }
             Endpoint endpoint = validateIntentForSessionEndpoint(sessionEndpointId);
