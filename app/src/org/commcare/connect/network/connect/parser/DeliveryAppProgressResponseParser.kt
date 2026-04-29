@@ -39,7 +39,10 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
                     }
 
                     if (json.has("end_date")) {
-                        job.projectEndDate = DateUtils.parseDate(json.getString("end_date"))
+                        job.projectEndDate =
+                            DateUtils.parseDate(
+                                json.getString("end_date"),
+                            )
                         updatedJob = true
                     }
 
