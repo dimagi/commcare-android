@@ -1,7 +1,6 @@
 package org.commcare.connect
 
 import android.content.Context
-import android.widget.Toast
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
@@ -96,7 +95,10 @@ object ConnectJobHelper {
         listener: ConnectActivityCompleteListener,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<DeliveryAppProgressResponseModel>(showLoading, baseConnectView) {
+        object : ConnectApiHandler<DeliveryAppProgressResponseModel>(
+            showLoading,
+            baseConnectView,
+        ) {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
                 val events = mutableSetOf<String?>()
 
@@ -109,20 +111,33 @@ object ConnectJobHelper {
                     if (job.getDeliveryProgressPercentage() == 100) {
                         events.add(FINISH_DELIVERY)
                     }
-                    ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobUUID, true)
+                    ConnectJobUtils.storeDeliveries(
+                        context,
+                        job.deliveries,
+                        job.jobUUID,
+                        true,
+                    )
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
                     if (job.payments.isNotEmpty()) {
                         events.add(PAID_DELIVERY)
                     }
-                    ConnectJobUtils.storePayments(context, job.payments, job.jobUUID, true)
+                    ConnectJobUtils.storePayments(
+                        context,
+                        job.payments,
+                        job.jobUUID,
+                        true,
+                    )
                 }
 
                 job.syncRelearnTasksPrefs(deliveryAppProgressResponseModel.parsedTasks)
 
                 events.forEach { event ->
-                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event)
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(
+                        true,
+                        event,
+                    )
                 }
 
                 listener.connectActivityComplete(true)
@@ -132,7 +147,10 @@ object ConnectJobHelper {
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false, null)
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(
+                    false,
+                    null,
+                )
                 listener.connectActivityComplete(false)
             }
         }.getDeliveries(context, user, job)
