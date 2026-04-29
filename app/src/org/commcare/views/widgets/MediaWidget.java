@@ -81,7 +81,7 @@ public abstract class MediaWidget extends QuestionWidget implements QuestionWidg
     }
 
     @Override
-    public String getMediaName() {
+    public String getBinaryName() {
         return mBinaryName;
     }
 
@@ -212,19 +212,19 @@ public abstract class MediaWidget extends QuestionWidget implements QuestionWidg
 
     @Override
     public void clearAnswer() {
-        clearMediaData();
+        clearBinaryAttachment();
         togglePlayButton(false);
     }
 
 
     @Override
-    public void setMediaName(String mediaName) {
+    public void registerBinaryAttachment(String mediaName) {
         mBinaryName = mediaName;
         incrementAttachmentCount();
     }
 
     @Override
-    public void clearMediaData() {
+    public void clearBinaryAttachment() {
         deleteMediaFiles(mInstanceFolder, mBinaryName);
         mBinaryName = null;
         mTempBinaryPath = null;
@@ -290,7 +290,7 @@ public abstract class MediaWidget extends QuestionWidget implements QuestionWidg
     public void setBinaryData(Object binaryURI) {
         // delete any existing media
         if (mBinaryName != null) {
-            clearMediaData();
+            clearBinaryAttachment();
         }
 
         String binaryPath;
@@ -319,7 +319,7 @@ public abstract class MediaWidget extends QuestionWidget implements QuestionWidg
         }
 
         mTempBinaryPath = binaryPath;
-        setMediaName(removeAESExtension(newMedia.getName()));
+        registerBinaryAttachment(removeAESExtension(newMedia.getName()));
     }
 
     // removes ".aes" from file name if exists

@@ -159,7 +159,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
                 !mPrompt.isReadOnly());
         mDiscardButton.setOnClickListener(v -> {
-            clearMediaData();
+            clearBinaryAttachment();
             widgetEntryChanged();
         });
         mDiscardButton.setVisibility(View.GONE);
@@ -226,12 +226,12 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     }
 
     @Override
-    public String getMediaName() {
+    public String getBinaryName() {
         return mBinaryName;
     }
 
     @Override
-    public void setMediaName(String mediaName) {
+    public void registerBinaryAttachment(String mediaName) {
         mBinaryName = mediaName;
         incrementAttachmentCount();
     }
@@ -282,7 +282,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
         }
     }
 
-    public void clearMediaData() {
+    public void clearBinaryAttachment() {
         MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
@@ -294,7 +294,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     @Override
     public void clearAnswer() {
         // remove the file
-        clearMediaData();
+        clearBinaryAttachment();
         mImageView.setImageBitmap(null);
         mErrorTextView.setVisibility(View.GONE);
 
@@ -316,11 +316,11 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
-            clearMediaData();
+            clearBinaryAttachment();
         }
 
         File f = new File(binaryPath.toString());
-        setMediaName(f.getName());
+        registerBinaryAttachment(f.getName());
     }
 
     @Override

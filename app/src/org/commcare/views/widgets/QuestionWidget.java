@@ -74,20 +74,18 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * attachment limit has been reached
      */
     protected interface MediaCapableWidget {
-        String getMediaName();
+        String getBinaryName();
 
         /**
-         * Set the name of the media associated with this widget. Implementations must call
-         * incrementAttachmentCount()
-         * @param mediaName
+         * Set the name of the binary associated with this widget and increment the number of attachments
+         * @param binaryName
          */
-        void setMediaName(String mediaName);
+        void registerBinaryAttachment(String binaryName);
 
         /**
-         * Clear the media associated with this widget. Implementations must call decrementAttachmentCount() if
-         * there is currently media attached
+         * Clear the binary file associated with this widget and decrement the number of attachments
          */
-        void clearMediaData();
+        void clearBinaryAttachment();
     }
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
@@ -235,7 +233,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     protected boolean isAttachmentLimitReached() {
         if (getContext() instanceof FormEntryActivity activity && this instanceof MediaCapableWidget mediaCapableWidget) {
-            if (mediaCapableWidget.getMediaName() == null && !activity.canAddAttachment()) {
+            if (mediaCapableWidget.getBinaryName() == null && !activity.canAddAttachment()) {
                 activity.showFormAttachmentLimitReachedError();
                 return true;
             }

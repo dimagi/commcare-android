@@ -153,12 +153,12 @@ public class SignatureWidget extends QuestionWidget implements QuestionWidget.Me
     }
 
     @Override
-    public String getMediaName() {
+    public String getBinaryName() {
         return mBinaryName;
     }
 
     @Override
-    public void setMediaName(String mediaName) {
+    public void registerBinaryAttachment(String mediaName) {
         mBinaryName = mediaName;
         incrementAttachmentCount();
     }
@@ -187,7 +187,7 @@ public class SignatureWidget extends QuestionWidget implements QuestionWidget.Me
     }
 
     @Override
-    public void clearMediaData() {
+    public void clearBinaryAttachment() {
         MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
@@ -198,7 +198,7 @@ public class SignatureWidget extends QuestionWidget implements QuestionWidget.Me
     @Override
     public void clearAnswer() {
         // remove the file
-        clearMediaData();
+        clearBinaryAttachment();
         mImageView.setImageBitmap(null);
         mErrorTextView.setVisibility(View.GONE);
 
@@ -222,11 +222,11 @@ public class SignatureWidget extends QuestionWidget implements QuestionWidget.Me
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
-            clearMediaData();
+            clearBinaryAttachment();
         }
 
         File f = new File(binaryPath.toString());
-        setMediaName(f.getName());
+        registerBinaryAttachment(f.getName());
         Log.i(t, "Setting current answer to " + f.getName());
     }
 
