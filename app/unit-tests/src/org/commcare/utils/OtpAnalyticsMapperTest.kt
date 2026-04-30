@@ -1,0 +1,157 @@
+package org.commcare.utils
+
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+
+class OtpAnalyticsMapperTest {
+    // --- methodFromSmsMethod ---
+
+    @Test
+    fun `methodFromSmsMethod returns firebase for SMS_METHOD_FIREBASE`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            OtpAnalyticsMapper.methodFromSmsMethod(OtpManager.SMS_METHOD_FIREBASE),
+        )
+    }
+
+    @Test
+    fun `methodFromSmsMethod returns personal_id for SMS_METHOD_PERSONAL_ID`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_METHOD_PERSONAL_ID,
+            OtpAnalyticsMapper.methodFromSmsMethod(OtpManager.SMS_METHOD_PERSONAL_ID),
+        )
+    }
+
+    @Test
+    fun `methodFromSmsMethod ignores case`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_METHOD_PERSONAL_ID,
+            OtpAnalyticsMapper.methodFromSmsMethod("Personal_ID"),
+        )
+        assertEquals(
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            OtpAnalyticsMapper.methodFromSmsMethod("FIREBASE"),
+        )
+    }
+
+    @Test
+    fun `methodFromSmsMethod defaults to firebase when null`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            OtpAnalyticsMapper.methodFromSmsMethod(null),
+        )
+    }
+
+    @Test
+    fun `methodFromSmsMethod defaults to firebase when unrecognized`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            OtpAnalyticsMapper.methodFromSmsMethod("twilio"),
+        )
+    }
+
+    // --- reasonFrom(OtpErrorType) ---
+
+    @Test
+    fun `reasonFrom OtpErrorType maps INVALID_CREDENTIAL`() {
+        assertEquals(
+            "invalid_credential",
+            OtpAnalyticsMapper.reasonFrom(OtpErrorType.INVALID_CREDENTIAL),
+        )
+    }
+
+    @Test
+    fun `reasonFrom OtpErrorType maps TOO_MANY_REQUESTS`() {
+        assertEquals(
+            "too_many_requests",
+            OtpAnalyticsMapper.reasonFrom(OtpErrorType.TOO_MANY_REQUESTS),
+        )
+    }
+
+    @Test
+    fun `reasonFrom OtpErrorType maps MISSING_ACTIVITY`() {
+        assertEquals(
+            "missing_activity",
+            OtpAnalyticsMapper.reasonFrom(OtpErrorType.MISSING_ACTIVITY),
+        )
+    }
+
+    @Test
+    fun `reasonFrom OtpErrorType maps GENERIC_ERROR`() {
+        assertEquals(
+            "generic_error",
+            OtpAnalyticsMapper.reasonFrom(OtpErrorType.GENERIC_ERROR),
+        )
+    }
+
+    @Test
+    fun `reasonFrom OtpErrorType maps VERIFICATION_FAILED`() {
+        assertEquals(
+            "verification_failed",
+            OtpAnalyticsMapper.reasonFrom(OtpErrorType.VERIFICATION_FAILED),
+        )
+    }
+
+    @Test
+    fun `reasonFrom OtpErrorType returns null for null input`() {
+        assertNull(OtpAnalyticsMapper.reasonFrom(null as OtpErrorType?))
+    }
+
+    // --- reasonFrom(PersonalIdOrConnectApiErrorCodes) ---
+
+    @Test
+    fun `reasonFrom api code maps INCORRECT_OTP_ERROR`() {
+        assertEquals(
+            "incorrect_otp_error",
+            OtpAnalyticsMapper.reasonFrom(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR),
+        )
+    }
+
+    @Test
+    fun `reasonFrom api code maps NETWORK_ERROR`() {
+        assertEquals(
+            "network_error",
+            OtpAnalyticsMapper.reasonFrom(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR),
+        )
+    }
+
+    @Test
+    fun `reasonFrom api code maps RATE_LIMIT_EXCEEDED_ERROR`() {
+        assertEquals(
+            "rate_limit_exceeded_error",
+            OtpAnalyticsMapper.reasonFrom(PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR),
+        )
+    }
+
+    @Test
+    fun `reasonFrom api code maps FORBIDDEN_ERROR`() {
+        assertEquals(
+            "forbidden_error",
+            OtpAnalyticsMapper.reasonFrom(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR),
+        )
+    }
+
+    @Test
+    fun `reasonFrom api code maps UNKNOWN_ERROR`() {
+        assertEquals(
+            "unknown_error",
+            OtpAnalyticsMapper.reasonFrom(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR),
+        )
+    }
+
+    @Test
+    fun `reasonFrom api code maps FAILED_AUTH_ERROR`() {
+        assertEquals(
+            "failed_auth_error",
+            OtpAnalyticsMapper.reasonFrom(PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR),
+        )
+    }
+
+    @Test
+    fun `reasonFrom api code returns null for null input`() {
+        assertNull(OtpAnalyticsMapper.reasonFrom(null as PersonalIdOrConnectApiErrorCodes?))
+    }
+}

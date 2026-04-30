@@ -737,9 +737,37 @@ public class FirebaseAnalyticsUtil {
         );
     }
 
-    public static void reportOtpRequested(int numberOfAttempts) {
+    /**
+     * Reports the otp_requested event with the outcome and reason of an OTP request
+     * or verify call (CCCT-2052).
+     *
+     * @param eventType    one of {@link AnalyticsParamValue#OTP_EVENT_TYPE_REQUEST} /
+     *                     {@link AnalyticsParamValue#OTP_EVENT_TYPE_VERIFY}.
+     * @param outcome      one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
+     *                     {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
+     * @param method       one of {@link AnalyticsParamValue#OTP_METHOD_FIREBASE} /
+     *                     {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID}.
+     * @param reason       failure reason from {@link org.commcare.utils.OtpAnalyticsMapper};
+     *                     pass null for success events. Null reasons are omitted from the
+     *                     bundle (Firebase does not accept null string params). Logged under
+     *                     {@link CCAnalyticsParam#REASON}.
+     * @param attempts     attempt counter from PersonalIdSessionData. Logged to
+     *                     {@link FirebaseAnalytics.Param#VALUE} for backwards compatibility
+     *                     with the original event signature.
+     */
+    public static void reportOtpEvent(String eventType,
+                                      String outcome,
+                                      String method,
+                                      @Nullable String reason,
+                                      int attempts) {
         Bundle bundle = new Bundle();
-        bundle.putLong(FirebaseAnalytics.Param.VALUE, numberOfAttempts);
+        bundle.putString(CCAnalyticsParam.OTP_EVENT_TYPE, eventType);
+        bundle.putString(CCAnalyticsParam.OTP_OUTCOME, outcome);
+        bundle.putString(CCAnalyticsParam.OTP_METHOD, method);
+        if (reason != null) {
+            bundle.putString(CCAnalyticsParam.REASON, reason);
+        }
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, attempts);
         reportEvent(CCAnalyticsEvent.OTP_REQUESTED, bundle);
     }
 

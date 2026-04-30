@@ -21,7 +21,7 @@ public class CCAnalyticsParam {
     static final String DIRECTION = "direction";
     static final String TIME_IN_MINUTES = "time_in_minutes";
     static final String MODE = "mode";
-    static final String REASON = "reason";
+    public static final String REASON = "reason";
     static final String RESULT = "result";
     static final String UI_STATE = "uite_state";
     public static final String USERNAME = "username";
@@ -49,4 +49,9 @@ public class CCAnalyticsParam {
     static final String CCC_MESSAGING_CHANNEL_ID = "channel_id";
     static final String CCC_MESSAGING_CONSENT_API_RESULT = "consent_api_success";
     static final String CCC_MESSAGING_DESIRED_CONSENT_STATUS = "consent_api_desired_consent_status";
+
+    // Param keys for OTP analytics (CCCT-2052)
+    public static final String OTP_OUTCOME = "outcome";
+    public static final String OTP_EVENT_TYPE = "event_type";
+    public static final String OTP_METHOD = "method";
 }
