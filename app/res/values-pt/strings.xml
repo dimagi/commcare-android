@@ -374,6 +374,10 @@
     <string name="choose_a_6_digit_recovery_code">Escolha um código de recuperação de 6 dígitos</string>
     <string name="sync">Sincronizar</string>
     <string name="micro_image_activity_title">Tirar Foto de Perfil</string>
+    <string name="nav_drawer_user_photo_update_dialog_title">Atualizar Foto de Perfil</string>
+    <string name="nav_drawer_user_photo_update_dialog_message">Gostaria de tirar uma nova foto de perfil?</string>
+    <string name="nav_drawer_user_photo_update_dialog_continue">Continuar</string>
+    <string name="nav_drawer_user_photo_update_dialog_cancel">Cancelar</string>
     <string name="connect_job_info_title">Detalhes de oportunidade</string>
     <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
     <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>
