@@ -1336,11 +1336,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onResumeSessionSafe() {
         if (pendingEndpointNavigationAfterSync) {
-            pendingEndpointNavigationAfterSync = false;
             if (processSessionEndpoint()) {
                 sessionNavigator.startNextSessionStep();
+                resetNavigationFlags();
+                return;
             }
-            return;
         }
 
         if (!redirectedInOnCreate && !sessionNavigationProceedingAfterOnResume) {
@@ -1354,10 +1354,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             dataSyncer.syncData(HiddenPreferences.getPendingSyncRequest(username));
         }
 
-        // reset these
+        resetNavigationFlags();
+    }
+
+    private void resetNavigationFlags() {
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
         shouldTriggerBackgroundSync = true;
+        pendingEndpointNavigationAfterSync = false;
     }
 
     @Override
