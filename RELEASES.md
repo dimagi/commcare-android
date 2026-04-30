@@ -17,6 +17,7 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 - [6-box Backup Codes] Using 6-box numeric inputs to collect backup codes from the user
 
 #### Important Bug Fixes
+- Fixed a crash triggered during combobox item selection when the dropdown list had already been dismissed
 
 #### Internal Release Notes
 
@@ -43,6 +44,7 @@ we would like to communicate to QA as part of the release testing
   - Text cursor functionality (i.e. backspacing, clicking an earlier box to jump back)
 
 - Test the new offline status indicator at the top of refreshable Connect pages (Connect Home, Learning Progress, Delivery Progress). Verify that the error message appears when entering these pages while offline, and that it disappears once the device comes back online.
+- Verify that the combobox widget is working as expected when selecting an item that is used to filter another combobox widget and also determines the visibility of some other unrelated question whose relevance condition depends on the selection.
 
 ## CommCare 2.62
 
