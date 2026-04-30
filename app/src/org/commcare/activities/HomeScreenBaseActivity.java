@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
@@ -1005,6 +1006,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private boolean exitFromExternalLaunch() {
         return wasExternal && getIntent() != null &&
+                !getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false) &&
                 getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION,
                         EXIT_AFTER_FORM_SUBMISSION_DEFAULT);
     }

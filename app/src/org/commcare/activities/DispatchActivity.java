@@ -465,6 +465,8 @@ public class DispatchActivity extends AppCompatActivity {
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
                         i.putExtra(CC_LAUNCH_REQUIRE_SYNC,
                                 getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false));
+                        i.putExtra(IS_LAUNCH_FROM_CONNECT,
+                                getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false));
 
                         // Session Endpoint extra is no longer needed. If not removed, it triggers
                         // the external launch logic in subsequent logins
