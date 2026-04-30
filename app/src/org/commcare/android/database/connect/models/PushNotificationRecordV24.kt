@@ -99,8 +99,8 @@ class PushNotificationRecordV24 :
     companion object {
         const val STORAGE_KEY = PushNotificationRecord.STORAGE_KEY
 
-        fun fromV23(pushNotificationRecordV23: PushNotificationRecordV23): PushNotificationRecord =
-            PushNotificationRecord().apply {
+        fun fromV23(pushNotificationRecordV23: PushNotificationRecordV23): PushNotificationRecordV24 =
+            PushNotificationRecordV24().apply {
                 notificationId = pushNotificationRecordV23.notificationId
                 title = pushNotificationRecordV23.title
                 body = pushNotificationRecordV23.body

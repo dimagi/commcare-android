@@ -1023,7 +1023,7 @@ public class ConnectDatabaseUpgrader {
 
             for (Persistable r : oldStorage) {
                 PushNotificationRecordV23 oldRecord = (PushNotificationRecordV23)r;
-                PushNotificationRecord newRecord = PushNotificationRecordV24.Companion.fromV23(oldRecord);
+                PushNotificationRecordV24 newRecord = PushNotificationRecordV24.Companion.fromV23(oldRecord);
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
@@ -1039,6 +1039,11 @@ public class ConnectDatabaseUpgrader {
             db.execSQL(DbUtil.addColumnToTable(
                     PushNotificationRecord.STORAGE_KEY,
                     PushNotificationRecord.META_SESSION_ENDPOINT_ID,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    PushNotificationRecord.STORAGE_KEY,
+                    PushNotificationRecord.META_REQUIRE_APP_SYNC,
                     "TEXT"));
 
             SqlStorage<Persistable> oldStorage = new SqlStorage<>(
