@@ -14,6 +14,8 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 - Offline status shown on refreshable Connect pages when applicable
 
 - [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
+- [Relearn Tasking] Implements a new notification when a relearn task is assigned to a user
+- [Work Area Assignment] Implements a new notification when a new work area is assigned to a user
 - [6-box Backup Codes] Using 6-box numeric inputs to collect backup codes from the user
 
 #### Important Bug Fixes
@@ -26,6 +28,8 @@ These notes are only published internally in [CommCare Change log wiki](https://
 along with the public release notes above
 -->
 
+- - Session endpoint navigation from Connect notifications: clicking a notification with a `session_endpoint_id` now navigates the user directly to the specified CommCare session endpoint (after a sync if required), instead of opening the Connect activity.
+
 
 ### QA Notes
 
@@ -33,6 +37,13 @@ along with the public release notes above
 These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
+
+- **Task and Work Area Assignment Notifications (Connect):**
+    - On clicking, Notification should take user to the relevant CommCare App Home page and auto-login and auto-syncs the user with a blocking dialog. 
+    - Click the notification while logged out
+    - Click the notification while the app is backgrounded
+    - Cancel login normally (back button, no notification) → app should still close as expected.
+    - Verify no regression on existing Connect notification types (payments, messaging, delivery/learn progress).
 
 - Verify that the existing opportunity card UI is unchanged when there are no relearn tasks.
 - Verify that the opportunity card updates as expected when there are either pending relearn tasks or completed relearn tasks.
