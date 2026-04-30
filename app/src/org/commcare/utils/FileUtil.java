@@ -994,26 +994,34 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Counts the number of media files in the given directory, excluding XML files and unsupported multimedia
+     * files.
+     * @param dirPath the path of the directory to count media files in
+     * @return number of media files in the given directory, or -1 if there was an error accessing the directory
+     */
     public static int countMediaFiles(String dirPath) {
         int count = 0;
         try {
             File dir = new File(dirPath);
-            if (dir.exists() && dir.isDirectory()) {
-                File[] files = dir.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.isFile() &&
-                                !file.getName().endsWith(XML_EXTENSION) &&
-                                (FormUploadUtil.isSupportedMultimediaFile(file.getName()) ||
-                                        file.getName().endsWith(MediaWidget.AES_EXTENSION))) {
-                            count++;
-                        }
-                    }
+            if (!dir.exists() || !dir.isDirectory()) {
+                return -1;
+            }
+            File[] files = dir.listFiles();
+            if (files == null) {
+                return -1;
+            }
+            for (File file : files) {
+                if (file.isFile() &&
+                        !file.getName().endsWith(XML_EXTENSION) &&
+                        (FormUploadUtil.isSupportedMultimediaFile(file.getName()) ||
+                                file.getName().endsWith(MediaWidget.AES_EXTENSION))) {
+                    count++;
                 }
             }
         } catch (Exception e) {
-            // log non-fatal exception and return count as 0
             Logger.exception("Error counting media files: ", e);
+            return -1;
         }
         return count;
     }

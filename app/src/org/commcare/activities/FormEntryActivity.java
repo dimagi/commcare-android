@@ -1142,7 +1142,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void updateFormAttachmentCount() {
-        attachmentCount = FileUtil.countMediaFiles(FormEntryInstanceState.getInstanceFolder());
+        int numMediaFiles = FileUtil.countMediaFiles(FormEntryInstanceState.getInstanceFolder());
+        if (numMediaFiles != -1) {
+            attachmentCount = numMediaFiles;
+        }
     }
 
     private InterruptedFormState retrieveAndValidateFormIndex(AndroidSessionWrapper androidSessionWrapper) {
