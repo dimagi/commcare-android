@@ -1,18 +1,24 @@
 package org.commcare.network;
 
-import org.commcare.utils.FormUploadUtil;
+import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.io.StreamsUtil.OutputIOException;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
+import javax.crypto.NoSuchPaddingException;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -50,20 +56,19 @@ public class EncryptedFileBody extends RequestBody {
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
         FileInputStream fis = new FileInputStream(file);
-        byte[] iv = null;
-        if (isKeyFromAndroidKeyStore) {
-            int ivLength = fis.read() & 0xFF;
-            iv = new byte[ivLength];
-            fis.read(iv, 0, ivLength);
-        }
 
         //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
         //it'll get caught when we initialize.
         Cipher cipher;
-        if (!isKeyFromAndroidKeyStore) {
-            cipher = FormUploadUtil.getDecryptCipher(key);
-        } else {
-            cipher = FormUploadUtil.getDecryptCipher(key, transformation, iv);
+        try {
+            if (isKeyFromAndroidKeyStore) {
+                cipher = EncryptionIO.getKeystoreDecryptCipher(key, transformation, fis);
+            } else {
+                cipher = EncryptionIO.getDecryptCipher(key);
+            }
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException e) {
+            Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Cipher initialization failed: " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
             StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());

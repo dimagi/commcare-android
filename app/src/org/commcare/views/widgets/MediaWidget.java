@@ -18,7 +18,9 @@ import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
@@ -36,6 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Key;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -106,7 +109,12 @@ public abstract class MediaWidget extends QuestionWidget {
         } else if (mTempBinaryPath == null) {
             File encryptedFile = new File(mInstanceFolder + mBinaryName + AES_EXTENSION);
             checkFileSize(encryptedFile);
-            mTempBinaryPath = decryptMedia(encryptedFile, getSecretKey());
+            if (((FormEntryActivity)getContext()).isKeyFromKeystore()) {
+                mTempBinaryPath = decryptMedia(encryptedFile,
+                        CommCareKeyManager.retrieveSessionKeyAndTransformation());
+            } else {
+                mTempBinaryPath = decryptMedia(encryptedFile, getSecretKey(), null, false);
+            }
         } else {
             checkFileSize(new File(mTempBinaryPath));
         }
@@ -124,8 +132,13 @@ public abstract class MediaWidget extends QuestionWidget {
         }
     }
 
+    public static String decryptMedia(File f, EncryptionKeyAndTransform encryptionKeyAndTransform) {
+        return decryptMedia(f, encryptionKeyAndTransform.getKey(), encryptionKeyAndTransform.getTransformation(),
+                true);
+    }
+
     // decrypt the given file to a temp path
-    public static String decryptMedia(File f, SecretKeySpec secretKey) {
+    public static String decryptMedia(File f, Key key, String transformation, boolean isKeyFromKeystore) {
         if (!f.getName().endsWith(AES_EXTENSION)) {
             return null;
         }
@@ -133,7 +146,7 @@ public abstract class MediaWidget extends QuestionWidget {
         String tempMediaPath = createTempMediaPath(FileUtil.getExtension(removeAESExtension(f.getName())));
         try {
             FileOutputStream fos = new FileOutputStream(tempMediaPath);
-            InputStream is = EncryptionIO.getFileInputStream(f.getPath(), secretKey);
+            InputStream is = EncryptionIO.getFileInputStream(f.getPath(), key, transformation, isKeyFromKeystore);
             StreamsUtil.writeFromInputToOutputNew(is, fos);
         } catch (IOException e) {
             throw new RuntimeException("Failed to decrypt media at path " + f.getAbsolutePath()
@@ -326,7 +339,11 @@ public abstract class MediaWidget extends QuestionWidget {
         try {
             if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
                 destMediaPath = destMediaPath + AES_EXTENSION;
-                EncryptionIO.encryptFile(binaryPath, destMediaPath, getSecretKey());
+                if (((FormEntryActivity)getContext()).isKeyFromKeystore()) {
+                    EncryptionIO.encryptFile(binaryPath, destMediaPath, CommCareKeyManager.retrieveSessionKeyAndTransformation());
+                } else {
+                    EncryptionIO.encryptFile(binaryPath, destMediaPath, getSecretKey(), null, false);
+                }
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Media successfully encrypted and saved: " + destMediaPath);
             } else {
                 FileUtil.copyFile(binaryPath, destMediaPath);

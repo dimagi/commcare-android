@@ -17,6 +17,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.LogTypes;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -315,8 +316,13 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                                 throw new TaskCancelledException();
                             }
 
-                            mResults[i] = FormUploadUtil.sendInstance(i, folder,
-                                    new SecretKeySpec(record.getAesKey(), "AES"), mUrl, this, user);
+                            if (record.usesKeystoreEncryption()) {
+                                mResults[i] = FormUploadUtil.sendInstanceWithKeystore(i, folder,
+                                        CommCareKeyManager.retrieveSessionKeyAndTransformation(), mUrl, this, user);
+                            } else {
+                                mResults[i] = FormUploadUtil.sendInstance(i, folder,
+                                        new SecretKeySpec(record.getAesKey(), "AES"), mUrl, this, user);
+                            }
                             if (mResults[i] == FormUploadResult.FULL_SUCCESS) {
                                 logSubmissionSuccess(record);
                                 break;

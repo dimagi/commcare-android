@@ -13,6 +13,7 @@ import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.FormMetaIndicatorUtil;
 import org.commcare.util.LogTypes;
@@ -223,8 +224,7 @@ public class SaveToDiskTask extends
         XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
         ByteArrayPayload payload = (ByteArrayPayload)serializer.createSerializedPayload(dataModel);
 
-        writeXmlToStream(payload,
-                EncryptionIO.createFileOutputStream(mFormRecordPath, symetricKey));
+        writeXmlToStream(payload, createEncryptedOutputStream(mFormRecordPath));
 
         SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         updateFormRecord(formRecordStorage, true);
@@ -234,8 +234,7 @@ public class SaveToDiskTask extends
             File instanceXml = new File(mFormRecordPath);
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
-            writeXmlToStream(payload,
-                    EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
+            writeXmlToStream(payload, createEncryptedOutputStream(submissionXml.getAbsolutePath()));
 
             // Set this record's status to COMPLETE
             updateFormRecord(formRecordStorage, false);
@@ -261,6 +260,14 @@ public class SaveToDiskTask extends
         }
     }
 
+    private OutputStream createEncryptedOutputStream(String filePath) throws FileNotFoundException {
+        if (symetricKey == null) {
+            return EncryptionIO.createFileOutputStreamWithKeystore(
+                    filePath, CommCareKeyManager.retrieveSessionKeyAndTransformation());
+        }
+        return EncryptionIO.createFileOutputStream(filePath, symetricKey);
+    }
+
     private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
         Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FILE_ENCRYPTION_TIME);
 
@@ -269,7 +276,7 @@ public class SaveToDiskTask extends
             StreamsUtil.writeFromInputToOutput(is, output);
         } finally {
             output.close();
-            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, payload.getLength(), XML_EXTENSION, false);
+            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, payload.getLength(), XML_EXTENSION, symetricKey == null);
         }
     }
 
