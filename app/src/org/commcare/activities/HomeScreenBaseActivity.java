@@ -184,6 +184,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     // Set when a session endpoint launch requires a blocking sync before navigating to the endpoint
     private boolean pendingEndpointNavigationAfterSync = false;
+    private static final String KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC = "pending_endpoint_nav_after_sync";
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
@@ -220,6 +221,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (savedInstanceState != null) {
             loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
             wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
+            pendingEndpointNavigationAfterSync = savedInstanceState.getBoolean(KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC);
         }
     }
 
@@ -601,6 +603,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         super.onSaveInstanceState(outState);
         outState.putBoolean(WAS_EXTERNAL_KEY, wasExternal);
         outState.putBoolean(EXTRA_CONSUMED_KEY, loginExtraWasConsumed);
+        outState.putBoolean(KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC, pendingEndpointNavigationAfterSync);
     }
 
     @Override
