@@ -1,0 +1,217 @@
+name: CommCare Android Release Build
+
+on:
+  push:
+    tags:
+      - 'commcare_*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (X.Y.Z)'
+        required: true
+        type: string
+
+concurrency:
+  group: release-build-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CCCORE: commcare-core
+  USERNAME: buildserver
+  REMOTE_HOST: "https://www.commcarehq.org+https://india.commcarehq.org"
+
+jobs:
+  build-test-assemble:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse-version.outputs.version }}
+    steps:
+      - name: Parse version
+        id: parse-version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/commcare_}
+          fi
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9a-zA-Z]+$ ]]; then
+            echo "Error: version must be in format X.Y.Z (Z may contain letters), got $VERSION"
+            exit 1
+          fi
+          MAJOR_MINOR=${VERSION%.*}
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
+          # Find the best commcare-core tag: highest commcare_X.Y.Z <= current version,
+          # falling back to commcare_X.Y branch
+          PATCH=${VERSION##*.}
+          # Strip any trailing letters to get the numeric patch for comparison
+          PATCH_NUM=$(echo "$PATCH" | sed 's/[^0-9].*//')
+          BEST_REF="commcare_$MAJOR_MINOR"
+          BEST_PATCH=-1
+          while IFS=$'\t' read -r _sha ref; do
+            tag=${ref#refs/tags/}
+            tag_patch=${tag##*.}
+            if [[ "$tag_patch" =~ ^[0-9]+$ ]] && (( tag_patch <= PATCH_NUM )) && (( tag_patch > BEST_PATCH )); then
+              BEST_REF="$tag"
+              BEST_PATCH=$tag_patch
+            fi
+          done < <(git ls-remote --tags https://github.com/dimagi/commcare-core.git "commcare_${MAJOR_MINOR}.*")
+          echo "Selected commcare-core ref: $BEST_REF"
+          echo "CCCORE_BRANCH=$BEST_REF" >> "$GITHUB_ENV"
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          path: commcare-android
+      - name: Checkout commcare-core
+        uses: actions/checkout@v6
+        with:
+          repository: dimagi/commcare-core
+          ref: ${{ env.CCCORE_BRANCH }}
+          path: commcare-core
+          fetch-depth: 0
+      - name: Generate Gradle properties
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.parallel=false
+          TEST_BUILD_TYPE=release
+          RELEASE_STORE_FILE=/home/runner/.gradle/commcare-odk-keys.keystore
+          RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
+          RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          GOOGLE_CLOUD_PROJECT_NUMBER=${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+          GOOGLE_SERVICES_API_KEY=${{ secrets.GOOGLE_SERVICES_API_KEY }}
+          FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
+          GOOGLE_PLAY_MAPS_API_KEY=${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}
+          HQ_API_USERNAME=${{ secrets.HQ_API_USERNAME }}
+          HQ_API_PASSWORD=${{ secrets.HQ_API_PASSWORD }}
+          MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
+          versionCode=${{ github.run_number }}
+          EOF
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Run Tests
+        run: ./gradlew testCommcareDebug
+        working-directory: commcare-android
+      - name: Restore Keystore
+        run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+      - name: Assemble CommCare release APK
+        run: ./gradlew assembleCommcareRelease
+        working-directory: commcare-android
+      - name: Upload CommCare release APK
+        uses: actions/upload-artifact@v6
+        with:
+          name: commcare-release-apk
+          path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
+      - name: Bundle CommCare release AAB
+        run: ./gradlew bundleCommcareRelease
+        working-directory: commcare-android
+      - name: Upload CommCare release AAB
+        uses: actions/upload-artifact@v6
+        with:
+          name: commcare-release-aab
+          path: commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab
+      - name: Assemble CCC Staging release APK
+        run: ./gradlew assembleCccStagingRelease
+        working-directory: commcare-android
+      - name: Upload CCC Staging release APK
+        uses: actions/upload-artifact@v6
+        with:
+          name: ccc-staging-release-apk
+          path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
+      - name: Assemble CommCare apk for Instrumentation Testing
+        run: ./gradlew assembleCommcareReleaseAndroidTest
+        working-directory: commcare-android
+      - name: Encrypt CommCare androidTest apk
+        run: |
+          openssl enc -aes-256-cbc -salt -pbkdf2 \
+            -in commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk \
+            -out commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc \
+            -pass pass:"$HQ_API_PASSWORD"
+        env:
+          HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
+      - name: Upload CommCare apk for Instrumentation Testing
+        uses: actions/upload-artifact@v6
+        with:
+          name: commcare-release-androidTest-apk
+          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc
+      - name: Bundle LTS release AAB
+        run: ./gradlew bundleLtsRelease
+        working-directory: commcare-android
+      - name: Upload LTS release APK
+        uses: actions/upload-artifact@v6
+        with:
+          name: app-lts-release-apk
+          path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
+      - name: Upload LTS release AAB
+        uses: actions/upload-artifact@v6
+        with:
+          name: app-lts-release-aab
+          path: commcare-android/app/build/outputs/bundle/ltsRelease/app-lts-release.aab
+
+  browserstack-tests:
+    needs: build-test-assemble
+    uses: ./.github/workflows/browserstack-tests.yml
+    secrets:
+      HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
+
+  release:
+    needs: [build-test-assemble, browserstack-tests]
+    name: Release
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.build-test-assemble.outputs.version }}
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          path: commcare-android
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.9'
+      - name: Download release APK
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-apk
+          path: commcare-release-apk
+      - name: Download release AAB
+        uses: actions/download-artifact@v6
+        with:
+          name: commcare-release-aab
+          path: commcare-release-aab
+      - name: Prepare release assets
+        run: |
+          cp commcare-release-apk/app-commcare-release.apk "commcare_${VERSION}.apk"
+          cp commcare-release-aab/app-commcare-release.aab "commcare_${VERSION}.aab"
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "commcare_${VERSION}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "CommCare ${VERSION}" \
+            --draft \
+            --generate-notes \
+            "commcare_${VERSION}.apk" \
+            "commcare_${VERSION}.aab"
+      # Skip submit for test versions (e.g. 2.61.5test) to test the build without submitting it
+      - name: Submit build
+        if: ${{ !contains(needs.build-test-assemble.outputs.version, 'test') }}
+        working-directory: commcare-android
+        env:
+          PASSWORD: ${{ secrets.BUILD_SERVER_PASSWORD }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: python scripts/submit_build.py

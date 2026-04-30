@@ -50,7 +50,7 @@ if __name__ == "__main__":
             environ[var] = os.environ[var]
 
     # If no env vars are found, default to reading in arguments passed in
-    if len(environ) is 0:
+    if len(environ) == 0:
         if len(args) == len(variables):
             environ = dict(zip(variables, args))
 
@@ -58,12 +58,12 @@ if __name__ == "__main__":
         hosts = environ['REMOTE_HOST'].split("+")
         for host in hosts:
             command, out, err = submit_build(environ, host)
-            print command
+            print(command)
             if out.strip():
-                print "--------STDOUT--------"
-                print out
+                print("--------STDOUT--------")
+                print(out)
             if err.strip():
-                print "--------STDERR--------"
-                print err
+                print("--------STDERR--------")
+                print(err)
     else:
         print("submit_build.py <%s>" % ("> <".join(variables)))
