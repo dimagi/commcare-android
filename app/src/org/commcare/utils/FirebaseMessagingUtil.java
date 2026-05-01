@@ -359,14 +359,13 @@ public class FirebaseMessagingUtil {
             Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         String sessionEndpointId = fcmMessageData.getPayloadData()
                 .get(PushNotificationRecord.META_SESSION_ENDPOINT_ID);
-        Intent intent;
+        Intent intent = null;
         if (!TextUtils.isEmpty(sessionEndpointId)) {
             intent =  handleSessionEndpointNotification(context, fcmMessageData, showNotification, sessionEndpointId);
-            if (intent != null) {
-                return intent;
-            }
         }
-        intent = getConnectActivityNotification(context, fcmMessageData);
+        if (intent == null) {
+            intent = getConnectActivityNotification(context, fcmMessageData);
+        }
         if (showNotification)
             showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
         return intent;
@@ -383,11 +382,6 @@ public class FirebaseMessagingUtil {
             appId = ConnectJobUtils.getAppIdForOpportunity(context, opportunityID, opportunityStatus);
         } catch (IllegalArgumentException e) {
             Logger.exception("Could not resolve appId for opportunity", e);
-        }
-
-        if (appId == null) {
-            // we can't launch the session endpoint,
-            // so exit and handle as a normal notification without session endpoint details
             return null;
         }
 
@@ -398,9 +392,6 @@ public class FirebaseMessagingUtil {
         String requireAppSyncStr = payloadData.get(PushNotificationRecord.META_REQUIRE_APP_SYNC);
         boolean requireSync = requireAppSyncStr == null || Boolean.parseBoolean(requireAppSyncStr);
         intent.putExtra(CC_LAUNCH_REQUIRE_SYNC, requireSync);
-        if (showNotification) {
-            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
-        }
         return intent;
     }
 
