@@ -12,8 +12,6 @@ import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFrom
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import android.util.Log;
@@ -141,29 +139,11 @@ public class DispatchActivity extends AppCompatActivity {
         return false;
     }
 
-
-    @Override
-    protected void onNewIntent(@NonNull Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        if (shouldFinish) {
-            // onResume already ran and posted a finish();
-            // but a new intent has arrived so cancel that decision and dispatch instead.
-            shouldFinish = false;
-            dispatch();
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
         if (shouldFinish) {
-            // Post finish() so that onNewIntent() — which Android may deliver synchronously
-            // after onResume() in the same Looper transaction — can cancel it by resetting
-            // shouldFinish before the posted runnable executes.
-            new Handler(Looper.getMainLooper()).post(() -> {
-                if (shouldFinish) finish();
-            });
+            finish();
         } else {
             dispatch();
         }
