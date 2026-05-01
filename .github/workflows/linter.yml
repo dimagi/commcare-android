@@ -31,25 +31,111 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
           # File handling
           IGNORE_GITIGNORED_FILES: true
-          
-          # Disable unwanted linters
-          VALIDATE_JSCPD: false
+
+          # Only enable Java, Kotlin, and XML linters
+          VALIDATE_ANSIBLE: false
+          VALIDATE_ARM: false
+          VALIDATE_BASH: false
+          VALIDATE_BASH_EXEC: false
           VALIDATE_BIOME_FORMAT: false
           VALIDATE_BIOME_LINT: false
           VALIDATE_CHECKOV: false
+          VALIDATE_CLANG_FORMAT: false
+          VALIDATE_CLOJURE: false
+          VALIDATE_CLOUDFORMATION: false
+          VALIDATE_COFFEESCRIPT: false
+          VALIDATE_CPP: false
+          VALIDATE_CSHARP: false
+          VALIDATE_CSS: false
+          VALIDATE_CSS_PRETTIER: false
+          VALIDATE_DART: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_DOTNET_SLN_FORMAT_ANALYZERS: false
+          VALIDATE_DOTNET_SLN_FORMAT_STYLE: false
+          VALIDATE_DOTNET_SLN_FORMAT_WHITESPACE: false
+          VALIDATE_EDITORCONFIG: false
+          VALIDATE_ENV: false
+          VALIDATE_GIT_COMMITLINT: false
+          VALIDATE_GIT_MERGE_CONFLICT_MARKERS: false
+          VALIDATE_GITHUB_ACTIONS: false
           VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
-          VALIDATE_TRIVY: false
-          VALIDATE_MARKDOWN_PRETTIER: false
-          VALIDATE_MARKDOWN: false
-          VALIDATE_NATURAL_LANGUAGE: false
-          VALIDATE_YAML_PRETTIER: false
+          VALIDATE_GITLEAKS: false
+          VALIDATE_GO: false
+          VALIDATE_GO_MODULES: false
+          VALIDATE_GO_RELEASER: false
           VALIDATE_GOOGLE_JAVA_FORMAT: false
+          VALIDATE_GRAPHQL_PRETTIER: false
+          VALIDATE_GROOVY: false
+          VALIDATE_HTML: false
+          VALIDATE_HTML_PRETTIER: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_JAVASCRIPT_PRETTIER: false
+          VALIDATE_JSCPD: false
+          VALIDATE_JSON: false
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_JSONC: false
+          VALIDATE_JSONC_PRETTIER: false
+          VALIDATE_JSX: false
+          VALIDATE_JSX_PRETTIER: false
+          VALIDATE_JUPYTER_NBQA_BLACK: false
+          VALIDATE_JUPYTER_NBQA_FLAKE: false
+          VALIDATE_JUPYTER_NBQA_ISORT: false
+          VALIDATE_JUPYTER_NBQA_MYPY: false
+          VALIDATE_JUPYTER_NBQA_PYLINT: false
+          VALIDATE_JUPYTER_NBQA_RUFF: false
+          VALIDATE_KUBERNETES_KUBECONFORM: false
+          VALIDATE_LATEX: false
+          VALIDATE_LUA: false
+          VALIDATE_MARKDOWN: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_NATURAL_LANGUAGE: false
+          VALIDATE_OPENAPI: false
+          VALIDATE_PERL: false
+          VALIDATE_PHP: false
+          VALIDATE_PHP_BUILTIN: false
+          VALIDATE_PHP_PHPCS: false
+          VALIDATE_PHP_PHPSTAN: false
+          VALIDATE_PHP_PSALM: false
+          VALIDATE_POWERSHELL: false
+          VALIDATE_PRE_COMMIT: false
+          VALIDATE_PROTOBUF: false
+          VALIDATE_PYTHON: false
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_MYPY: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_PYTHON_RUFF: false
+          VALIDATE_PYTHON_RUFF_FORMAT: false
+          VALIDATE_R: false
+          VALIDATE_RENOVATE: false
+          VALIDATE_RUBY: false
+          VALIDATE_RUST_: false
+          VALIDATE_RUST_CLIPPY: false
+          VALIDATE_SCALAFMT: false
+          VALIDATE_SHELL_SHFMT: false
+          VALIDATE_SNAKEMAKE_LINT: false
+          VALIDATE_SNAKEMAKE_SNAKEFMT: false
+          VALIDATE_SPELL_CODESPELL: false
+          VALIDATE_SQLFLUFF: false
+          VALIDATE_STATES: false
+          VALIDATE_TERRAFORM_FMT: false
+          VALIDATE_TERRAFORM_TFLINT: false
+          VALIDATE_TERRAGRUNT: false
+          VALIDATE_TRIVY: false
+          VALIDATE_TSX: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_PRETTIER: false
+          VALIDATE_VUE: false
+          VALIDATE_VUE_PRETTIER: false
+          VALIDATE_YAML: false
+          VALIDATE_YAML_PRETTIER: false
 
           # Java/Kotlin specific settings
           JAVA_FILE_NAME: checkstyle.xml
-          
+
           # Performance and output settings
           SUPPRESS_POSSUM: true

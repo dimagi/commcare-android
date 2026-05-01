@@ -23,6 +23,7 @@ import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.navdrawer.BaseDrawerActivity;
@@ -145,6 +146,11 @@ public class PersonalIdManager {
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
+        if (BuildConfig.IS_QA_AUTOMATION) {
+            userUnlockedPersonalId();
+            callback.connectActivityComplete(true);
+            return;
+        }
         logBiometricInvalidations();
 
         BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
