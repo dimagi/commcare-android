@@ -6,6 +6,7 @@ import org.commcare.connect.PersonalIdManager
 
 private const val SESSION_UNLOCK_THRESHOLD_MS = 10 * 60 * 1000L // 10 minutes
 
+/** Middleware to manage Personal ID unlock prompts with session-based bypass logic. */
 object PersonalIdUnlocker {
     @VisibleForTesting
     internal var lastUnlockTime: Long? = null
@@ -40,7 +41,9 @@ object PersonalIdUnlocker {
         activity: CommCareActivity<*>,
         callback: PersonalIdManager.ConnectActivityCompleteListener,
     ) {
-        PersonalIdManager.getInstance().unlockConnect(activity) { success ->
+        val personalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(activity)
+        personalIdManager.unlockConnect(activity) { success ->
             if (success) lastUnlockTime = System.currentTimeMillis()
             callback.connectActivityComplete(success)
         }

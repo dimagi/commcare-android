@@ -21,7 +21,6 @@ object ConnectNavHelper {
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        PersonalIdManager.getInstance().init(activity)
         PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS) { success ->
             if (success) {
                 navigationAction(activity)
