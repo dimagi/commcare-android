@@ -406,6 +406,8 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         } else if (intentArgumentsAsList != null) {
             CommCareApplication.instance().getCurrentSessionWrapper()
                     .executeEndpointStack(endpoint, intentArgumentsAsList);
+        } else if (endpoint.getArguments().isEmpty()) {
+            executeStackActions(endpoint.getStackOperations(), getEvaluationContext());
         }
     }
 }
