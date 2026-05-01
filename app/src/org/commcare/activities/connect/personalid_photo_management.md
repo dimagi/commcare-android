@@ -3,23 +3,23 @@
 ## Overview
 
 PersonalID users can update their profile photo directly from the navigation drawer. Tapping
-the avatar opens a confirmation dialog; confirming launches the same camera capture flow used
+the user image opens a confirmation dialog; confirming launches the same camera capture flow used
 during PersonalID signup. The photo is uploaded via the existing `update_user_profile`
 endpoint, stored locally, and reflected in the drawer header.
 
 ## User Flow
 
 1. User opens the side drawer.
-2. User taps their avatar in the drawer header.
+2. User taps their image in the drawer header.
 3. A confirmation dialog appears (Cancel / Continue, dismissible by tapping outside).
 4. On Continue, `MicroImageActivity` launches with face detection (front camera, max 160px /
    100KB), identical to the signup photo capture.
 5. After capture, the drawer is reopened with the new photo loaded optimistically.
 6. The photo is uploaded via `PersonalIdApiHandler.updateProfile()`.
 7. **On success**: photo persisted to `ConnectUserRecord.photo`; the camera overlay icon
-   stays on the avatar.
+   stays on the user image.
 8. **On non-blocking failure** (e.g. no internet): photo reverts to the previous one, a toast
-   shows the standard PersonalID error message, and the avatar overlay icon switches to a
+   shows the standard PersonalID error message, and the user image overlay icon switches to a
    warning triangle. A SharedPreferences flag persists this warning state until the app is
    closed and reopened.
 9. **On blocking failure** (e.g. file too large): the app crashes via
@@ -28,9 +28,9 @@ endpoint, stored locally, and reflected in the drawer header.
 ## Components
 
 * **`BaseDrawerController`** (`navdrawer/BaseDrawerController.kt`)
-  * Wires the avatar tap → confirmation dialog → camera launch.
+  * Wires the user image tap → confirmation dialog → camera launch.
   * Reads `PersonalIDUserPreferences.didLastPhotoUploadFail()` on every drawer refresh and
-    swaps `avatar_overlay_icon` between the camera and warning drawables accordingly.
+    swaps `user_image_overlay_icon` between the camera and warning drawables accordingly.
   * Calls `openDrawer()` after a successful capture to keep the sidebar visible while the
     upload runs.
 
@@ -49,10 +49,8 @@ endpoint, stored locally, and reflected in the drawer header.
 
 ## UI Resources
 
-* `nav_drawer_header.xml` — avatar in a 72dp `FrameLayout` with white circular frame
-  (`bg_user_avatar_frame`) and a 24dp overlay container (`bg_user_avatar_icon_overlay`,
-  60% opacity black) at `bottom|start`.
-* `ic_personalid_camera.xml` — default camera icon shown over the avatar.
+* `nav_drawer_header.xml` — user image in a 72dp `MaterialCardView` with white circular frame and an overlay image container (60% opacity, black).
+* `ic_personalid_camera.xml` — default camera icon shown over the user image.
 * `ic_personalid_warning.xml` — warning triangle shown after a failed upload.
 
 ## Error Handling
