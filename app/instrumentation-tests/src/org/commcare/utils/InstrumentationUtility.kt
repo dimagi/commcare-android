@@ -74,7 +74,6 @@ import java.util.concurrent.TimeoutException
  * @author $|-|!˅@M
  */
 object InstrumentationUtility {
-
     const val IMAGE_CAPTURE_FILE_NAME = "ic_launcher.png"
 
     @JvmStatic
@@ -124,7 +123,10 @@ object InstrumentationUtility {
     }
 
     @JvmStatic
-    fun login(userName: String, password: String) {
+    fun login(
+        userName: String,
+        password: String,
+    ) {
         enterText(R.id.edit_username, userName)
         enterText(R.id.edit_password, password)
         onView(isRoot()).perform(swipeUp())
@@ -148,7 +150,10 @@ object InstrumentationUtility {
     }
 
     @JvmStatic
-    fun openForm(module: Int, form: Int) {
+    fun openForm(
+        module: Int,
+        form: Int,
+    ) {
         openModule(module)
         clickListItem(R.id.screen_suite_menu_list, form)
     }
@@ -177,7 +182,10 @@ object InstrumentationUtility {
      * @param position Position of the item to be clicked.
      */
     @JvmStatic
-    fun clickListItem(@IdRes resId: Int, position: Int) {
+    fun clickListItem(
+        @IdRes resId: Int,
+        position: Int,
+    ) {
         onData(anything())
             .inAdapterView(withId(resId))
             .atPosition(position)
@@ -191,12 +199,15 @@ object InstrumentationUtility {
      * @param subviewId Resource reference to the subview.
      */
     @JvmStatic
-    fun getSubViewInListItem(@IdRes listId: Int, position: Int, @IdRes subviewId: Int): DataInteraction {
-        return onData(anything())
+    fun getSubViewInListItem(
+        @IdRes listId: Int,
+        position: Int,
+        @IdRes subviewId: Int,
+    ): DataInteraction =
+        onData(anything())
             .inAdapterView(withId(listId))
             .atPosition(position)
             .onChildView(withId(subviewId))
-    }
 
     /**
      * Opens first incomplete form in the app.
@@ -214,8 +225,8 @@ object InstrumentationUtility {
         gotoHome()
         onView(withId(R.id.nsv_home_screen))
             .perform(swipeUp())
-        onView(withId(R.id.nsv_home_screen))   // multiple swipe
-            .perform(swipeUp())                 // to make `logout` button visible as it may have large scroll
+        onView(withId(R.id.nsv_home_screen)) // multiple swipe
+            .perform(swipeUp()) // to make `logout` button visible as it may have large scroll
         onView(withId(R.id.nsv_home_screen))
             .perform(swipeUp())
         onView(withId(R.id.nsv_home_screen))
@@ -255,7 +266,6 @@ object InstrumentationUtility {
             .perform(click())
     }
 
-
     /**
      * Click finish button in the form
      */
@@ -271,21 +281,31 @@ object InstrumentationUtility {
     @JvmStatic
     fun sleep(seconds: Int) {
         onView(isRoot())
-            .perform(sleep(
-                TimeUnit.SECONDS.toMillis(seconds.toLong())
-            ))
+            .perform(
+                sleep(
+                    TimeUnit.SECONDS.toMillis(seconds.toLong()),
+                ),
+            )
     }
 
     /**
      * Matches total occurrences of child inside parent with count.
      */
     @JvmStatic
-    fun matchChildCount(parent: Class<*>, child: Class<*>, count: Int) {
+    fun matchChildCount(
+        parent: Class<*>,
+        child: Class<*>,
+        count: Int,
+    ) {
         onView(withClassName(Matchers.`is`(parent.canonicalName)))
-            .check(matches(
-                withChildViewCount(count,
-                    withClassName(Matchers.`is`(child.canonicalName)))
-            ))
+            .check(
+                matches(
+                    withChildViewCount(
+                        count,
+                        withClassName(Matchers.`is`(child.canonicalName)),
+                    ),
+                ),
+            )
     }
 
     /**
@@ -293,11 +313,14 @@ object InstrumentationUtility {
      * @param resId Resource reference to the list.
      */
     @JvmStatic
-    fun getListSize(@IdRes resId: Int): Int {
-        val application = InstrumentationRegistry
-            .getInstrumentation()
-            .targetContext
-            .applicationContext as CommCareInstrumentationTestApplication
+    fun getListSize(
+        @IdRes resId: Int,
+    ): Int {
+        val application =
+            InstrumentationRegistry
+                .getInstrumentation()
+                .targetContext
+                .applicationContext as CommCareInstrumentationTestApplication
         val activity = application.currentActivity
         val listView = activity.findViewById<ListView>(resId)
         return listView.adapter.count
@@ -324,7 +347,10 @@ object InstrumentationUtility {
      * edittext and after that it will close the keyboard.
      */
     @JvmStatic
-    fun enterText(@IdRes editTextId: Int, text: String) {
+    fun enterText(
+        @IdRes editTextId: Int,
+        text: String,
+    ) {
         onView(withId(editTextId))
             .perform(click(), replaceText(text), closeSoftKeyboard())
     }
@@ -338,7 +364,10 @@ object InstrumentationUtility {
     /**
      * A utility to match the text present in a textfield
      */
-    fun matchTypedText(@IdRes editTextId: Int, text: String) {
+    fun matchTypedText(
+        @IdRes editTextId: Int,
+        text: String,
+    ) {
         onView(withId(editTextId)).check(matches(withText(text)))
     }
 
@@ -363,7 +392,10 @@ object InstrumentationUtility {
      * This will fail the test if the value is false.
      */
     @JvmStatic
-    fun assert(value: Boolean, failMsg: String) {
+    fun assert(
+        value: Boolean,
+        failMsg: String,
+    ) {
         if (!value) {
             Assert.fail("Assertion Failed: $failMsg")
         }
@@ -395,7 +427,9 @@ object InstrumentationUtility {
      * 3. Selects the backOption: R.id.donotsave or R.id.saveincomplete.
      */
     @JvmStatic
-    fun exitForm(@IdRes backOption: Int) {
+    fun exitForm(
+        @IdRes backOption: Int,
+    ) {
         Espresso.closeSoftKeyboard()
         Espresso.pressBack()
         onView(withText(backOption))
@@ -416,8 +450,9 @@ object InstrumentationUtility {
 
     @JvmStatic
     fun stubIntentWithAction(action: String) {
-        Intents.intending(IntentMatchers.hasAction(action))
-                .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, Intent()))
+        Intents
+            .intending(IntentMatchers.hasAction(action))
+            .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, Intent()))
     }
 
     fun didLastLogSubmissionSucceed(): Boolean {
@@ -428,8 +463,9 @@ object InstrumentationUtility {
 
     @JvmStatic
     fun <T> assertCurrentActivity(clazz: Class<T>) {
-        val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
-            as CommCareInstrumentationTestApplication
+        val application =
+            InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                as CommCareInstrumentationTestApplication
         val activity = application.currentActivity
         assert(clazz.isInstance(activity), "Current Activity is ${activity.localClassName}")
     }
@@ -445,25 +481,24 @@ object InstrumentationUtility {
     }
 
     //region private helpers.
+
     /**
      * Apparently Thread.sleep() doesn't work on
      * https://youtu.be/isihPOY2vS4?t=674
      */
-    private fun sleep(millis: Long): ViewAction {
-        return object : ViewAction {
-            override fun getConstraints(): Matcher<View> {
-                return isRoot()
-            }
+    private fun sleep(millis: Long): ViewAction =
+        object : ViewAction {
+            override fun getConstraints(): Matcher<View> = isRoot()
 
-            override fun getDescription(): String {
-                return "Going to sleep for " + millis + "milliseconds"
-            }
+            override fun getDescription(): String = "Going to sleep for " + millis + "milliseconds"
 
-            override fun perform(uiController: UiController, view: View) {
+            override fun perform(
+                uiController: UiController,
+                view: View,
+            ) {
                 uiController.loopMainThreadForAtLeast(millis)
             }
         }
-    }
 
     private fun stubCamera() {
         // Build a result to return from the Camera app
@@ -483,41 +518,46 @@ object InstrumentationUtility {
         intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result)
     }
 
-    fun onImageCaptureIntentSent() = IntentCallback { intent ->
-        val uri = intent.extras!!.getParcelable<Uri>(MediaStore.EXTRA_OUTPUT)
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val inputStream = context.classLoader.getResourceAsStream(IMAGE_CAPTURE_FILE_NAME)
-        val outputStream = context.contentResolver.openOutputStream(uri!!)
-        try {
-            StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream)
-        } finally {
-            inputStream.close()
-            outputStream!!.close()
+    fun onImageCaptureIntentSent() =
+        IntentCallback { intent ->
+            val uri = intent.extras!!.getParcelable<Uri>(MediaStore.EXTRA_OUTPUT)
+            val context = InstrumentationRegistry.getInstrumentation().targetContext
+            val inputStream = context.classLoader.getResourceAsStream(IMAGE_CAPTURE_FILE_NAME)
+            val outputStream = context.contentResolver.openOutputStream(uri!!)
+            try {
+                StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream)
+            } finally {
+                inputStream.close()
+                outputStream!!.close()
+            }
         }
-    }
 
     /**
      * A utility to verify Form Fields with their values
      */
 
-    fun verifyFormCellAndValue(cellData: String, value: String) {
-        val result: Boolean = onView(
-            Matchers.allOf(
-                withId(R.id.detail_type_text),
-                withText(cellData),
-                hasSibling(
-                    Matchers.allOf(
-                        withId(R.id.detail_value_pane),
-                        withChild(
-                            Matchers.allOf(
-                                withId(R.id.detail_value_text),
-                                withText(value)
-                            )
-                        )
-                    )
-                )
-            )
-        ).isPresent()
+    fun verifyFormCellAndValue(
+        cellData: String,
+        value: String,
+    ) {
+        val result: Boolean =
+            onView(
+                Matchers.allOf(
+                    withId(R.id.detail_type_text),
+                    withText(cellData),
+                    hasSibling(
+                        Matchers.allOf(
+                            withId(R.id.detail_value_pane),
+                            withChild(
+                                Matchers.allOf(
+                                    withId(R.id.detail_value_text),
+                                    withText(value),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ).isPresent()
         assertTrue(result)
     }
 
@@ -535,11 +575,13 @@ object InstrumentationUtility {
      * A utility to wait until a certain view appears
      * usage: onView(isRoot()).perform(waitForView(withText("<text>")))
      */
-    fun waitForView(viewMatcher: Matcher<View>, timeout: Long = 10000, waitForDisplayed: Boolean = true): ViewAction {
+    fun waitForView(
+        viewMatcher: Matcher<View>,
+        timeout: Long = 10000,
+        waitForDisplayed: Boolean = true,
+    ): ViewAction {
         return object : ViewAction {
-            override fun getConstraints(): Matcher<View> {
-                return Matchers.any(View::class.java)
-            }
+            override fun getConstraints(): Matcher<View> = Matchers.any(View::class.java)
 
             override fun getDescription(): String {
                 val matcherDescription = StringDescription()
@@ -547,22 +589,28 @@ object InstrumentationUtility {
                 return "wait for a specific view <$matcherDescription> to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
             }
 
-            override fun perform(uiController: UiController, view: View) {
+            override fun perform(
+                uiController: UiController,
+                view: View,
+            ) {
                 uiController.loopMainThreadUntilIdle()
                 val startTime = System.currentTimeMillis()
                 val endTime = startTime + timeout
                 val visibleMatcher = isDisplayed()
 
                 do {
-                    val viewVisible = TreeIterables.breadthFirstViewTraversal(view)
-                        .any { viewMatcher.matches(it) && visibleMatcher.matches(it) }
+                    val viewVisible =
+                        TreeIterables
+                            .breadthFirstViewTraversal(view)
+                            .any { viewMatcher.matches(it) && visibleMatcher.matches(it) }
 
                     if (viewVisible == waitForDisplayed) return
                     uiController.loopMainThreadForAtLeast(50)
                 } while (System.currentTimeMillis() < endTime)
 
                 // Timeout happens.
-                throw PerformException.Builder()
+                throw PerformException
+                    .Builder()
                     .withActionDescription(this.description)
                     .withViewDescription(HumanReadables.describe(view))
                     .withCause(TimeoutException())
@@ -576,20 +624,21 @@ object InstrumentationUtility {
      */
     fun getText(matcher: ViewInteraction): String {
         var text = String()
-        matcher.perform(object : ViewAction {
-            override fun getConstraints(): Matcher<View> {
-                return isAssignableFrom(TextView::class.java)
-            }
+        matcher.perform(
+            object : ViewAction {
+                override fun getConstraints(): Matcher<View> = isAssignableFrom(TextView::class.java)
 
-            override fun getDescription(): String {
-                return "Text of the view"
-            }
+                override fun getDescription(): String = "Text of the view"
 
-            override fun perform(uiController: UiController, view: View) {
-                val tv = view as TextView
-                text = tv.text.toString()
-            }
-        })
+                override fun perform(
+                    uiController: UiController,
+                    view: View,
+                ) {
+                    val tv = view as TextView
+                    text = tv.text.toString()
+                }
+            },
+        )
 
         return text
     }
