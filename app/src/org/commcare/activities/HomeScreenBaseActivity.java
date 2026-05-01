@@ -997,10 +997,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private boolean exitFromExternalLaunch() {
-        return wasExternal && getIntent() != null &&
-                !getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false) &&
-                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION,
-                        EXIT_AFTER_FORM_SUBMISSION_DEFAULT);
+        Intent intent = getIntent();
+        boolean exitAfterFormSubmission = intent != null && intent.getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION,
+                EXIT_AFTER_FORM_SUBMISSION_DEFAULT);
+        if (intent != null) {
+            intent.removeExtra(EXIT_AFTER_FORM_SUBMISSION);
+        }
+        return wasExternal && exitAfterFormSubmission;
     }
 
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
