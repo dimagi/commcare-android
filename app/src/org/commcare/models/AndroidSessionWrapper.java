@@ -1,5 +1,6 @@
 package org.commcare.models;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -24,6 +25,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
+import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.FormIndex;
@@ -383,15 +385,27 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         cleanVolatiles();
     }
 
-    public void executeEndpointStack(Endpoint endpoint, ArrayList<String> args) {
+    private void executeEndpointStack(Endpoint endpoint, ArrayList<String> args) {
         EvaluationContext evaluationContext = getEvaluationContext();
         Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, args, evaluationContext);
         executeStackActions(endpoint.getStackOperations(), evaluationContext);
     }
 
-    public void executeEndpointStack(Endpoint endpoint, HashMap args) {
+    private void executeEndpointStack(Endpoint endpoint, HashMap args) {
         EvaluationContext evaluationContext = getEvaluationContext();
         Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, args, evaluationContext);
         executeStackActions(endpoint.getStackOperations(), evaluationContext);
+    }
+
+    public void executeEndpointStack(Endpoint endpoint, Bundle intentArgumentsAsBundle,
+            ArrayList<String> intentArgumentsAsList) {
+        if (intentArgumentsAsBundle != null) {
+            CommCareApplication.instance().getCurrentSessionWrapper()
+                    .executeEndpointStack(endpoint,
+                            AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
+        } else if (intentArgumentsAsList != null) {
+            CommCareApplication.instance().getCurrentSessionWrapper()
+                    .executeEndpointStack(endpoint, intentArgumentsAsList);
+        }
     }
 }

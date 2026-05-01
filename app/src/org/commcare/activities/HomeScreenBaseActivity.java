@@ -264,14 +264,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareApplication.instance().getCurrentSessionWrapper().reset();
 
                 try {
-                    if (intentArgumentsAsBundle != null) {
-                        CommCareApplication.instance().getCurrentSessionWrapper()
-                                .executeEndpointStack(endpoint,
-                                        AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
-                    } else if (intentArgumentsAsList != null) {
-                        CommCareApplication.instance().getCurrentSessionWrapper()
-                                .executeEndpointStack(endpoint, intentArgumentsAsList);
-                    }
+                    CommCareApplication.instance().getCurrentSessionWrapper()
+                            .executeEndpointStack(endpoint, intentArgumentsAsBundle, intentArgumentsAsList);
                     return true;
                 } catch (Endpoint.InvalidEndpointArgumentsException e) {
                     String invalidEndpointArgsError =
