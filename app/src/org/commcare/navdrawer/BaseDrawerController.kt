@@ -378,7 +378,6 @@ class BaseDrawerController(
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_warning)
                 Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show()
             }
-            // For now, we only allow users to update their photo, hence the null values for "displayName" and "secondaryPhone".
         }.updateProfile(activity, user!!.userId, user!!.password, null, null, photoBase64)
     }
 
