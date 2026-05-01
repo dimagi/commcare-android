@@ -394,7 +394,6 @@ public class FirebaseMessagingUtil {
         Intent intent = new Intent(context, DispatchActivity.class);
         intent.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
         intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
-        intent.putExtra(IS_LAUNCH_FROM_CONNECT, true);
         // Default to true when the field is absent — older server payloads always require sync
         String requireAppSyncStr = payloadData.get(PushNotificationRecord.META_REQUIRE_APP_SYNC);
         boolean requireSync = requireAppSyncStr == null || Boolean.parseBoolean(requireAppSyncStr);
