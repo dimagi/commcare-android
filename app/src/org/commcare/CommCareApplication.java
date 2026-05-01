@@ -40,6 +40,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 
 import org.commcare.activities.LoginActivity;
+import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -219,6 +220,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
+        PersonalIdUnlocker.INSTANCE.resetSession();
 
         ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
 

@@ -6,6 +6,7 @@ import android.os.Build;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -241,6 +242,7 @@ public class PersonalIdManager {
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
 
         ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
+        PersonalIdUnlocker.INSTANCE.resetSession();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
