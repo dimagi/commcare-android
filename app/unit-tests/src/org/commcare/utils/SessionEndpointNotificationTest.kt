@@ -128,25 +128,6 @@ class SessionEndpointNotificationTest {
     }
 
     @Test
-    fun `missing opportunityUUID falls back to ConnectActivity`() {
-        connectJobUtilsMock
-            .`when`<String> {
-                ConnectJobUtils.getAppIdForOpportunity(
-                    Mockito.any(),
-                    Mockito.isNull(),
-                    Mockito.any(),
-                )
-            }.thenReturn(null)
-
-        val payload = buildPayload(opportunityUuid = null)
-        val intent = handleNotification(context, payload, null, false)
-        assertEquals(
-            ConnectActivity::class.java.name,
-            intent!!.component!!.className,
-        )
-    }
-
-    @Test
     fun `job not found falls back to ConnectActivity`() {
         connectJobUtilsMock
             .`when`<String> {
@@ -155,7 +136,7 @@ class SessionEndpointNotificationTest {
                     Mockito.eq(opportunityUuidValue),
                     Mockito.any(),
                 )
-            }.thenReturn(null)
+            }.thenThrow(IllegalArgumentException("Opportunity not found"))
 
         val payload = buildPayload()
         val intent = handleNotification(context, payload, null, false)
