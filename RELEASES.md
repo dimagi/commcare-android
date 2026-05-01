@@ -12,6 +12,8 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 - Offline status shown on refreshable Connect pages when applicable
+- Forms now allow a maximum of 50 attachments. To add another after the limit is reached, users will need to 
+remove an existing one first
 
 - [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
 - [Relearn Tasking] Implements a new notification when a relearn task is assigned to a user

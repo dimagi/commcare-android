@@ -103,6 +103,7 @@ import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
@@ -139,6 +140,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_LOC_ERROR = "location-not-enabled";
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
     private static final String KEY_IS_READ_ONLY = "instance-is-read-only";
+    private static final String KEY_NUM_FORM_ATTACHMENTS = "number-of-form-attachments";
 
     private FormEntryInstanceState instanceState;
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
@@ -182,6 +184,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    private int formAttachmentCount = 0;
+    private static int DEFAULT_MAX_FORM_ATTACHMENTS = 50;
+    private static int TEST_MAX_FORM_ATTACHMENTS = 5;
+    private static int MAX_FORM_ATTACHMENTS = DEFAULT_MAX_FORM_ATTACHMENTS;
 
     private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
             new PendingSyncAlertBroadcastReceiver();
@@ -315,6 +321,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         outState.putBoolean(KEY_IS_READ_ONLY, instanceIsReadOnly);
+        outState.putInt(KEY_NUM_FORM_ATTACHMENTS, formAttachmentCount);
         formEntryRestoreSession.saveFormEntrySession(outState);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -424,6 +431,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void showFileOversizeError() {
         String title = Localization.get("file.oversize.error.title");
         String msg = Localization.get("file.oversize.error.message");
+        CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
+                title, msg, (dialog1, which) -> dialog1.dismiss());
+        showAlertDialog(dialog);
+    }
+
+    public boolean canAddAttachment() {
+        return formAttachmentCount < MAX_FORM_ATTACHMENTS;
+    }
+
+    public void incrementAttachmentCount() {
+        formAttachmentCount++;
+    }
+
+    public void decrementAttachmentCount() {
+        if (formAttachmentCount > 0) {
+            formAttachmentCount--;
+        }
+    }
+
+    public void showFormAttachmentLimitReachedError() {
+        String title = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached_title);
+        String msg = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached,
+                String.valueOf(MAX_FORM_ATTACHMENTS));
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
                 title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
@@ -1074,6 +1104,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
+                    receiver.updateFormAttachmentCount();
                 }
 
                 @Override
@@ -1110,6 +1141,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             mFormLoaderTask.connect(this);
             mFormLoaderTask.executeParallel(formId);
             hasFormLoadBeenTriggered = true;
+        }
+    }
+
+    private void updateFormAttachmentCount() {
+        int numMediaFiles = FileUtil.countMediaFiles(FormEntryInstanceState.getInstanceFolder());
+        if (numMediaFiles != -1) {
+            formAttachmentCount = numMediaFiles;
         }
     }
 
@@ -1501,6 +1539,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void loadStateFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             instanceState.loadState(savedInstanceState);
+            if (savedInstanceState.containsKey(KEY_NUM_FORM_ATTACHMENTS)) {
+                formAttachmentCount = savedInstanceState.getInt(KEY_NUM_FORM_ATTACHMENTS, 0);
+            }
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
@@ -1728,5 +1769,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public static boolean isFormEntryInProgress() {
         return isFormEntryActive;
+    }
+
+    /**
+     * For testing purposes only, allows tests to set the max number of form attachments to a lower number so
+     * that we can more easily test behavior around hitting that limit
+     */
+    @VisibleForTesting
+    public static void setMaxFormAttachmentsForTesting() {
+        MAX_FORM_ATTACHMENTS = TEST_MAX_FORM_ATTACHMENTS;
+    }
+
+    @VisibleForTesting
+    public static void restoreMaxFormAttachmentsToDefault() {
+        MAX_FORM_ATTACHMENTS = DEFAULT_MAX_FORM_ATTACHMENTS;
     }
 }
