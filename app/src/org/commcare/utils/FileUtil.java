@@ -1014,8 +1014,7 @@ public class FileUtil {
             for (File file : files) {
                 if (file.isFile() &&
                         !file.getName().endsWith(XML_EXTENSION) &&
-                        (FormUploadUtil.isSupportedMultimediaFile(file.getName()) ||
-                                file.getName().endsWith(MediaWidget.AES_EXTENSION))) {
+                        FormUploadUtil.isSupportedMediaOrEncryptedMedia(file.getName())) {
                     count++;
                 }
             }
