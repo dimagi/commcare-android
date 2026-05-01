@@ -195,7 +195,7 @@ class BaseDrawerController(
             setSignedInState(true)
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
             binding.userName.text = user!!.name
-            loadUserPhoto(user!!.photo!!)
+            user!!.photo?.let { loadUserPhoto(it) }
 
             val userImageOverlayIconRes =
                 if (PersonalIDUserPreferences.getLastPhotoUploadFailed()) {
