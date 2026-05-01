@@ -237,10 +237,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 pendingEndpointNavigationAfterSync = true;
                 redirectedInOnCreate = true;
                 triggerSync(false);
-            } else {
-                if (processSessionEndpoint()) {
-                    sessionNavigator.startNextSessionStep();
-                }
+            } else if (processSessionEndpoint()) {
+                sessionNavigator.startNextSessionStep();
             }
         }
     }
@@ -1337,12 +1335,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onResumeSessionSafe() {
-        if (pendingEndpointNavigationAfterSync) {
-            if (processSessionEndpoint()) {
-                sessionNavigator.startNextSessionStep();
-                resetNavigationFlags();
-                return;
-            }
+        if (pendingEndpointNavigationAfterSync && processSessionEndpoint()) {
+            sessionNavigator.startNextSessionStep();
+            resetNavigationFlags();
+            return;
         }
 
         if (!redirectedInOnCreate && !sessionNavigationProceedingAfterOnResume) {

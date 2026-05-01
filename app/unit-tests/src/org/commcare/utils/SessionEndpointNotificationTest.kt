@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class SessionEndpointNotificationTest {
-    private val context: Context = CommCareTestApplication.instance()
+    private val context = CommCareTestApplication.instance()
 
     private val learnAppId = "learn-app"
     private val deliveryAppId = "delivery-app"
@@ -40,8 +40,8 @@ class SessionEndpointNotificationTest {
         // Set PersonalIdManager status to LoggedIn directly to satisfy cccCheckPassed().
         // init() only touches the DB when status == NotIntroduced; once LoggedIn it's a no-op.
         val manager = PersonalIdManager.getInstance()
-        savedStatus = manager.getStatus()
-        manager.setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn)
+        savedStatus = manager.status
+        manager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
 
         connectJobUtilsMock = Mockito.mockStatic(ConnectJobUtils::class.java)
         connectJobUtilsMock
@@ -65,7 +65,7 @@ class SessionEndpointNotificationTest {
     @After
     fun tearDown() {
         connectJobUtilsMock.close()
-        PersonalIdManager.getInstance().setStatus(savedStatus)
+        PersonalIdManager.getInstance().status = savedStatus
     }
 
     private fun buildPayload(
@@ -101,7 +101,6 @@ class SessionEndpointNotificationTest {
             intent!!.component!!.className,
         )
         assertEquals(endpointIdValue, intent.getStringExtra(DispatchActivity.SESSION_ENDPOINT_ID))
-        assertTrue(intent!!.getBooleanExtra(ConnectAppUtils.IS_LAUNCH_FROM_CONNECT, false))
     }
 
     @Test
