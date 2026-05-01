@@ -31,11 +31,13 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
+import org.commcare.preferences.PersonalIDUserPreferences
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
 import org.commcare.views.dialogs.DialogCreationHelpers
+import org.commcare.views.dialogs.StandardAlertDialog
 
 class BaseDrawerController(
     private val activity: CommCareActivity<*>,
@@ -161,9 +163,31 @@ class BaseDrawerController(
             closeDrawer()
         }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
-        binding.imageUserProfile.setOnClickListener {
+        binding.userImage.setOnClickListener {
+            showUpdatePhotoConfirmationDialog()
+        }
+    }
+
+    private fun showUpdatePhotoConfirmationDialog() {
+        val dialog = StandardAlertDialog(
+            activity.getString(R.string.nav_drawer_user_photo_update_dialog_title),
+            activity.getString(R.string.nav_drawer_user_photo_update_dialog_message),
+        )
+
+        dialog.setPositiveButton(
+            activity.getString(R.string.nav_drawer_user_photo_update_dialog_continue),
+        ) { dialogInterface, _ ->
+            dialogInterface.dismiss()
             launchCameraForPhotoEdit()
         }
+        dialog.setNegativeButton(
+            activity.getString(R.string.nav_drawer_user_photo_update_dialog_cancel),
+        ) { dialogInterface, _ ->
+            dialogInterface.dismiss()
+        }
+
+        dialog.makeCancelable()
+        dialog.showNonPersistentDialog(activity)
     }
 
     fun refreshDrawerContent() {
@@ -172,6 +196,14 @@ class BaseDrawerController(
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
             binding.userName.text = user!!.name
             loadUserPhoto(user!!.photo!!)
+
+            val userImageOverlayIconRes =
+                if (PersonalIDUserPreferences.getLastPhotoUploadFailed()) {
+                    R.drawable.ic_personalid_warning
+                } else {
+                    R.drawable.ic_personalid_camera
+                }
+            binding.userImageOverlayIcon.setImageResource(userImageOverlayIconRes)
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
@@ -332,6 +364,8 @@ class BaseDrawerController(
             override fun onSuccess(success: Boolean) {
                 user!!.photo = photoBase64
                 ConnectUserDatabaseUtil.storeUser(activity, user)
+                PersonalIDUserPreferences.setLastPhotoUploadFailed(false)
+                binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
             }
 
             override fun onFailure(
@@ -340,6 +374,8 @@ class BaseDrawerController(
             ) {
                 revertUserPhoto()
                 val errorMessage = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t)
+                PersonalIDUserPreferences.setLastPhotoUploadFailed(true)
+                binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_warning)
                 Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show()
             }
             // For now, we only allow users to update their photo, hence the null values for "displayName" and "secondaryPhone".
@@ -348,21 +384,20 @@ class BaseDrawerController(
 
     private fun loadUserPhoto(photoBase64: String) {
         Glide
-            .with(binding.imageUserProfile)
+            .with(binding.userImage)
             .load(photoBase64)
             .apply(
-                RequestOptions
-                    .circleCropTransform()
+                RequestOptions()
                     .placeholder(R.drawable.nav_drawer_person_avatar)
                     .error(R.drawable.nav_drawer_person_avatar),
-            ).into(binding.imageUserProfile)
+            ).into(binding.userImage)
     }
 
     private fun revertUserPhoto() {
         if (!previousUserPhotoBase64.isNullOrEmpty()) {
             loadUserPhoto(previousUserPhotoBase64!!)
         } else {
-            binding.imageUserProfile.setImageResource(R.drawable.nav_drawer_person_avatar)
+            binding.userImage.setImageResource(R.drawable.nav_drawer_person_avatar)
         }
     }
 

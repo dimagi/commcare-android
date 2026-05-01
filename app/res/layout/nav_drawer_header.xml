@@ -26,14 +26,42 @@
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/image_user_profile"
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@null"
-                    android:scaleType="centerCrop"
-                    app:shapeAppearanceOverlay="@style/CircularImageView"
-                    android:src="@drawable/nav_drawer_person_avatar"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    app:cardCornerRadius="50dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="2dp">
+
+                    <ImageView
+                        android:id="@+id/user_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/nav_drawer_person_avatar"
+                        android:contentDescription="@null" />
+
+                    <!-- Overlay Container: Clipped automatically by the CardView -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="5dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/black_60">
+
+                        <ImageView
+                            android:id="@+id/user_image_overlay_icon"
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_personalid_camera"
+                            android:contentDescription="@null" />
+                    </FrameLayout>
+
+                </com.google.android.material.card.MaterialCardView>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

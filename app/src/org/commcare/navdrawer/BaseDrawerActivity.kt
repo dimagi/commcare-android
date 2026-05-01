@@ -28,14 +28,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
     fun refreshDrawer() {
         drawerController?.refreshDrawerContent()
     }
@@ -179,7 +171,5 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return showDrawer
     }
 
-	fun isShowingGlobalError(): Boolean {
-        return drawerController?.isShowingError() ?: false
-    }
+    fun isShowingGlobalError(): Boolean = drawerController?.isShowingError() ?: false
 }
