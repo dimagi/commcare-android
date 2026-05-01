@@ -183,8 +183,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
     private Map<Integer, String> menuIdToAnalyticsParam;
-    private int attachmentCount = 0;
-    private static final int MAX_ATTACHMENTS = 50;
+    private int formAttachmentCount = 0;
+    private static int MAX_FORM_ATTACHMENTS = 50;
 
     private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
             new PendingSyncAlertBroadcastReceiver();
@@ -318,7 +318,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         outState.putBoolean(KEY_IS_READ_ONLY, instanceIsReadOnly);
-        outState.putInt(KEY_NUM_FORM_ATTACHMENTS, attachmentCount);
+        outState.putInt(KEY_NUM_FORM_ATTACHMENTS, formAttachmentCount);
         formEntryRestoreSession.saveFormEntrySession(outState);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -434,23 +434,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public boolean canAddAttachment() {
-        return attachmentCount < MAX_ATTACHMENTS;
+        return formAttachmentCount < MAX_FORM_ATTACHMENTS;
     }
 
     public void incrementAttachmentCount() {
-        attachmentCount++;
+        formAttachmentCount++;
     }
 
     public void decrementAttachmentCount() {
-        if (attachmentCount > 0) {
-            attachmentCount--;
+        if (formAttachmentCount > 0) {
+            formAttachmentCount--;
         }
     }
 
     public void showFormAttachmentLimitReachedError() {
         String title = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached_title);
         String msg = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached,
-                String.valueOf(MAX_ATTACHMENTS));
+                String.valueOf(MAX_FORM_ATTACHMENTS));
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
                 title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
@@ -1144,7 +1144,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void updateFormAttachmentCount() {
         int numMediaFiles = FileUtil.countMediaFiles(FormEntryInstanceState.getInstanceFolder());
         if (numMediaFiles != -1) {
-            attachmentCount = numMediaFiles;
+            formAttachmentCount = numMediaFiles;
         }
     }
 
@@ -1537,7 +1537,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (savedInstanceState != null) {
             instanceState.loadState(savedInstanceState);
             if (savedInstanceState.containsKey(KEY_NUM_FORM_ATTACHMENTS)) {
-                attachmentCount = savedInstanceState.getInt(KEY_NUM_FORM_ATTACHMENTS, 0);
+                formAttachmentCount = savedInstanceState.getInt(KEY_NUM_FORM_ATTACHMENTS, 0);
             }
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
