@@ -351,13 +351,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void reportOtpAnalytics(String outcome, @Nullable String reason) {
-
-        String eventType = getEventType(currentOtpOp);
+      String eventType = getEventType(currentOtpOp);
         if (eventType == null) return;
-
-        // Use lastOtpMethod (the active manager's method) rather than
-        // personalIdSessionData.getSmsMethod(), which is the server-assigned
-        // value and does not reflect setupOtpManager's fallback/auto-switch logic.
         String method = OtpAnalyticsMapper.methodFromSmsMethod(lastOtpMethod);
         FirebaseAnalyticsUtil.reportOtpEvent(
                 eventType,

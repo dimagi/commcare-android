@@ -19,14 +19,14 @@ object OtpAnalyticsMapper {
      * so unexpected SMS methods stay visible in BI.
      */
     @JvmStatic
-    fun methodFromSmsMethod(smsMethod: String?): String? =
+    fun methodFromSmsMethod(otpMethod: String?): String? =
         when {
-            smsMethod == null -> AnalyticsParamValue.OTP_METHOD_FIREBASE
-            smsMethod.equals(OtpManager.SMS_METHOD_PERSONAL_ID, ignoreCase = true) ->
+            otpMethod == null -> AnalyticsParamValue.OTP_METHOD_FIREBASE
+            otpMethod.equals(OtpManager.SMS_METHOD_PERSONAL_ID, ignoreCase = true) ->
                 AnalyticsParamValue.OTP_METHOD_PERSONAL_ID
-            smsMethod.equals(OtpManager.SMS_METHOD_FIREBASE, ignoreCase = true) ->
+            otpMethod.equals(OtpManager.SMS_METHOD_FIREBASE, ignoreCase = true) ->
                 AnalyticsParamValue.OTP_METHOD_FIREBASE
-            else -> "UNKNOWN-$smsMethod"
+            else -> "UNKNOWN-$otpMethod"
         }
 
     /**
