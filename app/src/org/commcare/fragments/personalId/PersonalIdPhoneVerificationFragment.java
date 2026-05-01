@@ -46,6 +46,7 @@ import org.joda.time.DateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.commcare.utils.OtpAnalyticsMapper.getEventType;
 import static org.commcare.utils.OtpManager.SMS_METHOD_FIREBASE;
 import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
 
@@ -62,9 +63,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private ScreenPersonalidPhoneVerifyBinding binding;
     private final Handler resendTimerHandler = new Handler();
-    /** Which OTP call is currently in flight, used to attribute the next callback. */
-    private enum OtpOp { REQUEST, VERIFY }
-    private OtpOp currentOtpOp;
+    private OtpAnalyticsMapper.OtpOp currentOtpOp;
     private OtpManager otpManager;
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
@@ -102,7 +101,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             @Override
             public void onCodeSent(String verificationId) {
                 if (otpCallback == null) return;
-                emitOtpAnalytics(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, /* reason= */ null);
+                reportOtpAnalytics(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, null);
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_sent), Toast.LENGTH_SHORT).show();
             }
 
@@ -119,17 +118,17 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             @Override
             public void onSuccess() {
                 if (otpCallback == null) return;
-                emitOtpAnalytics(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, /* reason= */ null);
+                reportOtpAnalytics(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, null);
                 navigateToNameEntry();
             }
 
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
-                if (otpCallback == null) return;
-
-                emitOtpAnalytics(
+                reportOtpAnalytics(
                         AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                         OtpAnalyticsMapper.reasonFrom(errorType));
+
+                if (otpCallback == null) return;
 
                 // Auto-switch from Firebase to PersonalId for non-recoverable errors
                 if (shouldAutoSwitchToPersonalIdAuth(errorType)) {
@@ -158,7 +157,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             ) {
                 if (otpCallback == null) return;
 
-                emitOtpAnalytics(
+                reportOtpAnalytics(
                         AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                         OtpAnalyticsMapper.reasonFrom(failureCode));
 
@@ -351,14 +350,11 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         }
     }
 
-    private void emitOtpAnalytics(String outcome, @Nullable String reason) {
-        if (currentOtpOp == null) {
-            // Defensive — a callback fired without a tracked op. Don't emit.
-            return;
-        }
-        String eventType = currentOtpOp == OtpOp.REQUEST
-                ? AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST
-                : AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY;
+    private void reportOtpAnalytics(String outcome, @Nullable String reason) {
+
+        String eventType = getEventType(currentOtpOp);
+        if (eventType == null) return;
+
         // Use lastOtpMethod (the active manager's method) rather than
         // personalIdSessionData.getSmsMethod(), which is the server-assigned
         // value and does not reflect setupOtpManager's fallback/auto-switch logic.
@@ -374,7 +370,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private void requestOtp() {
         clearOtpError();
         otpRequestTime = new DateTime();
-        currentOtpOp = OtpOp.REQUEST;
+        currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST;
         otpManager.requestOtp(primaryPhone);
         personalIdSessionData.setOtpAttempts(personalIdSessionData.getOtpAttempts() + 1);
     }
@@ -387,7 +383,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
-            currentOtpOp = OtpOp.VERIFY;
+            currentOtpOp = OtpAnalyticsMapper.OtpOp.VERIFY;
             otpManager.verifyOtp(otpCode);
         }
     }

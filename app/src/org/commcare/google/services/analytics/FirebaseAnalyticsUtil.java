@@ -739,7 +739,7 @@ public class FirebaseAnalyticsUtil {
 
     /**
      * Reports the otp_requested event with the outcome and reason of an OTP request
-     * or verify call (CCCT-2052).
+     * or verify call.
      *
      * @param eventType    one of {@link AnalyticsParamValue#OTP_EVENT_TYPE_REQUEST} /
      *                     {@link AnalyticsParamValue#OTP_EVENT_TYPE_VERIFY}.

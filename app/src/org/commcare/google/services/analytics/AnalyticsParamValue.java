@@ -212,7 +212,7 @@ public class AnalyticsParamValue {
     public final static String CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT =
             "consent_api_success_result";
 
-    // Param values for OTP analytics (CCCT-2052)
+    // Param values for OTP analytics
     public static final String OTP_METHOD_FIREBASE = "firebase";
     public static final String OTP_METHOD_PERSONAL_ID = "personal_id";
     public static final String OTP_OUTCOME_SUCCESS = "success";

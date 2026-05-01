@@ -46,9 +46,9 @@ class OtpAnalyticsMapperTest {
     }
 
     @Test
-    fun `methodFromSmsMethod defaults to firebase when unrecognized`() {
+    fun `methodFromSmsMethod prefixes UNKNOWN for unrecognized values`() {
         assertEquals(
-            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            "UNKNOWN-twilio",
             OtpAnalyticsMapper.methodFromSmsMethod("twilio"),
         )
     }
@@ -153,5 +153,28 @@ class OtpAnalyticsMapperTest {
     @Test
     fun `reasonFrom api code returns null for null input`() {
         assertNull(OtpAnalyticsMapper.reasonFrom(null as PersonalIdOrConnectApiErrorCodes?))
+    }
+
+    // --- getEventType ---
+
+    @Test
+    fun `getEventType returns request for REQUEST`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST,
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.REQUEST),
+        )
+    }
+
+    @Test
+    fun `getEventType returns verify for VERIFY`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY,
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.VERIFY),
+        )
+    }
+
+    @Test
+    fun `getEventType returns null for null input`() {
+        assertNull(OtpAnalyticsMapper.getEventType(null))
     }
 }
