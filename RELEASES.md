@@ -28,7 +28,7 @@ These notes are only published internally in [CommCare Change log wiki](https://
 along with the public release notes above
 -->
 
-- - Session endpoint navigation from Connect notifications: clicking a notification with a `session_endpoint_id` now navigates the user directly to the specified CommCare session endpoint (after a sync if required), instead of opening the Connect activity.
+- Session endpoint navigation from Connect notifications: clicking a notification with a `session_endpoint_id` now navigates the user directly to the specified CommCare session endpoint (after a sync if required), instead of opening the Connect activity.
 
 
 ### QA Notes

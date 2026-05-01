@@ -1335,12 +1335,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onResumeSessionSafe() {
-        if (pendingEndpointNavigationAfterSync && processSessionEndpoint()) {
-            sessionNavigator.startNextSessionStep();
-            resetNavigationFlags();
-            return;
-        }
-
         if (!redirectedInOnCreate && !sessionNavigationProceedingAfterOnResume) {
             refreshActionBar();
             attemptDispatchHomeScreen();
@@ -1359,7 +1353,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
         shouldTriggerBackgroundSync = true;
-        pendingEndpointNavigationAfterSync = false;
     }
 
     @Override
@@ -1425,7 +1418,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                                      boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
         super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend,
                 usingRemoteKeyManagement);
-        if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+        if (pendingEndpointNavigationAfterSync && processSessionEndpoint()) {
+            sessionNavigator.startNextSessionStep();
+            pendingEndpointNavigationAfterSync = false;
+        } else if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
             i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
 
