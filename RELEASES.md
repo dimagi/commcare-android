@@ -42,7 +42,7 @@ we would like to communicate to QA as part of the release testing
     - On clicking, Notification should take user to the relevant CommCare App Home page and auto-login and auto-syncs the user with a blocking dialog. 
     - Click the notification while logged out
     - Click the notification while the app is backgrounded
-    - Cancel login normally (back button, no notification) → app should still close as expected.
+    - Verify that notifications redirect work as expected from various places in the app - Opp Screen, App Home, Login Screen, Form Entry etc and back navigation works correctly after the notification redirect
     - Verify no regression on existing Connect notification types (payments, messaging, delivery/learn progress).
 
 - Verify that the existing opportunity card UI is unchanged when there are no relearn tasks.
