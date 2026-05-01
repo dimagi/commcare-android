@@ -247,6 +247,16 @@ object InstrumentationUtility {
     }
 
     /**
+     * Click previous button in the form
+     */
+    @JvmStatic
+    fun prevPage() {
+        onView(withId(R.id.nav_btn_prev))
+            .perform(click())
+    }
+
+
+    /**
      * Click finish button in the form
      */
     @JvmStatic

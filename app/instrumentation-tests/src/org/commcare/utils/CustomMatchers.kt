@@ -3,6 +3,7 @@ package org.commcare.utils
 import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.test.espresso.matcher.BoundedMatcher
@@ -145,5 +146,16 @@ object CustomMatchers {
             }
         }
     }
+
+    /**
+     * Creates a matcher that matches whether an ImageView has a drawable or not.
+     */
+    fun hasDrawable(): Matcher<View> =
+        object : BoundedMatcher<View, ImageView>(ImageView::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("ImageView has a drawable (is not empty)")
+            }
+            override fun matchesSafely(view: ImageView): Boolean = view.drawable != null
+        }
 
 }

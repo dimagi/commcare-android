@@ -103,6 +103,7 @@ import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
@@ -184,7 +185,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private EvaluationTraceReporter traceReporter;
     private Map<Integer, String> menuIdToAnalyticsParam;
     private int formAttachmentCount = 0;
-    private static int MAX_FORM_ATTACHMENTS = 50;
+    private static int DEFAULT_MAX_FORM_ATTACHMENTS = 50;
+    private static int TEST_MAX_FORM_ATTACHMENTS = 5;
+    private static int MAX_FORM_ATTACHMENTS = DEFAULT_MAX_FORM_ATTACHMENTS;
 
     private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
             new PendingSyncAlertBroadcastReceiver();
@@ -1766,5 +1769,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public static boolean isFormEntryInProgress() {
         return isFormEntryActive;
+    }
+
+    /**
+     * For testing purposes only, allows tests to set the max number of form attachments to a lower number so
+     * that we can more easily test behavior around hitting that limit
+     */
+    @VisibleForTesting
+    public static void setMaxFormAttachmentsForTesting() {
+        MAX_FORM_ATTACHMENTS = TEST_MAX_FORM_ATTACHMENTS;
+    }
+
+    @VisibleForTesting
+    public static void restoreMaxFormAttachmentsToDefault() {
+        MAX_FORM_ATTACHMENTS = DEFAULT_MAX_FORM_ATTACHMENTS;
     }
 }
