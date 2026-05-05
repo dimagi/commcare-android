@@ -32,6 +32,7 @@ import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureE
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.preferences.PersonalIDUserPreferences
+import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
@@ -177,6 +178,15 @@ class BaseDrawerController(
         dialog.setPositiveButton(
             activity.getString(R.string.nav_drawer_user_photo_update_dialog_continue),
         ) { dialogInterface, _ ->
+            if (!ConnectivityStatus.isNetworkAvailable(activity)) {
+                Toast.makeText(
+                    activity,
+                    activity.getString(R.string.recovery_network_unavailable),
+                    Toast.LENGTH_LONG,
+                ).show()
+                return@setPositiveButton
+            }
+
             dialogInterface.dismiss()
             launchCameraForPhotoEdit()
         }
