@@ -376,6 +376,11 @@ class BaseDrawerController(
                 ConnectUserDatabaseUtil.storeUser(activity, user)
                 PersonalIDUserPreferences.setLastPhotoUploadFailed(false)
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
+                Toast.makeText(
+                    activity,
+                    activity.getString(R.string.nav_drawer_user_photo_update_success),
+                    Toast.LENGTH_LONG,
+                ).show()
             }
 
             override fun onFailure(

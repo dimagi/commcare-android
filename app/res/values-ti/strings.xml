@@ -365,6 +365,7 @@
     <string name="nav_drawer_user_photo_update_dialog_message">ሓድሽ ስእሊ ፕሮፋይል ክትወስዱ ትደልዩ ዶ?</string>
     <string name="nav_drawer_user_photo_update_dialog_continue">ቀጽል</string>
     <string name="nav_drawer_user_photo_update_dialog_cancel">የቋርፁ</string>
+    <string name="nav_drawer_user_photo_update_success">ስእሊ ፕሮፋይልኩም ብዓወት ተሐዲሱ።</string>
     <string name="connect_job_info_title">ዝርዝር ዕድል</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>

@@ -78,6 +78,7 @@
     <string name="nav_drawer_user_photo_update_dialog_message">Ar norėtumėte padaryti naują profilio nuotrauką?</string>
     <string name="nav_drawer_user_photo_update_dialog_continue">Tęsti</string>
     <string name="nav_drawer_user_photo_update_dialog_cancel">Atšaukti</string>
+    <string name="nav_drawer_user_photo_update_success">Jūsų profilio nuotrauka sėkmingai atnaujinta.</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
