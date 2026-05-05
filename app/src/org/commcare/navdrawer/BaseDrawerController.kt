@@ -16,7 +16,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
-import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
@@ -50,7 +49,6 @@ class BaseDrawerController(
     private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
     private var hasRefreshed = false
     private var showingError = false
-    private var user: ConnectUserRecord? = null
     var lastPhotoUploadFailed: Boolean = false
 
     /** Enum to represent navigation drawer menu items */
@@ -63,10 +61,6 @@ class BaseDrawerController(
     }
 
     fun setupDrawer() {
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            user = ConnectUserDatabaseUtil.getUser(activity)
-        }
-
         setupActionBarDrawerToggle()
         initializeAdapter()
         initTakePhotoLauncher()
@@ -203,8 +197,10 @@ class BaseDrawerController(
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
-            binding.userName.text = user!!.name
-            user!!.photo?.let { loadUserPhoto(it) }
+
+            val user = ConnectUserDatabaseUtil.getUser(activity)
+            binding.userName.text = user.name
+            user.photo?.let { loadUserPhoto(it) }
 
             val userImageOverlayIconRes =
                 if (lastPhotoUploadFailed) {
@@ -367,9 +363,10 @@ class BaseDrawerController(
     }
 
     private fun uploadUserPhoto(photoBase64: String) {
+        val user = ConnectUserDatabaseUtil.getUser(activity)
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
-                user!!.photo = photoBase64
+                user.photo = photoBase64
                 ConnectUserDatabaseUtil.storeUser(activity, user)
                 lastPhotoUploadFailed = false
                 loadUserPhoto(photoBase64)
@@ -390,7 +387,7 @@ class BaseDrawerController(
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_warning)
                 Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show()
             }
-        }.updateProfile(activity, user!!.userId, user!!.password, null, null, photoBase64)
+        }.updateProfile(activity, user.userId, user.password, null, null, photoBase64)
     }
 
     private fun loadUserPhoto(photoBase64: String) {
