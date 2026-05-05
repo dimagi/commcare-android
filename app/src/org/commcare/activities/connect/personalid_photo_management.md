@@ -12,35 +12,31 @@ endpoint, stored locally, and reflected in the drawer header.
 1. User opens the side drawer.
 2. User taps their image in the drawer header.
 3. A confirmation dialog appears (Cancel / Continue, dismissible by tapping outside).
-4. On Continue, `MicroImageActivity` launches with face detection (front camera, max 160px /
+4. On Continue, the controller checks network connectivity. If the device is offline, a
+   "no network" toast is shown and the flow ends without launching the camera.
+5. Otherwise, `MicroImageActivity` launches with face detection (front camera, max 160px /
    100KB), identical to the signup photo capture.
-5. After capture, the drawer is reopened with the new photo loaded optimistically.
-6. The photo is uploaded via `PersonalIdApiHandler.updateProfile()`.
-7. **On success**: photo persisted to `ConnectUserRecord.photo`; the camera overlay icon
-   stays on the user image.
-8. **On non-blocking failure** (e.g. no internet): photo reverts to the previous one, a toast
-   shows the standard PersonalID error message, and the user image overlay icon switches to a
-   warning triangle. A SharedPreferences flag persists this warning state until the app is
-   closed and reopened.
+6. After capture, the photo is uploaded via `PersonalIdApiHandler.updateProfile()`. The
+   drawer continues to show the previous photo while the upload is in flight.
+7. **On success**: photo persisted to `ConnectUserRecord.photo`, the new photo is loaded
+   into the drawer, the camera overlay icon is restored, and a success toast is shown.
+8. **On non-blocking failure** (e.g. server error mid-upload): the previous photo remains
+   visible (nothing to revert, since the new photo was never displayed), a toast shows the
+   standard PersonalID error message, and the user image overlay icon switches to a warning
+   triangle. The warning state lives on the `BaseDrawerController` instance and is cleared
+   on the next successful upload or when a new controller is created.
 9. **On blocking failure** (e.g. file too large): the app crashes via
    `PersonalIdOrConnectApiErrorHandler.handle()` to mirror the signup flow's behavior.
 
 ## Components
 
 * **`BaseDrawerController`** (`navdrawer/BaseDrawerController.kt`)
-  * Wires the user image tap → confirmation dialog → camera launch.
-  * Reads `PersonalIDUserPreferences.didLastPhotoUploadFail()` on every drawer refresh and
-    swaps `user_image_overlay_icon` between the camera and warning drawables accordingly.
-  * Calls `openDrawer()` after a successful capture to keep the sidebar visible while the
-    upload runs.
-
-* **`CommCareApplication`** (`CommCareApplication.java`)
-  * Clears the photo-upload-failure flag from `PersonalIDUserPreferences` in `onCreate`,
-    so the warning icon resets when the process starts (i.e. when the app is closed and
-    reopened) but persists across in-process activity transitions.
-
-* **`PersonalIDUserPreferences`** (`preferences/PersonalIDUserPreferences.kt`)
-  * SharedPreferences wrapper holding the boolean `last_photo_upload_failed` flag.
+  * Wires the user image tap → confirmation dialog → network check → camera launch.
+  * Holds an in-memory `lastPhotoUploadFailed: Boolean` flag that is read on every drawer
+    refresh to swap `user_image_overlay_icon` between the camera and warning drawables.
+  * Re-reads the `ConnectUserRecord` from the database in `refreshDrawerContent()` and
+    `uploadUserPhoto()` rather than caching it at setup time, so the drawer always reflects
+    the currently signed-in user.
 
 * **API Layer** (unchanged, reused from signup-completion):
   * `ApiPersonalId.updateUserProfile()` — `POST /users/update_profile` with HTTP Basic Auth.
@@ -59,7 +55,7 @@ Errors are routed through the shared `PersonalIdOrConnectApiErrorHandler.handle(
 behavior aligned with the PersonalID signup flow:
 
 * **Non-blocking** (network, server, rate-limit, etc.): returns a localized message which is
-  surfaced as a toast; the warning overlay is shown and the failure flag persisted.
+  surfaced as a toast; the warning overlay is shown and the in-memory failure flag is set.
 * **Blocking** (e.g. `FILE_TOO_LARGE_ERROR` with a non-null `Throwable`): re-throws as a
   `RuntimeException`, mirroring the signup flow's crash behavior.
 
