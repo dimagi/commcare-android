@@ -39,9 +39,8 @@ we would like to communicate to QA as part of the release testing
   - Tap Continue. Verify that the camera capture screen opens with the title "Take Profile Photo" (it should detect the user's face the same way as during PersonalID signup).
   - Capture a new photo. Verify that the drawer reopens, the new photo replaces the existing image, and the camera icon overlay is still shown along the bottom of the image.
   - Reopen the drawer later (after navigating around the app) and verify that the new photo is still shown.
-  - **Failed upload:** turn on airplane mode, tap the image, confirm the dialog, and capture a new photo. Verify that:
+  - **Failed upload:** turn on airplane mode, tap the image, and tap the Continue button. Verify that:
     - A toast appears with an error message.
-    - The image reverts to the previous photo.
     - The camera overlay icon switches to a yellow warning triangle.
   - With airplane mode still on, navigate around the app and reopen the drawer. Verify that the warning triangle is still shown over the image.
   - Turn airplane mode off, fully close the app (swipe it away from recent apps), and reopen it. Sign back in if needed. Verify that the warning triangle is gone and the camera icon is shown again.
