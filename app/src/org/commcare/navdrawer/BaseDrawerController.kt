@@ -171,12 +171,12 @@ class BaseDrawerController(
 
     private fun showUpdatePhotoConfirmationDialog() {
         val dialog = StandardAlertDialog(
-            activity.getString(R.string.nav_drawer_user_photo_update_dialog_title),
-            activity.getString(R.string.nav_drawer_user_photo_update_dialog_message),
+            activity.getString(R.string.personalid_user_photo_update_dialog_title),
+            activity.getString(R.string.personalid_user_photo_update_dialog_message),
         )
 
         dialog.setPositiveButton(
-            activity.getString(R.string.nav_drawer_user_photo_update_dialog_continue),
+            activity.getString(R.string.personalid_user_photo_update_dialog_continue),
         ) { dialogInterface, _ ->
             if (!ConnectivityStatus.isNetworkAvailable(activity)) {
                 Toast.makeText(
@@ -191,7 +191,7 @@ class BaseDrawerController(
             launchCameraForPhotoEdit()
         }
         dialog.setNegativeButton(
-            activity.getString(R.string.nav_drawer_user_photo_update_dialog_cancel),
+            activity.getString(R.string.personalid_user_photo_update_dialog_cancel),
         ) { dialogInterface, _ ->
             dialogInterface.dismiss()
         }
@@ -378,7 +378,7 @@ class BaseDrawerController(
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
                 Toast.makeText(
                     activity,
-                    activity.getString(R.string.nav_drawer_user_photo_update_success),
+                    activity.getString(R.string.personalid_user_photo_update_success),
                     Toast.LENGTH_LONG,
                 ).show()
             }
