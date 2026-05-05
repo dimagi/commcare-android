@@ -151,4 +151,17 @@ class ConnectNetworkClientTest {
             val result = client.getConnectOpportunities(mockUser)
             assertTrue(result.isSuccess)
         }
+
+    @Test
+    fun testGetLearningProgress_success_returnsLearnProgress() =
+        runBlocking {
+            val mockJob = mockk<ConnectJobRecord>()
+            every { mockJob.jobUUID } returns "test-uuid"
+            val responseBody = "".toResponseBody("application/json".toMediaType())
+            coEvery { mockApiService.getLearningProgress(any(), any(), any()) } returns Response.success(
+                responseBody
+            )
+            val result = client.getLearningProgress(mockUser, mockJob)
+            assertTrue(result.isSuccess)
+        }
 }
