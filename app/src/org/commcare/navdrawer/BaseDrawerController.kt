@@ -51,7 +51,6 @@ class BaseDrawerController(
     private var hasRefreshed = false
     private var showingError = false
     private var user: ConnectUserRecord? = null
-    private var previousUserPhotoBase64: String? = null
     var lastPhotoUploadFailed: Boolean = false
 
     /** Enum to represent navigation drawer menu items */
@@ -353,8 +352,6 @@ class BaseDrawerController(
                     result.data
                         ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
                         ?.let { photoBase64 ->
-                            previousUserPhotoBase64 = user!!.photo
-                            loadUserPhoto(photoBase64)
                             uploadUserPhoto(photoBase64)
                         }
                 }
@@ -375,6 +372,7 @@ class BaseDrawerController(
                 user!!.photo = photoBase64
                 ConnectUserDatabaseUtil.storeUser(activity, user)
                 lastPhotoUploadFailed = false
+                loadUserPhoto(photoBase64)
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
                 Toast.makeText(
                     activity,
@@ -387,7 +385,6 @@ class BaseDrawerController(
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                revertUserPhoto()
                 val errorMessage = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t)
                 lastPhotoUploadFailed = true
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_warning)
@@ -405,14 +402,6 @@ class BaseDrawerController(
                     .placeholder(R.drawable.nav_drawer_person_avatar)
                     .error(R.drawable.nav_drawer_person_avatar),
             ).into(binding.userImage)
-    }
-
-    private fun revertUserPhoto() {
-        if (!previousUserPhotoBase64.isNullOrEmpty()) {
-            loadUserPhoto(previousUserPhotoBase64!!)
-        } else {
-            binding.userImage.setImageResource(R.drawable.nav_drawer_person_avatar)
-        }
     }
 
     companion object {
