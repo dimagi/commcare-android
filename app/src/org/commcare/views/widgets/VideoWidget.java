@@ -4,9 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.MediaStore.Video;
-import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
@@ -41,6 +39,9 @@ public class VideoWidget extends MediaWidget {
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(v -> {
+            if (warnIfAttachmentLimitReached()) {
+                return;
+            }
             Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
             i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                     Video.Media.EXTERNAL_CONTENT_URI.toString());
@@ -64,6 +65,9 @@ public class VideoWidget extends MediaWidget {
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(v -> {
+            if (warnIfAttachmentLimitReached()) {
+                return;
+            }
             try {
                 ((AppCompatActivity)getContext())
                         .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "video/*"),

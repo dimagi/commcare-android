@@ -1,6 +1,5 @@
 package org.commcare.fragments.connect;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,20 +20,19 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
-import org.commcare.core.services.CommCarePreferenceManagerFactory;
-import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.preferences.ConnectJobPreferences;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.views.connect.ConnectViewUtils;
 import org.javarosa.core.model.utils.DateUtils;
@@ -44,8 +42,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment<FragmentConnectDeliveryProgressBinding>
         implements RefreshableFragment {
@@ -62,7 +58,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
-    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public @NotNull View onCreateView(
+            @NotNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_progress_delivery);
 
@@ -98,17 +98,21 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             }
         }
 
-        getBinding().connectDeliveryProgressViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                if (!isProgrammaticTabChange) {
-                    tabLayout.selectTab(tabLayout.getTabAt(position));
-                    FirebaseAnalyticsUtil.reportConnectTabChange(tabLayout.getTabAt(position).getText().toString());
-                } else {
-                    isProgrammaticTabChange = false;
+        getBinding().connectDeliveryProgressViewPager.registerOnPageChangeCallback(
+                new ViewPager2.OnPageChangeCallback() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        if (!isProgrammaticTabChange) {
+                            tabLayout.selectTab(tabLayout.getTabAt(position));
+                            FirebaseAnalyticsUtil.reportConnectTabChange(
+                                    tabLayout.getTabAt(position).getText().toString()
+                            );
+                        } else {
+                            isProgrammaticTabChange = false;
+                        }
+                    }
                 }
-            }
-        });
+        );
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -129,14 +133,20 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     @Override
     public void refresh(boolean forceRefresh) {
         setWaitDialogEnabled(false);
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success, error) -> {
-            if (success && isAdded()) {
-                updateLastUpdatedText(new Date());
-                updateCardMessage();
-                updatePaymentConfirmationTile(false);
-                viewPagerAdapter.refresh();
-            }
-        });
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(
+                getContext(),
+                job,
+                true,
+                this,
+                (success, error) -> {
+                    if (success && isAdded()) {
+                        updateLastUpdatedText(new Date());
+                        updateCardMessage();
+                        updatePaymentConfirmationTile(false);
+                        viewPagerAdapter.refresh();
+                    }
+                }
+        );
     }
 
     private void setupRefreshAndConfirmationActions() {
@@ -154,13 +164,15 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private void handlePaymentConfirmationNoClick() {
         updatePaymentConfirmationTile(true);
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, new Date().getTime());
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(job.getJobUUID());
+        jobPrefs.setPaymentConfirmationHiddenSinceTime(new Date().getTime());
     }
 
     private void handlePaymentConfirmYesButtonClick() {
         if (paymentsToConfirm.isEmpty()) {
-            throw new IllegalStateException("No payments to confirm but confirmation card was shown.");
+            throw new IllegalStateException(
+                    "No payments to confirm but confirmation card was shown."
+            );
         }
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
@@ -270,13 +282,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             }
         }
 
-        ICommCarePreferenceManager preferenceManager = CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-        long hiddenSinceTimeMs = preferenceManager.getLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(job.getJobUUID());
+        long hiddenSinceTimeMs = jobPrefs.getPaymentConfirmationHiddenSinceTime();
         long timeElapsedSinceLastHiddenMs = new Date().getTime() - hiddenSinceTimeMs;
 
         boolean showTile = !paymentsToConfirm.isEmpty()
                 && ConnectivityStatus.isNetworkAvailable(requireContext())
-                && (hiddenSinceTimeMs == -1 || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
+                && (jobPrefs.paymentConfirmationHiddenSinceTimeNotSet()
+                || timeElapsedSinceLastHiddenMs > DateUtils.DAY_IN_MS * 7);
 
         if (showTile) {
             getBinding().connectPaymentConfirmLabel.setText(
@@ -296,8 +309,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private void updateLastUpdatedText(Date lastUpdate) {
         getBinding().connectDeliveryLastUpdate.setText(
-                getString(R.string.connect_last_update,
-                        ConnectDateUtils.INSTANCE.formatDateTime(lastUpdate)));
+                getString(
+                        R.string.connect_last_update,
+                        ConnectDateUtils.INSTANCE.formatDateTime(lastUpdate)
+                )
+        );
     }
 
     private void navigateToDeliverAppHome() {
@@ -317,7 +333,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
-    protected @NotNull FragmentConnectDeliveryProgressBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+    protected @NotNull FragmentConnectDeliveryProgressBinding inflateBinding(
+            @NotNull LayoutInflater inflater,
+            @Nullable ViewGroup container
+    ) {
         return FragmentConnectDeliveryProgressBinding.inflate(inflater, container, false);
     }
 
