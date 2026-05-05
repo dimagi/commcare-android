@@ -25,7 +25,7 @@ jobs:
           persist-credentials: false
 
       - name: Lint Code Base
-        uses: super-linter/super-linter@v8.2.1
+        uses: super-linter/super-linter@v8.3.1
         env:
           # Only lint changed files in PR
           VALIDATE_ALL_CODEBASE: false
