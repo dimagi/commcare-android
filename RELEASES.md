@@ -2,6 +2,52 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.64
+
+### Release Notes
+
+<!--
+These are published publically on Playstore, Github Releases and CommCare Forums
+-->
+
+#### What's New
+
+- [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
+
+#### Important Bug Fixes
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+
+### QA Notes
+
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
+
+- **PersonalID profile photo update from nav drawer:**
+  - Sign in to PersonalID and open the side navigation drawer. Verify that the user's image in the drawer header is shown inside a circular white frame with a small camera icon overlay along the bottom edge.
+  - Tap the image. Verify that an "Update Profile Photo" confirmation dialog appears with a message asking whether you would like to take a new profile photo, and Continue / Cancel buttons.
+  - Verify that the dialog can be dismissed in three ways: tapping Cancel, tapping outside the dialog, and pressing the device back button. In all three cases, the photo should remain unchanged.
+  - Tap Continue. Verify that the camera capture screen opens with the title "Take Profile Photo" (it should detect the user's face the same way as during PersonalID signup).
+  - Capture a new photo. Verify that the drawer reopens, the new photo replaces the existing image, and the camera icon overlay is still shown along the bottom of the image.
+  - Reopen the drawer later (after navigating around the app) and verify that the new photo is still shown.
+  - **Failed upload:** turn on airplane mode, tap the image, confirm the dialog, and capture a new photo. Verify that:
+    - A toast appears with an error message.
+    - The image reverts to the previous photo.
+    - The camera overlay icon switches to a yellow warning triangle.
+  - With airplane mode still on, navigate around the app and reopen the drawer. Verify that the warning triangle is still shown over the image.
+  - Turn airplane mode off, fully close the app (swipe it away from recent apps), and reopen it. Sign back in if needed. Verify that the warning triangle is gone and the camera icon is shown again.
+  - With a working network connection, retry the photo update and verify a successful upload restores the camera icon and the new photo persists.
+  - Verify that the photo update also reflects on HQ for the PersonalID user (i.e. the new photo is visible on the server-side admin view of the user's profile).
+
 ## CommCare 2.63
 
 ### Release Notes
@@ -43,22 +89,6 @@ we would like to communicate to QA as part of the release testing
   - Text cursor functionality (i.e. backspacing, clicking an earlier box to jump back)
 
 - Test the new offline status indicator at the top of refreshable Connect pages (Connect Home, Learning Progress, Delivery Progress). Verify that the error message appears when entering these pages while offline, and that it disappears once the device comes back online.
-
-- **PersonalID profile photo update from nav drawer:**
-  - Sign in to PersonalID and open the side navigation drawer. Verify that the user's image in the drawer header is shown inside a circular white frame with a small camera icon overlay along the bottom edge.
-  - Tap the image. Verify that an "Update Profile Photo" confirmation dialog appears with a message asking whether you would like to take a new profile photo, and Continue / Cancel buttons.
-  - Verify that the dialog can be dismissed in three ways: tapping Cancel, tapping outside the dialog, and pressing the device back button. In all three cases, the photo should remain unchanged.
-  - Tap Continue. Verify that the camera capture screen opens with the title "Take Profile Photo" (it should detect the user's face the same way as during PersonalID signup).
-  - Capture a new photo. Verify that the drawer reopens, the new photo replaces the existing image, and the camera icon overlay is still shown along the bottom of the image.
-  - Reopen the drawer later (after navigating around the app) and verify that the new photo is still shown.
-  - **Failed upload:** turn on airplane mode, tap the image, confirm the dialog, and capture a new photo. Verify that:
-    - A toast appears with an error message.
-    - The image reverts to the previous photo.
-    - The camera overlay icon switches to a yellow warning triangle.
-  - With airplane mode still on, navigate around the app and reopen the drawer. Verify that the warning triangle is still shown over the image.
-  - Turn airplane mode off, fully close the app (swipe it away from recent apps), and reopen it. Sign back in if needed. Verify that the warning triangle is gone and the camera icon is shown again.
-  - With a working network connection, retry the photo update and verify a successful upload restores the camera icon and the new photo persists.
-  - Verify that the photo update also reflects on HQ for the PersonalID user (i.e. the new photo is visible on the server-side admin view of the user's profile).
 
 ## CommCare 2.62
 
