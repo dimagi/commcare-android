@@ -86,12 +86,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     private void observeOpportunities() {
         observeDataState(
                 viewModel.getOpportunities(),
-                cached -> {
-                    setJobListData(cached);
-                },
-                success -> {
-                    setJobListData(success);
-                }
+                this::setJobListData,
+                this::setJobListData
         );
     }
 
