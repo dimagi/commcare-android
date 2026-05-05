@@ -97,7 +97,6 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
-import org.commcare.preferences.PersonalIDUserPreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
@@ -279,8 +278,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrievalChecked(
                 CommCareApplication.instance());
-
-        PersonalIDUserPreferences.Companion.resetLastPhotoUploadFailed();
     }
 
     protected void loadSqliteLibs() {

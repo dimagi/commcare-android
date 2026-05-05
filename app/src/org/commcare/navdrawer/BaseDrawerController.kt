@@ -31,7 +31,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
-import org.commcare.preferences.PersonalIDUserPreferences
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
@@ -53,6 +52,7 @@ class BaseDrawerController(
     private var showingError = false
     private var user: ConnectUserRecord? = null
     private var previousUserPhotoBase64: String? = null
+    var lastPhotoUploadFailed: Boolean = false
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -208,7 +208,7 @@ class BaseDrawerController(
             user!!.photo?.let { loadUserPhoto(it) }
 
             val userImageOverlayIconRes =
-                if (PersonalIDUserPreferences.getLastPhotoUploadFailed()) {
+                if (lastPhotoUploadFailed) {
                     R.drawable.ic_personalid_warning
                 } else {
                     R.drawable.ic_personalid_camera
@@ -374,7 +374,7 @@ class BaseDrawerController(
             override fun onSuccess(success: Boolean) {
                 user!!.photo = photoBase64
                 ConnectUserDatabaseUtil.storeUser(activity, user)
-                PersonalIDUserPreferences.setLastPhotoUploadFailed(false)
+                lastPhotoUploadFailed = false
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
                 Toast.makeText(
                     activity,
@@ -389,7 +389,7 @@ class BaseDrawerController(
             ) {
                 revertUserPhoto()
                 val errorMessage = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t)
-                PersonalIDUserPreferences.setLastPhotoUploadFailed(true)
+                lastPhotoUploadFailed = true
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_warning)
                 Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show()
             }
