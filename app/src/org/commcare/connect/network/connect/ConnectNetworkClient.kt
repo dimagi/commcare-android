@@ -28,7 +28,6 @@ class ConnectNetworkClient
         private val apiService: ConnectApiService,
     ) {
         companion object {
-
             @Volatile
             private var instance: ConnectNetworkClient? = null
 

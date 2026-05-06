@@ -335,7 +335,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     @Override
     public String getEndpoint() {
-        return ConnectRepository.ENDPOINT_LEARNING_PREFIX + job.getJobUUID();
+        return ConnectRepository.SYNC_KEY_LEARNING_PREFIX + job.getJobUUID();
     }
 
     @Override

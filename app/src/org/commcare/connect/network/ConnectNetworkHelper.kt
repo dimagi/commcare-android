@@ -79,9 +79,7 @@ class ConnectNetworkHelper {
     }
 }
 
-suspend fun getAuthorizationHeader(
-    user: ConnectUserRecord,
-): Result<String> =
+suspend fun getAuthorizationHeader(user: ConnectUserRecord): Result<String> =
     suspendCancellableCoroutine { continuation ->
         ConnectSsoHelper.retrievePersonalIdToken(
             CommCareApplication.instance(),

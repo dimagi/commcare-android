@@ -395,7 +395,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
     @Override
     public String getEndpoint() {
-        return ConnectRepository.ENDPOINT_OPPORTUNITIES;
+        return ConnectRepository.SYNC_KEY_OPPORTUNITIES;
     }
 
     @Override

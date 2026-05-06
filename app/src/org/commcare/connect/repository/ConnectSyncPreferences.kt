@@ -45,29 +45,29 @@ class ConnectSyncPreferences(
         return Date(timestamp)
     }
 
-    fun storeLastSyncTime(endpoint: String) {
-        val key = KEY_LAST_SYNC_PREFIX + endpoint.replace("/", "_")
+    fun storeLastSyncTime(syncKey: String) {
+        val key = KEY_LAST_SYNC_PREFIX + syncKey.replace("/", "_")
         prefs
             .edit()
             .putLong(key, Date().time)
             .apply()
     }
 
-    fun getLastSyncTime(endpoint: String): Date? {
-        val key = KEY_LAST_SYNC_PREFIX + endpoint.replace("/", "_")
+    fun getLastSyncTime(syncKey: String): Date? {
+        val key = KEY_LAST_SYNC_PREFIX + syncKey.replace("/", "_")
         val timestamp = prefs.getLong(key, -1)
         return if (timestamp == -1L) null else Date(timestamp)
     }
 
     fun shouldRefresh(
-        endpoint: String,
+        syncKey: String,
         policy: RefreshPolicy,
     ): Boolean {
         return when (policy) {
             RefreshPolicy.ALWAYS -> true
 
             is RefreshPolicy.SESSION_AND_TIME_BASED -> {
-                val lastSync = getLastSyncTime(endpoint) ?: return true
+                val lastSync = getLastSyncTime(syncKey) ?: return true
                 val sessionStart = getSessionStartTime()
                 val isNewSession = lastSync.before(sessionStart)
                 val ageMs = Date().time - lastSync.time

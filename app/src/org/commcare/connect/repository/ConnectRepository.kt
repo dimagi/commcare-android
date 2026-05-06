@@ -23,10 +23,11 @@ class ConnectRepository
         private val networkClient: ConnectNetworkClient,
     ) {
         companion object {
-            const val ENDPOINT_OPPORTUNITIES = "/opportunities"
-            const val ENDPOINT_LEARNING_PREFIX = "/learning_progress/"
+            const val SYNC_KEY_OPPORTUNITIES = "/opportunities"
+            const val SYNC_KEY_LEARNING_PREFIX = "/learning_progress/"
 
             @Volatile
+            
             private var instance: ConnectRepository? = null
 
             fun getInstance(context: Context): ConnectRepository =
@@ -43,7 +44,7 @@ class ConnectRepository
             policy: RefreshPolicy = RefreshPolicy.SESSION_AND_TIME_BASED(),
         ): Flow<DataState<List<ConnectJobRecord>>> =
             offlineFirstFlow(
-                endpoint = ENDPOINT_OPPORTUNITIES,
+                syncKey = SYNC_KEY_OPPORTUNITIES,
                 forceRefresh = forceRefresh,
                 policy = policy,
                 loadCache = {
@@ -64,7 +65,7 @@ class ConnectRepository
             policy: RefreshPolicy = RefreshPolicy.ALWAYS,
         ): Flow<DataState<ConnectJobRecord>> =
             offlineFirstFlow(
-                endpoint = ENDPOINT_LEARNING_PREFIX + job.jobUUID,
+                syncKey = SYNC_KEY_LEARNING_PREFIX + job.jobUUID,
                 forceRefresh = forceRefresh,
                 policy = policy,
                 loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
@@ -80,7 +81,7 @@ class ConnectRepository
          * DB writes go in [onNetworkSuccess], re-read in [mapToEmit].
          */
         private fun <C, N> offlineFirstFlow(
-            endpoint: String,
+            syncKey: String,
             forceRefresh: Boolean,
             policy: RefreshPolicy,
             loadCache: () -> C?,
@@ -90,21 +91,21 @@ class ConnectRepository
         ): Flow<DataState<C>> =
             flow {
                 val cachedData: C? = loadCache()
-                val lastSyncTime = syncPrefs.getLastSyncTime(endpoint)
+                val lastSyncTime = syncPrefs.getLastSyncTime(syncKey)
                 val isCacheAvailable = cachedData != null && lastSyncTime != null
                 if (isCacheAvailable) {
                     emit(DataState.Cached(cachedData, lastSyncTime))
                 }
 
-                if (isCacheAvailable && !forceRefresh && !syncPrefs.shouldRefresh(endpoint, policy)) return@flow
+                if (isCacheAvailable && !forceRefresh && !syncPrefs.shouldRefresh(syncKey, policy)) return@flow
 
                 emit(DataState.Loading)
                 val result =
-                    ConnectRequestManager.executeRequest(endpoint) {
+                    ConnectRequestManager.executeRequest(syncKey) {
                         networkCall().also { networkResult ->
                             networkResult.onSuccess { data ->
                                 onNetworkSuccess(data)
-                                syncPrefs.storeLastSyncTime(endpoint)
+                                syncPrefs.storeLastSyncTime(syncKey)
                             }
                         }
                     }
