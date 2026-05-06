@@ -23,6 +23,9 @@ jobs:
   build-test-assemble:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v6
@@ -90,16 +93,19 @@ jobs:
         run: ./gradlew testCommcareDebug
         working-directory: commcare-android
       - name: Generate JaCoCo Report
+        continue-on-error: true
         run: ./gradlew jacocoTestReport
         working-directory: commcare-android
       - name: Upload JaCoCo Report
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports/jacoco
       - name: Comment JaCoCo Coverage on PR
         if: ${{ github.event_name == 'pull_request' }}
-        uses: madrapps/jacoco-report@v1.7.1
+        continue-on-error: true
+        uses: madrapps/jacoco-report@v1.7.2
         with:
           paths: commcare-android/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
