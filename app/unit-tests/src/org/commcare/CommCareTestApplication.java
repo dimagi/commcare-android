@@ -62,6 +62,7 @@ import static junit.framework.Assert.fail;
 import static org.robolectric.shadows.ShadowEnvironment.setExternalStorageState;
 
 import com.google.common.collect.Multimap;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -81,6 +82,16 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         setExternalStorageState(Environment.MEDIA_MOUNTED);
 
         super.onCreate();
+
+        // Fully disable Firebase Analytics in tests. The MainConfigurablePreferences
+        // disable flag only gates manual reportEvent() calls in CommCare code, not
+        // the SDK's own auto-instrumentation (lifecycle observers, layout listeners),
+        // which can interact poorly with Robolectric's view tree.
+        try {
+            FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false);
+        } catch (Exception ignored) {
+            // Firebase may fail to initialize in some test contexts; ignore.
+        }
 
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
