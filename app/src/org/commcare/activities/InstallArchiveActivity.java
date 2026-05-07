@@ -37,7 +37,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     private static final int REQUEST_FILE_LOCATION = 1;
 
-    @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale = "archive.install.prompt")
+    @UiElement(R.id.screen_multimedia_inflater_prompt)
     private TextView txtDisplayPrompt;
 
     @UiElement(value = R.id.screen_multimedia_install_messages, locale = "archive.install.state.empty")
@@ -49,7 +49,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(R.id.screen_multimedia_inflater_filefetch)
     private ImageButton btnFetchFiles;
 
-    @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
+    @UiElement(R.id.screen_multimedia_inflater_install)
     private Button btnInstallArchive;
 
     public static final String ARCHIVE_FILEPATH = "archive-filepath";
@@ -67,6 +67,9 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         if (fromUpdateActivity) {
             txtDisplayPrompt.setText(Localization.get("archive.update.prompt"));
             btnInstallArchive.setText(Localization.get("archive.update.button"));
+        } else {
+            txtDisplayPrompt.setText(R.string.archive_install_prompt);
+            btnInstallArchive.setText(R.string.archive_install_button);
         }
 
         btnFetchFiles.setOnClickListener(v -> {
