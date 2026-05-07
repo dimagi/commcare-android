@@ -143,7 +143,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void setUpToggle() {
         SwitchCompat switchButton = findViewById(R.id.switch_button);
-        ((TextView)findViewById(R.id.switch_button_right_label)).setText(Localization.get("toggle.web.user.mode"));
+        ((TextView)findViewById(R.id.switch_button_right_label)).setText(getString(R.string.toggle_web_user_mode));
 
         // Important for this call to come first; we don't want the listener to be invoked on the
         // first auto-setting, just on user-triggered ones
@@ -174,7 +174,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private boolean inputIsValid() {
         String enteredPassword = ((EditText)findViewById(R.id.edit_password)).getText().toString();
         if ("".equals(enteredPassword)) {
-            enterErrorState(Localization.get("missing.fields"));
+            enterErrorState(getString(R.string.missing_fields));
             return false;
         }
 
@@ -182,17 +182,17 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             String enteredMobileUser = ((EditText)findViewById(R.id.edit_username)).getText().toString();
             String enteredDomain = ((EditText)findViewById(R.id.edit_domain)).getText().toString();
             if ("".equals(enteredMobileUser) || "".equals(enteredDomain)) {
-                enterErrorState(Localization.get("missing.fields"));
+                enterErrorState(getString(R.string.missing_fields));
                 return false;
             }
         } else {
             String enteredEmail = ((EditText)findViewById(R.id.edit_email)).getText().toString();
             if ("".equals(enteredEmail)) {
-                enterErrorState(Localization.get("missing.fields"));
+                enterErrorState(getString(R.string.missing_fields));
                 return false;
             }
             if (!enteredEmail.contains("@")) {
-                enterErrorState(Localization.get("email.address.invalid"));
+                enterErrorState(getString(R.string.email_address_invalid));
                 return false;
             }
         }
@@ -374,10 +374,10 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                             enterErrorState(Localization.get("get.app.list.user.error." +
                                     (inMobileUserAuthMode ? "mobile" : "web")));
                         } else {
-                            enterErrorState(Localization.get("get.app.list.unknown.error"));
+                            enterErrorState(getString(R.string.get_app_list_unknown_error));
                         }
                     } else {
-                        enterErrorState(Localization.get("no.apps.available"));
+                        enterErrorState(getString(R.string.no_apps_available));
                     }
                 } else {
                     showResults();
@@ -422,7 +422,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
-                Localization.get("menu.app.list.install.other.user"));
+                getString(R.string.menu_app_list_install_other_user));
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.install_from_list_menu, menu);
         return true;
@@ -458,7 +458,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             startRequests(username, password);
         } else {
             retrieveAppsForDiffUser();
-            enterErrorState(Localization.get("could.not.refresh.apps"));
+            enterErrorState(getString(R.string.could_not_refresh_apps));
         }
     }
 

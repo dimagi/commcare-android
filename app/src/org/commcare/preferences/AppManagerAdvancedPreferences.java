@@ -39,7 +39,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
     @NonNull
     @Override
     protected String getTitle() {
-        return Localization.get("app.manager.advanced.settings.title");
+        return requireContext().getString(R.string.app_manager_advanced_settings_title);
     }
 
     @Nullable

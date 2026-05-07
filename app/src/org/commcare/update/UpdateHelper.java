@@ -28,7 +28,6 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
@@ -101,12 +100,13 @@ public class UpdateHelper implements TableStateListener {
                     "App resources are incompatible with this device|");
             String error;
             if (e.isVersionMismatchException()) {
-                error = Localization.get("update.version.mismatch", new String[]{e.getRequiredVersionString(), e.getAvailableVesionString()});
+                Context appContext = CommCareApplication.instance();
+                error = appContext.getString(R.string.update_version_mismatch, e.getRequiredVersionString(), e.getAvailableVesionString());
                 error += " ";
                 if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MAJOR_APP_VERSION) {
-                    error += Localization.get("update.major.mismatch");
+                    error += appContext.getString(R.string.update_major_mismatch);
                 } else if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MINOR_APP_VERSION) {
-                    error += Localization.get("update.minor.mismatch");
+                    error += appContext.getString(R.string.update_minor_mismatch);
                 }
             } else {
                 error = e.getMessage();

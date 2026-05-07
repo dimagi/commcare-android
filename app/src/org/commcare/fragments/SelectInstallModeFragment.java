@@ -146,7 +146,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     private void showLocalAppDialog() {
         ContextThemeWrapper wrapper = new ContextThemeWrapper(getContext(), R.style.DialogBaseTheme);
         final PaneledChoiceDialog chooseApp = new PaneledChoiceDialog(wrapper,
-                Localization.get("install.choose.local.app"));
+                getString(R.string.install_choose_local_app));
 
         DialogChoiceItem[] items = new DialogChoiceItem[mLocalApps.size()];
         int count = 0;
