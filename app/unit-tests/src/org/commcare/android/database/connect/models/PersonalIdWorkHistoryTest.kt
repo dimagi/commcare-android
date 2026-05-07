@@ -44,6 +44,23 @@ class PersonalIdWorkHistoryTest {
         assertEquals(0, result.size)
     }
 
+    @Test(expected = RuntimeException::class)
+    fun testFromJsonArray_nullObjectInArray_throwsRuntimeException() {
+        val array = JSONArray().put(JSONObject.NULL)
+        PersonalIdWorkHistory.fromJsonArray(array)
+    }
+
+    @Test
+    fun testFromJsonArray_nullObjectInArray_errorMessageContainsIndex() {
+        val array = JSONArray().put(JSONObject.NULL)
+
+        val exception =
+            runCatching { PersonalIdWorkHistory.fromJsonArray(array) }
+                .exceptionOrNull() as? RuntimeException
+
+        assertEquals(true, exception?.message?.contains("index 0"))
+    }
+
     @Test
     fun testFromJsonArray_singleEntry_allFieldsParsedCorrectly() {
         val array = JSONArray().put(buildValidJson())
