@@ -100,6 +100,57 @@
     <string name="install_barcode_top">Welcome to CommCare!</string>
     <string name="install_barcode_bottom">Please choose an installation method below</string>
 
+    <string name="install_keep_trying">Keep trying if connection is interrupted</string>
+    <string name="install_manual">Please enter the URL</string>
+    <string name="install_ready_top">Almost there!</string>
+    <string name="install_ready_bottom">Press the button below to install your app.</string>
+    <string name="install_netwarn">If you are attempting to install from a server, make sure you have an internet connection.</string>
+    <string name="install_button_enter">Enter Code</string>
+    <string name="install_button_startover">Start Over</string>
+    <string name="install_button_retry">Retry Installation</string>
+    <string name="install_button_start">Start Install</string>
+    <string name="install_bad_ref">You did not scan a valid URL. Please try again.</string>
+    <string name="install_bad_login">Login to Existing App</string>
+    <string name="install_appprofile">Enter your app code</string>
+    <string name="install_perms_rationale_message">CommCare requires at least external storage read &amp; write permissions in order to store form submissions.</string>
+    <string name="install_perms_denied_message">Crucial permissions denied %1$s times.\n\n If requesting permissions here fails, please enable permissions under Android\'s settings.</string>
+    <string name="install_choose_local_app">Available Apps</string>
+    <string name="install_wrong_code">The app code you have entered is incorrect. Please try scanning barcode or entering correct code.</string>
+    <string name="install_invalid_launch">Invalid CommCare launch, External applications should use a VIEW action to launch CommCare.</string>
+    <string name="menu_archive">Offline Install</string>
+    <string name="menu_sms">SMS Install</string>
+    <string name="menu_sms_not_found">Install link not found in your texts!</string>
+    <string name="menu_sms_ready">Found install link. Press \"Start\" to begin installation.</string>
+    <string name="menu_sms_not_verified">We found a valid looking text, but could not verify its authenticity.</string>
+    <string name="menu_sms_not_retrieved">We could not retrieve the installation link. Please check your connectivity and try again.</string>
+    <string name="updates_resources_initialization">Setting Up App</string>
+    <string name="updates_resources_profile">Locating application...</string>
+    <string name="archive_install_prompt">Install your CommCare application from a .ccz file</string>
+    <string name="archive_install_button">Install App</string>
+    <string name="install_version_mismatch">The application requires CommCare version %1$s. You are currently running %2$s.</string>
+    <string name="install_major_mismatch">Please uninstall your CommCare Application from the phone Settings Menu, navigate to the Google Playstore, and install CommCare again.</string>
+    <string name="install_minor_mismatch">Please update CommCare from the Google Playstore to run this application.</string>
+    <string name="update_version_mismatch">This application update requires CommCare version %1$s. You are currently running %2$s.</string>
+    <string name="update_major_mismatch">Please uninstall your CommCare Application from the phone Settings Menu, navigate to the Google Playstore, and install CommCare again.</string>
+    <string name="update_minor_mismatch">Please update CommCare from the Google Playstore to update this application.</string>
+    <string name="app_manager_advanced_settings_title">App Manager &gt; Advanced Settings</string>
+    <string name="app_manager_advanced_settings_option">Advanced</string>
+    <string name="app_manager_menu_about">About CommCare</string>
+    <string name="app_manager_developer_options_title">App Manager &gt; Developer Options</string>
+    <string name="app_manager_advanced_developer_options">Developer Options</string>
+    <string name="app_manager_developer_options_enabled">CommCare Developer Mode Enabled</string>
+    <string name="menu_app_list_install">See Apps for My User</string>
+    <string name="menu_app_list_install_other_user">See Apps for Another User</string>
+    <string name="toggle_web_user_mode">Web User</string>
+    <string name="toggle_mobile_user_mode">Mobile User</string>
+    <string name="missing_fields">Please enter all required fields.</string>
+    <string name="email_address_invalid">Please enter a valid email address.</string>
+    <string name="get_app_list_user_error_mobile">An invalid username, domain, or password was provided. Please make sure all of the fields you entered are correct.</string>
+    <string name="get_app_list_user_error_web">An invalid email or password was provided. Please make sure all of the fields you entered are correct.</string>
+    <string name="get_app_list_unknown_error">An error occurred while trying to get your list of apps. Please try again, or contact support if the problem persists.</string>
+    <string name="no_apps_available">No apps are available for download for this user.</string>
+    <string name="could_not_refresh_apps">Sorry, there was an error refreshing your app list. Please re-enter a user.</string>
+
     <string name="accuracy" cc:translatable="true">Accuracy</string>
     <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>
     <string name="altitude" cc:translatable="true">Altitude</string>
