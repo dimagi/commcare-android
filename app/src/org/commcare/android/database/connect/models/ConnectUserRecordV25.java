@@ -146,6 +146,7 @@ public class ConnectUserRecordV25 extends Persisted {
         newRecord.connectToken = oldRecord.getConnectToken();
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
         newRecord.secondaryPhoneVerified = true;
+        newRecord.pin = oldRecord.getPin();
         newRecord.photo = oldRecord.getPhoto();
         newRecord.isDemo = oldRecord.isDemo();
         newRecord.requiredLock = oldRecord.getRequiredLock();
