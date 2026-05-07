@@ -9,7 +9,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +32,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
     static {
         keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
         keyToTitleMap.put(DATA_CHANGE_LOGS, "menu.data.change.logs");
-        keyToTitleMap.put(DEVELOPER_OPTIONS, "app.manager.advanced.developer.options");
     }
 
     @NonNull
@@ -78,6 +76,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
         });
 
         Preference devOptionsButton = findPreference(DEVELOPER_OPTIONS);
+        devOptionsButton.setTitle(requireContext().getString(R.string.app_manager_advanced_developer_options));
         if (AppManagerDeveloperPreferences.isDeveloperPreferencesEnabled()) {
             devOptionsButton.setOnPreferenceClickListener(preference -> {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
