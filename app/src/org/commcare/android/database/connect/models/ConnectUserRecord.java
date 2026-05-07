@@ -84,7 +84,7 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 16)
     private boolean hasConnectAccess;
 
-    @Persisting(value = 17)
+    @Persisting(value = 17, nullable = true)
     @MetaField(META_EMAIL)
     private String email;
 
@@ -207,6 +207,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.password = oldRecord.getPassword();
         newRecord.name = oldRecord.getName();
         newRecord.primaryPhone = oldRecord.getPrimaryPhone();
+        newRecord.pin = oldRecord.getPin();
         newRecord.alternatePhone = "";
         newRecord.registrationPhase = oldRecord.getRegistrationPhase();
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
@@ -217,7 +218,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.isDemo = oldRecord.isDemo();
         newRecord.requiredLock = oldRecord.getRequiredLock();
         newRecord.hasConnectAccess = oldRecord.hasConnectAccess();
-        newRecord.email = "";
+        newRecord.email = null;
         return newRecord;
     }
 
