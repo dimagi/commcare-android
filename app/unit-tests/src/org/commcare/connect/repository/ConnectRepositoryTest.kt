@@ -16,7 +16,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -70,9 +69,7 @@ class ConnectRepositoryTest {
         }
 
     private fun mockGetOpportunitiesSuccess(freshJobs: List<ConnectJobRecord> = listOf(mockk<ConnectJobRecord>())) {
-        val mockModel = mockk<ConnectOpportunitiesResponseModel>()
-        every { mockModel.validJobs } returns freshJobs
-        coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns Result.success(mockModel)
+        coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns Result.success(freshJobs)
     }
 
     @Test

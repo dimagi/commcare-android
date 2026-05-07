@@ -12,7 +12,6 @@ import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
 
@@ -27,7 +26,6 @@ class ConnectRepository
             const val SYNC_KEY_LEARNING_PREFIX = "/learning_progress/"
 
             @Volatile
-            
             private var instance: ConnectRepository? = null
 
             fun getInstance(context: Context): ConnectRepository =
@@ -56,7 +54,7 @@ class ConnectRepository
                 },
                 networkCall = { fetchOpportunitiesFromNetwork() },
                 onNetworkSuccess = {},
-                mapToEmit = { responseModel -> responseModel.validJobs },
+                mapToEmit = { jobs -> jobs },
             )
 
         fun getLearningProgress(
@@ -114,7 +112,7 @@ class ConnectRepository
                     .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
             }.flowOn(Dispatchers.IO)
 
-        private suspend fun fetchOpportunitiesFromNetwork(): Result<ConnectOpportunitiesResponseModel> {
+        private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> {
             val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
             return networkClient.getConnectOpportunities(user)
         }

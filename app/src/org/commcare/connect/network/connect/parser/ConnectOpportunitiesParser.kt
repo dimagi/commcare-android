@@ -1,14 +1,11 @@
 package org.commcare.connect.network.connect.parser
 
-import android.content.Context
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.BaseApiResponseParser
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.workers.ConnectReleaseTogglesWorker
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.models.connect.ConnectLoginJobListModel
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import org.json.JSONArray
@@ -22,7 +19,6 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
         responseData: InputStream,
         anyInputObject: Any?,
     ): T {
-        val corruptJobs: ArrayList<ConnectLoginJobListModel> = ArrayList()
         val jobs: ArrayList<ConnectJobRecord> = ArrayList()
         try {
             responseData.use { `in` ->
@@ -60,7 +56,7 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
             reportApiCall(false, 0, 0)
             throw e
         }
-        return ConnectOpportunitiesResponseModel(jobs, corruptJobs) as T
+        return jobs as T
     }
 
     private fun reportApiCall(

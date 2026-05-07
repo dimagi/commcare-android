@@ -11,7 +11,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.ConnectNetworkClient
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
@@ -189,7 +188,7 @@ object ConnectJobHelper {
         listener: ConnectActivityCompleteListener,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<ConnectOpportunitiesResponseModel?>() {
+        object : ConnectApiHandler<List<ConnectJobRecord>>() {
             override fun onFailure(
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
@@ -197,7 +196,7 @@ object ConnectJobHelper {
                 listener.connectActivityComplete(false)
             }
 
-            override fun onSuccess(data: ConnectOpportunitiesResponseModel?) {
+            override fun onSuccess(data: List<ConnectJobRecord>) {
                 listener.connectActivityComplete(true)
             }
         }.getConnectOpportunities(context, user!!)

@@ -12,7 +12,6 @@ import org.commcare.connect.network.LoginInvalidatedException
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
@@ -44,12 +43,12 @@ class ConnectNetworkClient
         private fun versionHeaders(): Map<String, String> =
             HashMap<String, String>().also { ConnectNetworkHelper.addVersionHeader(it, API_VERSION_CONNECT) }
 
-        suspend fun getConnectOpportunities(user: ConnectUserRecord): Result<ConnectOpportunitiesResponseModel> =
+        suspend fun getConnectOpportunities(user: ConnectUserRecord): Result<List<ConnectJobRecord>> =
             executeApiCall(
                 user = user,
                 apiCall = { auth -> apiService.getConnectOpportunities(auth, versionHeaders()) },
                 parse = { code, stream ->
-                    ConnectOpportunitiesParser<ConnectOpportunitiesResponseModel>().parse(
+                    ConnectOpportunitiesParser<List<ConnectJobRecord>>().parse(
                         code,
                         stream,
                     )
