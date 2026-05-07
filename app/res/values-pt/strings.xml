@@ -267,6 +267,7 @@
     <string name="connect_backup_code_remember">Certifique-se de que se lembra do seu código de segurança! Tem de ter %d dígitos. Guarde-o num local seguro, pois irá precisar dele para aceder novamente à sua conta.</string>
     <string name="connect_backup_code_mismatch">Os códigos de segurança que introduzir têm de coincidir.</string>
     <string name="connect_backup_fail_title">PIN errado</string>
+    <string name="personalid_network_response_parsing_error">Erro ao analisar dados do servidor. Por favor, contacte o apoio ao cliente.</string>
     <string name="connect_recovery_success_title">Conta Recuperada</string>
     <string name="connect_recovery_success_message">A sua conta foi recuperada! Pode voltar a utilizar o PersonalID.</string>
     <string name="connect_unlock_title">Desbloquear PersonalId</string>

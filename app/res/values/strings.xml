@@ -323,7 +323,7 @@
     <string name="connect_backup_code_mismatch">The backup codes you enter must match.</string>
 
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
-
+    <string name="personalid_network_response_parsing_error">Error parsing data from server. Please contact customer support.</string>
 
     <string name="personalid_continue_label">Continue</string>
     <string name="connect_recovery_success_title">Account Recovered</string>
