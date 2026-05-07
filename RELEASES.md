@@ -2,6 +2,41 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.64
+
+### Release Notes
+
+<!--
+These are published publically on Playstore, Github Releases and CommCare Forums
+-->
+
+#### What's New
+
+#### Important Bug Fixes
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+### QA Notes
+
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
+
+- **Android Startup Strings Migration:** Walk the install / setup flows after a fresh install and confirm all on-screen text still renders correctly (no blank labels, no raw `install.button.start`-style keys showing through):
+    - Launch a fresh CommCare install — verify the welcome screen ("Welcome to CommCare!" / "Please choose an installation method below") and install-method picker render.
+    - Tap **Enter Code** / manual URL install — verify the prompt and the **Start Install** button label render. Submit an invalid URL and confirm the error message ("You did not scan a valid URL...") shows.
+    - Tap **Offline Install** and try a `.ccz` install — verify the prompt ("Install your CommCare application from a .ccz file") and the **Install App** button label render.
+    - From the install screen menu, tap **See Apps for My User** to open Install From List. Submit with empty fields — verify "Please enter all required fields." Submit with bad credentials in both Mobile User and Web User modes — verify each mode shows the appropriate error message. Toggle between user types and verify the **Web User** / **Mobile User** labels render.
+    - From the App Manager menu, tap **Advanced Settings** — verify the title bar reads "App Manager > Advanced Settings". Tap **Developer Options** within Advanced Settings — verify the row title renders as "Developer Options" (not as a raw key).
+    - Switch device language to one of the supported translations (Spanish, French, Portuguese, Hindi, Swahili, Hausa, Tigrinya, Lithuanian, Norwegian) and re-walk the install/setup flow. Confirm the migrated strings appear in the selected language with no missing-resource crashes and no English fallback for strings that should be translated.
+
 ## CommCare 2.63
 
 ### Release Notes
