@@ -25,6 +25,7 @@ public class ConnectUserRecord extends Persisted {
     public static final String META_PIN = "pin";
     public static final String META_SECONDARY_PHONE_VERIFIED = "secondary_phone_verified";
     public static final String META_VERIFY_SECONDARY_PHONE_DATE = "verify_secondary_phone_by_date";
+    public static final String META_EMAIL = "email";
 
     @Persisting(1)
     private String userId;
@@ -82,6 +83,10 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(value = 16)
     private boolean hasConnectAccess;
+
+    @Persisting(value = 17)
+    @MetaField(META_EMAIL)
+    private String email;
 
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
@@ -196,7 +201,7 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV16(ConnectUserRecordV16 oldRecord, boolean hasConnectAccess) {
+    public static ConnectUserRecord fromV25(ConnectUserRecordV25 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
@@ -211,7 +216,8 @@ public class ConnectUserRecord extends Persisted {
         newRecord.photo = oldRecord.getPhoto();
         newRecord.isDemo = oldRecord.isDemo();
         newRecord.requiredLock = oldRecord.getRequiredLock();
-        newRecord.hasConnectAccess = hasConnectAccess;
+        newRecord.hasConnectAccess = oldRecord.hasConnectAccess();
+        newRecord.email = "";
         return newRecord;
     }
 
@@ -238,5 +244,14 @@ public class ConnectUserRecord extends Persisted {
 
     public boolean getIsDemo() {
         return isDemo;
+    }
+
+    @Nullable
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
