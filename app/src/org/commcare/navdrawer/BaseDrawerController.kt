@@ -163,20 +163,18 @@ class BaseDrawerController(
     }
 
     private fun showUpdatePhotoConfirmationDialog() {
-        val dialog = StandardAlertDialog(
-            activity.getString(R.string.personalid_user_photo_update_dialog_title),
-            activity.getString(R.string.personalid_user_photo_update_dialog_message),
-        )
+        val dialog =
+            StandardAlertDialog(
+                activity.getString(R.string.personalid_user_photo_update_dialog_title),
+                activity.getString(R.string.personalid_user_photo_update_dialog_message),
+            )
 
         dialog.setPositiveButton(
             activity.getString(R.string.personalid_user_photo_update_dialog_continue),
         ) { dialogInterface, _ ->
             if (!ConnectivityStatus.isNetworkAvailable(activity)) {
-                Toast.makeText(
-                    activity,
-                    activity.getString(R.string.recovery_network_unavailable),
-                    Toast.LENGTH_LONG,
-                ).show()
+                val toastMessage = activity.getString(R.string.recovery_network_unavailable)
+                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
                 return@setPositiveButton
             }
 
@@ -355,10 +353,17 @@ class BaseDrawerController(
     }
 
     private fun launchCameraForPhotoEdit() {
-        val intent = Intent(activity, MicroImageActivity::class.java).apply {
-            putExtra(MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, USER_PHOTO_MAX_DIMENSION_PX)
-            putExtra(MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, USER_PHOTO_MAX_SIZE_BYTES)
-        }
+        val intent =
+            Intent(activity, MicroImageActivity::class.java).apply {
+                putExtra(
+                    MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA,
+                    USER_PHOTO_MAX_DIMENSION_PX,
+                )
+                putExtra(
+                    MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA,
+                    USER_PHOTO_MAX_SIZE_BYTES,
+                )
+            }
         takePhotoLauncher.launch(intent)
     }
 
@@ -371,11 +376,8 @@ class BaseDrawerController(
                 lastPhotoUploadFailed = false
                 loadUserPhoto(photoBase64)
                 binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
-                Toast.makeText(
-                    activity,
-                    activity.getString(R.string.personalid_user_photo_update_success),
-                    Toast.LENGTH_LONG,
-                ).show()
+                val toastMessage = activity.getString(R.string.personalid_user_photo_update_success)
+                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
             }
 
             override fun onFailure(
