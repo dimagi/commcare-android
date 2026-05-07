@@ -1006,7 +1006,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                boolean connectAccess = !data.getValidJobs().isEmpty() || !data.getCorruptJobs().isEmpty();
+                boolean connectAccess = !data.getValidJobs().isEmpty();
                 String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
                 if (connectAccess) {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(activity);

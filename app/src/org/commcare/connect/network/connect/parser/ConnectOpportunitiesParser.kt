@@ -28,16 +28,16 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
             responseData.use { `in` ->
                 val responseAsString = String(StreamsUtil.inputStreamToByteArray(`in`))
                 if (!responseAsString.isEmpty()) {
-                    // Parse the JSON
+                    var corruptOpp = false
                     val json = JSONArray(responseAsString)
                     for (i in 0 until json.length()) {
-                        var obj: JSONObject? = null
+                        var obj: JSONObject?
                         try {
                             obj = json[i] as JSONObject
                             jobs.add(ConnectJobRecord.fromJson(obj))
                         } catch (e: JSONException) {
                             Logger.exception("Parsing return from Opportunities request", e)
-                            handleCorruptJob(obj, corruptJobs)
+                            corruptOpp  = true
                         }
                     }
 
@@ -49,12 +49,16 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
                         ConnectReleaseTogglesWorker.scheduleOneTimeFetch(context)
                     }
 
+                    if (corruptOpp) {
+                        throw JSONException("One or more opportunities were corrupt and could not be parsed")
+                    }
+
                     reportApiCall(true, jobs.size, newJobs)
                 }
             }
         } catch (e: JSONException) {
             reportApiCall(false, 0, 0)
-            throw RuntimeException(e)
+            throw e
         }
         return ConnectOpportunitiesResponseModel(jobs, corruptJobs) as T
     }
@@ -66,19 +70,4 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
     ) {
         FirebaseAnalyticsUtil.reportCccApiJobs(success, totalJobs, newJobs)
     }
-
-    private fun handleCorruptJob(
-        obj: JSONObject?,
-        corruptJobs: ArrayList<ConnectLoginJobListModel>,
-    ) {
-        if (obj != null) {
-            try {
-                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobFromJson(obj)))
-            } catch (e: JSONException) {
-                Logger.exception("JSONException while retrieving corrupt opportunity title", e)
-            }
-        }
-    }
-
-    private fun createJobModel(job: ConnectJobRecord): ConnectLoginJobListModel = ConnectLoginJobListModel(job.title, job)
 }
