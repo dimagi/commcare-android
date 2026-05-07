@@ -371,8 +371,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 if (availableApps.size() == 0) {
                     if (responseWasError) {
                         if (couldBeUserError) {
-                            enterErrorState(Localization.get("get.app.list.user.error." +
-                                    (inMobileUserAuthMode ? "mobile" : "web")));
+                            enterErrorState(getString(inMobileUserAuthMode
+                                    ? R.string.get_app_list_user_error_mobile
+                                    : R.string.get_app_list_user_error_web));
                         } else {
                             enterErrorState(getString(R.string.get_app_list_unknown_error));
                         }
