@@ -6,7 +6,7 @@ or as a data backend.
 The CommCare support library provides a set of utility functions for using these APIs [mobile APIs](https://github.com/dimagi/commcare-android/wiki)
 without having to understand and implement the underlying Android Cursors and Intents.
 
-CommCare Support library also provides APIs for a biometric provider to integrate with CommCare. Read more [here](https://github.com/dimagi/commcare-android/blob/master/commcare-support-library/src/main/java/org/commcare/commcaresupportlibrary/identity/identity_integration.md)
+CommCare Support library also provides APIs for a biometric provider to integrate with CommCare. Read more [here](https://github.com/dimagi/commcare-android/blob/master/docs/commcare/identity_integration.md)
 
 ### Installation
 
