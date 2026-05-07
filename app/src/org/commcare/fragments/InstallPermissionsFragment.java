@@ -60,7 +60,7 @@ public class InstallPermissionsFragment extends Fragment {
         View currentView = getView();
         if (currentView != null) {
             TextView deniedDetails = currentView.findViewById(R.id.needed_perms_message);
-            deniedDetails.setText(getString(R.string.install_perms_denied_message, attemptCount + ""));
+            deniedDetails.setText(getString(R.string.install_perms_denied_message, attemptCount));
         }
     }
 

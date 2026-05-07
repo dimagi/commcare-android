@@ -7,7 +7,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 ### Release Notes
 
 <!--
-These are published publically on Playstore, Github Releases and CommCare Forums
+These are published publicly on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
@@ -17,7 +17,7 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 #### Internal Release Notes
 
 <!--
-Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+Release notes that are not applicable for wider CommCare users but only for specific projects. 
 These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
 along with the public release notes above
 -->
@@ -42,7 +42,7 @@ we would like to communicate to QA as part of the release testing
 ### Release Notes
 
 <!--
-These are published publically on Playstore, Github Releases and CommCare Forums
+These are published publicly on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
@@ -61,7 +61,7 @@ remove an existing one first
 #### Internal Release Notes
 
 <!--
-Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+Release notes that are not applicable for wider CommCare users but only for specific projects. 
 These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
 along with the public release notes above
 -->
