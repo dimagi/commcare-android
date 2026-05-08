@@ -62,12 +62,13 @@ object CCPerfMonitoring {
         trace: Trace?,
         fileSizeBytes: Long,
         fileExtension: String,
-        keystoreEncrypted: Boolean
+        keystoreEncrypted: Boolean,
+        isLogsFile: Boolean
     ) {
         try {
             val attrs: MutableMap<String, String> = HashMap()
             attrs[ATTR_FILE_SIZE_BYTES] = fileSizeBytes.toString()
-            attrs[ATTR_FILE_TYPE] = fileExtension
+            attrs[ATTR_FILE_TYPE] = fileExtension + (if (isLogsFile) "_logs" else "")
             attrs[ATTR_FILE_KEYSTORE_ENCRYPTED] = keystoreEncrypted.toString()
             stopTracing(trace, attrs)
         } catch (e: java.lang.Exception) {
