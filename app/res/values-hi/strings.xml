@@ -357,7 +357,12 @@ License.
     <string name="code">कोड</string>
     <string name="choose_a_6_digit_recovery_code">6 अंकों का रिकवरी कोड चुनें</string>
     <string name="sync">सिंक करें</string>
-    <string name="micro_image_activity_title">चेहरे की फ़ोटो कैप्चर करें</string>
+    <string name="micro_image_activity_title">प्रोफ़ाइल फ़ोटो लें</string>
+    <string name="personalid_user_photo_update_dialog_title">प्रोफ़ाइल फ़ोटो अपडेट करें</string>
+    <string name="personalid_user_photo_update_dialog_message">क्या आप एक नई प्रोफ़ाइल फ़ोटो लेना चाहेंगे?</string>
+    <string name="personalid_user_photo_update_dialog_continue">जारी रखें</string>
+    <string name="personalid_user_photo_update_dialog_cancel">रद्द करें</string>
+    <string name="personalid_user_photo_update_success">आपकी प्रोफ़ाइल फ़ोटो सफलतापूर्वक अपडेट कर दी गई है।</string>
     <string name="connect_job_info_title">अवसर विवरण</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
