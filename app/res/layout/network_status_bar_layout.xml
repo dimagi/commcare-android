@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="4dp"
     android:background="@color/connect_warning_color">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -17,6 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
+        style="@style/TextAppearance.AppCompat.Small"
         android:id="@+id/tv_error_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -25,7 +27,6 @@
         android:gravity="center_vertical"
         tools:text="This is the error message shown"
         android:textColor="@color/white"
-        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/iv_offline"
         app:layout_constraintStart_toEndOf="@id/iv_error"
