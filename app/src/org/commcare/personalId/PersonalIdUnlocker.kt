@@ -57,6 +57,7 @@ object PersonalIdUnlocker {
         callback: PersonalIdManager.ConnectActivityCompleteListener,
     ) {
         if (BuildConfig.IS_QA_AUTOMATION) {
+            lastUnlockTime = System.currentTimeMillis()
             PersonalIdManager.getInstance().userUnlockedPersonalId()
             callback.connectActivityComplete(true)
             return
