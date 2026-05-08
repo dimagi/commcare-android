@@ -109,15 +109,30 @@ internal fun mapHttpErrorCode(
     errorBody: String?,
 ): PersonalIdOrConnectApiErrorCodes =
     when (responseCode) {
-        401 -> PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR
-        403 -> PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR
-        429 -> PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR
+        401 -> {
+            PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR
+        }
+
+        403 -> {
+            PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR
+        }
+
+        429 -> {
+            PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR
+        }
+
         400 -> {
             if (ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody)) {
                 GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR)
             }
             PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR
         }
-        in 500..509 -> PersonalIdOrConnectApiErrorCodes.SERVER_ERROR
-        else -> PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR
+
+        in 500..509 -> {
+            PersonalIdOrConnectApiErrorCodes.SERVER_ERROR
+        }
+
+        else -> {
+            PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR
+        }
     }

@@ -64,7 +64,9 @@ class ConnectSyncPreferences(
         policy: RefreshPolicy,
     ): Boolean {
         return when (policy) {
-            RefreshPolicy.ALWAYS -> true
+            RefreshPolicy.ALWAYS -> {
+                true
+            }
 
             is RefreshPolicy.SESSION_AND_TIME_BASED -> {
                 val lastSync = getLastSyncTime(syncKey) ?: return true
@@ -75,7 +77,9 @@ class ConnectSyncPreferences(
                 isNewSession || isStale
             }
 
-            else -> throw IllegalArgumentException("Unknown refresh policy: $policy")
+            else -> {
+                throw IllegalArgumentException("Unknown refresh policy: $policy")
+            }
         }
     }
 

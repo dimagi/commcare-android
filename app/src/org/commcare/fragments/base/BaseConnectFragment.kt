@@ -177,13 +177,18 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     hideError()
                     showLoading()
                 }
-                is DataState.Cached -> onCached.accept(state.data)
+
+                is DataState.Cached -> {
+                    onCached.accept(state.data)
+                }
+
                 is DataState.Success -> {
                     hideLoading()
                     hideError()
                     showSyncSuccess()
                     onSuccess.accept(state.data)
                 }
+
                 is DataState.Error -> {
                     hideLoading()
                     if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR) {
