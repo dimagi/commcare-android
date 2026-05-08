@@ -22,10 +22,15 @@ object AndroidKeyStore {
 
     fun doesKeyExist(alias: String): Boolean = instance.containsAlias(alias)
 
+    /**
+     * The main purpose of this method is to determine if the Android Keystore is supported on the device. It does
+     * this by trying to access the singleton instance of the KeyStore. It's currently returning false for
+     * comparison purposes between keystore-backed vs SecretKeySpec-backed encryption times.
+     */
     fun isKeystoreAvailable(): Boolean =
         try {
             instance
-            true
+            false
         } catch (e: Exception) {
             Logger.exception("Android keystore is not supported on this device", e)
             false
