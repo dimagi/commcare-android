@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.preferences.DeveloperPreferences;
@@ -67,6 +68,25 @@ import androidx.preference.PreferenceManager;
 import javax.annotation.Nullable;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
+
+    /**
+     * Interface for widgets that have media attachments, to allow the base QuestionWidget to check if the
+     * attachment limit has been reached
+     */
+    protected interface MediaCapableWidget {
+        String getBinaryName();
+
+        /**
+         * Set the name of the binary associated with this widget and increment the number of attachments
+         * @param binaryName
+         */
+        void registerBinaryAttachment(String binaryName);
+
+        /**
+         * Clear the binary file associated with this widget and decrement the number of attachments
+         */
+        void clearBinaryAttachment();
+    }
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
     private final LinearLayout.LayoutParams mLayout;
@@ -208,6 +228,30 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
+        }
+    }
+
+    protected boolean warnIfAttachmentLimitReached() {
+        if (getContext() instanceof FormEntryActivity activity && this instanceof MediaCapableWidget mediaCapableWidget) {
+            if (mediaCapableWidget.getBinaryName() == null && !activity.canAddAttachment()) {
+                activity.showFormAttachmentLimitReachedError();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void incrementAttachmentCount() {
+        if (this instanceof MediaCapableWidget &&
+                getContext() instanceof FormEntryActivity activity) {
+                activity.incrementAttachmentCount();
+        }
+    }
+
+    public void decrementAttachmentCount() {
+        if (this instanceof MediaCapableWidget &&
+                getContext() instanceof FormEntryActivity activity) {
+            activity.decrementAttachmentCount();
         }
     }
 

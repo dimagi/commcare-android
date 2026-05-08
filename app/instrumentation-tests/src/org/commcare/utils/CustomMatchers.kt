@@ -3,6 +3,7 @@ package org.commcare.utils
 import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.test.espresso.matcher.BoundedMatcher
@@ -20,23 +21,18 @@ import org.hamcrest.TypeSafeMatcher
  * https://youtrack.jetbrains.com/issue/KT-11968
  */
 object CustomMatchers {
-
     /**
      * Creates a matcher that matches whether the appName is present in the app installation list.
      */
     @JvmStatic
-    fun withAppName(appName: String): TypeSafeMatcher<AppAvailableToInstall> {
-        return object: TypeSafeMatcher<AppAvailableToInstall>() {
+    fun withAppName(appName: String): TypeSafeMatcher<AppAvailableToInstall> =
+        object : TypeSafeMatcher<AppAvailableToInstall>() {
             override fun describeTo(description: Description) {
                 description.appendText("will match if $appName is present in the App List")
             }
 
-            override fun matchesSafely(item: AppAvailableToInstall): Boolean {
-                return item.appName == appName
-            }
-
+            override fun matchesSafely(item: AppAvailableToInstall): Boolean = item.appName == appName
         }
-    }
 
     /**
      * Wraps an existing matcher, to find the n-th matched item.
@@ -45,9 +41,13 @@ object CustomMatchers {
      * NOTE:- position is 1 based.
      */
     @JvmStatic
-    fun <T> find(matcher: Matcher<T>, position: Int): Matcher<T> {
+    fun <T> find(
+        matcher: Matcher<T>,
+        position: Int,
+    ): Matcher<T> {
         return object : BaseMatcher<T>() {
             var count = 0
+
             override fun matches(item: Any): Boolean {
                 if (matcher.matches(item)) {
                     count++
@@ -66,22 +66,22 @@ object CustomMatchers {
      * Creates a matcher that matches the number of items in the list to the specified <code>size</code>
      */
     @JvmStatic
-    fun matchListSize(size: Int): Matcher<View> {
-        return object : TypeSafeMatcher<View>() {
-            override fun matchesSafely(view: View): Boolean {
-                return if (view is ListView) {
+    fun matchListSize(size: Int): Matcher<View> =
+        object : TypeSafeMatcher<View>() {
+            override fun matchesSafely(view: View): Boolean =
+                if (view is ListView) {
                     view.adapter.count == size
                 } else {
-                    throw IllegalStateException("matchListSize() should only be used with " +
-                            "listView. Current view is :: " + view.javaClass.simpleName)
+                    throw IllegalStateException(
+                        "matchListSize() should only be used with " +
+                            "listView. Current view is :: " + view.javaClass.simpleName,
+                    )
                 }
-            }
 
             override fun describeTo(description: Description) {
                 description.appendText("will match listView item size with $size")
             }
         }
-    }
 
     /**
      * Creates a matcher that wraps another matcher and counts all the childrens of a viewgroup
@@ -89,7 +89,10 @@ object CustomMatchers {
      * And asserts that count with the specified <code>count</code>
      */
     @JvmStatic
-    fun withChildViewCount(count: Int, childMatcher: Matcher<View>): Matcher<View> {
+    fun withChildViewCount(
+        count: Int,
+        childMatcher: Matcher<View>,
+    ): Matcher<View> {
         return object : BoundedMatcher<View, ViewGroup>(ViewGroup::class.java) {
             override fun matchesSafely(viewGroup: ViewGroup): Boolean {
                 var matchCount = 0
@@ -131,7 +134,11 @@ object CustomMatchers {
     /**
      * Creates a matcher that matches an intent with specified action, category and type.
      */
-    fun withIntent(action: String, category: String, type: String): Matcher<Intent> {
+    fun withIntent(
+        action: String,
+        category: String,
+        type: String,
+    ): Matcher<Intent> {
         return object : TypeSafeMatcher<Intent>() {
             override fun describeTo(description: Description) {
                 description.appendText("has action: $action, category: $category and type: $type")
@@ -146,4 +153,15 @@ object CustomMatchers {
         }
     }
 
+    /**
+     * Creates a matcher that matches whether an ImageView has a drawable or not.
+     */
+    fun hasDrawable(): Matcher<View> =
+        object : BoundedMatcher<View, ImageView>(ImageView::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("ImageView has a drawable (is not empty)")
+            }
+
+            override fun matchesSafely(view: ImageView): Boolean = view.drawable != null
+        }
 }
