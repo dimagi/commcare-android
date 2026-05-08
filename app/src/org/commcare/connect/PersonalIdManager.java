@@ -3,7 +3,6 @@ package org.commcare.connect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.personalId.PersonalIdUnlocker;
@@ -13,8 +12,6 @@ import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -32,9 +29,7 @@ import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.preferences.NotificationPrefs;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -47,7 +42,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -146,66 +140,6 @@ public class PersonalIdManager {
     public boolean isloggedIn() {
         return personalIdSatus == PersonalIdStatus.LoggedIn;
     }
-
-    public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
-        if (BuildConfig.IS_QA_AUTOMATION) {
-            userUnlockedPersonalId();
-            callback.connectActivityComplete(true);
-            return;
-        }
-        logBiometricInvalidations();
-
-        BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                callback.connectActivityComplete(false);
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                userUnlockedPersonalId();
-                callback.connectActivityComplete(true);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                callback.connectActivityComplete(false);
-            }
-        };
-
-
-        BiometricManager bioManager = getBiometricManager(activity);
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-        if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
-            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager)
-                    && PersonalIdSessionData.PIN.equals(user.getRequiredLock());
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks, allowOtherOptions);
-        } else if (BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(
-                user.getRequiredLock())) {
-            BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
-        } else {
-            callback.connectActivityComplete(false);
-            Logger.exception("No unlock method available when trying to unlock PersonalId",
-                    new Exception("No unlock option"));
-            Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void logBiometricInvalidations() {
-        if (AndroidKeyStore.INSTANCE.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) {
-            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity, true,
-                    BIOMETRIC_INVALIDATION_KEY);
-            if (!encryptionKeyProvider.isKeyValid()) {
-                FirebaseAnalyticsUtil.reportBiometricInvalidated();
-
-                // reset key
-                encryptionKeyProvider.deleteKey();
-                encryptionKeyProvider.getKeyForEncryption();
-            }
-        }
-    }
-
 
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
