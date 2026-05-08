@@ -4,6 +4,8 @@ import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.NetworkStatusBarLayoutBinding
 
@@ -17,29 +19,67 @@ class NetworkStatusBarViewController(
     private var animator: ValueAnimator? = null
 
     fun showError(message: String) {
-        showBar(message, showOffline = false, autoDismiss = true, R.color.connect_warning_color)
+        showBar(
+            message = message,
+            color = R.color.connect_warning_color,
+            showLeftIcon = true,
+            autoDismiss = true,
+        )
     }
 
     fun showMessage(message: String) {
-        showBar(message, showOffline = false, autoDismiss = true, R.color.connect_sky_blue)
+        showBar(
+            message = message,
+            color = R.color.connect_green,
+            showLeftIcon = false,
+            autoDismiss = true,
+        )
     }
 
     fun showOfflineStatus(message: String) {
-        showBar(message, showOffline = true, autoDismiss = false, R.color.connect_warning_color)
+        showBar(
+            message = message,
+            color = R.color.connect_warning_color,
+            showLeftIcon = true,
+            autoDismiss = false,
+            rightIcon = R.drawable.ic_offline_white,
+            rightLabel = R.string.connect_offline,
+        )
+    }
+
+    fun showBackOnline(message: String) {
+        showBar(
+            message = message,
+            color = R.color.connect_green,
+            showLeftIcon = false,
+            autoDismiss = true,
+            rightIcon = R.drawable.ic_online,
+            rightLabel = R.string.connect_back_online,
+        )
     }
 
     private fun showBar(
         message: String,
-        showOffline: Boolean,
-        autoDismiss: Boolean,
         @ColorRes color: Int,
+        showLeftIcon: Boolean,
+        autoDismiss: Boolean,
+        @DrawableRes rightIcon: Int? = null,
+        @StringRes rightLabel: Int? = null,
     ) {
         barView.setBackgroundColor(barView.context.getColor(color))
         statusBarBinding.tvErrorMessage.text = message
 
-        val offlineVisibility = if (showOffline) View.VISIBLE else View.GONE
-        statusBarBinding.ivOffline.visibility = offlineVisibility
-        statusBarBinding.tvOfflineLabel.visibility = offlineVisibility
+        statusBarBinding.ivError.visibility = if (showLeftIcon) View.VISIBLE else View.GONE
+
+        val rightVisibility = if (rightIcon != null && rightLabel != null) View.VISIBLE else View.GONE
+        statusBarBinding.ivOffline.visibility = rightVisibility
+        statusBarBinding.tvOfflineLabel.visibility = rightVisibility
+        if (rightIcon != null) {
+            statusBarBinding.ivOffline.setImageResource(rightIcon)
+        }
+        if (rightLabel != null) {
+            statusBarBinding.tvOfflineLabel.setText(rightLabel)
+        }
 
         barView.removeCallbacks(hideRunnable)
         cancelAnimator()
