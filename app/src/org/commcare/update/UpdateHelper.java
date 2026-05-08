@@ -13,6 +13,7 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.network.RequestStats;
+import org.commcare.utils.StringUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
 import org.commcare.resources.ResourceInstallContext;
@@ -101,12 +102,13 @@ public class UpdateHelper implements TableStateListener {
             String error;
             if (e.isVersionMismatchException()) {
                 Context appContext = CommCareApplication.instance();
-                error = appContext.getString(R.string.update_version_mismatch, e.getRequiredVersionString(), e.getAvailableVesionString());
+                error = StringUtils.getStringRobust(appContext, R.string.update_version_mismatch,
+                        new String[]{e.getRequiredVersionString(), e.getAvailableVesionString()});
                 error += " ";
                 if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MAJOR_APP_VERSION) {
-                    error += appContext.getString(R.string.update_major_mismatch);
+                    error += StringUtils.getStringRobust(appContext, R.string.update_major_mismatch);
                 } else if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MINOR_APP_VERSION) {
-                    error += appContext.getString(R.string.update_minor_mismatch);
+                    error += StringUtils.getStringRobust(appContext, R.string.update_minor_mismatch);
                 }
             } else {
                 error = e.getMessage();

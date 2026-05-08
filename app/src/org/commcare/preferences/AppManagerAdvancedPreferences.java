@@ -76,7 +76,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
         });
 
         Preference devOptionsButton = findPreference(DEVELOPER_OPTIONS);
-        devOptionsButton.setTitle(requireContext().getString(R.string.app_manager_advanced_developer_options));
         if (AppManagerDeveloperPreferences.isDeveloperPreferencesEnabled()) {
             devOptionsButton.setOnPreferenceClickListener(preference -> {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(

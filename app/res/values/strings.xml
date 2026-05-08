@@ -130,9 +130,9 @@
     <string name="install_version_mismatch">The application requires CommCare version %1$s. You are currently running %2$s.</string>
     <string name="install_major_mismatch">Please uninstall your CommCare Application from the phone Settings Menu, navigate to the Google Playstore, and install CommCare again.</string>
     <string name="install_minor_mismatch">Please update CommCare from the Google Playstore to run this application.</string>
-    <string name="update_version_mismatch">This application update requires CommCare version %1$s. You are currently running %2$s.</string>
-    <string name="update_major_mismatch">Please uninstall your CommCare Application from the phone Settings Menu, navigate to the Google Playstore, and install CommCare again.</string>
-    <string name="update_minor_mismatch">Please update CommCare from the Google Playstore to update this application.</string>
+    <string name="update_version_mismatch" cc:translatable="true">This application update requires CommCare version %1$s. You are currently running %2$s.</string>
+    <string name="update_major_mismatch" cc:translatable="true">Please uninstall your CommCare Application from the phone Settings Menu, navigate to the Google Playstore, and install CommCare again.</string>
+    <string name="update_minor_mismatch" cc:translatable="true">Please update CommCare from the Google Playstore to update this application.</string>
     <string name="app_manager_advanced_settings_title">App Manager &gt; Advanced Settings</string>
     <string name="app_manager_advanced_settings_option">Advanced</string>
     <string name="app_manager_menu_about">About CommCare</string>

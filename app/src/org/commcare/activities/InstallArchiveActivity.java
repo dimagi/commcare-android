@@ -67,9 +67,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         if (fromUpdateActivity) {
             txtDisplayPrompt.setText(Localization.get("archive.update.prompt"));
             btnInstallArchive.setText(Localization.get("archive.update.button"));
-        } else {
-            txtDisplayPrompt.setText(R.string.archive_install_prompt);
-            btnInstallArchive.setText(R.string.archive_install_button);
         }
 
         btnFetchFiles.setOnClickListener(v -> {
