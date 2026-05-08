@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -369,7 +370,7 @@ public class PersonalIdManager {
 
     private void unlockAndLinkConnect(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp,
                                       String username, String password, ConnectActivityCompleteListener callback) {
-        unlockConnect(activity, success -> {
+        PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS, success -> {
             if (!success) {
                 callback.connectActivityComplete(false);
                 FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_UNLOCK_FAILED);
@@ -414,7 +415,7 @@ public class PersonalIdManager {
 
         dialog.setPositiveButton(activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
             activity.dismissAlertDialog();
-            unlockConnect(activity, success -> {
+            PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS, success -> {
                 if (success) {
                     ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity,
                             appId, username);
