@@ -5,11 +5,7 @@
 - Jignesh-dimagi: class-level `setUp()` members, `@Test(expected=...)`. Verify file before re-implementing.
 
 ## Status (2026-05-08)
-8 open [Test Improver] PRs. No new actionable feedback this run.
-- #3645: null-object-in-array tests added 2026-05-07. New 2026-05-08 comment is coverage bot (non-actionable).
-- #3632, #3614, #3612, #3626: prior feedback already implemented; reviewers haven't followed up.
-- #3636, #3635, #3637: zero review comments.
-- All PRs `mergeable_state=blocked` (branch protection, not conflicts). None CONFLICTING.
+7 open [Test Improver] PRs. No new actionable feedback or conflicts. All prior reviewer threads on #3632/#3614/#3612/#3626 already addressed in commits dated 2026-04-08/09; awaiting reviewer follow-up. PRs #3636/#3635/#3637 have zero review comments.
 
 ## Environment
 Gradle wrapper unusable in sandbox; ktlint/tests via CI only.
