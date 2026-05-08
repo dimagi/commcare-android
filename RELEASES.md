@@ -13,6 +13,7 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 #### What's New
 
 - [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
+- [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
 
 #### Important Bug Fixes
 
@@ -46,6 +47,13 @@ we would like to communicate to QA as part of the release testing
   - Turn airplane mode off, fully close the app (swipe it away from recent apps), and reopen it. Sign back in if needed. Verify that the warning triangle is gone and the camera icon is shown again.
   - With a working network connection, retry the photo update and verify a successful upload restores the camera icon and the new photo persists.
   - Verify that the photo update also reflects on HQ for the PersonalID user (i.e. the new photo is visible on the server-side admin view of the user's profile).
+
+- **Back Online indicator (Connect):**
+  - Open a refreshable Connect page (Connect Home, Learning Progress, Delivery Progress) while online and trigger a sync. Verify that the success bar at the top of the page now shows a green background with "Last synced: Just Now" and no right-side indicator.
+  - Turn on airplane mode (or otherwise disable network) and trigger a sync on the same page. Verify that the orange "Offline" indicator appears at the top of the page.
+  - Turn the network back on and trigger a sync (or wait for the auto-refresh on reconnect). Verify that the bar now shows a green background with "Last synced: Just Now" on the left and "Back Online" plus a WiFi icon on the right, and that it auto-dismisses after a few seconds.
+  - Trigger a non-network failure (e.g. a server error) and then a successful sync. Verify that the bar shows the regular green success message **without** the "Back Online" indicator (the Back Online indicator should only appear after an offline failure).
+  - Switch the device language to a non-English locale (e.g. French, Spanish, Hindi) and repeat the back-online flow. Verify that the "Back Online" label is shown in the selected language.
 
 ## CommCare 2.63
 
