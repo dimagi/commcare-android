@@ -17,7 +17,6 @@ import org.commcare.utils.EncryptionKeyProvider
 import org.javarosa.core.services.Logger
 
 private const val SESSION_UNLOCK_THRESHOLD_MS = 10 * 60 * 1000L // 10 minutes
-private const val BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key"
 
 /** Middleware to manage Personal ID unlock prompts with session-based bypass logic. */
 object PersonalIdUnlocker {
@@ -115,8 +114,8 @@ object PersonalIdUnlocker {
     }
 
     private fun logBiometricInvalidations(activity: Context) {
-        if (!AndroidKeyStore.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) return
-        val provider = EncryptionKeyProvider(activity, true, BIOMETRIC_INVALIDATION_KEY)
+        if (!AndroidKeyStore.doesKeyExist(PersonalIdManager.BIOMETRIC_INVALIDATION_KEY)) return
+        val provider = EncryptionKeyProvider(activity, true, PersonalIdManager.BIOMETRIC_INVALIDATION_KEY)
         if (!provider.isKeyValid()) {
             FirebaseAnalyticsUtil.reportBiometricInvalidated()
             provider.deleteKey()
