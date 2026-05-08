@@ -1,8 +1,13 @@
 package org.commcare.navdrawer
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.graphics.Color
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -16,17 +21,22 @@ import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
+import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
+import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
 import org.commcare.views.dialogs.DialogCreationHelpers
+import org.commcare.views.dialogs.StandardAlertDialog
 
 class BaseDrawerController(
     private val activity: CommCareActivity<*>,
@@ -36,8 +46,10 @@ class BaseDrawerController(
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
+    private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
     private var hasRefreshed = false
     private var showingError = false
+    var lastPhotoUploadFailed: Boolean = false
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -51,6 +63,7 @@ class BaseDrawerController(
     fun setupDrawer() {
         setupActionBarDrawerToggle()
         initializeAdapter()
+        initTakePhotoLauncher()
         setupListeners()
         setupViews()
         refreshDrawerContent()
@@ -144,6 +157,38 @@ class BaseDrawerController(
             closeDrawer()
         }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
+        binding.userImage.setOnClickListener {
+            showUpdatePhotoConfirmationDialog()
+        }
+    }
+
+    private fun showUpdatePhotoConfirmationDialog() {
+        val dialog =
+            StandardAlertDialog(
+                activity.getString(R.string.personalid_user_photo_update_dialog_title),
+                activity.getString(R.string.personalid_user_photo_update_dialog_message),
+            )
+
+        dialog.setPositiveButton(
+            activity.getString(R.string.personalid_user_photo_update_dialog_continue),
+        ) { dialogInterface, _ ->
+            if (!ConnectivityStatus.isNetworkAvailable(activity)) {
+                val toastMessage = activity.getString(R.string.recovery_network_unavailable)
+                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
+                return@setPositiveButton
+            }
+
+            dialogInterface.dismiss()
+            launchCameraForPhotoEdit()
+        }
+        dialog.setNegativeButton(
+            activity.getString(R.string.personalid_user_photo_update_dialog_cancel),
+        ) { dialogInterface, _ ->
+            dialogInterface.dismiss()
+        }
+
+        dialog.makeCancelable()
+        dialog.showNonPersistentDialog(activity)
     }
 
     fun refreshDrawerContent() {
@@ -153,15 +198,15 @@ class BaseDrawerController(
 
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
-            Glide
-                .with(binding.imageUserProfile)
-                .load(user.photo)
-                .apply(
-                    RequestOptions
-                        .circleCropTransform()
-                        .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar),
-                ).into(binding.imageUserProfile)
+            user.photo?.let { loadUserPhoto(it) }
+
+            val userImageOverlayIconRes =
+                if (lastPhotoUploadFailed) {
+                    R.drawable.ic_personalid_warning
+                } else {
+                    R.drawable.ic_personalid_camera
+                }
+            binding.userImageOverlayIcon.setImageResource(userImageOverlayIconRes)
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
@@ -291,4 +336,75 @@ class BaseDrawerController(
     fun isShowingError(): Boolean = showingError
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
+
+    private fun initTakePhotoLauncher() {
+        takePhotoLauncher =
+            activity.registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult(),
+            ) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    result.data
+                        ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
+                        ?.let { photoBase64 ->
+                            uploadUserPhoto(photoBase64)
+                        }
+                }
+            }
+    }
+
+    private fun launchCameraForPhotoEdit() {
+        val intent =
+            Intent(activity, MicroImageActivity::class.java).apply {
+                putExtra(
+                    MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA,
+                    USER_PHOTO_MAX_DIMENSION_PX,
+                )
+                putExtra(
+                    MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA,
+                    USER_PHOTO_MAX_SIZE_BYTES,
+                )
+            }
+        takePhotoLauncher.launch(intent)
+    }
+
+    private fun uploadUserPhoto(photoBase64: String) {
+        val user = ConnectUserDatabaseUtil.getUser(activity)
+        object : PersonalIdApiHandler<Boolean>() {
+            override fun onSuccess(success: Boolean) {
+                user.photo = photoBase64
+                ConnectUserDatabaseUtil.storeUser(activity, user)
+                lastPhotoUploadFailed = false
+                loadUserPhoto(photoBase64)
+                binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
+                val toastMessage = activity.getString(R.string.personalid_user_photo_update_success)
+                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
+            }
+
+            override fun onFailure(
+                errorCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                val errorMessage = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t)
+                lastPhotoUploadFailed = true
+                binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_warning)
+                Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show()
+            }
+        }.updateProfile(activity, user.userId, user.password, null, null, photoBase64)
+    }
+
+    private fun loadUserPhoto(photoBase64: String) {
+        Glide
+            .with(binding.userImage)
+            .load(photoBase64)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.nav_drawer_person_avatar)
+                    .error(R.drawable.nav_drawer_person_avatar),
+            ).into(binding.userImage)
+    }
+
+    companion object {
+        private const val USER_PHOTO_MAX_DIMENSION_PX = 160
+        private const val USER_PHOTO_MAX_SIZE_BYTES = 100 * 1024 // 100 KB
+    }
 }

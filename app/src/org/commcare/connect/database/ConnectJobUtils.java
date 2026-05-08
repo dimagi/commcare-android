@@ -1,7 +1,10 @@
 package org.commcare.connect.database;
 
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN;
+
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
@@ -13,9 +16,8 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.core.services.CommCarePreferenceManagerFactory;
-import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.ConnectJobPreferences;
 import org.javarosa.xform.util.CalendarUtils;
 
 import java.util.ArrayList;
@@ -28,14 +30,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import static org.commcare.connect.ConnectConstants.PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME;
-
 public class ConnectJobUtils {
 
     public static void upsertJob(Context context, ConnectJobRecord job) {
         List<ConnectJobRecord> list = new ArrayList<>();
         list.add(job);
         new JobStoreManager(context).storeJobs(context, list, false);
+    }
+
+    public static ConnectJobPreferences getJobPreferences(String jobUUID) {
+        return new ConnectJobPreferences(jobUUID);
     }
 
     public static ConnectJobRecord getCompositeJob(Context context, String jobUUID) {
@@ -311,12 +315,8 @@ public class ConnectJobUtils {
             }
         }
 
-        // Check if there is a brand new payment so that we can reset the timer for the payment
-        // confirmation tile.
         if (newPaymentReceived) {
-            ICommCarePreferenceManager preferenceManager =
-                    CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
-            preferenceManager.putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, -1);
+            getJobPreferences(jobUUID).resetPaymentConfirmationHiddenSinceTime();
         }
     }
 
@@ -530,6 +530,28 @@ public class ConnectJobUtils {
             return records.isEmpty() ? null : records.firstElement();
         }
         return null;
+    }
+
+    /**
+     * Returns the CommCare appId for the given opportunity. Will return the learn appId if the opportunity
+     * status is "learn" and delivery appId otherwise.
+     */
+    public static String getAppIdForOpportunity(
+            Context context,
+            String opportunityID,
+            String opportunityStatus) {
+        if (TextUtils.isEmpty(opportunityID)) {
+            throw new IllegalArgumentException("opportunityID can't be empty");
+        }
+        ConnectJobRecord job = getCompositeJob(context, opportunityID);
+        if (job == null) {
+            throw new IllegalArgumentException("No Opportunity found for given opportunityID " + opportunityID);
+        }
+        boolean isLearning = OPPORTUNITY_STATUS_LEARN.equals(opportunityStatus);
+        ConnectAppRecord appInfo = isLearning
+                ? job.getLearnAppInfo()
+                : job.getDeliveryAppInfo();
+        return appInfo.getAppId();
     }
 
     public static List<ConnectJobPaymentRecord> getPaymentsSortedByDate(ConnectJobRecord job) {

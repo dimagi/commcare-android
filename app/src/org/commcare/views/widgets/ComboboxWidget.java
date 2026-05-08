@@ -14,6 +14,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.Vector;
@@ -81,9 +82,15 @@ public class ComboboxWidget extends QuestionWidget {
 
     private void addListeners() {
         comboBox.setOnItemClickListener((parent, view, position, id) -> {
-            selectedComboItem = (ComboItem) parent.getItemAtPosition(position);
-            widgetEntryChanged();}
-        );
+            selectedComboItem = (ComboItem) comboBox.getAdapter().getItem(position);
+            if (parent == null) {
+                Logger.exception("ComboBox "+getComboboxQuestionID()+" OnItemClickListener was triggered " +
+                                "with a null parent, position: "+position+" and id: "+id,
+                        new IllegalStateException("Parent was null in Combobox OnItemClickListener")
+                );
+            }
+            widgetEntryChanged();
+        });
 
         // Note that Combobox has an OnFocusChangeListener defined in its own class, so when
         // re-setting it here we have to make sure to do all of the same things that the original
@@ -116,6 +123,10 @@ public class ComboboxWidget extends QuestionWidget {
                 }
             }
         });
+    }
+
+    private String getComboboxQuestionID() {
+        return mPrompt.getQuestion() != null ? mPrompt.getQuestion().getTextID() : "null";
     }
 
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {

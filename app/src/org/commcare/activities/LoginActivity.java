@@ -232,17 +232,16 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
         LoginMode loginMode = uiController.getLoginMode();
-        //See whether login is managed by PersonalId
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        String username = uiController.getEnteredUsername();
-
         if (appLaunchedFromConnect) {
+            connectLaunchPerformed = true;
             //Auto login
             doLogin(loginMode, restoreSession, "AUTO");
         } else if (loginManagedByPersonalId()) {
             //Unlock and then auto login
             personalIdManager.unlockConnect(this, success -> {
                 if (success) {
+                    String username = uiController.getEnteredUsername();
+                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                     String pass = personalIdManager.getStoredPasswordForApp(seatedAppId, username);
                     doLogin(loginMode, restoreSession, pass);
                 }
@@ -329,9 +328,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         uiController.refreshView();
 
         // if the app is already seated, we can login immediately
-        if(shouldDoConnectLogin() && isAppSeated(presetAppId)) {
-            connectLaunchPerformed = true;
-            initiateLoginAttempt(uiController.isRestoreSessionChecked());
+        if (isAppSeated(presetAppId)) {
+            if (shouldDoConnectLogin() || loginManagedByPersonalId()) {
+                initiateLoginAttempt(uiController.isRestoreSessionChecked());
+            }
         }
     }
 
@@ -975,7 +975,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private boolean isAppSeated(String appId) {
-        return appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+        return appId != null && appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
     }
 
     protected void evaluateConnectAppState() {
