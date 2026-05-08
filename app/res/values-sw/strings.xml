@@ -263,6 +263,7 @@
     <string name="connect_backup_code_remember">Tafadhali hakikisha unakumbuka nambari yako ya siri ya akiba! Ni lazima iwe na tarakimu %d. Iweke mahali salama kwani utaihitaji ili kuingia tena kwenye akaunti yako.</string>
     <string name="connect_backup_code_mismatch">Nambari za siri za akiba unazoingiza ni lazima zifanane.</string>
     <string name="connect_backup_fail_title">Msimbo usio sahihi</string>
+    <string name="personalid_network_response_parsing_error">Hitilafu ya kuchanganua data kutoka kwa seva. Tafadhali wasiliana na usaidizi kwa wateja.</string>
     <string name="connect_recovery_success_title">Akaunti Imerejeshwa</string>
     <string name="connect_recovery_success_message">Akaunti yako imerejeshwa! Unaweza kuendelea kutumia PersonalID.</string>
     <string name="connect_unlock_title">Fungua PersonalId</string>
@@ -358,7 +359,12 @@
     <string name="code">Kanuni</string>
     <string name="choose_a_6_digit_recovery_code">Chagua Msimbo wa Urejeshaji wa Dijiti 6</string>
     <string name="sync">Sawazisha</string>
-    <string name="micro_image_activity_title">Piga Picha ya Uso</string>
+    <string name="micro_image_activity_title">Piga Picha ya Wasifu</string>
+    <string name="personalid_user_photo_update_dialog_title">Sasisha Picha ya Wasifu</string>
+    <string name="personalid_user_photo_update_dialog_message">Ungependa kupiga picha mpya ya wasifu?</string>
+    <string name="personalid_user_photo_update_dialog_continue">Endelea</string>
+    <string name="personalid_user_photo_update_dialog_cancel">Ghairi</string>
+    <string name="personalid_user_photo_update_success">Picha yako ya wasifu imesasishwa kwa mafanikio.</string>
     <string name="connect_job_info_title">Maelezo ya Fursa</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
@@ -591,6 +597,8 @@
     <string name="no_apps_available">Hakuna programu zinazopatikana kwa kupakua kwa mtumiaji huyu.</string>
     <string name="could_not_refresh_apps">Samahani, kulikuwa na hitilafu wakati wa kuonyesha upya orodha yako ya programu. Tafadhali ingiza tena mtumiaji.</string>
     <string name="connect_last_synced">Ilisawazishwa mwisho: %s</string>
+    <string name="connect_sync_successful">Ilisawazishwa mwisho: Sasa hivi</string>
+    <string name="connect_sync_failed">Usawazishaji Umeshindwa, ilisawazishwa mwisho: %s</string>
     <string name="connect_offline">Nje ya mtandao</string>
     <string name="connect_never">Kamwe</string>
 </resources>

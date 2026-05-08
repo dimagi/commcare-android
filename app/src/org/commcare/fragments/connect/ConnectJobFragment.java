@@ -20,4 +20,9 @@ public abstract class ConnectJobFragment<T extends ViewBinding> extends BaseConn
         job = ((ConnectActivity)requireActivity()).getActiveJob();
         Objects.requireNonNull(job);
     }
+
+    @Override
+    public String getEndpoint() {
+        return null;
+    }
 }
