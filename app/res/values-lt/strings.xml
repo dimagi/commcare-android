@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     Copyright (C) 2009 University of Washington Licensed under the Apache
     License, Version 2.0 (the "License"); you may not use this file except
@@ -144,6 +144,7 @@
     <string name="personalid_otp_verification_failed_generic">Klaida tikrinant jūsų telefono numerį. Bandykite dar kartą.</string>
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
+    <string name="personalid_network_response_parsing_error">Klaida analizuojant duomenis iš serverio. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
@@ -197,6 +198,8 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_progress_relearn_tasks_completed">Visos reikalingos užduotys atliktos. Galite tęsti pristatymo veiklą.</string>
     <string name="connect_last_synced">Paskutinė sinchronizacija: %s</string>
+    <string name="connect_sync_successful">Paskutinė sinchronizacija: Ką tik</string>
+    <string name="connect_sync_failed">Sinchronizacija nepavyko, paskutinė sinchronizacija: %s</string>
     <string name="connect_offline">Neprisijungęs</string>
     <string name="connect_never">Niekada</string>
 </resources>

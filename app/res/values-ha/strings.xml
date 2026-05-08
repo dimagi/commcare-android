@@ -100,6 +100,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_backup_code_remember">Da fatan za a tabbatar ka tuna da lambar madadinka! Dole ne ta zama lambobi %d. Ajiye ta a wuri mai aminci domin za ka buƙaci ta don sake shiga asusunka.</string>
     <string name="connect_backup_code_mismatch">Lambobin madadin da kuka shigar dole ne su dace.</string>
     <string name="connect_backup_fail_title">Lambar Ajiyayyen da Ba Daidai Ba</string>
+    <string name="personalid_network_response_parsing_error">Kuskure wajen karanta bayanai daga uwar garken. Da fatan za a tuntuɓi tallafin abokin ciniki.</string>
     <string name="connect_recovery_success_title">An Dawo da Asusu</string>
     <string name="connect_recovery_success_message">An dawo da asusunka! Za ka iya ci gaba da amfani da PersonalID.</string>
     <string name="connect_unlock_title">Buɗe PersonalID</string>
@@ -536,6 +537,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="notification_channel_user_session_title">Zaman mai amfani</string>
     <string name="notification_channel_user_session_description">Sanarwa da ke ɗauke da bayani game da zaman mai amfani na yanzu, kamar ranar da ake sa ran zaman ya ƙare</string>
     <string name="connect_last_synced">Aiki na ƙarshe: %s</string>
+    <string name="connect_sync_successful">Aiki na ƙarshe: Yanzu haka</string>
+    <string name="connect_sync_failed">Daidaitawa ta kasa, aiki na ƙarshe: %s</string>
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_never">Ba taɓa</string>
 </resources>
