@@ -47,6 +47,17 @@ we would like to communicate to QA as part of the release testing
   - With a working network connection, retry the photo update and verify a successful upload restores the camera icon and the new photo persists.
   - Verify that the photo update also reflects on HQ for the PersonalID user (i.e. the new photo is visible on the server-side admin view of the user's profile).
 
+- **Add email address to PersonalID signup/recovery flow (WIP):**
+  - **Flow overview:**
+    - Signup: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered) → Photo
+    - Recovery, no verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered)
+    - Recovery, verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code
+  - **Email entry screen:** (will be added here)
+  - **Email OTP screen:** (will be added here)
+  - **Legacy logged-in users prompt:** (will be added here)
+  - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
+  - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
+
 ## CommCare 2.63
 
 ### Release Notes
