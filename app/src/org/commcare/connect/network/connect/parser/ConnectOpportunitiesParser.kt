@@ -33,7 +33,7 @@ class ConnectOpportunitiesParser<T> : BaseApiResponseParser<T> {
                             jobs.add(ConnectJobRecord.fromJson(obj))
                         } catch (e: JSONException) {
                             Logger.exception("Parsing return from Opportunities request", e)
-                            corruptOpp  = true
+                            corruptOpp = true
                         }
                     }
 
