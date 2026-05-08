@@ -8,8 +8,6 @@ public enum OtpErrorType {
     VERIFICATION_FAILED;
 
     public boolean isNonRecoverable() {
-        return this == OtpErrorType.MISSING_ACTIVITY ||
-                this == OtpErrorType.VERIFICATION_FAILED ||
-                this == OtpErrorType.GENERIC_ERROR;
+        return this == OtpErrorType.VERIFICATION_FAILED;
     }
 }

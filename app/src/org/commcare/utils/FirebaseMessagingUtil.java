@@ -36,6 +36,7 @@ import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -52,6 +53,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.commcare.activities.DispatchActivity.CC_LAUNCH_REQUIRE_SYNC;
+import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
@@ -350,11 +356,44 @@ public class FirebaseMessagingUtil {
         return null;
     }
 
-    private static Intent handleCccGenericOpportunityNotifcation(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        Intent intent = getConnectActivityNotification(context, fcmMessageData);
+    private static Intent handleCccGenericOpportunityNotifcation(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+        String sessionEndpointId = fcmMessageData.getPayloadData()
+                .get(PushNotificationRecord.META_SESSION_ENDPOINT_ID);
+        Intent intent = null;
+        if (!TextUtils.isEmpty(sessionEndpointId)) {
+            intent =  handleSessionEndpointNotification(context, fcmMessageData, showNotification, sessionEndpointId);
+        }
+        if (intent == null) {
+            intent = getConnectActivityNotification(context, fcmMessageData);
+        }
         if (showNotification)
-            showNotification(context, buildNotification(context, intent, fcmMessageData),
-                    fcmMessageData);
+            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
+        return intent;
+    }
+
+    private static Intent handleSessionEndpointNotification(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification,
+            String sessionEndpointId) {
+        Map<String, String> payloadData = fcmMessageData.getPayloadData();
+        String opportunityID = payloadData.get(OPPORTUNITY_UUID);
+        String opportunityStatus = payloadData.get(OPPORTUNITY_STATUS);
+        String appId = null;
+        try {
+            appId = ConnectJobUtils.getAppIdForOpportunity(context, opportunityID, opportunityStatus);
+        } catch (IllegalArgumentException e) {
+            Logger.exception("Could not resolve appId for opportunity", e);
+            return null;
+        }
+
+        Intent intent = new Intent(context, DispatchActivity.class);
+        intent.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
+        intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
+        intent.putExtra(EXIT_AFTER_FORM_SUBMISSION, false);
+        // Default to true when the field is absent — older server payloads always require sync
+        String requireAppSyncStr = payloadData.get(PushNotificationRecord.META_REQUIRE_APP_SYNC);
+        boolean requireSync = requireAppSyncStr == null || Boolean.parseBoolean(requireAppSyncStr);
+        intent.putExtra(CC_LAUNCH_REQUIRE_SYNC, requireSync);
         return intent;
     }
 
@@ -508,8 +547,7 @@ public class FirebaseMessagingUtil {
      * @return NotificationCompat.Builder
      */
     private static NotificationCompat.Builder buildNotification(Context context, Intent intent, FCMMessageData fcmMessageData) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE

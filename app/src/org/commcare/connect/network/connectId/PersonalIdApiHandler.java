@@ -79,7 +79,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             }
 
             @Override
-            public void processFailure(int responseCode, String url, String errorBody, Throwable t) {
+            public void processFailure(
+                    int responseCode,
+                    String url,
+                    String errorBody,
+                    Throwable t
+            ) {
                 Pair<String, String> errorCodes = getErrorCodes(errorBody);
                 if (!handleErrorCodeIfPresent(
                         errorCodes.getFirst(),
@@ -210,9 +215,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             Activity activity,
             Map<String, String> body,
             String integrityToken,
-            String requestHash
+            String requestHash,
+            PersonalIdSessionData sessionData
     ) {
-        PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.startConfiguration(
                 activity,
                 body,
@@ -276,6 +281,25 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 backupCode,
                 token,
                 createCallback(sessionData, new CompleteProfileResponseParser())
+        );
+    }
+
+    public void updateProfile(
+            Context context,
+            String userName,
+            String password,
+            String displayName,
+            String secondaryPhone,
+            String photoAsBase64
+    ) {
+        ApiPersonalId.updateUserProfile(
+                context,
+                userName,
+                password,
+                displayName,
+                secondaryPhone,
+                photoAsBase64,
+                createCallback(new NoParsingResponseParser<>(), null)
         );
     }
 

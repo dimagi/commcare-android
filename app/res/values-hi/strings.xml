@@ -259,8 +259,8 @@ License.
     <string name="connect_enter_otp">कृपया 6-अंकीय पासकोड दर्ज करें जो आपके फ़ोन नंबर पर भेजा गया था।</string>
     <string name="connect_backup_code_title_set">पिन चुनें</string>
     <string name="connect_backup_code_title_confirm">पिन की पुष्टि करें</string>
-    <string name="connect_backup_code_length">कृपया अपना बैकअप कोड याद रखना सुनिश्चित करें! यह %d अंकों का होना चाहिए। इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते तक दोबारा पहुंचने के लिए इसकी आवश्यकता होगी।</string>
-    <string name="connect_backup_code_mismatch">आपके द्वारा दर्ज किए गए बैकअप कोड मेल खाने चाहिए। कृपया इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते को फिर से एक्सेस करने के लिए इसकी आवश्यकता होगी।</string>
+    <string name="connect_backup_code_remember">कृपया अपना बैकअप कोड याद रखना सुनिश्चित करें! यह %d अंकों का होना चाहिए। इसे किसी सुरक्षित स्थान पर रखें क्योंकि आपको अपने खाते तक दोबारा पहुंचने के लिए इसकी आवश्यकता होगी।</string>
+    <string name="connect_backup_code_mismatch">आपके द्वारा दर्ज किए गए बैकअप कोड मेल खाने चाहिए।</string>
     <string name="connect_backup_fail_title">गलत कोड</string>
     <string name="connect_recovery_success_title">खाता पुनर्प्राप्त किया गया</string>
     <string name="connect_recovery_success_message">आपका खाता पुनर्प्राप्त कर लिया गया है! आप PersonalID का उपयोग फिर से शुरू कर सकते हैं।</string>
@@ -356,7 +356,12 @@ License.
     <string name="code">कोड</string>
     <string name="choose_a_6_digit_recovery_code">6 अंकों का रिकवरी कोड चुनें</string>
     <string name="sync">सिंक करें</string>
-    <string name="micro_image_activity_title">चेहरे की फ़ोटो कैप्चर करें</string>
+    <string name="micro_image_activity_title">प्रोफ़ाइल फ़ोटो लें</string>
+    <string name="personalid_user_photo_update_dialog_title">प्रोफ़ाइल फ़ोटो अपडेट करें</string>
+    <string name="personalid_user_photo_update_dialog_message">क्या आप एक नई प्रोफ़ाइल फ़ोटो लेना चाहेंगे?</string>
+    <string name="personalid_user_photo_update_dialog_continue">जारी रखें</string>
+    <string name="personalid_user_photo_update_dialog_cancel">रद्द करें</string>
+    <string name="personalid_user_photo_update_success">आपकी प्रोफ़ाइल फ़ोटो सफलतापूर्वक अपडेट कर दी गई है।</string>
     <string name="connect_job_info_title">अवसर विवरण</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
@@ -532,4 +537,7 @@ License.
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
     <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
     <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
+    <string name="connect_last_synced">अंतिम सिंक: %s</string>
+    <string name="connect_offline">ऑफ़लाइन</string>
+    <string name="connect_never">कभी नहीं</string>
 </resources>

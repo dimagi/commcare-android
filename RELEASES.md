@@ -2,7 +2,7 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
-## CommCare 2.63
+## CommCare 2.64
 
 ### Release Notes
 
@@ -12,7 +12,7 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
-- [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
+- [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
 
 #### Important Bug Fixes
 
@@ -32,8 +32,77 @@ These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
 
+- **PersonalID profile photo update from nav drawer:**
+  - Sign in to PersonalID and open the side navigation drawer. Verify that the user's image in the drawer header is shown inside a circular white frame with a small camera icon overlay along the bottom edge.
+  - Tap the image. Verify that an "Update Profile Photo" confirmation dialog appears with a message asking whether you would like to take a new profile photo, and Continue / Cancel buttons.
+  - Verify that the dialog can be dismissed in three ways: tapping Cancel, tapping outside the dialog, and pressing the device back button. In all three cases, the photo should remain unchanged.
+  - Tap Continue. Verify that the camera capture screen opens with the title "Take Profile Photo" (it should detect the user's face the same way as during PersonalID signup).
+  - Capture a new photo. Verify that the drawer reopens, the new photo replaces the existing image, and the camera icon overlay is still shown along the bottom of the image.
+  - Reopen the drawer later (after navigating around the app) and verify that the new photo is still shown.
+  - **Failed upload:** turn on airplane mode, tap the image, and tap the Continue button. Verify that:
+    - A toast appears with an error message.
+    - The camera overlay icon switches to a yellow warning triangle.
+  - With airplane mode still on, navigate around the app and reopen the drawer. Verify that the warning triangle is still shown over the image.
+  - Turn airplane mode off, fully close the app (swipe it away from recent apps), and reopen it. Sign back in if needed. Verify that the warning triangle is gone and the camera icon is shown again.
+  - With a working network connection, retry the photo update and verify a successful upload restores the camera icon and the new photo persists.
+  - Verify that the photo update also reflects on HQ for the PersonalID user (i.e. the new photo is visible on the server-side admin view of the user's profile).
+
+## CommCare 2.63
+
+### Release Notes
+
+<!--
+These are published publically on Playstore, Github Releases and CommCare Forums
+-->
+
+#### What's New
+- Offline status shown on refreshable Connect pages when applicable
+- Forms now allow a maximum of 50 attachments. To add another after the limit is reached, users will need to 
+remove an existing one first
+
+- [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
+- [Relearn Tasking] Implements a new notification when a relearn task is assigned to a user
+- [Work Area Assignment] Implements a new notification when a new work area is assigned to a user
+- [6-box Backup Codes] Using 6-box numeric inputs to collect backup codes from the user
+
+#### Important Bug Fixes
+- Fixed a crash triggered during combobox item selection when the dropdown list had already been dismissed
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+- Session endpoint navigation from Connect notifications: clicking a notification with a `session_endpoint_id` now navigates the user directly to the specified CommCare session endpoint (after a sync if required), instead of opening the Connect activity.
+
+
+### QA Notes
+
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
+
+- **Task and Work Area Assignment Notifications (Connect):**
+    - On clicking, Notification should take user to the relevant CommCare App Home page and auto-login and auto-syncs the user with a blocking dialog. 
+    - Click the notification while logged out
+    - Click the notification while the app is backgrounded
+    - Verify that notifications redirect work as expected from various places in the app - Opp Screen, App Home, Login Screen, Form Entry etc and back navigation works correctly after the notification redirect
+    - Verify no regression on existing Connect notification types (payments, messaging, delivery/learn progress).
+
 - Verify that the existing opportunity card UI is unchanged when there are no relearn tasks.
 - Verify that the opportunity card updates as expected when there are either pending relearn tasks or completed relearn tasks.
+- Verify 6-box input functionality in Backup Code page, including:
+  - Showing one or two of the controls depending on recovery/registration mode (respectively)
+  - Handling password-style visibility with associated "eye" toggle
+  - Verifying matching codes (or error message) in registration mode
+  - Text cursor functionality (i.e. backspacing, clicking an earlier box to jump back)
+
+- Test the new offline status indicator at the top of refreshable Connect pages (Connect Home, Learning Progress, Delivery Progress). Verify that the error message appears when entering these pages while offline, and that it disappears once the device comes back online.
+- Verify that the combobox widget is working as expected when selecting an item that is used to filter another combobox widget and also determines the visibility of some other unrelated question whose relevance condition depends on the selection.
 
 ## CommCare 2.62
 
