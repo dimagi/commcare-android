@@ -547,16 +547,20 @@ public class FirebaseMessagingUtil {
      * @return NotificationCompat.Builder
      */
     private static NotificationCompat.Builder buildNotification(Context context, Intent intent, FCMMessageData fcmMessageData) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Bundle bundleExtras = new Bundle();
+        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+
+        Intent launchIntent = new Intent(context,
+                org.commcare.activities.PushNotificationLaunchActivity.class);
+        launchIntent.putExtra(
+                org.commcare.activities.PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT,
+                intent);
 
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 : PendingIntent.FLAG_UPDATE_CURRENT;
 
-        Bundle bundleExtras = new Bundle();
-        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
-
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, flags);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, launchIntent, flags);
 
         if (Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationTitle()) && Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationText())) {
             Logger.exception("Empty push notification",
@@ -578,6 +582,11 @@ public class FirebaseMessagingUtil {
             fcmNotification.setLargeIcon(fcmMessageData.getLargeIcon());
         }
         return fcmNotification;
+    }
+
+    @androidx.annotation.VisibleForTesting
+    static NotificationCompat.Builder buildNotificationForTest(Context context, Intent intent, FCMMessageData fcmMessageData) {
+        return buildNotification(context, intent, fcmMessageData);
     }
 
 
