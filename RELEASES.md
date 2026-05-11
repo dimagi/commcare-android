@@ -58,6 +58,15 @@ we would like to communicate to QA as part of the release testing
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 
+
+- Verify that biometric/PIN unlock still triggers correctly in all existing entry points:
+  - Login screen auto-unlock (`LoginActivity`)
+  - Connect messaging notification tap (`ConnectMessagingActivity`)
+  - Connect nav helper flows (`ConnectNavHelper`)
+  - Connect unlock fragment (`ConnectUnlockFragment`)
+  - App-linking dialogs (`PersonalIdManager`)
+
+
 ## CommCare 2.63
 
 ### Release Notes
