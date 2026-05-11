@@ -60,7 +60,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.SYNC_SU
  * @author dviggiano
  */
 public class PersonalIdManager {
-    public static final String BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key";
     private static final long DAYS_TO_SECOND_OFFER = 30;
 
     /**
