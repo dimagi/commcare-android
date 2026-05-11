@@ -1771,6 +1771,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return isFormEntryActive;
     }
 
+    @androidx.annotation.VisibleForTesting
+    public static void setFormEntryInProgressForTest(boolean inProgress) {
+        isFormEntryActive = inProgress;
+    }
+
     public void setPendingNavAfterSave(android.content.Intent pendingNav) {
         // Will be implemented in a later task.
     }
