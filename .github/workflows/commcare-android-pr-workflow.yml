@@ -26,6 +26,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v6
@@ -102,15 +103,14 @@ jobs:
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports/jacoco
-      - name: Comment JaCoCo Coverage on PR
+      - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
-        uses: madrapps/jacoco-report@v1.7.2
+        uses: codecov/codecov-action@v5
         with:
-          paths: commcare-android/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: Code Coverage
-          update-comment: true
+          files: commcare-android/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          use_oidc: true
+          fail_ci_if_error: false
       - name: Restore Keystore
         run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
         env:
