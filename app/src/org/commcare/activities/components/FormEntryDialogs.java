@@ -124,8 +124,7 @@ public class FormEntryDialogs {
     // so unit tests can exercise the same code paths without inflating the dialog.
 
     static void handleDiscardChoice(FormEntryActivity activity, Intent pendingNav) {
-        activity.startActivity(pendingNav);
-        activity.discardChangesAndExit();
+        activity.discardChangesAndExitToPendingNav(pendingNav);
     }
 
     static void handleSaveChoice(FormEntryActivity activity, Intent pendingNav) {

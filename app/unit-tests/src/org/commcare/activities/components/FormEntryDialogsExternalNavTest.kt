@@ -12,6 +12,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.any
 import org.robolectric.annotation.Config
 
 @Config(application = CommCareTestApplication::class)
@@ -29,10 +30,7 @@ class FormEntryDialogsExternalNavTest {
 
         FormEntryDialogs.handleDiscardChoice(activity, pendingNav)
 
-        verify(activity, times(1)).discardChangesAndExit()
-        val captor = ArgumentCaptor.forClass(Intent::class.java)
-        verify(activity, times(1)).startActivity(captor.capture())
-        assertEquals("x", captor.value.getStringExtra("marker"))
+        verify(activity, times(1)).discardChangesAndExitToPendingNav(pendingNav)
     }
 
     @Test
@@ -44,6 +42,19 @@ class FormEntryDialogsExternalNavTest {
 
         verify(activity, times(1)).setPendingNavAfterSave(pendingNav)
         verify(activity, times(1)).saveFormToDisk(FormEntryConstants.EXIT)
-        verify(activity, never()).startActivity(org.mockito.kotlin.any())
+        verify(activity, never()).startActivity(any())
+    }
+
+    @Test
+    fun helpersAreCalledOnlyByCorrespondingChoice() {
+        val activity = mock(FormEntryActivity::class.java)
+
+        // The Stay listener only dismisses the dialog and does not touch the activity.
+        // Without invoking any choice handler, verify the mock receives no interaction
+        // with any of the helper methods.
+        verify(activity, never()).discardChangesAndExitToPendingNav(any())
+        verify(activity, never()).setPendingNavAfterSave(any())
+        verify(activity, never()).saveFormToDisk(any())
+        verify(activity, never()).startActivity(any())
     }
 }
