@@ -1,6 +1,7 @@
 package org.commcare.activities
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -46,10 +47,11 @@ class PushNotificationLaunchActivity : Activity() {
     }
 
     private fun dispatchWithoutForm(wrapped: Intent) {
-        wrapped.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        val toStart = Intent(wrapped)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
-            startActivity(wrapped)
-        } catch (e: android.content.ActivityNotFoundException) {
+            startActivity(toStart)
+        } catch (e: ActivityNotFoundException) {
             Logger.exception("Push notification target activity not found", e)
         }
     }
