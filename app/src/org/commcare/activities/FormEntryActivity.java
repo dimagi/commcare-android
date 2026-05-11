@@ -1265,14 +1265,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * activity finishes.
      */
     protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
-        FirebaseAnalyticsUtil.reportFormQuitAttempt(
-                AnalyticsParamValue.PUSH_NOTIFICATION_TAP,
-                getCurrentFormXmlnsFailSafe());
-
         if (mSaveToDiskTask != null) {
             // A save is already running; do not stack another exit attempt on top of it.
             return;
         }
+
+        FirebaseAnalyticsUtil.reportFormQuitAttempt(
+                AnalyticsParamValue.PUSH_NOTIFICATION_TAP,
+                getCurrentFormXmlnsFailSafe());
 
         if (!formHasLoaded()) {
             startPendingNavSafely(pendingNav);
@@ -1841,6 +1841,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public void setPendingNavAfterSave(Intent pendingNav) {
         this.mPendingNavAfterSave = pendingNav;
+    }
+
+    public void discardChangesAndExitToPendingNav(Intent pendingNav) {
+        startPendingNavSafely(pendingNav);
+        discardChangesAndExit();
     }
 
     public static boolean isFormEntryInProgress() {
