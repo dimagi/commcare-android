@@ -1,6 +1,7 @@
 package org.commcare.personalId
 
 import android.content.Context
+import android.os.SystemClock
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import androidx.biometric.BiometricPrompt
@@ -58,7 +59,7 @@ object PersonalIdUnlocker {
         callback: PersonalIdManager.ConnectActivityCompleteListener,
     ) {
         if (BuildConfig.IS_QA_AUTOMATION) {
-            lastUnlockTime = System.currentTimeMillis()
+            lastUnlockTime = SystemClock.elapsedRealtime()
             PersonalIdManager.getInstance().userUnlockedPersonalId()
             callback.connectActivityComplete(true)
             return
@@ -78,7 +79,7 @@ object PersonalIdUnlocker {
                 ) = callback.connectActivityComplete(false)
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    lastUnlockTime = System.currentTimeMillis()
+                    lastUnlockTime = SystemClock.elapsedRealtime()
                     personalIdManager.userUnlockedPersonalId()
                     callback.connectActivityComplete(true)
                 }
@@ -128,7 +129,7 @@ object PersonalIdUnlocker {
     @VisibleForTesting
     internal fun requiresUnlockForSession(): Boolean {
         val last = lastUnlockTime ?: return true
-        return System.currentTimeMillis() - last > SESSION_UNLOCK_THRESHOLD_MS
+        return SystemClock.elapsedRealtime() - last >= SESSION_UNLOCK_THRESHOLD_MS
     }
 
     /**
