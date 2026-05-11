@@ -169,12 +169,13 @@ pending intent is **not** started — user stays in the form.
 
 ### Persistence across process death
 
-`pendingNav` is persisted via `onSaveInstanceState` (alongside the
-existing state at `FormEntryActivity.java:320`) and restored in
-`onCreate` so a config change or low-memory kill mid-dialog does not
-silently drop the deferred navigation. On restore, if `pendingNav` is
-present but no dialog is visible, the dialog is re-shown from
-`onResume`.
+`mPendingNavAfterSave` is persisted via `onSaveInstanceState`
+(alongside the existing state at `FormEntryActivity.java:320`) and
+restored in `onCreate`, so that a config change or low-memory kill
+*after the user has chosen Save* still results in the pending intent
+being dispatched after the deferred save completes. If process death
+occurs while the dialog is showing but before the user has picked a
+choice, the dialog is lost and the user must re-tap the notification.
 
 ## Edge cases
 
@@ -183,9 +184,9 @@ present but no dialog is visible, the dialog is re-shown from
 | Tap while form is loading | `formHasLoaded()` false → start pending intent, finish form. Mirrors current `triggerUserQuitInput`. |
 | Tap while form is read-only | `finishReturnInstance(false)` then start pending intent. Mirrors current. |
 | Tap while a SaveToDiskTask is already in flight | `onNewIntent` sees `mSaveToDiskTask != null` → drop the new pending intent (treated as Stay). User can re-tap the notification. |
-| Tap while quit dialog is already showing | Drop the new pending intent. Last-shown dialog wins. |
-| Multiple notification taps in quick succession (form active, no dialog yet) | Last write wins on `pendingNav`. The most recently tapped notification is the one that gets navigated to. |
-| Process death mid-dialog | `pendingNav` restored from `savedInstanceState`. Dialog re-shown in `onResume`. |
+| Multiple notification taps in quick succession (form active) | `CommCareActivity.showAlertDialog` (`:709-720`) automatically dismisses any showing alert before posting the new one, so the most-recently-tapped notification's `pendingNav` is what the dialog acts on. Tap-during-in-flight-save is dropped by the explicit `mSaveToDiskTask != null` guard. |
+| Process death mid-dialog, after user picked Save | `mPendingNavAfterSave` is persisted in `onSaveInstanceState` and restored in `onCreate`. After the deferred save's `savingComplete` callback runs on the restored activity, the pending intent is dispatched. |
+| Process death mid-dialog, before user picked anything | The dialog is dismissed by Android. The pending intent is lost; the user re-taps the notification from the tray. Accepted limitation. |
 | Wrapped intent's target activity is missing | `startActivity` throws `ActivityNotFoundException`. Caught and logged via `Logger.exception`; user remains in their current screen. Same pattern as `FirebaseMessagingUtil.getIntentForPNIfAny:638`. |
 | SYNC-only payload | Untouched — never goes through `buildNotification`. |
 | Notification posted before form was opened, tapped after | `isFormEntryInProgress()` checked at tap time, so dialog still appears. |
