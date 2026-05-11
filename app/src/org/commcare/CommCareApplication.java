@@ -518,7 +518,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public void initializeDefaultLocalizerData() {
         Localization.init(true);
         Localization.registerLanguageReference("default", "jr://asset/locales/android_translatable_strings.txt");
-        Localization.registerLanguageReference("default", "jr://asset/locales/android_startup_strings.txt");
         Localization.setDefaultLocale("default");
 
         // For now. Possibly handle this better in the future
