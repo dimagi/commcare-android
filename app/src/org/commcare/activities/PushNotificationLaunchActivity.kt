@@ -14,8 +14,7 @@ import org.javarosa.core.services.Logger
  * Decides at tap time whether to:
  *   - dispatch the wrapped Intent directly (no form in progress), or
  *   - re-enter [FormEntryActivity] in singleTop carrying the wrapped Intent so the
- *     user is prompted before navigation occurs (form in progress) — added in
- *     a follow-up task.
+ *     user is prompted before navigation occurs (form in progress).
  */
 class PushNotificationLaunchActivity : Activity() {
     companion object {
@@ -42,8 +41,23 @@ class PushNotificationLaunchActivity : Activity() {
             return
         }
 
-        dispatchWithoutForm(wrapped)
+        if (FormEntryActivity.isFormEntryInProgress()) {
+            dispatchToFormEntry(wrapped)
+        } else {
+            dispatchWithoutForm(wrapped)
+        }
         finish()
+    }
+
+    private fun dispatchToFormEntry(wrapped: Intent) {
+        val reroute = Intent(this, FormEntryActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_INTENT, wrapped)
+        try {
+            startActivity(reroute)
+        } catch (e: ActivityNotFoundException) {
+            Logger.exception("Push notification could not re-enter FormEntryActivity", e)
+        }
     }
 
     private fun dispatchWithoutForm(wrapped: Intent) {

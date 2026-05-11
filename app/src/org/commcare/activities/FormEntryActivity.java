@@ -128,6 +128,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     public static final String KEY_IS_RESTART_AFTER_EXPIRATION = "is-restart-after-session-expiration";
+    public static final String EXTRA_PENDING_NAV_INTENT =
+            "org.commcare.formentry.pending_nav_intent";
 
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
