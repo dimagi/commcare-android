@@ -5,10 +5,10 @@ import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.components.FormEntryDialogs
+import org.commcare.activities.components.FormEntryInstanceState
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.MockedStatic
@@ -33,6 +33,15 @@ class FormEntryActivityExternalNavTest {
 
         val controller = Robolectric.buildActivity(FormEntryActivity::class.java).create()
         val activity = controller.get()
+
+        // Inject a real FormEntryInstanceState so onSaveInstanceState does not NPE.
+        // FormEntryActivity.onCreateSessionSafe may not run in this lightweight Robolectric
+        // setup (no active CommCare session), so instanceState can be null at this point.
+        val field = FormEntryActivity::class.java.getDeclaredField("instanceState")
+        field.isAccessible = true
+        if (field.get(activity) == null) {
+            field.set(activity, FormEntryInstanceState(null))
+        }
 
         activity.setPendingNavAfterSave(pending)
 
