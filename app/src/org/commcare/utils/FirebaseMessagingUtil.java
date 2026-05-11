@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.PushNotificationLaunchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
@@ -550,10 +551,9 @@ public class FirebaseMessagingUtil {
         Bundle bundleExtras = new Bundle();
         intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
 
-        Intent launchIntent = new Intent(context,
-                org.commcare.activities.PushNotificationLaunchActivity.class);
+        Intent launchIntent = new Intent(context, PushNotificationLaunchActivity.class);
         launchIntent.putExtra(
-                org.commcare.activities.PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT,
+                PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT,
                 intent);
 
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

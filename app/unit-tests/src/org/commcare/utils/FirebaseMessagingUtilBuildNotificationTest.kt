@@ -7,6 +7,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.PushNotificationLaunchActivity
 import org.commcare.connect.ConnectConstants
+import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
 import org.commcare.services.FCMMessageData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -28,6 +29,7 @@ class FirebaseMessagingUtilBuildNotificationTest {
         val payload = HashMap<String, String>().apply {
             put(ConnectConstants.NOTIFICATION_TITLE, "title")
             put(ConnectConstants.NOTIFICATION_BODY, "body")
+            put(NOTIFICATION_ID, "notif-123")
         }
         val fcm = FCMMessageData(payload)
 
@@ -48,5 +50,6 @@ class FirebaseMessagingUtilBuildNotificationTest {
         assertNotNull(wrapped)
         assertEquals(DispatchActivity::class.java.name, wrapped!!.component?.className)
         assertEquals("originalValue", wrapped.getStringExtra("originalKey"))
+        assertEquals("notif-123", wrapped.getStringExtra(NOTIFICATION_ID))
     }
 }
