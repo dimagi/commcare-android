@@ -103,6 +103,7 @@ import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
@@ -153,6 +154,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static volatile boolean isFormEntryActive = false;
 
     private boolean mIncompleteEnabled = true;
+    private Intent mPendingNavAfterSave;
     private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
@@ -313,7 +315,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        instanceState.saveState(outState);
+        if (instanceState != null) {
+            instanceState.saveState(outState);
+        }
 
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
         outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
@@ -340,7 +344,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 throw new RuntimeException("Base 64 encoding unavailable! Can't pass storage key");
             }
         }
+        if (mPendingNavAfterSave != null) {
+            outState.putParcelable(EXTRA_PENDING_NAV_INTENT, mPendingNavAfterSave);
+        }
         uiController.saveInstanceState(outState);
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.hasExtra(EXTRA_PENDING_NAV_INTENT)) {
+            Intent pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
+            if (pendingNav != null) {
+                triggerUserQuitInputForExternalNav(pendingNav);
+            }
+        }
     }
 
     @Override
@@ -1238,6 +1256,55 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     /**
+     * Variant of {@link #triggerUserQuitInput()} for the case where the user is being
+     * pulled away from the form by an external navigation event (currently: tapping a push
+     * notification). On Save / Discard the form's existing exit handling runs and then
+     * pendingNav is started so the user reaches the notification's target.
+     *
+     * Stay drops pendingNav. If a save is already in flight, pendingNav is dropped (the user
+     * can re-tap the notification once the current save finishes).
+     */
+    protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
+        FirebaseAnalyticsUtil.reportFormQuitAttempt(
+                AnalyticsParamValue.PUSH_NOTIFICATION_TAP,
+                getCurrentFormXmlnsFailSafe());
+
+        if (mSaveToDiskTask != null) {
+            // A save is already running; do not stack another exit attempt on top of it.
+            return;
+        }
+
+        if (!formHasLoaded()) {
+            startPendingNavSafely(pendingNav);
+            finish();
+            return;
+        }
+        if (mFormController != null && mFormController.isFormReadOnly()) {
+            finishReturnInstance(false);
+            startPendingNavSafely(pendingNav);
+            return;
+        }
+        FormEntryDialogs.createQuitDialog(this, mIncompleteEnabled, pendingNav);
+    }
+
+    private void startPendingNavSafely(Intent pendingNav) {
+        try {
+            startActivity(pendingNav);
+        } catch (android.content.ActivityNotFoundException e) {
+            org.javarosa.core.services.Logger.exception(
+                    "Push notification target activity not found", e);
+        }
+    }
+
+    private void consumePendingNavAfterSave() {
+        if (mPendingNavAfterSave != null) {
+            Intent toStart = mPendingNavAfterSave;
+            mPendingNavAfterSave = null;
+            startPendingNavSafely(toStart);
+        }
+    }
+
+    /**
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
@@ -1357,6 +1424,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                                 Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
                     }
                     finishReturnInstance();
+                    consumePendingNavAfterSave();
                     return;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
@@ -1588,6 +1656,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
             }
 
+            if (savedInstanceState.containsKey(EXTRA_PENDING_NAV_INTENT)) {
+                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT);
+            }
+
             uiController.restoreSavedState(savedInstanceState);
         }
     }
@@ -1769,6 +1841,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return symetricKey;
     }
 
+    public void setPendingNavAfterSave(Intent pendingNav) {
+        this.mPendingNavAfterSave = pendingNav;
+    }
+
     public static boolean isFormEntryInProgress() {
         return isFormEntryActive;
     }
@@ -1776,10 +1852,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @androidx.annotation.VisibleForTesting
     public static void setFormEntryInProgressForTest(boolean inProgress) {
         isFormEntryActive = inProgress;
-    }
-
-    public void setPendingNavAfterSave(android.content.Intent pendingNav) {
-        // Will be implemented in a later task.
     }
 
     /**
