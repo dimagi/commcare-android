@@ -315,9 +315,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (instanceState != null) {
-            instanceState.saveState(outState);
-        }
+        instanceState.saveState(outState);
 
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
         outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
@@ -353,11 +351,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-        if (intent.hasExtra(EXTRA_PENDING_NAV_INTENT)) {
-            Intent pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
-            if (pendingNav != null) {
-                triggerUserQuitInputForExternalNav(pendingNav);
-            }
+        Intent pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
+        if (pendingNav != null) {
+            triggerUserQuitInputForExternalNav(pendingNav);
         }
     }
 
@@ -1263,6 +1259,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      *
      * Stay drops pendingNav. If a save is already in flight, pendingNav is dropped (the user
      * can re-tap the notification once the current save finishes).
+     *
+     * If the form hasn't fully loaded or is read-only, the quit dialog is skipped: there is no
+     * editable form state to save or discard, so pendingNav is dispatched immediately and the
+     * activity finishes.
      */
     protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
         FirebaseAnalyticsUtil.reportFormQuitAttempt(
@@ -1280,8 +1280,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
         if (mFormController != null && mFormController.isFormReadOnly()) {
-            finishReturnInstance(false);
             startPendingNavSafely(pendingNav);
+            finishReturnInstance(false);
             return;
         }
         FormEntryDialogs.createQuitDialog(this, mIncompleteEnabled, pendingNav);
@@ -1423,8 +1423,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         Toast.makeText(this,
                                 Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
                     }
-                    finishReturnInstance();
                     consumePendingNavAfterSave();
+                    finishReturnInstance();
                     return;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
@@ -1656,9 +1656,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
             }
 
-            if (savedInstanceState.containsKey(EXTRA_PENDING_NAV_INTENT)) {
-                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT);
-            }
+            mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT);
 
             uiController.restoreSavedState(savedInstanceState);
         }
