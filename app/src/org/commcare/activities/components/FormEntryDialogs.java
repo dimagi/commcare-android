@@ -86,10 +86,7 @@ public class FormEntryDialogs {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(activity,
                 StringUtils.getStringRobust(activity, R.string.quit_form_title));
 
-        View.OnClickListener stayInFormListener = v -> {
-            invokeStayListenerForTest(activity, pendingNav);
-            dialog.dismiss();
-        };
+        View.OnClickListener stayInFormListener = v -> dialog.dismiss();
         DialogChoiceItem stayInFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(activity, R.string.do_not_exit),
                 LocalePreferences.isLocaleRTL() ? R.drawable.ic_blue_backward : R.drawable.ic_blue_forward,
@@ -98,7 +95,7 @@ public class FormEntryDialogs {
         View.OnClickListener exitFormListener = v -> {
             dialog.dismiss();
             hideVirtualKeyboard(activity);
-            invokeDiscardListenerForTest(activity, pendingNav);
+            handleDiscardChoice(activity, pendingNav);
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(activity, R.string.do_not_save),
@@ -108,7 +105,7 @@ public class FormEntryDialogs {
         DialogChoiceItem[] items;
         if (isIncompleteEnabled) {
             View.OnClickListener saveIncompleteListener = v -> {
-                invokeSaveListenerForTest(activity, pendingNav);
+                handleSaveChoice(activity, pendingNav);
                 dialog.dismiss();
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
@@ -123,20 +120,15 @@ public class FormEntryDialogs {
         activity.showAlertDialog(dialog);
     }
 
-    // Package-private hooks so unit tests can exercise the same code each listener runs.
-    // These contain the entire body of the corresponding listener (apart from dialog.dismiss()
-    // and keyboard hiding, which are UI concerns not behavior-relevant for the activity).
+    // Package-private action methods invoked from the choice listeners; broken out
+    // so unit tests can exercise the same code paths without inflating the dialog.
 
-    static void invokeStayListenerForTest(FormEntryActivity activity, Intent pendingNav) {
-        // Stay deliberately drops pendingNav; method exists so tests can assert the no-op.
-    }
-
-    static void invokeDiscardListenerForTest(FormEntryActivity activity, Intent pendingNav) {
+    static void handleDiscardChoice(FormEntryActivity activity, Intent pendingNav) {
         activity.discardChangesAndExit();
         activity.startActivity(pendingNav);
     }
 
-    static void invokeSaveListenerForTest(FormEntryActivity activity, Intent pendingNav) {
+    static void handleSaveChoice(FormEntryActivity activity, Intent pendingNav) {
         activity.setPendingNavAfterSave(pendingNav);
         activity.saveFormToDisk(FormEntryConstants.EXIT);
     }

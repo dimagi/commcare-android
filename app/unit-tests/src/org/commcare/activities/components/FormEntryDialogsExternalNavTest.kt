@@ -27,8 +27,7 @@ class FormEntryDialogsExternalNavTest {
         val activity = mock(FormEntryActivity::class.java)
         val pendingNav = newPendingNav()
 
-        // We invoke the helper exposed for testing to assert behavior.
-        FormEntryDialogs.invokeDiscardListenerForTest(activity, pendingNav)
+        FormEntryDialogs.handleDiscardChoice(activity, pendingNav)
 
         verify(activity, times(1)).discardChangesAndExit()
         val captor = ArgumentCaptor.forClass(Intent::class.java)
@@ -41,22 +40,10 @@ class FormEntryDialogsExternalNavTest {
         val activity = mock(FormEntryActivity::class.java)
         val pendingNav = newPendingNav()
 
-        FormEntryDialogs.invokeSaveListenerForTest(activity, pendingNav)
+        FormEntryDialogs.handleSaveChoice(activity, pendingNav)
 
         verify(activity, times(1)).setPendingNavAfterSave(pendingNav)
         verify(activity, times(1)).saveFormToDisk(FormEntryConstants.EXIT)
-        verify(activity, never()).startActivity(org.mockito.kotlin.any())
-    }
-
-    @Test
-    fun stayChoice_doesNothingToActivity() {
-        val activity = mock(FormEntryActivity::class.java)
-        val pendingNav = newPendingNav()
-
-        FormEntryDialogs.invokeStayListenerForTest(activity, pendingNav)
-
-        verify(activity, never()).discardChangesAndExit()
-        verify(activity, never()).saveFormToDisk(org.mockito.kotlin.any())
         verify(activity, never()).startActivity(org.mockito.kotlin.any())
     }
 }
