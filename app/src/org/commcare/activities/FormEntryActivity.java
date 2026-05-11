@@ -1256,17 +1256,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * pulled away from the form by an external navigation event (currently: tapping a push
      * notification). On Save / Discard the form's existing exit handling runs and then
      * pendingNav is started so the user reaches the notification's target.
-     *
-     * Stay drops pendingNav. If a save is already in flight, pendingNav is dropped (the user
-     * can re-tap the notification once the current save finishes).
-     *
-     * If the form hasn't fully loaded or is read-only, the quit dialog is skipped: there is no
-     * editable form state to save or discard, so pendingNav is dispatched immediately and the
-     * activity finishes.
      */
     protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
         if (mSaveToDiskTask != null) {
-            // A save is already running; do not stack another exit attempt on top of it.
             return;
         }
 
@@ -1291,7 +1283,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             startActivity(pendingNav);
         } catch (android.content.ActivityNotFoundException e) {
-            org.javarosa.core.services.Logger.exception(
+            Logger.exception(
                     "Push notification target activity not found", e);
         }
     }
@@ -1840,7 +1832,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void setPendingNavAfterSave(Intent pendingNav) {
-        this.mPendingNavAfterSave = pendingNav;
+        mPendingNavAfterSave = pendingNav;
     }
 
     public void discardChangesAndExitToPendingNav(Intent pendingNav) {
@@ -1852,7 +1844,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return isFormEntryActive;
     }
 
-    @androidx.annotation.VisibleForTesting
+    @VisibleForTesting
     public static void setFormEntryInProgressForTest(boolean inProgress) {
         isFormEntryActive = inProgress;
     }
