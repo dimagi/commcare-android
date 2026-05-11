@@ -19,18 +19,19 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class FirebaseMessagingUtilBuildNotificationTest {
-
     @Test
     fun buildNotification_pendingIntentTargetsLaunchActivityAndWrapsOriginal() {
         val ctx = CommCareTestApplication.instance()
-        val originalTarget = Intent(ctx, DispatchActivity::class.java)
-            .putExtra("originalKey", "originalValue")
+        val originalTarget =
+            Intent(ctx, DispatchActivity::class.java)
+                .putExtra("originalKey", "originalValue")
 
-        val payload = HashMap<String, String>().apply {
-            put(ConnectConstants.NOTIFICATION_TITLE, "title")
-            put(ConnectConstants.NOTIFICATION_BODY, "body")
-            put(NOTIFICATION_ID, "notif-123")
-        }
+        val payload =
+            HashMap<String, String>().apply {
+                put(ConnectConstants.NOTIFICATION_TITLE, "title")
+                put(ConnectConstants.NOTIFICATION_BODY, "body")
+                put(NOTIFICATION_ID, "notif-123")
+            }
         val fcm = FCMMessageData(payload)
 
         val builder = FirebaseMessagingUtil.buildNotificationForTest(ctx, originalTarget, fcm)
@@ -42,11 +43,12 @@ class FirebaseMessagingUtilBuildNotificationTest {
         val savedIntent: Intent = shadowPi.savedIntent
         assertEquals(
             PushNotificationLaunchActivity::class.java.name,
-            savedIntent.component?.className
+            savedIntent.component?.className,
         )
-        val wrapped: Intent? = savedIntent.getParcelableExtra(
-            PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT
-        )
+        val wrapped: Intent? =
+            savedIntent.getParcelableExtra(
+                PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT,
+            )
         assertNotNull(wrapped)
         assertEquals(DispatchActivity::class.java.name, wrapped!!.component?.className)
         assertEquals("originalValue", wrapped.getStringExtra("originalKey"))

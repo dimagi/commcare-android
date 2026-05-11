@@ -50,9 +50,10 @@ class PushNotificationLaunchActivity : Activity() {
     }
 
     private fun dispatchToFormEntry(wrapped: Intent) {
-        val reroute = Intent(this, FormEntryActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_INTENT, wrapped)
+        val reroute =
+            Intent(this, FormEntryActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_INTENT, wrapped)
         try {
             startActivity(reroute)
         } catch (e: ActivityNotFoundException) {
@@ -61,8 +62,9 @@ class PushNotificationLaunchActivity : Activity() {
     }
 
     private fun dispatchWithoutForm(wrapped: Intent) {
-        val toStart = Intent(wrapped)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        val toStart =
+            Intent(wrapped)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
             startActivity(toStart)
         } catch (e: ActivityNotFoundException) {

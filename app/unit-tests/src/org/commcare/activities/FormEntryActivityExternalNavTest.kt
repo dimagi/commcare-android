@@ -19,7 +19,6 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class FormEntryActivityExternalNavTest {
-
     @After
     fun tearDown() {
         FormEntryActivity.setFormEntryInProgressForTest(false)
@@ -28,8 +27,9 @@ class FormEntryActivityExternalNavTest {
     @Test
     fun pendingNavSurvivesSaveInstanceStateRoundTrip() {
         val ctx = CommCareTestApplication.instance()
-        val pending = Intent(ctx, DispatchActivity::class.java)
-            .putExtra("marker", "m1")
+        val pending =
+            Intent(ctx, DispatchActivity::class.java)
+                .putExtra("marker", "m1")
 
         val controller = Robolectric.buildActivity(FormEntryActivity::class.java).create()
         val activity = controller.get()
