@@ -58,6 +58,7 @@ we would like to communicate to QA as part of the release testing
 
 - Test the new offline status indicator at the top of refreshable Connect pages (Connect Home, Learning Progress, Delivery Progress). Verify that the error message appears when entering these pages while offline, and that it disappears once the device comes back online.
 - Verify that the combobox widget is working as expected when selecting an item that is used to filter another combobox widget and also determines the visibility of some other unrelated question whose relevance condition depends on the selection.
+- Open the Connect notification history screen (the list of push notifications) and verify the screen title reads "Notifications" (or the localized PersonalID notification title) and that no secondary breadcrumb/title strip is shown above or below it. Confirm the back arrow and the cloud-sync menu action both still work, and that opening a notification still routes correctly.
 
 ## CommCare 2.62
 
