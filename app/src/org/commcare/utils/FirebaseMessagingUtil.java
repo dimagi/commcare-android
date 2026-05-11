@@ -584,7 +584,7 @@ public class FirebaseMessagingUtil {
         return fcmNotification;
     }
 
-    @androidx.annotation.VisibleForTesting
+    @VisibleForTesting
     static NotificationCompat.Builder buildNotificationForTest(Context context, Intent intent, FCMMessageData fcmMessageData) {
         return buildNotification(context, intent, fcmMessageData);
     }
