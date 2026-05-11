@@ -6,6 +6,7 @@ import org.commcare.CommCareTestApplication
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,16 +61,12 @@ class PushNotificationLaunchActivityTest {
         val ctx = CommCareTestApplication.instance()
         val wrapped = Intent(ctx, DispatchActivity::class.java).putExtra("payload", "p1")
 
-        val launchIntent =
-            Intent(ctx, PushNotificationLaunchActivity::class.java)
-                .putExtra(PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT, wrapped)
+        val launchIntent = Intent(ctx, PushNotificationLaunchActivity::class.java)
+            .putExtra(PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT, wrapped)
 
-        val controller =
-            Robolectric
-                .buildActivity(
-                    PushNotificationLaunchActivity::class.java,
-                    launchIntent,
-                ).create()
+        val controller = Robolectric.buildActivity(
+            PushNotificationLaunchActivity::class.java, launchIntent
+        ).create()
         val activity = controller.get()
 
         val started = shadowOf(activity).nextStartedActivity
@@ -78,6 +75,21 @@ class PushNotificationLaunchActivityTest {
         assertEquals("p1", started.getStringExtra("payload"))
         val expectedFlags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         assertTrue((started.flags and expectedFlags) == expectedFlags)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test
+    fun whenWrappedIntentMissing_finishesWithoutStartingAnyActivity() {
+        val ctx = CommCareTestApplication.instance()
+        val launchIntent = Intent(ctx, PushNotificationLaunchActivity::class.java)
+            // Deliberately no EXTRA_WRAPPED_NAV_INTENT.
+
+        val controller = Robolectric.buildActivity(
+            PushNotificationLaunchActivity::class.java, launchIntent
+        ).create()
+        val activity = controller.get()
+
+        assertNull(shadowOf(activity).nextStartedActivity)
         assertTrue(activity.isFinishing)
     }
 }
