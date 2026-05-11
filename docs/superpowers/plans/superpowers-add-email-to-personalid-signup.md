@@ -2,9 +2,26 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Insert an optional email-entry + OTP-verification step into the PersonalID signup and recovery flows, positioned after Backup Code. Also offer a non-blocking email-collection prompt to existing users who completed signup without an email.
+**Goal:** Insert an optional email-entry + OTP-verification step into the PersonalID signup and recovery flows, positioned after Backup Code, **gated by a server-driven `email_otp_verification` toggle** returned from `/users/start_configuration`. During recovery, additionally skip the email step entirely when the server already returns a verified `email` for the user. Also offer a non-blocking email-collection prompt to existing users who completed signup without an email.
 
-**Architecture:** New Kotlin fragments (`PersonalIdEmailFragment`, `PersonalIdEmailVerificationFragment`) extend the existing `BasePersonalIdFragment` pattern. Both fragments accept an `isRecovery` nav arg (in addition to the existing `isLegacyFlow` arg). `PersonalIdBackupCodeFragment` stops calling `handleSuccessfulRecovery()` / `navigateToPhoto()` directly after backup-code validation — in both modes it stores the backup code on `PersonalIdSessionData` and navigates to the Email fragment (passing `isRecovery`). The Email/Email-OTP fragments branch on exit: signup continues to Photo Capture (which writes the record's email field from session data); recovery invokes a new `PersonalIdRecoveryCompleter` helper that runs the original recovery-finalization logic (DB passphrase, write record with email, recovery analytics, second-device notification) and then navigates to the existing recovery-success message destination. **Persistence split:** only `email` is added to `ConnectUserRecord` (new DB column in v25). The other three pieces of state — `emailVerified`, `emailOfferCount`, `lastEmailOfferDate` — live in a dedicated `personalid_prefs` SharedPreferences file accessed through a new `PersonalIDPreferences` Kotlin object. All three have null-aware semantics (absent key = "never set") and are wiped together on logout. Existing users without a verified email are handled by the legacy prompt (two-offer-with-30-day-gap) read/written via `PersonalIDPreferences`.
+**Architecture:** New Kotlin fragments (`PersonalIdEmailFragment`, `PersonalIdEmailVerificationFragment`) extend the existing `BasePersonalIdFragment` pattern. Both fragments accept an `isRecovery` nav arg (in addition to the existing `isLegacyFlow` arg). The Email/Email-OTP fragments branch on exit: signup continues to Photo Capture (which writes the record's email field from session data); recovery invokes a new `PersonalIdRecoveryCompleter` helper that runs the original recovery-finalization logic (DB passphrase, write record with email, recovery analytics, second-device notification) and then navigates to the existing recovery-success message destination.
+
+**Toggle-driven inclusion:** the `/users/start_configuration` response carries a `email_otp_verification` entry inside the existing `toggles` JSON object (NOT a separate top-level field) plus an optional top-level `email` (only when the user has already verified one server-side). The toggle is parsed by the existing `ConnectReleaseToggleRecord.releaseTogglesFromJson(json)` call already in `StartConfigurationResponseParser` — no new parsing code is needed for the toggle. The slug `"email_otp_verification"` lands in `sessionData.featureReleaseToggles` during the active PersonalID session and is persisted to the existing `connect_release_toggles` SQL table by `PersonalIdMessageFragment.successFlow.storeFeatureReleaseToggles()` after a successful PersonalID completion. Callers read it from two places depending on where they run:
+
+- **During the PersonalID flow** (e.g. `PersonalIdBackupCodeFragment`): read from `sessionData.featureReleaseToggles`. The DB hasn't been updated yet at this point.
+- **Outside the PersonalID flow** (e.g. `PersonalIdManager.shouldOfferEmail()` called from `StandardHomeActivity` / `LoginActivity`): read from `ConnectAppDatabaseUtil.getReleaseToggles(context)`. Slug missing or `active = true` is permissive (legacy upgrade still sees the prompt); only an explicit `active = false` row suppresses the prompt.
+
+`PersonalIdBackupCodeFragment` decides where to go AFTER backup-code validation based on those values:
+
+- **Signup** (`email_otp_verification` toggle active): Phone → Biometrics → Phone OTP → Name → Backup Code → **Email (optional) → Email OTP** → Photo
+- **Signup** (toggle inactive or slug missing): unchanged — Backup Code goes straight to Photo via the existing `navigateToPhoto()`
+- **Recovery** (server returned `email`, regardless of toggle): skip the email step entirely — finalize recovery directly and show the recovery-success message
+- **Recovery** (no server `email`, toggle active): Backup Code → Email (optional) → Email OTP (only if email entered)
+- **Recovery** (no server `email`, toggle inactive or slug missing): unchanged — finalize recovery directly via `PersonalIdRecoveryCompleter` + `navigateWithMessage(...)` to the recovery-success destination
+
+In both fall-through cases (toggle off OR recovery-with-email) the backup-code fragment uses the pre-existing direct paths, which means **`navigateToPhoto()` and the matching `action_personalid_backupcode_to_personalid_photo_capture` action must be kept**, and `navigateWithMessage(...)` (already in the file) is reused for the no-email recovery success.
+
+**Persistence split:** only `email` is added to `ConnectUserRecord` (new DB column in v25). Three supporting flags — `emailVerified`, `emailOfferCount`, `lastEmailOfferDate` — live in a dedicated `personalid_prefs` SharedPreferences file accessed through a new `PersonalIDPreferences` Kotlin object. All three have null-aware semantics (absent key = "never set") and are wiped together on logout. The `email_otp_verification` toggle is NOT in `PersonalIDPreferences` — it lives in the existing `connect_release_toggles` SQL table (populated by the existing toggle pipeline). `PersonalIdManager.shouldOfferEmail()` reads the toggle from that table; an explicit `active = false` row suppresses the legacy prompt, while a missing-row (legacy user has never triggered start_configuration since upgrading) or `active = true` is treated as permissive so legacy users still see the offer. Existing users without a verified email are handled by the legacy prompt (two-offer-with-30-day-gap, gated on the toggle) read/written via `PersonalIDPreferences`.
 
 **Tech Stack:** Kotlin (new files), Java (existing files modified), AndroidX Navigation Safe Args, Retrofit 2 / OkHttp, SQLCipher (versioned migration), Robolectric unit tests.
 
@@ -32,16 +49,18 @@
 | File | Change |
 |------|--------|
 | `app/src/org/commcare/android/database/connect/models/ConnectUserRecord.java` | Add `email` field only (the other three flags live in `PersonalIDPreferences`) |
-| `app/src/org/commcare/android/database/connect/models/PersonalIdSessionData.kt` | Add email and emailVerified fields |
+| `app/src/org/commcare/android/database/connect/models/PersonalIdSessionData.kt` | Add `email`, `emailSkippedDuringSignup` fields and a helper `isEmailOtpVerificationToggleActive(): Boolean` that scans `featureReleaseToggles` for slug `email_otp_verification`. `email != null` is the in-session source of truth for "verified" — no separate `emailVerified` field |
+| `app/src/org/commcare/connect/network/connectId/parser/StartConfigurationResponseParser.java` | Parse the new top-level `email` field (when present, treat as already-verified). The `email_otp_verification` toggle is already parsed via the existing `ConnectReleaseToggleRecord.releaseTogglesFromJson(json)` call — no toggle-specific parsing code needed |
+| `app/unit-tests/src/org/commcare/connect/network/connectId/parser/StartConfigurationResponseParserTest.kt` | Add two test cases for the new `email` field handling (present sets emailVerified=true, absent leaves emailVerified=false) |
 | `app/src/org/commcare/fragments/personalId/PersonalIdPhotoCaptureFragment.java` | Read email/emailVerified from session data when constructing ConnectUserRecord (signup path only) |
-| `app/src/org/commcare/fragments/personalId/PersonalIdBackupCodeFragment.java` | In both signup and recovery modes, store the backup code on session data and navigate to Email (passing `isRecovery`) instead of calling `navigateToPhoto()` / `handleSuccessfulRecovery()` directly. Extract the recovery-finalization body into `PersonalIdRecoveryCompleter`. |
+| `app/src/org/commcare/fragments/personalId/PersonalIdBackupCodeFragment.java` | Store backup code on session data; branch on `sessionData.isEmailOtpVerificationToggleActive()` and (recovery only) `sessionData.email`. Signup with toggle active → `navigateToEmail(false)`; signup with toggle inactive → keep using `navigateToPhoto()`. Recovery with server email or toggle inactive → call new `completeRecoveryWithoutEmail()` helper (uses `PersonalIdRecoveryCompleter` + `navigateWithMessage(...)`); recovery with no server email + toggle active → `navigateToEmail(true)`. Extract finalization into `PersonalIdRecoveryCompleter`; delete `handleSuccessfulRecovery()`/`navigateToSuccess()`/`logRecoveryResult()`/`handleSecondDeviceLogin()`; KEEP `navigateToPhoto()` and `navigateWithMessage(...)`. |
 | `app/src/org/commcare/models/database/connect/DatabaseConnectOpenHelper.java` | Bump CONNECT_DB_VERSION to 25 |
 | `app/src/org/commcare/models/database/connect/ConnectDatabaseUpgrader.java` | Add upgradeTwentyFourTwentyFive() |
 | `app/src/org/commcare/connect/network/ApiEndPoints.java` | Add sendEmailOtp and verifyEmailOtp endpoints |
 | `app/src/org/commcare/connect/network/ApiService.java` | Add sendEmailOtp and verifyEmailOtp service methods |
 | `app/src/org/commcare/connect/network/ApiPersonalId.java` | Add sendEmailOtp() and verifyEmailOtp() static methods |
 | `app/src/org/commcare/connect/network/connectId/PersonalIdApiHandler.java` | Add sendEmailOtpCall() and verifyEmailOtpCall() |
-| `app/res/navigation/nav_graph_personalid.xml` | Add email and email-OTP destinations (with `isLegacyFlow` and `isRecovery` args); reroute BackupCode → Email (both modes); add Email/Email-OTP → PhotoCapture (signup) and Email/Email-OTP → MessageDisplay (recovery success) |
+| `app/res/navigation/nav_graph_personalid.xml` | Add email and email-OTP destinations (with `isLegacyFlow` and `isRecovery` args); ADD `action_personalid_backupcode_to_personalid_email` (do NOT remove the existing `..._photo_capture` or `..._message` actions — both are still used by the toggle-off / email-already-verified branches); add Email/Email-OTP → PhotoCapture (signup) and Email/Email-OTP → MessageDisplay (recovery success) |
 | `app/src/org/commcare/activities/connect/PersonalIdActivity.java` | Handle EXTRA_LEGACY_EMAIL_FLOW intent extra |
 | `app/src/org/commcare/connect/PersonalIdManager.java` | Add checkEmailCollection() and shouldOfferEmail() — both read/write via `PersonalIDPreferences`. Also call `PersonalIDPreferences.clear(context)` in the PersonalID logout path (see Task 8b). |
 | `app/src/org/commcare/activities/LoginActivity.java` | Call checkEmailCollection() after PersonalID signup/login returns (post-signup path only) |
@@ -303,17 +322,42 @@
 **Files:**
 - Modify: `app/src/org/commcare/android/database/connect/models/PersonalIdSessionData.kt`
 
-- [ ] **Step 3.1: Add email property**
+- [ ] **Step 3.1: Add email properties and toggle helper**
 
-  Open `PersonalIdSessionData.kt` and add to the data class:
+  Open `PersonalIdSessionData.kt` and add to the data class (alongside the existing fields, e.g., after `userName`):
 
   ```kotlin
   var email: String? = null
-  var emailVerified: Boolean = false
   var emailSkippedDuringSignup: Boolean = false
   ```
 
-  Add all three alongside the existing fields (e.g., after `userName`).
+  > **No `emailVerified` field.** During the PersonalID session, `email != null` is the source of truth for "this user has a verified email." Producers (parser, OTP-verify success) set the field; consumers (PhotoCapture, RecoveryCompleter) read `email != null` to decide what to write to `PersonalIDPreferences.emailVerified`.
+
+  > **Only two places ever assign `sessionData.email`:** (1) `StartConfigurationResponseParser` writes it from the response (null when omitted, the verified address when returned), and (2) `PersonalIdEmailVerificationFragment.onEmailVerified()` writes the just-verified address after a successful `verify_email_otp` call. **Nothing else mutates this field** — `sendEmailOtpCall` does not write to it (the entered-but-not-yet-verified address rides as a nav arg through the OTP fragment), and the skip / proceed-without-email paths do not null it out (the field is already null at that point because nothing has ever written to it in this flow). This is by design — wider mutation would let unverified addresses leak into `ConnectUserRecord.email` if the user backed out at the wrong moment.
+
+  Add a companion-object constant for the toggle slug and a helper method on the class:
+
+  ```kotlin
+  companion object {
+      // existing constants stay above
+      const val EMAIL_OTP_VERIFICATION_SLUG = "email_otp_verification"
+  }
+
+  /**
+   * True when the `email_otp_verification` slug is present in the parsed
+   * featureReleaseToggles list AND its `active` flag is true. Returns false when the
+   * slug is missing OR explicitly false. Callers running OUTSIDE the PersonalID flow
+   * (e.g. the legacy prompt) MUST instead read from ConnectAppDatabaseUtil — see
+   * PersonalIdManager.shouldOfferEmail() — because featureReleaseToggles is only
+   * populated during an active PersonalID session.
+   */
+  fun isEmailOtpVerificationToggleActive(): Boolean =
+      featureReleaseToggles?.firstOrNull { it.slug == EMAIL_OTP_VERIFICATION_SLUG }?.active == true
+  ```
+
+  > **NO new field for the toggle.** The `email_otp_verification` toggle is delivered as a slug inside the existing `toggles` JSON object on the `/users/start_configuration` response and is already parsed into `featureReleaseToggles` by the existing `ConnectReleaseToggleRecord.releaseTogglesFromJson(json)` call in `StartConfigurationResponseParser`. We just need to read the slug from that list — no parser changes required for the toggle itself.
+
+  > **`email` semantics during recovery:** `/users/start_configuration` returns the new top-level `email` field ONLY when the user has already verified an address server-side. When present, recovery treats it as ground truth — the email step is skipped, and `PersonalIdRecoveryCompleter` writes the value to `ConnectUserRecord.email` and writes `PersonalIDPreferences.emailVerified = (sessionData.email != null)` (true in this case). Task 3a updates the parser to set `sessionData.email` from the response.
 
   > **Why these live in session data:** Neither signup nor recovery has written `ConnectUserRecord` by the time the user acts on the email screen. In signup, `PersonalIdPhotoCaptureFragment` writes the record later. In recovery, `PersonalIdBackupCodeFragment` used to write it immediately on successful backup-code validation, but in the new flow that write is deferred — it now happens in `PersonalIdRecoveryCompleter` after the email step. Session data is the carrier in both cases. (Backup code is also now stored on session data so `PersonalIdRecoveryCompleter` can read it after the email step.)
 
@@ -335,9 +379,81 @@
 
 ---
 
+### Task 3a: Parse the new top-level `email` from `/users/start_configuration`
+
+The `/users/start_configuration` response now includes an optional `email` string when the user already has a verified email server-side. The `email_otp_verification` toggle is delivered inside the existing `toggles` JSON object and is already parsed by `ConnectReleaseToggleRecord.releaseTogglesFromJson(json)` — no toggle-parsing changes are required in this task.
+
+**Files:**
+- Modify: `app/src/org/commcare/connect/network/connectId/parser/StartConfigurationResponseParser.java`
+- Modify: `app/unit-tests/src/org/commcare/connect/network/connectId/parser/StartConfigurationResponseParserTest.kt` (existing file; add two new test cases)
+
+- [ ] **Step 3a.1: Add failing unit tests to the existing parser test**
+
+  The test file `app/unit-tests/src/org/commcare/connect/network/connectId/parser/StartConfigurationResponseParserTest.kt` already exists with `@RunWith(AndroidJUnit4::class)` + `@Config(application = CommCareTestApplication::class)` (Robolectric). Append the following two `@Test` methods inside the existing class — match the existing camelCase test-name style:
+
+  ```kotlin
+  @Test
+  fun testParseSetsEmailWhenServerReturnsIt() {
+      val json = JSONObject().apply {
+          put("email", "user@example.com")
+      }
+
+      parser.parse(json, sessionData)
+
+      assertEquals("user@example.com", sessionData.email)
+  }
+
+  @Test
+  fun testParseLeavesEmailNullWhenServerOmitsEmail() {
+      val json = JSONObject()
+
+      parser.parse(json, sessionData)
+
+      assertNull(sessionData.email)
+  }
+  ```
+
+  No new imports required — `JSONObject`, `assertEquals`, `assertNull`, and `Test` are all already imported by the existing file.
+
+  Run: `./gradlew testCommcareDebug --tests "org.commcare.connect.network.connectId.parser.StartConfigurationResponseParserTest"`
+  Expected: the two new tests FAIL — parser does not yet read `email`. Existing tests should still pass.
+
+- [ ] **Step 3a.2: Update StartConfigurationResponseParser.java**
+
+  Add the following inside `parse(...)`, right after the existing `setOtpFallback(...)` line (and before the `featureReleaseToggles` block, which is unchanged):
+
+  ```java
+  // Email is returned ONLY when the server already has a verified address for this user.
+  // When present, the recovery flow can skip the email step (see PersonalIdBackupCodeFragment).
+  // Setting sessionData.email is itself the "verified" signal for downstream consumers —
+  // there is no separate emailVerified field.
+  sessionData.setEmail(JsonExtensions.optStringSafe(json, "email", null));
+  ```
+
+  No constructor signature change. No callsite changes. No PersonalIDPreferences write — the toggle is persisted by the existing `connect_release_toggles` pipeline (via `PersonalIdMessageFragment.successFlow.storeFeatureReleaseToggles()`), which we do not touch.
+
+  > **Note:** `setEmail` is the auto-generated Kotlin setter from Task 3.1 (a data-class `var` property produces a Java setter automatically — no extra `@JvmField` annotation required).
+
+- [ ] **Step 3a.3: Run the parser tests to verify they pass**
+
+  Run: `./gradlew testCommcareDebug --tests "org.commcare.connect.network.connectId.parser.StartConfigurationResponseParserTest"`
+  Expected: PASS — the two new tests now succeed and existing tests remain green.
+
+- [ ] **Step 3a.4: Commit**
+
+  ```bash
+  git add app/src/org/commcare/connect/network/connectId/parser/StartConfigurationResponseParser.java \
+          app/unit-tests/src/org/commcare/connect/network/connectId/parser/StartConfigurationResponseParserTest.kt
+  git commit -m "[AI] Parse top-level email from start_configuration response"
+  ```
+
+---
+
 ### Task 3b: Create PersonalIDPreferences (SharedPreferences wrapper for the three email flags)
 
 Only `email` is persisted on `ConnectUserRecord`. The three supporting flags — `emailVerified`, `emailOfferCount`, `lastEmailOfferDate` — live in a dedicated `personalid_prefs` SharedPreferences file accessed through a Kotlin `object` wrapper. Tasks 6c, 6c.2, 8, and 8b all depend on this class, so it must exist before they run.
+
+> **Why the toggle is NOT here:** the `email_otp_verification` toggle is already persisted by the existing `connect_release_toggles` SQL table populated via `ConnectAppDatabaseUtil.storeReleaseToggles(...)`. `PersonalIdManager.shouldOfferEmail()` (Task 8) reads it from there using `ConnectAppDatabaseUtil.getReleaseToggles(context)`. Duplicating it into prefs would create a second source of truth.
 
 **Files:**
 - Create: `app/src/org/commcare/connect/PersonalIDPreferences.kt`
@@ -436,6 +552,9 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
    *   - emailVerified (Boolean)
    *   - emailOfferCount (Int) — 0 = never offered, 1 = first offer shown, 2 = both offers shown
    *   - lastEmailOfferDate (Date) — when the most recent offer was shown
+   *
+   * The `email_otp_verification` toggle is NOT stored here — it lives in the existing
+   * `connect_release_toggles` SQL table (see ConnectAppDatabaseUtil.getReleaseToggles).
    *
    * Null-aware: an absent key returns null (not a false/0/0L default). Callers must handle null
    * (typically by treating it as "never set", equivalent to a freshly-migrated v24 user).
@@ -559,14 +678,47 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
       private fun dateMinusDays(days: Int): Date =
           Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -days) }.time
 
+      // Helper: write a fake ConnectReleaseToggleRecord row matching the production
+      // shape of `connect_release_toggles`. Pass `null` to leave the table empty
+      // (legacy-upgrade scenario where the slug has never been seen).
+      private fun setToggleActive(active: Boolean?) {
+          if (active == null) return
+          val toggle = ConnectReleaseToggleRecord.releaseToggleFromJson(
+              PersonalIdSessionData.EMAIL_OTP_VERIFICATION_SLUG,
+              JSONObject().apply {
+                  put("active", active)
+                  put("created_at", "2026-01-01T00:00:00Z")
+                  put("modified_at", "2026-01-01T00:00:00Z")
+              }
+          )
+          ConnectAppDatabaseUtil.storeReleaseToggles(context, listOf(toggle))
+      }
+
       @Test
-      fun `should offer when never shown before (prefs empty)`() {
+      fun `should offer when toggle slug missing (legacy upgrade)`() {
+          // connect_release_toggles is empty — start_configuration has not been parsed yet on
+          // this client. Permissive default: legacy users still see the offer on first
+          // app-open. A subsequent start_configuration parse with active=false will replace
+          // the missing row with an explicit false and suppress future prompts.
+          assertTrue(PersonalIdManager.shouldOfferEmail(context))
+      }
+
+      @Test
+      fun `should not offer when toggle is explicitly disabled`() {
+          setToggleActive(false)
+          assertFalse(PersonalIdManager.shouldOfferEmail(context))
+      }
+
+      @Test
+      fun `should offer when never shown before (prefs empty, toggle on)`() {
+          setToggleActive(true)
           // emailVerified=null, offerCount=null, lastOfferDate=null — a legacy v24 user.
           assertTrue(PersonalIdManager.shouldOfferEmail(context))
       }
 
       @Test
       fun `should not offer when both offers already shown (count=2)`() {
+          setToggleActive(true)
           PersonalIDPreferences.setEmailVerified(context, false)
           PersonalIDPreferences.setEmailOfferCount(context, 2)
           PersonalIDPreferences.setLastEmailOfferDate(context, dateMinusDays(5))
@@ -575,6 +727,7 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
 
       @Test
       fun `should offer second time after 30 days (count=1, date old)`() {
+          setToggleActive(true)
           PersonalIDPreferences.setEmailVerified(context, false)
           PersonalIDPreferences.setEmailOfferCount(context, 1)
           PersonalIDPreferences.setLastEmailOfferDate(context, dateMinusDays(31))
@@ -583,6 +736,7 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
 
       @Test
       fun `should not offer second time before 30 days (count=1, date recent)`() {
+          setToggleActive(true)
           PersonalIDPreferences.setEmailVerified(context, false)
           PersonalIDPreferences.setEmailOfferCount(context, 1)
           PersonalIDPreferences.setLastEmailOfferDate(context, dateMinusDays(15))
@@ -591,12 +745,14 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
 
       @Test
       fun `should not offer when email already verified`() {
+          setToggleActive(true)
           PersonalIDPreferences.setEmailVerified(context, true)
           assertFalse(PersonalIdManager.shouldOfferEmail(context))
       }
 
       @Test
       fun `should not offer immediately after signup skip (count=1, date just set)`() {
+          setToggleActive(true)
           // Simulates a user who skipped email during signup: count=1, date=now
           PersonalIDPreferences.setEmailVerified(context, false)
           PersonalIDPreferences.setEmailOfferCount(context, 1)
@@ -698,10 +854,10 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
   import org.commcare.connect.network.connectId.parser.VerifyEmailOtpResponseParser;
   ```
 
-  Add handler methods:
+  Add handler methods. **Neither method mutates `sessionData.email`** — the entered email is passed in as a parameter and routed straight to the API. `sessionData.email` is reserved for the verified address only (see Task 6.2 for the actual write site).
+
   ```java
   public void sendEmailOtpCall(Activity activity, String email, PersonalIdSessionData sessionData) {
-      sessionData.setEmail(email);
       ApiPersonalId.sendEmailOtp(
               activity,
               email,
@@ -710,10 +866,11 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
       );
   }
 
-  public void verifyEmailOtpCall(Activity activity, String otp, PersonalIdSessionData sessionData) {
+  public void verifyEmailOtpCall(Activity activity, String email, String otp,
+                                  PersonalIdSessionData sessionData) {
       ApiPersonalId.verifyEmailOtp(
               activity,
-              sessionData.getEmail(),
+              email,
               otp,
               sessionData.getToken(),
               createCallback(sessionData, new VerifyEmailOtpResponseParser())
@@ -937,15 +1094,21 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
           binding.personalidEmailContinueButton.isEnabled = enabled
       }
 
+      // Holds the address the user just typed and submitted, kept in fragment state so the
+      // success callback can pass it to the OTP fragment as a nav arg. We DO NOT write it
+      // onto session data — only the OTP-verify success path is allowed to do that.
+      private var pendingEmail: String? = null
+
       private fun submitEmail() {
           FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, null)
           clearError()
           enableContinueButton(false)
           val email = binding.emailTextValue.text.toString().trim()
+          pendingEmail = email
 
           object : PersonalIdApiHandler<PersonalIdSessionData>() {
               override fun onSuccess(sessionData: PersonalIdSessionData) {
-                  navigateToEmailVerification()
+                  navigateToEmailVerification(email)
               }
 
               override fun onFailure(
@@ -961,6 +1124,8 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
 
       private fun skipEmail() {
           FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "skip")
+          // No need to null out personalIdSessionData.email — nothing on the email/OTP path
+          // ever wrote to it. The entered address rides as a nav arg, not session data.
           // Mark that the email step was explicitly shown and declined during signup.
           // createAndSaveConnectUser() / PersonalIdRecoveryCompleter will read this to initialise
           // emailOfferCount = 1 so the post-login dialog does not fire again immediately.
@@ -985,9 +1150,9 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
           )
       }
 
-      private fun navigateToEmailVerification() {
+      private fun navigateToEmailVerification(email: String) {
           val action = PersonalIdEmailFragmentDirections
-              .actionPersonalidEmailToPersonalidEmailVerification(isLegacyFlow, isRecovery)
+              .actionPersonalidEmailToPersonalidEmailVerification(email, isLegacyFlow, isRecovery)
           Navigation.findNavController(binding.root).navigate(action)
       }
 
@@ -1018,6 +1183,7 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
       companion object {
           const val ARG_IS_LEGACY_FLOW = "isLegacyFlow"
           const val ARG_IS_RECOVERY = "isRecovery"
+          const val ARG_ENTERED_EMAIL = "email"
       }
   }
   ```
@@ -1188,6 +1354,11 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
       private var isLegacyFlow: Boolean = false
       private var isRecovery: Boolean = false
 
+      // The address the user typed on the previous screen, threaded through as a nav arg.
+      // This is the canonical "pending" email — `sessionData.email` is NOT touched until
+      // OTP verification succeeds (see onEmailVerified()).
+      private lateinit var enteredEmail: String
+
       private val resendHandler = Handler(Looper.getMainLooper())
       private var otpRequestTime: Long = 0L
       private val resendCooldownMillis = TimeUnit.MINUTES.toMillis(2)
@@ -1211,6 +1382,12 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
               ?: false
           isRecovery = arguments?.getBoolean(PersonalIdEmailFragment.ARG_IS_RECOVERY, false)
               ?: false
+          // Required nav arg — set by PersonalIdEmailFragment.navigateToEmailVerification(email).
+          enteredEmail = requireNotNull(
+              arguments?.getString(PersonalIdEmailFragment.ARG_ENTERED_EMAIL)
+          ) {
+              "PersonalIdEmailVerificationFragment requires the entered email as a nav arg"
+          }
       }
 
       override fun onCreateView(
@@ -1222,7 +1399,7 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
 
           binding.emailVerificationDescription.text = getString(
               R.string.personalid_email_verification_description,
-              personalIdSessionData.email
+              enteredEmail
           )
 
           binding.otpCodeView.setOnCodeChangedListener { code ->
@@ -1281,7 +1458,7 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
               ) {
                   showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
               }
-          }.sendEmailOtpCall(requireActivity(), personalIdSessionData.email!!, personalIdSessionData)
+          }.sendEmailOtpCall(requireActivity(), enteredEmail, personalIdSessionData)
       }
 
       private fun submitOtp() {
@@ -1308,15 +1485,14 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
                       enableVerifyButton(true)
                   }
               }
-          }.verifyEmailOtpCall(requireActivity(), otp, personalIdSessionData)
+          }.verifyEmailOtpCall(requireActivity(), enteredEmail, otp, personalIdSessionData)
       }
 
       private fun onEmailVerified() {
-          // Always update session data — this is the source of truth for the signup and
-          // recovery flows. For signup, `ConnectUserRecord` is written later by
-          // PersonalIdPhotoCaptureFragment. For recovery, it is written now by
-          // PersonalIdRecoveryCompleter. For the legacy flow the record already exists.
-          personalIdSessionData.emailVerified = true
+          // OTP succeeded — this is the ONE moment in the email-step path where it is
+          // legal to mutate sessionData.email. Doing it here (and only here) keeps
+          // `sessionData.email != null` a strict synonym for "verified".
+          personalIdSessionData.email = enteredEmail
 
           when {
               isLegacyFlow -> {
@@ -1325,7 +1501,9 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
                       user.setEmail(personalIdSessionData.email)
                       ConnectUserDatabaseUtil.storeUser(requireActivity(), user)
                   }
-                  PersonalIDPreferences.setEmailVerified(requireActivity(), true)
+                  PersonalIDPreferences.setEmailVerified(
+                      requireActivity(), personalIdSessionData.email != null
+                  )
                   requireActivity().finish()
               }
               isRecovery -> finalizeRecoveryAndShowSuccess()
@@ -1366,8 +1544,8 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
       }
 
       private fun proceedWithoutEmail() {
-          personalIdSessionData.email = null
-          personalIdSessionData.emailVerified = false
+          // No need to null out personalIdSessionData.email — only the OTP-verify success
+          // path writes it, and that path was not taken on this branch.
           personalIdSessionData.emailSkippedDuringSignup = true
           when {
               isLegacyFlow -> requireActivity().finish()
@@ -1406,7 +1584,7 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
   }
   ```
 
-  > **Note:** The correct DB write method is `ConnectUserDatabaseUtil.storeUser(Context, ConnectUserRecord)` — there is no `saveUser` method. The `emailVerified` flag lives in `PersonalIDPreferences`, not on `ConnectUserRecord`; do not try to call `user.setEmailVerified(true)` — that setter does not exist.
+  > **Note:** The correct DB write method is `ConnectUserDatabaseUtil.storeUser(Context, ConnectUserRecord)` — there is no `saveUser` method. There is also no `emailVerified` setter on either `ConnectUserRecord` or `PersonalIdSessionData` — verification is tracked by the presence of `email`. The persisted "verified" state lives in `PersonalIDPreferences.emailVerified`, written based on `sessionData.email != null`.
 
 - [ ] **Step 6.3: Build to verify compilation**
 
@@ -1433,10 +1611,12 @@ Only `email` is persisted on `ConnectUserRecord`. The three supporting flags —
 >
 > Pick one and stay consistent. The commit messages are independent so ordering does not affect git history.
 
-Both signup and recovery now route through the Email step before writing `ConnectUserRecord`. Two changes are required here:
+Signup and recovery now optionally route through the Email step (gated by `sessionData.isEmailOtpVerificationToggleActive()` — which scans the existing `featureReleaseToggles` list for slug `email_otp_verification` — and, in recovery, by whether `sessionData.email` was returned by start_configuration). Two changes are required here:
 
-1. **Signup:** `PersonalIdPhotoCaptureFragment.createAndSaveConnectUser()` must read the new email fields from session data so a user who verified their email during signup has `emailVerified = true` from the moment the record is written.
-2. **Recovery:** The current body of `PersonalIdBackupCodeFragment.handleSuccessfulRecovery()` (DB passphrase + `ConnectUserRecord` write + `logRecoveryResult` + `handleSecondDeviceLogin`) is extracted into a new helper `PersonalIdRecoveryCompleter`, so the Email fragments can trigger it after the email step. `PersonalIdBackupCodeFragment` no longer invokes `handleSuccessfulRecovery()` itself — it navigates to Email with `isRecovery=true` after a successful backup-code validation.
+1. **Signup:** `PersonalIdPhotoCaptureFragment.createAndSaveConnectUser()` must read the new email fields from session data so a user who verified their email during signup has `emailVerified = true` from the moment the record is written. (When the toggle is inactive, those fields will simply be null/false and the writes are no-ops.)
+2. **Recovery:** The current body of `PersonalIdBackupCodeFragment.handleSuccessfulRecovery()` (DB passphrase + `ConnectUserRecord` write + `logRecoveryResult` + `handleSecondDeviceLogin`) is extracted into a new helper `PersonalIdRecoveryCompleter`. After the change, `PersonalIdBackupCodeFragment` calls this helper from one of two places depending on the toggle:
+   - Toggle active AND no server-returned `email`: navigate to the Email fragments, which call the helper after the user verifies or skips the email step.
+   - Toggle inactive OR a server-returned `email`: call the helper directly via the new local `completeRecoveryWithoutEmail()` method (which then uses `navigateWithMessage(...)` to reach the recovery-success screen).
 
 > **Critical:** Do NOT add email fields to the `ConnectUserRecord` constructor signature. The 10-parameter constructor is called from several places (including the recovery path); changing its signature would cause compile failures at every callsite. Set email fields via setters after construction, as shown below.
 
@@ -1467,8 +1647,11 @@ Both signup and recovery now route through the Email step before writing `Connec
       user.setEmail(personalIdSessionData.getEmail());
       ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
 
-      // Email-state flags (SharedPreferences)
-      PersonalIDPreferences.setEmailVerified(requireActivity(), personalIdSessionData.getEmailVerified());
+      // Email-state flags (SharedPreferences). `email != null` is the in-session "verified"
+      // signal — the parser sets it for server-verified emails, the OTP-verify success path
+      // leaves it set, and the skip / proceed-without-email paths null it out.
+      PersonalIDPreferences.setEmailVerified(
+              requireActivity(), personalIdSessionData.getEmail() != null);
       if (personalIdSessionData.getEmailSkippedDuringSignup()) {
           // User was shown the email step and declined. Count it as the first offer so the
           // post-login dialog only fires after the 30-day gap, not on the very next login.
@@ -1489,7 +1672,7 @@ Both signup and recovery now route through the Email step before writing `Connec
   import org.commcare.connect.PersonalIDPreferences;
   ```
 
-  > **Note:** If the user skipped the email step, `personalIdSessionData.getEmail()` is `null` and `getEmailVerified()` is `false` — `setEmail(null)` on the record is fine, and `setEmailVerified(context, false)` stores an explicit `false` that `shouldOfferEmail()` can read unambiguously.
+  > **Note:** If the user skipped or proceeded-without-email, `personalIdSessionData.getEmail()` is `null` (cleared by the skip/proceed paths). `setEmail(null)` on the record is fine, and `setEmailVerified(context, false)` (derived from `email != null`) stores an explicit `false` that `shouldOfferEmail()` can read unambiguously.
 
 - [ ] **Step 6c.2: Create PersonalIdRecoveryCompleter.kt**
 
@@ -1542,8 +1725,9 @@ Both signup and recovery now route through the Email step before writing `Connec
           user.email = sessionData.email
           ConnectUserDatabaseUtil.storeUser(activity, user)
 
-          // Email-state flags (SharedPreferences)
-          PersonalIDPreferences.setEmailVerified(activity, sessionData.emailVerified)
+          // Email-state flags (SharedPreferences). `email != null` is the in-session
+          // "verified" signal — same convention as the signup PhotoCapture path.
+          PersonalIDPreferences.setEmailVerified(activity, sessionData.email != null)
           if (sessionData.emailSkippedDuringSignup) {
               // User was shown the email step during recovery and declined. Count it as the
               // first offer so the post-login dialog only fires after the 30-day gap.
@@ -1602,16 +1786,26 @@ Both signup and recovery now route through the Email step before writing `Connec
 
   Sanity check only — as of this plan's snapshot, `var backupCode: String? = null` is already declared at `app/src/org/commcare/android/database/connect/models/PersonalIdSessionData.kt:39` and already written by the existing `handleBackupCodeSubmission()` in `PersonalIdBackupCodeFragment.java:178`. Open both files and confirm the field is still a mutable `String?`. If the type has changed since this plan was written (e.g., to `CharArray`), update the `sessionData.backupCode` access in `PersonalIdRecoveryCompleter.kt` to match. Otherwise no code change is required in this step.
 
-- [ ] **Step 6c.4: Update PersonalIdBackupCodeFragment.java to navigate to Email in both modes**
+- [ ] **Step 6c.4: Update PersonalIdBackupCodeFragment.java to gate the Email step on the server toggle and recovery email**
 
   The fragment's current behaviour is:
   - Signup: `handleBackupCodeSubmission()` sets `sessionData.backupCode` and calls `navigateToPhoto()` (line ~180).
   - Recovery: `confirmBackupCode()` calls the API; on success calls `handleSuccessfulRecovery()` (line ~193).
 
-  After the change:
-  - Signup: set `sessionData.backupCode` and call `navigateToEmail(isRecovery = false)` instead of `navigateToPhoto()`.
-  - Recovery: on API success, set `sessionData.backupCode` with `binding.backupCodeView.getCodeValue()` and call `navigateToEmail(isRecovery = true)` instead of `handleSuccessfulRecovery()`.
-  - Delete the local `handleSuccessfulRecovery()`, `logRecoveryResult()`, `handleSecondDeviceLogin()`, and `navigateToSuccess()` methods — their behaviour now lives in `PersonalIdRecoveryCompleter` and in the Email fragments. Keep `handleFailedBackupCodeAttempt()` as-is; it still uses `logRecoveryResult(false)` — inline the single-line body (`FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(false, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);`).
+  After the change, navigation depends on `sessionData.isEmailOtpVerificationToggleActive()` (helper added in Task 3.1, scans `sessionData.featureReleaseToggles` for slug `email_otp_verification`) and, in recovery, on whether `sessionData.email` was already populated by the start-configuration response:
+
+  | Mode | Toggle active in featureReleaseToggles | `sessionData.email` | Action |
+  |------|----------------------------------------|---------------------|--------|
+  | Signup | `true` | (n/a) | `navigateToEmail(isRecovery = false)` |
+  | Signup | `false` (or slug missing) | (n/a) | `navigateToPhoto()` (existing direct path — kept) |
+  | Recovery | (any) | non-null | finalize recovery directly + `navigateWithMessage(...)` to recovery success — skip email |
+  | Recovery | `true` | null | `navigateToEmail(isRecovery = true)` |
+  | Recovery | `false` (or slug missing) | null | finalize recovery directly + `navigateWithMessage(...)` to recovery success |
+
+  Two implications:
+  - **Keep `navigateToPhoto()`** in the file. The signup-toggle-off branch reuses it as-is.
+  - **Delete `handleSuccessfulRecovery()`, `navigateToSuccess()`, `logRecoveryResult()`, and `handleSecondDeviceLogin()`** — their bodies live in `PersonalIdRecoveryCompleter` (Task 6c.2). Replace the callsites with a small local helper `completeRecoveryWithoutEmail()` (defined below) that calls the helper and then `navigateWithMessage(...)` directly. Inline the single `logRecoveryResult(false)` call inside `handleFailedBackupCodeAttempt()` to a one-line analytics call (`FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(false, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);`).
+  - **Keep `navigateWithMessage(String, String, int)`** — already in the file (line ~271) and reused for the no-email recovery success path.
 
   The signup continuation becomes:
   ```java
@@ -1621,7 +1815,11 @@ Both signup and recovery now route through the Email step before writing `Connec
           confirmBackupCode();
       } else {
           personalIdSessionData.setBackupCode(binding.backupCodeView.getCodeValue());
-          navigateToEmail(false);
+          if (personalIdSessionData.isEmailOtpVerificationToggleActive()) {
+              navigateToEmail(false);
+          } else {
+              navigateToPhoto();
+          }
       }
   }
   ```
@@ -1631,18 +1829,29 @@ Both signup and recovery now route through the Email step before writing `Connec
   @Override
   public void onSuccess(PersonalIdSessionData sessionData) {
       if (sessionData.getDbKey() != null) {
-          // Persist the backup code so PersonalIdRecoveryCompleter can read it after the
-          // email step. DO NOT call handleSuccessfulRecovery — recovery is finalized by
-          // PersonalIdRecoveryCompleter from within the email fragments.
+          // Persist the backup code so PersonalIdRecoveryCompleter can read it whether
+          // we're going through the email step or finalizing directly.
           personalIdSessionData.setBackupCode(binding.backupCodeView.getCodeValue());
-          navigateToEmail(true);
+
+          if (personalIdSessionData.getEmail() != null) {
+              // Server already has a verified email for this user — skip email step.
+              // sessionData.email was populated by StartConfigurationResponseParser, which is
+              // itself the "verified" signal (server only returns it for verified addresses).
+              completeRecoveryWithoutEmail();
+          } else if (personalIdSessionData.isEmailOtpVerificationToggleActive()) {
+              // No server email + toggle on — collect email after backup code.
+              navigateToEmail(true);
+          } else {
+              // No server email + toggle off — original behaviour.
+              completeRecoveryWithoutEmail();
+          }
       } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
           handleFailedBackupCodeAttempt();
       }
   }
   ```
 
-  Replace `navigateToPhoto()` with `navigateToEmail(boolean isRecovery)`:
+  Add `navigateToEmail(boolean isRecovery)` alongside the kept `navigateToPhoto()`:
   ```java
   private void navigateToEmail(boolean isRecovery) {
       Navigation.findNavController(binding.getRoot())
@@ -1651,7 +1860,26 @@ Both signup and recovery now route through the Email step before writing `Connec
   }
   ```
 
+  Add the local helper that replaces `handleSuccessfulRecovery()`:
+  ```java
+  private void completeRecoveryWithoutEmail() {
+      PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData);
+      navigateWithMessage(
+              getString(R.string.connect_recovery_success_title),
+              getString(R.string.connect_recovery_success_message),
+              ConnectConstants.PERSONALID_RECOVERY_SUCCESS);
+  }
+  ```
+
+  Add the imports if not already present:
+  ```java
+  import org.commcare.connect.PersonalIdRecoveryCompleter;
+  import org.commcare.connect.ConnectConstants;
+  ```
+
   > **Critical:** Inline `logRecoveryResult(false)` at the single remaining callsite in `handleFailedBackupCodeAttempt()` so the method can be removed cleanly. Leave a single-line analytics call there — don't invent a new helper just for it.
+
+  > **Why keep `navigateToPhoto()`:** when the `email_otp_verification` toggle is inactive (or its slug is missing), signup must continue exactly as it does today. Re-deriving that navigation through Safe Args or destination-id calls would invent a second path to the same destination; reusing the existing method (and its existing nav-graph action — see Task 7.1) keeps the toggle-off behaviour byte-for-byte identical.
 
 - [ ] **Step 6c.5: Build to verify compilation**
 
@@ -1816,15 +2044,15 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
 
   The signup flow before this plan is `personalid_name → personalid_backup_code → personalid_photo_capture`. The existing action name on `personalid_backup_code` that targets `@id/personalid_photo_capture` is `action_personalid_backupcode_to_personalid_photo_capture` (note the lower-case `backupcode` — see `PersonalIdBackupCodeFragment.navigateToPhoto()` which calls `actionPersonalidBackupcodeToPersonalidPhotoCapture()`). We keep `name → backup_code` as-is, and insert email + email-OTP destinations between `backup_code` and `photo_capture`.
 
-  **a) Replace the signup-continuation action inside `personalid_backup_code` with a parameterised `backup_code → email` action (carrying `isRecovery`):**
+  **a) Add a new `backup_code → email` action alongside the existing actions on `personalid_backup_code` (do NOT remove the photo-capture or message actions):**
 
   ```xml
-  <!-- Replace: -->
+  <!-- Keep this action (still used by the toggle-off signup branch via navigateToPhoto()): -->
   <action
       android:id="@+id/action_personalid_backupcode_to_personalid_photo_capture"
       app:destination="@id/personalid_photo_capture" />
 
-  <!-- With: -->
+  <!-- Add this new action: -->
   <action
       android:id="@+id/action_personalid_backupcode_to_personalid_email"
       app:destination="@id/personalid_email">
@@ -1835,7 +2063,9 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
   </action>
   ```
 
-  Also inside `personalid_backup_code`, the existing `action_personalid_backupcode_to_personalid_message` action is still needed (used by both the signup failure path and the recovery success message coming from the email fragments — see note below). Leave it untouched.
+  > **Why both actions stay:** Task 6c.4 keeps `navigateToPhoto()` for the toggle-inactive (or slug-missing) signup branch. Removing `action_personalid_backupcode_to_personalid_photo_capture` would break that fallback path.
+
+  Also inside `personalid_backup_code`, the existing `action_personalid_backupcode_to_personalid_message` action is still needed (used by the signup failure path AND by the recovery success message — both via the `navigateWithMessage(...)` helper that handles the toggle-off / email-already-verified recovery branches, and via the email fragments' own message destinations). Leave it untouched.
 
   **b) Add the email entry destination (before `</navigation>`):**
 
@@ -1856,6 +2086,9 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
       <action
           android:id="@+id/action_personalid_email_to_personalid_email_verification"
           app:destination="@id/personalid_email_verification">
+          <argument
+              android:name="email"
+              app:argType="string" />
           <argument
               android:name="isLegacyFlow"
               app:argType="boolean"
@@ -1882,6 +2115,9 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
       android:name="org.commcare.fragments.personalId.PersonalIdEmailVerificationFragment"
       android:label="fragment_personalid_email_verification"
       tools:layout="@layout/fragment_personalid_email_verification">
+      <argument
+          android:name="email"
+          app:argType="string" />
       <argument
           android:name="isLegacyFlow"
           app:argType="boolean"
@@ -1964,6 +2200,27 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
   ```java
   // Expose as package-private static for testability
   static boolean shouldOfferEmail(Context context) {
+      // Server toggle gate: read from the existing connect_release_toggles SQL table.
+      // The slug is populated by the standard toggle pipeline — see
+      // PersonalIdMessageFragment.successFlow.storeFeatureReleaseToggles().
+      // Only an explicit `active = false` suppresses the prompt. A missing slug
+      // (legacy upgrade — start_configuration has not been parsed yet on this client)
+      // is treated as permissive so legacy users still see the offer on the very first
+      // app open. A subsequent start_configuration parse with active=false will replace
+      // the missing row with an explicit false and suppress future prompts.
+      List<ConnectReleaseToggleRecord> toggles =
+              ConnectAppDatabaseUtil.getReleaseToggles(context);
+      ConnectReleaseToggleRecord emailToggle = null;
+      for (ConnectReleaseToggleRecord t : toggles) {
+          if (PersonalIdSessionData.EMAIL_OTP_VERIFICATION_SLUG.equals(t.getSlug())) {
+              emailToggle = t;
+              break;
+          }
+      }
+      if (emailToggle != null && !emailToggle.getActive()) {
+          return false;
+      }
+
       Boolean verified = PersonalIDPreferences.isEmailVerified(context);
       if (verified != null && verified) {
           return false;
@@ -2179,37 +2436,70 @@ The three email flags (`emailVerified`, `emailOfferCount`, `lastEmailOfferDate`)
 
 - [ ] **Step 9.3: Verify end-to-end new user flow manually (if emulator available)**
 
-  Steps:
-  1. Start fresh signup on PersonalID
-  2. Complete Phone → Biometrics → OTP → Name → Backup Code steps
-  3. Confirm the Email entry screen appears
-  4. Enter a valid email address → Continue
-  5. Confirm Email OTP screen appears
-  6. Enter OTP code → Verify
-  7. Confirm navigation proceeds to Photo Capture screen
-  8. Complete signup to end
+  Each manual case below assumes the `/users/start_configuration` response has been adjusted (or a backend-staging account configured) to produce the indicated `email_otp_verification` and `email` values. Confirm in logcat that the parser populated the session-data fields before proceeding.
 
-  Also verify skip path:
-  1. On Email entry screen, tap "Skip for now"
-  2. Confirm navigation goes directly to Photo Capture
+  **Signup with `email_otp_verification = true` (new email step shown):**
+  1. Start fresh signup on PersonalID.
+  2. Complete Phone → Biometrics → OTP → Name → Backup Code steps.
+  3. Confirm the Email entry screen appears.
+  4. Enter a valid email address → Continue.
+  5. Confirm Email OTP screen appears.
+  6. Enter OTP code → Verify.
+  7. Confirm navigation proceeds to Photo Capture screen.
+  8. Complete signup to end.
 
-  Also verify 3-failed-OTP path:
-  1. Enter email → Continue → Email OTP screen appears
-  2. Enter wrong code 3 times
-  3. Confirm dialog appears: "Verification unsuccessful" with "Try again" and "Proceed without email" buttons
-  4. Tap "Proceed without email" → navigation goes to Photo Capture
-  5. Repeat steps 1–3, but tap "Try again" → dialog dismisses, code input is cleared, counter resets, user can attempt again
+  **Signup skip path (toggle on):**
+  1. On Email entry screen, tap "Skip for now".
+  2. Confirm navigation goes directly to Photo Capture.
 
-  Also verify recovery path:
-  1. Start recovery on PersonalID (existing user on a new device)
+  **Signup with `email_otp_verification = false` (toggle-off fallback):**
+  1. Start fresh signup with the toggle off in the response.
+  2. Complete Phone → Biometrics → OTP → Name → Backup Code steps.
+  3. Confirm navigation goes DIRECTLY to Photo Capture (no email screen) — same as the pre-feature flow.
+  4. Complete signup to end. `ConnectUserRecord.email` should be `null` and `PersonalIDPreferences.isEmailVerified` should be `false` (explicit, not null) — Task 6c.1 writes these values defensively.
+
+  **3-failed-OTP path (toggle on):**
+  1. Enter email → Continue → Email OTP screen appears.
+  2. Enter wrong code 3 times.
+  3. Confirm dialog appears: "Verification unsuccessful" with "Try again" and "Proceed without email" buttons.
+  4. Tap "Proceed without email" → navigation goes to Photo Capture.
+  5. Repeat steps 1–3, but tap "Try again" → dialog dismisses, code input is cleared, counter resets, user can attempt again.
+
+  **Recovery — server returned `email` (email step skipped, regardless of toggle):**
+  1. Configure the test account so `/users/start_configuration` returns a non-null `email` (i.e. the user has a verified email server-side).
+  2. Start recovery on PersonalID (existing user on a new device) and complete steps through Backup Code.
+  3. After a successful backup-code validation, confirm the recovery-success screen appears IMMEDIATELY (no email entry screen).
+  4. Inspect storage: `ConnectUserRecord.email` is the value the server returned, `PersonalIDPreferences.isEmailVerified` is `true`, `emailOfferCount` and `lastEmailOfferDate` are absent (null).
+
+  **Recovery — no server `email`, `email_otp_verification = true` (email step shown):**
+  1. Start recovery on PersonalID (existing user on a new device).
   2. Complete recovery steps through Backup Code — after a successful backup-code validation, confirm the Email entry screen appears (NOT the recovery-success screen).
-  3a. Enter a valid email → Continue → Verify OTP → confirm the recovery-success screen appears and that `ConnectUserRecord` now has `email` populated + `emailVerified = true`.
-  3b. Alternative: tap "Skip for now" on the Email entry screen → confirm the recovery-success screen appears immediately; `ConnectUserRecord` has `email = null`, `emailVerified = false`, `emailOfferCount = 1`, `lastEmailOfferDate = now` (so the legacy prompt only fires after 30 days).
+  3a. Enter a valid email → Continue → Verify OTP → confirm the recovery-success screen appears and that `ConnectUserRecord` now has `email` populated + `PersonalIDPreferences.isEmailVerified` is `true`.
+  3b. Alternative: tap "Skip for now" on the Email entry screen → confirm the recovery-success screen appears immediately; `ConnectUserRecord.email = null`, `PersonalIDPreferences.isEmailVerified = false`, `emailOfferCount = 1`, `lastEmailOfferDate = now` (so the legacy prompt only fires after 30 days).
   4. Also exercise the 3-failed-OTP → "Proceed without email" branch during recovery: confirm the recovery-success screen still appears and the record is written with skip-state.
+
+  **Recovery — no server `email`, `email_otp_verification = false` (toggle-off fallback):**
+  1. Configure the response with no `email` and `email_otp_verification = false`.
+  2. Start recovery and complete through Backup Code.
+  3. Confirm the recovery-success screen appears IMMEDIATELY (no email entry screen) — matches pre-feature behaviour.
+  4. Inspect storage: `ConnectUserRecord.email = null`, `PersonalIDPreferences.isEmailVerified = false`, `emailOfferCount` / `lastEmailOfferDate` absent. The legacy prompt (Task 8) will fire on next login for this user.
 
 - [ ] **Step 9.4: Verify legacy user prompt manually (if emulator available)**
 
-  Prerequisites: install the upgrade on a device that has an existing PersonalID account (no `email` on record, and `PersonalIDPreferences` is empty because none of the three keys were ever written). This mirrors real v24 → v25 upgrades.
+  Prerequisites: install the upgrade on a device that has an existing PersonalID account (no `email` on record, and `PersonalIDPreferences` is empty because none of the three keys were ever written). This mirrors real v24 → v25 upgrades. The toggle is read from the existing `connect_release_toggles` SQL table; only an explicit `active = false` row for slug `email_otp_verification` suppresses the prompt. A missing row (legacy user, start_configuration never parsed since upgrade) is permissive so legacy users still get the prompt on the first app-open.
+
+  Inspect the toggle table via SQLCipher debug tools or by adding temporary log lines that call `ConnectAppDatabaseUtil.getReleaseToggles(context)` — there is no `xml` representation.
+
+  **Case 0 — Toggle slug missing (immediately after upgrade, no PersonalID interaction yet):**
+  1. Open the CommCare app immediately after install/upgrade — no PersonalID flow has run, so the `email_otp_verification` row is absent from `connect_release_toggles`.
+  2. Confirm the email offer dialog DOES appear (legacy permissive default).
+  3. Tap "Add email" → `PersonalIdActivity` launches with `EXTRA_LEGACY_EMAIL_FLOW = true`. After PersonalID completion, `PersonalIdMessageFragment.successFlow.storeFeatureReleaseToggles()` populates the table; the `email_otp_verification` row should now exist with whatever `active` value the server returned.
+
+  **Case 0b — Toggle explicitly disabled by server:**
+  1. Configure the test account so start_configuration returns `toggles.email_otp_verification.active = false`.
+  2. After at least one full PersonalID interaction (which calls `storeFeatureReleaseToggles()`), confirm the `connect_release_toggles` table has a row with slug `email_otp_verification` and `active = false`.
+  3. Open the CommCare app → confirm the dialog does NOT appear (suppressed by explicit false).
+  4. Re-flip the server response to `active = true`, trigger another full PersonalID interaction so the row is overwritten via `storeReleaseToggles`, reopen the app → confirm the dialog now appears.
 
   Steps (StandardHomeActivity-triggered path — the dominant legacy case):
   1. Open the CommCare app — routes through `DispatchActivity` → CommCare login → `StandardHomeActivity`.
@@ -2252,23 +2542,7 @@ The backend may return new error codes for email OTP (e.g., `INVALID_EMAIL`, `EX
 The correct write method is `ConnectUserDatabaseUtil.storeUser(Context context, ConnectUserRecord user)`. There is no `saveUser` method — any reference to `saveUser` in this plan is an error. All usages have been corrected to `storeUser`.
 
 ### Release Toggle
-If the product requires this feature to be guarded by a release toggle (`ConnectReleaseToggleRecord`), add a toggle check inside `PersonalIdBackupCodeFragment.navigateToEmail(...)` (introduced in Task 6c.4). Note that Task 6c.4 and Task 7.1 **delete** `navigateToSuccess()` / `handleSuccessfulRecovery()` / `actionPersonalidBackupcodeToPersonalidPhotoCapture()` — the fallbacks below are written to NOT depend on those symbols.
-
-- When the toggle is **off and `isRecovery` is false** (signup), navigate to Photo Capture by destination id:
-  ```java
-  Navigation.findNavController(binding.getRoot()).navigate(R.id.personalid_photo_capture);
-  ```
-- When the toggle is **off and `isRecovery` is true** (recovery), run the finalizer helper directly and navigate to the shared recovery-success message destination using the existing `navigateWithMessage(...)` helper (which is NOT deleted):
-  ```java
-  personalIdSessionData.setBackupCode(binding.backupCodeView.getCodeValue());
-  PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData);
-  navigateWithMessage(
-          getString(R.string.connect_recovery_success_title),
-          getString(R.string.connect_recovery_success_message),
-          ConnectConstants.PERSONALID_RECOVERY_SUCCESS);
-  ```
-
-Confirm with the team whether a toggle is needed before wiring either fallback.
+The feature is gated by a `ConnectReleaseToggleRecord` with slug `email_otp_verification`, delivered inside the existing `toggles` JSON object on `/users/start_configuration` and parsed by the existing `ConnectReleaseToggleRecord.releaseTogglesFromJson(...)` pipeline. During the PersonalID flow, code reads the toggle from `sessionData.featureReleaseToggles` (via the helper `sessionData.isEmailOtpVerificationToggleActive()`); outside the flow, code reads it from the `connect_release_toggles` SQL table via `ConnectAppDatabaseUtil.getReleaseToggles(context)`. The fall-through paths described in the Architecture summary (signup → `navigateToPhoto()`; recovery → `completeRecoveryWithoutEmail()`) are the production-ready toggle-inactive behaviour, not a debug fallback. Disable the feature server-side by returning `active: false` for the slug (or omitting it).
 ---
 
 # Plan: Create Jira Sub-task Tickets for CCCT-2204
@@ -2304,36 +2578,42 @@ Email state is persisted in two places: `email` lives on `ConnectUserRecord` (on
 - Create `PersonalIDPreferences.kt` as a Kotlin `object` at `app/src/org/commcare/connect/`. Backing file: `personalid_prefs`. Keys: `email_verified` (Boolean), `email_offer_count` (Int), `last_email_offer_date` (Long millis → `Date?`).
 - Null-aware: `@JvmStatic` getters return `Boolean?` / `Int?` / `Date?` — an absent key returns null (distinguishable from false/0/epoch). Setters accept null to remove the key. `clear(context)` wipes the entire file (called on PersonalID logout — see Ticket 8).
 - Unit test: `PersonalIDPreferencesTest.kt` (Robolectric) covers null-on-empty, round-trip, null-removes-key, clear-wipes-all, and the explicit-false-vs-null distinction.
+- The `email_otp_verification` toggle is NOT a key in this prefs file — it lives in the existing `connect_release_toggles` SQL table (slug `email_otp_verification`) and is read via `ConnectAppDatabaseUtil.getReleaseToggles(...)`.
 
 **Files:** `ConnectUserRecord.java`, `ConnectUserRecordV24.java`, `ConnectDatabaseUpgrader.java`, `DatabaseConnectOpenHelper.java`, `ConnectUserRecordMigrationV24Test.kt`, `PersonalIDPreferences.kt`, `PersonalIDPreferencesTest.kt`
 
 ---
 
 ### Ticket 2 — Session Data & API Layer
-**Summary:** `[Android] Add email OTP API endpoints and update PersonalIdSessionData`
+**Summary:** `[Android] Add email OTP API endpoints, parse top-level email from start_configuration, expose toggle helper on PersonalIdSessionData`
 **Description:**
-- Add `email`, `emailVerified`, `emailSkippedDuringSignup` fields to `PersonalIdSessionData.kt`
+- Add `email` and `emailSkippedDuringSignup` fields to `PersonalIdSessionData.kt`. **Do NOT add an `emailVerified` field** — `sessionData.email != null` is the in-session "verified" signal. Only TWO sites are allowed to write `sessionData.email`: (1) `StartConfigurationResponseParser` (server-verified address from response) and (2) `PersonalIdEmailVerificationFragment.onEmailVerified()` (after a successful `verify_email_otp` API call). The entered-but-not-yet-verified address rides as a nav arg through the OTP fragment, never on session data.
+- Add a companion-object constant `EMAIL_OTP_VERIFICATION_SLUG = "email_otp_verification"` and a method `isEmailOtpVerificationToggleActive(): Boolean` on `PersonalIdSessionData` that scans the existing `featureReleaseToggles` list. **Do NOT add a separate `emailOtpVerification` field** — the toggle is already parsed into `featureReleaseToggles` by the existing `ConnectReleaseToggleRecord.releaseTogglesFromJson(json)` call.
+- Update `StartConfigurationResponseParser.java` to parse the new top-level `email` field onto `sessionData.email` only — no `emailVerified` setter (the field doesn't exist; the persisted `PersonalIDPreferences.emailVerified` is written downstream from `sessionData.email != null`). No constructor change. No toggle-parsing code (already handled by existing `ConnectReleaseToggleRecord` logic).
 - Add `/users/send_email_otp` and `/users/verify_email_otp` to `ApiEndPoints.java`
 - Add `sendEmailOtp()` / `verifyEmailOtp()` Retrofit methods to `ApiService.java`
 - Add static methods to `ApiPersonalId.java`
 - Create `SendEmailOtpResponseParser.kt` and `VerifyEmailOtpResponseParser.kt`
 - Add `sendEmailOtpCall()` / `verifyEmailOtpCall()` to `PersonalIdApiHandler.java`
+- Add two new `@Test` methods to the existing `StartConfigurationResponseParserTest.kt` (covers `email` present sets emailVerified=true; `email` absent leaves emailVerified=false)
 
-⚠️ **Dependency:** Confirm actual server endpoint paths with backend before implementing.
+⚠️ **Dependency:** Confirm actual OTP endpoint paths AND the `start_configuration` response shape (top-level `email` field, plus `email_otp_verification` slug inside the existing `toggles` object) with backend before implementing.
 
-**Files:** `PersonalIdSessionData.kt`, `ApiEndPoints.java`, `ApiService.java`, `ApiPersonalId.java`, `PersonalIdApiHandler.java`, two new parser classes
+**Files:** `PersonalIdSessionData.kt`, `StartConfigurationResponseParser.java`, `StartConfigurationResponseParserTest.kt` (existing — append tests), `ApiEndPoints.java`, `ApiService.java`, `ApiPersonalId.java`, `PersonalIdApiHandler.java`, two new email-OTP parser classes
 
 ---
 
 ### Ticket 3 — Email Entry Fragment
 **Summary:** `[Android] Create PersonalIdEmailFragment for email entry step (signup + recovery)`
 **Description:**
+The fragment is reachable only when `PersonalIdBackupCodeFragment` decides to navigate here (Ticket 6) — i.e. when `sessionData.isEmailOtpVerificationToggleActive()` returns true AND, in recovery, when the server did NOT return an existing `email`. The fragment itself does not re-check the toggle.
+
 - Create `fragment_personalid_email.xml` with email TextInputEditText, Continue button, Skip button, error TextView, ScrollView
 - Create `PersonalIdEmailFragment.kt` extending `BasePersonalIdFragment`:
   - Accepts two nav args: `isLegacyFlow` and `isRecovery`
   - Validates email format using `Patterns.EMAIL_ADDRESS` before enabling Continue
-  - Continue: calls `sendEmailOtpCall()` → navigates to email OTP screen (passing both flags)
-  - Skip branches: legacy → `activity.finish()`; recovery → `PersonalIdRecoveryCompleter.finalizeAccountRecovery(...)` + navigate to recovery-success message; signup → navigate to photo capture (records the skip via `emailSkippedDuringSignup = true`)
+  - Continue: calls `sendEmailOtpCall()` → navigates to email OTP screen, passing the entered address as a nav arg `email` (alongside both flags). **Does NOT mutate `sessionData.email`** — only OTP-verify success may do that.
+  - Skip branches: legacy → `activity.finish()`; recovery → `PersonalIdRecoveryCompleter.finalizeAccountRecovery(...)` + navigate to recovery-success message; signup → navigate to photo capture (records the skip via `emailSkippedDuringSignup = true`). **Does NOT null out `sessionData.email`** — nothing on this path ever wrote to it.
 - Add string resources for title, description, hint, skip, error
 
 **Files:** `PersonalIdEmailFragment.kt`, `fragment_personalid_email.xml`, `strings.xml`
@@ -2357,13 +2637,15 @@ Email state is persisted in two places: `email` lives on `ConnectUserRecord` (on
 ### Ticket 5 — Email OTP Verification Fragment
 **Summary:** `[Android] Create PersonalIdEmailVerificationFragment for email OTP step`
 **Description:**
+Reachable only after `PersonalIdEmailFragment` (Ticket 3) successfully sends an OTP. The fragment never inspects the toggle — that gating happened upstream in `PersonalIdBackupCodeFragment` (Ticket 6).
+
 - Create `fragment_personalid_email_verification.xml` with `NumericCodeView` (6-digit OTP input), Verify button, Resend button, countdown TextView, description TextView, error TextView
 - Create `PersonalIdEmailVerificationFragment.kt` extending `BasePersonalIdFragment`:
-  - Accepts two nav args: `isLegacyFlow` and `isRecovery`
-  - Resend button with 2-minute cooldown timer
-  - On OTP success: set `personalIdSessionData.emailVerified = true`, then branch on legacy/recovery/signup
-  - After 3 failed OTP attempts: show `StandardAlertDialog` offering to proceed without email or retry. "Proceed without email" sets `emailSkippedDuringSignup = true` and branches the same way. "Try again" resets the counter and clears the code input.
-  - Legacy flow: writes email + emailVerified directly to the existing `ConnectUserRecord`, then `activity.finish()`
+  - Accepts three nav args: `email` (the entered address — required, used for resend/verify and the description text), `isLegacyFlow`, and `isRecovery`
+  - Resend button with 2-minute cooldown timer; resend uses the nav-arg `email`, not `sessionData.email`
+  - On OTP success: write `personalIdSessionData.email = enteredEmail` (this is the ONLY site allowed to mutate the field outside the parser), then branch on legacy/recovery/signup
+  - After 3 failed OTP attempts: show `StandardAlertDialog` offering to proceed without email or retry. "Proceed without email" sets `emailSkippedDuringSignup = true` and branches the same way. **Does NOT touch `sessionData.email`** (which is still null on this branch). "Try again" resets the counter and clears the code input.
+  - Legacy flow: on success, writes the verified email onto the existing `ConnectUserRecord` and `PersonalIDPreferences.setEmailVerified(context, sessionData.email != null)`, then `activity.finish()`
   - Recovery flow: calls `PersonalIdRecoveryCompleter.finalizeAccountRecovery(...)` and navigates to the recovery-success message destination
   - New signup flow: navigates to photo capture (ConnectUserRecord written later by `PersonalIdPhotoCaptureFragment`)
 - Add string resources
@@ -2377,9 +2659,12 @@ Email state is persisted in two places: `email` lives on `ConnectUserRecord` (on
 **Description:**
 Both signup and recovery now route through the Email step before persisting. `email` is written to `ConnectUserRecord`; `emailVerified`, `emailOfferCount`, `lastEmailOfferDate` are written to `PersonalIDPreferences`. This ticket:
 
-- `PersonalIdPhotoCaptureFragment.createAndSaveConnectUser()` (signup): after `storeUser()`, call `PersonalIDPreferences.setEmailVerified(context, sessionData.emailVerified)`; if `emailSkippedDuringSignup`, also `setEmailOfferCount(context, 1)` + `setLastEmailOfferDate(context, new Date())`, otherwise set both to null.
+- `PersonalIdPhotoCaptureFragment.createAndSaveConnectUser()` (signup): after `storeUser()`, call `PersonalIDPreferences.setEmailVerified(context, sessionData.getEmail() != null)`; if `emailSkippedDuringSignup`, also `setEmailOfferCount(context, 1)` + `setLastEmailOfferDate(context, new Date())`, otherwise set both to null.
 - Create `PersonalIdRecoveryCompleter.kt` (recovery): extracts the body of the existing `PersonalIdBackupCodeFragment.handleSuccessfulRecovery()` (DB passphrase, `ConnectUserRecord.setEmail(...)` + storeUser, `PersonalIDPreferences` writes, `logRecoveryResult(true)`, second-device-login notification). Does **not** navigate — the caller handles navigation. Reads `backupCode` from session data.
-- `PersonalIdBackupCodeFragment.java`: store `backupCode` on session data in both paths; replace `navigateToPhoto()` with `navigateToEmail(false)` for signup and replace the `handleSuccessfulRecovery()` call with `navigateToEmail(true)` for recovery. Delete the now-unused `handleSuccessfulRecovery()`, `logRecoveryResult()`, `handleSecondDeviceLogin()`, and `navigateToSuccess()` methods (inline the single `logRecoveryResult(false)` call from `handleFailedBackupCodeAttempt()`).
+- `PersonalIdBackupCodeFragment.java`: store `backupCode` on session data in both paths and branch on the new server toggle:
+  - **Signup** — if `sessionData.isEmailOtpVerificationToggleActive()`, call `navigateToEmail(false)`; otherwise keep the existing `navigateToPhoto()` (the method must NOT be deleted).
+  - **Recovery** — on API success: if `sessionData.email != null` (server already verified), call a new local helper `completeRecoveryWithoutEmail()` that runs `PersonalIdRecoveryCompleter.finalizeAccountRecovery(...)` and `navigateWithMessage(...)` to the recovery-success destination; else if `sessionData.isEmailOtpVerificationToggleActive()`, call `navigateToEmail(true)`; else (toggle inactive) call `completeRecoveryWithoutEmail()`.
+  - Delete the now-unused `handleSuccessfulRecovery()`, `logRecoveryResult()`, `handleSecondDeviceLogin()`, and `navigateToSuccess()` methods (inline the single `logRecoveryResult(false)` call from `handleFailedBackupCodeAttempt()`). Keep `navigateWithMessage(...)` and `navigateToPhoto()` — both are still used by the toggle-off / email-already-verified branches.
 
 **Files:** `PersonalIdPhotoCaptureFragment.java`, `PersonalIdRecoveryCompleter.kt`, `PersonalIdBackupCodeFragment.java`
 **Depends on:** Ticket 1, Ticket 2
@@ -2393,7 +2678,7 @@ Both signup and recovery now route through the Email step before persisting. `em
   - Add `personalid_email` fragment destination with `isLegacyFlow` + `isRecovery` boolean args (both default false)
   - Add `personalid_email_verification` fragment destination with the same args
   - Add actions: email → email-verification (carrying both flags), email → photo capture (signup skip), email-verification → photo capture (signup success), email → message-display and email-verification → message-display (used for the recovery-success screen)
-  - Replace the existing `action_personalid_backupcode_to_personalid_photo_capture` on `personalid_backup_code` with `action_personalid_backupcode_to_personalid_email` (carrying `isRecovery` arg)
+  - **Add** (do NOT remove) `action_personalid_backupcode_to_personalid_email` (carrying `isRecovery` arg) on `personalid_backup_code`. Keep the existing `action_personalid_backupcode_to_personalid_photo_capture` so the toggle-off signup branch still works via `navigateToPhoto()`. Keep the existing `action_personalid_backupcode_to_personalid_message` so the toggle-off / email-already-verified recovery branches reach the recovery-success destination via `navigateWithMessage(...)`.
 - `PersonalIdActivity.java`: add `EXTRA_LEGACY_EMAIL_FLOW` intent extra; on receipt, navigate NavController to `personalid_email` with `isLegacyFlow = true`, popping phone fragment from back stack
 
 (Fragment edits for `PersonalIdBackupCodeFragment` are covered by Ticket 6.)
@@ -2409,7 +2694,11 @@ Both signup and recovery now route through the Email step before persisting. `em
 Two-offer-with-30-day-gap dialog shown to users whose `PersonalIDPreferences.isEmailVerified(context)` is null or false after PersonalID login. Plus a logout hook that wipes the prefs file.
 
 - `PersonalIdManager.java`:
-  - Add `static boolean shouldOfferEmail(Context context)`. All state reads come from `PersonalIDPreferences`:
+  - Add `static boolean shouldOfferEmail(Context context)`. **First gate is the server toggle**, read from the existing `connect_release_toggles` SQL table via `ConnectAppDatabaseUtil.getReleaseToggles(context)`. Look up slug `email_otp_verification`:
+    - row exists with `active = false` → return false (toggle off — never offer)
+    - row missing → permissive: continue evaluating the rest of the rules so legacy upgrades still see the prompt on first app-open before start_configuration has been parsed
+    - row exists with `active = true` → continue evaluating
+  - Remaining rules read from `PersonalIDPreferences`:
     - `isEmailVerified == true` → false (never offer)
     - `emailOfferCount` null or 0 → true (first offer; legacy v24 users land here)
     - `emailOfferCount >= 2` → false (exhausted)
@@ -2426,16 +2715,40 @@ Two-offer-with-30-day-gap dialog shown to users whose `PersonalIDPreferences.isE
 
 ---
 
-### Ticket 9 — Web/Backend Email OTP API
-**Summary:** `[Web] Add /users/send_email_otp and /users/verify_email_otp endpoints for PersonalID email verification`
+### Ticket 9 — Web/Backend Email OTP API + start_configuration extensions
+**Summary:** `[Web] Add email OTP endpoints and extend /users/start_configuration with email + email_otp_verification toggle`
 **Component:** Web (CommCare Connect server)
 
 **Description:**
-Expose two new authenticated HTTP endpoints on the CommCare Connect server that the Android PersonalID client will call during signup and legacy-user email collection. The endpoints issue and verify a time-limited OTP sent to a user-supplied email address.
+Three coordinated server changes are required:
 
-**Authentication:**
+1. Two new authenticated endpoints — `POST /users/send_email_otp` and `POST /users/verify_email_otp` — for issuing/verifying time-limited email OTPs.
+2. Two new fields in the existing `/users/start_configuration` response: an optional `email` (returned only when the user already has a server-verified email) and a boolean `email_otp_verification` toggle that gates whether the Android client shows the email step at all.
+3. Persisting the verified `email` on the PersonalID user record so it can be returned by start_configuration on subsequent calls (e.g., during recovery on a new device).
+
+**Authentication (for the two new endpoints):**
 - Both endpoints require the standard PersonalID token (same Bearer token scheme used by the existing `/users/*` endpoints such as `validate_secondary_phone` and `confirm_secondary_phone`).
 - Header: `Authorization: Bearer <personal_id_token>`
+
+**Endpoint 0 — Extension to existing `POST /users/start_configuration`**
+
+Add two new top-level fields to the existing JSON response. Do NOT remove or rename any existing fields.
+
+- `email` (string, optional): present ONLY when the user identified by the current request has previously verified an email address against this PersonalID account. Absent (or null) otherwise. The Android client treats presence as proof of verification — do not send unverified addresses here.
+- `email_otp_verification` (boolean, required when the feature is enabled; absent or `false` otherwise): server-driven toggle that tells the client whether to show the new email step after Backup Code. Defaults to `false` when absent so old clients and pre-rollout users see the existing flow unchanged.
+
+Example response fragment (other existing fields omitted for brevity):
+```json
+{
+  "required_lock": "pin",
+  "demo_user": false,
+  "token": "…",
+  "email": "user@example.com",
+  "email_otp_verification": true
+}
+```
+
+The toggle should be controllable per-user (or via a feature flag) so the rollout can be staged. The Android client never overrides it client-side: with `email_otp_verification = false`, the post-Backup-Code email step is skipped entirely.
 
 **Endpoint 1 — POST `/users/send_email_otp`**
 
@@ -2494,21 +2807,25 @@ Verifies the OTP entered by the user and marks the email as verified on the Pers
 - Store OTP hashed (not plaintext), associated with `(personal_id_user, email)`.
 - Invalidate prior OTPs for the same user when a new one is issued.
 - Rate-limit resend per user and per email (suggested: 2-minute minimum between sends).
-- On successful verification, set `email` and `email_verified = true` on the PersonalID user record.
+- On successful verification, set `email` and `email_verified = true` on the PersonalID user record. **Subsequent `/users/start_configuration` calls for this user MUST include the verified `email` in the response** so the Android client can skip the email step during recovery on a new device.
 - Send the OTP via the existing transactional email provider; subject and body copy to be coordinated with product.
+- Expose the `email_otp_verification` toggle through whatever feature-flag mechanism is preferred (per-user, per-tenant, or environment-level). When the flag resolves to `false`, omit it or send `false` — the Android client treats both the same.
 
 **Coordination notes:**
-- Android Ticket 2 depends on these endpoints and their payload shape. Confirm final endpoint paths and field names before Android implementation begins — the Android plan currently treats them as provisional.
-- Endpoints must be deployed (at minimum to staging) before Android Ticket 2 integration testing.
+- Android Ticket 2 depends on (a) the two new OTP endpoint payloads AND (b) the start_configuration response extension. Confirm final endpoint paths and field names (`email`, `email_otp_verification`) before Android implementation begins — the Android plan currently treats them as provisional.
+- The start_configuration extension is needed by Android Ticket 2 (parser test) AND Ticket 6 (BackupCodeFragment branching). Both endpoints must be deployed (at minimum to staging) before Android integration testing.
+- Rollout strategy: ship the start_configuration extension with `email_otp_verification = false` first; old clients won't read it, new clients will see the existing flow. Flip the toggle to `true` (per cohort or globally) once the OTP endpoints are also deployed and the Android client release with email-step support is rolled out.
 
-**Depends on:** none (upstream of Android Ticket 2)
+**Depends on:** none (upstream of Android Ticket 2 and Ticket 6)
 
 ---
 
 ## Dependency Order
 
 ```
-Ticket 9 (Web API) ──► Ticket 2 (Android API/Session)
+Ticket 9 (Web: OTP endpoints + start_configuration email/toggle)
+    ├──► Ticket 2 (Android API/Session — needs toggle/email field shape for parser)
+    └──► Ticket 6 (BackupCode branching — needs toggle semantics finalized)
 
 Ticket 1 (Persistence: DB column + PersonalIDPreferences)
     ├── Ticket 2 (API/Session)
@@ -2525,3 +2842,4 @@ Ticket 1 (Persistence: DB column + PersonalIDPreferences)
 Safe parallel work:
 - Ticket 9 (Web) can be built in parallel with Android Ticket 1 — they are fully independent.
 - Tickets 3 and 5 can be built concurrently after Ticket 2.
+- The Android side can stub `email_otp_verification = false` locally for early development of Tickets 1–5 before Ticket 9's start_configuration extension is deployed; the toggle-off branches keep the existing flow intact.
