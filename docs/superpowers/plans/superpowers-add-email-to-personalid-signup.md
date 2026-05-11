@@ -9,7 +9,7 @@
 **Toggle-driven inclusion:** the `/users/start_configuration` response carries a `email_otp_verification` entry inside the existing `toggles` JSON object (NOT a separate top-level field) plus an optional top-level `email` (only when the user has already verified one server-side). The toggle is parsed by the existing `ConnectReleaseToggleRecord.releaseTogglesFromJson(json)` call already in `StartConfigurationResponseParser` — no new parsing code is needed for the toggle. The slug `"email_otp_verification"` lands in `sessionData.featureReleaseToggles` during the active PersonalID session and is persisted to the existing `connect_release_toggles` SQL table by `PersonalIdMessageFragment.successFlow.storeFeatureReleaseToggles()` after a successful PersonalID completion. Callers read it from two places depending on where they run:
 
 - **During the PersonalID flow** (e.g. `PersonalIdBackupCodeFragment`): read from `sessionData.featureReleaseToggles`. The DB hasn't been updated yet at this point.
-- **Outside the PersonalID flow** (e.g. `PersonalIdManager.shouldOfferEmail()` called from `StandardHomeActivity` / `LoginActivity`): read from `ConnectAppDatabaseUtil.getReleaseToggles(context)`. Slug missing or `active = true` is permissive (legacy upgrade still sees the prompt); only an explicit `active = false` row suppresses the prompt.
+- **Outside the PersonalID flow** (e.g. `PersonalIdManager.shouldOfferEmail()` called from `StandardHomeActivity.onCreate`): read from `ConnectAppDatabaseUtil.getReleaseToggles(context)`. Slug missing or `active = true` is permissive (legacy upgrade still sees the prompt); only an explicit `active = false` row suppresses the prompt.
 
 `PersonalIdBackupCodeFragment` decides where to go AFTER backup-code validation based on those values:
 
@@ -63,8 +63,7 @@ In both fall-through cases (toggle off OR recovery-with-email) the backup-code f
 | `app/res/navigation/nav_graph_personalid.xml` | Add email and email-OTP destinations (with `isLegacyFlow` and `isRecovery` args); ADD `action_personalid_backupcode_to_personalid_email` (do NOT remove the existing `..._photo_capture` or `..._message` actions — both are still used by the toggle-off / email-already-verified branches); add Email/Email-OTP → PhotoCapture (signup) and Email/Email-OTP → MessageDisplay (recovery success) |
 | `app/src/org/commcare/activities/connect/PersonalIdActivity.java` | Handle EXTRA_LEGACY_EMAIL_FLOW intent extra |
 | `app/src/org/commcare/connect/PersonalIdManager.java` | Add checkEmailCollection() and shouldOfferEmail() — both read/write via `PersonalIDPreferences`. Also call `PersonalIDPreferences.clear(context)` in the PersonalID logout path (see Task 8b). |
-| `app/src/org/commcare/activities/LoginActivity.java` | Call checkEmailCollection() after PersonalID signup/login returns (post-signup path only) |
-| `app/src/org/commcare/activities/StandardHomeActivity.java` | Call checkEmailCollection() in `onCreate` (legacy-user path — fires on every CommCare app open) |
+| `app/src/org/commcare/activities/StandardHomeActivity.java` | Call checkEmailCollection() in `onCreate` — single entry point for the legacy prompt, fires on every CommCare app open |
 
 ---
 
@@ -2186,12 +2185,12 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
 
 ## Chunk 6: Legacy User Email Prompt
 
-### Task 8: Add email offer logic to PersonalIdManager and LoginActivity
+### Task 8: Add email offer logic to PersonalIdManager and StandardHomeActivity
 
 
 **Files:**
 - Modify: `app/src/org/commcare/connect/PersonalIdManager.java`
-- Modify: `app/src/org/commcare/activities/LoginActivity.java` (find where `handleFinishedActivity` is called and add the email check after it)
+- Modify: `app/src/org/commcare/activities/StandardHomeActivity.java`
 
 - [ ] **Step 8.1: Implement shouldOfferEmail() in PersonalIdManager.java (makes test from Step 4.1 pass)**
 
@@ -2295,19 +2294,9 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
   Run: `./gradlew testCommcareDebug --tests "org.commcare.connect.PersonalIdEmailOfferTest"`
   Expected: PASS
 
-- [ ] **Step 8.3: Call checkEmailCollection in LoginActivity**
+- [ ] **Step 8.3: Call checkEmailCollection in StandardHomeActivity**
 
-  Find the location in `LoginActivity` where `PersonalIdManager.getInstance().handleFinishedActivity(...)` is called. Immediately after that call, add:
-
-  ```java
-  PersonalIdManager.getInstance().checkEmailCollection(this);
-  ```
-
-  > **Note:** This hook fires only when the user has just completed a PersonalID signup/login flow (i.e., after `PersonalIdActivity` returns `RESULT_OK`). For legacy users — who have long completed their one-time PersonalID signup — this code path is never re-entered, so this hook alone is insufficient. Step 8.4 adds a second hook for app-open events.
-
-- [ ] **Step 8.4: Call checkEmailCollection in StandardHomeActivity**
-
-  A legacy user (upgrading from a pre-email build) typically won't go through the PersonalID signup flow again, so the `LoginActivity.onActivityResult` hook from Step 8.3 never fires for them. Add a second hook on the CommCare app home screen so the prompt has a chance to appear on every app open.
+  `StandardHomeActivity` is the single entry point for the legacy email prompt. The hook fires on every CommCare app-open and serves both newly-signed-up users (who pass through here after PersonalID completes and CommCare login finishes) and legacy users (who already completed PersonalID signup on an earlier build and just upgrade in place).
 
   In `app/src/org/commcare/activities/StandardHomeActivity.java`, add to `onCreate(Bundle)` after `super.onCreate(...)`:
 
@@ -2324,20 +2313,19 @@ This chunk is **prerequisite to Chunk 5**. The fragments created in Chunks 3 and
 
   > **Known gap:** If a PersonalID-primary user never opens a CommCare app (i.e., stays within the PersonalID / Connect drawer UI), this hook does not fire. Revisit if product flags it — options include adding a hook to the Connect landing screen or centralising via `CommCareSessionService`.
 
-- [ ] **Step 8.5: Build to verify compilation**
+- [ ] **Step 8.4: Build to verify compilation**
 
   Run: `./gradlew assembleCommcareDebug`
   Expected: BUILD SUCCESSFUL
 
-- [ ] **Step 8.6: Commit**
+- [ ] **Step 8.5: Commit**
 
   ```bash
   git add app/src/org/commcare/connect/PersonalIdManager.java \
-          app/src/org/commcare/activities/LoginActivity.java \
           app/src/org/commcare/activities/StandardHomeActivity.java \
           app/res/values/strings.xml \
           app/unit-tests/src/org/commcare/connect/PersonalIdEmailOfferTest.kt
-  git commit -m "[AI] Add legacy user email collection prompt (PersonalIdManager, LoginActivity, StandardHomeActivity)"
+  git commit -m "[AI] Add legacy user email collection prompt (PersonalIdManager, StandardHomeActivity)"
   ```
 
 ---
@@ -2501,7 +2489,7 @@ The three email flags (`emailVerified`, `emailOfferCount`, `lastEmailOfferDate`)
   3. Open the CommCare app → confirm the dialog does NOT appear (suppressed by explicit false).
   4. Re-flip the server response to `active = true`, trigger another full PersonalID interaction so the row is overwritten via `storeReleaseToggles`, reopen the app → confirm the dialog now appears.
 
-  Steps (StandardHomeActivity-triggered path — the dominant legacy case):
+  Steps (StandardHomeActivity is the only legacy-prompt entry point):
   1. Open the CommCare app — routes through `DispatchActivity` → CommCare login → `StandardHomeActivity`.
   2. Confirm the email offer dialog appears as `StandardHomeActivity.onCreate` fires.
   3. Tap "Add email" → `PersonalIdActivity` launches at email-entry screen (`EXTRA_LEGACY_EMAIL_FLOW = true`).
@@ -2515,10 +2503,10 @@ The three email flags (`emailVerified`, `emailOfferCount`, `lastEmailOfferDate`)
   4. Advance the device clock (or overwrite `last_email_offer_date` to >30 days ago) → reopen the app → confirm second dialog appears.
   5. Dismiss the second dialog → count becomes 2 → further app-opens never show the dialog again.
 
-  Also verify the LoginActivity-triggered path (for users who are completing a fresh PersonalID signup/login, not the StandardHomeActivity path):
+  Also verify the post-signup path (legacy-prompt-suppressed window for users who just completed PersonalID signup):
   1. Complete a full PersonalID signup and skip the email step.
-  2. Confirm that on the FIRST app-open after signup the dialog does NOT appear (count=1, date recent — set by PhotoCapture per Step 6c.1).
-  3. Advance the clock >30 days, reopen → dialog appears from `StandardHomeActivity.onCreate` as the second offer.
+  2. Confirm that the FIRST CommCare app-open after signup does NOT show the dialog (`emailOfferCount = 1`, `lastEmailOfferDate ≈ now` — written by PhotoCapture per Step 6c.1, suppressing the StandardHomeActivity prompt by the 30-day rule).
+  3. Advance the clock >30 days, reopen the CommCare app → dialog appears from `StandardHomeActivity.onCreate` as the second offer.
 
 - [ ] **Step 9.5: Final cleanup commit (if any)**
 
@@ -2706,11 +2694,11 @@ Two-offer-with-30-day-gap dialog shown to users whose `PersonalIDPreferences.isE
   - Add `checkEmailCollection(CommCareActivity)`: checks `shouldOfferEmail`, increments `emailOfferCount` via `PersonalIDPreferences.setEmailOfferCount(...)`, updates `lastEmailOfferDate`, shows `StandardAlertDialog`.
   - On dialog accept: launch `PersonalIdActivity` with `EXTRA_LEGACY_EMAIL_FLOW = true`.
   - **Logout wipe:** call `PersonalIDPreferences.clear(context)` in the PersonalID logout path (locate the single entry point — `PersonalIdManager.onPersonalIdLogout(Context)` or similar — and wire the call in AFTER the existing DB-side user deletion). Add the method if no shared entry point exists.
-- `LoginActivity.java`: call `checkEmailCollection()` after a successful PersonalID signup/login (in `onActivityResult` success branch, after `handleFinishedActivity()`). This hook only fires for users who have just completed PersonalID signup/login.
-- `StandardHomeActivity.java`: call `checkEmailCollection()` in `onCreate(Bundle)`. This catches legacy users who completed PersonalID signup long ago — they hit this every time they open a CommCare app. Do NOT use `onResume` (would spam on every return-to-home). `shouldOfferEmail` independently enforces the 30-day cadence. **Known gap:** a PersonalID-primary user who never opens a CommCare app won't hit this hook; revisit if product flags it.
+- `StandardHomeActivity.java`: call `checkEmailCollection()` in `onCreate(Bundle)`. This is the ONLY entry point for the legacy prompt — it catches both freshly-signed-up users (who pass through after PersonalID + CommCare login) and legacy users who completed PersonalID signup long ago. Do NOT use `onResume` (would spam on every return-to-home). `shouldOfferEmail` independently enforces the 30-day cadence. **Known gap:** a PersonalID-primary user who never opens a CommCare app won't hit this hook; revisit if product flags it.
+- No hook on `LoginActivity` — the prompt is intentionally suppressed on the immediate post-signup app-open by PhotoCapture writing `emailOfferCount = 1` + `lastEmailOfferDate = now` (Task 6c.1), so the 30-day rule keeps `StandardHomeActivity.onCreate` quiet on the first open and re-enables it after the gap.
 - Unit tests: `PersonalIdEmailOfferTest.kt` (Robolectric) covers all offer-count and date combinations AND the logout-clears-prefs case.
 
-**Files:** `PersonalIdManager.java`, `LoginActivity.java`, `StandardHomeActivity.java`, `PersonalIdEmailOfferTest.kt`
+**Files:** `PersonalIdManager.java`, `StandardHomeActivity.java`, `PersonalIdEmailOfferTest.kt`
 **Depends on:** Ticket 1, Ticket 7
 
 ---
