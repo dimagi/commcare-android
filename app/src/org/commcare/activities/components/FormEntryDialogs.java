@@ -5,6 +5,7 @@ import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.location.LocationManager;
 import android.view.View;
@@ -70,6 +71,74 @@ public class FormEntryDialogs {
         }
         dialog.setChoiceItems(items);
         activity.showAlertDialog(dialog);
+    }
+
+    /**
+     * Quit dialog variant for the case where exiting the form would also navigate the user
+     * elsewhere (e.g., tapping a push notification while the form is open).
+     * Stay dismisses and drops pendingNav. Discard calls discardChangesAndExit() then starts
+     * pendingNav. Save stashes pendingNav on the activity and triggers an EXIT-flavored save;
+     * the activity dispatches pendingNav in savingComplete after the save succeeds.
+     */
+    public static void createQuitDialog(final FormEntryActivity activity,
+                                        boolean isIncompleteEnabled,
+                                        final Intent pendingNav) {
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(activity,
+                StringUtils.getStringRobust(activity, R.string.quit_form_title));
+
+        View.OnClickListener stayInFormListener = v -> {
+            invokeStayListenerForTest(activity, pendingNav);
+            dialog.dismiss();
+        };
+        DialogChoiceItem stayInFormItem = new DialogChoiceItem(
+                StringUtils.getStringRobust(activity, R.string.do_not_exit),
+                LocalePreferences.isLocaleRTL() ? R.drawable.ic_blue_backward : R.drawable.ic_blue_forward,
+                stayInFormListener);
+
+        View.OnClickListener exitFormListener = v -> {
+            dialog.dismiss();
+            hideVirtualKeyboard(activity);
+            invokeDiscardListenerForTest(activity, pendingNav);
+        };
+        DialogChoiceItem quitFormItem = new DialogChoiceItem(
+                StringUtils.getStringRobust(activity, R.string.do_not_save),
+                R.drawable.icon_exit_form,
+                exitFormListener);
+
+        DialogChoiceItem[] items;
+        if (isIncompleteEnabled) {
+            View.OnClickListener saveIncompleteListener = v -> {
+                invokeSaveListenerForTest(activity, pendingNav);
+                dialog.dismiss();
+            };
+            DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
+                    StringUtils.getStringRobust(activity, R.string.keep_changes),
+                    R.drawable.ic_incomplete_orange,
+                    saveIncompleteListener);
+            items = new DialogChoiceItem[]{stayInFormItem, quitFormItem, saveIncompleteItem};
+        } else {
+            items = new DialogChoiceItem[]{stayInFormItem, quitFormItem};
+        }
+        dialog.setChoiceItems(items);
+        activity.showAlertDialog(dialog);
+    }
+
+    // Package-private hooks so unit tests can exercise the same code each listener runs.
+    // These contain the entire body of the corresponding listener (apart from dialog.dismiss()
+    // and keyboard hiding, which are UI concerns not behavior-relevant for the activity).
+
+    static void invokeStayListenerForTest(FormEntryActivity activity, Intent pendingNav) {
+        // Stay deliberately drops pendingNav; method exists so tests can assert the no-op.
+    }
+
+    static void invokeDiscardListenerForTest(FormEntryActivity activity, Intent pendingNav) {
+        activity.discardChangesAndExit();
+        activity.startActivity(pendingNav);
+    }
+
+    static void invokeSaveListenerForTest(FormEntryActivity activity, Intent pendingNav) {
+        activity.setPendingNavAfterSave(pendingNav);
+        activity.saveFormToDisk(FormEntryConstants.EXIT);
     }
 
     /**

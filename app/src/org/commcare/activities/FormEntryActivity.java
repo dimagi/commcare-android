@@ -1771,6 +1771,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return isFormEntryActive;
     }
 
+    public void setPendingNavAfterSave(android.content.Intent pendingNav) {
+        // Will be implemented in a later task.
+    }
+
     /**
      * For testing purposes only, allows tests to set the max number of form attachments to a lower number so
      * that we can more easily test behavior around hitting that limit
