@@ -30,7 +30,7 @@
 # - Skips ambiguous or contested comments rather than guessing
 # Always transparent, never merges PRs, defers to human judgement on contested changes.
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"8d2433b41cad2962ad79c96ad6461d068bfe47d86619f866447e78f84212f310","compiler_version":"v0.57.2","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"35c55c40c2c020afd7b8edc2dde05cbb3203d8f4d392a0deb1b9e848c50b2fd5","compiler_version":"v0.57.2","strict":true}
 
 name: "PR Comment Handler"
 "on":
@@ -61,7 +61,7 @@ name: "PR Comment Handler"
     - created
     - edited
   schedule:
-  - cron: "0 */4 * * *"
+  - cron: "12 15 * * *"
   workflow_dispatch: null
 
 permissions: {}

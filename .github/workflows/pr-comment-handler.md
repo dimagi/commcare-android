@@ -10,7 +10,7 @@ description: |
   Always transparent, never merges PRs, defers to human judgement on contested changes.
 
 on:
-  schedule: "0 */4 * * *"
+  schedule: daily
   workflow_dispatch:
   slash_command:
     name: pr-assist
