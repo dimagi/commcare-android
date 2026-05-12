@@ -7,7 +7,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 ### Release Notes
 
 <!--
-These are published publically on Playstore, Github Releases and CommCare Forums
+These are published publicly on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
@@ -20,11 +20,10 @@ These are published publically on Playstore, Github Releases and CommCare Forums
 #### Internal Release Notes
 
 <!--
-Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+Release notes that are not applicable for wider CommCare users but only for specific projects.
 These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
 along with the public release notes above
 -->
-
 
 ### QA Notes
 
@@ -33,6 +32,13 @@ These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
 
+- **Android Startup Strings Migration:** Walk the install / setup flows after a fresh install and confirm all on-screen text still renders correctly (no blank labels, no raw `install.button.start`-style keys showing through):
+    - Launch a fresh CommCare install — verify the welcome screen ("Welcome to CommCare!" / "Please choose an installation method below") and install-method picker render.
+    - Tap **Enter Code** / manual URL install — verify the prompt and the **Start Install** button label render. Submit an invalid URL and confirm the error message ("You did not scan a valid URL...") shows.
+    - Tap **Offline Install** and try a `.ccz` install — verify the prompt ("Install your CommCare application from a .ccz file") and the **Install App** button label render.
+    - From the install screen menu, tap **See Apps for My User** to open Install From List. Submit with empty fields — verify "Please enter all required fields." Submit with bad credentials in both Mobile User and Web User modes — verify each mode shows the appropriate error message. Toggle between user types and verify the **Web User** / **Mobile User** labels render.
+    - From the App Manager menu, tap **Advanced Settings** — verify the title bar reads "App Manager > Advanced Settings". Tap **Developer Options** within Advanced Settings — verify the row title renders as "Developer Options" (not as a raw key).
+    - Switch device language to one of the supported translations (Spanish, French, Portuguese, Hindi, Swahili, Hausa, Tigrinya, Lithuanian, Norwegian) and re-walk the install/setup flow. Confirm the migrated strings appear in the selected language with no missing-resource crashes and no English fallback for strings that should be translated.
 - **PersonalID profile photo update from nav drawer:**
   - Sign in to PersonalID and open the side navigation drawer. Verify that the user's image in the drawer header is shown inside a circular white frame with a small camera icon overlay along the bottom edge.
   - Tap the image. Verify that an "Update Profile Photo" confirmation dialog appears with a message asking whether you would like to take a new profile photo, and Continue / Cancel buttons.
@@ -48,6 +54,17 @@ we would like to communicate to QA as part of the release testing
   - With a working network connection, retry the photo update and verify a successful upload restores the camera icon and the new photo persists.
   - Verify that the photo update also reflects on HQ for the PersonalID user (i.e. the new photo is visible on the server-side admin view of the user's profile).
 
+- **Add email address to PersonalID signup/recovery flow (WIP):**
+  - **Flow overview:**
+    - Signup: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered) → Photo
+    - Recovery, no verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered)
+    - Recovery, verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code
+  - **Email entry screen:** (will be added here)
+  - **Email OTP screen:** (will be added here)
+  - **Legacy logged-in users prompt:** (will be added here)
+  - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
+  - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
+
 - **Back Online indicator (Connect):**
   - Open a refreshable Connect page (Connect Home, Learning Progress, Delivery Progress) while online and trigger a sync. Verify that the success bar at the top of the page now shows a green background with "Last synced: Just Now" and no right-side indicator.
   - Turn on airplane mode (or otherwise disable network) and trigger a sync on the same page. Verify that the orange "Offline" indicator appears at the top of the page.
@@ -60,7 +77,7 @@ we would like to communicate to QA as part of the release testing
 ### Release Notes
 
 <!--
-These are published publically on Playstore, Github Releases and CommCare Forums
+These are published publicly on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
@@ -79,7 +96,7 @@ remove an existing one first
 #### Internal Release Notes
 
 <!--
-Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+Release notes that are not applicable for wider CommCare users but only for specific projects. 
 These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
 along with the public release notes above
 -->
