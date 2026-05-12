@@ -55,6 +55,7 @@ we would like to communicate to QA as part of the release testing
   - **Email entry screen:** (will be added here)
   - **Email OTP screen:** (will be added here)
   - **Legacy logged-in users prompt:** (will be added here)
+  - **API/parsing scaffolding (CCCT-2376):** this change only adds backend plumbing — the new email entry / OTP screens are not yet reachable. For this slice specifically, QA should confirm that **PersonalID signup and recovery continue to work exactly as they did in the previous build** (no new screens appear, no unexpected errors, the user lands on the same destination at the end of each flow). Any regression in those flows would indicate a problem with the new start_configuration parsing or error-code handling.
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 
