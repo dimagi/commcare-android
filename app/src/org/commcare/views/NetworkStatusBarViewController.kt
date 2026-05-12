@@ -71,14 +71,15 @@ class NetworkStatusBarViewController(
 
         statusBarBinding.ivError.visibility = if (showLeftIcon) View.VISIBLE else View.GONE
 
-        val rightVisibility = if (rightIcon != null && rightLabel != null) View.VISIBLE else View.GONE
-        statusBarBinding.ivOffline.visibility = rightVisibility
-        statusBarBinding.tvOfflineLabel.visibility = rightVisibility
-        if (rightIcon != null) {
+        if (rightIcon != null && rightLabel != null) {
             statusBarBinding.ivOffline.setImageResource(rightIcon)
-        }
-        if (rightLabel != null) {
             statusBarBinding.tvOfflineLabel.setText(rightLabel)
+            statusBarBinding.ivOffline.visibility = View.VISIBLE
+            statusBarBinding.tvOfflineLabel.visibility = View.VISIBLE
+
+        } else {
+            statusBarBinding.ivOffline.visibility = View.GONE
+            statusBarBinding.tvOfflineLabel.visibility = View.GONE
         }
 
         barView.removeCallbacks(hideRunnable)
