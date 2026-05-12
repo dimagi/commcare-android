@@ -32,7 +32,7 @@ along with the public release notes above
 -->
 
 - Session endpoint navigation from Connect notifications: clicking a notification with a `session_endpoint_id` now navigates the user directly to the specified CommCare session endpoint (after a sync if required), instead of opening the Connect activity.
-- Tapping a navigation push notification while a form is open now prompts the user with the standard quit-form dialog (Stay / Don't save / Keep changes) before navigating away, preventing accidental loss of unsaved form data — [CCCT-2396](https://dimagi.atlassian.net/browse/CCCT-2396)
+- Tapping a navigation push notification while a form is open now prompts the user with the standard quit-form dialog (Stay / Don't save / Keep changes) before navigating away, preventing accidental loss of unsaved form data
 
 
 ### QA Notes
@@ -61,7 +61,7 @@ we would like to communicate to QA as part of the release testing
 - Verify that the combobox widget is working as expected when selecting an item that is used to filter another combobox widget and also determines the visibility of some other unrelated question whose relevance condition depends on the selection.
 - Open the Connect notification history screen (the list of push notifications) and verify the screen title reads "Notifications" (or the localized PersonalID notification title) and that no secondary breadcrumb/title strip is shown above or below it. Confirm the back arrow and the cloud-sync menu action both still work, and that opening a notification still routes correctly.
 
-- **Form exit warning on push notification tap ([CCCT-2396](https://dimagi.atlassian.net/browse/CCCT-2396)):**
+- **Form exit warning on push notification tap:**
   - **Editable form, dialog appears:** Open any Connect app and enter a form. Trigger a navigation push notification (e.g. a Connect message, payment notification, or any `ccc_*` notification that opens a screen). Tap the notification.
     - Verify a "Quit form?" dialog appears with three choices: "Don't exit", "Don't save", and "Keep changes" (the same dialog the back button shows).
     - Tap "Don't exit" → dialog dismisses, the user stays in the form, no navigation occurs.

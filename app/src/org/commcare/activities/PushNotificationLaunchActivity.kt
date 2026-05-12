@@ -33,9 +33,9 @@ class PushNotificationLaunchActivity : Activity() {
             }
 
         if (wrapped == null) {
-            Logger.log(
-                LogTypes.TYPE_FCM,
-                "PushNotificationLaunchActivity received intent without wrapped nav intent",
+            Logger.exception(
+                "Push notification launch error",
+                Exception("PushNotificationLaunchActivity received intent without wrapped nav intent"),
             )
             finish()
             return
