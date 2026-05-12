@@ -16,8 +16,9 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.BiometricsHelper
 import org.commcare.utils.EncryptionKeyProvider
 import org.javarosa.core.services.Logger
+import kotlin.time.Duration.Companion.minutes
 
-private const val SESSION_UNLOCK_THRESHOLD_MS = 10 * 60 * 1000L // 10 minutes
+private val SESSION_UNLOCK_THRESHOLD_MS = 10.minutes.inWholeMilliseconds
 internal const val BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key"
 
 /** Middleware to manage Personal ID unlock prompts with session-based bypass logic. */
@@ -58,16 +59,15 @@ object PersonalIdUnlocker {
         activity: CommCareActivity<*>,
         callback: PersonalIdManager.ConnectActivityCompleteListener,
     ) {
+        val personalIdManager = PersonalIdManager.getInstance()
         if (BuildConfig.IS_QA_AUTOMATION) {
             lastUnlockTime = SystemClock.elapsedRealtime()
-            PersonalIdManager.getInstance().userUnlockedPersonalId()
+            personalIdManager.userUnlockedPersonalId()
             callback.connectActivityComplete(true)
             return
         }
 
         logBiometricInvalidations(activity)
-
-        val personalIdManager = PersonalIdManager.getInstance()
         val bioManager = personalIdManager.getBiometricManager(activity)
         val user = ConnectUserDatabaseUtil.getUser(activity)
 
@@ -119,7 +119,7 @@ object PersonalIdUnlocker {
     private fun logBiometricInvalidations(activity: Context) {
         if (!AndroidKeyStore.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) return
         val provider = EncryptionKeyProvider(activity, true, BIOMETRIC_INVALIDATION_KEY)
-        if (!provider.isKeyValid()) {
+        if (!provider.isKeyValid) {
             FirebaseAnalyticsUtil.reportBiometricInvalidated()
             provider.deleteKey()
             provider.getKeyForEncryption()

@@ -9,6 +9,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(AndroidJUnit4::class)
 @Config(application = CommCareTestApplication::class)
@@ -31,21 +33,21 @@ class PersonalIdUnlockerTest {
 
     @Test
     fun `SESSION_WITH_TIME_THRESHOLD requires unlock when last unlock at exactly the threshold`() {
-        val tenMinutesAgo = SystemClock.elapsedRealtime() - (10 * 60 * 1000L)
+        val tenMinutesAgo = SystemClock.elapsedRealtime() - 10.minutes.inWholeMilliseconds
         PersonalIdUnlocker.lastUnlockTime = tenMinutesAgo
         assertTrue(PersonalIdUnlocker.requiresUnlockForSession())
     }
 
     @Test
     fun `SESSION_WITH_TIME_THRESHOLD requires unlock when last unlock exceeded threshold`() {
-        val elevenMinutesAgo = SystemClock.elapsedRealtime() - (11 * 60 * 1000L)
+        val elevenMinutesAgo = SystemClock.elapsedRealtime() - 11.minutes.inWholeMilliseconds
         PersonalIdUnlocker.lastUnlockTime = elevenMinutesAgo
         assertTrue(PersonalIdUnlocker.requiresUnlockForSession())
     }
 
     @Test
     fun `SESSION_WITH_TIME_THRESHOLD bypasses unlock when last unlock is just within threshold boundary`() {
-        val nineMinutesAgo = SystemClock.elapsedRealtime() - (10 * 60 * 1000L - 1)
+        val nineMinutesAgo = SystemClock.elapsedRealtime() - 10.minutes.inWholeMilliseconds + 1
         PersonalIdUnlocker.lastUnlockTime = nineMinutesAgo
         assertFalse(PersonalIdUnlocker.requiresUnlockForSession())
     }
