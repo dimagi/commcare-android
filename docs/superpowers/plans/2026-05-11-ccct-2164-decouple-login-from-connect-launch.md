@@ -172,7 +172,7 @@ sealed class ManualEscalation {
    - `Home` / `ConnectOpportunityInfo` → `toIntent(...)` → `SilentLaunchOutcome.StartActivity`.
    - `FallbackToLoginActivity(appId, reason)` → `ShowError` with `OpenLoginActivityManualMode`. Covers `BadCredentials`, `KeyRecordMissing`, `ConnectLinkageInvalid`, `SandboxCorrupted`, `AppNotSeated` — all "user must see the full login screen" cases.
    - `RetryableFailure` → `ShowError` with `RetryAction.RelaunchSame`. Covers `SyncFailed` / `NetworkUnavailable`.
-   - `PersonalIdUnlockNeeded` → invoke `host.requestUnlock()`; on `Granted`, retry `performLogin` **once**; on `Cancelled` / `Failed` / `HostUnavailable`, emit `ShowError` with retry.
+   - `PersonalIdUnlockNeeded` → invoke `host.requestUnlock()`. On `Granted`, call `performLogin` exactly one more time; if that retry also returns `PersonalIdUnlockNeeded`, emit `ShowError` (with retry) and do **not** call `host.requestUnlock()` again. On `Cancelled` / `Failed` / `HostUnavailable`, emit `ShowError` (with retry) immediately.
 
 `CancellationException` propagates from `launch`; the caller's scope handles it. The orchestrator does not emit UI itself — it returns an outcome.
 
@@ -249,7 +249,7 @@ sealed class SeatResult {
 }
 ```
 
-Port the body of `SeatAppActivity.SeatAppProcess.run()` into a `suspend fun` that calls `CommCareApplication.instance().initializeAppResources(...)` on `Dispatchers.IO`. **Preserve** existing exception-handling and `FirebaseAnalyticsUtil` reporting.
+Port the body of `SeatAppActivity.SeatAppProcess.run()` into a `suspend fun` that wraps `CommCareApplication.instance().initializeAppResources(...)` in `withContext(Dispatchers.IO)`. **Preserve** the existing try/catch/finally blocks and `FirebaseAnalyticsUtil` reporting verbatim — caught exceptions surface as `SeatResult.Failed(reason)`.
 
 `AppSeaterProgressSink` is owned by the caller and is expected to drive the modal progress dialog.
 
@@ -272,7 +272,7 @@ class ConnectCredentialResolver(
 }
 ```
 
-Port `ConnectAppUtils.getPasswordOverride()` into the resolver. Old call sites in `ConnectAppUtils` delegate. `LoginActivity` auto-login also goes through it. Silent path calls with `createIfNeeded = true`, mirroring today's `LoginActivity` behavior.
+Port `ConnectAppUtils.getPasswordOverride()` into the resolver. `createIfNeeded = true` means "if no `ConnectLinkedAppRecord` exists for this app, create one (acquiring credentials via `personalIdManager` as needed)"; `createIfNeeded = false` returns null instead of creating. `resolve` returns null on DB/storage errors and on credential-acquisition failures (e.g. PersonalID token unavailable, no network for token exchange). Old call sites in `ConnectAppUtils` delegate. `LoginActivity` auto-login also goes through it. Silent path calls with `createIfNeeded = true`, mirroring today's `LoginActivity` behavior.
 
 **Acceptance:** Single implementation of credential resolution. `LoginController` never sees `ConnectLinkedAppRecord`. Null return on the silent path produces `FallbackToLoginActivity(reason = KeyRecordMissing)`.
 
@@ -313,7 +313,7 @@ Required by C1 (suspend controller).
 
 `KeyRecordOperations` and `SyncOperations` (`org.commcare.login`) wrap `ManageKeyRecordTask` / `DataPullTask` in `suspendCancellableCoroutine { ... }` with `invokeOnCancellation { task.cancel(true) }`.
 
-**Cancellation is best-effort.** The wrapper does not await task termination. The underlying task may continue executing in the background and complete normally (writing local state) even after the coroutine is cancelled. Document this in `docs/connect/connect-app-launcher.md` — it's acceptable for analytics fidelity but worth knowing.
+**Cancellation is best-effort.** The wrapper does not await task termination. The underlying task may continue executing in the background and complete normally (writing local state) even after the coroutine is cancelled. An orphaned session written this way is absorbed by step 1 of C4's orchestration — `closeUserSession()` runs before every new silent launch, so the next launch starts from a clean slate. Document this in `docs/connect/connect-app-launcher.md` — it's acceptable for analytics fidelity but worth knowing.
 
 Progress reported via a `(Progress) -> Unit` lambda. `LoginActivity` supplies a real callback; `ConnectAppLauncher` supplies a no-op (the seat modal is dismissed before sync begins).
 
