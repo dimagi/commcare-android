@@ -560,7 +560,12 @@ public class FirebaseMessagingUtil {
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 : PendingIntent.FLAG_UPDATE_CURRENT;
 
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, launchIntent, flags);
+        String notificationId = fcmMessageData.getPayloadData().get(NOTIFICATION_ID);
+        int requestCode = !TextUtils.isEmpty(notificationId)
+                ? NotificationIdentifiers.generateNotificationIdFromString(notificationId)
+                : FCM_NOTIFICATION_ID;
+        launchIntent.setAction("org.commcare.notifications.tap." + requestCode);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, requestCode, launchIntent, flags);
 
         if (Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationTitle()) && Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationText())) {
             Logger.exception("Empty push notification",

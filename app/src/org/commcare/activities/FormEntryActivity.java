@@ -351,7 +351,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-        Intent pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
+        Intent pendingNav;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT, Intent.class);
+        } else {
+            pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
+        }
         if (pendingNav != null) {
             triggerUserQuitInputForExternalNav(pendingNav);
         }
@@ -1648,7 +1653,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
             }
 
-            mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT, Intent.class);
+            } else {
+                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT);
+            }
 
             uiController.restoreSavedState(savedInstanceState);
         }
