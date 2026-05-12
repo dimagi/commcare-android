@@ -30,7 +30,7 @@
 # - Skips ambiguous or contested comments rather than guessing
 # Always transparent, never merges PRs, defers to human judgement on contested changes.
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"8d2433b41cad2962ad79c96ad6461d068bfe47d86619f866447e78f84212f310","compiler_version":"v0.57.2","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"2012c3aaed166d13f7be06c9d13f12f55b781b0bd86c055e53bef7c26c380826","compiler_version":"v0.57.2","strict":true}
 
 name: "PR Comment Handler"
 "on":
@@ -61,7 +61,7 @@ name: "PR Comment Handler"
     - created
     - edited
   schedule:
-  - cron: "0 */4 * * *"
+  - cron: "12 15 * * *"
   workflow_dispatch: null
 
 permissions: {}
@@ -789,7 +789,7 @@ jobs:
                   "GITHUB_LOCKDOWN_MODE": "$GITHUB_MCP_LOCKDOWN",
                   "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_MCP_SERVER_TOKEN",
                   "GITHUB_READ_ONLY": "1",
-                  "GITHUB_TOOLSETS": "all"
+                  "GITHUB_TOOLSETS": "pull_requests,repos,context"
                 }
               },
               "safeoutputs": {
