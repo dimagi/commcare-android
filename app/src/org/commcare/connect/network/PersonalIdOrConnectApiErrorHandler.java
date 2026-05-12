@@ -63,6 +63,8 @@ public class PersonalIdOrConnectApiErrorHandler {
                 return context.getString(R.string.recovery_network_unknown);
             case INCORRECT_OTP_ERROR:
                 return context.getString(R.string.personalid_incorrect_otp);
+            case RATE_LIMITED_ERROR:
+                return context.getString(R.string.personalid_too_many_otp_attempts);
             case JSON_PARSING_ERROR:
                 return context.getString(R.string.personalid_network_response_parsing_error);
             default:

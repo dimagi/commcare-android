@@ -104,7 +104,10 @@ abstract class BaseApiHandler<T>(
 
         // The photo uploaded for the user is too large for server to handle. Note that, currently,
         // the user does not have much control over the photo size.
-        FILE_TOO_LARGE_ERROR, ;
+        FILE_TOO_LARGE_ERROR,
+
+        // The user requested too many OTPs in a short window (HTTP 429 / RATE_LIMITED).
+        RATE_LIMITED_ERROR, ;
 
         fun shouldAllowRetry(): Boolean =
             this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) ||

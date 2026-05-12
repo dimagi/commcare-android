@@ -182,6 +182,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 // The "NOT_ALLOWED" error code relates to an uninvited user receiving an OTP.
                 onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
                 return true;
+            case "RATE_LIMITED":
+                onFailure(PersonalIdOrConnectApiErrorCodes.RATE_LIMITED_ERROR, null);
+                return true;
             case "ACTIVE_USER_EXISTS":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
@@ -326,6 +329,26 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 sessionData.getToken(),
                 otp,
                 createCallback(sessionData, null)
+        );
+    }
+
+    public void sendEmailOtpCall(Activity activity, String email, PersonalIdSessionData sessionData) {
+        ApiPersonalId.sendEmailOtp(
+                activity,
+                email,
+                sessionData.getToken(),
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
+    public void verifyEmailOtpCall(Activity activity, String email, String otp,
+                                   PersonalIdSessionData sessionData) {
+        ApiPersonalId.verifyEmailOtp(
+                activity,
+                email,
+                otp,
+                sessionData.getToken(),
+                createCallback(new NoParsingResponseParser<>(), null)
         );
     }
 

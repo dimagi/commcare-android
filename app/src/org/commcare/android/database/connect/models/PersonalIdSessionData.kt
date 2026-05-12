@@ -33,6 +33,10 @@ data class PersonalIdSessionData(
     var attemptsLeft: Int? = null,
     // name of the user
     var userName: String? = null,
+    // email of the user; non-null means the address has been verified server-side or via OTP this session
+    var email: String? = null,
+    // tracks when the user explicitly declines the email offer during signup
+    var emailSkippedDuringSignup: Boolean = false,
     // phone number of the user
     var phoneNumber: String? = null,
     // recovery code of the user
@@ -60,5 +64,14 @@ data class PersonalIdSessionData(
     companion object {
         const val PIN = "pin"
         const val BIOMETRIC_TYPE = "biometric"
+        const val EMAIL_OTP_VERIFICATION_SLUG = "email_otp_verification"
     }
+
+    /**
+     * True when the `email_otp_verification` slug is present in the parsed
+     * featureReleaseToggles list AND its `active` flag is true. Returns false when the
+     * slug is missing OR explicitly false.
+     */
+    fun isEmailOtpVerificationToggleActive(): Boolean =
+        featureReleaseToggles?.firstOrNull { it.slug == EMAIL_OTP_VERIFICATION_SLUG }?.active == true
 }
