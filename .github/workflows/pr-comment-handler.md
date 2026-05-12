@@ -40,7 +40,7 @@ tools:
   web-fetch:
   bash: true
   github:
-    toolsets: [all]
+    toolsets: [pull_requests, repos, context]
   repo-memory: true
 
 engine: claude
