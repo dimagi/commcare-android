@@ -59,12 +59,7 @@ we would like to communicate to QA as part of the release testing
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 
 
-- Verify that biometric/PIN unlock still triggers correctly in all existing entry points:
-  - Login screen auto-unlock (`LoginActivity`)
-  - Connect messaging notification tap (`ConnectMessagingActivity`)
-  - Connect nav helper flows (`ConnectNavHelper`)
-  - Connect unlock fragment (`ConnectUnlockFragment`)
-  - App-linking dialogs (`PersonalIdManager`)
+- Verify that biometric/PIN unlock still triggers correctly in all existing entry points
 
 
 ## CommCare 2.63
