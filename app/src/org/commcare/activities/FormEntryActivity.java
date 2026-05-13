@@ -1264,6 +1264,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
         if (mSaveToDiskTask != null) {
+            //Store the pending nav intent so it can be followed once the save is complete
+            mPendingNavAfterSave = pendingNav;
             return;
         }
 
