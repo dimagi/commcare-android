@@ -63,7 +63,7 @@ we would like to communicate to QA as part of the release testing
 
 - **Form exit warning on push notification tap:**
   - **Editable form, dialog appears:** Open any Connect app and enter a form. Trigger a navigation push notification (e.g. a Connect message, payment notification, or any `ccc_*` notification that opens a screen). Tap the notification.
-    - Verify a "Quit form?" dialog appears with three choices: "STAY IN FORM", "EXIT WITHOUT SAVING", and "SAVE INCOMPLETE" (the same dialog the back button shows).
+    - Verify a "Exit Form?" dialog appears with three choices: "STAY IN FORM", "EXIT WITHOUT SAVING", and "SAVE INCOMPLETE" (the same dialog the back button shows).
     - Tap "STAY IN FORM" → dialog dismisses, the user stays in the form, no navigation occurs.
     - Repeat the scenario, this time tapping "EXIT WITHOUT SAVING" → the form is dismissed without saving and the notification's target screen opens.
     - Repeat again, tapping "SAVE INCOMPLETE" → the form is saved as incomplete (verify it appears in the Saved Forms list on the App Home), and after the save completes the notification's target screen opens.
