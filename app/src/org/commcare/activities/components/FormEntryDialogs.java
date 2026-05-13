@@ -61,7 +61,11 @@ public class FormEntryDialogs {
         View.OnClickListener exitFormListener = v -> {
             dialog.dismiss();
             hideVirtualKeyboard(activity);
-            handleDiscardChoice(activity, pendingNav);
+            if (pendingNav != null) {
+                activity.discardChangesAndExitToPendingNav(pendingNav);
+            } else {
+                activity.discardChangesAndExit();
+            }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(activity, R.string.do_not_save),
@@ -71,7 +75,10 @@ public class FormEntryDialogs {
         DialogChoiceItem[] items;
         if (isIncompleteEnabled) {
             View.OnClickListener saveIncompleteListener = v -> {
-                handleSaveChoice(activity, pendingNav);
+                if (pendingNav != null) {
+                    activity.setPendingNavAfterSave(pendingNav);
+                }
+                activity.saveFormToDisk(FormEntryConstants.EXIT);
                 dialog.dismiss();
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
@@ -84,24 +91,6 @@ public class FormEntryDialogs {
         }
         dialog.setChoiceItems(items);
         activity.showAlertDialog(dialog);
-    }
-
-    // Package-private action methods invoked from the choice listeners; broken out
-    // so unit tests can exercise the same code paths without inflating the dialog.
-
-    static void handleDiscardChoice(FormEntryActivity activity, Intent pendingNav) {
-        if (pendingNav != null) {
-            activity.discardChangesAndExitToPendingNav(pendingNav);
-        } else {
-            activity.discardChangesAndExit();
-        }
-    }
-
-    static void handleSaveChoice(FormEntryActivity activity, Intent pendingNav) {
-        if (pendingNav != null) {
-            activity.setPendingNavAfterSave(pendingNav);
-        }
-        activity.saveFormToDisk(FormEntryConstants.EXIT);
     }
 
     /**
