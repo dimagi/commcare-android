@@ -362,8 +362,7 @@
             android:theme="@android:style/Theme.NoDisplay"
             android:taskAffinity=""
             android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:exported="false" />
+            android:launchMode="singleInstance" />
         <activity
             android:name="org.commcare.activities.DrawActivity"
             android:windowSoftInputMode="adjustResize" />
