@@ -1846,11 +1846,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return isFormEntryActive;
     }
 
-    @VisibleForTesting
-    public static void setFormEntryInProgressForTest(boolean inProgress) {
-        isFormEntryActive = inProgress;
-    }
-
     /**
      * For testing purposes only, allows tests to set the max number of form attachments to a lower number so
      * that we can more easily test behavior around hitting that limit

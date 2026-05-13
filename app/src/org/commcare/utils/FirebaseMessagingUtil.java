@@ -589,12 +589,6 @@ public class FirebaseMessagingUtil {
         return fcmNotification;
     }
 
-    @VisibleForTesting
-    static NotificationCompat.Builder buildNotificationForTest(Context context, Intent intent, FCMMessageData fcmMessageData) {
-        return buildNotification(context, intent, fcmMessageData);
-    }
-
-
     /**
      * Show notification
      *
