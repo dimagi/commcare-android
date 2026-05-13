@@ -64,14 +64,5 @@ data class PersonalIdSessionData(
     companion object {
         const val PIN = "pin"
         const val BIOMETRIC_TYPE = "biometric"
-        const val EMAIL_OTP_VERIFICATION_SLUG = "email_otp_verification"
     }
-
-    /**
-     * True when the `email_otp_verification` slug is present in the parsed
-     * featureReleaseToggles list AND its `active` flag is true. Returns false when the
-     * slug is missing OR explicitly false.
-     */
-    fun isEmailOtpVerificationToggleActive(): Boolean =
-        featureReleaseToggles?.firstOrNull { it.slug == EMAIL_OTP_VERIFICATION_SLUG }?.active == true
 }

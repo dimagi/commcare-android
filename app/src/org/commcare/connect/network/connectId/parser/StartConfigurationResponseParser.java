@@ -35,7 +35,7 @@ public class StartConfigurationResponseParser implements PersonalIdApiResponsePa
         // Email is returned ONLY when the server already has a verified address for this user.
         // Ignore blank/malformed values so downstream consumers can rely on `email != null` meaning verified.
         String email = JsonExtensions.optNonBlankStringSafe(json, "email");
-d        boolean isValidEmail = StringUtils.isValidEmail(email);
+        boolean isValidEmail = StringUtils.isValidEmail(email);
         if (json.has("email") && !isValidEmail) {
             Logger.exception("Invalid email address present in start configuration response", new IllegalArgumentException(
                     "Email key present in start configuration response but value is not a valid email"));
