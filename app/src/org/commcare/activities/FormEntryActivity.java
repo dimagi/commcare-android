@@ -1278,7 +1278,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             finish();
             return;
         }
-        if (mFormController != null && mFormController.isFormReadOnly()) {
+        if (mFormController.isFormReadOnly()) {
             startPendingNavSafely(pendingNav);
             finishReturnInstance(false);
             return;
