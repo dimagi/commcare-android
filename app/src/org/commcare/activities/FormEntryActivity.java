@@ -879,6 +879,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
+        reportAttachmentCountMismatch();
+        
         if (complete) {
             HiddenPreferences.clearInterruptedFormState();
             HiddenPreferences.clearInterruptedSSD();
@@ -893,6 +895,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         mSaveToDiskTask.setFormSavedListener(this);
         mSaveToDiskTask.executeParallel();
+    }
+
+    private void reportAttachmentCountMismatch() {
+        int numAttachmentsOnDisk = FileUtil.countMediaFiles(FormEntryInstanceState.getInstanceFolder());
+        if (numAttachmentsOnDisk == -1) {
+            return;
+        }
+        if (numAttachmentsOnDisk < formAttachmentCount) {
+            Logger.exception(
+                    "Form attachment count mismatch at save — "
+                            + "in-memory=" + formAttachmentCount + " on-disk=" + numAttachmentsOnDisk,
+                    new Throwable());
+        }
     }
 
     public void discardChangesAndExit() {
