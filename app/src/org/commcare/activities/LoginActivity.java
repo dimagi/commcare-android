@@ -26,6 +26,8 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -238,7 +240,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             doLogin(loginMode, restoreSession, "AUTO");
         } else if (loginManagedByPersonalId()) {
             //Unlock and then auto login
-            personalIdManager.unlockConnect(this, success -> {
+            PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.ALWAYS, success -> {
                 if (success) {
                     String username = uiController.getEnteredUsername();
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
