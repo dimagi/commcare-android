@@ -539,4 +539,5 @@
     <string name="connect_last_synced">Última sincronización: %s</string>
     <string name="connect_offline">Sin conexión</string>
     <string name="connect_never">Nunca</string>
+    <string name="cannot_navigate_during_form_save">No se puede salir de la página mientras se guarda el formulario</string>
 </resources>

@@ -538,4 +538,5 @@ License.
     <string name="connect_last_synced">Dernière synchronisation : %s</string>
     <string name="connect_offline">Hors ligne</string>
     <string name="connect_never">Jamais</string>
+    <string name="cannot_navigate_during_form_save">Impossible de quitter la page pendant l\'enregistrement du formulaire</string>
 </resources>

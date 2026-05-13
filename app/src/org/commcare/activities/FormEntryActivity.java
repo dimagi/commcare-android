@@ -1264,8 +1264,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
         if (mSaveToDiskTask != null) {
-            //Store the pending nav intent so it can be followed once the save is complete
-            mPendingNavAfterSave = pendingNav;
+            Logger.exception("Navigation during form save", new Exception(
+                    "User attempted to navigate from a push notification during form save."
+            ));
+            Toast.makeText(this, R.string.cannot_navigate_during_form_save, Toast.LENGTH_SHORT).show();
             return;
         }
 
