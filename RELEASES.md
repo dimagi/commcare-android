@@ -65,6 +65,10 @@ we would like to communicate to QA as part of the release testing
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 
+
+- Verify that biometric/PIN unlock still triggers correctly in all existing entry points
+
+
 - **Back Online indicator (Connect):**
   - Open a refreshable Connect page (Connect Home, Learning Progress, Delivery Progress) while online and trigger a sync. Verify that the success bar at the top of the page now shows a green background with "Last synced: Just Now" and no right-side indicator.
   - Turn on airplane mode (or otherwise disable network) and trigger a sync on the same page. Verify that the orange "Offline" indicator appears at the top of the page.
