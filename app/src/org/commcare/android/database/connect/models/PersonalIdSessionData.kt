@@ -35,8 +35,6 @@ data class PersonalIdSessionData(
     var userName: String? = null,
     // email of the user; non-null means the address has been verified server-side or via OTP this session
     var email: String? = null,
-    // tracks when the user explicitly declines the email offer during signup
-    var emailSkippedDuringSignup: Boolean = false,
     // phone number of the user
     var phoneNumber: String? = null,
     // recovery code of the user
