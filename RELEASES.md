@@ -32,7 +32,7 @@ along with the public release notes above
 -->
 
 - Session endpoint navigation from Connect notifications: clicking a notification with a `session_endpoint_id` now navigates the user directly to the specified CommCare session endpoint (after a sync if required), instead of opening the Connect activity.
-- Tapping a navigation push notification while a form is open now prompts the user with the standard quit-form dialog (Stay / Don't save / Keep changes) before navigating away, preventing accidental loss of unsaved form data
+- Tapping a navigation push notification while a form is open now prompts the user with the standard quit-form dialog (STAY IN FORM / EXIT WITHOUT SAVING / SAVE INCOMPLETE) before navigating away, preventing accidental loss of unsaved form data
 
 
 ### QA Notes
@@ -63,10 +63,10 @@ we would like to communicate to QA as part of the release testing
 
 - **Form exit warning on push notification tap:**
   - **Editable form, dialog appears:** Open any Connect app and enter a form. Trigger a navigation push notification (e.g. a Connect message, payment notification, or any `ccc_*` notification that opens a screen). Tap the notification.
-    - Verify a "Quit form?" dialog appears with three choices: "Don't exit", "Don't save", and "Keep changes" (the same dialog the back button shows).
-    - Tap "Don't exit" → dialog dismisses, the user stays in the form, no navigation occurs.
-    - Repeat the scenario, this time tapping "Don't save" → the form is dismissed without saving and the notification's target screen opens.
-    - Repeat again, tapping "Keep changes" → the form is saved as incomplete (verify it appears in the Saved Forms list on the App Home), and after the save completes the notification's target screen opens.
+    - Verify a "Quit form?" dialog appears with three choices: "STAY IN FORM", "EXIT WITHOUT SAVING", and "SAVE INCOMPLETE" (the same dialog the back button shows).
+    - Tap "STAY IN FORM" → dialog dismisses, the user stays in the form, no navigation occurs.
+    - Repeat the scenario, this time tapping "EXIT WITHOUT SAVING" → the form is dismissed without saving and the notification's target screen opens.
+    - Repeat again, tapping "SAVE INCOMPLETE" → the form is saved as incomplete (verify it appears in the Saved Forms list on the App Home), and after the save completes the notification's target screen opens.
   - **No form open, no dialog (regression check):** Tap the same kinds of notifications from the home screen, login screen, and other non-form screens. Verify the notification opens its target screen directly, with no dialog — identical to today's behavior.
   - **Read-only form:** Open a previously completed form in review mode and tap a navigation notification. Verify no dialog appears, the read-only view closes, and the notification's target screen opens.
   - **No regression on existing notification types:** Re-run the regression for Connect messaging notifications, payment notifications, learn/delivery progress notifications, opportunity summary notifications, and session-endpoint deep links. All should behave the same as before when no form is open, and should now show the dialog when a form is open.
