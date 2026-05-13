@@ -21,16 +21,11 @@
 #
 # For more information: https://github.github.com/gh-aw/introduction/overview/
 #
-# A PR review assistant that iterates on open Test Improver pull requests based on team feedback.
-# Runs every 4 hours to check for unresolved reviewer comments on PRs created by the daily
-# test improver, implements the requested changes, and posts a summary.
-# - Scans all open [Test Improver] PRs for unresolved review comments
-# - Implements clear, unambiguous reviewer requests directly on the PR branch
-# - Posts a summary comment explaining what was changed (or asks for clarification)
-# - Skips ambiguous or contested comments rather than guessing
-# Always transparent, never merges PRs, defers to human judgement on contested changes.
+# Iterates on open [Test Improver] PRs based on reviewer feedback.
+# Scans for unresolved comments, implements clear requests, posts a summary.
+# Never merges. Defers to humans on ambiguous or contested changes.
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"2012c3aaed166d13f7be06c9d13f12f55b781b0bd86c055e53bef7c26c380826","compiler_version":"v0.57.2","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"4a3451fce1d3568d9bdbd66a80b8689d18bc3837821266f99617367fd65a2fb4","compiler_version":"v0.57.2","strict":true}
 
 name: "PR Comment Handler"
 "on":
@@ -430,7 +425,7 @@ jobs:
           mkdir -p /tmp/gh-aw/safeoutputs
           mkdir -p /tmp/gh-aw/mcp-logs/safeoutputs
           cat > /opt/gh-aw/safeoutputs/config.json << 'GH_AW_SAFE_OUTPUTS_CONFIG_EOF'
-          {"add_comment":{"max":10,"target":"*"},"missing_data":{},"missing_tool":{},"noop":{"max":1},"push_repo_memory":{"memories":[{"dir":"/tmp/gh-aw/repo-memory/default","id":"default","max_file_count":100,"max_file_size":10240,"max_patch_size":10240}]},"push_to_pull_request_branch":{"max":4,"target":"*"}}
+          {"add_comment":{"max":10,"target":"*"},"missing_data":{},"missing_tool":{},"noop":{"max":1},"push_repo_memory":{"memories":[{"dir":"/tmp/gh-aw/repo-memory/default","id":"default","max_file_count":100,"max_file_size":10240,"max_patch_size":10240}]},"push_to_pull_request_branch":{"max":3,"target":"*"}}
           GH_AW_SAFE_OUTPUTS_CONFIG_EOF
           cat > /opt/gh-aw/safeoutputs/tools.json << 'GH_AW_SAFE_OUTPUTS_TOOLS_EOF'
           [
@@ -472,7 +467,7 @@ jobs:
               "name": "add_comment"
             },
             {
-              "description": "Push committed changes to a pull request's branch. Use this to add follow-up commits to an existing PR, such as addressing review feedback or fixing issues. Changes must be committed locally before calling this tool. CONSTRAINTS: Maximum 4 push(es) can be made. The target pull request title must start with \"[Test Improver] \".",
+              "description": "Push committed changes to a pull request's branch. Use this to add follow-up commits to an existing PR, such as addressing review feedback or fixing issues. Changes must be committed locally before calling this tool. CONSTRAINTS: Maximum 3 push(es) can be made. The target pull request title must start with \"[Test Improver]\".",
               "inputSchema": {
                 "additionalProperties": false,
                 "properties": {
@@ -832,7 +827,6 @@ jobs:
         # - Read
         # - Task
         # - TodoWrite
-        # - WebFetch
         # - Write
         # - mcp__github__download_workflow_run_artifact
         # - mcp__github__get_code_scanning_alert
@@ -892,7 +886,7 @@ jobs:
           touch /tmp/gh-aw/agent-step-summary.md
           # shellcheck disable=SC1003
           sudo -E awf --tty --env-all --container-workdir "${GITHUB_WORKSPACE}" --allow-domains "*.githubusercontent.com,adoptium.net,anthropic.com,api.adoptium.net,api.anthropic.com,api.foojay.io,api.github.com,api.snapcraft.io,archive.apache.org,archive.ubuntu.com,azure.archive.ubuntu.com,cdn.azul.com,cdn.playwright.dev,central.sonatype.com,codeload.github.com,crl.geotrust.com,crl.globalsign.com,crl.identrust.com,crl.sectigo.com,crl.thawte.com,crl.usertrust.com,crl.verisign.com,crl3.digicert.com,crl4.digicert.com,crls.ssl.com,dl.google.com,dlcdn.apache.org,download.eclipse.org,download.java.net,download.oracle.com,downloads.gradle-dn.com,files.pythonhosted.org,ghcr.io,github-cloud.githubusercontent.com,github-cloud.s3.amazonaws.com,github.com,gradle.org,host.docker.internal,jcenter.bintray.com,jdk.java.net,json-schema.org,json.schemastore.org,keyserver.ubuntu.com,lfs.github.com,maven.apache.org,maven.google.com,maven.oracle.com,maven.pkg.github.com,objects.githubusercontent.com,ocsp.digicert.com,ocsp.geotrust.com,ocsp.globalsign.com,ocsp.identrust.com,ocsp.sectigo.com,ocsp.ssl.com,ocsp.thawte.com,ocsp.usertrust.com,ocsp.verisign.com,packagecloud.io,packages.cloud.google.com,packages.microsoft.com,playwright.download.prss.microsoft.com,plugins-artifacts.gradle.org,plugins.gradle.org,ppa.launchpad.net,pypi.org,raw.githubusercontent.com,registry.npmjs.org,repo.gradle.org,repo.grails.org,repo.maven.apache.org,repo.spring.io,repo1.maven.org,s.symcb.com,s.symcd.com,security.ubuntu.com,sentry.io,services.gradle.org,statsig.anthropic.com,ts-crl.ws.symantec.com,ts-ocsp.ws.symantec.com,www.java.com" --log-level info --proxy-logs-dir /tmp/gh-aw/sandbox/firewall/logs --enable-host-access --image-tag 0.23.0 --skip-pull --enable-api-proxy \
-            -- /bin/bash -c 'export PATH="$(find /opt/hostedtoolcache -maxdepth 4 -type d -name bin 2>/dev/null | tr '\''\n'\'' '\'':'\'')$PATH"; [ -n "$GOROOT" ] && export PATH="$GOROOT/bin:$PATH" || true && claude --print --disable-slash-commands --no-chrome --mcp-config /tmp/gh-aw/mcp-config/mcp-servers.json --allowed-tools Bash,BashOutput,Edit,ExitPlanMode,Glob,Grep,KillBash,LS,MultiEdit,NotebookEdit,NotebookRead,Read,Task,TodoWrite,WebFetch,Write,mcp__github__download_workflow_run_artifact,mcp__github__get_code_scanning_alert,mcp__github__get_commit,mcp__github__get_dependabot_alert,mcp__github__get_discussion,mcp__github__get_discussion_comments,mcp__github__get_file_contents,mcp__github__get_job_logs,mcp__github__get_label,mcp__github__get_latest_release,mcp__github__get_me,mcp__github__get_notification_details,mcp__github__get_pull_request,mcp__github__get_pull_request_comments,mcp__github__get_pull_request_diff,mcp__github__get_pull_request_files,mcp__github__get_pull_request_review_comments,mcp__github__get_pull_request_reviews,mcp__github__get_pull_request_status,mcp__github__get_release_by_tag,mcp__github__get_secret_scanning_alert,mcp__github__get_tag,mcp__github__get_workflow_run,mcp__github__get_workflow_run_logs,mcp__github__get_workflow_run_usage,mcp__github__issue_read,mcp__github__list_branches,mcp__github__list_code_scanning_alerts,mcp__github__list_commits,mcp__github__list_dependabot_alerts,mcp__github__list_discussion_categories,mcp__github__list_discussions,mcp__github__list_issue_types,mcp__github__list_issues,mcp__github__list_label,mcp__github__list_notifications,mcp__github__list_pull_requests,mcp__github__list_releases,mcp__github__list_secret_scanning_alerts,mcp__github__list_starred_repositories,mcp__github__list_tags,mcp__github__list_workflow_jobs,mcp__github__list_workflow_run_artifacts,mcp__github__list_workflow_runs,mcp__github__list_workflows,mcp__github__pull_request_read,mcp__github__search_code,mcp__github__search_issues,mcp__github__search_orgs,mcp__github__search_pull_requests,mcp__github__search_repositories,mcp__github__search_users --debug-file /tmp/gh-aw/agent-stdio.log --verbose --permission-mode bypassPermissions --output-format stream-json "$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"${GH_AW_MODEL_AGENT_CLAUDE:+ --model "$GH_AW_MODEL_AGENT_CLAUDE"}' 2>&1 | tee -a /tmp/gh-aw/agent-stdio.log
+            -- /bin/bash -c 'export PATH="$(find /opt/hostedtoolcache -maxdepth 4 -type d -name bin 2>/dev/null | tr '\''\n'\'' '\'':'\'')$PATH"; [ -n "$GOROOT" ] && export PATH="$GOROOT/bin:$PATH" || true && claude --print --disable-slash-commands --no-chrome --mcp-config /tmp/gh-aw/mcp-config/mcp-servers.json --allowed-tools Bash,BashOutput,Edit,ExitPlanMode,Glob,Grep,KillBash,LS,MultiEdit,NotebookEdit,NotebookRead,Read,Task,TodoWrite,Write,mcp__github__download_workflow_run_artifact,mcp__github__get_code_scanning_alert,mcp__github__get_commit,mcp__github__get_dependabot_alert,mcp__github__get_discussion,mcp__github__get_discussion_comments,mcp__github__get_file_contents,mcp__github__get_job_logs,mcp__github__get_label,mcp__github__get_latest_release,mcp__github__get_me,mcp__github__get_notification_details,mcp__github__get_pull_request,mcp__github__get_pull_request_comments,mcp__github__get_pull_request_diff,mcp__github__get_pull_request_files,mcp__github__get_pull_request_review_comments,mcp__github__get_pull_request_reviews,mcp__github__get_pull_request_status,mcp__github__get_release_by_tag,mcp__github__get_secret_scanning_alert,mcp__github__get_tag,mcp__github__get_workflow_run,mcp__github__get_workflow_run_logs,mcp__github__get_workflow_run_usage,mcp__github__issue_read,mcp__github__list_branches,mcp__github__list_code_scanning_alerts,mcp__github__list_commits,mcp__github__list_dependabot_alerts,mcp__github__list_discussion_categories,mcp__github__list_discussions,mcp__github__list_issue_types,mcp__github__list_issues,mcp__github__list_label,mcp__github__list_notifications,mcp__github__list_pull_requests,mcp__github__list_releases,mcp__github__list_secret_scanning_alerts,mcp__github__list_starred_repositories,mcp__github__list_tags,mcp__github__list_workflow_jobs,mcp__github__list_workflow_run_artifacts,mcp__github__list_workflow_runs,mcp__github__list_workflows,mcp__github__pull_request_read,mcp__github__search_code,mcp__github__search_issues,mcp__github__search_orgs,mcp__github__search_pull_requests,mcp__github__search_repositories,mcp__github__search_users --debug-file /tmp/gh-aw/agent-stdio.log --verbose --permission-mode bypassPermissions --output-format stream-json "$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"${GH_AW_MODEL_AGENT_CLAUDE:+ --model "$GH_AW_MODEL_AGENT_CLAUDE"}' 2>&1 | tee -a /tmp/gh-aw/agent-stdio.log
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BASH_DEFAULT_TIMEOUT_MS: 60000
@@ -1079,7 +1073,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
           WORKFLOW_NAME: "PR Comment Handler"
-          WORKFLOW_DESCRIPTION: "A PR review assistant that iterates on open Test Improver pull requests based on team feedback.\nRuns every 4 hours to check for unresolved reviewer comments on PRs created by the daily\ntest improver, implements the requested changes, and posts a summary.\n- Scans all open [Test Improver] PRs for unresolved review comments\n- Implements clear, unambiguous reviewer requests directly on the PR branch\n- Posts a summary comment explaining what was changed (or asks for clarification)\n- Skips ambiguous or contested comments rather than guessing\nAlways transparent, never merges PRs, defers to human judgement on contested changes."
+          WORKFLOW_DESCRIPTION: "Iterates on open [Test Improver] PRs based on reviewer feedback.\nScans for unresolved comments, implements clear requests, posts a summary.\nNever merges. Defers to humans on ambiguous or contested changes."
           HAS_PATCH: ${{ steps.collect_output.outputs.has_patch }}
         with:
           script: |
@@ -1279,7 +1273,7 @@ jobs:
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
           GH_AW_NOOP_MESSAGE: ${{ steps.noop.outputs.noop_message }}
-          GH_AW_NOOP_REPORT_AS_ISSUE: "false"
+          GH_AW_NOOP_REPORT_AS_ISSUE: "true"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
@@ -1483,7 +1477,7 @@ jobs:
           GH_AW_ALLOWED_DOMAINS: "*.githubusercontent.com,adoptium.net,anthropic.com,api.adoptium.net,api.anthropic.com,api.foojay.io,api.github.com,api.snapcraft.io,archive.apache.org,archive.ubuntu.com,azure.archive.ubuntu.com,cdn.azul.com,cdn.playwright.dev,central.sonatype.com,codeload.github.com,crl.geotrust.com,crl.globalsign.com,crl.identrust.com,crl.sectigo.com,crl.thawte.com,crl.usertrust.com,crl.verisign.com,crl3.digicert.com,crl4.digicert.com,crls.ssl.com,dl.google.com,dlcdn.apache.org,download.eclipse.org,download.java.net,download.oracle.com,downloads.gradle-dn.com,files.pythonhosted.org,ghcr.io,github-cloud.githubusercontent.com,github-cloud.s3.amazonaws.com,github.com,gradle.org,host.docker.internal,jcenter.bintray.com,jdk.java.net,json-schema.org,json.schemastore.org,keyserver.ubuntu.com,lfs.github.com,maven.apache.org,maven.google.com,maven.oracle.com,maven.pkg.github.com,objects.githubusercontent.com,ocsp.digicert.com,ocsp.geotrust.com,ocsp.globalsign.com,ocsp.identrust.com,ocsp.sectigo.com,ocsp.ssl.com,ocsp.thawte.com,ocsp.usertrust.com,ocsp.verisign.com,packagecloud.io,packages.cloud.google.com,packages.microsoft.com,playwright.download.prss.microsoft.com,plugins-artifacts.gradle.org,plugins.gradle.org,ppa.launchpad.net,pypi.org,raw.githubusercontent.com,registry.npmjs.org,repo.gradle.org,repo.grails.org,repo.maven.apache.org,repo.spring.io,repo1.maven.org,s.symcb.com,s.symcd.com,security.ubuntu.com,sentry.io,services.gradle.org,statsig.anthropic.com,ts-crl.ws.symantec.com,ts-ocsp.ws.symantec.com,www.java.com"
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_API_URL: ${{ github.api_url }}
-          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"add_comment\":{\"hide_older_comments\":false,\"max\":10,\"target\":\"*\"},\"missing_data\":{},\"missing_tool\":{},\"push_to_pull_request_branch\":{\"if_no_changes\":\"warn\",\"max\":4,\"max_patch_size\":1024,\"protected_files\":[\"package.json\",\"bun.lockb\",\"bunfig.toml\",\"deno.json\",\"deno.jsonc\",\"deno.lock\",\"global.json\",\"NuGet.Config\",\"Directory.Packages.props\",\"mix.exs\",\"mix.lock\",\"go.mod\",\"go.sum\",\"stack.yaml\",\"stack.yaml.lock\",\"pom.xml\",\"build.gradle\",\"build.gradle.kts\",\"settings.gradle\",\"settings.gradle.kts\",\"gradle.properties\",\"package-lock.json\",\"yarn.lock\",\"pnpm-lock.yaml\",\"npm-shrinkwrap.json\",\"requirements.txt\",\"Pipfile\",\"Pipfile.lock\",\"pyproject.toml\",\"setup.py\",\"setup.cfg\",\"Gemfile\",\"Gemfile.lock\",\"uv.lock\",\"CLAUDE.md\"],\"protected_path_prefixes\":[\".github/\",\".agents/\",\".claude/\"],\"target\":\"*\",\"title_prefix\":\"[Test Improver] \"}}"
+          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"add_comment\":{\"hide_older_comments\":false,\"max\":10,\"target\":\"*\"},\"missing_data\":{},\"missing_tool\":{},\"push_to_pull_request_branch\":{\"if_no_changes\":\"warn\",\"max\":3,\"max_patch_size\":1024,\"protected_files\":[\"package.json\",\"bun.lockb\",\"bunfig.toml\",\"deno.json\",\"deno.jsonc\",\"deno.lock\",\"global.json\",\"NuGet.Config\",\"Directory.Packages.props\",\"mix.exs\",\"mix.lock\",\"go.mod\",\"go.sum\",\"stack.yaml\",\"stack.yaml.lock\",\"pom.xml\",\"build.gradle\",\"build.gradle.kts\",\"settings.gradle\",\"settings.gradle.kts\",\"gradle.properties\",\"package-lock.json\",\"yarn.lock\",\"pnpm-lock.yaml\",\"npm-shrinkwrap.json\",\"requirements.txt\",\"Pipfile\",\"Pipfile.lock\",\"pyproject.toml\",\"setup.py\",\"setup.cfg\",\"Gemfile\",\"Gemfile.lock\",\"uv.lock\",\"CLAUDE.md\"],\"protected_path_prefixes\":[\".github/\",\".agents/\",\".claude/\"],\"target\":\"*\",\"title_prefix\":\"[Test Improver]\"}}"
           GH_AW_CI_TRIGGER_TOKEN: ${{ secrets.GH_AW_CI_TRIGGER_TOKEN }}
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
