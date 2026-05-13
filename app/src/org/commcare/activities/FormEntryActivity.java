@@ -1274,32 +1274,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 getCurrentFormXmlnsFailSafe());
 
         if (!formHasLoaded()) {
-            startPendingNavSafely(pendingNav);
+            startActivity(pendingNav);
             finish();
             return;
         }
         if (mFormController.isFormReadOnly()) {
-            startPendingNavSafely(pendingNav);
+            startActivity(pendingNav);
             finishReturnInstance(false);
             return;
         }
         FormEntryDialogs.createQuitDialog(this, mIncompleteEnabled, pendingNav);
     }
 
-    private void startPendingNavSafely(Intent pendingNav) {
-        try {
-            startActivity(pendingNav);
-        } catch (android.content.ActivityNotFoundException e) {
-            Logger.exception(
-                    "Push notification target activity not found", e);
-        }
-    }
-
     private void consumePendingNavAfterSave() {
         if (mPendingNavAfterSave != null) {
             Intent toStart = mPendingNavAfterSave;
             mPendingNavAfterSave = null;
-            startPendingNavSafely(toStart);
+            startActivity(toStart);
         }
     }
 
@@ -1847,7 +1838,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void discardChangesAndExitToPendingNav(Intent pendingNav) {
-        startPendingNavSafely(pendingNav);
+        startActivity(pendingNav);
         discardChangesAndExit();
     }
 
