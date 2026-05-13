@@ -333,7 +333,7 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.UPDATE_NOTIFICATIONS);
     }
 
-    public static void sendOtp(Context context, String token, IApiCallback callback) {
+    public static void sendPhoneOtp(Context context, String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
@@ -342,7 +342,7 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.sendSessionOtp);
     }
 
-    public static void validateOtp(
+    public static void validatePhoneOtp(
             Context context,
             String token,
             String otp,

@@ -20,7 +20,7 @@ class PersonalIdAuthService(
             override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.sendOtp(activity, personalIdSessionData)
+        }.sendPhoneOtp(activity, personalIdSessionData)
     }
 
     override fun verifyOtp(code: String) {
@@ -37,6 +37,6 @@ class PersonalIdAuthService(
             override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.validateOtp(activity, code, personalIdSessionData)
+        }.validatePhoneOtp(activity, code, personalIdSessionData)
     }
 }

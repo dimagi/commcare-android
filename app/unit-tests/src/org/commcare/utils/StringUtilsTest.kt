@@ -12,29 +12,29 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 class StringUtilsTest {
     @Test
-    fun isValidEmail_returnsTrueForWellFormedAddress() {
+    fun `isValidEmail returns true for well-formed address`() {
         assertTrue(StringUtils.isValidEmail("user@example.com"))
         assertTrue(StringUtils.isValidEmail("first.last+tag@sub.example.co"))
     }
 
     @Test
-    fun isValidEmail_trimsSurroundingWhitespace() {
+    fun `isValidEmail returns true when surrounding whitespace is present`() {
         assertTrue(StringUtils.isValidEmail("  user@example.com  "))
     }
 
     @Test
-    fun isValidEmail_returnsFalseForNull() {
+    fun `isValidEmail returns false for null input`() {
         assertFalse(StringUtils.isValidEmail(null))
     }
 
     @Test
-    fun isValidEmail_returnsFalseForEmptyOrBlank() {
+    fun `isValidEmail returns false for empty or blank input`() {
         assertFalse(StringUtils.isValidEmail(""))
         assertFalse(StringUtils.isValidEmail("   "))
     }
 
     @Test
-    fun isValidEmail_returnsFalseForMalformedAddress() {
+    fun `isValidEmail returns false for malformed address`() {
         assertFalse(StringUtils.isValidEmail("not-an-email"))
         assertFalse(StringUtils.isValidEmail("missing@domain"))
         assertFalse(StringUtils.isValidEmail("@no-local.com"))
