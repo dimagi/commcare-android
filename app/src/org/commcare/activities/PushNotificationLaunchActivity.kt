@@ -54,21 +54,15 @@ class PushNotificationLaunchActivity : Activity() {
             Intent(this, FormEntryActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_INTENT, wrapped)
-        try {
-            startActivity(reroute)
-        } catch (e: ActivityNotFoundException) {
-            Logger.exception("Push notification could not re-enter FormEntryActivity", e)
-        }
+
+        startActivity(reroute)
     }
 
     private fun dispatchWithoutForm(wrapped: Intent) {
         val toStart =
             Intent(wrapped)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-        try {
-            startActivity(toStart)
-        } catch (e: ActivityNotFoundException) {
-            Logger.exception("Push notification target activity not found", e)
-        }
+
+        startActivity(toStart)
     }
 }
