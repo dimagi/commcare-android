@@ -31,9 +31,11 @@ import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.utils.OtpAnalyticsMapper;
 import org.commcare.utils.OtpErrorType;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
@@ -44,6 +46,7 @@ import org.joda.time.DateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.commcare.utils.OtpAnalyticsMapper.getEventType;
 import static org.commcare.utils.OtpManager.SMS_METHOD_FIREBASE;
 import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
 
@@ -60,6 +63,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private ScreenPersonalidPhoneVerifyBinding binding;
     private final Handler resendTimerHandler = new Handler();
+    private OtpAnalyticsMapper.OtpOp currentOtpOp;
     private OtpManager otpManager;
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
@@ -97,22 +101,33 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             @Override
             public void onCodeSent(String verificationId) {
                 if (otpCallback == null) return;
+                reportOtpAnalytics(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, null);
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_sent), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCodeVerified(String code) {
                 if (otpCallback == null) return;
+                // No analytics emission here: this is Firebase's local auto-verification step.
+                // Verify success is recorded from the server-confirmed onSuccess callback so
+                // we don't double-count, and verify failure is recorded from onFailure /
+                // onPersonalIdApiFailure.
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_verified), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onSuccess() {
+                if (otpCallback == null) return;
+                reportOtpAnalytics(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, null);
                 navigateToNameEntry();
             }
 
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
+                reportOtpAnalytics(
+                        AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                        OtpAnalyticsMapper.reasonFrom(errorType));
+
                 if (otpCallback == null) return;
 
                 // Auto-switch from Firebase to PersonalId for non-recoverable errors
@@ -140,6 +155,12 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     @NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode,
                     Throwable t
             ) {
+                if (otpCallback == null) return;
+
+                reportOtpAnalytics(
+                        AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                        OtpAnalyticsMapper.reasonFrom(failureCode));
+
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
@@ -220,7 +241,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 binding.connectPhoneVerifyChange.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
         binding.connectPhoneVerifyButton.setOnClickListener(v -> verifyOtp());
-        binding.customOtpView.setOnOtpChangedListener(otp -> {
+        binding.customOtpView.setOnCodeChangedListener(otp -> {
             clearOtpError();
             toggleVerifyButton(otp);
         });
@@ -231,7 +252,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         String message = result.getData().getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
                         String otp = extractOtp(message);
-                        binding.customOtpView.setOtp(otp); // Autofill OTP
+                        binding.customOtpView.setCode(otp); // Autofill OTP
                     }
                 }
         );
@@ -329,22 +350,35 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         }
     }
 
+    private void reportOtpAnalytics(String outcome, @Nullable String reason) {
+      String eventType = getEventType(currentOtpOp);
+        if (eventType == null) return;
+        String method = OtpAnalyticsMapper.methodFromSmsMethod(lastOtpMethod);
+        FirebaseAnalyticsUtil.reportOtpEvent(
+                eventType,
+                outcome,
+                method,
+                reason,
+                personalIdSessionData.getOtpAttempts());
+    }
+
     private void requestOtp() {
         clearOtpError();
         otpRequestTime = new DateTime();
+        currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST;
         otpManager.requestOtp(primaryPhone);
         personalIdSessionData.setOtpAttempts(personalIdSessionData.getOtpAttempts() + 1);
-        FirebaseAnalyticsUtil.reportOtpRequested(personalIdSessionData.getOtpAttempts());
     }
 
     private void verifyOtp() {
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
-        String otpCode = binding.customOtpView.getOtpValue();
+        String otpCode = binding.customOtpView.getCodeValue();
 
         if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
+            currentOtpOp = OtpAnalyticsMapper.OtpOp.VERIFY;
             otpManager.verifyOtp(otpCode);
         }
     }

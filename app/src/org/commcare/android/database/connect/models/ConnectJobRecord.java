@@ -6,10 +6,13 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.network.connect.models.ParsedConnectTask;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.preferences.ConnectJobPreferences;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
@@ -85,6 +88,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_USER_SUSPENDED = "is_user_suspended";
 
     public static final String META_JOB_UUID = "opportunity_id";
+
+    private static final long RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS = DateUtils.HOUR_IN_MS * 6;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -232,7 +237,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         //verification_flags -> {"form_submission_start":"07:30:00","form_submission_end":"18:45:00"}
         String flagsKey = "verification_flags";
-        JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
+        JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey)
+                ? json.getJSONObject(flagsKey) : null;
         if (flags != null) {
             job.dailyStartTime = JsonExtensions.optStringSafe(flags, META_DAILY_START_TIME, "");
             job.dailyFinishTime = JsonExtensions.optStringSafe(flags, META_DAILY_FINISH_TIME, "");
@@ -241,7 +247,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
         for (int i = 0; i < unitsJson.length(); i++) {
-            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job);
+            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(
+                    unitsJson.getJSONObject(i),
+                    job
+            );
             if (payment != null) {
                 job.paymentUnits.add(payment);
             }
@@ -283,8 +292,16 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
         job.learningModulesCompleted = learning.getInt(META_COMPLETED_MODULES);
 
-        job.learnAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_LEARN_APP), job, true);
-        job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job, false);
+        job.learnAppInfo = ConnectAppRecord.fromJson(
+                json.getJSONObject(META_LEARN_APP),
+                job,
+                true
+        );
+        job.deliveryAppInfo = ConnectAppRecord.fromJson(
+                json.getJSONObject(META_DELIVER_APP),
+                job,
+                false
+        );
 
         job.status = STATUS_AVAILABLE;
         if (job.getLearningPercentComplete(true) > 0) {
@@ -354,7 +371,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getPaymentAccrued() {
-        return paymentAccrued == null || paymentAccrued.isEmpty() ? 0 : Integer.parseInt(paymentAccrued);
+        return paymentAccrued == null || paymentAccrued.isEmpty()
+                ? 0 : Integer.parseInt(paymentAccrued);
     }
 
     /**
@@ -489,11 +507,17 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         try {
-            SimpleDateFormat utcFormat = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT, Locale.getDefault());
+            SimpleDateFormat utcFormat = new SimpleDateFormat(
+                    WORKING_HOURS_SOURCE_FORMAT,
+                    Locale.getDefault()
+            );
             utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date startTime = utcFormat.parse(dailyStart);
             Date endTime = utcFormat.parse(dailyFinish);
-            SimpleDateFormat localFormat = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT, Locale.getDefault());
+            SimpleDateFormat localFormat = new SimpleDateFormat(
+                    WORKING_HOURS_TARGET_FORMAT,
+                    Locale.getDefault()
+            );
 
             String startTimeLocal = localFormat.format(startTime);
             String endTimeLocal = localFormat.format(endTime);
@@ -585,7 +609,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return String.format(Locale.getDefault(), "%d%s", value, currency);
     }
 
-
     public int numberOfDeliveriesToday() {
         int dailyVisitCount = 0;
         Date today = new Date();
@@ -605,7 +628,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public boolean isMultiPayment() {
         return paymentUnits.size() > 1;
     }
-
 
     public HashMap<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
         HashMap<String, Integer> paymentCounts = new HashMap<>();
@@ -642,6 +664,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
+        } else if (shouldShowRelearnTasksCompletedMessage()) {
+            return context.getString(R.string.connect_progress_relearn_tasks_completed);
         } else if (isMultiPayment()) {
             return getMultiVisitWarnings(context);
         } else if (getDeliveries().size() >= getMaxVisits()) {
@@ -676,13 +700,21 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         List<String> lines = new ArrayList<>();
         if (!totalMaxes.isEmpty()) {
-            lines.add(context.getString(R.string.connect_progress_warning_max_reached_multi,
-                    TextUtils.join(", ", totalMaxes)));
+            lines.add(
+                    context.getString(
+                            R.string.connect_progress_warning_max_reached_multi,
+                            TextUtils.join(", ", totalMaxes)
+                    )
+            );
         }
 
         if (!dailyMaxes.isEmpty()) {
-            lines.add(context.getString(R.string.connect_progress_warning_daily_max_reached_multi,
-                    TextUtils.join(", ", dailyMaxes)));
+            lines.add(
+                    context.getString(
+                            R.string.connect_progress_warning_daily_max_reached_multi,
+                            TextUtils.join(", ", dailyMaxes)
+                    )
+            );
         }
 
         return lines.isEmpty() ? null : TextUtils.join("\n", lines);
@@ -851,5 +883,59 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public void setClaimed(boolean claimed) {
         this.claimed = claimed;
+    }
+
+    public boolean isRelearnTaskPending() {
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
+        return jobPrefs.isRelearnTaskPending() && status == STATUS_DELIVERING;
+    }
+
+    public boolean shouldShowRelearnTasksCompletedMessage() {
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
+        long relearnTasksCompletedTimeMs = jobPrefs.getRelearnTasksCompletedTimeMs();
+        long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
+
+        return !jobPrefs.relearnTasksCompletedTimeNotSet()
+                && timeElapsedSinceTasksCompleted < RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS
+                && status == STATUS_DELIVERING;
+    }
+
+    public void syncRelearnTasksPrefs(List<ParsedConnectTask> tasks) {
+        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
+
+        if (tasks == null || tasks.isEmpty()) {
+            jobPrefs.setRelearnTaskPending(false);
+            return;
+        }
+
+        boolean anyAssigned = false;
+        Date latestModified = null;
+        for (ParsedConnectTask task : tasks) {
+            if (task.getAssigned()) {
+                anyAssigned = true;
+            }
+
+            Date modified = task.getDateModified();
+            if (modified != null && (latestModified == null || modified.after(latestModified))) {
+                latestModified = modified;
+            }
+        }
+
+        jobPrefs.setRelearnTaskPending(anyAssigned);
+
+        // If at least one task is currently assigned, then we know that not all of them were completed.
+        if (anyAssigned) {
+            jobPrefs.resetRelearnTasksCompletedTime();
+            return;
+        }
+
+        if (jobPrefs.relearnTasksCompletedTimeNotSet()) {
+            // Set the completion time for all tasks to the latest date any task was modified, or
+            // fallback to the current date if there is no latest modified date.
+            long newTasksCompletedTime = latestModified != null
+                    ? latestModified.getTime()
+                    : new Date().getTime();
+            jobPrefs.setRelearnTasksCompletedTime(newTasksCompletedTime);
+        }
     }
 }

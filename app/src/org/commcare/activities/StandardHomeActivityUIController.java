@@ -99,8 +99,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             TextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
             TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
             TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-            TextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+            TextView tvJobTime = viewJobCard.findViewById(R.id.tv_job_time);
             TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+            CardView cvRelearnTasksPending = viewJobCard.findViewById(R.id.cv_relearn_tasks_pending);
 
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
@@ -113,11 +114,19 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
             String workingHours = job.getWorkingHours();
             boolean showHours = workingHours != null;
-            tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
-            hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-
-            if (showHours) {
-                tv_job_time.setText(workingHours);
+            if (job.isRelearnTaskPending()) {
+                cvRelearnTasksPending.setVisibility(View.VISIBLE);
+                tvJobTime.setVisibility(View.GONE);
+                hoursTitle.setVisibility(View.GONE);
+            } else if (showHours) {
+                tvJobTime.setText(workingHours);
+                cvRelearnTasksPending.setVisibility(View.GONE);
+                tvJobTime.setVisibility(View.VISIBLE);
+                hoursTitle.setVisibility(View.VISIBLE);
+            } else {
+                cvRelearnTasksPending.setVisibility(View.GONE);
+                tvJobTime.setVisibility(View.GONE);
+                hoursTitle.setVisibility(View.GONE);
             }
 
             updateConnectJobProgress();
@@ -138,14 +147,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             @ColorRes int textColorRes;
             @ColorRes int backgroundColorRes;
 
-            if (job.readyToTransitionToDelivery()) {
+            if (job.deliveryComplete()) {
+                textColorRes = R.color.rich_amber_gold;
+                backgroundColorRes = R.color.pale_buttery_cream;
+                connectMessageWarningIcon.setVisibility(View.VISIBLE);
+            } else if (job.readyToTransitionToDelivery() || job.shouldShowRelearnTasksCompletedMessage()) {
                 textColorRes = R.color.connect_green;
                 backgroundColorRes = R.color.connect_light_green;
                 connectMessageWarningIcon.setVisibility(View.GONE);
-            } else if (job.deliveryComplete()) {
-                textColorRes = R.color.connect_blue_color;
-                backgroundColorRes = R.color.porcelain_grey;
-                connectMessageWarningIcon.setVisibility(View.VISIBLE);
             } else {
                 textColorRes = R.color.connect_warning_color;
                 backgroundColorRes = R.color.connect_light_orange_color;
@@ -181,8 +190,10 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
 
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
-        if (job.getStatus() != STATUS_DELIVERING || job.isFinished()) {
+        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() || job.isRelearnTaskPending()) {
             recyclerView.setVisibility(View.GONE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
         }
 
         updateConnectJobMessage();

@@ -4,10 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,11 +20,10 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.connect.viewmodel.ConnectJobsListViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
@@ -60,7 +57,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> inProgressJobs;
     ArrayList<ConnectLoginJobListModel> newJobs;
     ArrayList<ConnectLoginJobListModel> finishedJobs;
-    ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
+    private ConnectJobsListViewModel viewModel;
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -74,61 +71,28 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_title);
-        refreshData();
+        setWaitDialogEnabled(false);
+        viewModel = new ViewModelProvider(this).get(ConnectJobsListViewModel.class);
+        observeOpportunities();
+        refresh(false);
         return view;
     }
 
     @Override
-    public void refresh() {
-        refreshData();
+    public void refresh(boolean forceRefresh) {
+        viewModel.loadOpportunities(forceRefresh);
     }
 
-    public void refreshData() {
-        ((ConnectActivity) requireActivity()).setWaitDialogEnabled(false);
-        corruptJobs.clear();
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        new ConnectApiHandler<ConnectOpportunitiesResponseModel>(true, this) {
-            @Override
-            public void onFailure(
-                    @NonNull PersonalIdOrConnectApiErrorCodes errorCode,
-                    @Nullable Throwable t
-            ) {
-                if (!isAdded()) {
-                    return;
-                }
-
-                Toast.makeText(
-                        requireContext(),
-                        PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),
-                        Toast.LENGTH_LONG
-                ).show();
-                navigateFailure();
-            }
-
-            @Override
-            public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                corruptJobs = data.getCorruptJobs();
-
-                if (isAdded()) {
-                    setJobListData(data.getValidJobs());
-                }
-            }
-        }.getConnectOpportunities(requireContext(), user);
-    }
-
-    private void navigateFailure() {
-        setJobListData(
-                ConnectJobUtils.getCompositeJobs(
-                        getActivity(),
-                        ConnectJobRecord.STATUS_ALL_JOBS,
-                        null
-                )
+    private void observeOpportunities() {
+        observeDataState(
+                viewModel.getOpportunities(),
+                this::setJobListData,
+                this::setJobListData
         );
     }
 
-
     private void initRecyclerView() {
-        boolean noJobsAvailable = corruptJobs.isEmpty() && inProgressJobs.isEmpty()
+        boolean noJobsAvailable = inProgressJobs.isEmpty()
                 && newJobs.isEmpty() && finishedJobs.isEmpty();
         getBinding().connectNoJobsText.setVisibility(noJobsAvailable ? View.VISIBLE : View.GONE);
 
@@ -137,12 +101,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 inProgressJobs,
                 newJobs,
                 finishedJobs,
-                corruptJobs,
                 (job, isLearning, appId, jobType, action) -> {
                     if (action == OnJobSelectionClick.Action.VIEW_INFO) {
                         setActiveJob(job);
-                        if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE_NEW
-                                || job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                        if (job.getStatus() == STATUS_AVAILABLE_NEW
+                                || job.getStatus() == STATUS_AVAILABLE) {
                             navigateToJobIntro();
                         } else {
                             navigateToJobDetailBottomSheet(getView());
@@ -262,7 +225,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                     ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
             Objects.requireNonNull(compositeJob);
             boolean userCompletedDelivery =
-                    compositeJob.getStatus() == ConnectJobRecord.STATUS_DELIVERING &&
+                    compositeJob.getStatus() == STATUS_DELIVERING &&
                             compositeJob.getDeliveryProgressPercentage() == 100;
             if (compositeJob.isFinished()) {
                 finishedJobs.add(createJobModel(
@@ -428,6 +391,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 requireActivity(), appId, user.getUserId());
 
         return appRecord != null ? appRecord.getLastAccessed() : new Date();
+    }
+
+    @Override
+    public String getEndpoint() {
+        return ConnectRepository.SYNC_KEY_OPPORTUNITIES;
     }
 
     @Override
