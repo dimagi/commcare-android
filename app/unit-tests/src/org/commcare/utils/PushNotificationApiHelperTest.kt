@@ -3,6 +3,8 @@ package org.commcare.utils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_REQUIRE_APP_SYNC
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_SESSION_ENDPOINT_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
@@ -44,6 +46,8 @@ class PushNotificationApiHelperTest {
             paymentId = "pay-001"
             key = "key-value"
             opportunityStatus = "learn"
+            sessionEndpointId = "endpoint-001"
+            requireAppSync = false
         }
 
     @Test
@@ -65,6 +69,8 @@ class PushNotificationApiHelperTest {
         assertEquals(record.paymentId, payload[PAYMENT_ID])
         assertEquals(record.key, payload[NOTIFICATION_KEY])
         assertEquals(record.opportunityStatus, payload[OPPORTUNITY_STATUS])
+        assertEquals(record.sessionEndpointId, payload[META_SESSION_ENDPOINT_ID])
+        assertEquals(record.requireAppSync.toString(), payload[META_REQUIRE_APP_SYNC])
     }
 
     @Test
@@ -75,7 +81,7 @@ class PushNotificationApiHelperTest {
             NOTIFICATION_ID, NOTIFICATION_TIME_STAMP, NOTIFICATION_STATUS,
             NOTIFICATION_MESSAGE_ID, NOTIFICATION_CHANNEL_ID, OPPORTUNITY_ID,
             OPPORTUNITY_UUID, PAYMENT_UUID, PAYMENT_ID, NOTIFICATION_KEY,
-            OPPORTUNITY_STATUS,
+            OPPORTUNITY_STATUS, META_SESSION_ENDPOINT_ID, META_REQUIRE_APP_SYNC,
         )
         assertEquals(expectedKeys, payload.keys)
     }
