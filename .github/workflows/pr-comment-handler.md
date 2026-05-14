@@ -16,6 +16,7 @@ network:
     - java
 safe-outputs:
   noop:
+    report-as-issue: false
   add-comment:
     max: 10
     target: "*"
@@ -92,11 +93,18 @@ gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" \
          | {reviewer: .user.login, state: .state, body: .body[:300]}]'
 
 echo "=== PR $PR_NUMBER COMMENTS ==="
-gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/comments" \
-  --jq '[.[] | select(.in_reply_to_id == null)
-         | {id: .id, file: .path, line: .line,
-            reviewer: .user.login, body: .body[:300],
-            resolved: (has("original_line") | not)}]'
+RESOLVED=$(gh api graphql \
+  -f query='query($owner:String!,$repo:String!,$pr:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$pr){reviewThreads(first:100){nodes{isResolved comments(first:1){nodes{databaseId}}}}}}}' \
+  -f owner="${GITHUB_REPOSITORY%%/*}" \
+  -f repo="${GITHUB_REPOSITORY##*/}" \
+  -F pr="$PR_NUMBER" \
+  --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | {(.comments.nodes[0].databaseId | tostring): .isResolved}] | add // {}')
+gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/comments" | \
+  jq --argjson resolved "$RESOLVED" \
+  '[.[] | select(.in_reply_to_id == null)
+   | {id: .id, file: .path, line: .line,
+      reviewer: .user.login, body: .body[:300],
+      resolved: ($resolved[.id | tostring] // false)}]'
 
 echo "=== END PR $PR_NUMBER ==="
 ```

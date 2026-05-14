@@ -25,7 +25,7 @@
 # Scans for unresolved comments, implements clear requests, posts a summary.
 # Never merges. Defers to humans on ambiguous or contested changes.
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"4a3451fce1d3568d9bdbd66a80b8689d18bc3837821266f99617367fd65a2fb4","compiler_version":"v0.57.2","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"96ab54713e496abf9dfd67bc836032618793730be2f3c325a5b267822149bbc7","compiler_version":"v0.57.2","strict":true}
 
 name: "PR Comment Handler"
 "on":
@@ -1273,7 +1273,7 @@ jobs:
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
           GH_AW_NOOP_MESSAGE: ${{ steps.noop.outputs.noop_message }}
-          GH_AW_NOOP_REPORT_AS_ISSUE: "true"
+          GH_AW_NOOP_REPORT_AS_ISSUE: "false"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
