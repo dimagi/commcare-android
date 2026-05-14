@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
@@ -147,6 +148,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * invalidated in the calling activity and that the current session should be resynced
      */
     public static final int RESULT_RESTART = 3;
+    private static final String CC_APP_HOME_ENDPOINT = "cc_app_home";
 
     private int mDeveloperModeClicks = 0;
 
@@ -180,6 +182,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private FirebaseMessagingDataSyncer dataSyncer;
     private boolean isVisible;
+
+    // Set when a session endpoint launch requires a blocking sync before navigating to the endpoint
+    private boolean pendingEndpointNavigationAfterSync = false;
+    private static final String KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC = "pending_endpoint_nav_after_sync";
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
@@ -216,6 +222,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (savedInstanceState != null) {
             loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
             wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
+            pendingEndpointNavigationAfterSync = savedInstanceState.getBoolean(KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC);
         }
     }
 
@@ -225,20 +232,27 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
             wasExternal = true;
-            if (processSessionEndpoint()) {
+            if (getIntent().getBooleanExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC, false)) {
+                getIntent().removeExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC);
+                pendingEndpointNavigationAfterSync = true;
+                redirectedInOnCreate = true;
+                triggerSync(false);
+            } else if (processSessionEndpoint()) {
                 sessionNavigator.startNextSessionStep();
             }
         }
     }
 
     /**
-     * @return If we are launched with a session endpoint, returns whether the endpoint was
-     * successfully processed without errors. If this was not an external launch using session
-     * endpoint, returns true
+     * @return Whether we should proceed with next step in session navigation after processing the session endpoint
      */
     private boolean processSessionEndpoint() {
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
-            Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
+            String sessionEndpointId = getIntent().getStringExtra(SESSION_ENDPOINT_ID);
+            if (CC_APP_HOME_ENDPOINT.equals(sessionEndpointId)) {
+                return false;
+            }
+            Endpoint endpoint = validateIntentForSessionEndpoint(sessionEndpointId);
             if (endpoint != null) {
                 Bundle intentArgumentsAsBundle = getIntent().getBundleExtra(
                         SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
@@ -250,14 +264,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareApplication.instance().getCurrentSessionWrapper().reset();
 
                 try {
-                    if (intentArgumentsAsBundle != null) {
-                        CommCareApplication.instance().getCurrentSessionWrapper()
-                                .executeEndpointStack(endpoint,
-                                        AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
-                    } else if (intentArgumentsAsList != null) {
-                        CommCareApplication.instance().getCurrentSessionWrapper()
-                                .executeEndpointStack(endpoint, intentArgumentsAsList);
-                    }
+                    CommCareApplication.instance().getCurrentSessionWrapper()
+                            .executeEndpointStack(endpoint, intentArgumentsAsBundle, intentArgumentsAsList);
                     return true;
                 } catch (Endpoint.InvalidEndpointArgumentsException e) {
                     String invalidEndpointArgsError =
@@ -278,8 +286,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return true;
     }
 
-    private Endpoint validateIntentForSessionEndpoint(Intent intent) {
-        String sessionEndpointId = intent.getStringExtra(SESSION_ENDPOINT_ID);
+    private Endpoint validateIntentForSessionEndpoint(String sessionEndpointId) {
         Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(
                 sessionEndpointId);
         if (endpoint == null) {
@@ -589,6 +596,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         super.onSaveInstanceState(outState);
         outState.putBoolean(WAS_EXTERNAL_KEY, wasExternal);
         outState.putBoolean(EXTRA_CONSUMED_KEY, loginExtraWasConsumed);
+        outState.putBoolean(KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC, pendingEndpointNavigationAfterSync);
     }
 
     @Override
@@ -989,9 +997,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private boolean exitFromExternalLaunch() {
-        return wasExternal && getIntent() != null &&
-                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION,
-                        EXIT_AFTER_FORM_SUBMISSION_DEFAULT);
+        Intent intent = getIntent();
+        boolean exitAfterFormSubmission = intent != null && intent.getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION,
+                EXIT_AFTER_FORM_SUBMISSION_DEFAULT);
+        if (intent != null) {
+            intent.removeExtra(EXIT_AFTER_FORM_SUBMISSION);
+        }
+        return wasExternal && exitAfterFormSubmission;
     }
 
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
@@ -1331,7 +1343,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             dataSyncer.syncData(HiddenPreferences.getPendingSyncRequest(username));
         }
 
-        // reset these
+        resetNavigationFlags();
+    }
+
+    private void resetNavigationFlags() {
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
         shouldTriggerBackgroundSync = true;
@@ -1400,7 +1415,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                                      boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
         super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend,
                 usingRemoteKeyManagement);
-        if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+        if (pendingEndpointNavigationAfterSync && processSessionEndpoint()) {
+            sessionNavigator.startNextSessionStep();
+            pendingEndpointNavigationAfterSync = false;
+        } else if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
             i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
 

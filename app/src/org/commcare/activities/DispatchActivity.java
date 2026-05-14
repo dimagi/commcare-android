@@ -12,6 +12,8 @@ import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFrom
 
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -55,6 +57,7 @@ public class DispatchActivity extends AppCompatActivity {
     // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
     public static final String SESSION_ENDPOINT_ARGUMENTS_BUNDLE = "ccodk_session_endpoint_arguments_bundle";
     public static final String SESSION_ENDPOINT_ARGUMENTS_LIST = "ccodk_session_endpoint_arguments_list";
+    public static final String CC_LAUNCH_REQUIRE_SYNC = "ccodk_require_sync";
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String EXIT_AFTER_FORM_SUBMISSION = "ccodk_exit_after_form_submission";
     public static final Boolean EXIT_AFTER_FORM_SUBMISSION_DEFAULT = true;
@@ -136,7 +139,6 @@ public class DispatchActivity extends AppCompatActivity {
         return false;
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -171,7 +173,6 @@ public class DispatchActivity extends AppCompatActivity {
 
         Intent pnIntent = checkIfAnyPNIntentPresent();
         if (pnIntent != null) {
-            String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
@@ -442,6 +443,8 @@ public class DispatchActivity extends AppCompatActivity {
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
                         i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
+                        i.putExtra(CC_LAUNCH_REQUIRE_SYNC,
+                                getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false));
 
                         // Session Endpoint extra is no longer needed. If not removed, it triggers
                         // the external launch logic in subsequent logins

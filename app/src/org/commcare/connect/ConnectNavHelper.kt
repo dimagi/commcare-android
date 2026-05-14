@@ -12,6 +12,8 @@ import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.personalId.UnlockPolicy
 
 object ConnectNavHelper {
     private fun unlockAndGoTo(
@@ -19,11 +21,7 @@ object ConnectNavHelper {
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
-        personalIdManager.unlockConnect(
-            activity,
-        ) { success: Boolean ->
+        PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS) { success ->
             if (success) {
                 navigationAction(activity)
             }
