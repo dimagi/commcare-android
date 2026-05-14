@@ -36,6 +36,8 @@ class PushNotificationRecordTest {
         paymentUUID: String = "pay-uuid-789",
         key: String = "key-value",
         opportunityStatus: String = "learn",
+        sessionEndpointId: String = "endpoint-abc",
+        requireAppSync: Boolean = false,
         readStatus: Boolean = false,
     ): JSONObject =
         JSONObject().apply {
@@ -54,6 +56,8 @@ class PushNotificationRecordTest {
             put(PushNotificationRecord.META_PAYMENT_UUID, paymentUUID)
             put(PushNotificationRecord.META_KEY, key)
             put(PushNotificationRecord.META_OPPORTUNITY_STATUS, opportunityStatus)
+            put(PushNotificationRecord.META_SESSION_ENDPOINT_ID, sessionEndpointId)
+            put(PushNotificationRecord.META_REQUIRE_APP_SYNC, requireAppSync)
             put(PushNotificationRecord.META_READ_STATUS, readStatus)
         }
 
@@ -77,6 +81,8 @@ class PushNotificationRecordTest {
         assertEquals("pay-uuid-789", record.paymentUUID)
         assertEquals("key-value", record.key)
         assertEquals("learn", record.opportunityStatus)
+        assertEquals("endpoint-abc", record.sessionEndpointId)
+        assertFalse(record.requireAppSync)
         assertFalse(record.readStatus)
     }
 
@@ -108,6 +114,8 @@ class PushNotificationRecordTest {
         assertEquals("", record.paymentUUID)
         assertEquals("", record.key)
         assertEquals("", record.opportunityStatus)
+        assertEquals("", record.sessionEndpointId)
+        assertTrue(record.requireAppSync)
         assertFalse(record.readStatus)
     }
 
@@ -165,12 +173,12 @@ class PushNotificationRecordTest {
     }
 
     @Test
-    fun fromV23_allFieldsCopied_newFieldsDefaultToEmpty() {
-        val v23 =
-            PushNotificationRecordV23().apply {
-                notificationId = "v23-id"
-                title = "V23 Title"
-                body = "V23 body"
+    fun fromV24_allFieldsCopied_newFieldsDefaultToInitial() {
+        val v24 =
+            PushNotificationRecordV24().apply {
+                notificationId = "v24-id"
+                title = "V24 Title"
+                body = "V24 body"
                 notificationType = "PAYMENT"
                 confirmationStatus = "confirmed"
                 paymentId = "pay-123"
@@ -178,18 +186,20 @@ class PushNotificationRecordTest {
                 createdDate = Date(1_000_000L)
                 connectMessageId = "msg-456"
                 channel = "chan-789"
-                action = "action-v23"
+                action = "action-v24"
                 acknowledged = true
                 opportunityId = "opp-111"
                 opportunityUUID = "opp-uuid-111"
                 paymentUUID = "pay-uuid-123"
+                key = "key-v24"
+                opportunityStatus = "learn"
             }
 
-        val record = PushNotificationRecord.fromV23(v23)
+        val record = PushNotificationRecord.fromV24(v24)
 
-        assertEquals("v23-id", record.notificationId)
-        assertEquals("V23 Title", record.title)
-        assertEquals("V23 body", record.body)
+        assertEquals("v24-id", record.notificationId)
+        assertEquals("V24 Title", record.title)
+        assertEquals("V24 body", record.body)
         assertEquals("PAYMENT", record.notificationType)
         assertEquals("confirmed", record.confirmationStatus)
         assertEquals("pay-123", record.paymentId)
@@ -197,12 +207,14 @@ class PushNotificationRecordTest {
         assertEquals(Date(1_000_000L), record.createdDate)
         assertEquals("msg-456", record.connectMessageId)
         assertEquals("chan-789", record.channel)
-        assertEquals("action-v23", record.action)
+        assertEquals("action-v24", record.action)
         assertTrue(record.acknowledged)
         assertEquals("opp-111", record.opportunityId)
         assertEquals("opp-uuid-111", record.opportunityUUID)
         assertEquals("pay-uuid-123", record.paymentUUID)
-        assertEquals("", record.key)
-        assertEquals("", record.opportunityStatus)
+        assertEquals("key-v24", record.key)
+        assertEquals("learn", record.opportunityStatus)
+        assertEquals("", record.sessionEndpointId)
+        assertTrue(record.requireAppSync)
     }
 }
