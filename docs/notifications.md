@@ -190,7 +190,9 @@ Example 1: Generic Opportunity Push Notification
       "opportunity_uuid": "abcde-328-32mkj-43",
       "payment_uuid": "42309-fdfjl4-4343",
       "opportunity_status" : "delivery",  //  The notification will be shown only if this and ConnectJobRecord status match, thus avoiding unnecessary FCM to users if they have moved ahead already.
-      "key" : "payment_rollback" // For logging real action in Firebase for this type of generic opportunity notification.
+      "key" : "payment_rollback", // For logging real action in Firebase for this type of generic opportunity notification.
+      "session_endpoint_id": "my_endpoint", // Optional. If present, clicking the notification navigates the user directly to this session endpoint in the CommCare app instead of the Connect activity. Use "cc_app_home" to land on the app home screen.
+      "require_app_sync": "true" // Optional, defaults to true. When true, a blocking app sync is performed before navigating to the session endpoint.
     }
   ],
   "channels": []

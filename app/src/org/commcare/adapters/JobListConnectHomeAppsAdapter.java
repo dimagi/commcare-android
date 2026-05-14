@@ -44,12 +44,11 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ArrayList<ConnectLoginJobListModel> inProgressJobs,
             ArrayList<ConnectLoginJobListModel> newJobs,
             ArrayList<ConnectLoginJobListModel> completedJobs,
-            ArrayList<ConnectLoginJobListModel> corruptJobs,
             OnJobSelectionClick launcher
     ) {
         this.mContext = context;
         this.launcher = launcher;
-        buildDisplayList(inProgressJobs, newJobs, completedJobs, corruptJobs);
+        buildDisplayList(inProgressJobs, newJobs, completedJobs);
     }
 
     @NonNull
@@ -365,8 +364,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private void buildDisplayList(
             List<ConnectLoginJobListModel> inProgressJobs,
             List<ConnectLoginJobListModel> newJobs,
-            List<ConnectLoginJobListModel> completedJobs,
-            List<ConnectLoginJobListModel> corruptJobs
+            List<ConnectLoginJobListModel> completedJobs
     ) {
         displayItems.clear();
 
@@ -389,10 +387,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             for (ConnectLoginJobListModel jobListModel : completedJobs) {
                 displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
             }
-        }
-
-        for (ConnectLoginJobListModel jobListModel : corruptJobs) {
-            displayItems.add(new ConnectJobListItem.JobItem(jobListModel, true));
         }
     }
 }

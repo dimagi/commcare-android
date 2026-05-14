@@ -13,7 +13,7 @@ public class GlobalErrorUtil {
     private static final int ERROR_EXPIRATION_HOURS = 24;
 
     public static boolean triggerGlobalError(GlobalErrors error) {
-        if (FormEntryActivity.mFormController != null) {
+        if (FormEntryActivity.isFormEntryInProgress()) {
             return false;
         }
 
