@@ -1415,7 +1415,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         Toast.makeText(this,
                                 Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
                     }
-                    consumePendingNavAfterSave();
                     finishReturnInstance();
                     return;
                 case INVALID_ANSWER:
