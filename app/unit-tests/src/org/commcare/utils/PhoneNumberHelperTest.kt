@@ -225,17 +225,9 @@ class PhoneNumberHelperTest {
     // ========== Locale-Based Country Code Tests ==========
 
     @Test
+    @Config(qualifiers = "en-rIN")
     fun testGetDefaultCountryCode_indiaLocale() {
-        // Arrange
-        val locale = java.util.Locale.forLanguageTag("en-IN")
-        val configuration = android.content.res.Configuration(context.resources.configuration)
-        configuration.setLocale(locale)
-        val localizedContext = context.createConfigurationContext(configuration)
-
-        // Act
-        val defaultCountryCode = phoneNumberHelper.getDefaultCountryCode(localizedContext)
-
-        // Assert
+        val defaultCountryCode = phoneNumberHelper.defaultCountryCode
         assertEquals("Should return +91 for India locale", "+91", defaultCountryCode)
     }
 }

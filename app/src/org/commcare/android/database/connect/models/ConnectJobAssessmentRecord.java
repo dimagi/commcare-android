@@ -96,6 +96,10 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
         return passingScore;
     }
 
+    public boolean isPassed() {
+        return passed;
+    }
+
     public void setLastUpdate(Date date) {
         lastUpdate = date;
     }

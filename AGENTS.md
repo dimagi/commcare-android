@@ -7,6 +7,16 @@
 - CommCare Android is an open-source Android application for data collection and service delivery in low-resource settings
 - CommCare Core is a shared Java library that provides core functionalities for CommCare's Android and Web Client
 
+## Project Documentation
+Tech documentation for this repo is organized by Gradle submodule and, within the main `app` module, by product area:
+- `/docs/commcare/` — CommCare-specific subsystems (e.g., translations)
+- `/docs/connect/` — Connect-specific subsystems
+- `/docs/personalid/` — PersonalID-specific subsystems (e.g., OAuth/SSO, photo management)
+- `/docs/` (root) — cross-cutting subsystems that span multiple products (e.g., push notifications)
+- `commcare-support-library/docs/` — docs for the standalone `commcare-support-library` Maven artifact (e.g., third-party identity provider integration)
+
+**Before making any code change, search `/docs` and any module-level `docs/` folders for documentation relevant to the area you're modifying.** Update the corresponding doc when behavior, APIs, or data flow change.
+
 ## Code Quality Standards
 - [General code standards](https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md)
 - [Exception Handling Guidelines](https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md)
@@ -30,16 +40,16 @@
 All the changes below should be part of a separate commit after the main code changes:
 - Clean up any unused code and imports
 - Verify Java code with `checkstyle.xml` and make changes as applicable
-- Run ktlint formatting: `ktlint --format path/to/file.kt`
-- Verify ktlint compliance: `ktlint path/to/file.kt`
+- Run ktlint format and verify: `./gradlew ktlintFile -PfilePath=path/to/file.kt`
 - Run relevant unit tests to ensure no regressions
 - Commit changes
 
-## Available ktlint Commands
-- `ktlint file.kt` - Check formatting
-- `ktlint --format file.kt` - Auto-format
-- `ktlint "src/**/*.kt"` - Check all Kotlin files
-- `ktlint --format "src/**/*.kt"` - Format all Kotlin files
+## AI Workflow: ktlint
+After editing or creating a Kotlin file, always run the Gradle ktlint task:
+```bash
+./gradlew ktlintFile -PfilePath=<relative-path-to-file>
+```
+This task auto-formats the file and then verifies it is clean. If any violations remain that cannot be auto-fixed, resolve them manually. This should be done before committing.
 
 ## Test File Locations
 - Unit tests: `app/unit-tests/src/`
