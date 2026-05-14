@@ -137,10 +137,7 @@ For each PR flagged `conflicting: true`:
 3. Favour the PR's test changes when resolving conflicts. If a conflict is ambiguous,
    post a comment and skip.
 4. Run relevant tests to confirm nothing is broken.
-5. Commit: `Resolve merge conflicts with base branch\n\n🤖 PR Comment Handler`
-6. Push, then post:
-   > 🤖 *PR Comment Handler — rebased onto latest master to resolve merge conflicts.
-   > Please re-review if the conflict resolution affected your area.*
+5. Commit: `Resolve merge conflicts with base branch\n\n🤖 PR Comment Handler`, do not push yet.
 
 ## Step 5: Classify and Implement Comments
 
@@ -160,14 +157,18 @@ When implementing a clear change:
    Never silently suppress failures.
 5. Batch all changes for a PR into a single commit:
    `Address review feedback: <brief description>\n\n🤖 PR Comment Handler`
-6. Push once per PR.
+6. Push once per PR — this single push covers both any conflict-resolution commit
+   from Step 4 and the feedback commit from this step.
 
 ## Step 6: Post Summary Comment
 
 After processing each PR, post exactly one comment:
 
 ```
-🤖 *PR Comment Handler here — I've processed the latest review feedback.*
+🤖 *PR Comment Handler*
+
+**Rebased:** (include only if merge conflicts were resolved in Step 4)
+- Rebased onto latest master to resolve merge conflicts. 
 
 **Implemented:**
 - `path/to/File.java`: <what changed> (addresses @reviewer's comment)
@@ -177,8 +178,6 @@ After processing each PR, post exactly one comment:
 
 **Skipped (out of scope / discussion):**
 - <brief note if any>
-
-Please re-review the latest commit. Happy to make further adjustments.
 ```
 
 If nothing was implemented, say so clearly.
@@ -195,7 +194,5 @@ Do NOT store individual PR comment details.
 
 - Only touch `[Test Improver]` PRs — never modify human-created PRs.
 - Process at most 3 PRs per run, oldest first.
-- One commit per PR per run. No force-push. No merging.
-- No new dependencies without explicit reviewer approval.
+- One push per PR per run
 - Read `AGENTS.md` before touching any code.
-- At most one summary comment per PR per run.
