@@ -2,7 +2,6 @@ package org.commcare.google.services.analytics
 
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.Trace
-import org.apache.commons.io.FilenameUtils
 import org.commcare.android.logging.ReportingUtils
 import org.javarosa.core.services.Logger
 
@@ -31,14 +30,15 @@ object CCPerfMonitoring {
     const val ATTR_MAP_MARKERS = "num_markers"
     const val ATTR_MAP_POLYGONS = "num_polygons"
     const val ATTR_MAP_GEO_POINTS = "num_geo_points"
-
+    const val ATTR_FILE_KEYSTORE_ENCRYPTED = "file_keystore_encrypted"
+    const val ATTR_CC_APP = "cc_app"
 
     fun startTracing(traceName: String): Trace? {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
-            trace.putAttribute(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain())
-            trace.putAttribute(CCAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId())
-            trace.putAttribute(CCAnalyticsParam.CC_APP_NAME, ReportingUtils.getAppName())
+            trace.putAttribute(ATTR_CC_APP,
+                ReportingUtils.getDomain() + "|" + ReportingUtils.getAppId() + "|" + ReportingUtils.getAppName()
+            )
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
             trace.start()
             return trace
@@ -49,19 +49,26 @@ object CCPerfMonitoring {
     }
 
     fun stopTracing(trace: Trace?, attrs: MutableMap<String, String>?) {
+        if (trace == null) return
         try {
-            attrs?.forEach { (key, value) -> trace?.putAttribute(key, value) }
-            trace?.stop()
+            attrs?.forEach { (key, value) -> trace.putAttribute(key, value) }
+            trace.stop()
         } catch (exception: Exception) {
-            Logger.exception("Error stopping perf trace: ${trace?.name?: "Unknown trace"}", exception)
+            Logger.exception("Error stopping perf trace: ${trace.name}", exception)
         }
     }
 
-    fun stopFileEncryptionTracing(trace: Trace?, fileSizeBytes: Long, fileName: String) {
+    fun stopFileEncryptionTracing(
+        trace: Trace?,
+        fileSizeBytes: Long,
+        fileExtension: String,
+        keystoreEncrypted: Boolean
+    ) {
         try {
             val attrs: MutableMap<String, String> = HashMap()
             attrs[ATTR_FILE_SIZE_BYTES] = fileSizeBytes.toString()
-            attrs[ATTR_FILE_TYPE] = FilenameUtils.getExtension(fileName)
+            attrs[ATTR_FILE_TYPE] = fileExtension
+            attrs[ATTR_FILE_KEYSTORE_ENCRYPTED] = keystoreEncrypted.toString()
             stopTracing(trace, attrs)
         } catch (e: java.lang.Exception) {
             Logger.exception("Failed to stop tracing: $TRACE_FILE_ENCRYPTION_TIME", e)

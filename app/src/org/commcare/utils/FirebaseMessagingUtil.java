@@ -8,15 +8,19 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.common.util.Strings;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -32,6 +36,7 @@ import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -48,6 +53,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.commcare.activities.DispatchActivity.CC_LAUNCH_REQUIRE_SYNC;
+import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
@@ -75,6 +85,8 @@ public class FirebaseMessagingUtil {
     public static final String FCM_TOKEN = "fcm_token";
     public static final String FCM_TOKEN_TIME = "fcm_token_time";
     public static final String MESSAGING_UPDATE_BROADCAST = "com.dimagi.messaging.update";
+    private static final long SERVICE_NOT_AVAILABLE_RETRY_DELAY_MS = 3000;
+    static final int MAX_CAUSE_CHAIN_DEPTH = 5;
 
 
     public static String getFCMToken() {
@@ -111,15 +123,86 @@ public class FirebaseMessagingUtil {
                 if (!StringUtils.isEmpty(token)) {
                     updateFCMToken(token);
                 } else {
-                    Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()) ,
+                    Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()),
                             new Throwable("FCM registration token is empty"));
                 }
             } else {
                 Throwable throwable = task.getException() != null ? task.getException() : new Throwable(
                         "Task to fetch FCM registration token failed");
                 Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()), throwable);
+
+                if (isFisAuthError(throwable)) {
+                    Logger.log(LogTypes.TYPE_FCM,
+                            "FIS_AUTH_ERROR detected, deleting Firebase installation"
+                                    + " and retrying token fetch");
+                    FirebaseInstallations.getInstance().delete().addOnCompleteListener(deleteTask -> {
+                        if (deleteTask.isSuccessful()) {
+                            retryFCMTokenFetch();
+                        } else {
+                            Logger.exception("Failed to delete Firebase installation for FIS_AUTH_ERROR recovery",
+                                    deleteTask.getException() != null ? deleteTask.getException()
+                                            : new Throwable("Firebase installation delete failed"));
+                        }
+                    });
+                } else if (isServiceNotAvailable(throwable)) {
+                    // SERVICE_NOT_AVAILABLE is transient (Google Play Services temporarily busy),
+                    // so delay retry by 3s to give it time to recover before re-attempting.
+                    Logger.log(LogTypes.TYPE_FCM,
+                            "SERVICE_NOT_AVAILABLE detected, retrying token fetch after delay");
+                    new Handler(Looper.getMainLooper()).postDelayed(
+                            FirebaseMessagingUtil::retryFCMTokenFetch, SERVICE_NOT_AVAILABLE_RETRY_DELAY_MS);
+                }
             }
         };
+    }
+
+    /**
+     * Retries FCM token fetch once. This intentionally does not re-enter handleFCMTokenRetrieval()
+     * to avoid recursive retry loops on repeated failures.
+     */
+    private static void retryFCMTokenFetch() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(retryTask -> {
+            if (retryTask.isSuccessful() && !StringUtils.isEmpty(retryTask.getResult())) {
+                Logger.log(LogTypes.TYPE_FCM, "FCM token retry succeeded");
+                updateFCMToken(retryTask.getResult());
+            } else {
+                Logger.exception("FCM token retry also failed",
+                        retryTask.getException() != null ? retryTask.getException()
+                                : new Throwable("Retry returned empty token"));
+            }
+        });
+    }
+
+    private static boolean isFisAuthError(Throwable throwable) {
+        return hasErrorInChain(throwable, "FIS_AUTH_ERROR");
+    }
+
+    private static boolean isServiceNotAvailable(Throwable throwable) {
+        return hasErrorInChain(throwable, "SERVICE_NOT_AVAILABLE");
+    }
+
+    /**
+     * Checks if the given error message exists in the throwable's cause chain,
+     * up to 5 levels deep. Firebase errors like FIS_AUTH_ERROR originate as IOException
+     * but arrive wrapped in ExecutionException, so the top-level throwable may not
+     * contain the actual error string — we need to walk the cause chain to find it.
+     */
+    @VisibleForTesting
+    static boolean hasErrorInChain(Throwable throwable, String errorMessage) {
+        Throwable current = throwable;
+        int maxDepth = MAX_CAUSE_CHAIN_DEPTH;
+        while (current != null && maxDepth-- > 0) {
+            String message = current.getMessage();
+            if (message != null && message.contains(errorMessage)) {
+                return true;
+            }
+            Throwable cause = current.getCause();
+            if (cause == current) {
+                break;
+            }
+            current = cause;
+        }
+        return false;
     }
 
     public static String serializeFCMMessageData(FCMMessageData fcmMessageData) {
@@ -273,11 +356,44 @@ public class FirebaseMessagingUtil {
         return null;
     }
 
-    private static Intent handleCccGenericOpportunityNotifcation(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
-        Intent intent = getConnectActivityNotification(context, fcmMessageData);
+    private static Intent handleCccGenericOpportunityNotifcation(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+        String sessionEndpointId = fcmMessageData.getPayloadData()
+                .get(PushNotificationRecord.META_SESSION_ENDPOINT_ID);
+        Intent intent = null;
+        if (!TextUtils.isEmpty(sessionEndpointId)) {
+            intent =  handleSessionEndpointNotification(context, fcmMessageData, showNotification, sessionEndpointId);
+        }
+        if (intent == null) {
+            intent = getConnectActivityNotification(context, fcmMessageData);
+        }
         if (showNotification)
-            showNotification(context, buildNotification(context, intent, fcmMessageData),
-                    fcmMessageData);
+            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
+        return intent;
+    }
+
+    private static Intent handleSessionEndpointNotification(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification,
+            String sessionEndpointId) {
+        Map<String, String> payloadData = fcmMessageData.getPayloadData();
+        String opportunityID = payloadData.get(OPPORTUNITY_UUID);
+        String opportunityStatus = payloadData.get(OPPORTUNITY_STATUS);
+        String appId = null;
+        try {
+            appId = ConnectJobUtils.getAppIdForOpportunity(context, opportunityID, opportunityStatus);
+        } catch (IllegalArgumentException e) {
+            Logger.exception("Could not resolve appId for opportunity", e);
+            return null;
+        }
+
+        Intent intent = new Intent(context, DispatchActivity.class);
+        intent.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
+        intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
+        intent.putExtra(EXIT_AFTER_FORM_SUBMISSION, false);
+        // Default to true when the field is absent — older server payloads always require sync
+        String requireAppSyncStr = payloadData.get(PushNotificationRecord.META_REQUIRE_APP_SYNC);
+        boolean requireSync = requireAppSyncStr == null || Boolean.parseBoolean(requireAppSyncStr);
+        intent.putExtra(CC_LAUNCH_REQUIRE_SYNC, requireSync);
         return intent;
     }
 
@@ -431,8 +547,7 @@ public class FirebaseMessagingUtil {
      * @return NotificationCompat.Builder
      */
     private static NotificationCompat.Builder buildNotification(Context context, Intent intent, FCMMessageData fcmMessageData) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE

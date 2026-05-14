@@ -1,14 +1,13 @@
 package org.commcare.fragments.connect;
 
-import android.graphics.drawable.Drawable;
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import androidx.annotation.StringRes;
-import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -18,14 +17,16 @@ import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.modern.util.Pair;
+import org.commcare.views.connect.ConnectViewUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,12 +34,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
-
 public class ConnectLearningProgressFragment extends ConnectJobFragment<FragmentConnectLearningProgressBinding>
         implements RefreshableFragment {
 
     private boolean showAppLaunch = true;
+    private ConnectLearningProgressViewModel viewModel;
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -58,9 +58,16 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         }
 
         requireActivity().setTitle(getString(R.string.connect_learn_title));
+        setWaitDialogEnabled(false);
+        viewModel = new ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(ConnectLearningProgressViewModel.class);
+
+        observeLearningProgress();
+
         setupRefreshButton();
         populateJobCard();
-        refreshLearningData();
         return view;
     }
 
@@ -68,33 +75,29 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refreshLearningData();
+            refresh(false);
         }
     }
 
     @Override
-    public void refresh() {
-        refreshLearningData();
+    public void refresh(boolean forceRefresh) {
+        viewModel.loadLearningProgress(job, forceRefresh);
     }
 
     private void setupRefreshButton() {
-        getBinding().btnSync.setOnClickListener(v -> refreshLearningData());
+        getBinding().btnSync.setOnClickListener(v -> refresh(true));
     }
 
-    private void refreshLearningData() {
-        ConnectJobHelper.INSTANCE.updateLearningProgress(
-                requireContext(),
-                job,
-                (success, error) -> {
-                    if (success && isAdded()) {
-                        updateLearningUI();
-                    } else if (!success && isAdded()) {
-                        Toast.makeText(
-                                requireContext(),
-                                getString(R.string.connect_fetch_learning_progress_error),
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
+    private void observeLearningProgress() {
+        observeDataState(
+                viewModel.getLearningProgress(),
+                cached -> {
+                    job = cached;
+                    updateLearningUI();
+                },
+                success -> {
+                    job = success;
+                    updateLearningUI();
                 }
         );
     }
@@ -296,47 +299,15 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private void populateJobCard() {
         ViewJobCardBinding jobCard = getBinding().viewJobCard;
-
-        jobCard.tvJobTitle.setText(job.getTitle());
-        jobCard.tvJobDescription.setText(job.getDescription());
-
-        @StringRes int dateMessageStringRes;
-        if (job.deliveryComplete()) {
-            dateMessageStringRes = R.string.connect_job_ended;
-        } else {
-            dateMessageStringRes = R.string.connect_learn_complete_by;
-        }
-
-        jobCard.connectJobEndDateSubHeading.setText(
-                getString(
-                        dateMessageStringRes,
-                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())
-                )
-        );
-
-        String hours = job.getWorkingHours();
-        boolean showHours = hours != null;
         boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
-        Drawable downloadIcon = appInstalled
-                ? null
-                : ContextCompat.getDrawable(requireContext(), R.drawable.ic_download_circle);
-        jobCard.acbResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                downloadIcon, null, null, null
-        );
-        jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvJobDescription.setVisibility(View.INVISIBLE);
-        jobCard.connectJobEndDateSubHeading.setVisibility(View.VISIBLE);
-        jobCard.connectJobEndDate.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setOnClickListener(this::navigateToJobDetailBottomSheet);
-        jobCard.acbResume.setOnClickListener(v -> navigateToLearnAppHome());
-        jobCard.tvViewMore.setVisibility(View.GONE);
-        jobCard.acbViewInfo.setVisibility(View.VISIBLE);
-        jobCard.acbResume.setVisibility(View.VISIBLE);
 
-        if (showHours) {
-            jobCard.tvJobTime.setText(hours);
-        }
+        ConnectViewUtils.setupCardViewForJob(
+                jobCard,
+                job,
+                appInstalled,
+                v -> navigateToLearnAppHome(),
+                this::navigateToJobDetailBottomSheet
+        );
     }
 
     private void navigateToJobDetailBottomSheet(View view) {
@@ -360,6 +331,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                     );
             Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
         }
+    }
+
+    @Override
+    public String getEndpoint() {
+        return ConnectRepository.SYNC_KEY_LEARNING_PREFIX + job.getJobUUID();
     }
 
     @Override

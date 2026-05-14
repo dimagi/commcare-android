@@ -43,7 +43,8 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:text="@string/archive_install_prompt"/>
 
     <TextView
         android:id="@+id/screen_multimedia_install_messages"
@@ -60,6 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        android:paddingVertical="8dp"/>
+        android:paddingVertical="8dp"
+        android:text="@string/archive_install_button"/>
 
 </RelativeLayout>

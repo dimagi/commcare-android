@@ -4,28 +4,29 @@ import android.app.Activity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 
-
 class PersonalIdAuthService(
     private val activity: Activity,
     private val personalIdSessionData: PersonalIdSessionData,
-    private val callback: OtpVerificationCallback
+    private val callback: OtpVerificationCallback,
 ) : OtpAuthService {
-
     override fun requestOtp(phoneNumber: String) {
         object : PersonalIdApiHandler<PersonalIdSessionData>() {
             override fun onSuccess(sessionData: PersonalIdSessionData) {
                 callback.onCodeSent(null)
             }
 
-            override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
+            override fun onFailure(
+                failureCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.sendOtp(activity, personalIdSessionData)
+        }.sendPhoneOtp(activity, personalIdSessionData)
     }
 
     override fun verifyOtp(code: String) {
         // no verification step just call submit directly
-        submitOtp(code);
+        submitOtp(code)
     }
 
     override fun submitOtp(code: String) {
@@ -34,9 +35,12 @@ class PersonalIdAuthService(
                 callback.onSuccess()
             }
 
-            override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
+            override fun onFailure(
+                failureCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.validateOtp(activity, code, personalIdSessionData)
+        }.validatePhoneOtp(activity, code, personalIdSessionData)
     }
 }
