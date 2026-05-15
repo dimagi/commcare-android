@@ -17,7 +17,6 @@ import java.io.ByteArrayInputStream
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class DeliveryAppProgressResponseParserTest {
-
     private lateinit var parser: DeliveryAppProgressResponseParser<DeliveryAppProgressResponseModel>
     private lateinit var job: ConnectJobRecord
 
@@ -27,8 +26,7 @@ class DeliveryAppProgressResponseParserTest {
         job = ConnectJobRecord()
     }
 
-    private fun parse(json: String): DeliveryAppProgressResponseModel =
-        parser.parse(200, ByteArrayInputStream(json.toByteArray()), job)
+    private fun parse(json: String): DeliveryAppProgressResponseModel = parser.parse(200, ByteArrayInputStream(json.toByteArray()), job)
 
     private fun deliveryJson(id: Int): String =
         """
