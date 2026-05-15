@@ -194,4 +194,5 @@
     <string name="connect_last_synced">Paskutinė sinchronizacija: %s</string>
     <string name="connect_offline">Neprisijungęs</string>
     <string name="connect_never">Niekada</string>
+    <string name="cannot_navigate_during_form_save">Negalima palikti puslapio, kol išsaugoma forma</string>
 </resources>

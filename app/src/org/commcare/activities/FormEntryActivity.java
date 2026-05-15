@@ -103,6 +103,7 @@ import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
@@ -128,6 +129,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     public static final String KEY_IS_RESTART_AFTER_EXPIRATION = "is-restart-after-session-expiration";
+    public static final String EXTRA_PENDING_NAV_INTENT =
+            "org.commcare.formentry.pending_nav_intent";
 
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
@@ -151,6 +154,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static volatile boolean isFormEntryActive = false;
 
     private boolean mIncompleteEnabled = true;
+    private Intent mPendingNavAfterSave;
     private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
@@ -338,7 +342,24 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 throw new RuntimeException("Base 64 encoding unavailable! Can't pass storage key");
             }
         }
+        if (mPendingNavAfterSave != null) {
+            outState.putParcelable(EXTRA_PENDING_NAV_INTENT, mPendingNavAfterSave);
+        }
         uiController.saveInstanceState(outState);
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        Intent pendingNav;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT, Intent.class);
+        } else {
+            pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
+        }
+        if (pendingNav != null) {
+            triggerUserQuitInputForExternalNav(pendingNav);
+        }
     }
 
     @Override
@@ -1236,6 +1257,46 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     /**
+     * Variant of {@link #triggerUserQuitInput()} for the case where the user is being
+     * pulled away from the form by an external navigation event (currently: tapping a push
+     * notification). On Save / Discard the form's existing exit handling runs and then
+     * pendingNav is started so the user reaches the notification's target.
+     */
+    protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
+        if (mSaveToDiskTask != null) {
+            Logger.exception("Navigation during form save", new Exception(
+                    "User attempted to navigate from a push notification during form save."
+            ));
+            Toast.makeText(this, R.string.cannot_navigate_during_form_save, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseAnalyticsUtil.reportFormQuitAttempt(
+                AnalyticsParamValue.PUSH_NOTIFICATION_TAP,
+                getCurrentFormXmlnsFailSafe());
+
+        if (!formHasLoaded()) {
+            startActivity(pendingNav);
+            finish();
+            return;
+        }
+        if (mFormController.isFormReadOnly()) {
+            startActivity(pendingNav);
+            finishReturnInstance(false);
+            return;
+        }
+        FormEntryDialogs.createQuitDialog(this, mIncompleteEnabled, pendingNav);
+    }
+
+    private void consumePendingNavAfterSave() {
+        if (mPendingNavAfterSave != null) {
+            Intent toStart = mPendingNavAfterSave;
+            mPendingNavAfterSave = null;
+            startActivity(toStart);
+        }
+    }
+
+    /**
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
@@ -1586,6 +1647,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
             }
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT, Intent.class);
+            } else {
+                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT);
+            }
+
             uiController.restoreSavedState(savedInstanceState);
         }
     }
@@ -1765,6 +1832,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public SecretKeySpec getSymetricKey() {
         return symetricKey;
+    }
+
+    public void setPendingNavAfterSave(Intent pendingNav) {
+        mPendingNavAfterSave = pendingNav;
+    }
+
+    public void discardChangesAndExitToPendingNav(Intent pendingNav) {
+        startActivity(pendingNav);
+        discardChangesAndExit();
     }
 
     public static boolean isFormEntryInProgress() {

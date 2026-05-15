@@ -533,4 +533,5 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_last_synced">Aiki na ƙarshe: %s</string>
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_never">Ba taɓa</string>
+    <string name="cannot_navigate_during_form_save">Ba za a iya barin shafin yayin ajiye fom ba</string>
 </resources>

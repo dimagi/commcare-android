@@ -543,4 +543,5 @@
     <string name="connect_last_synced">Ilisawazishwa mwisho: %s</string>
     <string name="connect_offline">Nje ya mtandao</string>
     <string name="connect_never">Kamwe</string>
+    <string name="cannot_navigate_during_form_save">Huwezi kuondoka kwenye ukurasa wakati fomu inahifadhiwa</string>
 </resources>
