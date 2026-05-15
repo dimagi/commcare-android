@@ -1263,7 +1263,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * pendingNav is started so the user reaches the notification's target.
      */
     protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
-        if (mSaveToDiskTask != null) {
+        if (mSaveToDiskTask != null && mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED) {
             Logger.exception("Navigation during form save", new Exception(
                     "User attempted to navigate from a push notification during form save."
             ));
@@ -1415,6 +1415,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         Toast.makeText(this,
                                 Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
                     }
+                    consumePendingNavAfterSave();
                     finishReturnInstance();
                     return;
                 case INVALID_ANSWER:
