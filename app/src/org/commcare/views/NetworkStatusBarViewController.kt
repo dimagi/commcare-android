@@ -76,7 +76,6 @@ class NetworkStatusBarViewController(
             statusBarBinding.tvOfflineLabel.setText(rightLabel)
             statusBarBinding.ivOffline.visibility = View.VISIBLE
             statusBarBinding.tvOfflineLabel.visibility = View.VISIBLE
-
         } else {
             statusBarBinding.ivOffline.visibility = View.GONE
             statusBarBinding.tvOfflineLabel.visibility = View.GONE
