@@ -333,7 +333,7 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.UPDATE_NOTIFICATIONS);
     }
 
-    public static void sendOtp(Context context, String token, IApiCallback callback) {
+    public static void sendPhoneOtp(Context context, String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
@@ -342,7 +342,7 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.sendSessionOtp);
     }
 
-    public static void validateOtp(
+    public static void validatePhoneOtp(
             Context context,
             String token,
             String otp,
@@ -358,6 +358,44 @@ public class ApiPersonalId {
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.validateSessionOtp(tokenAuth, params);
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.validateSessionOtp);
+    }
+
+    public static void sendEmailOtp(
+            Context context,
+            String email,
+            String token,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("email", email);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.sendEmailOtp(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.sendEmailOtp);
+    }
+
+    public static void verifyEmailOtp(
+            Context context,
+            String email,
+            String otp,
+            String token,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("email", email);
+        params.put("otp", otp);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.verifyEmailOtp(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.verifyEmailOtp);
     }
 
     public static void updateChannelConsent(
