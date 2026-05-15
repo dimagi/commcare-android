@@ -21,7 +21,7 @@ object ConnectNavHelper {
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS) { success ->
+        PersonalIdUnlocker.unlock(activity, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD) { success ->
             if (success) {
                 navigationAction(activity)
             }
