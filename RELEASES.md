@@ -13,6 +13,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 #### What's New
 
 - [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
+- Reduce frequency of required Biometric or Pin unlocks for PersonalID and Connect  
 
 #### Important Bug Fixes
 
@@ -64,9 +65,10 @@ we would like to communicate to QA as part of the release testing
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 
-
-- Verify that biometric/PIN unlock still triggers correctly in all existing entry points
-
+- **[PersonalID] Session-based unlock for in-app Connect navigation:**
+  - Tapping Connect Jobs, Messaging, or Work History from the nav drawer no longer prompts for biometric/PIN if the user already unlocked within the last 10 minutes.
+  - Opening any of these destinations from a push notification still always prompt.
+  - Sensitive operations (login, link/unlink app, notification deep links) still require explicit re-authentication every time.
 
 ## CommCare 2.63
 
