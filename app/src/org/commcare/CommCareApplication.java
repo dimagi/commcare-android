@@ -220,6 +220,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d("shubham", "on Create App");
         PersonalIdUnlocker.INSTANCE.resetSession();
 
         ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
