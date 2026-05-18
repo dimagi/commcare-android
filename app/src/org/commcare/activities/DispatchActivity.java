@@ -4,13 +4,20 @@ import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.FROM_SMS_INVITE_LINK;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_INTENT_RECEIVED;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,11 +27,13 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -52,6 +61,7 @@ import javax.annotation.Nullable;
 public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
+    private static final String SMS_INVITE_LINK_PATH_PREFIX = "/users/invite_redirect/";
     public static final String SESSION_ENDPOINT_ID = "ccodk_session_endpoint_id";
 
     // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
@@ -200,6 +210,13 @@ public class DispatchActivity extends AppCompatActivity {
             // Result will be stored for later use
             RecoveryMeasuresHelper.requestRecoveryMeasures();
 
+            // CCCT-2395: SMS opportunity invite App Link. When PersonalID is logged in, this
+            // short-circuits dispatch and launches ConnectActivity directly; otherwise the URI
+            // is dropped and the standard flow continues.
+            if (handleSmsInviteLinkIntent()) {
+                return;
+            }
+
             // Note that the order in which these conditions are checked matters!!
             if (CommCareApplication.instance().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
                 checkForChangedCCZ();
@@ -262,6 +279,54 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean isExternalLaunch() {
         return this.getIntent().hasExtra(SESSION_REQUEST) ||
                 this.getIntent().hasExtra(SESSION_ENDPOINT_ID);
+    }
+
+    /**
+     * Handles the SMS opportunity-invite App Link.
+     *
+     * Returns true when the intent has been routed to ConnectActivity, meaning dispatch() should
+     * stop. Returns false when there is no SMS-link intent, or when PersonalID is not logged in
+     * (in which case the URI is dropped from the intent and the standard dispatch flow continues).
+     */
+    private boolean handleSmsInviteLinkIntent() {
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+        if (!Intent.ACTION_VIEW.equals(intent.getAction())
+                || data == null
+                || data.getPath() == null
+                || !data.getPath().startsWith(SMS_INVITE_LINK_PATH_PREFIX)) {
+            return false;
+        }
+
+        String uuid = data.getPath().substring(SMS_INVITE_LINK_PATH_PREFIX.length());
+        if (uuid.endsWith("/")) {
+            uuid = uuid.substring(0, uuid.length() - 1);
+        }
+
+        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(SMS_INVITE_LINK_INTENT_RECEIVED);
+
+        // Clear the URI immediately so a re-entry to dispatch() (e.g. after PersonalID setup)
+        // doesn't reprocess this link and we don't loop.
+        intent.setData(null);
+
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(this);
+        if (!personalIdManager.isloggedIn()) {
+            FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED);
+            return false;
+        }
+        if (uuid.isEmpty()) {
+            // Malformed link — fall through silently.
+            return false;
+        }
+
+        Intent connectIntent = new Intent(this, ConnectActivity.class);
+        connectIntent.putExtra(REDIRECT_ACTION, CCC_DEST_OPPORTUNITY_SUMMARY_PAGE);
+        connectIntent.putExtra(OPPORTUNITY_UUID, uuid);
+        connectIntent.putExtra(FROM_SMS_INVITE_LINK, true);
+        connectIntent.putExtra(SHOW_LAUNCH_BUTTON, true);
+        startActivity(connectIntent);
+        return true;
     }
 
     private boolean isDbInBadState() {
