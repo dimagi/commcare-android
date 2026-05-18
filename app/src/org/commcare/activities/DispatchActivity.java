@@ -48,6 +48,7 @@ import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -61,7 +62,6 @@ import javax.annotation.Nullable;
 public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
-    private static final String SMS_INVITE_LINK_PATH_PREFIX = "/users/invite_redirect/";
     public static final String SESSION_ENDPOINT_ID = "ccodk_session_endpoint_id";
 
     // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
@@ -291,17 +291,20 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean handleSmsInviteLinkIntent() {
         Intent intent = getIntent();
         Uri data = intent.getData();
-        if (!Intent.ACTION_VIEW.equals(intent.getAction())
-                || data == null
-                || data.getPath() == null
-                || !data.getPath().startsWith(SMS_INVITE_LINK_PATH_PREFIX)) {
+        if (!Intent.ACTION_VIEW.equals(intent.getAction()) || data == null) {
             return false;
         }
 
-        String uuid = data.getPath().substring(SMS_INVITE_LINK_PATH_PREFIX.length());
-        if (uuid.endsWith("/")) {
-            uuid = uuid.substring(0, uuid.length() - 1);
+        // Expect exactly ["users", "invite_redirect", "<uuid>"]. Reject anything longer
+        // (e.g. /users/invite_redirect/<uuid>/extra) or shorter so the UUID we pass on
+        // is unambiguously a single segment.
+        List<String> segments = data.getPathSegments();
+        if (segments.size() != 3
+                || !"users".equals(segments.get(0))
+                || !"invite_redirect".equals(segments.get(1))) {
+            return false;
         }
+        String uuid = segments.get(2);
 
         FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(SMS_INVITE_LINK_INTENT_RECEIVED);
 
@@ -313,10 +316,6 @@ public class DispatchActivity extends AppCompatActivity {
         personalIdManager.init(this);
         if (!personalIdManager.isloggedIn()) {
             FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED);
-            return false;
-        }
-        if (uuid.isEmpty()) {
-            // Malformed link — fall through silently.
             return false;
         }
 
