@@ -1,16 +1,20 @@
 package org.commcare.fragments.personalId
 
+import android.app.Activity
 import android.content.Intent
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
+import org.commcare.utils.MediaUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,6 +89,70 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         assertEquals(
             100 * 1024,
             launched.getIntExtra(MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, -1),
+        )
+    }
+
+    // ========== Photo result handling ==========
+
+    @Test
+    fun testPhotoResult_onSuccess_displaysImageAndEnablesSaveButton() {
+        val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
+        val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
+        val photoView = fragment.view!!.findViewById<ImageView>(R.id.photo_image_view)
+
+        // Click first so the take-photo button gets disabled (the path under test re-enables it).
+        @Suppress("UNCHECKED_CAST")
+        val mockLauncher =
+            Mockito.mock(ActivityResultLauncher::class.java)
+                as ActivityResultLauncher<Intent>
+        activity.runOnUiThread {
+            fragment.replaceTakePhotoLauncher(mockLauncher)
+            takeButton.performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Act: simulate the user finishing photo capture.
+        activity.runOnUiThread {
+            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert
+        assertTrue("Save button should be enabled after successful capture", saveButton.isEnabled)
+        assertTrue("Take photo button should re-enable after capture", takeButton.isEnabled)
+        mediaUtilMock.verify {
+            MediaUtil.decodeBase64EncodedBitmap("fake-base64-photo")
+        }
+        assertNotNull("ImageView drawable should be set", photoView.drawable)
+    }
+
+    @Test
+    fun testPhotoResult_onCancel_keepsSaveDisabledAndReenablesTakeButton() {
+        val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
+        val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
+
+        @Suppress("UNCHECKED_CAST")
+        val mockLauncher =
+            Mockito.mock(ActivityResultLauncher::class.java)
+                as ActivityResultLauncher<Intent>
+        activity.runOnUiThread {
+            fragment.replaceTakePhotoLauncher(mockLauncher)
+            takeButton.performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Act: simulate cancellation.
+        activity.runOnUiThread {
+            fragment.simulatePhotoResult(Activity.RESULT_CANCELED, null)
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert
+        assertFalse("Save button should remain disabled on cancel", saveButton.isEnabled)
+        assertTrue("Take photo button should re-enable on cancel", takeButton.isEnabled)
+        mediaUtilMock.verify(
+            { MediaUtil.decodeBase64EncodedBitmap(Mockito.anyString()) },
+            Mockito.never(),
         )
     }
 }
