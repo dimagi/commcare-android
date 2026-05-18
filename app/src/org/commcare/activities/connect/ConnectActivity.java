@@ -59,6 +59,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
+    private String opportunityUuid;
     private MenuItem messagingMenuItem = null;
     private MenuItem notificationsMenuItem = null;
 
@@ -121,7 +122,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        String opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
+        opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
         if (!TextUtils.isEmpty(opportunityUuid)) {
             job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
         }
@@ -165,9 +166,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
         startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
                 getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false));
-        String fromSmsUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
-        if (!TextUtils.isEmpty(fromSmsUuid)) {
-            startArgs.putString(OPPORTUNITY_UUID, fromSmsUuid);
+        if (!TextUtils.isEmpty(opportunityUuid)) {
+            startArgs.putString(OPPORTUNITY_UUID, opportunityUuid);
         }
 
         return R.id.connect_unlock_fragment;

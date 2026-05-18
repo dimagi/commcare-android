@@ -104,24 +104,16 @@ public class ConnectUnlockFragment extends Fragment {
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode,
                                   @androidx.annotation.Nullable Throwable t) {
+                if (!isAdded()) { return; }
                 if (fromSmsInviteLink) {
-                    ((CommCareActivity<?>) requireActivity())
-                            .dismissProgressDialogForTask(TASK_ID_SMS_INVITE_REFRESH);
-                    FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
-                            AnalyticsParamValue.SMS_INVITE_LINK_NETWORK_FAILURE);
-                    // Per product decision, network failures show the same "Opportunity not found"
-                    // message as a missing UUID — no retry option. Analytics still distinguishes
-                    // the two outcomes for funnel analysis.
-                    Toast.makeText(requireContext(),
-                            R.string.connect_sms_invite_opportunity_not_found,
-                            Toast.LENGTH_LONG).show();
-                    redirectionAction = "";
+                    handleSmsLinkFailure(AnalyticsParamValue.SMS_INVITE_LINK_NETWORK_FAILURE);
                 }
                 setFragmentRedirection();
             }
 
             @Override
             public void onSuccess(List<ConnectJobRecord> jobs) {
+                if (!isAdded()) { return; }
                 if (!jobs.isEmpty()) {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
@@ -130,14 +122,9 @@ public class ConnectUnlockFragment extends Fragment {
                             .dismissProgressDialogForTask(TASK_ID_SMS_INVITE_REFRESH);
                     ConnectJobRecord requested = findRequestedJob(jobs);
                     if (requested == null) {
-                        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
-                                AnalyticsParamValue.SMS_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
-                        Toast.makeText(requireContext(),
-                                R.string.connect_sms_invite_opportunity_not_found,
-                                Toast.LENGTH_LONG).show();
+                        handleSmsLinkFailure(AnalyticsParamValue.SMS_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
                         // Fall through to jobs-list redirect by clearing the redirection action;
                         // setFragmentRedirection() routes the empty action to connect_jobs_list_fragment.
-                        redirectionAction = "";
                     } else {
                         FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
                                 AnalyticsParamValue.SMS_INVITE_LINK_SUCCESS);
@@ -159,6 +146,24 @@ public class ConnectUnlockFragment extends Fragment {
             }
         }
         return null;
+    }
+
+    /**
+     * Dismisses the SMS-invite progress dialog, fires the given analytics outcome, shows the
+     * "Opportunity not found" toast, and clears the redirection action.
+     * <p>
+     * Per product decision, network failures show the same "Opportunity not found" message as a
+     * missing UUID — no retry option. Analytics still distinguishes the two outcomes for funnel
+     * analysis.
+     */
+    private void handleSmsLinkFailure(String analyticsOutcome) {
+        ((CommCareActivity<?>) requireActivity())
+                .dismissProgressDialogForTask(TASK_ID_SMS_INVITE_REFRESH);
+        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(analyticsOutcome);
+        Toast.makeText(requireContext(),
+                R.string.connect_sms_invite_opportunity_not_found,
+                Toast.LENGTH_LONG).show();
+        redirectionAction = "";
     }
 
     /**
