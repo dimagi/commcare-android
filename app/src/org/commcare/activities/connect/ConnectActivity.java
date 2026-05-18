@@ -59,6 +59,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
+    /**
+     * UUID of the opportunity carried in from intent extras. For the SMS deep-link path this is
+     * set before the corresponding ConnectJobRecord is available locally, so {@link #job} may be
+     * null at this point and only resolves once the server-side opportunity list is refreshed.
+     */
     private String opportunityUuid;
     private MenuItem messagingMenuItem = null;
     private MenuItem notificationsMenuItem = null;
@@ -263,6 +268,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == ConnectUnlockFragment.TASK_ID_SMS_INVITE_REFRESH) {
+            // SMS deep-link flow always needs the wait dialog, even if waitDialogEnabled is off elsewhere.
             return CustomProgressDialog.newInstance(
                     null,
                     getString(R.string.connect_sms_invite_refreshing),
