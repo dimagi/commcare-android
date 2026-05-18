@@ -159,6 +159,17 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- CCCT-2395: App Links override for SMS opportunity invite links.
+                 Server-side endpoint /users/invite_redirect/<uuid> is owned by the Connect team. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="connect.dimagi.com" />
+                <data android:host="connect-staging.dimagi.com" />
+                <data android:pathPrefix="/users/invite_redirect/" />
+            </intent-filter>
         </activity>
         <activity
             android:name="org.commcare.activities.AppManagerActivity"
