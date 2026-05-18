@@ -145,7 +145,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectJobListItemCorruptBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel
     ) {
-        binding.getRoot().setTag(connectLoginJobListModel.getUuid());
+        binding.getRoot().setTag("opp_uuid: " + connectLoginJobListModel.getUuid());
         binding.tvTitle.setText(connectLoginJobListModel.getName());
     }
 
@@ -155,7 +155,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ConnectLoginJobListModel connectLoginJobListModel,
             OnJobSelectionClick launcher
     ) {
-        binding.getRoot().setTag(connectLoginJobListModel.getUuid());
+        binding.getRoot().setTag("opp_uuid: " + connectLoginJobListModel.getUuid());
         binding.tvTitle.setText(connectLoginJobListModel.getName());
         if (isExpiryDateUnderFiveDays(connectLoginJobListModel.getDate())) {
             int redColor = ContextCompat.getColor(mContext, R.color.dark_red_brick_red);
