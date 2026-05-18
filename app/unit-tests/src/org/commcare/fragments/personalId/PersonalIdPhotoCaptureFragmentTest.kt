@@ -9,9 +9,14 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.ConnectConstants
+import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ApiPersonalId
 import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -202,5 +207,52 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         // Error cleared.
         assertEquals(View.GONE, errorView.visibility)
         assertEquals("", errorView.text.toString())
+    }
+
+    @Test
+    fun testCompleteProfile_onSuccess_storesUserAndNavigatesToSuccess() {
+        // Act
+        activity.runOnUiThread {
+            fragment.invokePhotoUploadSuccess("fake-base64-photo")
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert: passphrase stored.
+        connectDatabaseHelperMock.verify {
+            ConnectDatabaseHelper.handleReceivedDbPassphrase(Mockito.any(), Mockito.eq("test-db-key"))
+        }
+
+        // Assert: user stored.
+        val userCaptor = ArgumentCaptor.forClass(ConnectUserRecord::class.java)
+        connectUserDatabaseUtilMock.verify {
+            ConnectUserDatabaseUtil.storeUser(Mockito.any(), userCaptor.capture())
+        }
+        val storedUser = userCaptor.value
+        assertEquals("Test User", storedUser.name)
+        assertEquals("test-personal-id", storedUser.userId)
+        assertEquals("fake-base64-photo", storedUser.photo)
+        assertEquals("+11234567890", storedUser.primaryPhone)
+
+        // Assert: analytics fired.
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdAccountCreated()
+        }
+
+        // Assert: navigated to success message.
+        assertEquals(R.id.personalid_message_display, navController.currentDestination?.id)
+        val args = navController.backStack.last().arguments
+        assertEquals(
+            fragment.getString(R.string.connect_register_success_title),
+            args?.getString("title"),
+        )
+        assertEquals(
+            fragment.getString(R.string.connect_register_success_message),
+            args?.getString("message"),
+        )
+        assertEquals(false, args?.getBoolean("isCancellable"))
+        assertEquals(
+            ConnectConstants.PERSONALID_REGISTRATION_SUCCESS,
+            args?.getInt("callingClass"),
+        )
     }
 }
