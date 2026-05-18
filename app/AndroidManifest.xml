@@ -160,13 +160,23 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <!-- CCCT-2395: App Links override for SMS opportunity invite links.
-                 Server-side endpoint /users/invite_redirect/<uuid> is owned by the Connect team. -->
+                 Server-side endpoint /users/invite_redirect/<uuid> is owned by the Connect team.
+                 The legacy /users/accept_invite/ path is intentionally NOT claimed so existing
+                 invites continue to open in the browser.
+                 One intent-filter per host so production verification is not coupled to staging. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" />
                 <data android:host="connect.dimagi.com" />
+                <data android:pathPrefix="/users/invite_redirect/" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
                 <data android:host="connect-staging.dimagi.com" />
                 <data android:pathPrefix="/users/invite_redirect/" />
             </intent-filter>
