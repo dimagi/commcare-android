@@ -379,6 +379,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void clearSessionEndpointIntentExtras() {
+        getIntent().removeExtra(SESSION_REQUEST);
         getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
         getIntent().removeExtra(SESSION_ENDPOINT_ID);
     }
@@ -444,8 +445,8 @@ public class DispatchActivity extends AppCompatActivity {
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
                         i.putExtra(CC_LAUNCH_REQUIRE_SYNC,
                                 getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false));
-                        clearSessionEndpointIntentExtras();
                     }
+                    clearSessionEndpointIntentExtras();
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);
                         i.putExtra(EXIT_AFTER_FORM_SUBMISSION,
