@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
@@ -8,6 +9,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,8 +21,11 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
@@ -34,6 +39,10 @@ public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
     private boolean buttons = false;
+    private boolean fromSmsInviteLink = false;
+    private String requestedOpportunityUuid = null;
+
+    public static final int TASK_ID_SMS_INVITE_REFRESH = 9241;
 
     public ConnectUnlockFragment() {
         // Required empty public constructor
@@ -52,6 +61,9 @@ public class ConnectUnlockFragment extends Fragment {
         if(getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
             buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
+            fromSmsInviteLink = getArguments().getBoolean(
+                    ConnectConstants.FROM_SMS_INVITE_LINK, false);
+            requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
         }
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
@@ -81,11 +93,30 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void retrieveOpportunities() {
+        if (fromSmsInviteLink) {
+            ((CommCareActivity<?>) requireActivity())
+                    .showProgressDialog(TASK_ID_SMS_INVITE_REFRESH);
+        }
+
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<List<ConnectJobRecord>>() {
 
             @Override
-            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @androidx.annotation.Nullable Throwable t) {
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode,
+                                  @androidx.annotation.Nullable Throwable t) {
+                if (fromSmsInviteLink) {
+                    ((CommCareActivity<?>) requireActivity())
+                            .dismissProgressDialogForTask(TASK_ID_SMS_INVITE_REFRESH);
+                    FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
+                            AnalyticsParamValue.SMS_INVITE_LINK_NETWORK_FAILURE);
+                    // Per product decision, network failures show the same "Opportunity not found"
+                    // message as a missing UUID — no retry option. Analytics still distinguishes
+                    // the two outcomes for funnel analysis.
+                    Toast.makeText(requireContext(),
+                            R.string.connect_sms_invite_opportunity_not_found,
+                            Toast.LENGTH_LONG).show();
+                    redirectionAction = "";
+                }
                 setFragmentRedirection();
             }
 
@@ -94,10 +125,40 @@ public class ConnectUnlockFragment extends Fragment {
                 if (!jobs.isEmpty()) {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
+                if (fromSmsInviteLink) {
+                    ((CommCareActivity<?>) requireActivity())
+                            .dismissProgressDialogForTask(TASK_ID_SMS_INVITE_REFRESH);
+                    ConnectJobRecord requested = findRequestedJob(jobs);
+                    if (requested == null) {
+                        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
+                                AnalyticsParamValue.SMS_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
+                        Toast.makeText(requireContext(),
+                                R.string.connect_sms_invite_opportunity_not_found,
+                                Toast.LENGTH_LONG).show();
+                        // Fall through to jobs-list redirect by clearing the redirection action;
+                        // setFragmentRedirection() routes the empty action to connect_jobs_list_fragment.
+                        redirectionAction = "";
+                    } else {
+                        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
+                                AnalyticsParamValue.SMS_INVITE_LINK_SUCCESS);
+                        ((ConnectActivity) requireActivity()).setActiveJob(requested);
+                    }
+                }
                 setFragmentRedirection();
-
             }
         }.getConnectOpportunities(requireContext(), user);
+    }
+
+    private ConnectJobRecord findRequestedJob(List<ConnectJobRecord> jobs) {
+        if (requestedOpportunityUuid == null) {
+            return null;
+        }
+        for (ConnectJobRecord job : jobs) {
+            if (requestedOpportunityUuid.equals(job.getJobUUID())) {
+                return job;
+            }
+        }
+        return null;
     }
 
     /**

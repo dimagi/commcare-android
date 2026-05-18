@@ -30,6 +30,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.common.base.Strings;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.fragments.connect.ConnectUnlockFragment;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
@@ -161,6 +163,12 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
+        startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
+                getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false));
+        String fromSmsUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
+        if (!TextUtils.isEmpty(fromSmsUuid)) {
+            startArgs.putString(OPPORTUNITY_UUID, fromSmsUuid);
+        }
 
         return R.id.connect_unlock_fragment;
     }
@@ -254,10 +262,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (taskId == ConnectUnlockFragment.TASK_ID_SMS_INVITE_REFRESH) {
+            return CustomProgressDialog.newInstance(
+                    null,
+                    getString(R.string.connect_sms_invite_refreshing),
+                    taskId);
+        }
         if (waitDialogEnabled) {
             return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
         }
-
         return null;
     }
 
