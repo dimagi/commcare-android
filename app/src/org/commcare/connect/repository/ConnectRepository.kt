@@ -12,6 +12,7 @@ import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
 
@@ -24,6 +25,7 @@ class ConnectRepository
         companion object {
             const val SYNC_KEY_OPPORTUNITIES = "/opportunities"
             const val SYNC_KEY_LEARNING_PREFIX = "/learning_progress/"
+            const val SYNC_KEY_DELIVERY_PREFIX = "/delivery_progress/"
 
             @Volatile
             private var instance: ConnectRepository? = null
@@ -68,6 +70,23 @@ class ConnectRepository
                 policy = policy,
                 loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
                 networkCall = { fetchLearningProgressFromNetwork(job) },
+                onNetworkSuccess = { responseModel ->
+                    responseModel.applyToJob(job, CommCareApplication.instance())
+                },
+                mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+            )
+
+        fun getDeliveryProgress(
+            job: ConnectJobRecord,
+            forceRefresh: Boolean = false,
+            policy: RefreshPolicy = RefreshPolicy.ALWAYS,
+        ): Flow<DataState<ConnectJobRecord>> =
+            offlineFirstFlow(
+                syncKey = SYNC_KEY_DELIVERY_PREFIX + job.jobUUID,
+                forceRefresh = forceRefresh,
+                policy = policy,
+                loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                networkCall = { fetchDeliveryProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
                     responseModel.applyToJob(job, CommCareApplication.instance())
                 },
@@ -120,5 +139,10 @@ class ConnectRepository
         private suspend fun fetchLearningProgressFromNetwork(job: ConnectJobRecord): Result<LearningAppProgressResponseModel> {
             val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
             return networkClient.getLearningProgress(user, job)
+        }
+
+        private suspend fun fetchDeliveryProgressFromNetwork(job: ConnectJobRecord): Result<DeliveryAppProgressResponseModel> {
+            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
+            return networkClient.getDeliveryProgress(user, job)
         }
     }

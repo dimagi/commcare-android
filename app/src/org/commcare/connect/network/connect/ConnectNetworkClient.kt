@@ -1,19 +1,19 @@
 package org.commcare.connect.network.connect
 
 import androidx.annotation.VisibleForTesting
-import kotlinx.coroutines.CancellationException
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ApiConnect.API_VERSION_CONNECT
 import org.commcare.connect.network.ConnectApiService
 import org.commcare.connect.network.ConnectNetworkHelper
-import org.commcare.connect.network.LoginInvalidatedException
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
+import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
 import org.commcare.connect.network.getAuthorizationHeader
 import org.commcare.connect.network.mapHttpErrorCode
@@ -63,6 +63,16 @@ class ConnectNetworkClient
                 user = user,
                 apiCall = { auth -> apiService.getLearningProgress(auth, job.jobUUID, versionHeaders()) },
                 parse = { code, stream -> LearningAppProgressResponseParser<LearningAppProgressResponseModel>().parse(code, stream, job) },
+            )
+
+        suspend fun getDeliveryProgress(
+            user: ConnectUserRecord,
+            job: ConnectJobRecord,
+        ): Result<DeliveryAppProgressResponseModel> =
+            executeApiCall(
+                user = user,
+                apiCall = { auth -> apiService.getDeliveryProgress(auth, job.jobUUID, versionHeaders()) },
+                parse = { code, stream -> DeliveryAppProgressResponseParser<DeliveryAppProgressResponseModel>().parse(code, stream, job) },
             )
 
         private suspend fun <T> executeApiCall(

@@ -12,7 +12,6 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
-import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
 import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
@@ -92,66 +91,35 @@ object ConnectJobHelper {
         baseConnectView: BaseConnectView? = null,
         listener: ConnectActivityCompleteListener,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<DeliveryAppProgressResponseModel>(
-            showLoading,
-            baseConnectView,
-        ) {
-            override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
-                val events = mutableSetOf<String?>()
-
-                if (deliveryAppProgressResponseModel.updatedJob) {
-                    events.add(START_DELIVERY)
-                    ConnectJobUtils.upsertJob(context, job)
-                }
-
-                if (deliveryAppProgressResponseModel.hasDeliveries) {
-                    if (job.getDeliveryProgressPercentage() == 100) {
+        val user = ConnectUserDatabaseUtil.getUser(context)!!
+        CoroutineScope(Dispatchers.IO).launch {
+            val result = ConnectNetworkClient.getInstance().getDeliveryProgress(user, job)
+            result.fold(
+                onSuccess = { model ->
+                    val events = mutableSetOf<String?>()
+                    if (model.updatedJob) {
+                        events.add(START_DELIVERY)
+                    }
+                    if (model.hasDeliveries && job.getDeliveryProgressPercentage() == 100) {
                         events.add(FINISH_DELIVERY)
                     }
-                    ConnectJobUtils.storeDeliveries(
-                        context,
-                        job.deliveries,
-                        job.jobUUID,
-                        true,
-                    )
-                }
-
-                if (deliveryAppProgressResponseModel.hasPayment) {
-                    if (job.payments.isNotEmpty()) {
+                    if (model.hasPayment && job.payments.isNotEmpty()) {
                         events.add(PAID_DELIVERY)
                     }
-                    ConnectJobUtils.storePayments(
-                        context,
-                        job.payments,
-                        job.jobUUID,
-                        true,
-                    )
-                }
 
-                job.syncRelearnTasksPrefs(deliveryAppProgressResponseModel.parsedTasks)
+                    model.applyToJob(job, context)
 
-                events.forEach { event ->
-                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(
-                        true,
-                        event,
-                    )
-                }
-
-                listener.connectActivityComplete(true)
-            }
-
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(
-                    false,
-                    null,
-                )
-                listener.connectActivityComplete(false)
-            }
-        }.getDeliveries(context, user, job)
+                    events.forEach { event ->
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event)
+                    }
+                    listener.connectActivityComplete(true)
+                },
+                onFailure = {
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false, null)
+                    listener.connectActivityComplete(false)
+                },
+            )
+        }
     }
 
     fun updatePaymentsConfirmed(
