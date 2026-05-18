@@ -604,6 +604,12 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_JOBS, b);
     }
 
+    public static void reportSmsInviteLinkEvent(String outcome) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.SMS_INVITE_LINK_OUTCOME, outcome);
+        reportEvent(CCAnalyticsEvent.CCC_SMS_INVITE_LINK, bundle);
+    }
+
     public static void reportCccApiStartLearning(boolean success) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
