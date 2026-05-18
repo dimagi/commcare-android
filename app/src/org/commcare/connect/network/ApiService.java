@@ -81,6 +81,14 @@ public interface ApiService {
     Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
             @Body Map<String, String> body);
 
+    @POST(ApiEndPoints.sendEmailOtp)
+    Call<ResponseBody> sendEmailOtp(@Header("Authorization") String token,
+                                    @Body Map<String, String> emailRequest);
+
+    @POST(ApiEndPoints.verifyEmailOtp)
+    Call<ResponseBody> verifyEmailOtp(@Header("Authorization") String token,
+                                      @Body Map<String, String> otpRequest);
+
     @POST(ApiEndPoints.connectTokenURL)
     Call<ResponseBody> connectToken(@HeaderMap Map<String, String> headers, @Body RequestBody connectTokenRequest);
 

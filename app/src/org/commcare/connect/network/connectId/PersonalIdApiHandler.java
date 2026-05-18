@@ -182,6 +182,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 // The "NOT_ALLOWED" error code relates to an uninvited user receiving an OTP.
                 onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
                 return true;
+            case "RATE_LIMITED":
+                onFailure(PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR, null);
+                return true;
             case "ACTIVE_USER_EXISTS":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
@@ -312,20 +315,40 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void sendOtp(Activity activity, PersonalIdSessionData sessionData) {
-        ApiPersonalId.sendOtp(
+    public void sendPhoneOtp(Activity activity, PersonalIdSessionData sessionData) {
+        ApiPersonalId.sendPhoneOtp(
                 activity,
                 sessionData.getToken(),
                 createCallback(sessionData, null)
         );
     }
 
-    public void validateOtp(Activity activity, String otp, PersonalIdSessionData sessionData) {
-        ApiPersonalId.validateOtp(
+    public void validatePhoneOtp(Activity activity, String otp, PersonalIdSessionData sessionData) {
+        ApiPersonalId.validatePhoneOtp(
                 activity,
                 sessionData.getToken(),
                 otp,
                 createCallback(sessionData, null)
+        );
+    }
+
+    public void sendEmailOtp(Activity activity, String email, PersonalIdSessionData sessionData) {
+        ApiPersonalId.sendEmailOtp(
+                activity,
+                email,
+                sessionData.getToken(),
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
+    public void verifyEmailOtp(Activity activity, String email, String otp,
+                                   PersonalIdSessionData sessionData) {
+        ApiPersonalId.verifyEmailOtp(
+                activity,
+                email,
+                otp,
+                sessionData.getToken(),
+                createCallback(new NoParsingResponseParser<>(), null)
         );
     }
 

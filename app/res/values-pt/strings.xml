@@ -601,5 +601,6 @@
     <string name="connect_sync_successful">Última sincronização: Agora mesmo</string>
     <string name="connect_sync_failed">Sincronização falhou, última sincronização: %s</string>
     <string name="connect_offline">Offline</string>
+    <string name="connect_back_online">De volta online</string>
     <string name="connect_never">Nunca</string>
 </resources>

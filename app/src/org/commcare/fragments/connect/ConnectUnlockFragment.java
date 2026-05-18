@@ -20,11 +20,12 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.javarosa.core.services.Logger;
 
 import java.util.List;
@@ -62,7 +63,7 @@ public class ConnectUnlockFragment extends Fragment {
     private final Runnable unlockRunnable = new Runnable() {
         @Override
         public void run() {
-            PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
+            PersonalIdUnlocker.INSTANCE.unlock((CommCareActivity<?>) requireActivity(), UnlockPolicy.ALWAYS, success -> {
                 if (success) {
                     retrieveOpportunities();
                 } else {
