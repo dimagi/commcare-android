@@ -14,6 +14,7 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ApiPersonalId
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -254,5 +255,99 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
             ConnectConstants.PERSONALID_REGISTRATION_SUCCESS,
             args?.getInt("callingClass"),
         )
+    }
+
+    @Test
+    fun testCompleteProfile_onAccountLocked_navigatesToFailureMessageDisplay() {
+        // Act
+        activity.runOnUiThread {
+            fragment.invokeCompleteProfileFailure(
+                PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
+                null,
+            )
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert: navigated to the configuration-failed message display.
+        assertEquals(R.id.personalid_message_display, navController.currentDestination?.id)
+        val args = navController.backStack.last().arguments
+        assertEquals(
+            fragment.getString(R.string.personalid_configuration_process_failed_title),
+            args?.getString("title"),
+        )
+        assertEquals(false, args?.getBoolean("isCancellable"))
+    }
+
+    @Test
+    fun testCompleteProfile_onRetryableFailure_reenablesButtonsAndShowsError() {
+        // Arrange: simulate a captured photo + clicked save so we have a non-empty baseline.
+        val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
+        val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
+        val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
+
+        @Suppress("UNCHECKED_CAST")
+        val mockLauncher =
+            Mockito.mock(ActivityResultLauncher::class.java)
+                as ActivityResultLauncher<Intent>
+        activity.runOnUiThread {
+            fragment.replaceTakePhotoLauncher(mockLauncher)
+            takeButton.performClick()
+            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
+            saveButton.performClick() // disables both buttons
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Act: simulate the API failing with a retryable error.
+        activity.runOnUiThread {
+            fragment.invokeCompleteProfileFailure(
+                PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
+                RuntimeException("boom"),
+            )
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert: still on photo capture screen.
+        assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)
+        // Error visible with the handler's returned text.
+        assertEquals(View.VISIBLE, errorView.visibility)
+        assertEquals("Network error occurred", errorView.text.toString())
+        // Both buttons re-enabled.
+        assertTrue("Save button should re-enable on retryable failure", saveButton.isEnabled)
+        assertTrue("Take photo button should re-enable on retryable failure", takeButton.isEnabled)
+    }
+
+    @Test
+    fun testCompleteProfile_onNonRetryableFailure_buttonsStayDisabled() {
+        val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
+        val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
+        val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
+
+        @Suppress("UNCHECKED_CAST")
+        val mockLauncher =
+            Mockito.mock(ActivityResultLauncher::class.java)
+                as ActivityResultLauncher<Intent>
+        activity.runOnUiThread {
+            fragment.replaceTakePhotoLauncher(mockLauncher)
+            takeButton.performClick()
+            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
+            saveButton.performClick() // disables both buttons
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Act: non-retryable failure (not handled by handleCommonSignupFailures).
+        activity.runOnUiThread {
+            fragment.invokeCompleteProfileFailure(
+                PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
+                null,
+            )
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Assert: no nav, error shown, buttons stay disabled.
+        assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)
+        assertEquals(View.VISIBLE, errorView.visibility)
+        assertEquals("Network error occurred", errorView.text.toString())
+        assertFalse("Save button should stay disabled on non-retryable failure", saveButton.isEnabled)
+        assertFalse("Take photo button should stay disabled on non-retryable failure", takeButton.isEnabled)
     }
 }
