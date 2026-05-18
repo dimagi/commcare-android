@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
+import org.commcare.connect.network.ApiPersonalId
 import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
 import org.commcare.utils.MediaUtil
@@ -154,5 +155,52 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
             { MediaUtil.decodeBase64EncodedBitmap(Mockito.anyString()) },
             Mockito.never(),
         )
+    }
+
+    // ========== Save / completeProfile ==========
+
+    @Test
+    fun testSavePhotoClick_callsCompleteProfileWithCorrectArgs() {
+        val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
+        val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
+        val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
+
+        // Arrange: simulate a captured photo so the save button is enabled and
+        // photoAsBase64 is populated.
+        @Suppress("UNCHECKED_CAST")
+        val mockLauncher =
+            Mockito.mock(ActivityResultLauncher::class.java)
+                as ActivityResultLauncher<Intent>
+        activity.runOnUiThread {
+            fragment.replaceTakePhotoLauncher(mockLauncher)
+            takeButton.performClick()
+            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
+            // Seed a visible error so we can verify clearError() fires on save click.
+            errorView.visibility = View.VISIBLE
+            errorView.text = "stale error"
+        }
+        ShadowLooper.idleMainLooper()
+
+        // Act
+        activity.runOnUiThread { saveButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        // Assert: API called with the session's args.
+        apiPersonalIdMock.verify {
+            ApiPersonalId.setPhotoAndCompleteProfile(
+                Mockito.any(),
+                Mockito.eq("Test User"),
+                Mockito.eq("fake-base64-photo"),
+                Mockito.eq("123456"),
+                Mockito.eq("test-token"),
+                Mockito.any(),
+            )
+        }
+        // Buttons disabled while in flight.
+        assertFalse("Save button disabled while save in flight", saveButton.isEnabled)
+        assertFalse("Take photo button disabled while save in flight", takeButton.isEnabled)
+        // Error cleared.
+        assertEquals(View.GONE, errorView.visibility)
+        assertEquals("", errorView.text.toString())
     }
 }
