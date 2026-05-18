@@ -584,5 +584,6 @@
     <string name="connect_sync_successful">ናይ መወዳእታ ምስንኻል: ሕጂ ሕጂ</string>
     <string name="connect_sync_failed">ምስንኻል ኣይሰለጠን, ናይ መወዳእታ ምስንኻል: %s</string>
     <string name="connect_offline">ኦፍላይን</string>
+    <string name="connect_back_online">ናብ ኦንላይን ተመሊሱ</string>
     <string name="connect_never">ፈጺሙ</string>
 </resources>
