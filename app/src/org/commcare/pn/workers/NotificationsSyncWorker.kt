@@ -165,9 +165,13 @@ class NotificationsSyncWorker(
     private fun checkForOpportunityStatus(): Boolean =
         if (notificationPayload?.contains(OPPORTUNITY_STATUS) == true && job != null) {
             val opportunityStatus = notificationPayload?.get(OPPORTUNITY_STATUS)
-            ((job?.status == STATUS_LEARNING || job?.status == STATUS_AVAILABLE || job?.status == STATUS_AVAILABLE_NEW) &&
-                OPPORTUNITY_STATUS_LEARN.equals(opportunityStatus)) ||
-                (job?.status == STATUS_DELIVERING && OPPORTUNITY_STATUS_DELIVERY.equals(opportunityStatus))
+            (
+                    (job?.status == STATUS_LEARNING || job?.status == STATUS_AVAILABLE || job?.status == STATUS_AVAILABLE_NEW) &&
+                            OPPORTUNITY_STATUS_LEARN.equals(opportunityStatus)
+                    ) ||
+                    (job?.status == STATUS_DELIVERING && OPPORTUNITY_STATUS_DELIVERY.equals(
+                        opportunityStatus
+                    ))
         } else {
             true
         }
