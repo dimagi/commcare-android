@@ -42,8 +42,6 @@ object ConnectJobHelper {
     fun updateJobProgress(
         context: Context,
         job: ConnectJobRecord,
-        showLoading: Boolean? = null,
-        baseConnectView: BaseConnectView? = null,
         listener: ConnectActivityCompleteListener,
     ) {
         when (job.status) {
@@ -52,7 +50,7 @@ object ConnectJobHelper {
             }
 
             ConnectJobRecord.STATUS_DELIVERING -> {
-                updateDeliveryProgress(context, job, showLoading, baseConnectView, listener)
+                updateDeliveryProgress(context, job, listener)
             }
 
             else -> {
@@ -92,8 +90,6 @@ object ConnectJobHelper {
     fun updateDeliveryProgress(
         context: Context,
         job: ConnectJobRecord,
-        showLoading: Boolean? = null,
-        baseConnectView: BaseConnectView? = null,
         listener: ConnectActivityCompleteListener,
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)!!

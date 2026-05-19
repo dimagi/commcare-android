@@ -149,8 +149,6 @@ class NotificationsSyncWorker(
                 ConnectJobHelper.updateJobProgress(
                     appContext,
                     job!!,
-                    false,
-                    null,
                     object : ConnectActivityCompleteListener {
                         override fun connectActivityComplete(
                             success: Boolean,
