@@ -66,7 +66,7 @@ we would like to communicate to QA as part of the release testing
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 
 - **[PersonalID] Session-based unlock for in-app Connect navigation:**
-  - An app session is a foreground app session, i.e. user existing the app and resuming into it counts as a new session. 
+  - An app session is a foreground app session, i.e. user exiting the app and resuming into it counts as a new session. 
   - Tapping Connect Jobs, Messaging, or Work History from the nav drawer no longer prompts for biometric/PIN if the user already unlocked within the last 10 minutes in the same app session.
   - Notification redirects to these screens follow same rules as the menu itself. 
   - Opening any of below destinations from a push notification still always prompts:
