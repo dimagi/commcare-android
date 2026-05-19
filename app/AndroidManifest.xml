@@ -239,15 +239,6 @@
         <activity
             android:name="org.commcare.activities.FullscreenVideoViewActivity"
             android:theme="@style/FullscreenTheme" />
-        <activity
-            android:name="org.commcare.activities.DotsEntryActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="org.commcare.dalvik.action.DotsEntry" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name="org.commcare.activities.CallOutActivity" />
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
