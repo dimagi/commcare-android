@@ -40,7 +40,7 @@ class LinkHqWorkerResponseParserTest {
     }
 
     @Test
-    fun testParse_setsWorkerLinkedTrue_andReturnsTrue() {
+    fun `parse sets workerLinked true and returns true`() {
         // Arrange
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
@@ -53,7 +53,7 @@ class LinkHqWorkerResponseParserTest {
     }
 
     @Test
-    fun testParse_workerLinkedFalseBeforeParse_trueAfter() {
+    fun `workerLinked is false before parse and true after`() {
         // Arrange
         assertFalse(appRecord.getWorkerLinked())
         val inputStream = ByteArrayInputStream(byteArrayOf())
@@ -66,7 +66,7 @@ class LinkHqWorkerResponseParserTest {
     }
 
     @Test
-    fun testParse_callsStoreApp_once() {
+    fun `parse calls storeApp exactly once`() {
         // Arrange
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
@@ -81,7 +81,7 @@ class LinkHqWorkerResponseParserTest {
     }
 
     @Test(expected = NullPointerException::class)
-    fun testParse_nullInputObject_throwsNullPointerException() {
+    fun `parse throws NullPointerException when input object is null`() {
         // Arrange
         val inputStream = ByteArrayInputStream(byteArrayOf())
 

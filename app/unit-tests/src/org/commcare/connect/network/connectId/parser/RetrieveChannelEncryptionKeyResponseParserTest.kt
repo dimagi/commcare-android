@@ -42,7 +42,7 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     }
 
     @Test
-    fun testParse_validJson_setsKeyOnChannel_andReturnsTrue() {
+    fun `valid JSON sets key on channel and returns true`() {
         // Arrange
         val json = """{"key": "abc123-encryption-key"}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
@@ -56,7 +56,7 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     }
 
     @Test
-    fun testParse_emptyResponse_channelKeyUnchanged_andReturnsTrue() {
+    fun `empty response leaves channel key unchanged and returns true`() {
         // Arrange
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
@@ -69,7 +69,7 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     }
 
     @Test
-    fun testParse_emptyResponse_doesNotCallStoreMessagingChannel() {
+    fun `empty response does not call storeMessagingChannel`() {
         // Arrange
         val inputStream = ByteArrayInputStream(byteArrayOf())
 
@@ -87,7 +87,7 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     }
 
     @Test
-    fun testParse_callsStoreMessagingChannel_once() {
+    fun `parse calls storeMessagingChannel exactly once`() {
         // Arrange
         val json = """{"key": "secure-key-value"}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
@@ -103,7 +103,7 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     }
 
     @Test(expected = RuntimeException::class)
-    fun testParse_invalidJson_throwsRuntimeException() {
+    fun `invalid JSON throws RuntimeException`() {
         // Arrange
         val inputStream = ByteArrayInputStream("{ invalid json".toByteArray())
 
@@ -112,7 +112,7 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     }
 
     @Test(expected = RuntimeException::class)
-    fun testParse_missingKeyField_throwsRuntimeException() {
+    fun `missing key field throws RuntimeException`() {
         // Arrange
         val json = """{"other_field": "value"}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
@@ -122,7 +122,7 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
     }
 
     @Test(expected = NullPointerException::class)
-    fun testParse_nullInputObject_throwsNullPointerException() {
+    fun `parse throws NullPointerException when input object is null`() {
         // Arrange
         val json = """{"key": "abc123"}"""
         val inputStream = ByteArrayInputStream(json.toByteArray())
