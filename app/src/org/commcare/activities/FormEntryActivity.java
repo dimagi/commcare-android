@@ -906,7 +906,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             Logger.exception(
                     "Form attachment count mismatch at save — "
                             + "in-memory=" + formAttachmentCount + " on-disk=" + numAttachmentsOnDisk,
-                    new Throwable());
+                    new IllegalStateException("Form attachment count mismatch"));
         }
     }
 
