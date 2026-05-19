@@ -4,6 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
@@ -74,11 +75,15 @@ object ConnectJobHelper {
                     if (job.passedAssessment()) {
                         FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
                     }
-                    listener.connectActivityComplete(true)
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(true)
+                    }
                 },
                 onFailure = {
                     FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
-                    listener.connectActivityComplete(false)
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(false)
+                    }
                 },
             )
         }
@@ -112,11 +117,15 @@ object ConnectJobHelper {
                     events.forEach { event ->
                         FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event)
                     }
-                    listener.connectActivityComplete(true)
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(true)
+                    }
                 },
                 onFailure = {
                     FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false, null)
-                    listener.connectActivityComplete(false)
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(false)
+                    }
                 },
             )
         }

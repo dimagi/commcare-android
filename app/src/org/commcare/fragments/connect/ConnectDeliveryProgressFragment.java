@@ -80,9 +80,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(ConnectDeliveryProgressViewModel.class);
 
-        observeDeliveryProgress();
-
         setupTabViewPager();
+        observeDeliveryProgress();
         setupJobCard();
         setupRefreshAndConfirmationActions();
 
