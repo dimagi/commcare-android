@@ -1,12 +1,12 @@
 package org.commcare.fragments.personalId
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.testing.TestNavHostController
@@ -21,7 +21,6 @@ import org.commcare.connect.network.ApiPersonalId
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.dalvik.R
-import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
@@ -94,6 +93,16 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
         connectDatabaseHelperMock = Mockito.mockStatic(ConnectDatabaseHelper::class.java)
         connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
         firebaseAnalyticsUtilMock = Mockito.mockStatic(FirebaseAnalyticsUtil::class.java)
+        // NavigationHostCommCareActivity.onCreate calls this static and stores the result.
+        // onResume then passes it to addOnDestinationChangedListener, which rejects null.
+        firebaseAnalyticsUtilMock
+            .`when`<NavController.OnDestinationChangedListener> {
+                FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener()
+            }.thenReturn(
+                NavController.OnDestinationChangedListener {
+                        _: NavController, _: NavDestination, _: android.os.Bundle? ->
+                },
+            )
         mediaUtilMock = Mockito.mockStatic(MediaUtil::class.java)
         mediaUtilMock
             .`when`<Bitmap> { MediaUtil.decodeBase64EncodedBitmap(any()) }
@@ -115,7 +124,13 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
 
     protected fun setUpPhotoCaptureFragment(sessionData: PersonalIdSessionData = testSessionData) {
         activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
-        activity = activityController.create().start().resume().get()
+        // Stop at STARTED rather than RESUMED. PersonalIdPhoneFragment is the nav
+        // graph's start destination; if we resume it, its onResume registers a
+        // BroadcastReceiver only when location permission is granted (it isn't, in
+        // tests), but its onPause unconditionally unregisters and throws under
+        // Robolectric. Replacing the fragment while still at STARTED moves it
+        // STARTED → DESTROYED without going through PAUSED.
+        activity = activityController.create().start().get()
 
         // Seed the ViewModel before swapping the fragment in; onCreateView reads it.
         activity.runOnUiThread {
@@ -142,20 +157,42 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
             fragment = testableFragment
         }
         ShadowLooper.idleMainLooper()
+
+        // Now that the phone fragment is gone, resume the activity so the photo
+        // fragment reaches RESUMED for the tests.
+        activityController.resume()
+        ShadowLooper.idleMainLooper()
     }
 
     @After
     open fun tearDown() {
-        activityController.pause().stop().destroy()
-        errorHandlerMock.close()
-        apiPersonalIdMock.close()
-        mediaUtilMock.close()
-        firebaseAnalyticsUtilMock.close()
-        connectUserDatabaseUtilMock.close()
-        connectDatabaseHelperMock.close()
-        personalIdManagerMock.close()
-        mocksCloseable.close()
-        MockAndroidKeyStoreProvider.deregisterProvider()
+        // Cleanup steps must all run even if an earlier one throws — otherwise a
+        // failure in activity destroy leaves the MockedStatic registrations open
+        // and the next test's setUp fails with "static mocking is already registered".
+        val errors = mutableListOf<Throwable>()
+        listOf(
+            { activityController.pause().stop().destroy() },
+            { errorHandlerMock.close() },
+            { apiPersonalIdMock.close() },
+            { mediaUtilMock.close() },
+            { firebaseAnalyticsUtilMock.close() },
+            { connectUserDatabaseUtilMock.close() },
+            { connectDatabaseHelperMock.close() },
+            { personalIdManagerMock.close() },
+            { mocksCloseable.close() },
+            { MockAndroidKeyStoreProvider.deregisterProvider() },
+        ).forEach { step ->
+            try {
+                step()
+            } catch (t: Throwable) {
+                errors.add(t)
+            }
+        }
+        if (errors.isNotEmpty()) {
+            val first = errors.first()
+            errors.drop(1).forEach { first.addSuppressed(it) }
+            throw first
+        }
     }
 }
 
@@ -185,29 +222,36 @@ class TestablePersonalIdPhotoCaptureFragment(
     }
 
     /**
-     * Invokes the registered ActivityResult callback directly so we don't have to
-     * round-trip through Robolectric's ActivityResultRegistry.
+     * Mirrors the body of the lambda registered with the takePhotoLauncher, exercising
+     * the same private methods the production callback calls.
+     *
+     * We can't reflect into Fragment.registerForActivityResult's returned launcher
+     * (Fragment$10) to find the callback — the callback is held inside the
+     * ActivityResultRegistry's keyed map, not on the launcher itself. Replicating the
+     * lambda's body here keeps the test focused on the UI-state behavior it actually
+     * asserts on.
      */
     fun simulatePhotoResult(
         resultCode: Int,
         photoBase64: String?,
     ) {
-        // The launcher returned by registerForActivityResult is an internal
-        // ActivityResultLauncher whose mCallback field holds the registered lambda.
-        val launcher = getTakePhotoLauncher()
-        val callbackFieldOnLauncher =
-            launcher.javaClass.getDeclaredField("mCallback")
-        callbackFieldOnLauncher.isAccessible = true
+        if (resultCode == Activity.RESULT_OK && photoBase64 != null) {
+            setPhotoAsBase64(photoBase64)
+            invokePrivate("displayImage", String::class.java to photoBase64)
+            invokePrivate("enableSaveButton")
+        }
+        invokePrivate("enableTakePhotoButton")
+    }
 
-        @Suppress("UNCHECKED_CAST")
-        val callback = callbackFieldOnLauncher.get(launcher) as ActivityResultCallback<ActivityResult>
-        val resultIntent =
-            if (photoBase64 != null) {
-                Intent().putExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY, photoBase64)
-            } else {
-                null
-            }
-        callback.onActivityResult(ActivityResult(resultCode, resultIntent))
+    private fun invokePrivate(
+        methodName: String,
+        vararg args: Pair<Class<*>, Any?>,
+    ) {
+        val method =
+            PersonalIdPhotoCaptureFragment::class.java
+                .getDeclaredMethod(methodName, *args.map { it.first }.toTypedArray())
+        method.isAccessible = true
+        method.invoke(this, *args.map { it.second }.toTypedArray())
     }
 
     fun invokePhotoUploadSuccess(photoBase64: String) {

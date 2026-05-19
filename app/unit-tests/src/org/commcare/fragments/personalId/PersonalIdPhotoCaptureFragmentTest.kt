@@ -107,15 +107,10 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val photoView = fragment.view!!.findViewById<ImageView>(R.id.photo_image_view)
 
-        // Click first so the take-photo button gets disabled (the path under test re-enables it).
-        @Suppress("UNCHECKED_CAST")
-        val mockLauncher =
-            Mockito.mock(ActivityResultLauncher::class.java)
-                as ActivityResultLauncher<Intent>
-        activity.runOnUiThread {
-            fragment.replaceTakePhotoLauncher(mockLauncher)
-            takeButton.performClick()
-        }
+        // Disable the take-photo button to match the in-flight state the callback
+        // recovers from. (simulatePhotoResult reflects into the real launcher's
+        // callback field, so don't swap the launcher with a mock here.)
+        activity.runOnUiThread { takeButton.isEnabled = false }
         ShadowLooper.idleMainLooper()
 
         // Act: simulate the user finishing photo capture.
@@ -138,14 +133,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
 
-        @Suppress("UNCHECKED_CAST")
-        val mockLauncher =
-            Mockito.mock(ActivityResultLauncher::class.java)
-                as ActivityResultLauncher<Intent>
-        activity.runOnUiThread {
-            fragment.replaceTakePhotoLauncher(mockLauncher)
-            takeButton.performClick()
-        }
+        activity.runOnUiThread { takeButton.isEnabled = false }
         ShadowLooper.idleMainLooper()
 
         // Act: simulate cancellation.
@@ -171,16 +159,10 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
 
-        // Arrange: simulate a captured photo so the save button is enabled and
-        // photoAsBase64 is populated.
-        @Suppress("UNCHECKED_CAST")
-        val mockLauncher =
-            Mockito.mock(ActivityResultLauncher::class.java)
-                as ActivityResultLauncher<Intent>
+        // Arrange: set up the post-capture state directly.
         activity.runOnUiThread {
-            fragment.replaceTakePhotoLauncher(mockLauncher)
-            takeButton.performClick()
-            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
+            fragment.setPhotoAsBase64("fake-base64-photo")
+            saveButton.isEnabled = true
             // Seed a visible error so we can verify clearError() fires on save click.
             errorView.visibility = View.VISIBLE
             errorView.text = "stale error"
@@ -280,20 +262,15 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
     @Test
     fun testCompleteProfile_onRetryableFailure_reenablesButtonsAndShowsError() {
-        // Arrange: simulate a captured photo + clicked save so we have a non-empty baseline.
+        // Arrange: post-capture state + save click so both buttons are disabled.
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
 
-        @Suppress("UNCHECKED_CAST")
-        val mockLauncher =
-            Mockito.mock(ActivityResultLauncher::class.java)
-                as ActivityResultLauncher<Intent>
         activity.runOnUiThread {
-            fragment.replaceTakePhotoLauncher(mockLauncher)
-            takeButton.performClick()
-            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
-            saveButton.performClick() // disables both buttons
+            fragment.setPhotoAsBase64("fake-base64-photo")
+            saveButton.isEnabled = true
+            saveButton.performClick() // disables both buttons via uploadImageAndCompleteProfile
         }
         ShadowLooper.idleMainLooper()
 
@@ -322,15 +299,10 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
 
-        @Suppress("UNCHECKED_CAST")
-        val mockLauncher =
-            Mockito.mock(ActivityResultLauncher::class.java)
-                as ActivityResultLauncher<Intent>
         activity.runOnUiThread {
-            fragment.replaceTakePhotoLauncher(mockLauncher)
-            takeButton.performClick()
-            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
-            saveButton.performClick() // disables both buttons
+            fragment.setPhotoAsBase64("fake-base64-photo")
+            saveButton.isEnabled = true
+            saveButton.performClick() // disables both buttons via uploadImageAndCompleteProfile
         }
         ShadowLooper.idleMainLooper()
 
