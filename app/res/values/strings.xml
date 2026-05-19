@@ -451,6 +451,7 @@
     <string name="connect_sync_successful">Last synced: Just Now</string>
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
     <string name="connect_offline">Offline</string>
+    <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>
     <string name="connect_title">Connect</string>
     <string name="connect_no_jobs">You haven’t been invited to any opportunities yet. Once you’ve been invited to an opportunity, it will appear in this list.</string>
