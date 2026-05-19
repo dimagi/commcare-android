@@ -55,7 +55,7 @@ class DeliveryAppProgressResponseParserTest {
         """.trimIndent()
 
     @Test
-    fun testEmptyResponseBody_returnsNoFlags() {
+    fun `empty response body returns no flags`() {
         val result = parse("")
 
         assertFalse(result.updatedJob)
@@ -64,7 +64,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testEmptyJsonObject_returnsNoFlags() {
+    fun `empty JSON object returns no flags`() {
         val result = parse("{}")
 
         assertFalse(result.updatedJob)
@@ -73,7 +73,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testMaxPayments_updatesJobMaxVisitsAndSetsUpdatedJobFlag() {
+    fun `max_payments updates job maxVisits and sets updatedJob flag`() {
         val result = parse("""{"max_payments": 10}""")
 
         assertTrue(result.updatedJob)
@@ -83,7 +83,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testEndDate_updatesProjectEndDateAndSetsUpdatedJobFlag() {
+    fun `end_date updates projectEndDate and sets updatedJob flag`() {
         val result = parse("""{"end_date": "2025-06-30"}""")
 
         assertTrue(result.updatedJob)
@@ -93,7 +93,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testPaymentAccrued_updatesAccruedAndSetsUpdatedJobFlag() {
+    fun `payment_accrued updates paymentAccrued and sets updatedJob flag`() {
         val result = parse("""{"payment_accrued": 500}""")
 
         assertTrue(result.updatedJob)
@@ -103,7 +103,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testIsUserSuspended_updatesFieldAndSetsUpdatedJobFlag() {
+    fun `is_user_suspended updates field and sets updatedJob flag`() {
         val result = parse("""{"is_user_suspended": true}""")
 
         assertTrue(result.updatedJob)
@@ -113,7 +113,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testDeliveries_setsHasDeliveriesFlagAndPopulatesJobDeliveries() {
+    fun `deliveries sets hasDeliveries flag and populates job deliveries`() {
         val result = parse("""{"deliveries": [${deliveryJson(42)}]}""")
 
         assertFalse(result.updatedJob)
@@ -124,7 +124,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testEmptyDeliveriesArray_setsHasDeliveriesFlagWithEmptyList() {
+    fun `empty deliveries array sets hasDeliveries flag with empty list`() {
         val result = parse("""{"deliveries": []}""")
 
         assertFalse(result.updatedJob)
@@ -134,7 +134,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testPayments_setsHasPaymentFlagAndPopulatesJobPayments() {
+    fun `payments sets hasPayment flag and populates job payments`() {
         val result = parse("""{"payments": [${paymentJson("pay-001")}]}""")
 
         assertFalse(result.updatedJob)
@@ -145,7 +145,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test
-    fun testAllFields_setsAllThreeFlags() {
+    fun `all fields set all three flags`() {
         val json =
             """
             {
@@ -174,7 +174,7 @@ class DeliveryAppProgressResponseParserTest {
     }
 
     @Test(expected = RuntimeException::class)
-    fun testInvalidJson_throwsRuntimeException() {
+    fun `invalid JSON throws RuntimeException`() {
         parse("{ invalid json }")
     }
 }
