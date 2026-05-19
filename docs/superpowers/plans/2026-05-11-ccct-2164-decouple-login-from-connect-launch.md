@@ -23,12 +23,10 @@ When an FLW launches a learn/deliver app from any Connect page:
    6. Post-success side-effects (analytics, notification clears, etc.).
 3. On success → fragment starts the appropriate Home or Connect Opportunity Info activity. Dialog dismisses.
 4. On failure → dialog dismisses, fragment routes by reason:
-   - **Forget-PersonalID prompt** — for credential, linked-app-record, and Connect-linkage failures. These mean the PersonalID-managed credentials are no longer valid and there is no in-place recovery path. Log the incident (Logger + Firebase), then show a `StandardAlertDialog` telling the user their PersonalID account needs to be re-established, with primary action that calls [`personalIdManager.forgetUser(reason)`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/PersonalIdManager.java#L165). After forgetting, the user lands back at the PersonalID intro screen, which exposes the existing account-recovery path (backup code, etc.).
-   - **Retry-unlock prompt** — for PersonalID-unlock failures. The user may have just cancelled the biometric / PIN prompt, so do not auto-forget. Log, show a `StandardAlertDialog` with Retry / Cancel; Retry replays the silent launch.
-   - **Existing app-recovery handling** — for seat failures and sandbox corruption. Whatever `SeatAppActivity` / `LoginActivity` do for these today is preserved; if no recovery exists, fall back to a `StandardAlertDialog` + log.
+   - **Forget-PersonalID prompt** — for credential, linked-app-record, and Connect-linkage failures. These mean the PersonalID-managed credentials are no longer valid and there is no in-place recovery path. Log the incident (Logger + Firebase), then show a `StandardAlertDialog` ("Your saved PersonalID credentials are no longer valid. Sign in again from the app sidebar to recover your account.") with a "Sign Out" primary action that calls [`personalIdManager.forgetUser(reason)`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/PersonalIdManager.java#L165) and then finishes `ConnectActivity`. The user lands on whichever screen they entered Connect from and must reopen the sidebar's "Sign-in/Reconfigure" option to enter [`PersonalIdActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/personalid/PersonalIdActivity.java), which guides them through the existing phone + backup-code recovery flow.
+   - **Damaged-app routing** — for seat failures. `CommCareApplication.initializeAppResources()` already marks the app `STATE_CORRUPTED` and reports the exception via `ForceCloseLogger` / `CrashUtil`. Preserve [`DispatchActivity.handleDamagedApp()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L292) by starting `DispatchActivity` with `FLAG_ACTIVITY_CLEAR_TOP`; its existing `STATE_CORRUPTED` check at [`DispatchActivity.java:211`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L211) routes to `RecoveryActivity`.
+   - **Sandbox-corruption dialog** — for [`PullTaskResult.BAD_DATA`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/DataPullTask.java#L421) and `BAD_DATA_REQUIRES_INTERVENTION`. `DataPullTask` already calls `wipeLoginIfItOccurred()` before returning, so cleanup is done. Show a `StandardAlertDialog` populated from `NotificationMessageFactory.message(StockMessages.Remote_BadRestore, ...)` or `Remote_BadRestoreRequiresIntervention` — the same stock messages [`LoginActivity.handlePullTaskResult()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L851) shows today. Retry replays `launch()`.
    - **Retry / Cancel error dialog** — for transient sync or network failures.
-
-No path ever shows the user a password field for the CommCare app.
 
 ## Current Flow
 
@@ -46,7 +44,6 @@ The user sees `LoginActivity` flash during steps 3–5, and [`SeatAppActivity`](
 Everything below currently lives inside `LoginActivity` or its result contract with `DispatchActivity`:
 
 - **Auth logic is methods on the activity.** `doLogin()`, [`tryLocalLogin()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L436), [`localLoginOrPullAndLogin()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L819), `dataPullCompleted()` all reference `this` for UI / snackbar / error rendering.
-- **PersonalID unlock needs an activity host** for biometric / PIN prompts.
 - **Routing flags are produced only in [`LoginActivity.setResultAndFinish()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L538)** and consumed only in `DispatchActivity.onActivityResult(LOGIN_USER, ...)`.
 - **Post-success side-effects are scattered** through the lifecycle: [`CrashUtil.registerUserData`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/utils/CrashUtil.java#L45), notification clears, multiple [`FirebaseAnalyticsUtil`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/google/services/analytics/FirebaseAnalyticsUtil.java) calls, [`ConnectJobHelper.updateJobProgress`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/ConnectJobHelper.kt#L42), [`PersonalIdManager.updateAppAccess`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/PersonalIdManager.java#L204), [`seatAppIfNeeded`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L964).
 
@@ -65,12 +62,13 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
   ```kotlin
   suspend fun performLogin(
       request: LoginRequest,
-      unlockHost: PersonalIdUnlockHost,
       progressSink: LoginProgressSink,
   ): LoginResult
   ```
 
-  Constructor dependencies: `KeyRecordOperations`, `SyncOperations`, `PostLoginSideEffects`, `DemoLoginPath`. Holds no Activity reference; `unlockHost` and `progressSink` are passed per-call by the caller (both are activity-scoped). Internally preserves today's [`LoginActivity.localLoginOrPullAndLogin()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L819) sequence: try local first against the cached [`UserKeyRecord`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/android/database/app/models/UserKeyRecord.java), fall back to remote key-record retrieval + data pull. Post-success side-effects run inside `withContext(NonCancellable)` so analytics still emit if the caller cancels after success completes.
+  Constructor dependencies: `KeyRecordOperations`, `SyncOperations`, `PostLoginSideEffects`, `DemoLoginPath`. Holds no Activity reference; `progressSink` is passed per-call by the caller (activity-scoped). Internally preserves today's [`LoginActivity.localLoginOrPullAndLogin()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L819) sequence: try local first against the cached [`UserKeyRecord`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/android/database/app/models/UserKeyRecord.java), fall back to remote key-record retrieval + data pull. Post-success side-effects run inside `withContext(NonCancellable)` so analytics still emit if the caller cancels after success completes.
+
+  `LoginController` is unlock-agnostic: callers are expected to have already unlocked PersonalID before invoking `performLogin`. The Connect silent path satisfies this via the [`ConnectActivity.onCreate`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/connect/ConnectActivity.java#L73) gate. `LoginActivity`'s manual PersonalID-managed flow continues to call [`PersonalIdUnlocker.INSTANCE.unlock(...)`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L243) before invoking the controller — unchanged from today.
 
 - **`LoginRequest`** — `appId`, `username`, `password`, `mode` (`Manual`, `AutoFromConnect`, `MdmManaged`, `Demo`), `restoreSession`.
 
@@ -80,11 +78,10 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
   - `Success(loginMode: LoginMode, restoreSession: Boolean, manualSwitchToPwMode: Boolean, personalIdManagedLogin: Boolean)`
   - `BadCredentials` — both local and remote auth failed
   - `LinkedAppRecordMissing` — `ConnectCredentialResolver` returned null
-  - `ConnectLinkageInvalid`
-  - `SandboxCorrupted`
+  - `ConnectLinkageInvalid` — auth token unavailable or denied; PersonalID linkage is stale
+  - `SandboxCorrupted(requiresIntervention: Boolean)` — `requiresIntervention` is `true` for `PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION`, `false` for `BAD_DATA`. Phase 3's fragment uses the flag to pick the `StockMessages` variant
   - `SyncFailed(reason)`
   - `NetworkUnavailable`
-  - `PersonalIdUnlockRequired`
 
   **Mapping from existing task outcomes** (use this verbatim — implementers should not invent new mappings). Source enums: [`HttpCalloutOutcomes`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/network/HttpCalloutTask.java#L37) (from [`ManageKeyRecordTask`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/ManageKeyRecordTask.java)) and [`PullTaskResult`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/DataPullTask.java#L716).
 
@@ -93,21 +90,13 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
   | `HttpCalloutOutcomes.Success` (+ pull success) | `Success` |
   | `HttpCalloutOutcomes.AuthFailed`, `PullTaskResult.AUTH_FAILED` | `BadCredentials` |
   | `HttpCalloutOutcomes.NetworkFailure`, `NetworkFailureBadPassword`, `CaptivePortal` | `NetworkUnavailable` |
-  | `HttpCalloutOutcomes.TokenUnavailable`, `TokenRequestDenied`, `IncorrectPin`, `AuthOverHttp` | `PersonalIdUnlockRequired` |
+  | `HttpCalloutOutcomes.TokenUnavailable`, `TokenRequestDenied`, `IncorrectPin`, `AuthOverHttp` | `ConnectLinkageInvalid` |
   | `HttpCalloutOutcomes.BadResponse`, `BadSslCertificate`, `UnknownError`, `InsufficientRolePermission` | `SyncFailed(reason)` |
-  | `PullTaskResult.BAD_DATA`, `BAD_DATA_REQUIRES_INTERVENTION` | `SandboxCorrupted` |
+  | `PullTaskResult.BAD_DATA` | `SandboxCorrupted(requiresIntervention = false)` |
+  | `PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION` | `SandboxCorrupted(requiresIntervention = true)` |
   | `PullTaskResult.STORAGE_FULL`, `SERVER_ERROR`, `UNREACHABLE_HOST`, `ENCRYPTION_FAILURE` | `SyncFailed(reason)` |
 
-- **`PersonalIdUnlockHost`** — interface for biometric / PIN prompts:
-
-  ```kotlin
-  interface PersonalIdUnlockHost {
-      suspend fun requestUnlock(): UnlockResult
-  }
-  sealed class UnlockResult { object Granted; object Cancelled; object HostUnavailable; data class Failed(val reason: String) }
-  ```
-
-  `ActivityPersonalIdUnlockHost(activity)` holds a `WeakReference<AppCompatActivity>` and calls `personalIdManager.unlockConnect()`. Returns `HostUnavailable` if the weak ref is null. `LoginController` never sees `PersonalIdManager` directly.
+  Token-related outcomes (`TokenUnavailable`, `TokenRequestDenied`, `IncorrectPin`, `AuthOverHttp`) collapse into `ConnectLinkageInvalid` because PersonalID is already unlocked at this point — if the SSO token cannot be obtained or is rejected, the PersonalID ↔ CommCare linkage is the broken piece, not the unlock session. The fragment treats this as a forget-PersonalID failure (see Phase 3).
 
 - **`PostLoginSideEffects`** — `suspend fun runOnSuccess(context: PostLoginContext)`. Each scattered call becomes one line: `CrashUtil.registerUserData(...)`, `notificationManager.clearNotifications()`, [`setConnectJobIdForAnalytics(...)`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/CommCareApplication.java#L459), `FirebaseAnalyticsUtil.report*`, `ConnectJobHelper.updateJobProgress(...)`, `PersonalIdManager.updateAppAccess(...)`.
 
@@ -125,11 +114,11 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
 
 - **`DemoLoginPath`** — short-circuits key-unwrap and sync for `LoginMode.Demo`.
 
-**`LoginActivity` refactor:** [`doLogin()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L264) builds a `LoginRequest`, provides an `ActivityPersonalIdUnlockHost(this)` and a `LoginProgressSink` wired to its existing progress UI, calls `LoginController.performLogin(...)`, and translates the `LoginResult` back into the existing `setResult(...) + finish()` contract. Restore-last-user stays in the UI controller — it's a "what credentials to populate" concern, not auth.
+**`LoginActivity` refactor:** [`doLogin()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L264) builds a `LoginRequest`, provides a `LoginProgressSink` wired to its existing progress UI, calls `LoginController.performLogin(...)`, and translates the `LoginResult` back into the existing `setResult(...) + finish()` contract. The pre-existing `PersonalIdUnlocker.INSTANCE.unlock(...)` call at [`LoginActivity.java:243`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L243) for manual PersonalID-managed login stays put — it runs before `performLogin` as it does today. Restore-last-user stays in the UI controller — it's a "what credentials to populate" concern, not auth.
 
 **Acceptance:**
 
-- All existing `LoginActivity` flows (manual, AUTO from Connect, MDM, demo, restore-last-user) keep working with no user-visible change.
+- All existing `LoginActivity` flows (manual, AUTO from Connect, MDM, demo, restore-last-user) keep working with no user-visible change. Biometric / PIN prompts still appear for manual PersonalID-managed login in `LoginActivity` and do not appear for AUTO-from-Connect logins.
 - JVM unit tests on `LoginController`: one per `LoginResult` variant; cancellation propagates and the `NonCancellable` post-success block still runs if success arrived before cancellation.
 - JVM unit tests on `PostLoginSideEffects`, `ConnectCredentialResolver`, `KeyRecordOperations`, `SyncOperations`, `DemoLoginPath`.
 
@@ -145,12 +134,13 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
     - `Home(loginMode, startFromLogin, manualSwitchToPwMode, personalIdManagedLogin)`
     - `ConnectOpportunityInfo(jobId, loginMode)`
     - `TerminalFailure(reason: FailureReason)`
-    - `PersonalIdUnlockNeeded`
-  - `FailureReason` enum: `BadCredentials`, `LinkedAppRecordMissing`, `ConnectLinkageInvalid`, `SandboxCorrupted`, `AppSeatFailed`, `SyncFailed`, `NetworkUnavailable`, `PersonalIdUnlockFailed`, `AlreadyLaunching`.
+  - `FailureReason` sealed class: `object BadCredentials`, `object LinkedAppRecordMissing`, `object ConnectLinkageInvalid`, `data class SandboxCorrupted(val requiresIntervention: Boolean)`, `object AppSeatFailed`, `data class SyncFailed(val reason: String)`, `object NetworkUnavailable`, `object AlreadyLaunching`. (Parameterless reasons are `object`s; only `SandboxCorrupted` and `SyncFailed` carry data.)
 
 - **`PostLoginDestination.toIntent(context, launchContext): Intent`** — extension defined only on `Home` and `ConnectOpportunityInfo`. The string extras consumed by [`RootMenuHomeActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/RootMenuHomeActivity.java) / [`StandardHomeActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/StandardHomeActivity.java) / [`ConnectNavHelper`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/ConnectNavHelper.kt) are unchanged; this is now the single producer.
 
 - **`AppSeater`** — `suspend fun seatIfNeeded(appId: String, sink: LoginProgressSink): SeatResult`. Ports the body of [`SeatAppActivity.SeatAppProcess.run()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/SeatAppActivity.java#L100) into a suspend function that wraps `CommCareApplication.instance().initializeAppResources(...)` in `withContext(Dispatchers.IO)`. Preserve existing try/catch/finally and `FirebaseAnalyticsUtil` reporting verbatim — caught exceptions surface as `SeatResult.Failed(reason)`. Used by `ConnectAppLauncher` in Phase 3.
+
+  **Damaged-state contract.** On `SeatResult.Failed`, `AppSeater` must guarantee that the seated app's resource state is `CommCareApplication.STATE_CORRUPTED`. `initializeAppResources()` already flips it on the failure paths SeatAppActivity sees today, but `AppSeater` should defensively set it via `CommCareApp.setAppResourceState(STATE_CORRUPTED)` inside the catch block as well. Phase 3's seat-failure routing assumes this state is set when it bounces back to `DispatchActivity`.
 
   `LoginActivity` keeps using `SeatAppActivity` via the existing `seatAppIfNeeded()` — migrating that path is out of scope.
 
@@ -179,7 +169,6 @@ class ConnectAppLauncher(
         appId: String,
         isLearning: Boolean,
         jobId: String,
-        host: PersonalIdUnlockHost,
         sink: LoginProgressSink,
     ): SilentLaunchOutcome
 }
@@ -190,19 +179,20 @@ sealed class SilentLaunchOutcome {
 }
 ```
 
+No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry gate before any caller reaches this point.
+
 **Concurrency.** A single `Mutex` (or `AtomicBoolean`) inside `ConnectAppLauncher` rejects re-entrant `launch()` calls with `Failed(AlreadyLaunching)`. Callers do not need their own lock. Future entry points (including the eventual redesigned Opportunity Home) inherit the guard for free.
 
 **Orchestration:**
 
 1. Try to acquire the in-flight lock. If held → return `Failed(AlreadyLaunching)`.
 2. `closeUserSession()`.
-3. `appSeater.seatIfNeeded(appId, sink)`. `sink` shows *"Setting up the app…"*. On `SeatResult.Failed` → `Failed(AppSeatFailed)`.
+3. `appSeater.seatIfNeeded(appId, sink)`. `sink` shows *"Setting up the app…"*. On `SeatResult.Failed` → `Failed(AppSeatFailed)`. The seat failure has already flipped the app's resource state to `STATE_CORRUPTED` inside `CommCareApplication.initializeAppResources()`, which the fragment uses to drive damaged-app routing.
 4. `credentialResolver.resolve(appId, createIfNeeded = true)`. Null → `Failed(LinkedAppRecordMissing)`.
-5. `sink` shows *"Signing you in…"*. Call `loginController.performLogin(request)`. While the data pull runs (inside `performLogin`), `SyncOperations`'s progress lambda updates the sink to *"Syncing data…"* with percentage where available.
+5. `sink` shows *"Signing you in…"*. Call `loginController.performLogin(request, sink)`. While the data pull runs (inside `performLogin`), `SyncOperations`'s progress lambda updates the sink to *"Syncing data…"* with percentage where available.
 6. Translate the `LoginResult` via `PostLoginRouter`:
-   - `Success` / `Home` / `ConnectOpportunityInfo` → `toIntent(...)` → `StartActivity`.
-   - `PersonalIdUnlockNeeded` → call `host.requestUnlock()`. On `Granted`, retry `performLogin` exactly once. If the retry also yields `PersonalIdUnlockNeeded`, or on `Cancelled` / `Failed` / `HostUnavailable` → `Failed(PersonalIdUnlockFailed)`.
-   - Any other failure → `Failed(<corresponding reason>)`.
+   - `Success` → `Home` / `ConnectOpportunityInfo` → `toIntent(...)` → `StartActivity`.
+   - Any failure → `Failed(<corresponding reason>)`.
 7. Release the in-flight lock in `finally`.
 
 `CancellationException` propagates from `launch`; the caller's scope handles it.
@@ -211,18 +201,17 @@ sealed class SilentLaunchOutcome {
 
 - Launch from `viewLifecycleOwner.lifecycleScope`. Backgrounding cancels cleanly; user re-taps on return.
 - Show [`CustomProgressDialog`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/views/dialogs/CustomProgressDialog.java) before calling `launch()`. The fragment provides a `LoginProgressSink` that updates the dialog's message text.
-- Lock orientation on entry, restore on exit via `try/finally`. The lock guards in-flight coroutine state across configuration changes; the dialog itself survives rotation via `DialogFragment`.
+- Lock orientation on entry, restore on exit via `try/finally`. The lock guards in-flight coroutine state across configuration changes.
 - Routing per outcome:
 
   | Outcome | Action |
   |---|---|
   | `StartActivity(intent)` | `startActivity(intent)`, dismiss dialog |
-  | `Failed(BadCredentials)` | Log via `Logger` + Firebase; show `StandardAlertDialog` ("Your PersonalID account needs to be re-established") → on confirm, call [`personalIdManager.forgetUser("connect_login_bad_credentials")`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/PersonalIdManager.java#L165). User lands at PersonalID intro, which exposes the existing backup-code / recovery path |
-  | `Failed(LinkedAppRecordMissing)` | Same as `BadCredentials`. Should not occur in normal use — log as an unexpected state (reason `"connect_login_linked_record_missing"`) |
-  | `Failed(ConnectLinkageInvalid)` | Same as `BadCredentials` (reason `"connect_login_linkage_invalid"`) |
-  | `Failed(PersonalIdUnlockFailed)` | Log; show `StandardAlertDialog` with Retry / Cancel. Retry replays `launch()`. Do **not** call `forgetUser` — the failure may just be a cancelled biometric prompt |
-  | `Failed(AppSeatFailed)` | Preserve today's seat-failure handling from `SeatAppActivity` (trace it during implementation; if no recovery exists, show `StandardAlertDialog` + log) |
-  | `Failed(SandboxCorrupted)` | Preserve today's sandbox-corruption handling from `LoginActivity` (likewise trace; falls back to `StandardAlertDialog` + log if none) |
+  | `Failed(BadCredentials)` | Log via `Logger` + Firebase (reason `"connect_login_bad_credentials"`); show a `StandardAlertDialog` titled "Sign in again" with body "Your saved PersonalID credentials are no longer valid. Sign in again from the app sidebar to recover your account." Primary button "Sign Out" calls [`personalIdManager.forgetUser("connect_login_bad_credentials")`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/PersonalIdManager.java#L165) and then calls `requireActivity().finish()` to exit `ConnectActivity`. The user lands on the screen they entered Connect from; they re-enter PersonalID via the sidebar's "Sign-in/Reconfigure" option, which launches `PersonalIdActivity` → backup-code recovery |
+  | `Failed(LinkedAppRecordMissing)` | Same as `BadCredentials`, reason `"connect_login_linked_record_missing"`. Should not occur in normal use |
+  | `Failed(ConnectLinkageInvalid)` | Same as `BadCredentials`, reason `"connect_login_linkage_invalid"` |
+  | `Failed(AppSeatFailed)` | Log via `Logger` + Firebase; dismiss the progress dialog. The seat failure has already set the app's resource state to `STATE_CORRUPTED`, so route through the existing damaged-app path: `startActivity(Intent(requireContext(), DispatchActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))` and call `requireActivity().finish()`. `DispatchActivity.onCreate` will detect `STATE_CORRUPTED` at [line 211](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L211) and call [`handleDamagedApp()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L292) which launches `RecoveryActivity` |
+  | `Failed(SandboxCorrupted(requiresIntervention))` | Log; show `StandardAlertDialog` whose body comes from `NotificationMessageFactory.message(StockMessages.Remote_BadRestoreRequiresIntervention, ...)` when `requiresIntervention == true`, otherwise `StockMessages.Remote_BadRestore`. To carry `requiresIntervention` through, extend `FailureReason` from a plain enum to a sealed class with a `SandboxCorrupted(requiresIntervention: Boolean)` variant (other reasons stay parameterless `object`s). `DataPullTask` has already called `wipeLoginIfItOccurred()`, so no extra cleanup is needed. Single "OK" button dismisses the dialog; user can re-tap the opportunity to retry |
   | `Failed(SyncFailed)`, `Failed(NetworkUnavailable)` | [`StandardAlertDialog`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/views/dialogs/StandardAlertDialog.java) with Retry / Cancel. Retry replays `launch()` |
   | `Failed(AlreadyLaunching)` | Silent no-op |
 
@@ -232,10 +221,13 @@ sealed class SilentLaunchOutcome {
 
 - Tapping an opportunity for a healthy account: no `LoginActivity` or `SeatAppActivity`. Progress dialog visible throughout with phase-specific messages. Lands on Home or Opportunity Info as appropriate. Time-to-home drops by at least one Activity transition.
 - Tapping again while a launch is in flight: silent no-op.
-- Each failure branch routes to the correct existing recovery flow (verified manually + with Robolectric tests).
+- No biometric / PIN prompt appears at any point in the silent launch.
+- `BadCredentials` / `LinkedAppRecordMissing` / `ConnectLinkageInvalid`: dialog text matches the spec above; "Sign Out" triggers `forgetUser` then `finish()` of `ConnectActivity`; user is dropped back to the previous screen with no Connect entry on the stack.
+- `AppSeatFailed`: `STATE_CORRUPTED` is set on the `ApplicationRecord`, `DispatchActivity` is launched, `RecoveryActivity` appears.
+- `SandboxCorrupted(requiresIntervention = true)` shows the `Remote_BadRestoreRequiresIntervention` stock message; `requiresIntervention = false` shows `Remote_BadRestore`.
 - Backgrounding mid-launch cancels cleanly; re-tap on return starts fresh.
-- JVM unit tests: happy path, each failure branch, in-flight lock rejection, `PersonalIdUnlockNeeded`→granted retry, `PersonalIdUnlockNeeded`→fail (loop bounded), `Demo` mode rejected.
-- Robolectric tests: dialog show/dismiss on every termination path; orientation lock/restore on every termination path.
+- JVM unit tests: happy path, each failure branch, in-flight lock rejection, both `SandboxCorrupted` variants, `Demo` mode rejected.
+- Robolectric tests: dialog show/dismiss on every termination path; orientation lock/restore on every termination path; `forgetUser` + `finish()` chain on the forget-PersonalID path; `DispatchActivity` start intent on the seat-failure path.
 
 ### Phase 4 — Roll out to remaining entry points
 
