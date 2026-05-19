@@ -450,6 +450,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
+    public int getFormAttachmentCount() {
+        return formAttachmentCount;
+    }
+
     public void showFormAttachmentLimitReachedError() {
         String title = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached_title);
         String msg = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached,
