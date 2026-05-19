@@ -14,6 +14,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 - [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
 - [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
+- [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
 
 #### Important Bug Fixes
 
@@ -75,6 +76,13 @@ we would like to communicate to QA as part of the release testing
   - Turn the network back on and trigger a sync (or wait for the auto-refresh on reconnect). Verify that the bar now shows a green background with "Last synced: Just Now" on the left and "Back Online" plus a WiFi icon on the right, and that it auto-dismisses after a few seconds.
   - Trigger a non-network failure (e.g. a server error) and then a successful sync. Verify that the bar shows the regular green success message **without** the "Back Online" indicator (the Back Online indicator should only appear after an offline failure).
   - Switch the device language to a non-English locale (e.g. French, Spanish, Hindi) and repeat the back-online flow. Verify that the "Back Online" label is shown in the selected language.
+
+- **Delivery Progress offline-first (Connect):**
+  - Open the Connect Delivery Progress page while online with a working network and let it sync. Verify the progress, payment list, payment-confirmation tile, and "Last updated" timestamp all populate as before, and that the green "Sync successful" bar flashes briefly at the top.
+  - Background the app, turn on airplane mode, and reopen the Delivery Progress page. Verify cached delivery data (progress, deliveries, payments, "Last updated" timestamp) appears immediately without waiting for a network call, and that the orange "Offline" indicator with the previous sync time is shown at the top.
+  - Confirm the full-screen blocking loading dialog that used to appear on refresh no longer appears — the inline small progress spinner is the only loading indicator.
+
+
 
 ## CommCare 2.63
 
