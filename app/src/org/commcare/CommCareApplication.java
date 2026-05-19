@@ -1236,7 +1236,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
-            case ON_START:
+            case ON_STOP:
                 PersonalIdUnlocker.INSTANCE.resetSession();
                 break;
             case ON_DESTROY:
