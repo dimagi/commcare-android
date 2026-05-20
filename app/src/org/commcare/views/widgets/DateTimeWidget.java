@@ -98,6 +98,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         CalendarView calendarView = mDatePicker.getCalendarView();
         LayoutParams params = (LayoutParams) calendarView.getLayoutParams();
         params.height = LayoutParams.WRAP_CONTENT;
+        params.width = LayoutParams.WRAP_CONTENT;
         calendarView.setLayoutParams(params);
     }
 
