@@ -1,7 +1,6 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
