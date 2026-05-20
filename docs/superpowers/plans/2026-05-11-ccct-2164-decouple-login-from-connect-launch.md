@@ -133,7 +133,7 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
   - Input: `LoginResult` + `LaunchContext` (Connect-initiated vs not, target `appId`, `restoreSession`, `jobId`).
   - Output: `PostLoginDestination`:
     - `Home(loginMode, startFromLogin, manualSwitchToPwMode, personalIdManagedLogin)`
-    - `ConnectOpportunityInfo(jobId, loginMode)`
+    - `ConnectOpportunityInfo(jobId, loginMode)` — this is the existing post-login-to-Connect-opportunity routing, not new UX. Today the flag is written by [`LoginActivity.setResultAndFinish()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L540) (and also by [`HomeScreenBaseActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/HomeScreenBaseActivity.java#L589) when returning from a Connect-launched session) and consumed by [`DispatchActivity.onActivityResult(LOGIN_USER)`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L494). `PostLoginRouter` becomes the single producer; consumers are unchanged
     - `TerminalFailure(reason: FailureReason)`
   - `FailureReason` sealed class: `object BadCredentials`, `object LinkedAppRecordMissing`, `object ConnectLinkageInvalid`, `object TokenDenied`, `object AppSeatFailed`, `data class SyncFailed(val reason: String)`, `object NetworkUnavailable`, `object AlreadyLaunching`. (Parameterless reasons are `object`s; only `SyncFailed` carries data.)
 
