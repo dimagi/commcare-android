@@ -18,6 +18,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### Important Bug Fixes
 
+- Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
+
 #### Internal Release Notes
 
 <!--
@@ -80,6 +82,11 @@ we would like to communicate to QA as part of the release testing
   - Turn the network back on and trigger a sync (or wait for the auto-refresh on reconnect). Verify that the bar now shows a green background with "Last synced: Just Now" on the left and "Back Online" plus a WiFi icon on the right, and that it auto-dismisses after a few seconds.
   - Trigger a non-network failure (e.g. a server error) and then a successful sync. Verify that the bar shows the regular green success message **without** the "Back Online" indicator (the Back Online indicator should only appear after an offline failure).
   - Switch the device language to a non-English locale (e.g. French, Spanish, Hindi) and repeat the back-online flow. Verify that the "Back Online" label is shown in the selected language.
+
+- **Back button on camera capture screen:**
+  - During PersonalID signup for a new phone number, get to the photo capture step and tap **Take Photo** to open the camera. Tap the back arrow in the top toolbar. Verify that the camera closes and you are returned to the photo capture screen.
+  - From a signed-in PersonalID session, open the side navigation drawer and tap the user image, then Continue. Tap the back arrow in the camera screen's top toolbar. Verify that the camera closes and you are returned to the previous screen with no photo change.
+  - In both flows, verify the device's system back button continues to work the same way.
 
 ## CommCare 2.63
 
