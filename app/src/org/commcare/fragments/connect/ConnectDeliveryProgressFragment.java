@@ -109,6 +109,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private void onDeliveryProgressUpdated() {
         updateLastUpdatedText(job.getLastDeliveryUpdate());
+        setupJobCard();
         updateCardMessage();
         updatePaymentConfirmationTile(false);
         viewPagerAdapter.refresh();

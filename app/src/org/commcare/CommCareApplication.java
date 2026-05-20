@@ -220,8 +220,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
-        PersonalIdUnlocker.INSTANCE.resetSession();
-
         ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
 
         turnOnStrictMode();
@@ -1238,6 +1236,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
+            case ON_STOP:
+                PersonalIdUnlocker.INSTANCE.resetSession();
+                break;
             case ON_DESTROY:
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;

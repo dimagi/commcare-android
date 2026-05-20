@@ -10,6 +10,7 @@ import android.media.Image;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Size;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -105,6 +106,15 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
             cameraShutterButton.setVisibility(View.VISIBLE);
         }
         checkForCameraPermission();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            getOnBackPressedDispatcher().onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void checkForCameraPermission() {
