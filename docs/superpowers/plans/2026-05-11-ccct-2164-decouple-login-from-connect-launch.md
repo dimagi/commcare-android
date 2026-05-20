@@ -74,8 +74,11 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
 
 - **`LoginProgressSink`** — single-method interface: `fun onProgress(progress: LoginProgress)`. `LoginProgress` carries a phase tag (`Seating`, `SigningIn`, `Syncing`) plus an optional percentage and message. Phase 1's `LoginActivity` refactor wires this to the activity's existing progress UI; Phase 3's `ConnectAppLauncher` wires it to a `CustomProgressDialog`.
 
-- **`LoginResult`** — sealed class. Variants carry the raw data the routing layer needs; they do not produce destinations directly (`PostLoginRouter` does that in Phase 2):
+- **`LoginResult`** — sealed class with two top-level variants. `Success` carries the data the routing layer needs; `Failed` wraps a `LoginError`. Variants do not produce destinations directly (`PostLoginRouter` does that in Phase 2):
   - `Success(loginMode: LoginMode, restoreSession: Boolean, manualSwitchToPwMode: Boolean, personalIdManagedLogin: Boolean)`
+  - `Failed(error: LoginError)`
+
+- **`LoginError`** — sealed class describing the failure mode. Splitting `Failed(LoginError)` out from the top-level result keeps callers' `when` blocks shallow when they only care about success vs failure, and lets new callers (Phase 3 fragment, Phase 4 fragments) opt into exhaustive error handling without each one re-listing every variant:
   - `BadCredentials` — both local and remote auth failed
   - `LinkedAppRecordMissing` — `ConnectCredentialResolver` returned null
   - `ConnectLinkageInvalid` — auth token unavailable or denied; PersonalID linkage is stale
@@ -83,7 +86,7 @@ Four phases, each a separate JIRA ticket, listed in dependency order. Classes in
   - `SyncFailed(reason)`
   - `NetworkUnavailable`
 
-  **Mapping from existing task outcomes** (use this verbatim — implementers should not invent new mappings). Source enums: [`HttpCalloutOutcomes`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/network/HttpCalloutTask.java#L37) (from [`ManageKeyRecordTask`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/ManageKeyRecordTask.java)) and [`PullTaskResult`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/DataPullTask.java#L716).
+  **Mapping from existing task outcomes** (use this verbatim — implementers should not invent new mappings). Source enums: [`HttpCalloutOutcomes`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/network/HttpCalloutTask.java#L37) (from [`ManageKeyRecordTask`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/ManageKeyRecordTask.java)) and [`PullTaskResult`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/DataPullTask.java#L716). Non-`Success` rows produce `Failed(<variant>)`; the `Failed(...)` wrapping is elided in the table for brevity.
 
   | Source | `LoginResult` |
   |---|---|
