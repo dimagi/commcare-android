@@ -101,6 +101,14 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_backup_code_mismatch">Lambobin madadin da kuka shigar dole ne su dace.</string>
     <string name="connect_backup_fail_title">Lambar Ajiyayyen da Ba Daidai Ba</string>
     <string name="personalid_network_response_parsing_error">Kuskure wajen karanta bayanai daga uwar garken. Da fatan za a tuntuɓi tallafin abokin ciniki.</string>
+    <string name="personalid_email_appbar_title">Imel</string>
+    <string name="personalid_email_title">Ƙara imel ɗinka (zaɓi)</string>
+    <string name="personalid_email_description">Imel ɗinka yana taimaka maka dawo da asusunka idan ka rasa damar shiga wayarka.</string>
+    <string name="personalid_email_hint">Adireshin imel</string>
+    <string name="personalid_email_skip">Tsallake yanzu</string>
+    <string name="personalid_email_skip_confirm_title">A tsallake imel?</string>
+    <string name="personalid_email_skip_confirm_message">Tabbas kuna so ku tsallake?</string>
+    <string name="personalid_email_invalid_format">Da fatan za a shigar da ingantaccen adireshin imel.</string>
     <string name="connect_recovery_success_title">An Dawo da Asusu</string>
     <string name="connect_recovery_success_message">An dawo da asusunka! Za ka iya ci gaba da amfani da PersonalID.</string>
     <string name="connect_unlock_title">Buɗe PersonalID</string>

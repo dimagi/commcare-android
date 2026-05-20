@@ -145,6 +145,14 @@
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
     <string name="personalid_network_response_parsing_error">Klaida analizuojant duomenis iš serverio. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_email_appbar_title">El. paštas</string>
+    <string name="personalid_email_title">Pridėkite savo el. paštą (neprivaloma)</string>
+    <string name="personalid_email_description">Jūsų el. paštas padės atkurti paskyrą, jei prarasite prieigą prie telefono.</string>
+    <string name="personalid_email_hint">El. pašto adresas</string>
+    <string name="personalid_email_skip">Praleisti kol kas</string>
+    <string name="personalid_email_skip_confirm_title">Praleisti el. paštą?</string>
+    <string name="personalid_email_skip_confirm_message">Ar tikrai norite praleisti?</string>
+    <string name="personalid_email_invalid_format">Įveskite galiojantį el. pašto adresą.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>

@@ -153,4 +153,23 @@
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_photo_capture" />
     </fragment>
+
+    <fragment
+        android:id="@+id/personalid_email"
+        android:name="org.commcare.fragments.personalId.PersonalIdEmailFragment"
+        android:label="fragment_personalid_email"
+        tools:layout="@layout/fragment_personalid_email">
+        <argument
+            android:name="isLegacyFlow"
+            app:argType="boolean" />
+        <argument
+            android:name="isRecovery"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_personalid_email_to_personalid_photo_capture"
+            app:destination="@id/personalid_photo_capture" />
+        <action
+            android:id="@+id/action_personalid_email_to_personalid_message"
+            app:destination="@id/personalid_message_display" />
+    </fragment>
 </navigation>

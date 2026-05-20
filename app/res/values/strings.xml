@@ -377,6 +377,14 @@
     <string name="personalid_network_response_parsing_error">Error parsing data from server. Please contact customer support.</string>
 
     <string name="personalid_continue_label">Continue</string>
+    <string name="personalid_email_appbar_title">Email</string>
+    <string name="personalid_email_title">Add your email (optional)</string>
+    <string name="personalid_email_description">Your email helps you recover your account if you lose access to your phone.</string>
+    <string name="personalid_email_hint">Email address</string>
+    <string name="personalid_email_skip">Skip for now</string>
+    <string name="personalid_email_skip_confirm_title">Skip email?</string>
+    <string name="personalid_email_skip_confirm_message">Are you sure you want to skip?</string>
+    <string name="personalid_email_invalid_format">Please enter a valid email address.</string>
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>

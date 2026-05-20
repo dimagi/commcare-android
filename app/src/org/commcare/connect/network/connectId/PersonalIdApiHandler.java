@@ -332,11 +332,22 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void sendEmailOtp(Activity activity, String email, PersonalIdSessionData sessionData) {
+    /**
+     * Sends an email OTP. Uses the PersonalID session token when present
+     * (signup / recovery); otherwise authenticates with the supplied
+     * {@code user}'s credentials (legacy flow).
+     */
+    public void sendEmailOtp(
+            Activity activity,
+            String email,
+            String personalIdConfigurationToken,
+            ConnectUserRecord user
+    ) {
         ApiPersonalId.sendEmailOtp(
                 activity,
                 email,
-                sessionData.getToken(),
+                personalIdConfigurationToken,
+                user,
                 createCallback(new NoParsingResponseParser<>(), null)
         );
     }

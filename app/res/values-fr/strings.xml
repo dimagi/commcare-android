@@ -263,6 +263,14 @@ License.
     <string name="connect_backup_code_mismatch">Les codes de secours que vous saisissez doivent correspondre.</string>
     <string name="connect_backup_fail_title">Code erroné</string>
     <string name="personalid_network_response_parsing_error">Erreur lors de l\'analyse des données du serveur. Veuillez contacter le support client.</string>
+    <string name="personalid_email_appbar_title">E-mail</string>
+    <string name="personalid_email_title">Ajoutez votre adresse e-mail (facultatif)</string>
+    <string name="personalid_email_description">Votre adresse e-mail vous aide à récupérer votre compte si vous perdez l\'accès à votre téléphone.</string>
+    <string name="personalid_email_hint">Adresse e-mail</string>
+    <string name="personalid_email_skip">Ignorer pour l\'instant</string>
+    <string name="personalid_email_skip_confirm_title">Ignorer l\'e-mail ?</string>
+    <string name="personalid_email_skip_confirm_message">Êtes-vous sûr de vouloir ignorer cette étape ?</string>
+    <string name="personalid_email_invalid_format">Veuillez saisir une adresse e-mail valide.</string>
     <string name="connect_recovery_success_title">Compte récupéré</string>
     <string name="connect_recovery_success_message">Votre compte a été récupéré ! Vous pouvez reprendre l\'utilisation de PersonalID.</string>
     <string name="connect_unlock_title">Déverrouiller PersonalId</string>
