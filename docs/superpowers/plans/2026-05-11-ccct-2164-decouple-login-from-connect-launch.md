@@ -48,7 +48,7 @@ Everything below currently lives inside `LoginActivity` or its result contract w
 
 ## Phases
 
-Four phases, each a separate JIRA ticket, listed in dependency order. Classes introduced in early phases are immediately usable by existing `LoginActivity` flows; the silent path only comes together in Phase 3.
+Five phases, each a separate JIRA ticket, listed in dependency order. Classes introduced in early phases are immediately usable by existing `LoginActivity` flows; the silent path only comes together in Phase 3. Phase 5 is deferred pending the planned Connect redesign.
 
 ### Phase 1 — Headless login engine
 
@@ -230,27 +230,41 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 - JVM unit tests: happy path, each failure branch, in-flight lock rejection, `BAD_DATA` and `BAD_DATA_REQUIRES_INTERVENTION` both map to `SyncFailed(reason)`, `Demo` mode rejected.
 - Robolectric tests: dialog show/dismiss on every termination path; `TokenExceptionHandler.handleTokenDeniedException()` invoked on the `TokenDenied` path; `DispatchActivity` start intent on the seat-failure path.
 
-### Phase 4 — Roll out to remaining entry points
+### Phase 4 — Roll out to remaining priority entry points
 
-**Goal:** All five Connect launch surfaces use `ConnectAppLauncher`. Clean up dead code.
+**Goal:** The Connect launch surfaces that are staying through the planned redesign use `ConnectAppLauncher`. Clean up dead code on those surfaces.
 
 **Wire to `ConnectAppLauncher`** (same pattern as Phase 3):
 
 - [`ConnectDeliveryProgressFragment`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/fragments/connect/ConnectDeliveryProgressFragment.java) (Delivery Progress page → Resume button)
-- [`ConnectDownloadingFragment`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/fragments/connect/ConnectDownloadingFragment.java)
 - [`ConnectLearningProgressFragment`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/fragments/connect/ConnectLearningProgressFragment.java)
-- [`ConnectJobIntroFragment`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/fragments/connect/ConnectJobIntroFragment.java)
 
 **Cleanup:**
 
-- `ConnectAppUtils.launchApp(...)` becomes a thin delegate to `ConnectAppLauncher` for all five sites.
-- If `IS_LAUNCH_FROM_CONNECT` has no remaining readers after migration, delete it. Otherwise leave alone — broader removal is out of scope.
+- `ConnectAppUtils.launchApp(...)` becomes a thin delegate to `ConnectAppLauncher` for the migrated sites. The two remaining call sites covered in Phase 5 continue to use the existing implementation until then.
+- `IS_LAUNCH_FROM_CONNECT` removal is deferred to Phase 5, since the Phase 5 call sites still set it.
 
 **Acceptance:**
 
-- All five Connect launch surfaces use the silent path end-to-end.
+- Both Phase 4 launch surfaces use the silent path end-to-end.
 - One Instrumentation smoke test per surface (tap → home).
 - Manual QA: `LoginActivity` manual login, MDM auto-login, restore-last-user, demo mode all still work.
+
+### Phase 5 — Migrate or delete the redesign-bound entry points (deferred)
+
+**Goal:** Decide whether the two remaining Connect launch surfaces are worth migrating or are getting deleted in the planned redesign, and act accordingly.
+
+**Candidates:**
+
+- [`ConnectJobIntroFragment`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/fragments/connect/ConnectJobIntroFragment.java)
+- [`ConnectDownloadingFragment`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/fragments/connect/ConnectDownloadingFragment.java)
+
+**Rationale for deferral:** Both screens are slated for removal in the planned Connect redesign. Migrating them now risks throwaway work. Revisit once the redesign scope is firm — if the screens survive, repeat the Phase 4 wiring; if they're deleted, drop these entries and the leftover `ConnectAppUtils.launchApp(...)` references along with them.
+
+**Cleanup at Phase 5 completion:**
+
+- `ConnectAppUtils.launchApp(...)` becomes a thin delegate to `ConnectAppLauncher` for any remaining sites (or is removed entirely).
+- If `IS_LAUNCH_FROM_CONNECT` has no remaining readers after this phase, delete it.
 
 ## Out Of Scope
 
