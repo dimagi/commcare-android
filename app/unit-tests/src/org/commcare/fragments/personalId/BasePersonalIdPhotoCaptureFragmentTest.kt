@@ -99,8 +99,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
             .`when`<NavController.OnDestinationChangedListener> {
                 FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener()
             }.thenReturn(
-                NavController.OnDestinationChangedListener {
-                        _: NavController, _: NavDestination, _: android.os.Bundle? ->
+                NavController.OnDestinationChangedListener { _: NavController, _: NavDestination, _: android.os.Bundle? ->
                 },
             )
         mediaUtilMock = Mockito.mockStatic(MediaUtil::class.java)
