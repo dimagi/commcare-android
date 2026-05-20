@@ -81,13 +81,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         ).get(ConnectDeliveryProgressViewModel.class);
 
         setupTabViewPager();
-        observeDeliveryProgress();
         setupJobCard();
         setupRefreshAndConfirmationActions();
 
         updateLastUpdatedText(job.getLastDeliveryUpdate());
         updateCardMessage();
         updatePaymentConfirmationTile(false);
+
+        observeDeliveryProgress();
 
         return view;
     }
