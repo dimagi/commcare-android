@@ -16,6 +16,7 @@ public class AnalyticsParamValue {
     public static final String DIRECTION_BACKWARD = "backward";
     public static final String NAV_BUTTON_PRESS = "nav_button_press";
     public static final String BACK_BUTTON_PRESS = "back_button_press";
+    public static final String PUSH_NOTIFICATION_TAP = "push_notification_tap";
     public static final String SWIPE = "swipe";
 
     // Param values for options menu items
