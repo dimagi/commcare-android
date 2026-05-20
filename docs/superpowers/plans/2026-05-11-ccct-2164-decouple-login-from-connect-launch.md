@@ -202,7 +202,7 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 
 - Launch from `viewLifecycleOwner.lifecycleScope`. Backgrounding cancels cleanly; user re-taps on return.
 - Show [`CustomProgressDialog`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/views/dialogs/CustomProgressDialog.java) before calling `launch()`. The fragment provides a `LoginProgressSink` that updates the dialog's message text.
-- Lock orientation on entry, restore on exit via `try/finally`. The lock guards in-flight coroutine state across configuration changes.
+- No per-fragment orientation lock is needed — `ConnectActivity` is already declared `android:screenOrientation="portrait"` in [`AndroidManifest.xml`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/AndroidManifest.xml#L192), so the in-flight coroutine state never has to survive a rotation.
 - Routing per outcome:
 
   | Outcome | Action |
@@ -228,7 +228,7 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 - `AppSeatFailed`: `STATE_CORRUPTED` is set on the `ApplicationRecord`, `DispatchActivity` is launched, `RecoveryActivity` appears.
 - Backgrounding mid-launch cancels cleanly; re-tap on return starts fresh.
 - JVM unit tests: happy path, each failure branch, in-flight lock rejection, `BAD_DATA` and `BAD_DATA_REQUIRES_INTERVENTION` both map to `SyncFailed(reason)`, `Demo` mode rejected.
-- Robolectric tests: dialog show/dismiss on every termination path; orientation lock/restore on every termination path; `forgetUser` + `finish()` chain on the forget-PersonalID path; `DispatchActivity` start intent on the seat-failure path.
+- Robolectric tests: dialog show/dismiss on every termination path; `forgetUser` + `finish()` chain on the forget-PersonalID path; `DispatchActivity` start intent on the seat-failure path.
 
 ### Phase 4 — Roll out to remaining entry points
 
