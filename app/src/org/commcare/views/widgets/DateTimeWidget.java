@@ -39,6 +39,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mDatePicker.setFocusable(!prompt.isReadOnly());
         mDatePicker.setEnabled(!prompt.isReadOnly());
         mDatePicker.setCalendarViewShown(true);
+        mDatePicker.setSpinnersShown(false);
         updateCalendarViewHeight();
 
         mTimePicker = (TimePicker)LayoutInflater.from(getContext()).inflate(R.layout.time_widget, this, false);
