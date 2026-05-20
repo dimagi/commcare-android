@@ -1,6 +1,5 @@
 package org.commcare.fragments.connect;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,6 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
@@ -133,7 +131,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
-    public void refresh() {
+    public void refresh(boolean forceRefresh) {
         setWaitDialogEnabled(false);
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(
                 getContext(),
@@ -152,15 +150,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         );
     }
 
-    private void setWaitDialogEnabled(boolean enabled) {
-        Activity activity = getActivity();
-        if (activity instanceof ConnectActivity connectActivity) {
-            connectActivity.setWaitDialogEnabled(enabled);
-        }
-    }
-
     private void setupRefreshAndConfirmationActions() {
-        getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh());
+        getBinding().connectDeliveryRefresh.setOnClickListener(v -> refresh(true));
 
         getBinding().connectPaymentConfirmNoButton.setOnClickListener(v ->
                 handlePaymentConfirmationNoClick()
@@ -195,7 +186,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                             hideError();
                             updatePaymentConfirmationTile(true);
                             redirectToPaymentTab();
-                            refresh();
+                            refresh(true);
                         } else {
                             showError(getString(R.string.failed_to_update_payment));
                         }
@@ -237,7 +228,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refresh();
+            refresh(false);
         }
     }
 
@@ -340,12 +331,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                     );
             Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
         }
-    }
-
-    @Override
-    @Nullable
-    public Date getLastSyncTime() {
-        return job != null ? job.getLastDeliveryUpdate() : null;
     }
 
     @Override

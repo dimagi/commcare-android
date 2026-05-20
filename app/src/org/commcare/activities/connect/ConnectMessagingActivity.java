@@ -14,6 +14,8 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -133,7 +135,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     getNotificationActionFromIntent(getIntent()),
                     getIntent().getStringExtra(NOTIFICATION_ID)
             );
-            PersonalIdManager.getInstance().unlockConnect(this, success -> {
+            PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
                 if (success) {
                     String channelId = getIntent().getStringExtra(
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);

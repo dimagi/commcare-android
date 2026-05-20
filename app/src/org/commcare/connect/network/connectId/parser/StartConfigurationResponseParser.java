@@ -3,6 +3,8 @@ package org.commcare.connect.network.connectId.parser;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.utils.JsonExtensions;
+import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +31,16 @@ public class StartConfigurationResponseParser implements PersonalIdApiResponsePa
         sessionData.setSessionFailureCode(JsonExtensions.optStringSafe(json, "failure_code", null));
         sessionData.setSessionFailureSubcode(JsonExtensions.optStringSafe(json, "failure_subcode", null));
         sessionData.setOtpFallback(json.optBoolean("otp_fallback", false));
+
+        // Email is returned ONLY when the server already has a verified address for this user.
+        // Ignore blank/malformed values so downstream consumers can rely on `email != null` meaning verified.
+        String email = JsonExtensions.optNonBlankStringSafe(json, "email");
+        boolean isValidEmail = StringUtils.isValidEmail(email);
+        if (json.has("email") && !isValidEmail) {
+            Logger.exception("Invalid email address present in start configuration response", new IllegalArgumentException(
+                    "Email key present in start configuration response but value is not a valid email"));
+        }
+        sessionData.setEmail(isValidEmail ? email.trim() : null);
 
         List<ConnectReleaseToggleRecord> featureReleaseToggles =
                 ConnectReleaseToggleRecord.Companion.releaseTogglesFromJson(json);

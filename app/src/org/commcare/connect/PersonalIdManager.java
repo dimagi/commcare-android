@@ -3,16 +3,15 @@ package org.commcare.connect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -30,9 +29,7 @@ import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.preferences.NotificationPrefs;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -45,7 +42,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -64,7 +60,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.SYNC_SU
  * @author dviggiano
  */
 public class PersonalIdManager {
-    public static final String BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key";
     private static final long DAYS_TO_SECOND_OFFER = 30;
 
     /**
@@ -145,66 +140,6 @@ public class PersonalIdManager {
         return personalIdSatus == PersonalIdStatus.LoggedIn;
     }
 
-    public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
-        if (BuildConfig.IS_QA_AUTOMATION) {
-            userUnlockedPersonalId();
-            callback.connectActivityComplete(true);
-            return;
-        }
-        logBiometricInvalidations();
-
-        BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                callback.connectActivityComplete(false);
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                userUnlockedPersonalId();
-                callback.connectActivityComplete(true);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                callback.connectActivityComplete(false);
-            }
-        };
-
-
-        BiometricManager bioManager = getBiometricManager(activity);
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-        if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
-            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager)
-                    && PersonalIdSessionData.PIN.equals(user.getRequiredLock());
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks, allowOtherOptions);
-        } else if (BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(
-                user.getRequiredLock())) {
-            BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
-        } else {
-            callback.connectActivityComplete(false);
-            Logger.exception("No unlock method available when trying to unlock PersonalId",
-                    new Exception("No unlock option"));
-            Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void logBiometricInvalidations() {
-        if (AndroidKeyStore.INSTANCE.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) {
-            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity, true,
-                    BIOMETRIC_INVALIDATION_KEY);
-            if (!encryptionKeyProvider.isKeyValid()) {
-                FirebaseAnalyticsUtil.reportBiometricInvalidated();
-
-                // reset key
-                encryptionKeyProvider.deleteKey();
-                encryptionKeyProvider.getKeyForEncryption();
-            }
-        }
-    }
-
-
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
         userUnlockedPersonalId();
@@ -241,6 +176,7 @@ public class PersonalIdManager {
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
 
         ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
+        PersonalIdUnlocker.INSTANCE.resetSession();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -367,7 +303,7 @@ public class PersonalIdManager {
 
     private void unlockAndLinkConnect(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp,
                                       String username, String password, ConnectActivityCompleteListener callback) {
-        unlockConnect(activity, success -> {
+        PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS, success -> {
             if (!success) {
                 callback.connectActivityComplete(false);
                 FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_UNLOCK_FAILED);
@@ -412,7 +348,7 @@ public class PersonalIdManager {
 
         dialog.setPositiveButton(activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
             activity.dismissAlertDialog();
-            unlockConnect(activity, success -> {
+            PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS, success -> {
                 if (success) {
                     ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity,
                             appId, username);

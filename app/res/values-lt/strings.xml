@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     Copyright (C) 2009 University of Washington Licensed under the Apache
     License, Version 2.0 (the "License"); you may not use this file except
@@ -74,6 +74,11 @@
     <string name="no_gps_title">Vietovės duomenys išjungti</string>
     <string name="no_gps_message">Šio įrenginio vietos nustatymo paslaugos šiuo metu išjungtos. Ar norite pakeisti šiuos nustatymus?</string>
     <string name="change_settings">Keisti nustatymus</string>
+    <string name="personalid_user_photo_update_dialog_title">Atnaujinti profilio nuotrauką</string>
+    <string name="personalid_user_photo_update_dialog_message">Ar norėtumėte padaryti naują profilio nuotrauką?</string>
+    <string name="personalid_user_photo_update_dialog_continue">Tęsti</string>
+    <string name="personalid_user_photo_update_dialog_cancel">Atšaukti</string>
+    <string name="personalid_user_photo_update_success">Jūsų profilio nuotrauka sėkmingai atnaujinta.</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
@@ -139,6 +144,7 @@
     <string name="personalid_otp_verification_failed_generic">Klaida tikrinant jūsų telefono numerį. Bandykite dar kartą.</string>
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
+    <string name="personalid_network_response_parsing_error">Klaida analizuojant duomenis iš serverio. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
@@ -192,7 +198,61 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_progress_relearn_tasks_completed">Visos reikalingos užduotys atliktos. Galite tęsti pristatymo veiklą.</string>
     <string name="connect_last_synced">Paskutinė sinchronizacija: %s</string>
+    <string name="connect_sync_successful">Paskutinė sinchronizacija: Ką tik</string>
+    <string name="connect_sync_failed">Sinchronizacija nepavyko, paskutinė sinchronizacija: %s</string>
     <string name="connect_offline">Neprisijungęs</string>
+    <string name="connect_back_online">Vėl prisijungta</string>
     <string name="connect_never">Niekada</string>
     <string name="cannot_navigate_during_form_save">Negalima palikti puslapio, kol išsaugoma forma</string>
+
+    <string name="install_keep_trying">Toliau bandykite, jei ryšys nutrūksta</string>
+    <string name="install_manual">Įveskite URL</string>
+    <string name="install_ready_top">Beveik baigta!</string>
+    <string name="install_ready_bottom">Paspauskite žemiau esantį mygtuką, kad įdiegtumėte programą.</string>
+    <string name="install_netwarn">Jei bandote diegti iš serverio, įsitikinkite, kad turite interneto ryšį.</string>
+    <string name="install_button_enter">Įvesti kodą</string>
+    <string name="install_button_startover">Pradėti iš naujo</string>
+    <string name="install_button_retry">Bandyti diegti dar kartą</string>
+    <string name="install_button_start">Pradėti diegimą</string>
+    <string name="install_bad_ref">Nuskaitėte negaliojantį URL. Bandykite dar kartą.</string>
+    <string name="install_bad_login">Prisijungti prie esamos programos</string>
+    <string name="install_appprofile">Įveskite savo programos kodą</string>
+    <string name="install_perms_rationale_message">CommCare reikia bent išorinės atminties skaitymo ir rašymo leidimų, kad būtų galima saugoti formų pateikimus.</string>
+    <string name="install_perms_denied_message">Svarbūs leidimai atmesti %1$s kartų.\n\n Jei prašymas suteikti leidimus čia nepavyksta, įjunkite leidimus „Android“ nustatymuose.</string>
+    <string name="install_choose_local_app">Pasiekiamos programos</string>
+    <string name="install_wrong_code">Įvestas programos kodas neteisingas. Bandykite nuskaityti brūkšninį kodą arba įvesti teisingą kodą.</string>
+    <string name="install_invalid_launch">Negaliojantis CommCare paleidimas. Išorinės programos turi naudoti VIEW veiksmą, kad paleistų CommCare.</string>
+    <string name="menu_archive">Diegimas neprisijungus</string>
+    <string name="menu_sms">Diegimas per SMS</string>
+    <string name="menu_sms_not_found">Diegimo nuoroda jūsų žinutėse nerasta!</string>
+    <string name="menu_sms_ready">Rasta diegimo nuoroda. Paspauskite „Pradėti“, kad pradėtumėte diegimą.</string>
+    <string name="menu_sms_not_verified">Radome tinkamai atrodantį tekstą, bet negalėjome patvirtinti jo autentiškumo.</string>
+    <string name="menu_sms_not_retrieved">Nepavyko gauti diegimo nuorodos. Patikrinkite ryšį ir bandykite dar kartą.</string>
+    <string name="updates_resources_initialization">Nustatoma programa</string>
+    <string name="updates_resources_profile">Ieškoma programos...</string>
+    <string name="archive_install_prompt">Įdiekite savo CommCare programą iš .ccz failo</string>
+    <string name="archive_install_button">Diegti programą</string>
+    <string name="install_version_mismatch">Programai reikalinga CommCare versija %1$s. Šiuo metu naudojate %2$s.</string>
+    <string name="install_major_mismatch">Pašalinkite CommCare programą iš telefono nustatymų meniu, eikite į „Google Playstore“ ir įdiekite CommCare iš naujo.</string>
+    <string name="install_minor_mismatch">Atnaujinkite CommCare iš „Google Playstore“, kad galėtumėte paleisti šią programą.</string>
+    <string name="update_version_mismatch">Šiam programos atnaujinimui reikalinga CommCare versija %1$s. Šiuo metu naudojate %2$s.</string>
+    <string name="update_major_mismatch">Pašalinkite CommCare programą iš telefono nustatymų meniu, eikite į „Google Playstore“ ir įdiekite CommCare iš naujo.</string>
+    <string name="update_minor_mismatch">Atnaujinkite CommCare iš „Google Playstore“, kad galėtumėte atnaujinti šią programą.</string>
+    <string name="app_manager_advanced_settings_title">Programų tvarkyklė &gt; Išplėstiniai nustatymai</string>
+    <string name="app_manager_advanced_settings_option">Išplėstiniai</string>
+    <string name="app_manager_menu_about">Apie CommCare</string>
+    <string name="app_manager_developer_options_title">Programų tvarkyklė &gt; Kūrėjo parinktys</string>
+    <string name="app_manager_advanced_developer_options">Kūrėjo parinktys</string>
+    <string name="app_manager_developer_options_enabled">CommCare kūrėjo režimas įjungtas</string>
+    <string name="menu_app_list_install">Žiūrėti programas mano vartotojui</string>
+    <string name="menu_app_list_install_other_user">Žiūrėti programas kitam vartotojui</string>
+    <string name="toggle_web_user_mode">Žiniatinklio vartotojas</string>
+    <string name="toggle_mobile_user_mode">Mobilusis vartotojas</string>
+    <string name="missing_fields">Užpildykite visus privalomus laukus.</string>
+    <string name="email_address_invalid">Įveskite galiojantį el. pašto adresą.</string>
+    <string name="get_app_list_user_error_mobile">Pateiktas neteisingas vartotojo vardas, domenas arba slaptažodis. Įsitikinkite, kad visi įvesti laukai yra teisingi.</string>
+    <string name="get_app_list_user_error_web">Pateiktas neteisingas el. paštas arba slaptažodis. Įsitikinkite, kad visi įvesti laukai yra teisingi.</string>
+    <string name="get_app_list_unknown_error">Bandant gauti programų sąrašą įvyko klaida. Bandykite dar kartą arba susisiekite su pagalba, jei problema kartojasi.</string>
+    <string name="no_apps_available">Šiam vartotojui atsisiųsti programų nėra.</string>
+    <string name="could_not_refresh_apps">Atsiprašome, atnaujinant programų sąrašą įvyko klaida. Bandykite dar kartą įvesti vartotoją.</string>
 </resources>

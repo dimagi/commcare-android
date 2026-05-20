@@ -40,6 +40,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 
 import org.commcare.activities.LoginActivity;
+import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -123,6 +124,7 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.PendingCalcs;
+import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -218,6 +220,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
+        ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
 
         turnOnStrictMode();
 
@@ -515,7 +518,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public void initializeDefaultLocalizerData() {
         Localization.init(true);
         Localization.registerLanguageReference("default", "jr://asset/locales/android_translatable_strings.txt");
-        Localization.registerLanguageReference("default", "jr://asset/locales/android_startup_strings.txt");
         Localization.setDefaultLocale("default");
 
         // For now. Possibly handle this better in the future
@@ -1234,6 +1236,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
+            case ON_STOP:
+                PersonalIdUnlocker.INSTANCE.resetSession();
+                break;
             case ON_DESTROY:
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
