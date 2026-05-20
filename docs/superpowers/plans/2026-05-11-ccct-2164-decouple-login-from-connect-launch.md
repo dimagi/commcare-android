@@ -175,7 +175,7 @@ class ConnectAppLauncher(
 }
 
 sealed class SilentLaunchOutcome {
-    data class StartActivity(val intent: Intent) : SilentLaunchOutcome()
+    data class Success(val intent: Intent) : SilentLaunchOutcome()
     data class Failed(val reason: FailureReason) : SilentLaunchOutcome()
 }
 ```
@@ -192,7 +192,7 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 4. `credentialResolver.resolve(appId, createIfNeeded = true)`. Null → `Failed(LinkedAppRecordMissing)`.
 5. `sink` shows *"Signing you in…"*. Call `loginController.performLogin(request, sink)`. While the data pull runs (inside `performLogin`), `SyncOperations`'s progress lambda updates the sink to *"Syncing data…"* with percentage where available.
 6. Translate the `LoginResult` via `PostLoginRouter`:
-   - `Success` → `Home` / `ConnectOpportunityInfo` → `toIntent(...)` → `StartActivity`.
+   - `Success` → `Home` / `ConnectOpportunityInfo` → `toIntent(...)` → `SilentLaunchOutcome.Success(intent)`.
    - Any failure → `Failed(<corresponding reason>)`.
 7. Release the in-flight lock in `finally`.
 
@@ -207,7 +207,7 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 
   | Outcome | Action |
   |---|---|
-  | `StartActivity(intent)` | `startActivity(intent)`, dismiss dialog |
+  | `Success(intent)` | `startActivity(intent)`, dismiss dialog |
   | `Failed(BadCredentials)` | Log via `Logger` + Firebase (reason `"connect_login_bad_credentials"`); show a `StandardAlertDialog` titled "Sign in again" with body "Your saved PersonalID credentials are no longer valid. Sign in again from the app sidebar to recover your account." Primary button "Sign Out" calls [`personalIdManager.forgetUser("connect_login_bad_credentials")`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/PersonalIdManager.java#L165) and then calls `requireActivity().finish()` to exit `ConnectActivity`. The user lands on the screen they entered Connect from; they re-enter PersonalID via the sidebar's "Sign-in/Reconfigure" option, which launches `PersonalIdActivity` → backup-code recovery |
   | `Failed(LinkedAppRecordMissing)` | Same as `BadCredentials`, reason `"connect_login_linked_record_missing"`. Should not occur in normal use |
   | `Failed(ConnectLinkageInvalid)` | Same as `BadCredentials`, reason `"connect_login_linkage_invalid"` |
