@@ -59,7 +59,15 @@ we would like to communicate to QA as part of the release testing
     - Signup: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered) → Photo
     - Recovery, no verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered)
     - Recovery, verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code
-  - **Email entry screen:** (will be added here)
+  - **Email entry screen:**
+    - Open the email entry screen (currently reachable only once the upstream PR wires it from the Backup Code step). Verify the CommCare-by-Dimagi banner is shown at the top, the action bar title reads "Email", and the screen shows an envelope icon next to the email input, with "Add your email (optional)" and a short description below the divider.
+    - With the input empty or containing whitespace only, verify the Continue button is disabled and Skip for now is enabled.
+    - Type a malformed email (e.g. `abc`, `user@`, `@nodomain.com`) and verify Continue stays disabled. With a malformed value in the field, press the keyboard Done key and verify nothing submits — the keyboard simply hides.
+    - Type a well-formed email (e.g. `user@example.com`) and verify Continue becomes enabled.
+    - Tap Skip for now. Verify a confirmation dialog appears with the title "Skip email?", the message "Are you sure you want to skip?", and Yes / No buttons.
+        - Tap No: the dialog dismisses and the email screen stays put with any typed value preserved.
+        - Tap Yes: the dialog dismisses and the flow advances to the next step (Photo Capture during signup).
+    - Switch the device language to a supported locale (e.g. French, Spanish, Hindi, Swahili) and re-walk the screen. Verify the screen title, banner area, header copy, description, input hint, both button labels, and the skip-confirm dialog all render in the selected language.
   - **Email OTP screen:** (will be added here)
   - **Legacy logged-in users prompt:** (will be added here)
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
