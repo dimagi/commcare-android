@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.63">
+          android:versionName="2.64">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -357,6 +357,12 @@
             android:name="org.commcare.activities.FormEntryActivity"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="org.commcare.activities.PushNotificationLaunchActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance" />
         <activity
             android:name="org.commcare.activities.DrawActivity"
             android:windowSoftInputMode="adjustResize" />

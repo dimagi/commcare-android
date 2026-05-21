@@ -103,6 +103,8 @@ import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
@@ -127,6 +129,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     public static final String KEY_IS_RESTART_AFTER_EXPIRATION = "is-restart-after-session-expiration";
+    public static final String EXTRA_PENDING_NAV_INTENT =
+            "org.commcare.formentry.pending_nav_intent";
 
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
@@ -139,6 +143,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_LOC_ERROR = "location-not-enabled";
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
     private static final String KEY_IS_READ_ONLY = "instance-is-read-only";
+    private static final String KEY_NUM_FORM_ATTACHMENTS = "number-of-form-attachments";
 
     private FormEntryInstanceState instanceState;
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
@@ -146,8 +151,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private SecretKeySpec symetricKey = null;
 
     public static AndroidFormController mFormController;
+    private static volatile boolean isFormEntryActive = false;
 
     private boolean mIncompleteEnabled = true;
+    private Intent mPendingNavAfterSave;
     private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
@@ -181,6 +188,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    private int formAttachmentCount = 0;
+    private static int DEFAULT_MAX_FORM_ATTACHMENTS = 50;
+    private static int TEST_MAX_FORM_ATTACHMENTS = 5;
+    private static int MAX_FORM_ATTACHMENTS = DEFAULT_MAX_FORM_ATTACHMENTS;
 
     private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
             new PendingSyncAlertBroadcastReceiver();
@@ -314,6 +325,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         outState.putBoolean(KEY_IS_READ_ONLY, instanceIsReadOnly);
+        outState.putInt(KEY_NUM_FORM_ATTACHMENTS, formAttachmentCount);
         formEntryRestoreSession.saveFormEntrySession(outState);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -330,7 +342,24 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 throw new RuntimeException("Base 64 encoding unavailable! Can't pass storage key");
             }
         }
+        if (mPendingNavAfterSave != null) {
+            outState.putParcelable(EXTRA_PENDING_NAV_INTENT, mPendingNavAfterSave);
+        }
         uiController.saveInstanceState(outState);
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        Intent pendingNav;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT, Intent.class);
+        } else {
+            pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
+        }
+        if (pendingNav != null) {
+            triggerUserQuitInputForExternalNav(pendingNav);
+        }
     }
 
     @Override
@@ -423,6 +452,33 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void showFileOversizeError() {
         String title = Localization.get("file.oversize.error.title");
         String msg = Localization.get("file.oversize.error.message");
+        CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
+                title, msg, (dialog1, which) -> dialog1.dismiss());
+        showAlertDialog(dialog);
+    }
+
+    public boolean canAddAttachment() {
+        return formAttachmentCount < MAX_FORM_ATTACHMENTS;
+    }
+
+    public void incrementAttachmentCount() {
+        formAttachmentCount++;
+    }
+
+    public void decrementAttachmentCount() {
+        if (formAttachmentCount > 0) {
+            formAttachmentCount--;
+        }
+    }
+
+    public int getFormAttachmentCount() {
+        return formAttachmentCount;
+    }
+
+    public void showFormAttachmentLimitReachedError() {
+        String title = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached_title);
+        String msg = StringUtils.getStringRobust(this, R.string.form_attachment_limit_reached,
+                String.valueOf(MAX_FORM_ATTACHMENTS));
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
                 title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
@@ -848,6 +904,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
+        reportAttachmentCountMismatch();
+        
         if (complete) {
             HiddenPreferences.clearInterruptedFormState();
             HiddenPreferences.clearInterruptedSSD();
@@ -862,6 +920,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         mSaveToDiskTask.setFormSavedListener(this);
         mSaveToDiskTask.executeParallel();
+    }
+
+    private void reportAttachmentCountMismatch() {
+        int numAttachmentsOnDisk = FileUtil.countMediaFiles(FormEntryInstanceState.getInstanceFolder());
+        if (numAttachmentsOnDisk == -1) {
+            return;
+        }
+        if (numAttachmentsOnDisk < formAttachmentCount) {
+            Logger.exception(
+                    "Form attachment count mismatch at save — "
+                            + "in-memory=" + formAttachmentCount + " on-disk=" + numAttachmentsOnDisk,
+                    new IllegalStateException("Form attachment count mismatch"));
+        }
     }
 
     public void discardChangesAndExit() {
@@ -1027,6 +1098,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void loadForm() {
         mFormController = null;
+        isFormEntryActive = false;
         instanceState.setFormRecordPath(null);
         InterruptedFormState savedFormSession = null;
 
@@ -1072,6 +1144,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
+                    receiver.updateFormAttachmentCount();
                 }
 
                 @Override
@@ -1111,6 +1184,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
+    private void updateFormAttachmentCount() {
+        int numMediaFiles = FileUtil.countMediaFiles(FormEntryInstanceState.getInstanceFolder());
+        if (numMediaFiles != -1) {
+            formAttachmentCount = numMediaFiles;
+        }
+    }
+
     private InterruptedFormState retrieveAndValidateFormIndex(AndroidSessionWrapper androidSessionWrapper) {
         InterruptedFormState interruptedFormState = HiddenPreferences.getInterruptedFormState();
         if (interruptedFormState!= null
@@ -1131,6 +1211,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         mFormController = fc;
+        isFormEntryActive = true;
         FirebaseAnalyticsUtil.reportFormEntry(getCurrentFormXmlnsFailSafe());
 
         // Newer menus may have already built the menu, before all data was ready
@@ -1195,6 +1276,46 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     /**
+     * Variant of {@link #triggerUserQuitInput()} for the case where the user is being
+     * pulled away from the form by an external navigation event (currently: tapping a push
+     * notification). On Save / Discard the form's existing exit handling runs and then
+     * pendingNav is started so the user reaches the notification's target.
+     */
+    protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
+        if (mSaveToDiskTask != null && mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED) {
+            Logger.exception("Navigation during form save", new Exception(
+                    "User attempted to navigate from a push notification during form save."
+            ));
+            Toast.makeText(this, R.string.cannot_navigate_during_form_save, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseAnalyticsUtil.reportFormQuitAttempt(
+                AnalyticsParamValue.PUSH_NOTIFICATION_TAP,
+                getCurrentFormXmlnsFailSafe());
+
+        if (!formHasLoaded()) {
+            startActivity(pendingNav);
+            finish();
+            return;
+        }
+        if (mFormController.isFormReadOnly()) {
+            startActivity(pendingNav);
+            finishReturnInstance(false);
+            return;
+        }
+        FormEntryDialogs.createQuitDialog(this, mIncompleteEnabled, pendingNav);
+    }
+
+    private void consumePendingNavAfterSave() {
+        if (mPendingNavAfterSave != null) {
+            Intent toStart = mPendingNavAfterSave;
+            mPendingNavAfterSave = null;
+            startActivity(toStart);
+        }
+    }
+
+    /**
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
@@ -1253,7 +1374,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         if (!isChangingConfigurations()) {
-            mFormController = null;
+            isFormEntryActive = false;
         }
 
         TextToSpeechConverter.INSTANCE.shutDown();
@@ -1313,6 +1434,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         Toast.makeText(this,
                                 Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
                     }
+                    consumePendingNavAfterSave();
                     finishReturnInstance();
                     return;
                 case INVALID_ANSWER:
@@ -1498,6 +1620,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void loadStateFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             instanceState.loadState(savedInstanceState);
+            if (savedInstanceState.containsKey(KEY_NUM_FORM_ATTACHMENTS)) {
+                formAttachmentCount = savedInstanceState.getInt(KEY_NUM_FORM_ATTACHMENTS, 0);
+            }
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
@@ -1540,6 +1665,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
             if (savedInstanceState.containsKey(KEY_IS_READ_ONLY)) {
                 this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT, Intent.class);
+            } else {
+                mPendingNavAfterSave = savedInstanceState.getParcelable(EXTRA_PENDING_NAV_INTENT);
             }
 
             uiController.restoreSavedState(savedInstanceState);
@@ -1721,5 +1852,32 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public SecretKeySpec getSymetricKey() {
         return symetricKey;
+    }
+
+    public void setPendingNavAfterSave(Intent pendingNav) {
+        mPendingNavAfterSave = pendingNav;
+    }
+
+    public void discardChangesAndExitToPendingNav(Intent pendingNav) {
+        startActivity(pendingNav);
+        discardChangesAndExit();
+    }
+
+    public static boolean isFormEntryInProgress() {
+        return isFormEntryActive;
+    }
+
+    /**
+     * For testing purposes only, allows tests to set the max number of form attachments to a lower number so
+     * that we can more easily test behavior around hitting that limit
+     */
+    @VisibleForTesting
+    public static void setMaxFormAttachmentsForTesting() {
+        MAX_FORM_ATTACHMENTS = TEST_MAX_FORM_ATTACHMENTS;
+    }
+
+    @VisibleForTesting
+    public static void restoreMaxFormAttachmentsToDefault() {
+        MAX_FORM_ATTACHMENTS = DEFAULT_MAX_FORM_ATTACHMENTS;
     }
 }

@@ -46,7 +46,7 @@ import androidx.annotation.NonNull;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class MediaWidget extends QuestionWidget {
+public abstract class MediaWidget extends QuestionWidget implements QuestionWidget.MediaCapableWidget {
     private static final String TAG = MediaWidget.class.getSimpleName();
 
     protected static final String CUSTOM_TAG = "custom";
@@ -80,6 +80,10 @@ public abstract class MediaWidget extends QuestionWidget {
         setupLayout();
     }
 
+    @Override
+    public String getBinaryName() {
+        return mBinaryName;
+    }
 
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
@@ -208,14 +212,23 @@ public abstract class MediaWidget extends QuestionWidget {
 
     @Override
     public void clearAnswer() {
-        deleteMedia();
+        clearBinaryAttachment();
         togglePlayButton(false);
     }
 
-    private void deleteMedia() {
+
+    @Override
+    public void registerBinaryAttachment(String mediaName) {
+        mBinaryName = mediaName;
+        incrementAttachmentCount();
+    }
+
+    @Override
+    public void clearBinaryAttachment() {
         deleteMediaFiles(mInstanceFolder, mBinaryName);
         mBinaryName = null;
         mTempBinaryPath = null;
+        decrementAttachmentCount();
     }
 
     // get the file path and delete the file along with the corresponding encrypted file
@@ -277,7 +290,7 @@ public abstract class MediaWidget extends QuestionWidget {
     public void setBinaryData(Object binaryURI) {
         // delete any existing media
         if (mBinaryName != null) {
-            deleteMedia();
+            clearBinaryAttachment();
         }
 
         String binaryPath;
@@ -306,7 +319,7 @@ public abstract class MediaWidget extends QuestionWidget {
         }
 
         mTempBinaryPath = binaryPath;
-        mBinaryName = removeAESExtension(newMedia.getName());
+        registerBinaryAttachment(removeAESExtension(newMedia.getName()));
     }
 
     // removes ".aes" from file name if exists

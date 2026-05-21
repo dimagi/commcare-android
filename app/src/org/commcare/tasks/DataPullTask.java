@@ -168,6 +168,7 @@ public abstract class DataPullTask<R>
         byte[] wrappedEncryptionKey = getEncryptionKey();
         if (wrappedEncryptionKey == null) {
             this.publishProgress(PROGRESS_DONE);
+            Logger.exception("Encryption Key Failure", new Exception("Failed to get or generate encryption key for data pull sync"));
             return new ResultAndError<>(PullTaskResult.ENCRYPTION_FAILURE,
                     "Unable to get or generate encryption key");
         }

@@ -42,7 +42,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
         getBinding().btnSync.setOnClickListener(v -> {
             ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment)getParentFragment();
             if (parentFragment != null) {
-                parentFragment.refresh();
+                parentFragment.refresh(false);
             }
             populateDeliveryProgress();
         });

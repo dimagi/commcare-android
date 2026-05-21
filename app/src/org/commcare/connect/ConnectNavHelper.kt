@@ -12,18 +12,17 @@ import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.personalId.UnlockPolicy
 
 object ConnectNavHelper {
     private fun unlockAndGoTo(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy,
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
-        personalIdManager.unlockConnect(
-            activity,
-        ) { success: Boolean ->
+        PersonalIdUnlocker.unlock(activity, policy) { success ->
             if (success) {
                 navigationAction(activity)
             }
@@ -33,9 +32,10 @@ object ConnectNavHelper {
 
     fun unlockAndGoToMessaging(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToMessaging)
+        unlockAndGoTo(activity, policy, listener, ::goToMessaging)
     }
 
     fun goToMessaging(context: Context) {
@@ -51,9 +51,10 @@ object ConnectNavHelper {
 
     fun unlockAndGoToWorkHistory(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToWorkHistory)
+        unlockAndGoTo(activity, policy, listener, ::goToWorkHistory)
     }
 
     fun goToWorkHistory(context: Context) {
@@ -63,9 +64,10 @@ object ConnectNavHelper {
 
     fun unlockAndGoToConnectJobsList(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToConnectJobsList)
+        unlockAndGoTo(activity, policy, listener, ::goToConnectJobsList)
     }
 
     fun goToConnectJobsList(context: Context) {

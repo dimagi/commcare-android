@@ -5,23 +5,9 @@ import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
-import org.javarosa.core.services.Logger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +15,20 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
+
+import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
+import org.javarosa.core.services.Logger;
+
+import java.util.List;
 
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
@@ -63,7 +63,7 @@ public class ConnectUnlockFragment extends Fragment {
     private final Runnable unlockRunnable = new Runnable() {
         @Override
         public void run() {
-            PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
+            PersonalIdUnlocker.INSTANCE.unlock((CommCareActivity<?>) requireActivity(), UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
                 if (success) {
                     retrieveOpportunities();
                 } else {
@@ -82,7 +82,7 @@ public class ConnectUnlockFragment extends Fragment {
 
     private void retrieveOpportunities() {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
+        new ConnectApiHandler<List<ConnectJobRecord>>() {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @androidx.annotation.Nullable Throwable t) {
@@ -90,8 +90,8 @@ public class ConnectUnlockFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                if (!data.getValidJobs().isEmpty()) {
+            public void onSuccess(List<ConnectJobRecord> jobs) {
+                if (!jobs.isEmpty()) {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
                 setFragmentRedirection();
