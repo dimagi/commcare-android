@@ -27,21 +27,13 @@ import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
-    private lateinit var activity: Activity
     private lateinit var personalIdSessionData: PersonalIdSessionData
 
     /**
-     * True when launched for a legacy user who is adding email post-registration.
-     * Passed as a nav argument (isLegacyFlow: Boolean = false).
+     * Launch context for this screen — distinguishes brand-new signup, account recovery,
+     * and the legacy "existing user adding email" entry point. Read from a required nav arg.
      */
-    private var isLegacyFlow: Boolean = false
-
-    /**
-     * True when entered from the recovery path (existing user who just validated backup code
-     * on a new device). On skip or successful OTP, the fragment must finalize account recovery
-     * instead of navigating to Photo Capture.
-     */
-    private var isRecovery: Boolean = false
+    private lateinit var workflow: EmailWorkFlow
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,11 +45,9 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             ViewModelProvider(requireActivity())
                 .get(PersonalIdSessionDataViewModel::class.java)
                 .personalIdSessionData
-        activity = requireActivity()
-        activity.setTitle(R.string.personalid_email_appbar_title)
-        activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        isLegacyFlow = arguments?.getBoolean(ARG_IS_LEGACY_FLOW, false) ?: false
-        isRecovery = arguments?.getBoolean(ARG_IS_RECOVERY, false) ?: false
+        requireActivity().setTitle(R.string.personalid_email_appbar_title)
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        workflow = PersonalIdEmailFragmentArgs.fromBundle(requireArguments()).workflow
 
         setupListeners()
         enableContinueButton(false)
@@ -166,26 +156,26 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
         }.sendEmailOtp(
             requireActivity(),
             email,
-            if (isLegacyFlow) null else personalIdSessionData.token,
-            if (isLegacyFlow) ConnectUserDatabaseUtil.getUser(requireActivity()) else null,
+            if (workflow == EmailWorkFlow.EXISTING_USER) null else personalIdSessionData.token,
+            if (workflow == EmailWorkFlow.EXISTING_USER) ConnectUserDatabaseUtil.getUser(requireActivity()) else null,
         )
     }
 
     private fun skipEmail() {
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "skip")
-        when {
-            //  email entry after post registration or already logged in users
-            isLegacyFlow -> {
+        when (workflow) {
+            // Existing user adding email post-registration — finish the legacy entry activity.
+            EmailWorkFlow.EXISTING_USER -> {
                 requireActivity().finish()
             }
 
-            //  recovery flow
-            isRecovery -> {
+            // Recovery — finalize account recovery and show the success screen.
+            EmailWorkFlow.RECOVERY -> {
                 finalizeRecoveryAndShowSuccess()
             }
 
-            //  sign up flow
-            else -> {
+            // Brand-new signup — continue to photo capture.
+            EmailWorkFlow.REGISTRATION -> {
                 binding.root
                     .findNavController()
                     .navigate(PersonalIdEmailFragmentDirections.actionPersonalidEmailToPersonalidPhotoCapture())
@@ -207,7 +197,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private fun navigateToEmailVerification(email: String) {
         val action =
             PersonalIdEmailFragmentDirections
-                .actionPersonalidEmailToPersonalidEmailVerification(email, isLegacyFlow, isRecovery)
+                .actionPersonalidEmailToPersonalidEmailVerification(email, workflow)
         binding.root.findNavController().navigate(action)
     }
 
@@ -241,8 +231,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     companion object {
-        const val ARG_IS_LEGACY_FLOW = "isLegacyFlow"
-        const val ARG_IS_RECOVERY = "isRecovery"
         const val ARG_ENTERED_EMAIL = "email"
+        const val ARG_EMAIL_WORKFLOW = "workflow"
     }
 }

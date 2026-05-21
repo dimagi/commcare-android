@@ -17,7 +17,7 @@ import org.robolectric.shadows.ShadowLooper
  * Base test class for PersonalIdEmailFragment tests.
  * Inherits integrity-token mock setup from [BasePersonalIdConfigurationTest] and adds
  * email-fragment-specific setup: seeds session data and navigates the real NavController
- * to the email destination with the mandatory isLegacyFlow / isRecovery arguments.
+ * to the email destination with the mandatory [EmailWorkFlow] argument.
  */
 abstract class BasePersonalIdEmailFragmentTest : BasePersonalIdConfigurationTest() {
     protected lateinit var activityController: ActivityController<PersonalIdActivity>
@@ -31,10 +31,7 @@ abstract class BasePersonalIdEmailFragmentTest : BasePersonalIdConfigurationTest
         setUpPersonalIdActivityWithEmailFragment()
     }
 
-    protected fun setUpPersonalIdActivityWithEmailFragment(
-        isLegacyFlow: Boolean = false,
-        isRecovery: Boolean = false,
-    ) {
+    protected fun setUpPersonalIdActivityWithEmailFragment(workflow: EmailWorkFlow = EmailWorkFlow.REGISTRATION) {
         activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
         activity =
             activityController
@@ -56,8 +53,7 @@ abstract class BasePersonalIdEmailFragmentTest : BasePersonalIdConfigurationTest
 
         val args =
             Bundle().apply {
-                putBoolean(PersonalIdEmailFragment.ARG_IS_LEGACY_FLOW, isLegacyFlow)
-                putBoolean(PersonalIdEmailFragment.ARG_IS_RECOVERY, isRecovery)
+                putSerializable(PersonalIdEmailFragment.ARG_EMAIL_WORKFLOW, workflow)
             }
 
         activity.runOnUiThread {
