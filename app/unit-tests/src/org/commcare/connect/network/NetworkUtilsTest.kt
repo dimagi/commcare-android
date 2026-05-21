@@ -120,7 +120,7 @@ class NetworkUtilsTest {
 
     @Test
     fun `logNetworkError does not throw for an HttpException`() {
-        val httpException = mockk<HttpException>()
+        val httpException = mockk<HttpException>(relaxed = true)
         every { httpException.message } returns "HTTP 401 Unauthorized"
         NetworkUtils.logNetworkError(httpException, "https://example.com/api")
     }
