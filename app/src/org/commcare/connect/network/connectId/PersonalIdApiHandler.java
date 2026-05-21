@@ -352,13 +352,24 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void verifyEmailOtp(Activity activity, String email, String otp,
-                                   PersonalIdSessionData sessionData) {
+    /**
+     * Verifies an email OTP. Uses the PersonalID session token when present
+     * (signup / recovery); otherwise authenticates with the supplied
+     * {@code user}'s credentials (legacy flow).
+     */
+    public void verifyEmailOtp(
+            Activity activity,
+            String email,
+            String otp,
+            String personalIdConfigurationToken,
+            ConnectUserRecord user
+    ) {
         ApiPersonalId.verifyEmailOtp(
                 activity,
                 email,
                 otp,
-                sessionData.getToken(),
+                personalIdConfigurationToken,
+                user,
                 createCallback(new NoParsingResponseParser<>(), null)
         );
     }

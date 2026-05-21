@@ -205,7 +205,10 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     private fun navigateToEmailVerification(email: String) {
-        // TODO: Add the navigation to the email verification fragment.
+        val action =
+            PersonalIdEmailFragmentDirections
+                .actionPersonalidEmailToPersonalidEmailVerification(email, isLegacyFlow, isRecovery)
+        binding.root.findNavController().navigate(action)
     }
 
     private fun clearError() {
@@ -240,5 +243,6 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     companion object {
         const val ARG_IS_LEGACY_FLOW = "isLegacyFlow"
         const val ARG_IS_RECOVERY = "isRecovery"
+        const val ARG_ENTERED_EMAIL = "email"
     }
 }

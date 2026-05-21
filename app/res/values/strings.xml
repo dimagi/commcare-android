@@ -385,6 +385,14 @@
     <string name="personalid_email_skip_confirm_title">Skip email?</string>
     <string name="personalid_email_skip_confirm_message">Are you sure you want to skip?</string>
     <string name="personalid_email_invalid_format">Please enter a valid email address.</string>
+    <string name="personalid_email_verification_appbar_title">Verify Email</string>
+    <string name="personalid_email_verification_title">Verify your email</string>
+    <string name="personalid_email_verification_description">Enter the 6-digit code sent to %1$s</string>
+    <string name="personalid_email_verify_button">Verify</string>
+    <string name="personalid_email_otp_failed_title">Verification unsuccessful</string>
+    <string name="personalid_email_otp_failed_message">You\'ve entered an incorrect code 3 times. Would you like to try again or proceed without adding an email address?</string>
+    <string name="personalid_email_otp_failed_retry">Try again</string>
+    <string name="personalid_email_otp_failed_skip">Proceed without email</string>
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>

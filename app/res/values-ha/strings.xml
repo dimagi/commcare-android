@@ -109,6 +109,14 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_email_skip_confirm_title">A tsallake imel?</string>
     <string name="personalid_email_skip_confirm_message">Tabbas kuna so ku tsallake?</string>
     <string name="personalid_email_invalid_format">Da fatan za a shigar da ingantaccen adireshin imel.</string>
+    <string name="personalid_email_verification_appbar_title">Tabbatar da imel</string>
+    <string name="personalid_email_verification_title">Tabbatar da imel ɗinka</string>
+    <string name="personalid_email_verification_description">Shigar da lambar lamba 6 da aka aiko zuwa %1$s</string>
+    <string name="personalid_email_verify_button">Tabbatar</string>
+    <string name="personalid_email_otp_failed_title">Tabbatarwa ba ta yi nasara ba</string>
+    <string name="personalid_email_otp_failed_message">Kun shigar da lambar da ba daidai ba sau 3. Kuna so ku sake gwadawa ko ku ci gaba ba tare da ƙara adireshin imel ba?</string>
+    <string name="personalid_email_otp_failed_retry">Sake gwadawa</string>
+    <string name="personalid_email_otp_failed_skip">Ci gaba ba tare da imel ba</string>
     <string name="connect_recovery_success_title">An Dawo da Asusu</string>
     <string name="connect_recovery_success_message">An dawo da asusunka! Za ka iya ci gaba da amfani da PersonalID.</string>
     <string name="connect_unlock_title">Buɗe PersonalID</string>

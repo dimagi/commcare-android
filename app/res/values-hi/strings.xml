@@ -271,6 +271,14 @@ License.
     <string name="personalid_email_skip_confirm_title">ईमेल छोड़ें?</string>
     <string name="personalid_email_skip_confirm_message">क्या आप वाकई इसे छोड़ना चाहते हैं?</string>
     <string name="personalid_email_invalid_format">कृपया एक मान्य ईमेल पता दर्ज करें।</string>
+    <string name="personalid_email_verification_appbar_title">ईमेल सत्यापित करें</string>
+    <string name="personalid_email_verification_title">अपना ईमेल सत्यापित करें</string>
+    <string name="personalid_email_verification_description">%1$s पर भेजा गया 6-अंकीय कोड दर्ज करें</string>
+    <string name="personalid_email_verify_button">सत्यापित करें</string>
+    <string name="personalid_email_otp_failed_title">सत्यापन असफल</string>
+    <string name="personalid_email_otp_failed_message">आपने 3 बार गलत कोड दर्ज किया है। क्या आप पुनः प्रयास करना चाहते हैं या ईमेल जोड़े बिना आगे बढ़ना चाहते हैं?</string>
+    <string name="personalid_email_otp_failed_retry">पुनः प्रयास करें</string>
+    <string name="personalid_email_otp_failed_skip">ईमेल के बिना आगे बढ़ें</string>
     <string name="connect_recovery_success_title">खाता पुनर्प्राप्त किया गया</string>
     <string name="connect_recovery_success_message">आपका खाता पुनर्प्राप्त कर लिया गया है! आप PersonalID का उपयोग फिर से शुरू कर सकते हैं।</string>
     <string name="connect_unlock_title">PersonalId अनलॉक करें</string>

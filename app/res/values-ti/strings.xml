@@ -264,6 +264,14 @@
     <string name="personalid_email_skip_confirm_title">ኢመይል ትሓልፍ?</string>
     <string name="personalid_email_skip_confirm_message">ብርግፅ ክትሓልፎ ትደሊ ዲኻ?</string>
     <string name="personalid_email_invalid_format">በጃኻ ቅኑዕ ኣድራሻ ኢመይል ኣእቱ።</string>
+    <string name="personalid_email_verification_appbar_title">ኢመይል ኣረጋግፅ</string>
+    <string name="personalid_email_verification_title">ኢመይልካ ኣረጋግፅ</string>
+    <string name="personalid_email_verification_description">ናብ %1$s ዝተላእከ 6-ቁፅሪ ኮድ ኣእቱ</string>
+    <string name="personalid_email_verify_button">ኣረጋግፅ</string>
+    <string name="personalid_email_otp_failed_title">ምርግጋፅ ኣይተዓወተን</string>
+    <string name="personalid_email_otp_failed_message">3 ግዜ ጌጋ ኮድ ኣእቲኻ። ከም ብሓዱሽ ክትፍትን ድዩስ ኢመይል ኣእቱኻ ብዘይ ኢመይል ክትቕጽል ዲኻ ትደሊ?</string>
+    <string name="personalid_email_otp_failed_retry">ከም ብሓዱሽ ፈትን</string>
+    <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
     <string name="connect_recovery_success_title">ኣካውንት ናብ ንቡር ተመሊሱ</string>
     <string name="connect_recovery_success_message">ሕሳብካ ተመልሱልካ ኣሎ! PersonalID ምጥቃም ክትቅጽል ትኽእል ኢኻ።</string>
     <string name="connect_unlock_title">PersonalId ኽፈት።</string>

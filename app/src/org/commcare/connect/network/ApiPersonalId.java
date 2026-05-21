@@ -386,14 +386,22 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.sendEmailOtp);
     }
 
+    /**
+     * Verifies an email OTP. Auth source: PersonalID session token when available
+     * (signup / recovery), else basic auth from the supplied {@code user} (legacy
+     * flow where the user is already signed up and no session token exists).
+     */
     public static void verifyEmailOtp(
             Context context,
             String email,
             String otp,
-            String token,
+            String personalIdConfigurationToken,
+            ConnectUserRecord user,
             IApiCallback callback
     ) {
-        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        AuthInfo authInfo = personalIdConfigurationToken != null
+                ? new AuthInfo.TokenAuth(personalIdConfigurationToken)
+                : new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
 

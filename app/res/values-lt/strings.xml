@@ -153,6 +153,14 @@
     <string name="personalid_email_skip_confirm_title">Praleisti el. paštą?</string>
     <string name="personalid_email_skip_confirm_message">Ar tikrai norite praleisti?</string>
     <string name="personalid_email_invalid_format">Įveskite galiojantį el. pašto adresą.</string>
+    <string name="personalid_email_verification_appbar_title">Patvirtinti el. paštą</string>
+    <string name="personalid_email_verification_title">Patvirtinkite savo el. paštą</string>
+    <string name="personalid_email_verification_description">Įveskite 6 skaitmenų kodą, išsiųstą į %1$s</string>
+    <string name="personalid_email_verify_button">Patvirtinti</string>
+    <string name="personalid_email_otp_failed_title">Patvirtinimas nepavyko</string>
+    <string name="personalid_email_otp_failed_message">3 kartus įvedėte neteisingą kodą. Ar norite bandyti dar kartą, ar tęsti nepridėdami el. pašto adreso?</string>
+    <string name="personalid_email_otp_failed_retry">Bandyti dar kartą</string>
+    <string name="personalid_email_otp_failed_skip">Tęsti be el. pašto</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
