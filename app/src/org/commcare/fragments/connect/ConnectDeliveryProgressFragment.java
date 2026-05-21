@@ -141,6 +141,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 (success, error) -> {
                     if (success && isAdded()) {
                         updateLastUpdatedText(new Date());
+                        setupJobCard();
                         updateCardMessage();
                         updatePaymentConfirmationTile(false);
                         viewPagerAdapter.refresh();
