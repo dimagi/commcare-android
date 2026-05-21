@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connect.ConnectApiHandler;
@@ -665,7 +666,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
                 && ConnectUserDatabaseUtil.hasConnectAccess(this);
         installFragment.updateConnectButton(isConnectEnabled, v -> {
-            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
+            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
             });
         });
     }

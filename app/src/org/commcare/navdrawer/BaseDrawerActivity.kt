@@ -72,11 +72,15 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.OPPORTUNITIES -> {
                 navigateToConnectMenu()
             }
+
             NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
+
             NavItemType.PAYMENTS -> {}
+
             NavItemType.MESSAGING -> {
                 navigateToMessaging()
             }
+
             NavItemType.WORK_HISTORY -> {
                 navigateToWorkHistory()
             }
@@ -94,48 +98,51 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     protected fun navigateToConnectMenu() {
         unlockAndGoToConnectJobsList(
             this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
+            listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        if (success) {
+                            closeDrawer()
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
     protected fun navigateToMessaging() {
         unlockAndGoToMessaging(
             this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
+            listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        if (success) {
+                            closeDrawer()
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
     protected fun navigateToWorkHistory() {
         unlockAndGoToWorkHistory(
             this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
+            listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        if (success) {
+                            closeDrawer()
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
@@ -179,7 +186,5 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return showDrawer
     }
 
-	fun isShowingGlobalError(): Boolean {
-        return drawerController?.isShowingError() ?: false
-    }
+    fun isShowingGlobalError(): Boolean = drawerController?.isShowingError() ?: false
 }
