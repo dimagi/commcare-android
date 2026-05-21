@@ -24,9 +24,9 @@ The screen reads from `ConnectUserDatabaseUtil.getUser(context)` (returns a `Con
 
 The photo update flow that lives in `BaseDrawerController` today gets extracted into a reusable helper so both the drawer and the Edit Profile screen call the same code path.
 
-**Unlock gate.** Tapping the drawer link runs through `PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS, ...)` before launching `PersonalIdProfileActivity`.
+**Unlock gate.** Tapping the drawer link runs through `PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS, ...)` before launching `PersonalIdProfileActivity`.
 
-**Dark launch.** The drawer link — the only entry point to all of this work — is hard-coded to `View.GONE` from Phase 1 through Phase 5, so every intermediate phase is safely releasable. Phase 6 swaps the hard-coded `View.GONE` for the real signed-in conditional and removes the old login-screen entries this feature replaces.
+**Dark launch.** The drawer link — the only entry point to all of this work — is hard-coded to `View.GONE` from Phase 1 through Phase 5, so every intermediate phase is safely releasable. Phase 6 swaps the hard-coded `View.GONE` for the real signed-in conditional and removes the legacy `Forget PersonalID` entries from the Login and Setup menus (App Manager stays in Login).
 
 ## File map
 
@@ -74,7 +74,7 @@ Goal: a tappable "Manage Profile" subtitle below the user's name in the drawer h
 3. **View ref.** Add `val manageProfileLink: TextView = rootView.findViewById(R.id.header_manage_profile)` to `DrawerViewRefs.kt`.
 
 4. **Click + visibility.** In `BaseDrawerController.kt`:
-   - In `setupListeners()` ([around line 132](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L132)), add a click listener on `binding.manageProfileLink` that calls `closeDrawer()` and then routes through `PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS) { success -> if (success) activity.startActivity(Intent(activity, PersonalIdProfileActivity::class.java)) }`. This matches the gate used by `LoginActivity.onCreate` ([line 243](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L243)) and every other PersonalID-protected entry point in the codebase.
+   - In `setupListeners()` ([around line 132](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L132)), add a click listener on `binding.manageProfileLink` that calls `closeDrawer()` and then routes through `PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS) { success -> if (success) activity.startActivity(Intent(activity, PersonalIdProfileActivity::class.java)) }`. This matches the gate used by `LoginActivity.onCreate` ([line 243](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L243)) and every other PersonalID-protected entry point in the codebase.
    - In `refreshDrawerContent()` ([around line 291](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L291) where `profileCard.visibility` is set), hard-code `manageProfileLink.visibility = View.GONE`. This keeps the feature invisible to users while phases 2–5 land. Phase 6 swaps this line for the real signed-in conditional.
 
 5. **Activity stub.** Create `PersonalIdProfileActivity` extending `CommCareActivity<PersonalIdProfileActivity>` (matches `PersonalIdWorkHistoryActivity`) with an empty `onCreate` so the click target exists. Register it in `AndroidManifest.xml`, mirroring the `PersonalIdWorkHistoryActivity` entry.
@@ -237,7 +237,7 @@ Register an `OnBackPressedCallback` in `onViewCreated` so the system back button
 
 In `BaseDrawerController.refreshDrawerContent()`, replace the hard-coded `manageProfileLink.visibility = View.GONE` from Phase 1 with the real conditional, matching the existing `profileCard.visibility` line: visible when signed in, gone otherwise.
 
-After this commit the feature is reachable in production. App Manager and Forget PersonalID are still in the login-screen 3-dot menu too — that's fine and intentional, since 6.2 removes them in a separate commit.
+After this commit the feature is reachable in production. `Forget PersonalID` is still in the Login and Setup 3-dot menus — that's fine and intentional, since 6.2 removes both in a separate commit. `App Manager` stays in the Login menu by design (Profile's overflow is an additional entry point, not a replacement).
 
 Manual test: sign in, open drawer — link appears under the user's name and opens the Profile screen.
 
