@@ -22,7 +22,7 @@ import java.io.File;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MicroImageWidget extends ImageWidget{
+public class MicroImageWidget extends ImageWidget {
     private static final int IMAGE_DIMEN_SCALED_MAX_PX = 72;
     private static final int MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
 
