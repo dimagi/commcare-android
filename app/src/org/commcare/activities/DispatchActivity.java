@@ -7,11 +7,11 @@ import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import android.util.Log;
 import android.widget.Toast;
 
@@ -55,6 +55,7 @@ public class DispatchActivity extends AppCompatActivity {
     // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
     public static final String SESSION_ENDPOINT_ARGUMENTS_BUNDLE = "ccodk_session_endpoint_arguments_bundle";
     public static final String SESSION_ENDPOINT_ARGUMENTS_LIST = "ccodk_session_endpoint_arguments_list";
+    public static final String CC_LAUNCH_REQUIRE_SYNC = "ccodk_require_sync";
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String EXIT_AFTER_FORM_SUBMISSION = "ccodk_exit_after_form_submission";
     public static final Boolean EXIT_AFTER_FORM_SUBMISSION_DEFAULT = true;
@@ -136,7 +137,6 @@ public class DispatchActivity extends AppCompatActivity {
         return false;
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -171,7 +171,6 @@ public class DispatchActivity extends AppCompatActivity {
 
         Intent pnIntent = checkIfAnyPNIntentPresent();
         if (pnIntent != null) {
-            String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
@@ -370,7 +369,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
         startFromLogin = false;
-        clearSessionEndpointAppId();
+        clearSessionEndpointIntentExtras();
         startActivityForResult(i, HOME_SCREEN);
     }
 
@@ -379,8 +378,10 @@ public class DispatchActivity extends AppCompatActivity {
                 CommCareApplication.instance().isConsumerApp();
     }
 
-    private void clearSessionEndpointAppId() {
+    private void clearSessionEndpointIntentExtras() {
+        getIntent().removeExtra(SESSION_REQUEST);
         getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
+        getIntent().removeExtra(SESSION_ENDPOINT_ID);
     }
 
     /**
@@ -442,11 +443,10 @@ public class DispatchActivity extends AppCompatActivity {
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
                         i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
-
-                        // Session Endpoint extra is no longer needed. If not removed, it triggers
-                        // the external launch logic in subsequent logins
-                        getIntent().removeExtra(SESSION_ENDPOINT_ID);
+                        i.putExtra(CC_LAUNCH_REQUIRE_SYNC,
+                                getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false));
                     }
+                    clearSessionEndpointIntentExtras();
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);
                         i.putExtra(EXIT_AFTER_FORM_SUBMISSION,

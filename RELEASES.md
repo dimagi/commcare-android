@@ -2,25 +2,123 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.64
+
+### Release Notes
+
+<!--
+These are published publicly on Playstore, Github Releases and CommCare Forums
+-->
+
+#### What's New
+
+- [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
+- Reduced frequency of required biometric or pin unlocks for PersonalID and Connect  
+- [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
+
+#### Important Bug Fixes
+
+- Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for specific projects.
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+### QA Notes
+
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
+
+- **Android Startup Strings Migration:** Walk the install / setup flows after a fresh install and confirm all on-screen text still renders correctly (no blank labels, no raw `install.button.start`-style keys showing through):
+    - Launch a fresh CommCare install — verify the welcome screen ("Welcome to CommCare!" / "Please choose an installation method below") and install-method picker render.
+    - Tap **Enter Code** / manual URL install — verify the prompt and the **Start Install** button label render. Submit an invalid URL and confirm the error message ("You did not scan a valid URL...") shows.
+    - Tap **Offline Install** and try a `.ccz` install — verify the prompt ("Install your CommCare application from a .ccz file") and the **Install App** button label render.
+    - From the install screen menu, tap **See Apps for My User** to open Install From List. Submit with empty fields — verify "Please enter all required fields." Submit with bad credentials in both Mobile User and Web User modes — verify each mode shows the appropriate error message. Toggle between user types and verify the **Web User** / **Mobile User** labels render.
+    - From the App Manager menu, tap **Advanced Settings** — verify the title bar reads "App Manager > Advanced Settings". Tap **Developer Options** within Advanced Settings — verify the row title renders as "Developer Options" (not as a raw key).
+    - Switch device language to one of the supported translations (Spanish, French, Portuguese, Hindi, Swahili, Hausa, Tigrinya, Lithuanian, Norwegian) and re-walk the install/setup flow. Confirm the migrated strings appear in the selected language with no missing-resource crashes and no English fallback for strings that should be translated.
+- **PersonalID profile photo update from nav drawer:**
+  - Sign in to PersonalID and open the side navigation drawer. Verify that the user's image in the drawer header is shown inside a circular white frame with a small camera icon overlay along the bottom edge.
+  - Tap the image. Verify that an "Update Profile Photo" confirmation dialog appears with a message asking whether you would like to take a new profile photo, and Continue / Cancel buttons.
+  - Verify that the dialog can be dismissed in three ways: tapping Cancel, tapping outside the dialog, and pressing the device back button. In all three cases, the photo should remain unchanged.
+  - Tap Continue. Verify that the camera capture screen opens with the title "Take Profile Photo" (it should detect the user's face the same way as during PersonalID signup).
+  - Capture a new photo. Verify that the drawer reopens, the new photo replaces the existing image, and the camera icon overlay is still shown along the bottom of the image.
+  - Reopen the drawer later (after navigating around the app) and verify that the new photo is still shown.
+  - **Failed upload:** turn on airplane mode, tap the image, and tap the Continue button. Verify that:
+    - A toast appears with an error message.
+    - The camera overlay icon switches to a yellow warning triangle.
+  - With airplane mode still on, navigate around the app and reopen the drawer. Verify that the warning triangle is still shown over the image.
+  - Turn airplane mode off, fully close the app (swipe it away from recent apps), and reopen it. Sign back in if needed. Verify that the warning triangle is gone and the camera icon is shown again.
+  - With a working network connection, retry the photo update and verify a successful upload restores the camera icon and the new photo persists.
+  - Verify that the photo update also reflects on HQ for the PersonalID user (i.e. the new photo is visible on the server-side admin view of the user's profile).
+
+- **Add email address to PersonalID signup/recovery flow (WIP):**
+  - **Flow overview:**
+    - Signup: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered) → Photo
+    - Recovery, no verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered)
+    - Recovery, verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code
+  - **Email entry screen:** (will be added here)
+  - **Email OTP screen:** (will be added here)
+  - **Legacy logged-in users prompt:** (will be added here)
+  - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
+  - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
+
+- **[PersonalID] Session-based unlock for in-app Connect navigation:**
+  - An app session is a foreground app session, i.e. user exiting/backgrounding the app and resuming into it counts as a new session. 
+  - Tapping Connect Jobs, Messaging, or Work History from the nav drawer no longer prompts for biometric/PIN if the user already unlocked within the last 10 minutes in the same app session.
+  - Notification redirects to these screens follow same rules as the menu itself. 
+  - Opening any of below destinations from a push notification still always prompts:
+    - Sensitive operations (login, link/unlink app) still require explicit re-authentication every time.
+    - Notifications redirect into the app only required re-auth when user is not already logged into the CommCare App. 
+
+- **Back Online indicator (Connect):**
+  - Open a refreshable Connect page (Connect Home, Learning Progress, Delivery Progress) while online and trigger a sync. Verify that the success bar at the top of the page now shows a green background with "Last synced: Just Now" and no right-side indicator.
+  - Turn on airplane mode (or otherwise disable network) and trigger a sync on the same page. Verify that the orange "Offline" indicator appears at the top of the page.
+  - Turn the network back on and trigger a sync (or wait for the auto-refresh on reconnect). Verify that the bar now shows a green background with "Last synced: Just Now" on the left and "Back Online" plus a WiFi icon on the right, and that it auto-dismisses after a few seconds.
+  - Trigger a non-network failure (e.g. a server error) and then a successful sync. Verify that the bar shows the regular green success message **without** the "Back Online" indicator (the Back Online indicator should only appear after an offline failure).
+  - Switch the device language to a non-English locale (e.g. French, Spanish, Hindi) and repeat the back-online flow. Verify that the "Back Online" label is shown in the selected language.
+
+- **Back button on camera capture screen:**
+  - During PersonalID signup for a new phone number, get to the photo capture step and tap **Take Photo** to open the camera. Tap the back arrow in the top toolbar. Verify that the camera closes and you are returned to the photo capture screen.
+  - From a signed-in PersonalID session, open the side navigation drawer and tap the user image, then Continue. Tap the back arrow in the camera screen's top toolbar. Verify that the camera closes and you are returned to the previous screen with no photo change.
+  - In both flows, verify the device's system back button continues to work the same way.
+
 ## CommCare 2.63
 
 ### Release Notes
 
 <!--
-These are published publically on Playstore, Github Releases and CommCare Forums
+These are published publicly on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
+- Offline status shown on refreshable Connect pages when applicable
+- Forms now allow a maximum of 50 attachments. To add another after the limit is reached, users will need to 
+remove an existing one first
+
+- [Relearn Tasking] Added relearn task notification UI to Connect opportunity cards
+- [Relearn Tasking] Implements a new notification when a relearn task is assigned to a user
+- [Work Area Assignment] Implements a new notification when a new work area is assigned to a user
+- [6-box Backup Codes] Using 6-box numeric inputs to collect backup codes from the user
 
 #### Important Bug Fixes
+- Fixed a crash triggered during combobox item selection when the dropdown list had already been dismissed
 
 #### Internal Release Notes
 
 <!--
-Release notes that are not applicable for wider CommCare users but only for a specific projects. 
+Release notes that are not applicable for wider CommCare users but only for specific projects. 
 These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
 along with the public release notes above
 -->
+
+- Session endpoint navigation from Connect notifications: clicking a notification with a `session_endpoint_id` now navigates the user directly to the specified CommCare session endpoint (after a sync if required), instead of opening the Connect activity.
+- Tapping a navigation push notification while a form is open now prompts the user with the standard quit-form dialog (STAY IN FORM / EXIT WITHOUT SAVING / SAVE INCOMPLETE) before navigating away, preventing accidental loss of unsaved form data
 
 
 ### QA Notes
@@ -29,6 +127,37 @@ along with the public release notes above
 These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
+
+- **Task and Work Area Assignment Notifications (Connect):**
+    - On clicking, Notification should take user to the relevant CommCare App Home page and auto-login and auto-syncs the user with a blocking dialog. 
+    - Click the notification while logged out
+    - Click the notification while the app is backgrounded
+    - Verify that notifications redirect work as expected from various places in the app - Opp Screen, App Home, Login Screen, Form Entry etc and back navigation works correctly after the notification redirect
+    - Verify no regression on existing Connect notification types (payments, messaging, delivery/learn progress).
+
+- Verify that the existing opportunity card UI is unchanged when there are no relearn tasks.
+- Verify that the opportunity card updates as expected when there are either pending relearn tasks or completed relearn tasks.
+- Verify 6-box input functionality in Backup Code page, including:
+  - Showing one or two of the controls depending on recovery/registration mode (respectively)
+  - Handling password-style visibility with associated "eye" toggle
+  - Verifying matching codes (or error message) in registration mode
+  - Text cursor functionality (i.e. backspacing, clicking an earlier box to jump back)
+
+- Test the new offline status indicator at the top of refreshable Connect pages (Connect Home, Learning Progress, Delivery Progress). Verify that the error message appears when entering these pages while offline, and that it disappears once the device comes back online.
+- Verify that the combobox widget is working as expected when selecting an item that is used to filter another combobox widget and also determines the visibility of some other unrelated question whose relevance condition depends on the selection.
+- Open the Connect notification history screen (the list of push notifications) and verify the screen title reads "Notifications" (or the localized PersonalID notification title) and that no secondary breadcrumb/title strip is shown above or below it. Confirm the back arrow and the cloud-sync menu action both still work, and that opening a notification still routes correctly.
+
+- **Form exit warning on push notification tap:**
+  - **Editable form, dialog appears:** Open any Connect app and enter a form. Trigger a navigation push notification (e.g. a Connect message, payment notification, or any `ccc_*` notification that opens a screen). Tap the notification.
+    - Verify a "Exit Form?" dialog appears with three choices: "STAY IN FORM", "EXIT WITHOUT SAVING", and "SAVE INCOMPLETE" (the same dialog the back button shows).
+    - Tap "STAY IN FORM" → dialog dismisses, the user stays in the form, no navigation occurs.
+    - Repeat the scenario, this time tapping "EXIT WITHOUT SAVING" → the form is dismissed without saving and the notification's target screen opens.
+    - Repeat again, tapping "SAVE INCOMPLETE" → the form is saved as incomplete (verify it appears in the Saved Forms list on the App Home), and after the save completes the notification's target screen opens.
+  - **No form open, no dialog (regression check):** Tap the same kinds of notifications from the home screen, login screen, and other non-form screens. Verify the notification opens its target screen directly, with no dialog — identical to today's behavior.
+  - **Read-only form:** Open a previously completed form in review mode and tap a navigation notification. Verify no dialog appears, the read-only view closes, and the notification's target screen opens.
+  - **No regression on existing notification types:** Re-run the regression for Connect messaging notifications, payment notifications, learn/delivery progress notifications, opportunity summary notifications, and session-endpoint deep links. All should behave the same as before when no form is open, and should now show the dialog when a form is open.
+  - **SYNC payloads unaffected:** Sync-action notifications (which never navigate) should continue to behave as today with no dialog interaction.
+  - **Analytics:** when the dialog appears from a notification tap, Firebase logs a `form_exit_attempt` event with `method=push_notification_tap` (alongside the existing `back_button_press` and `nav_button_press` source labels).
 
 ## CommCare 2.62
 
