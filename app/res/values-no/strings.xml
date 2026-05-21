@@ -191,7 +191,9 @@
     <string name="connect_sync_successful">Sist synkronisert: Akkurat nå</string>
     <string name="connect_sync_failed">Synkronisering mislyktes, sist synkronisert: %s</string>
     <string name="connect_offline">Frakoblet</string>
+    <string name="connect_back_online">Tilbake på nett</string>
     <string name="connect_never">Aldri</string>
+    <string name="cannot_navigate_during_form_save">Kan ikke forlate siden mens skjemaet lagres</string>
 
     <string name="install_keep_trying">Fortsett å prøve hvis tilkoblingen blir avbrutt</string>
     <string name="install_manual">Vennligst skriv inn URL-en</string>

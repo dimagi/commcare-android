@@ -451,6 +451,7 @@
     <string name="connect_sync_successful">Last synced: Just Now</string>
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
     <string name="connect_offline">Offline</string>
+    <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>
     <string name="connect_title">Connect</string>
     <string name="connect_no_jobs">You haven’t been invited to any opportunities yet. Once you’ve been invited to an opportunity, it will appear in this list.</string>
@@ -764,4 +765,6 @@
     <string name="network_notification_service_downloading_files">Downloading application files...</string>
     <string name="form_attachment_limit_reached_title" cc:translatable="true">Attachment limit reached</string>
     <string name="form_attachment_limit_reached" cc:translatable="true">This form has reached the maximum of %s attachments. To add a new one, remove an existing attachment first.</string>
+
+    <string name="cannot_navigate_during_form_save" cc:translatable="true">Can\'t leave page while saving form</string>
 </resources>
