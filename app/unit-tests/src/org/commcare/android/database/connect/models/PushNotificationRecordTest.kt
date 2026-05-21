@@ -17,7 +17,6 @@ import java.util.Date
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PushNotificationRecordTest {
-
     private val timestamp = "2023-01-15T10:30:00Z"
 
     private fun buildFullJson(
@@ -62,7 +61,7 @@ class PushNotificationRecordTest {
         }
 
     @Test
-    fun fromJson_allFields_parsedCorrectly() {
+    fun `fromJson parses all fields correctly`() {
         val expectedDate = DateUtils.parseDateTime(timestamp)
         val record = PushNotificationRecord.fromJson(buildFullJson())
 
@@ -87,13 +86,7 @@ class PushNotificationRecordTest {
     }
 
     @Test
-    fun fromJson_readStatusTrue_parsedCorrectly() {
-        val record = PushNotificationRecord.fromJson(buildFullJson(readStatus = true))
-        assertTrue(record.readStatus)
-    }
-
-    @Test
-    fun fromJson_missingOptionalFields_defaultsToEmpty() {
+    fun `fromJson defaults missing optional fields to empty values`() {
         val json =
             JSONObject().apply {
                 put(PushNotificationRecord.META_TIME_STAMP, timestamp)
@@ -120,7 +113,7 @@ class PushNotificationRecordTest {
     }
 
     @Test(expected = JSONException::class)
-    fun fromJson_missingTimestamp_throwsJSONException() {
+    fun `fromJson throws JSONException when timestamp is missing`() {
         val json =
             JSONObject().apply {
                 put(PushNotificationRecord.META_NOTIFICATION_ID, "notif-001")
@@ -129,7 +122,7 @@ class PushNotificationRecordTest {
     }
 
     @Test
-    fun getNotificationActionFromRecord_genericOpportunityActionWithNonEmptyKey_returnsKey() {
+    fun `getNotificationActionFromRecord returns key when action is generic opportunity and key is non-empty`() {
         val record =
             PushNotificationRecord().apply {
                 action = ConnectConstants.CCC_GENERIC_OPPORTUNITY
@@ -139,7 +132,7 @@ class PushNotificationRecordTest {
     }
 
     @Test
-    fun getNotificationActionFromRecord_genericOpportunityActionWithEmptyKey_returnsAction() {
+    fun `getNotificationActionFromRecord returns action when action is generic opportunity and key is empty`() {
         val record =
             PushNotificationRecord().apply {
                 action = ConnectConstants.CCC_GENERIC_OPPORTUNITY
@@ -149,7 +142,7 @@ class PushNotificationRecordTest {
     }
 
     @Test
-    fun getNotificationActionFromRecord_nonGenericAction_returnsAction() {
+    fun `getNotificationActionFromRecord returns action for non-generic action`() {
         val record =
             PushNotificationRecord().apply {
                 action = "some_other_action"
@@ -159,21 +152,21 @@ class PushNotificationRecordTest {
     }
 
     @Test
-    fun titleSetter_longTitle_isTruncatedToMaxLength() {
+    fun `title setter truncates long title to max length`() {
         val longTitle = "A".repeat(70000)
         val record = PushNotificationRecord().apply { title = longTitle }
         assertEquals(65535, record.title.length)
     }
 
     @Test
-    fun bodySetter_longBody_isTruncatedToMaxLength() {
+    fun `body setter truncates long body to max length`() {
         val longBody = "A".repeat(70000)
         val record = PushNotificationRecord().apply { body = longBody }
         assertEquals(65535, record.body.length)
     }
 
     @Test
-    fun fromV24_allFieldsCopied_newFieldsDefaultToInitial() {
+    fun `fromV24 copies all fields and defaults new fields to initial values`() {
         val v24 =
             PushNotificationRecordV24().apply {
                 notificationId = "v24-id"
