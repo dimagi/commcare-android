@@ -142,7 +142,7 @@ Five phases, each a separate JIRA ticket, listed in dependency order. Classes in
 
   **Damaged-state contract.** On `SeatResult.Failed`, `AppSeater` must guarantee that the seated app's resource state is `CommCareApplication.STATE_CORRUPTED`. `initializeAppResources()` already flips it on the failure paths SeatAppActivity sees today, but `AppSeater` should defensively set it via `CommCareApp.setAppResourceState(STATE_CORRUPTED)` inside the catch block as well. Phase 3's seat-failure routing assumes this state is set when it bounces back to `DispatchActivity`.
 
-  `LoginActivity` keeps using `SeatAppActivity` via the existing `seatAppIfNeeded()` — migrating that path is out of scope.
+  **Single owner.** `SeatAppActivity` remains as the UI host for the `LoginActivity` seat path so callers' Activity-result contract is unchanged, but its body becomes `lifecycleScope.launch { appSeater.seatIfNeeded(appId, NoOpSink) }` followed by `setResult` + `finish`. The existing `Handler` / `Thread` plumbing in [`SeatAppActivity.SeatAppProcess`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/SeatAppActivity.java#L89) is removed. The `initializeAppResources(...)` call lives only in `AppSeater`.
 
 **`DispatchActivity` refactor:** [`onActivityResult(LOGIN_USER, ...)`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L491) no longer encodes routing rules inline. It calls `PostLoginRouter.route(...)` and uses `toIntent(...)`.
 
@@ -150,6 +150,7 @@ Five phases, each a separate JIRA ticket, listed in dependency order. Classes in
 
 - No behavior change for `LoginActivity` flows.
 - All writes into Home-activity extras go through `toIntent(...)`.
+- `SeatAppActivity` no longer holds its own seat implementation; both seat paths route through `AppSeater`.
 - JVM unit tests on `PostLoginRouter`, `PostLoginDestination.toIntent` (table-driven), `AppSeater` (Firebase reporting preserved on failure).
 
 ### Phase 3 — Silent launch path (Connect opportunities list)
