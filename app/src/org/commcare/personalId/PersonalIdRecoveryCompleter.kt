@@ -47,13 +47,13 @@ object PersonalIdRecoveryCompleter {
         user.email = sessionData.email
         ConnectUserDatabaseUtil.storeUser(activity, user)
 
-        logRecoveryResult(true)
+        logRecoverySuccessResult()
         notifySecondDeviceLoginIfApplicable(activity, sessionData)
     }
 
-    private fun logRecoveryResult(success: Boolean) {
+    private fun logRecoverySuccessResult() {
         FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
-            success,
+            true,
             AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE,
         )
     }
