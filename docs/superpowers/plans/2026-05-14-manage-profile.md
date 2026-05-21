@@ -12,7 +12,7 @@ Give a signed-in PersonalID user a dedicated Profile screen reached from the nav
 - Open App Manager from a 3-dot menu
 - Forget their PersonalID via a destructive CTA with a confirmation modal
 
-App Manager and Forget PersonalID move out of the login screen 3-dot menu into the new Profile screen.
+Forget PersonalID moves out of the Login *and* Setup 3-dot menus into the new Profile screen. App Manager stays in the Login menu — it must remain reachable for users without PersonalID — and is *also* exposed from Profile as an additional entry point.
 
 Phone and email are **not editable** in this MVP — both render as greyed-out, disabled fields on the Edit screen. Phone is permanently not-editable per the Path Forward; email editing is deferred to a future implementation ticket.
 
@@ -23,6 +23,8 @@ A new `PersonalIdProfileActivity` hosts a small Jetpack Navigation graph with tw
 The screen reads from `ConnectUserDatabaseUtil.getUser(context)` (returns a `ConnectUserRecord`) and writes via `ApiPersonalId.updateUserProfile(...)`. On a successful save we update the local `ConnectUserRecord` and `ConnectUserDatabaseUtil.storeUser(...)`.
 
 The photo update flow that lives in `BaseDrawerController` today gets extracted into a reusable helper so both the drawer and the Edit Profile screen call the same code path.
+
+**Unlock gate.** Tapping the drawer link runs through `PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS, ...)` before launching `PersonalIdProfileActivity`.
 
 **Dark launch.** The drawer link — the only entry point to all of this work — is hard-coded to `View.GONE` from Phase 1 through Phase 5, so every intermediate phase is safely releasable. Phase 6 swaps the hard-coded `View.GONE` for the real signed-in conditional and removes the old login-screen entries this feature replaces.
 
@@ -39,14 +41,15 @@ The photo update flow that lives in `BaseDrawerController` today gets extracted 
 - `app/res/layout/personalid_profile_screen.xml`
 - `app/res/layout/personalid_edit_profile_screen.xml`
 - `app/res/menu/personalid_profile_menu.xml`
-- `app/res/navigation/nav_graph_profile.xml`
+- `app/res/navigation/nav_graph_personalid_profile.xml`
 - Unit tests for both ViewModels in `app/unit-tests/src/org/commcare/activities/connect/viewmodel/`
 
 **Modified**
 - `app/res/layout/nav_drawer_header.xml` — add the "Manage Profile" link under the user name
 - `app/src/org/commcare/navdrawer/DrawerViewRefs.kt` — bind the new link
 - `app/src/org/commcare/navdrawer/BaseDrawerController.kt` — wire the click; delegate the photo flow to the new helper
-- `app/src/org/commcare/activities/LoginActivity.java` — remove `App Manager` and `Forget PersonalID` from the 3-dot menu
+- `app/src/org/commcare/activities/LoginActivity.java` — remove `Forget PersonalID` from the 3-dot menu (`App Manager` stays)
+- `app/src/org/commcare/activities/CommCareSetupActivity.java` — remove `Forget PersonalID` from the 3-dot menu
 - `app/AndroidManifest.xml` — register `PersonalIdProfileActivity`
 - `app/res/values/strings.xml` — new strings (see Phase 1)
 
@@ -71,7 +74,7 @@ Goal: a tappable "Manage Profile" subtitle below the user's name in the drawer h
 3. **View ref.** Add `val manageProfileLink: TextView = rootView.findViewById(R.id.header_manage_profile)` to `DrawerViewRefs.kt`.
 
 4. **Click + visibility.** In `BaseDrawerController.kt`:
-   - In `setupListeners()` ([around line 132](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L132)), add a click listener on `binding.manageProfileLink` that starts `PersonalIdProfileActivity` and calls `closeDrawer()`.
+   - In `setupListeners()` ([around line 132](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L132)), add a click listener on `binding.manageProfileLink` that calls `closeDrawer()` and then routes through `PersonalIdUnlocker.INSTANCE.unlock(activity, UnlockPolicy.ALWAYS) { success -> if (success) activity.startActivity(Intent(activity, PersonalIdProfileActivity::class.java)) }`. This matches the gate used by `LoginActivity.onCreate` ([line 243](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L243)) and every other PersonalID-protected entry point in the codebase.
    - In `refreshDrawerContent()` ([around line 291](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L291) where `profileCard.visibility` is set), hard-code `manageProfileLink.visibility = View.GONE`. This keeps the feature invisible to users while phases 2–5 land. Phase 6 swaps this line for the real signed-in conditional.
 
 5. **Activity stub.** Create `PersonalIdProfileActivity` extending `CommCareActivity<PersonalIdProfileActivity>` (matches `PersonalIdWorkHistoryActivity`) with an empty `onCreate` so the click target exists. Register it in `AndroidManifest.xml`, mirroring the `PersonalIdWorkHistoryActivity` entry.
@@ -86,9 +89,9 @@ Goal: a tappable "Manage Profile" subtitle below the user's name in the drawer h
 
 Goal: replace the stub activity with a proper host that owns the Profile and Edit Profile destinations.
 
-1. **Nav graph.** Create `nav_graph_profile.xml` with two `<fragment>` destinations — `personalid_profile_fragment` (start, `android:label="@string/personalid_profile_title"`) and `personalid_edit_profile_fragment` (`android:label="@string/personalid_edit_profile_title"`) — and an action `action_profile_to_edit_profile` between them. Mirror the structure of `nav_graph_personalid.xml`. `NavigationUI` reads these labels for the toolbar title.
+1. **Nav graph.** Create `nav_graph_personalid_profile.xml` with two `<fragment>` destinations — `personalid_profile_fragment` (start, `android:label="@string/personalid_profile_title"`) and `personalid_edit_profile_fragment` (`android:label="@string/personalid_edit_profile_title"`) — and an action `action_profile_to_edit_profile` between them. Mirror the structure of `nav_graph_personalid.xml`. `NavigationUI` reads these labels for the toolbar title.
 
-2. **Activity layout.** `activity_personalid_profile.xml` is a vertical `LinearLayout` containing `<include layout="@layout/appbar_layout"/>` at the top and a `FragmentContainerView` (`@+id/profile_nav_host`, `app:defaultNavHost="true"`, `app:navGraph="@navigation/nav_graph_profile"`) below it. The toolbar stays fixed; each destination fragment wraps its own content in a `ScrollView`.
+2. **Activity layout.** `activity_personalid_profile.xml` is a vertical `LinearLayout` containing `<include layout="@layout/appbar_layout"/>` at the top and a `FragmentContainerView` (`@+id/profile_nav_host`, `app:defaultNavHost="true"`, `app:navGraph="@navigation/nav_graph_personalid_profile"`) below it. The toolbar stays fixed; each destination fragment wraps its own content in a `ScrollView`.
 
 3. **Activity.** Replace the stub with `class PersonalIdProfileActivity : CommCareActivity<PersonalIdProfileActivity>()`. In `onCreate`, look up the `NavHostFragment` by `R.id.profile_nav_host` and call `NavigationUI.setupActionBarWithNavController(this, navController)` so the toolbar shows the destination label and the back arrow. Override `onSupportNavigateUp()` to delegate to `navController.navigateUp()`. `CommCareActivity` provides the `SupportActionBar` from the `appbar_layout` include — no manual `setSupportActionBar` call needed.
 
@@ -137,11 +140,11 @@ Two small pieces of behavior, each independently testable.
 
 ### 4.1 Forget PersonalID with confirmation modal
 
-Wire `profile_btn_forget_personalid` to show a `StandardAlertDialog` (the same dialog class used by `BaseDrawerController.showUpdatePhotoConfirmationDialog` [around line 165](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L165)). Title and message: `personalid_profile_forget_confirm_title`, `personalid_profile_forget_confirm_message`. Positive button calls `PersonalIdManager.getInstance().forgetUser(reason)` then `requireActivity().finish()`. Negative button just dismisses.
+Wire `profile_btn_forget_personalid` to show a `StandardAlertDialog` (the same dialog class used by `BaseDrawerController.showUpdatePhotoConfirmationDialog` [around line 165](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/navdrawer/BaseDrawerController.kt#L165)). Title and message: `personalid_profile_forget_confirm_title`, `personalid_profile_forget_confirm_message`. Positive button calls `PersonalIdManager.getInstance().forgetUser(reason)`, then starts `DispatchActivity` with `Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK` and finishes the Profile activity. Routing through `DispatchActivity` rather than just calling `finish()` unwinds any PersonalID-gated host activity underneath.
 
-For the analytics `reason` argument, add a new constant on `AnalyticsParamValue` (e.g. `PERSONAL_ID_FORGOT_USER_PROFILE_PAGE`) so we can distinguish the Profile-screen trigger from the legacy login-screen trigger.
+For the analytics `reason` argument, add a new constant on `AnalyticsParamValue` (e.g. `PERSONAL_ID_FORGOT_USER_PROFILE_PAGE`) so the Profile-screen trigger is distinguishable in analytics from the (now-removed) legacy login- and setup-screen triggers.
 
-Manual test: tapping the button shows the modal; Cancel dismisses; Forget wipes local state and the calling activity's drawer returns to its signed-out appearance on next open. The drawer self-heals via `refreshDrawerContent()` on `onDrawerSlide`; `LoginActivity.onResume()` already calls `uiController.refreshView()`. No extra refresh hooks are needed.
+Manual test: tapping the button shows the modal; Cancel dismisses; Forget wipes local state and routes through `DispatchActivity`, landing on Login/Setup with the drawer in its signed-out appearance. Exercise the case where Profile was opened from a PersonalID-gated screen (e.g. Messaging) — after Forget, the user should not be able to back-stack to that screen.
 
 ### 4.2 App Manager
 
@@ -238,19 +241,26 @@ After this commit the feature is reachable in production. App Manager and Forget
 
 Manual test: sign in, open drawer — link appears under the user's name and opens the Profile screen.
 
-### 6.2 Remove the old login-screen entries
+### 6.2 Remove the old Forget PersonalID entries
+
+App Manager stays in `LoginActivity` — it must remain reachable for users without PersonalID. Profile keeps its own App Manager menu item as an additional, signed-in-only entry point. Only `Forget PersonalID` is removed from the legacy menus, and it is removed from **both** Login and Setup.
 
 In `LoginActivity.java`:
-- Remove the `menu.add(...)` for `MENU_APP_MANAGER` and `MENU_PERSONAL_ID_FORGET` in `onCreateOptionsMenu` (lines [581](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L581) and [583](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L583)).
-- Remove the corresponding `case` blocks in `onOptionsItemSelected` (lines [615–619](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L615-L619) and [623–628](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L623-L628)).
-- Remove the now-unused `MENU_APP_MANAGER` and `MENU_PERSONAL_ID_FORGET` constants and their entries in `createMenuItemToAnalyticsParamMapping`.
-- Remove the visibility logic for both in `onPrepareOptionsMenu` ([line ~594](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L594)).
+- Remove the `menu.add(...)` for `MENU_PERSONAL_ID_FORGET` in `onCreateOptionsMenu` ([line 583](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L583)).
+- Remove the corresponding `case MENU_PERSONAL_ID_FORGET` block in `onOptionsItemSelected` ([lines 623–628](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L623-L628)).
+- Remove the now-unused `MENU_PERSONAL_ID_FORGET` constant and its entry in `createMenuItemToAnalyticsParamMapping`.
+- Remove the `MENU_PERSONAL_ID_FORGET` visibility logic in `onPrepareOptionsMenu` ([line ~594](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L594)).
+- Leave `MENU_APP_MANAGER`, its `menu.add(...)` ([line 581](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L581)), its `case` block ([lines 615–619](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/LoginActivity.java#L615-L619)), and its analytics mapping entry untouched.
 
-Confirm `AppManagerActivity` has no other entry point you rely on by searching the codebase for `AppManagerActivity`. If a debug-only entry exists, leave it.
+In `CommCareSetupActivity.java`:
+- Remove the `menu.add(...)` for `MENU_PERSONAL_ID_FORGET` in `onCreateOptionsMenu` ([line 500](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/CommCareSetupActivity.java#L500)).
+- Remove the corresponding `case MENU_PERSONAL_ID_FORGET` block in `onOptionsItemSelected` ([lines 643–644](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/CommCareSetupActivity.java#L643-L644)).
+- Remove the now-unused `MENU_PERSONAL_ID_FORGET` constant ([line 132](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/CommCareSetupActivity.java#L132)) and its entry in `createMenuItemToAnalyticsParamMapping` ([line ~660](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/CommCareSetupActivity.java#L660)).
+- Remove the `MENU_PERSONAL_ID_FORGET` visibility logic in `onPrepareOptionsMenu` ([line ~508](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/src/org/commcare/activities/CommCareSetupActivity.java#L508)).
 
-(No `LoginActivity` unit tests reference these menu constants — confirmed by grep against `app/unit-tests` and `app/instrumentation-tests`.)
+(No unit or instrumentation tests reference these menu constants — confirmed by grep against `app/unit-tests` and `app/instrumentation-tests`.)
 
-Manual test: the login screen's 3-dot menu no longer shows either item; both are reachable from the Profile screen instead.
+Manual test: neither the Login nor the Setup 3-dot menu shows `Forget PersonalID`; the action is reachable from the Profile screen instead. The Login menu still shows `App Manager`.
 
 ### 6.3 Docs
 
