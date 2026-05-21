@@ -302,7 +302,7 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
         try {
             startCamera();
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Exception e) {
             logErrorAndExit("Error restarting camera in manual mode", "microimage.camera.start.failed", e);
         }
     }

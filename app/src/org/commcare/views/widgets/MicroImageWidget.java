@@ -11,6 +11,7 @@ import org.commcare.fragments.MicroImageActivity;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.modern.util.Pair;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.ImageSizeTooLargeException;
 import org.commcare.utils.MediaUtil;
 import org.javarosa.core.model.data.Base64ImageData;
 import org.javarosa.core.model.data.IAnswerData;
@@ -46,7 +47,7 @@ public class MicroImageWidget extends ImageWidget{
     @Override
     public void setBinaryData(Object binaryPath) {
         if (mBinaryName != null) {
-            deleteMedia();
+            clearBinaryAttachment();
         }
 
         File f = new File(binaryPath.toString());
@@ -63,7 +64,7 @@ public class MicroImageWidget extends ImageWidget{
             scaledDownBitmap = scaleImage(originalImage, IMAGE_DIMEN_SCALED_MAX_PX, IMAGE_DIMEN_SCALED_MAX_PX);
             compressedBitmapByteArray = MediaUtil.compressBitmapToTargetSize(scaledDownBitmap, MICRO_IMAGE_MAX_SIZE_BYTES);
             mBinary = Base64.encodeToString(compressedBitmapByteArray, Base64.DEFAULT);
-        } catch (Exception e) {
+        } catch (Exception | ImageSizeTooLargeException e) {
             showToast("microimage.scalingdown.compression.error");
             Logger.exception("Error while scaling down and compressing image: ", e);
             return;
@@ -86,8 +87,8 @@ public class MicroImageWidget extends ImageWidget{
     }
 
     @Override
-    protected void deleteMedia() {
-        super.deleteMedia();
+    public void clearBinaryAttachment() {
+        super.clearBinaryAttachment();
         mBinary = null;
     }
 
