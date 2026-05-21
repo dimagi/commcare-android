@@ -36,7 +36,7 @@ class ConnectReleaseTogglesWorker(
                     errorCode: PersonalIdOrConnectApiErrorCodes,
                     t: Throwable?,
                 ) {
-                    Logger.exception("Failed to get feature release toggles in background!", t)
+                    Logger.exception("Failed to get feature release toggles in background!", t!!)
 
                     if (errorCode == PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR) {
                         continuation.resume(Result.retry())
