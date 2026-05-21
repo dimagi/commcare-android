@@ -21,7 +21,7 @@ When an FLW launches a learn/deliver app from any Connect page:
    4. Local-then-remote login. Dialog updates to *"Signing you in…"*.
    5. Data pull. Dialog updates to *"Syncing data…"* with percentage where available.
    6. Post-success side-effects (analytics, notification clears, etc.).
-3. On success → fragment starts the appropriate Home or Connect Opportunity Info activity. Dialog dismisses.
+3. On success → fragment starts the Home activity. Dialog dismisses.
 4. On failure → dialog dismisses, fragment routes by reason:
    - **Global token-denied handler** — for `TokenRequestDenied`. The fragment delegates to [`TokenExceptionHandler.handleTokenDeniedException()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/network/TokenExceptionHandler.kt#L19) and shows no in-fragment dialog. This matches the established Connect-API behavior for token denials.
    - **Damaged-app routing** — for seat failures. `CommCareApplication.initializeAppResources()` already marks the app `STATE_CORRUPTED` and reports the exception via `ForceCloseLogger` / `CrashUtil`. Preserve [`DispatchActivity.handleDamagedApp()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L292) by starting `DispatchActivity` with `FLAG_ACTIVITY_CLEAR_TOP`; its existing `STATE_CORRUPTED` check at [`DispatchActivity.java:211`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L211) routes to `RecoveryActivity`.
@@ -132,14 +132,13 @@ Five phases, each a separate JIRA ticket, listed in dependency order. Classes in
 **New files** (`org.commcare.login`):
 
 - **`PostLoginRouter`** — pure Kotlin, no Android dependencies.
-  - Input: `LoginResult` + `LaunchContext` (Connect-initiated vs not, target `appId`, `restoreSession`, `jobId`).
+  - Input: `LoginResult` + `LaunchContext` (Connect-initiated vs not, target `appId`, `restoreSession`).
   - Output: `PostLoginDestination`:
-    - `Home(loginMode, startFromLogin, manualSwitchToPwMode, personalIdManagedLogin)`
-    - `ConnectOpportunityInfo(jobId, loginMode)` — this is the existing post-login-to-Connect-opportunity routing, not new UX. Today the flag is written by [`LoginActivity.setResultAndFinish()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/LoginActivity.java#L540) (and also by [`HomeScreenBaseActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/HomeScreenBaseActivity.java#L589) when returning from a Connect-launched session) and consumed by [`DispatchActivity.onActivityResult(LOGIN_USER)`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L494). `PostLoginRouter` becomes the single producer; consumers are unchanged
+    - `Home(loginMode, startFromLogin, manualSwitchToPwMode, personalIdManagedLogin)` — the only success destination.
     - `TerminalFailure(reason: FailureReason)`
   - `FailureReason` sealed class: `object BadCredentials`, `object LinkedAppRecordMissing`, `object ConnectLinkageInvalid`, `object TokenDenied`, `object AppSeatFailed`, `data class SyncFailed(val reason: String)`, `object NetworkUnavailable`, `object AlreadyLaunching`. (Parameterless reasons are `object`s; only `SyncFailed` carries data.)
 
-- **`PostLoginDestination.toIntent(context, launchContext): Intent`** — extension defined only on `Home` and `ConnectOpportunityInfo`. The string extras consumed by [`RootMenuHomeActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/RootMenuHomeActivity.java) / [`StandardHomeActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/StandardHomeActivity.java) / [`ConnectNavHelper`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/ConnectNavHelper.kt) are unchanged; this is now the single producer.
+- **`PostLoginDestination.toIntent(context, launchContext): Intent`** — extension defined on `Home`. The string extras consumed by [`RootMenuHomeActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/RootMenuHomeActivity.java) / [`StandardHomeActivity`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/StandardHomeActivity.java) are unchanged; this is now the single producer.
 
 - **`AppSeater`** — `suspend fun seatIfNeeded(appId: String, sink: LoginProgressSink): SeatResult`. Ports the body of [`SeatAppActivity.SeatAppProcess.run()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/SeatAppActivity.java#L100) into a suspend function that wraps `CommCareApplication.instance().initializeAppResources(...)` in `withContext(Dispatchers.IO)`. Preserve existing try/catch/finally and `FirebaseAnalyticsUtil` reporting verbatim — caught exceptions surface as `SeatResult.Failed(reason)`. Used by `ConnectAppLauncher` in Phase 3.
 
@@ -194,7 +193,7 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 4. `credentialResolver.resolve(appId, createIfNeeded = true)`. Null → `Failed(LinkedAppRecordMissing)`.
 5. `sink` shows *"Signing you in…"*. Call `loginController.performLogin(request, sink)`. While the data pull runs (inside `performLogin`), `SyncOperations`'s progress lambda updates the sink to *"Syncing data…"* with percentage where available.
 6. Translate the `LoginResult` via `PostLoginRouter`:
-   - `Success` → `Home` / `ConnectOpportunityInfo` → `toIntent(...)` → `SilentLaunchOutcome.Success(intent)`.
+   - `Success` → `Home` → `toIntent(...)` → `SilentLaunchOutcome.Success(intent)`.
    - Any failure → `Failed(<corresponding reason>)`.
 7. Release the in-flight lock in `finally`.
 
@@ -220,7 +219,7 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 
 **Acceptance:**
 
-- Tapping an opportunity for a healthy account: no `LoginActivity` or `SeatAppActivity`. Progress dialog visible throughout with phase-specific messages. Lands on Home or Opportunity Info as appropriate. Time-to-home drops by at least one Activity transition.
+- Tapping an opportunity for a healthy account: no `LoginActivity` or `SeatAppActivity`. Progress dialog visible throughout with phase-specific messages. Lands on Home. Time-to-home drops by at least one Activity transition.
 - Tapping again while a launch is in flight: silent no-op.
 - No biometric / PIN prompt appears at any point in the silent launch.
 - `BadCredentials` / `LinkedAppRecordMissing` / `ConnectLinkageInvalid`: each is logged via `Logger` + Firebase with the distinct reason string; the fragment shows the same retry/cancel dialog used for `SyncFailed` / `NetworkUnavailable`; no `forgetUser` call is made from the silent path.
