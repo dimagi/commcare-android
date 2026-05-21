@@ -111,6 +111,7 @@ class ConnectOpportunitiesParserTest {
 
         assertEquals(0, result.size)
         verify(exactly = 1) { ConnectJobUtils.storeJobs(any(), match { it.isEmpty() }, true) }
+        verify(exactly = 0) { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) }
     }
 
     @Test
@@ -133,7 +134,8 @@ class ConnectOpportunitiesParserTest {
     @Test
     fun `parse returns all parsed jobs when JSON contains multiple valid entries`() {
         val inputStream = jsonArrayOf(validJobJson(1), validJobJson(2))
-        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 2
+        every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
 
         val result = parser.parse(200, inputStream, null)
 
@@ -158,7 +160,7 @@ class ConnectOpportunitiesParserTest {
     @Test
     fun `parse schedules feature toggle fetch when storeJobs returns more than zero new jobs`() {
         val inputStream = jsonArrayOf(validJobJson(1))
-        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 2
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
         every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
 
         parser.parse(200, inputStream, null)
@@ -167,24 +169,14 @@ class ConnectOpportunitiesParserTest {
     }
 
     @Test
-    fun `parse does not schedule feature toggle fetch when storeJobs returns zero new jobs`() {
-        val inputStream = jsonArrayOf(validJobJson(1))
-        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
-
-        parser.parse(200, inputStream, null)
-
-        verify(exactly = 0) { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) }
-    }
-
-    @Test
     fun `parse reports successful api call with correct job counts`() {
         val inputStream = jsonArrayOf(validJobJson(1))
-        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 3
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
         every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
 
         parser.parse(200, inputStream, null)
 
-        verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccApiJobs(true, 1, 3) }
+        verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccApiJobs(true, 1, 1) }
     }
 
     @Test
@@ -202,7 +194,7 @@ class ConnectOpportunitiesParserTest {
 
         try {
             parser.parse(200, inputStream, null)
-        } catch (e: JSONException) {
+        } catch (_: JSONException) {
             // expected
         }
 
