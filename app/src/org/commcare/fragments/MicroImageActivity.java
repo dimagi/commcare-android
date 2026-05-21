@@ -318,7 +318,8 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
             }
             byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap, getMaxImageSize());
             String finalImageAsBase64 = BASE_64_IMAGE_PREFIX + Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
-            finishWithResul(finalImageAsBase64);
+            finalizeImageCaptureForWidget(faceArea);
+            //finishWithResul(finalImageAsBase64);
         } catch (IOException | ImageSizeTooLargeException e) {
             logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
         } finally {

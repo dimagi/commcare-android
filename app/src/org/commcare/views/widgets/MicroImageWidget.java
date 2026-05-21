@@ -18,13 +18,14 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryPrompt;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MicroImageWidget extends ImageWidget {
     private static final int IMAGE_DIMEN_SCALED_MAX_PX = 72;
-    private static final int MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
+    private static final int MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024 * 1024;
 
     private String mBinary;
 
@@ -61,8 +62,8 @@ public class MicroImageWidget extends ImageWidget {
         Bitmap scaledDownBitmap = null;
         byte[] compressedBitmapByteArray;
         try {
-            scaledDownBitmap = scaleImage(originalImage, IMAGE_DIMEN_SCALED_MAX_PX, IMAGE_DIMEN_SCALED_MAX_PX);
-            compressedBitmapByteArray = MediaUtil.compressBitmapToTargetSize(scaledDownBitmap, MICRO_IMAGE_MAX_SIZE_BYTES);
+            //scaledDownBitmap = scaleImage(originalImage, IMAGE_DIMEN_SCALED_MAX_PX, IMAGE_DIMEN_SCALED_MAX_PX);
+            compressedBitmapByteArray = MediaUtil.compressBitmapToTargetSize(originalImage, MICRO_IMAGE_MAX_SIZE_BYTES);
             mBinary = Base64.encodeToString(compressedBitmapByteArray, Base64.DEFAULT);
         } catch (Exception | ImageSizeTooLargeException e) {
             showToast("microimage.scalingdown.compression.error");
