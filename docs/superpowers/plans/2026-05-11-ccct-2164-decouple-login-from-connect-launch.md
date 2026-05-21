@@ -23,7 +23,7 @@ When an FLW launches a learn/deliver app from any Connect page:
    6. Post-success side-effects (analytics, notification clears, etc.).
 3. On success → fragment starts the Home activity. Dialog dismisses.
 4. On failure → dialog dismisses, fragment routes by reason:
-   - **Global token-denied handler** — for `TokenRequestDenied`. The fragment delegates to [`TokenExceptionHandler.handleTokenDeniedException()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/network/TokenExceptionHandler.kt#L19) and shows no in-fragment dialog. This matches the established Connect-API behavior for token denials.
+   - **Global token-denied handler** — for `TokenDenied` (sourced from `HttpCalloutOutcomes.TokenRequestDenied`). The fragment delegates to [`TokenExceptionHandler.handleTokenDeniedException()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/network/TokenExceptionHandler.kt#L19) and shows no in-fragment dialog. This matches the established Connect-API behavior for token denials.
    - **Damaged-app routing** — for seat failures. `CommCareApplication.initializeAppResources()` already marks the app `STATE_CORRUPTED` and reports the exception via `ForceCloseLogger` / `CrashUtil`. Preserve [`DispatchActivity.handleDamagedApp()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L292) by starting `DispatchActivity` with `FLAG_ACTIVITY_CLEAR_TOP`; its existing `STATE_CORRUPTED` check at [`DispatchActivity.java:211`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L211) routes to `RecoveryActivity`.
    - **Retry / Cancel error dialog** — for every other failure: sync failures (including sync-payload parsing errors [`PullTaskResult.BAD_DATA`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/tasks/DataPullTask.java#L421) / `BAD_DATA_REQUIRES_INTERVENTION` where `DataPullTask.wipeLoginIfItOccurred()` has already cleaned up partial state), network failures, and credential failures. The realistic failure modes here are network and token denial. Every case logs to `Logger` + Firebase with a specific reason string and surfaces a generic retry/cancel dialog. There is no in-fragment forget-PersonalID flow — the existing sidebar "Sign Out" option remains the recovery surface if a user genuinely gets stuck.
 
@@ -127,7 +127,7 @@ Five phases, each a separate JIRA ticket, listed in dependency order. Classes in
 **New files** (`org.commcare.login`):
 
 - **`PostLoginRouter`** — pure Kotlin, no Android dependencies.
-  - Input: `LoginResult` + `LaunchContext` (Connect-initiated vs not, target `appId`, `restoreSession`).
+  - Input: `LoginResult` + `LaunchContext` (Connect-initiated vs not, target `appId`, `restoreSession`). `LaunchContext` shapes the Home intent's extras (e.g., `connectManagedLogin`, the target `appId`, and `restoreSession`) — the router has only one destination, but the intent it produces varies by launch source.
   - Output: `PostLoginDestination`:
     - `Home(loginMode, startFromLogin, manualSwitchToPwMode, personalIdManagedLogin)` — the only success destination.
     - `TerminalFailure(reason: FailureReason)`
@@ -148,7 +148,7 @@ Five phases, each a separate JIRA ticket, listed in dependency order. Classes in
 - No behavior change for `LoginActivity` flows.
 - All writes into Home-activity extras go through `toIntent(...)`.
 - `SeatAppActivity` no longer holds its own seat implementation; both seat paths route through `AppSeater`.
-- JVM unit tests on `PostLoginRouter`, `PostLoginDestination.toIntent` (table-driven), `AppSeater` (Firebase reporting preserved on failure).
+- JVM unit tests on `PostLoginRouter`, `PostLoginDestination.toIntent` (Home-extras correctness across each `LaunchContext` shape), `AppSeater` (Firebase reporting preserved on failure).
 
 ### Phase 3 — Silent launch path (Connect opportunities list)
 
@@ -185,13 +185,14 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 
 1. Try to acquire the in-flight lock. If held → return `Failed(AlreadyLaunching)`.
 2. `closeUserSession()`.
-3. `appSeater.seatIfNeeded(appId, sink)`. `sink` shows *"Setting up the app…"*. On `SeatResult.Failed` → `Failed(AppSeatFailed)`. The seat failure has already flipped the app's resource state to `STATE_CORRUPTED` inside `CommCareApplication.initializeAppResources()`, which the fragment uses to drive damaged-app routing.
-4. `credentialResolver.resolve(appId, createIfNeeded = true)` — returns non-null on success, throws on impossible state (matches today's `ConnectAppUtils.getPasswordOverride()` `RuntimeException`). The exception propagates out of `launch()` as a programming-error crash.
-5. `sink` shows *"Signing you in…"*. Call `loginController.performLogin(request, sink)`. While the data pull runs (inside `performLogin`), `SyncOperations`'s progress lambda updates the sink to *"Syncing data…"* with percentage where available.
-6. Translate the `LoginResult` via `PostLoginRouter`:
+3. `FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId)` where `appType = if (isLearning) "Learn" else "Deliver"`. Matches today's [`ConnectAppUtils.launchApp`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/connect/ConnectAppUtils.kt#L120) call site.
+4. `appSeater.seatIfNeeded(appId, sink)`. `sink` shows *"Setting up the app…"*. On `SeatResult.Failed` → `Failed(AppSeatFailed)`. The seat failure has already flipped the app's resource state to `STATE_CORRUPTED` inside `CommCareApplication.initializeAppResources()`, which the fragment uses to drive damaged-app routing.
+5. `credentialResolver.resolve(appId, createIfNeeded = true)` — returns non-null on success, throws on impossible state (matches today's `ConnectAppUtils.getPasswordOverride()` `RuntimeException`). The exception propagates out of `launch()` as a programming-error crash.
+6. `sink` shows *"Signing you in…"*. Call `loginController.performLogin(request, sink)`. While the data pull runs (inside `performLogin`), `SyncOperations`'s progress lambda updates the sink to *"Syncing data…"* with percentage where available.
+7. Translate the `LoginResult` via `PostLoginRouter`:
    - `Success` → `Home` → `toIntent(...)` → `SilentLaunchOutcome.Success(intent)`.
    - Any failure → `Failed(<corresponding reason>)`.
-7. Release the in-flight lock in `finally`.
+8. Release the in-flight lock in `finally`.
 
 `CancellationException` propagates from `launch`; the caller's scope handles it.
 
@@ -265,7 +266,7 @@ No unlock host parameter: PersonalID is unlocked by `ConnectActivity`'s entry ga
 
 - Deleting `LoginActivity`. Manual launches, MDM, shortcuts, and [`needAnotherAppLogin()`](https://github.com/dimagi/commcare-android/blob/684512e2662996c9855e35af306da3e311e56c80/app/src/org/commcare/activities/DispatchActivity.java#L251) still need it.
 - Reworking `RootMenuHomeActivity` / `StandardHomeActivity` to consume `PostLoginDestination` directly. They keep reading string extras; `toIntent(...)` is the single producer.
-- Migrating `LoginActivity`'s seat path off `SeatAppActivity`.
+- Removing `SeatAppActivity` entirely. The activity remains as the UI host for `LoginActivity`'s seat path — only its internals are rewritten to delegate to `AppSeater`.
 - Cooperative cancellation inside `ManageKeyRecordTask` / `DataPullTask`.
 - First-time-on-device flow (no `UserKeyRecord` yet — must sync with `LoginActivity` UI visible).
 - Multi-user device flows where switching apps requires re-prompt.
