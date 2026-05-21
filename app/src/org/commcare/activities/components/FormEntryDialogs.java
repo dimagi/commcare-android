@@ -5,6 +5,7 @@ import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.location.LocationManager;
 import android.view.View;
@@ -32,9 +33,22 @@ import java.util.Set;
 
 public class FormEntryDialogs {
     /**
-     * Create a dialog with options to save and exit, save, or quit without saving
+     * Create a dialog with options to save and exit, save, or quit without saving.
      */
     public static void createQuitDialog(final FormEntryActivity activity, boolean isIncompleteEnabled) {
+        createQuitDialog(activity, isIncompleteEnabled, null);
+    }
+
+    /**
+     * Quit dialog. When {@code pendingNav} is non-null, exiting the form should also navigate
+     * the user elsewhere (e.g., tapping a push notification while the form is open):
+     * Stay dismisses and drops pendingNav. Discard calls discardChangesAndExit() then starts
+     * pendingNav. Save stashes pendingNav on the activity and triggers an EXIT-flavored save;
+     * the activity dispatches pendingNav in savingComplete after the save succeeds.
+     */
+    public static void createQuitDialog(final FormEntryActivity activity,
+                                        boolean isIncompleteEnabled,
+                                        final Intent pendingNav) {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(activity,
                 StringUtils.getStringRobust(activity, R.string.quit_form_title));
 
@@ -47,7 +61,11 @@ public class FormEntryDialogs {
         View.OnClickListener exitFormListener = v -> {
             dialog.dismiss();
             hideVirtualKeyboard(activity);
-            activity.discardChangesAndExit();
+            if (pendingNav != null) {
+                activity.discardChangesAndExitToPendingNav(pendingNav);
+            } else {
+                activity.discardChangesAndExit();
+            }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(activity, R.string.do_not_save),
@@ -57,6 +75,9 @@ public class FormEntryDialogs {
         DialogChoiceItem[] items;
         if (isIncompleteEnabled) {
             View.OnClickListener saveIncompleteListener = v -> {
+                if (pendingNav != null) {
+                    activity.setPendingNavAfterSave(pendingNav);
+                }
                 activity.saveFormToDisk(FormEntryConstants.EXIT);
                 dialog.dismiss();
             };

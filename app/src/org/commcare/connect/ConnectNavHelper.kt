@@ -18,10 +18,11 @@ import org.commcare.personalId.UnlockPolicy
 object ConnectNavHelper {
     private fun unlockAndGoTo(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy,
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS) { success ->
+        PersonalIdUnlocker.unlock(activity, policy) { success ->
             if (success) {
                 navigationAction(activity)
             }
@@ -31,9 +32,10 @@ object ConnectNavHelper {
 
     fun unlockAndGoToMessaging(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToMessaging)
+        unlockAndGoTo(activity, policy, listener, ::goToMessaging)
     }
 
     fun goToMessaging(context: Context) {
@@ -49,9 +51,10 @@ object ConnectNavHelper {
 
     fun unlockAndGoToWorkHistory(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToWorkHistory)
+        unlockAndGoTo(activity, policy, listener, ::goToWorkHistory)
     }
 
     fun goToWorkHistory(context: Context) {
@@ -61,9 +64,10 @@ object ConnectNavHelper {
 
     fun unlockAndGoToConnectJobsList(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToConnectJobsList)
+        unlockAndGoTo(activity, policy, listener, ::goToConnectJobsList)
     }
 
     fun goToConnectJobsList(context: Context) {

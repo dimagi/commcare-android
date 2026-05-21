@@ -1,6 +1,5 @@
 package org.commcare.fragments.base
 
-import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -48,6 +47,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var connectivityManager: ConnectivityManager? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var lastDataState: DataState<*>? = null
+    private var wasOffline: Boolean = false
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -185,7 +185,12 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 is DataState.Success -> {
                     hideLoading()
                     hideError()
-                    showSyncSuccess()
+                    if (wasOffline) {
+                        showBackOnline()
+                    } else {
+                        showSyncSuccess()
+                    }
+                    wasOffline = false
                     onSuccess.accept(state.data)
                 }
 
@@ -210,9 +215,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         mNetworkStatusBarViewController!!.showMessage(getString(R.string.connect_sync_successful))
     }
 
+    private fun showBackOnline() {
+        mNetworkStatusBarViewController!!.showBackOnline(getString(R.string.connect_sync_successful))
+    }
+
     private fun shouldMonitorNetwork(): Boolean = this is RefreshableFragment
 
     private fun showOfflineIndicator() {
+        wasOffline = true
         val relativeTime = getRelativeLastSyncTime()
         val message = getString(R.string.connect_last_synced, relativeTime)
         mNetworkStatusBarViewController!!.showOfflineStatus(message)
