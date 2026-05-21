@@ -29,7 +29,6 @@ import java.util.Date
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PushNotificationApiHelperTest {
-
     private fun buildRecord(): PushNotificationRecord =
         PushNotificationRecord().apply {
             action = "ccc_opportunity_summary_page"
@@ -51,7 +50,7 @@ class PushNotificationApiHelperTest {
         }
 
     @Test
-    fun convertPNRecordToPayload_allFields_mappedToCorrectKeys() {
+    fun `convertPNRecordToPayload maps all record fields to the correct payload keys`() {
         val record = buildRecord()
         val payload = PushNotificationApiHelper.convertPNRecordToPayload(record)
 
@@ -74,32 +73,44 @@ class PushNotificationApiHelperTest {
     }
 
     @Test
-    fun convertPNRecordToPayload_containsExactlyExpectedKeys() {
+    fun `convertPNRecordToPayload returns a payload containing exactly the expected keys`() {
         val payload = PushNotificationApiHelper.convertPNRecordToPayload(buildRecord())
-        val expectedKeys = setOf(
-            REDIRECT_ACTION, NOTIFICATION_TITLE, NOTIFICATION_BODY,
-            NOTIFICATION_ID, NOTIFICATION_TIME_STAMP, NOTIFICATION_STATUS,
-            NOTIFICATION_MESSAGE_ID, NOTIFICATION_CHANNEL_ID, OPPORTUNITY_ID,
-            OPPORTUNITY_UUID, PAYMENT_UUID, PAYMENT_ID, NOTIFICATION_KEY,
-            OPPORTUNITY_STATUS, META_SESSION_ENDPOINT_ID, META_REQUIRE_APP_SYNC,
-        )
+        val expectedKeys =
+            setOf(
+                REDIRECT_ACTION,
+                NOTIFICATION_TITLE,
+                NOTIFICATION_BODY,
+                NOTIFICATION_ID,
+                NOTIFICATION_TIME_STAMP,
+                NOTIFICATION_STATUS,
+                NOTIFICATION_MESSAGE_ID,
+                NOTIFICATION_CHANNEL_ID,
+                OPPORTUNITY_ID,
+                OPPORTUNITY_UUID,
+                PAYMENT_UUID,
+                PAYMENT_ID,
+                NOTIFICATION_KEY,
+                OPPORTUNITY_STATUS,
+                META_SESSION_ENDPOINT_ID,
+                META_REQUIRE_APP_SYNC,
+            )
         assertEquals(expectedKeys, payload.keys)
     }
 
     @Test
-    fun convertPNRecordsToPayload_nullList_returnsEmptyList() {
+    fun `convertPNRecordsToPayload returns an empty list when given a null list`() {
         val result = PushNotificationApiHelper.convertPNRecordsToPayload(null)
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun convertPNRecordsToPayload_emptyList_returnsEmptyList() {
+    fun `convertPNRecordsToPayload returns an empty list when given an empty list`() {
         val result = PushNotificationApiHelper.convertPNRecordsToPayload(emptyList())
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun convertPNRecordsToPayload_twoRecords_returnsTwoMappedPayloads() {
+    fun `convertPNRecordsToPayload maps two records to two payloads in order`() {
         val record1 = buildRecord().apply { action = "action_one" }
         val record2 = buildRecord().apply { action = "action_two" }
         val result = PushNotificationApiHelper.convertPNRecordsToPayload(listOf(record1, record2))
