@@ -34,8 +34,6 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
      * does NOT go through those, so this is null in the legacy flow.
      */
     private var personalIdSessionData: PersonalIdSessionData? = null
-    private var isLegacyFlow: Boolean = false
-    private var isRecovery: Boolean = false
 
     /**
      * Email the user typed on the previous screen, threaded in as a nav arg. This is the
@@ -43,6 +41,12 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
      * succeeds (see [onEmailVerified]).
      */
     private lateinit var enteredEmail: String
+
+    /**
+     * Launch context for this screen — distinguishes brand-new signup, account recovery,
+     * and the legacy "existing user adding email" entry point. Read from a required nav arg.
+     */
+    private lateinit var workflow: EmailWorkFlow
 
     private val resendHandler = Handler(Looper.getMainLooper())
     private var otpRequestTime: Long = 0L
@@ -77,12 +81,8 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             ViewModelProvider(requireActivity())
                 .get(PersonalIdSessionDataViewModel::class.java)
                 .personalIdSessionData
-        isLegacyFlow = arguments?.getBoolean(PersonalIdEmailFragment.ARG_IS_LEGACY_FLOW, false) ?: false
-        isRecovery = arguments?.getBoolean(PersonalIdEmailFragment.ARG_IS_RECOVERY, false) ?: false
-        enteredEmail =
-            requireNotNull(arguments?.getString(PersonalIdEmailFragment.ARG_ENTERED_EMAIL)) {
-                "PersonalIdEmailVerificationFragment requires the entered email as a nav arg"
-            }
+        enteredEmail = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).email
+        workflow = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).workflow
     }
 
     override fun onCreateView(
@@ -156,8 +156,8 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         }.sendEmailOtp(
             requireActivity(),
             enteredEmail,
-            if (isLegacyFlow) null else personalIdSessionData?.token,
-            if (isLegacyFlow) user else null,
+            if (workflow == EmailWorkFlow.EXISTING_USER) null else personalIdSessionData?.token,
+            if (workflow == EmailWorkFlow.EXISTING_USER) user else null,
         )
     }
 
@@ -191,39 +191,34 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             requireActivity(),
             enteredEmail,
             otp,
-            if (isLegacyFlow) null else personalIdSessionData?.token,
-            if (isLegacyFlow) user else null,
+            if (workflow == EmailWorkFlow.EXISTING_USER) null else personalIdSessionData?.token,
+            if (workflow == EmailWorkFlow.EXISTING_USER) user else null,
         )
     }
 
     private fun onEmailVerified() {
-        when {
+        when (workflow) {
             // Legacy: write straight to the existing ConnectUserRecord; session data is not
             // populated on this entry path, so do NOT touch personalIdSessionData here.
-            isLegacyFlow -> {
+            EmailWorkFlow.EXISTING_USER -> {
                 val user = ConnectUserDatabaseUtil.getUser(requireActivity())
                 user.email = enteredEmail
                 ConnectUserDatabaseUtil.storeUser(requireActivity(), user)
-                requireActivity().finish()
+                showEmailAddedSuccessDialog()
             }
 
             // Recovery: stamp the verified address onto session data so
             // PersonalIdRecoveryCompleter writes it to the new ConnectUserRecord.
-            isRecovery -> {
+            EmailWorkFlow.RECOVERY -> {
                 personalIdSessionData!!.email = enteredEmail
                 finalizeRecoveryAndShowSuccess()
             }
 
             // Signup: stamp it on session data; PhotoCapture will read it later when it
             // persists the new ConnectUserRecord.
-            else -> {
+            EmailWorkFlow.REGISTRATION -> {
                 personalIdSessionData!!.email = enteredEmail
-                binding.root
-                    .findNavController()
-                    .navigate(
-                        PersonalIdEmailVerificationFragmentDirections
-                            .actionPersonalidEmailVerificationToPersonalidPhotoCapture(),
-                    )
+                navigateToPhotoCapture()
             }
         }
     }
@@ -260,27 +255,50 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         commCareActivity.showAlertDialog(dialog)
     }
 
+    /**
+     * Confirms to the legacy (already-logged-in) user that the email was saved, then closes
+     * the activity once they acknowledge. The dialog is non-cancellable so the user must
+     * press OK — the DB write already succeeded by the time we get here.
+     */
+    private fun showEmailAddedSuccessDialog() {
+        val commCareActivity = requireActivity() as CommCareActivity<*>
+        val dialog =
+            StandardAlertDialog(
+                getString(R.string.personalid_email_added_title),
+                getString(R.string.personalid_email_added_message),
+            )
+        dialog.setPositiveButton(getString(R.string.ok)) { _, _ ->
+            commCareActivity.dismissAlertDialog()
+            requireActivity().finish()
+        }
+        commCareActivity.showAlertDialog(dialog)
+    }
+
     private fun proceedWithoutEmail() {
         // No need to null out sessionData.email — only the OTP-verify success path writes it,
         // and that path was not taken on this branch.
-        when {
-            isLegacyFlow -> {
+        when (workflow) {
+            EmailWorkFlow.EXISTING_USER -> {
                 requireActivity().finish()
             }
 
-            isRecovery -> {
+            EmailWorkFlow.RECOVERY -> {
                 finalizeRecoveryAndShowSuccess()
             }
 
-            else -> {
-                binding.root
-                    .findNavController()
-                    .navigate(
-                        PersonalIdEmailVerificationFragmentDirections
-                            .actionPersonalidEmailVerificationToPersonalidPhotoCapture(),
-                    )
+            EmailWorkFlow.REGISTRATION -> {
+                navigateToPhotoCapture()
             }
         }
+    }
+
+    private fun navigateToPhotoCapture() {
+        binding.root
+            .findNavController()
+            .navigate(
+                PersonalIdEmailVerificationFragmentDirections
+                    .actionPersonalidEmailVerificationToPersonalidPhotoCapture(),
+            )
     }
 
     private fun clearError() {

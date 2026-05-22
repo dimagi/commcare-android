@@ -279,6 +279,8 @@ License.
     <string name="personalid_email_otp_failed_message">आपने 3 बार गलत कोड दर्ज किया है। क्या आप पुनः प्रयास करना चाहते हैं या ईमेल जोड़े बिना आगे बढ़ना चाहते हैं?</string>
     <string name="personalid_email_otp_failed_retry">पुनः प्रयास करें</string>
     <string name="personalid_email_otp_failed_skip">ईमेल के बिना आगे बढ़ें</string>
+    <string name="personalid_email_added_title">ईमेल जोड़ा गया</string>
+    <string name="personalid_email_added_message">आपका ईमेल सफलतापूर्वक जोड़ दिया गया है।</string>
     <string name="connect_recovery_success_title">खाता पुनर्प्राप्त किया गया</string>
     <string name="connect_recovery_success_message">आपका खाता पुनर्प्राप्त कर लिया गया है! आप PersonalID का उपयोग फिर से शुरू कर सकते हैं।</string>
     <string name="connect_unlock_title">PersonalId अनलॉक करें</string>

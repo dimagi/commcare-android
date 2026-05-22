@@ -161,6 +161,8 @@
     <string name="personalid_email_otp_failed_message">Du har skrevet inn feil kode 3 ganger. Vil du prøve igjen eller fortsette uten å legge til en e-postadresse?</string>
     <string name="personalid_email_otp_failed_retry">Prøv igjen</string>
     <string name="personalid_email_otp_failed_skip">Fortsett uten e-post</string>
+    <string name="personalid_email_added_title">E-post lagt til</string>
+    <string name="personalid_email_added_message">E-postadressen din er lagt til.</string>
     <string name="connect_recovery_success_message">Kontoen din er blitt gjenopprettet! Du kan gjenoppta bruken av PersonalID.</string>
     <string name="connect_register_success_message">Kontoen din er blitt opprettet og er klar til bruk</string>
     <string name="connect_backup_code_remember">Sørg for å huske reservekoden din! Den må være på %d sifre. Oppbevar den på et trygt sted, da du trenger den for å få tilgang til kontoen din igjen.</string>

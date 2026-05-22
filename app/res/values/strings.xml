@@ -393,6 +393,8 @@
     <string name="personalid_email_otp_failed_message">You\'ve entered an incorrect code 3 times. Would you like to try again or proceed without adding an email address?</string>
     <string name="personalid_email_otp_failed_retry">Try again</string>
     <string name="personalid_email_otp_failed_skip">Proceed without email</string>
+    <string name="personalid_email_added_title">Email Added</string>
+    <string name="personalid_email_added_message">Your email has been added successfully.</string>
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>

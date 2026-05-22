@@ -280,6 +280,8 @@
     <string name="personalid_email_otp_failed_message">Umeingiza msimbo usio sahihi mara 3. Je, ungependa kujaribu tena au kuendelea bila kuongeza anwani ya barua pepe?</string>
     <string name="personalid_email_otp_failed_retry">Jaribu tena</string>
     <string name="personalid_email_otp_failed_skip">Endelea bila barua pepe</string>
+    <string name="personalid_email_added_title">Barua pepe imeongezwa</string>
+    <string name="personalid_email_added_message">Barua pepe yako imeongezwa kwa mafanikio.</string>
     <string name="connect_recovery_success_title">Akaunti Imerejeshwa</string>
     <string name="connect_recovery_success_message">Akaunti yako imerejeshwa! Unaweza kuendelea kutumia PersonalID.</string>
     <string name="connect_unlock_title">Fungua PersonalId</string>

@@ -161,6 +161,8 @@
     <string name="personalid_email_otp_failed_message">3 kartus įvedėte neteisingą kodą. Ar norite bandyti dar kartą, ar tęsti nepridėdami el. pašto adreso?</string>
     <string name="personalid_email_otp_failed_retry">Bandyti dar kartą</string>
     <string name="personalid_email_otp_failed_skip">Tęsti be el. pašto</string>
+    <string name="personalid_email_added_title">El. paštas pridėtas</string>
+    <string name="personalid_email_added_message">Jūsų el. pašto adresas sėkmingai pridėtas.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
