@@ -28,6 +28,7 @@ import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
 import com.jakewharton.rxbinding2.widget.RxAdapterView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.utils.CrashUtil;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
@@ -372,7 +373,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onStart() {
         super.onStart();
-        hereFunctionHandler.registerListener(this);
     }
 
     @Override
@@ -382,6 +382,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             setResult(RESULT_CANCELED, i);
             finish();
         } else if (!isFinishing() && !isStartingDetailActivity) {
+            hereFunctionHandler.registerListener(this);
+
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);
             }
@@ -477,6 +479,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            if (session.getCommand() == null) {
+                CrashUtil.log("EntitySelectActivity.loadEntities with null session command" +
+                        "; selectDatum=" + (selectDatum == null ? "null" : selectDatum.getDataId()) +
+                        "; isFinishing=" + isFinishing());
+            }
             setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_initializing));
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, selectDatum, evalContext());
             entityLoader.attachListener(this);
@@ -523,6 +530,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         hereFunctionHandler.forbidGpsUse();
+        hereFunctionHandler.unregisterListener();
     }
 
     @Override
@@ -532,7 +540,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             refreshTimer.stop();
         }
         saveLastQueryString();
-        hereFunctionHandler.unregisterListener();
     }
 
     @Override
