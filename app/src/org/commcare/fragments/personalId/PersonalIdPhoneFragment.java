@@ -525,10 +525,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
                 switch (failureCode) {
                     case FORBIDDEN_ERROR:
-                        onConfigurationFailure(
-                                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
-                                getString(R.string.personalid_configuration_process_failed_subtitle)
-                        );
+                        onIntegrityConfigurationError();
                         break;
                     case INTEGRITY_ERROR:
                         handleIntegritySubError(
@@ -542,10 +539,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                         if (isIntegrityHeadersMissing && token.isEmpty()) {
                             retryWithNewIntegrityToken(body);
                         } else if (isIntegrityHeadersMissing) {
-                            onConfigurationFailure(
-                                    AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
-                                    getString(R.string.personalid_configuration_process_failed_subtitle)
-                            );
+                            onIntegrityConfigurationError();
                         } else {
                             navigateFailure(failureCode, t);
                         }
@@ -557,6 +551,13 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 }
             }
         }.makeStartConfigurationCall(requireActivity(), body, token, requestHash, newSessionData);
+    }
+
+    private void onIntegrityConfigurationError() {
+        onConfigurationFailure(
+                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                getString(R.string.personalid_configuration_process_failed_subtitle)
+        );
     }
 
     private void handleIntegritySubError(
@@ -606,10 +607,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void retryWithNewIntegrityToken(HashMap<String, String> body) {
-        fetchIntegrityTokenAndStartConfiguration(body, exception -> onConfigurationFailure(
-                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
-                getString(R.string.personalid_configuration_process_failed_subtitle)
-        ));
+        fetchIntegrityTokenAndStartConfiguration(body, exception -> onIntegrityConfigurationError());
     }
 
     private void fetchIntegrityTokenAndStartConfiguration(
