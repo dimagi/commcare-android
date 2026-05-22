@@ -30,8 +30,8 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
     /**
      * Activity-scoped session data populated by upstream PersonalID fragments
-     * (phone / biometric / OTP / name / backup-code). The legacy add-email entry point
-     * does NOT go through those, so this is null in the legacy flow.
+     * (phone / biometric / OTP / name / backup-code). The existing user add-email entry point
+     * does NOT go through those, so this is null in the existing user flow.
      */
     private var personalIdSessionData: PersonalIdSessionData? = null
 
@@ -44,7 +44,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,
-     * and the legacy "existing user adding email" entry point. Read from a required nav arg.
+     * and the "existing user adding email" entry point. Read from a required nav arg.
      */
     private lateinit var workflow: EmailWorkFlow
 
@@ -198,7 +198,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
     private fun onEmailVerified() {
         when (workflow) {
-            // Legacy: write straight to the existing ConnectUserRecord; session data is not
+            // Existing user: write straight to the existing ConnectUserRecord; session data is not
             // populated on this entry path, so do NOT touch personalIdSessionData here.
             EmailWorkFlow.EXISTING_USER -> {
                 val user = ConnectUserDatabaseUtil.getUser(requireActivity())
@@ -256,7 +256,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     }
 
     /**
-     * Confirms to the legacy (already-logged-in) user that the email was saved, then closes
+     * Confirms to the exiting (already-logged-in) user that the email was saved, then closes
      * the activity once they acknowledge. The dialog is non-cancellable so the user must
      * press OK — the DB write already succeeded by the time we get here.
      */

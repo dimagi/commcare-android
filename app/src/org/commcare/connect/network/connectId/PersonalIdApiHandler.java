@@ -355,7 +355,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     /**
      * Verifies an email OTP. Uses the PersonalID session token when present
      * (signup / recovery); otherwise authenticates with the supplied
-     * {@code user}'s credentials (legacy flow).
+     * {@code user}'s credentials (existing user flow).
      */
     public void verifyEmailOtp(
             Activity activity,
