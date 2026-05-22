@@ -36,6 +36,9 @@ These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
 
+- **GPS `here()` crash regression:** Using an app configuration that has `here()` in a case list (e.g. a case list that shows distance to GPS coordinates), navigate to that case list and wait for it to fully load. Press Back. Verify the app returns to the previous screen without crashing.
+- **GPS `here()` case list refresh:** Using the same app configuration, navigate to the case list and allow GPS to acquire a location fix. Move to a different location (or simulate a location change) while the list is displayed. Verify the case list automatically refreshes and distance values update accordingly.
+
 - **Android Startup Strings Migration:** Walk the install / setup flows after a fresh install and confirm all on-screen text still renders correctly (no blank labels, no raw `install.button.start`-style keys showing through):
     - Launch a fresh CommCare install — verify the welcome screen ("Welcome to CommCare!" / "Please choose an installation method below") and install-method picker render.
     - Tap **Enter Code** / manual URL install — verify the prompt and the **Start Install** button label render. Submit an invalid URL and confirm the error message ("You did not scan a valid URL...") shows.
