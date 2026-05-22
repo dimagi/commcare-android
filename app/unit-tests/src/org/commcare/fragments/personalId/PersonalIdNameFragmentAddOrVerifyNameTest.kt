@@ -9,6 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.connect.network.ApiService
@@ -25,6 +26,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
+import java.util.concurrent.TimeUnit
 
 /**
  * Tests the `addOrVerifyName` API integration of [PersonalIdNameFragment]. Uses MockWebServer to
@@ -96,10 +98,18 @@ class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest
         ShadowLooper.idleMainLooper()
     }
 
+    /**
+     * Reads the next request with a bounded wait so a missing dispatch fails fast instead of
+     * hanging the suite, then drains delayed UI work so callbacks can run before assertions.
+     */
     private fun drainHttp() {
-        mockWebServer.takeRequest()
+        takeRequestOrFail()
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
     }
+
+    private fun takeRequestOrFail(timeoutSeconds: Long = 5): RecordedRequest =
+        mockWebServer.takeRequest(timeoutSeconds, TimeUnit.SECONDS)
+            ?: throw AssertionError("Expected an HTTP request within ${timeoutSeconds}s but none arrived")
 
     // ========== Request payload ==========
 
@@ -109,8 +119,7 @@ class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest
 
         typeAndContinue("  Margaret Hamilton  ")
 
-        val request = mockWebServer.takeRequest()
-        assertNotNull(request)
+        val request = takeRequestOrFail()
         assertEquals("/users/check_name", request.path)
         assertEquals("POST", request.method)
 
@@ -125,7 +134,7 @@ class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest
 
         typeAndContinue("Ada Lovelace")
 
-        val request = mockWebServer.takeRequest()
+        val request = takeRequestOrFail()
         val authHeader = request.headers["Authorization"]
         assertNotNull("Authorization header should be present", authHeader)
         assertTrue(
@@ -169,6 +178,10 @@ class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest
         assertTrue("Pre-click sanity check: button must be enabled before continue", continueButton().isEnabled)
 
         activity.runOnUiThread { continueButton().performClick() }
+        // Drain only the immediately-posted UI work — running delayed tasks would let the
+        // enqueued mock response settle and weaken the "immediately disabled" guarantee
+        // this test exists to defend.
+        ShadowLooper.idleMainLooper()
 
         assertFalse(
             "Continue button should be disabled the instant verifyOrAddName runs",
