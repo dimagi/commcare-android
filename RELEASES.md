@@ -19,6 +19,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 #### Important Bug Fixes
 
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
+- Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
 
 #### Internal Release Notes
 
