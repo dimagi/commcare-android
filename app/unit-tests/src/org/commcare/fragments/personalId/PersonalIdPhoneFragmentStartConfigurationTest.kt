@@ -5,9 +5,12 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.play.core.integrity.StandardIntegrityManager
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.commcare.CommCareTestApplication
+import org.commcare.android.CommCareViewModelProvider
+import org.commcare.android.integrity.IntegrityTokenViewModel
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.network.ApiService
 import org.commcare.connect.network.base.BaseApiClient
@@ -25,6 +28,10 @@ import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 
@@ -274,7 +281,117 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         )
     }
 
+    // ========== Integrity Retry Tests ==========
+
+    @Test
+    fun testStartConfiguration_missingDataIntegrityHeaders_noToken_retriesAndSucceeds() {
+        setupIntegrityTokenFailThenSucceed()
+        setupFragmentForRequest()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(400)
+                .setBody("""{"error_code": "MISSING_DATA", "error_sub_code": "INTEGRITY_HEADERS"}"""),
+        )
+        mockWebServer.enqueue(createSuccessResponse())
+
+        clickContinueButton()
+
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        assertEquals(
+            "Should navigate to biometric config after successful integrity token retry",
+            R.id.personalid_biometric_config,
+            navController.currentDestination!!.id,
+        )
+    }
+
+    @Test
+    fun testStartConfiguration_missingDataIntegrityHeaders_tokenPresent_noRetry() {
+        setupFragmentForRequest()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(400)
+                .setBody("""{"error_code": "MISSING_DATA", "error_sub_code": "INTEGRITY_HEADERS"}"""),
+        )
+
+        clickContinueButton()
+
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        assertEquals("Should make exactly one request with no retry", 1, mockWebServer.requestCount)
+        assertEquals(
+            "Should navigate to failure screen without retrying",
+            R.id.personalid_message_display,
+            navController.currentDestination!!.id,
+        )
+    }
+
+    @Test
+    fun testStartConfiguration_missingDataIntegrityHeaders_noToken_retryTokenFails_showsError() {
+        setupIntegrityTokenAlwaysFail()
+        setupFragmentForRequest()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(400)
+                .setBody("""{"error_code": "MISSING_DATA", "error_sub_code": "INTEGRITY_HEADERS"}"""),
+        )
+
+        clickContinueButton()
+
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        assertEquals("Should make exactly one request when retry token fails", 1, mockWebServer.requestCount)
+        assertEquals(
+            "Should navigate to failure screen when retry token fails",
+            R.id.personalid_message_display,
+            navController.currentDestination!!.id,
+        )
+        val expectedMessage = activity.getString(R.string.personalid_configuration_process_failed_subtitle)
+        val actualMessage = navController.currentBackStackEntry!!.arguments!!.getString("message")
+        assertEquals("Error message should match integrity failure message", expectedMessage, actualMessage)
+    }
+
     // ========== Helper Methods ==========
+
+    private fun setupIntegrityTokenFailThenSucceed() {
+        val field = CommCareViewModelProvider::class.java.getDeclaredField("integrityTokenViewModel")
+        field.isAccessible = true
+        val mockViewModel = field.get(null) as IntegrityTokenViewModel
+        val mockToken = mock(StandardIntegrityManager.StandardIntegrityToken::class.java)
+        `when`(mockToken.token()).thenReturn(TEST_INTEGRITY_TOKEN)
+
+        doAnswer { invocation ->
+            val callback = invocation.arguments[2] as IntegrityTokenViewModel.IntegrityTokenCallback
+            callback.onTokenFailure(RuntimeException("Token unavailable"))
+            null
+        }.doAnswer { invocation ->
+            val callback = invocation.arguments[2] as IntegrityTokenViewModel.IntegrityTokenCallback
+            val requestHash = invocation.arguments[0] as String
+            callback.onTokenReceived(requestHash, mockToken)
+            null
+        }.`when`(mockViewModel)
+            .requestIntegrityToken(any(), any(), any())
+    }
+
+    private fun setupIntegrityTokenAlwaysFail() {
+        val field = CommCareViewModelProvider::class.java.getDeclaredField("integrityTokenViewModel")
+        field.isAccessible = true
+        val mockViewModel = field.get(null) as IntegrityTokenViewModel
+
+        doAnswer { invocation ->
+            val callback = invocation.arguments[2] as IntegrityTokenViewModel.IntegrityTokenCallback
+            callback.onTokenFailure(RuntimeException("Token unavailable"))
+            null
+        }.`when`(mockViewModel).requestIntegrityToken(any(), any(), any())
+    }
 
     private fun setupFragmentForRequest() {
         val phoneInput = fragment.view!!.findViewById<EditText>(R.id.connect_primary_phone_input)

@@ -61,6 +61,7 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
@@ -341,30 +342,11 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             body.put("device", model);
         }
 
-        integrityTokenApiRequestHelper.withIntegrityToken(
-                body,
-                new IntegrityTokenViewModel.IntegrityTokenCallback() {
-                    @Override
-                    public void onTokenReceived(
-                            @NotNull String requestHash,
-                            @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokenResponse
-                    ) {
-                        makeStartConfigurationCall(requestHash, body, integrityTokenResponse);
-                    }
-
-                    @Override
-                    public void onTokenFailure(@NotNull Exception exception) {
-                        String errorCode = IntegrityTokenApiRequestHelper.Companion.getCodeForException(
-                                exception
-                        );
-                        FirebaseAnalyticsUtil.reportPersonalIdConfigurationIntegritySubmission(
-                                errorCode
-                        );
-
-                        makeStartConfigurationCall(null, body, null);
-                    }
-                }
-        );
+        fetchIntegrityTokenAndStartConfiguration(body, exception -> {
+            String errorCode = IntegrityTokenApiRequestHelper.Companion.getCodeForException(exception);
+            FirebaseAnalyticsUtil.reportPersonalIdConfigurationIntegritySubmission(errorCode);
+            makeStartConfigurationCall(null, body, null);
+        });
     }
 
     @Override
@@ -554,6 +536,21 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                                 personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode()
                         );
                         break;
+                    case MISSING_DATA_ERROR: {
+                        String subCode = personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode();
+                        boolean isIntegrityHeadersMissing = BaseApiHandler.PersonalIdApiSubErrorCodes.INTEGRITY_HEADERS.name().equals(subCode);
+                        if (isIntegrityHeadersMissing && token.isEmpty()) {
+                            retryWithNewIntegrityToken(body);
+                        } else if (isIntegrityHeadersMissing) {
+                            onConfigurationFailure(
+                                    AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                                    getString(R.string.personalid_configuration_process_failed_subtitle)
+                            );
+                        } else {
+                            navigateFailure(failureCode, t);
+                        }
+                        break;
+                    }
                     default:
                         navigateFailure(failureCode, t);
                         break;
@@ -606,6 +603,37 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             // Dialog failed to launch or some error occurred
             handleIntegrityFailure(subError, "Integrity dialog failed to launch " + e.getMessage());
         });
+    }
+
+    private void retryWithNewIntegrityToken(HashMap<String, String> body) {
+        fetchIntegrityTokenAndStartConfiguration(body, exception -> onConfigurationFailure(
+                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                getString(R.string.personalid_configuration_process_failed_subtitle)
+        ));
+    }
+
+    private void fetchIntegrityTokenAndStartConfiguration(
+            HashMap<String, String> body,
+            Consumer<Exception> onTokenFailure
+    ) {
+        integrityTokenApiRequestHelper.withIntegrityToken(
+                body,
+                new IntegrityTokenViewModel.IntegrityTokenCallback() {
+                    @Override
+                    public void onTokenReceived(
+                            @NotNull String requestHash,
+                            @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokenResponse
+                    ) {
+                        makeStartConfigurationCall(requestHash, body, integrityTokenResponse);
+                    }
+
+
+                    @Override
+                    public void onTokenFailure(@NotNull Exception exception) {
+                        onTokenFailure.accept(exception);
+                    }
+                }
+        );
     }
 
     private void handleIntegrityFailure(String subError, String logMessage) {
