@@ -43,7 +43,6 @@ object PersonalIdRecoveryCompleter {
                 sessionData.requiredLock,
                 sessionData.invitedUser,
             )
-        // Email (DB column)
         user.email = sessionData.email
         ConnectUserDatabaseUtil.storeUser(activity, user)
 

@@ -31,7 +31,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,
-     * and the legacy "existing user adding email" entry point. Read from a required nav arg.
+     * and the "existing user adding email" entry point. Read from a required nav arg.
      */
     private lateinit var workflow: EmailWorkFlow
 
@@ -164,7 +164,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private fun skipEmail() {
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "skip")
         when (workflow) {
-            // Existing user adding email post-registration — finish the legacy entry activity.
+            // Existing user adding email post-registration — finish the entry activity.
             EmailWorkFlow.EXISTING_USER -> {
                 requireActivity().finish()
             }
