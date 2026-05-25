@@ -84,14 +84,18 @@ class NotificationsSyncWorker(
 
     private fun logResult(syncResult: PNApiResponseStatus) {
         val actionStr = syncAction?.toString()
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Sync Action: $actionStr completed with success: ${syncResult?.success}")
+        Logger.log(
+            LogTypes.TYPE_MAINTENANCE,
+            "Sync Action: $actionStr completed with success: ${syncResult?.success}",
+        )
     }
 
     private fun initStateFromInputData() {
         val notificationPayloadJson = inputData.getString(NOTIFICATION_PAYLOAD)
         if (notificationPayloadJson != null) {
             val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
-            notificationPayload = Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
+            notificationPayload =
+                Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
         }
 
         val syncActionStr = inputData.getString(ACTION)
@@ -167,13 +171,11 @@ class NotificationsSyncWorker(
             val opportunityStatus = notificationPayload?.get(OPPORTUNITY_STATUS)
             (
                 (job?.status == STATUS_LEARNING || job?.status == STATUS_AVAILABLE || job?.status == STATUS_AVAILABLE_NEW) &&
-                    OPPORTUNITY_STATUS_LEARN.equals(opportunityStatus)
+                    OPPORTUNITY_STATUS_LEARN == opportunityStatus
             ) ||
                 (
                     job?.status == STATUS_DELIVERING &&
-                        OPPORTUNITY_STATUS_DELIVERY.equals(
-                            opportunityStatus,
-                        )
+                        OPPORTUNITY_STATUS_DELIVERY == opportunityStatus
                 )
         } else {
             true
