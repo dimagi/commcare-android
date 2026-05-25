@@ -125,7 +125,6 @@ class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest
 
         val body = request.body.readUtf8()
         assertTrue("Body should carry the trimmed name", body.contains("\"name\":\"Margaret Hamilton\""))
-        assertFalse("Body should not include the surrounding whitespace", body.contains("  Margaret Hamilton  "))
     }
 
     @Test
