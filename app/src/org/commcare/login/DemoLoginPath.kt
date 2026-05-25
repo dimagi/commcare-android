@@ -18,10 +18,10 @@ import kotlin.coroutines.resume
  *
  * Mirrors FormAndDataSyncer.performDemoUserRestore verbatim.
  */
-internal class DemoLoginPath(
+internal open class DemoLoginPath(
     private val context: Context,
 ) {
-    suspend fun login(sink: LoginProgressSink): SyncOutcome {
+    open suspend fun login(sink: LoginProgressSink): SyncOutcome {
         val demoRestore: OfflineUserRestore =
             CommCareApplication
                 .instance()

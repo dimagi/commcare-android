@@ -19,14 +19,14 @@ import kotlin.coroutines.resume
  * fires when PersonalID is logged in but no Connect job is associated with the app, and
  * it remains in LoginActivity until a later phase introduces a UI-routing layer.
  */
-internal class PostLoginSideEffects(
+internal open class PostLoginSideEffects(
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
 ) {
     /**
      * @param activity the hosting CommCareActivity. Required because
      *   PersonalIdManager.updateAppAccess takes an activity (existing signature).
      */
-    suspend fun runOnSuccess(
+    open suspend fun runOnSuccess(
         activity: CommCareActivity<*>,
         username: String,
     ): PostLoginOutcome {

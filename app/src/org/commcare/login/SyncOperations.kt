@@ -33,10 +33,10 @@ internal sealed class SyncOutcome {
  *
  * Cancellation is best-effort — AsyncTask cancellation does not preempt running steps.
  */
-internal class SyncOperations(
+internal open class SyncOperations(
     private val context: Context,
 ) {
-    suspend fun pullData(
+    open suspend fun pullData(
         username: String,
         password: String,
         sink: LoginProgressSink,

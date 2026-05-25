@@ -43,11 +43,11 @@ internal sealed class KeyRecordOutcome {
  *
  * Cancellation is best-effort — AsyncTask cancellation does not preempt running steps.
  */
-internal class KeyRecordOperations(
+internal open class KeyRecordOperations(
     private val context: Context,
     private val app: CommCareApp,
 ) {
-    suspend fun manageKeyRecord(
+    open suspend fun manageKeyRecord(
         request: LoginRequest,
         sink: LoginProgressSink,
     ): KeyRecordOutcome =
