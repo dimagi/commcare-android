@@ -28,6 +28,8 @@ These notes are only published internally in [CommCare Change log wiki](https://
 along with the public release notes above
 -->
 
+- Fix bug causing form widgets to lose focus when a Combobox dropdown on the same screen is re-validated.
+
 ### QA Notes
 
 <!--
