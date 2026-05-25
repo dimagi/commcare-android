@@ -379,6 +379,12 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name="org.commcare.activities.PushNotificationLaunchActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance" />
+        <activity
             android:name="org.commcare.activities.DrawActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity

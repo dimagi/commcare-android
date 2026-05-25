@@ -588,4 +588,5 @@
     <string name="connect_offline">ኦፍላይን</string>
     <string name="connect_back_online">ናብ ኦንላይን ተመሊሱ</string>
     <string name="connect_never">ፈጺሙ</string>
+    <string name="cannot_navigate_during_form_save">ቅጥዒ እንዳተዓቀበ ካብ ገጽ ክትወጽእ ኣይትኽእልን</string>
 </resources>

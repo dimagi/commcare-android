@@ -10,7 +10,6 @@ import static org.commcare.connect.ConnectConstants.FROM_SMS_INVITE_LINK;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_INTENT_RECEIVED;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED;
@@ -20,7 +19,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -435,7 +433,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
         startFromLogin = false;
-        clearSessionEndpointAppId();
+        clearSessionEndpointIntentExtras();
         startActivityForResult(i, HOME_SCREEN);
     }
 
@@ -444,8 +442,10 @@ public class DispatchActivity extends AppCompatActivity {
                 CommCareApplication.instance().isConsumerApp();
     }
 
-    private void clearSessionEndpointAppId() {
+    private void clearSessionEndpointIntentExtras() {
+        getIntent().removeExtra(SESSION_REQUEST);
         getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
+        getIntent().removeExtra(SESSION_ENDPOINT_ID);
     }
 
     /**
@@ -509,11 +509,8 @@ public class DispatchActivity extends AppCompatActivity {
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
                         i.putExtra(CC_LAUNCH_REQUIRE_SYNC,
                                 getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false));
-
-                        // Session Endpoint extra is no longer needed. If not removed, it triggers
-                        // the external launch logic in subsequent logins
-                        getIntent().removeExtra(SESSION_ENDPOINT_ID);
                     }
+                    clearSessionEndpointIntentExtras();
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);
                         i.putExtra(EXIT_AFTER_FORM_SUBMISSION,

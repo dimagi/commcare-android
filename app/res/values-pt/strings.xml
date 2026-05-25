@@ -605,4 +605,5 @@
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">De volta online</string>
     <string name="connect_never">Nunca</string>
+    <string name="cannot_navigate_during_form_save">Não é possível sair da página enquanto o formulário é salvo</string>
 </resources>
