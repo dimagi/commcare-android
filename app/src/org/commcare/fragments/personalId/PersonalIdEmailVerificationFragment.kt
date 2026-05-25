@@ -36,9 +36,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private var personalIdSessionData: PersonalIdSessionData? = null
 
     /**
-     * Email the user typed on the previous screen, threaded in as a nav arg. This is the
-     * canonical "pending" address — `sessionData.email` is NOT touched until OTP verification
-     * succeeds (see [onEmailVerified]).
+     * Email the user typed on the previous screen, threaded in as a nav arg.
      */
     private lateinit var enteredEmail: String
 
@@ -59,7 +57,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - otpRequestTime
                 val remaining = resendCooldownMillis - elapsed
-                updateResendButtonState()
+                updateResendButtonState(remaining)
                 if (remaining > 0) {
                     resendHandler.postDelayed(this, 1000)
                 }
@@ -121,9 +119,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         binding.personalidEmailVerifyButton.isEnabled = enabled
     }
 
-    private fun updateResendButtonState() {
-        val elapsed = System.currentTimeMillis() - otpRequestTime
-        val remaining = resendCooldownMillis - elapsed
+    private fun updateResendButtonState(remaining: Long) {
         if (remaining <= 0) {
             binding.personalidResendCountdownText.visibility = View.GONE
             binding.personalidEmailResendButton.visibility = View.VISIBLE

@@ -44,12 +44,6 @@ abstract class BasePersonalIdEmailVerificationFragmentTest : BasePersonalIdConfi
                 .resume()
                 .get()
 
-        // The verification fragment reads PersonalIdSessionData from an activity-scoped ViewModel
-        // for registration/recovery workflows. In production the upstream fragments populate it; in tests we
-        // skip those, so seed an instance here. NumericCodeView fires its code-complete listener
-        // synchronously when setCode("123456") is called, which triggers submitOtp() → API call.
-        // We seed a non-null token so the token-auth header builds without NPE; the actual HTTP
-        // call enqueues asynchronously and does not affect the synchronous UI assertions.
         ViewModelProvider(activity)
             .get(PersonalIdSessionDataViewModel::class.java)
             .personalIdSessionData = PersonalIdSessionData(token = "test-token")
