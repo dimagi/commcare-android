@@ -1,24 +1,42 @@
 package org.commcare.fragments.personalId
 
 import android.os.Build
+import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import org.commcare.CommCareTestApplication
+import org.commcare.connect.network.ApiService
+import org.commcare.connect.network.base.BaseApiClient
+import org.commcare.connect.network.connectId.PersonalIdApiClient
 import org.commcare.dalvik.R
 import org.commcare.views.connect.NumericCodeView
+import org.json.JSONObject
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
 
 /**
- * Unit tests for PersonalIdEmailVerificationFragment using Robolectric.
- * Covers initial UI state and the OTP-input -> verify-button enable/disable contract.
+ * Unit tests for PersonalIdEmailVerificationFragment.
+ *
+ * Uses MockWebServer to make the verify-OTP HTTP call deterministic (mirroring
+ * PersonalIdPhoneFragmentStartConfigurationTest) and TestNavHostController so outbound
+ * navigation can be observed without instantiating destination fragments.
  *
  * Pinned to API 32 because NumericCodeView uses try-with-resources on TypedArray, and
  * TypedArray.close() was added in API 31. Robolectric 4.8.2 supports up to API 32 (S_V2).
@@ -26,6 +44,52 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.S_V2])
 @RunWith(AndroidJUnit4::class)
 class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
+    private lateinit var mockWebServer: MockWebServer
+    private lateinit var navController: TestNavHostController
+
+    @Before
+    override fun setUp() {
+        super.setUp()
+        setupMockWebServer()
+        attachTestNavController()
+    }
+
+    private fun setupMockWebServer() {
+        mockWebServer = MockWebServer()
+        mockWebServer.start()
+        val apiService =
+            BaseApiClient
+                .buildRetrofitClient(mockWebServer.url("/").toString(), PersonalIdApiClient.API_VERSION)
+                .create(ApiService::class.java)
+        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
+        apiServiceField.isAccessible = true
+        apiServiceField.set(null, apiService)
+    }
+
+    private fun attachTestNavController() {
+        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+        val args =
+            Bundle().apply {
+                putString("email", TEST_EMAIL)
+                putSerializable("workflow", EmailWorkFlow.REGISTRATION)
+            }
+        activity.runOnUiThread {
+            navController.setGraph(R.navigation.nav_graph_personalid)
+            navController.setCurrentDestination(R.id.personalid_email_verification, args)
+            Navigation.setViewNavController(fragment.requireView(), navController)
+        }
+        ShadowLooper.idleMainLooper()
+    }
+
+    @After
+    override fun tearDown() {
+        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
+        apiServiceField.isAccessible = true
+        apiServiceField.set(null, null)
+        mockWebServer.shutdown()
+        super.tearDown()
+    }
+
     // ========== Initial State Tests ==========
 
     @Test
@@ -65,9 +129,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         val verifyButton =
             fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_verify_button)
 
-        activity.runOnUiThread {
-            codeView?.setCode("123")
-        }
+        activity.runOnUiThread { codeView?.setCode("123") }
         ShadowLooper.idleMainLooper()
 
         assertFalse(
@@ -76,12 +138,99 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         )
     }
 
-    // The "complete 6-digit code" path is not tested at the fragment level. Entering 6 digits
-    // triggers an immediate submit chain (on-code-changed flips the button enabled, then the
-    // code-complete listener calls submitOtp() which disables it, then the API call may fail
-    // synchronously under Robolectric and call enableVerifyButton(true) again via onFailure
-    // → shouldAllowRetry). The post-state depends on whether the network resolves before the
-    // assertion runs, which is non-deterministic across CI environments. The on-code-changed
-    // listener wiring is already verified by `partial code keeps verify button disabled` and
-    // submitOtp's behavior should be covered by a dedicated handler test if needed.
+    // ========== API-Backed OTP Submission Tests ==========
+
+    @Test
+    fun `complete 6-digit code submits OTP request to verify endpoint`() {
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+
+        val request = mockWebServer.takeRequest()
+        assertEquals("/users/verify_email_otp", request.path)
+        assertEquals("POST", request.method)
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals(TEST_EMAIL, body.getString("email"))
+        assertEquals("123456", body.getString("otp"))
+    }
+
+    @Test
+    fun `successful OTP verification navigates to photo capture for REGISTRATION`() {
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        assertEquals(
+            "Should navigate to photo capture on successful verification",
+            R.id.personalid_photo_capture,
+            navController.currentDestination!!.id,
+        )
+    }
+
+    @Test
+    fun `failed OTP verification shows error and leaves verify button disabled`() {
+        mockWebServer.enqueue(incorrectOtpResponse())
+
+        enterCode("123456")
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        val errorText =
+            fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(
+            "Error text should be visible after a failed OTP attempt",
+            View.VISIBLE,
+            errorText!!.visibility,
+        )
+        // INCORRECT_OTP_ERROR is not in the shouldAllowRetry() allow-list (only NETWORK / SERVER /
+        // INTEGRITY / TOKEN_UNAVAILABLE / UNKNOWN), so the verify button stays disabled — the user
+        // retries by re-typing the OTP, which re-fires the auto-submit chain via
+        // setOnCodeCompleteListener.
+        val verifyButton =
+            fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_verify_button)
+        assertFalse(
+            "Verify button should remain disabled after an incorrect-OTP failure",
+            verifyButton!!.isEnabled,
+        )
+    }
+
+    @Test
+    fun `three failed OTP attempts show the verification-unsuccessful dialog`() {
+        mockWebServer.enqueue(incorrectOtpResponse())
+        mockWebServer.enqueue(incorrectOtpResponse())
+        mockWebServer.enqueue(incorrectOtpResponse())
+
+        repeat(3) {
+            enterCode("123456")
+            mockWebServer.takeRequest()
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        }
+
+        val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
+        assertNotNull("Verification-unsuccessful dialog should be shown after 3 failed attempts", dialog)
+        assertTrue("Dialog should be visible", dialog!!.isShowing)
+        // The fragment shows exactly one dialog (showProceedWithoutEmailDialog) and only after
+        // failedOtpAttempts >= 3, so reaching this point proves the failure path took the
+        // dialog branch rather than the per-attempt re-enable branch.
+    }
+
+    // ========== Helpers ==========
+
+    private fun enterCode(code: String) {
+        val codeView = fragment.view?.findViewById<NumericCodeView>(R.id.otp_code_view)
+        activity.runOnUiThread { codeView?.setCode(code) }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun successResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(200)
+            .setBody("""{"status":"success"}""")
+
+    private fun incorrectOtpResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error_code":"INCORRECT_OTP"}""")
 }
