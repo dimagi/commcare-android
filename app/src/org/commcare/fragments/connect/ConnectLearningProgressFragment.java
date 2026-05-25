@@ -64,10 +64,9 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(ConnectLearningProgressViewModel.class);
 
-        observeLearningProgress();
-
         setupRefreshButton();
         populateJobCard();
+        observeLearningProgress();
         return view;
     }
 
