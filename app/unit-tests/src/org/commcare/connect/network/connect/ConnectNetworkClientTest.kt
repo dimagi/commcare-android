@@ -165,4 +165,53 @@ class ConnectNetworkClientTest {
             val result = client.getLearningProgress(mockUser, mockJob)
             assertTrue(result.isSuccess)
         }
+
+    @Test
+    fun testGetDeliveryProgress_authHeaderFailure_returnsFailure() =
+        runBlocking {
+            val mockJob = mockk<ConnectJobRecord>()
+            every { mockJob.jobUUID } returns "test-uuid"
+            coEvery { getAuthorizationHeader(any()) } returns
+                Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR))
+
+            val result = client.getDeliveryProgress(mockUser, mockJob)
+
+            assertTrue(result.isFailure)
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR,
+                (result.exceptionOrNull() as ConnectApiException).errorCode,
+            )
+        }
+
+    @Test
+    fun testGetDeliveryProgress_http500_returnsServerError() =
+        runBlocking {
+            val mockJob = mockk<ConnectJobRecord>()
+            every { mockJob.jobUUID } returns "test-uuid"
+            val errorBody = "".toResponseBody("application/json".toMediaType())
+            val mockResponse = Response.error<ResponseBody>(500, errorBody)
+            coEvery { mockApiService.getDeliveryProgress(any(), any(), any()) } returns mockResponse
+
+            val result = client.getDeliveryProgress(mockUser, mockJob)
+
+            assertTrue(result.isFailure)
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
+                (result.exceptionOrNull() as ConnectApiException).errorCode,
+            )
+        }
+
+    @Test
+    fun testGetDeliveryProgress_success_returnsDeliveryProgress() =
+        runBlocking {
+            val mockJob = mockk<ConnectJobRecord>()
+            every { mockJob.jobUUID } returns "test-uuid"
+            val responseBody = "".toResponseBody("application/json".toMediaType())
+            coEvery { mockApiService.getDeliveryProgress(any(), any(), any()) } returns
+                Response.success(
+                    responseBody,
+                )
+            val result = client.getDeliveryProgress(mockUser, mockJob)
+            assertTrue(result.isSuccess)
+        }
 }
