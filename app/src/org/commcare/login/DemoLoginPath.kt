@@ -3,7 +3,8 @@ package org.commcare.login
 import android.content.Context
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
-import org.commcare.preferences.ServerUrls
+import org.commcare.network.LocalReferencePullResponseFactory
+import org.commcare.suite.model.OfflineUserRestore
 import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.PullTaskResultReceiver
 import org.commcare.tasks.ResultAndError
@@ -11,49 +12,39 @@ import org.commcare.tasks.templates.CommCareTask
 import org.commcare.tasks.templates.CommCareTaskConnector
 import kotlin.coroutines.resume
 
-internal sealed class SyncOutcome {
-    object Success : SyncOutcome()
-
-    data class Failed(
-        val error: LoginError,
-    ) : SyncOutcome()
-}
-
 /**
- * Suspending wrapper around DataPullTask for the normal OTA restore path.
- * Emits Syncing progress events with a percentage when DataPullTask reports one.
+ * Demo-user login short-circuit. Skips remote key-record management and pulls a
+ * pre-bundled restore from the demo CCZ via LocalReferencePullResponseFactory.
  *
- * Construction mirrors FormAndDataSyncer.syncData (the OTA path) verbatim:
- *   - server: ServerUrls.getDataServerKey()
- *   - userId: null
- *   - dataPullRequester: CommCareApplication.instance().dataPullRequester
- *   - blockRemoteKeyManagement: false
- *   - skipFixtures: false
- *   - userTriggeredSync: false
- *
- * Cancellation is best-effort — AsyncTask cancellation does not preempt running steps.
+ * Mirrors FormAndDataSyncer.performDemoUserRestore verbatim.
  */
-internal class SyncOperations(
+internal class DemoLoginPath(
     private val context: Context,
 ) {
-    suspend fun pullData(
-        username: String,
-        password: String,
-        sink: LoginProgressSink,
-    ): SyncOutcome =
-        suspendCancellableCoroutine { cont ->
+    suspend fun login(sink: LoginProgressSink): SyncOutcome {
+        val demoRestore: OfflineUserRestore =
+            CommCareApplication
+                .instance()
+                .getCommCarePlatform()
+                .demoUserRestore
+                ?: return SyncOutcome.Failed(LoginError.SyncFailed("DEMO_RESTORE_MISSING", null))
+
+        // Side-effect required by LocalReferencePullResponseFactory before the task runs.
+        LocalReferencePullResponseFactory.setRequestPayloads(arrayOf(demoRestore.reference))
+
+        return suspendCancellableCoroutine { cont ->
             val receiver = NoOpPullTaskResultReceiver()
 
             val task =
                 object : DataPullTask<PullTaskResultReceiver>(
-                    username,
-                    password,
-                    null,
-                    ServerUrls.getDataServerKey(),
+                    demoRestore.username,
+                    OfflineUserRestore.DEMO_USER_PASSWORD,
+                    "demo_id",
+                    "fake-server-that-is-never-used",
                     context,
-                    CommCareApplication.instance().getDataPullRequester(),
+                    LocalReferencePullResponseFactory.INSTANCE,
                     // blockRemoteKeyManagement =
-                    false,
+                    true,
                     // skipFixtures =
                     false,
                     // userTriggeredSync =
@@ -76,15 +67,7 @@ internal class SyncOperations(
                         receiver: PullTaskResultReceiver,
                         vararg update: Int?,
                     ) {
-                        val total = update.getOrNull(1)
-                        val completed = update.getOrNull(0)
-                        val percent =
-                            if (total != null && total > 0 && completed != null) {
-                                (completed * 100) / total
-                            } else {
-                                null
-                            }
-                        sink.onProgress(LoginProgress(LoginPhase.Syncing, percent = percent))
+                        sink.onProgress(LoginProgress(LoginPhase.Syncing))
                     }
 
                     override fun deliverError(
@@ -120,17 +103,5 @@ internal class SyncOperations(
             task.connect(connector)
             task.executeParallel()
         }
-}
-
-internal class NoOpPullTaskResultReceiver : PullTaskResultReceiver {
-    override fun handlePullTaskResult(
-        resultAndError: ResultAndError<DataPullTask.PullTaskResult>?,
-        userTriggeredSync: Boolean,
-        formsToSend: Boolean,
-        usingRemoteKeyManagement: Boolean,
-    ) = Unit
-
-    override fun handlePullTaskUpdate(vararg update: Int?) = Unit
-
-    override fun handlePullTaskError() = Unit
+    }
 }
