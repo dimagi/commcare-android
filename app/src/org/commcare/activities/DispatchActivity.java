@@ -10,6 +10,7 @@ import static org.commcare.connect.ConnectConstants.FROM_SMS_INVITE_LINK;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_INTENT_RECEIVED;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED;
