@@ -325,7 +325,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 getMatchingUsersCount(username) > 1,
                 /* blockRemoteKeyManagement */ false);
 
-        LoginProgressSink sink = progress -> { /* Phase 1: no-op. Phase 3 wires this to a dialog. */ };
+        LoginProgressSink sink = progress -> { /* TODO: Phase 1: no-op. Phase 3 wires this to a dialog. */ };
 
         loginCoordinator.start(this, request, sink, result -> handleLoginResult(result));
     }

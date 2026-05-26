@@ -4,11 +4,10 @@ import org.commcare.network.HttpCalloutTask.HttpCalloutOutcomes
 import org.commcare.tasks.DataPullTask.PullTaskResult
 
 /**
- * Translates task-layer outcome enums into LoginError. Pure functions — no Android dependencies.
- * Mapping is taken verbatim from the parent investigation plan; do not invent new entries.
+ * Translates task-layer outcome enums into LoginError.
  */
 internal object OutcomeMapper {
-    /** Maps a non-Success HttpCalloutOutcomes from ManageKeyRecordTask to a LoginError. */
+    /** Maps failure HttpCalloutOutcomes from ManageKeyRecordTask to a LoginError. */
     fun fromHttpCalloutOutcome(outcome: HttpCalloutOutcomes): LoginError =
         when (outcome) {
             HttpCalloutOutcomes.AuthFailed,
@@ -33,7 +32,7 @@ internal object OutcomeMapper {
             HttpCalloutOutcomes.Success -> error("Success is not a failure outcome")
         }
 
-    /** Maps a non-DOWNLOAD_SUCCESS PullTaskResult from DataPullTask to a LoginError. */
+    /** Maps failure PullTaskResults from DataPullTask to a LoginError. */
     fun fromPullTaskResult(
         result: PullTaskResult,
         errorMessage: String?,

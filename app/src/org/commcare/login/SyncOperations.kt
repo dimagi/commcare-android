@@ -20,16 +20,8 @@ internal sealed class SyncOutcome {
 }
 
 /**
- * Suspending wrapper around DataPullTask for the normal OTA restore path.
+ * Suspending wrapper around DataPullTask for the normal sync restore path.
  * Emits Syncing progress events with a percentage when DataPullTask reports one.
- *
- * Construction mirrors FormAndDataSyncer.syncData (the OTA path) verbatim:
- *   - server: ServerUrls.getDataServerKey()
- *   - userId: null
- *   - dataPullRequester: CommCareApplication.instance().dataPullRequester
- *   - blockRemoteKeyManagement: false
- *   - skipFixtures: false
- *   - userTriggeredSync: false
  *
  * Cancellation is best-effort — AsyncTask cancellation does not preempt running steps.
  */
@@ -41,7 +33,7 @@ internal open class SyncOperations(
         password: String,
         sink: LoginProgressSink,
     ): SyncOutcome =
-        suspendCancellableCoroutine { cont ->
+        suspendCancellableCoroutine { continuation ->
             val receiver = NoOpPullTaskResultReceiver()
 
             val task =
@@ -52,11 +44,8 @@ internal open class SyncOperations(
                     ServerUrls.getDataServerKey(),
                     context,
                     CommCareApplication.instance().getDataPullRequester(),
-                    // blockRemoteKeyManagement =
                     false,
-                    // skipFixtures =
                     false,
-                    // userTriggeredSync =
                     false,
                 ) {
                     override fun deliverResult(
@@ -69,7 +58,7 @@ internal open class SyncOperations(
                                 null -> SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", null))
                                 else -> SyncOutcome.Failed(OutcomeMapper.fromPullTaskResult(pull, result.errorMessage))
                             }
-                        if (!cont.isCompleted) cont.resume(outcome)
+                        if (!continuation.isCompleted) continuation.resume(outcome)
                     }
 
                     override fun deliverUpdate(
@@ -91,8 +80,8 @@ internal open class SyncOperations(
                         receiver: PullTaskResultReceiver,
                         e: Exception?,
                     ) {
-                        if (!cont.isCompleted) {
-                            cont.resume(SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e?.message)))
+                        if (!continuation.isCompleted) {
+                            continuation.resume(SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e?.message)))
                         }
                     }
                 }
@@ -116,7 +105,7 @@ internal open class SyncOperations(
                     override fun hideTaskCancelButton() = Unit
                 }
 
-            cont.invokeOnCancellation { task.cancel(true) }
+            continuation.invokeOnCancellation { task.cancel(true) }
             task.connect(connector)
             task.executeParallel()
         }

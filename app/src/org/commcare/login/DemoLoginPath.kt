@@ -15,24 +15,21 @@ import kotlin.coroutines.resume
 /**
  * Demo-user login short-circuit. Skips remote key-record management and pulls a
  * pre-bundled restore from the demo CCZ via LocalReferencePullResponseFactory.
- *
- * Mirrors FormAndDataSyncer.performDemoUserRestore verbatim.
  */
 internal open class DemoLoginPath(
     private val context: Context,
 ) {
     open suspend fun login(sink: LoginProgressSink): SyncOutcome {
-        val demoRestore: OfflineUserRestore =
+        val demoRestore =
             CommCareApplication
                 .instance()
-                .getCommCarePlatform()
+                .commCarePlatform
                 .demoUserRestore
                 ?: return SyncOutcome.Failed(LoginError.SyncFailed("DEMO_RESTORE_MISSING", null))
 
-        // Side-effect required by LocalReferencePullResponseFactory before the task runs.
         LocalReferencePullResponseFactory.setRequestPayloads(arrayOf(demoRestore.reference))
 
-        return suspendCancellableCoroutine { cont ->
+        return suspendCancellableCoroutine { continuation ->
             val receiver = NoOpPullTaskResultReceiver()
 
             val task =
@@ -43,11 +40,8 @@ internal open class DemoLoginPath(
                     "fake-server-that-is-never-used",
                     context,
                     LocalReferencePullResponseFactory.INSTANCE,
-                    // blockRemoteKeyManagement =
                     true,
-                    // skipFixtures =
                     false,
-                    // userTriggeredSync =
                     false,
                 ) {
                     override fun deliverResult(
@@ -60,7 +54,7 @@ internal open class DemoLoginPath(
                                 null -> SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", null))
                                 else -> SyncOutcome.Failed(OutcomeMapper.fromPullTaskResult(pull, result.errorMessage))
                             }
-                        if (!cont.isCompleted) cont.resume(outcome)
+                        if (!continuation.isCompleted) continuation.resume(outcome)
                     }
 
                     override fun deliverUpdate(
@@ -74,8 +68,8 @@ internal open class DemoLoginPath(
                         receiver: PullTaskResultReceiver,
                         e: Exception?,
                     ) {
-                        if (!cont.isCompleted) {
-                            cont.resume(SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e?.message)))
+                        if (!continuation.isCompleted) {
+                            continuation.resume(SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e?.message)))
                         }
                     }
                 }
@@ -99,7 +93,7 @@ internal open class DemoLoginPath(
                     override fun hideTaskCancelButton() = Unit
                 }
 
-            cont.invokeOnCancellation { task.cancel(true) }
+            continuation.invokeOnCancellation { task.cancel(true) }
             task.connect(connector)
             task.executeParallel()
         }

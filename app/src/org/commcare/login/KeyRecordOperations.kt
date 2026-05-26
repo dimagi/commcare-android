@@ -14,9 +14,6 @@ import org.commcare.views.notifications.NotificationActionButtonInfo
 import org.commcare.views.notifications.NotificationMessage
 import kotlin.coroutines.resume
 
-/**
- * Outcome of a key-record exchange.
- */
 internal sealed class KeyRecordOutcome {
     /** Keys are in place but sync still required. */
     data class ReadyForSync(
@@ -35,11 +32,7 @@ internal sealed class KeyRecordOutcome {
 /**
  * Suspending wrapper around ManageKeyRecordTask. Emits SigningIn progress events.
  *
- * The wrapper bridges the AsyncTask receiver-callback model to a suspend function:
- * - When the task calls receiver.startDataPull(mode, password), resume with ReadyForSync.
- * - When the task calls receiver.dataPullCompleted(), resume with LocalLoginComplete.
- * - When the task calls receiver.raiseLoginMessage / raiseMessage, the failure is captured
- *   via keysDoneOther override which has the original HttpCalloutOutcomes value.
+ * The wrapper bridges the AsyncTask receiver-callback model to a suspend function.
  *
  * Cancellation is best-effort — AsyncTask cancellation does not preempt running steps.
  */
@@ -51,18 +44,18 @@ internal open class KeyRecordOperations(
         request: LoginRequest,
         sink: LoginProgressSink,
     ): KeyRecordOutcome =
-        suspendCancellableCoroutine { cont ->
+        suspendCancellableCoroutine { continuation ->
             val receiver =
                 object : DataPullController {
                     override fun startDataPull(
                         mode: DataPullMode,
                         password: String,
                     ) {
-                        if (!cont.isCompleted) cont.resume(KeyRecordOutcome.ReadyForSync(password, mode))
+                        if (!continuation.isCompleted) continuation.resume(KeyRecordOutcome.ReadyForSync(password, mode))
                     }
 
                     override fun dataPullCompleted() {
-                        if (!cont.isCompleted) cont.resume(KeyRecordOutcome.LocalLoginComplete)
+                        if (!continuation.isCompleted) continuation.resume(KeyRecordOutcome.LocalLoginComplete)
                     }
 
                     // Error-path callbacks are no-ops on the receiver; failure is captured via
@@ -114,9 +107,8 @@ internal open class KeyRecordOperations(
                         receiver: DataPullController,
                         outcome: HttpCalloutOutcomes,
                     ) {
-                        // Intercept the failure path before the base class drives the no-op receiver.
-                        if (!cont.isCompleted) {
-                            cont.resume(KeyRecordOutcome.Failed(OutcomeMapper.fromHttpCalloutOutcome(outcome)))
+                        if (!continuation.isCompleted) {
+                            continuation.resume(KeyRecordOutcome.Failed(OutcomeMapper.fromHttpCalloutOutcome(outcome)))
                         }
                     }
 
@@ -124,8 +116,8 @@ internal open class KeyRecordOperations(
                         receiver: DataPullController,
                         e: Exception,
                     ) {
-                        if (!cont.isCompleted) {
-                            cont.resume(KeyRecordOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e.message)))
+                        if (!continuation.isCompleted) {
+                            continuation.resume(KeyRecordOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e.message)))
                         }
                     }
                 }
@@ -152,7 +144,7 @@ internal open class KeyRecordOperations(
                     override fun hideTaskCancelButton() = Unit
                 }
 
-            cont.invokeOnCancellation { task.cancel(true) }
+            continuation.invokeOnCancellation { task.cancel(true) }
             task.connect(connector)
             task.executeParallel()
         }

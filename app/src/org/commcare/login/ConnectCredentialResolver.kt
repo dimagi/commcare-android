@@ -8,15 +8,10 @@ import java.security.SecureRandom
 
 /**
  * Resolves the Connect-managed password for an (appId, username) pair.
- * Ported from ConnectAppUtils.getPasswordOverride.
  */
 class ConnectCredentialResolver(
     private val context: Context,
 ) {
-    /**
-     * @throws IllegalStateException if no record exists and createIfNeeded is false,
-     * or if record creation failed (matches today's RuntimeException from getPasswordOverride).
-     */
     fun resolve(
         appId: String,
         username: String,
@@ -35,7 +30,7 @@ class ConnectCredentialResolver(
         if (record.isUsingLocalPassphrase) {
             FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(appId)
         }
-        return ResolvedCredentials(password = record.password, record = record)
+        return ResolvedCredentials(record.password, record)
     }
 
     private fun storeNewRecord(
@@ -46,12 +41,9 @@ class ConnectCredentialResolver(
             context,
             appId,
             username,
-            // connectIdLinked =
             true,
             generateAppPassword(),
-            // workerLinked =
             true,
-            // localPassphrase =
             false,
         )
 

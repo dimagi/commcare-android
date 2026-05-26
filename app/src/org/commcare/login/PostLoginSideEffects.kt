@@ -12,20 +12,9 @@ import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.utils.CrashUtil
 import kotlin.coroutines.resume
 
-/**
- * Runs the deterministic side-effects that fire after every successful login.
- *
- * Excludes the UI-prompting branch (personalIdManager.checkPersonalIdLink). That branch
- * fires when PersonalID is logged in but no Connect job is associated with the app, and
- * it remains in LoginActivity until a later phase introduces a UI-routing layer.
- */
 internal open class PostLoginSideEffects(
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
 ) {
-    /**
-     * @param activity the hosting CommCareActivity. Required because
-     *   PersonalIdManager.updateAppAccess takes an activity (existing signature).
-     */
     open suspend fun runOnSuccess(
         activity: CommCareActivity<*>,
         username: String,
@@ -39,26 +28,25 @@ internal open class PostLoginSideEffects(
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
 
-        val appId: String = CommCareApplication.instance().currentApp.uniqueId
-        val job: ConnectJobRecord? = ConnectJobUtils.getJobForApp(activity, appId)
+        val appId = CommCareApplication.instance().currentApp.uniqueId
+        val job = ConnectJobUtils.getJobForApp(activity, appId)
         CommCareApplication.instance().setConnectJobIdForAnalytics(job)
 
         if (job == null) {
-            // The check-link branch is UI-bound; LoginActivity continues to drive it.
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
 
         personalIdManager.updateAppAccess(activity, appId, username)
 
         val updated =
-            suspendCancellableCoroutine<Boolean> { cont ->
+            suspendCancellableCoroutine { continuation ->
                 val listener =
                     object : ConnectActivityCompleteListener {
                         override fun connectActivityComplete(
                             success: Boolean,
                             error: String?,
                         ) {
-                            if (!cont.isCompleted) cont.resume(success)
+                            if (!continuation.isCompleted) continuation.resume(success)
                         }
                     }
                 ConnectJobHelper.updateJobProgress(activity, job, listener)

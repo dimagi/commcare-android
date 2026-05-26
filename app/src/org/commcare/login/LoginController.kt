@@ -7,15 +7,6 @@ import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.PersonalIdManager
 
-/**
- * Single entry point for the headless login pipeline.
- *
- * Callers are responsible for unlocking PersonalID (when applicable) before invoking this
- * method. LoginActivity does so via PersonalIdUnlocker.unlock at line 243.
- *
- * Post-success side-effects run in NonCancellable so analytics/notification clears still
- * fire even if the caller cancels after Success was produced.
- */
 class LoginController internal constructor(
     private val keyRecordOperations: KeyRecordOperations,
     private val syncOperations: SyncOperations,
@@ -36,7 +27,6 @@ class LoginController internal constructor(
         request: LoginRequest,
         sink: LoginProgressSink,
     ): LoginResult {
-        // Demo short-circuit: skip remote key management, run only the demo restore.
         if (request.authSource == AuthSource.Demo) {
             return when (val outcome = demoLoginPath.login(sink)) {
                 SyncOutcome.Success -> finishSuccess(activity, request)
@@ -44,8 +34,6 @@ class LoginController internal constructor(
             }
         }
 
-        // For Connect-managed logins, replace the caller-supplied password with the
-        // resolver's value (which may have been generated on first launch).
         val effectiveRequest =
             if (request.authSource == AuthSource.AutoFromConnect) {
                 val resolved =
@@ -61,7 +49,7 @@ class LoginController internal constructor(
 
         return when (val keyOutcome = keyRecordOperations.manageKeyRecord(effectiveRequest, sink)) {
             is KeyRecordOutcome.Failed -> LoginResult.Failed(keyOutcome.error)
-            KeyRecordOutcome.LocalLoginComplete -> finishSuccess(activity, effectiveRequest)
+            is KeyRecordOutcome.LocalLoginComplete -> finishSuccess(activity, effectiveRequest)
             is KeyRecordOutcome.ReadyForSync -> {
                 when (
                     val syncOutcome =
@@ -71,7 +59,7 @@ class LoginController internal constructor(
                             sink = sink,
                         )
                 ) {
-                    SyncOutcome.Success -> finishSuccess(activity, effectiveRequest)
+                    is SyncOutcome.Success -> finishSuccess(activity, effectiveRequest)
                     is SyncOutcome.Failed -> LoginResult.Failed(syncOutcome.error)
                 }
             }
@@ -87,12 +75,10 @@ class LoginController internal constructor(
                 postLoginSideEffects.runOnSuccess(activity, request.username)
             }
         val isConnectManaged = request.authSource == AuthSource.AutoFromConnect
+
         return LoginResult.Success(
             loginMode = request.credentialType,
             restoreSession = request.restoreSession,
-            // The UI controller's "manually switched to PW mode" state lives on the
-            // activity; the caller overwrites this field from its own UI state after
-            // performLogin returns. The engine defaults it to false.
             manualSwitchToPwMode = false,
             personalIdManagedLogin = isConnectManaged || PersonalIdManager.getInstance().isloggedIn(),
             connectManagedLogin = isConnectManaged,
