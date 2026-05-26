@@ -538,8 +538,11 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                         boolean isIntegrityHeadersMissing = BaseApiHandler.PersonalIdApiSubErrorCodes.INTEGRITY_HEADERS.name().equals(subCode);
                         if (isIntegrityHeadersMissing) {
                             if (!token.isEmpty()) {
-                                Logger.exception("Missing Data error related to ingerity headers",
-                                        new Exception("Missing integrity headers when token is present"));
+                                Logger.exception("Missing Data error related to Integrity check headers",
+                                        new Exception("Missing integrity headers even when token is present"));
+                            } else {
+                                Logger.exception("Missing Data error related to Integrity check headers",
+                                        new Exception("Missing integrity headers due to an empty token"));
                             }
                             onIntegrityConfigurationError();
                         } else {
