@@ -4,7 +4,7 @@ import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
+import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.FROM_SMS_INVITE_LINK;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
@@ -12,6 +12,7 @@ import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+import static org.commcare.dalvik.BuildConfig.CCC_HOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_INTENT_RECEIVED;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
@@ -189,9 +190,16 @@ public class DispatchActivity extends AppCompatActivity {
                     pnIntent.getStringExtra(NOTIFICATION_ID)
             );
             startActivity(pnIntent);
-        } else if (handleSmsInviteLinkIntent()) {
             return;
-        } else if (currentApp == null) {
+        }
+
+        Intent smsIntent = retrieveSmsInviteIntentIfPresent();
+        if(smsIntent != null) {
+            startActivity(smsIntent);
+            return;
+        }
+
+        if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
@@ -276,19 +284,26 @@ public class DispatchActivity extends AppCompatActivity {
                 this.getIntent().hasExtra(SESSION_ENDPOINT_ID);
     }
 
-    private boolean handleSmsInviteLinkIntent() {
+    private Intent retrieveSmsInviteIntentIfPresent() {
         Intent intent = getIntent();
         Uri data = intent.getData();
         if (!Intent.ACTION_VIEW.equals(intent.getAction()) || data == null) {
-            return false;
+            return null;
         }
 
-        //Expected: /users/invite_redirect/<opp_uuid>
+        //Require https://<connect_server>
+        String scheme = data.getScheme();
+        String host = data.getHost();
+        if (!"https".equals(scheme) || !CCC_HOST.equals(host)) {
+            return null;
+        }
+
+        //Require /users/invite_redirect/<opp_uuid>
         List<String> segments = data.getPathSegments();
         if (segments.size() != 3
                 || !"users".equals(segments.get(0))
                 || !"invite_redirect".equals(segments.get(1))) {
-            return false;
+            return null;
         }
         String uuid = segments.get(2);
 
@@ -301,16 +316,16 @@ public class DispatchActivity extends AppCompatActivity {
         personalIdManager.init(this);
         if (!personalIdManager.isloggedIn()) {
             FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED);
-            return false;
+            return null;
         }
 
         Intent connectIntent = new Intent(this, ConnectActivity.class);
-        connectIntent.putExtra(REDIRECT_ACTION, CCC_DEST_OPPORTUNITY_SUMMARY_PAGE);
+        connectIntent.putExtra(REDIRECT_ACTION, CCC_GENERIC_OPPORTUNITY);
         connectIntent.putExtra(OPPORTUNITY_UUID, uuid);
         connectIntent.putExtra(FROM_SMS_INVITE_LINK, true);
         connectIntent.putExtra(SHOW_LAUNCH_BUTTON, true);
-        startActivity(connectIntent);
-        return true;
+
+        return connectIntent;
     }
 
     private boolean isDbInBadState() {

@@ -126,9 +126,6 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private ConnectJobRecord findRequestedJob(List<ConnectJobRecord> jobs) {
-        if (requestedOpportunityUuid == null) {
-            return null;
-        }
         for (ConnectJobRecord job : jobs) {
             if (requestedOpportunityUuid.equals(job.getJobUUID())) {
                 return job;
