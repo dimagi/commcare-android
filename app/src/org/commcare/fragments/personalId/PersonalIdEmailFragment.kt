@@ -1,6 +1,5 @@
 package org.commcare.fragments.personalId
 
-import android.app.Activity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,16 +13,11 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailBinding
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.utils.KeyboardHelper
-import org.commcare.utils.StringUtils
-import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
@@ -68,7 +62,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     override fun keyboardEnterPressed() {
-        if (StringUtils.isValidEmail(binding.emailTextValue.text?.toString())) {
+        if (EmailHelper.isValidEmail(binding.emailTextValue.text?.toString())) {
             submitEmail()
         } else {
             KeyboardHelper.hideVirtualKeyboard(requireActivity())
@@ -90,7 +84,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
                 before: Int,
                 count: Int,
             ) {
-                enableContinueButton(StringUtils.isValidEmail(s?.toString()))
+                enableContinueButton(EmailHelper.isValidEmail(s?.toString()))
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -102,20 +96,14 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     private fun confirmSkipEmail() {
-        val commCareActivity = requireActivity() as CommCareActivity<*>
-        val dialog =
-            StandardAlertDialog(
-                getString(R.string.personalid_email_skip_confirm_title),
-                getString(R.string.personalid_email_skip_confirm_message),
-            )
-        dialog.setPositiveButton(getString(R.string.personalid_link_app_yes)) { _, _ ->
-            commCareActivity.dismissAlertDialog()
-            skipEmail()
-        }
-        dialog.setNegativeButton(getString(R.string.personalid_link_app_no)) { _, _ ->
-            commCareActivity.dismissAlertDialog()
-        }
-        commCareActivity.showAlertDialog(dialog)
+        EmailHelper.showSkipConfirmationDialog(
+            activity = requireActivity() as CommCareActivity<*>,
+            title = getString(R.string.personalid_email_skip_confirm_title),
+            message = getString(R.string.personalid_email_skip_confirm_message),
+            positiveButtonText = getString(R.string.personalid_link_app_yes),
+            negativeButtonText = getString(R.string.personalid_link_app_no),
+            onConfirm = ::skipEmail,
+        )
     }
 
     private fun enableContinueButton(enabled: Boolean) {
@@ -127,7 +115,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             binding.emailTextValue.text
                 .toString()
                 .trim()
-        if (!StringUtils.isValidEmail(email)) {
+        if (!EmailHelper.isValidEmail(email)) {
             showError(getString(R.string.personalid_email_invalid_format))
             return
         }
@@ -135,62 +123,41 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
         clearError()
         enableContinueButton(false)
 
-        object : PersonalIdApiHandler<Boolean>() {
-            override fun onSuccess(status: Boolean) {
-                navigateToEmailVerification(email)
-            }
-
-            override fun onFailure(
-                failureCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
+        EmailHelper.sendEmailOtp(
+            activity = requireActivity(),
+            email = email,
+            workflow = workflow,
+            sessionData = personalIdSessionData,
+            onSuccess = { navigateToEmailVerification(email) },
+            onFailure = { failureCode, t ->
                 showError(
-                    PersonalIdOrConnectApiErrorHandler.handle(
-                        requireActivity(),
-                        failureCode,
-                        t,
-                    ),
+                    PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t),
                 )
                 enableContinueButton(true)
-            }
-        }.sendEmailOtp(
-            requireActivity(),
-            email,
-            if (workflow == EmailWorkFlow.EXISTING_USER) null else personalIdSessionData.token,
-            if (workflow == EmailWorkFlow.EXISTING_USER) ConnectUserDatabaseUtil.getUser(requireActivity()) else null,
+            },
         )
     }
 
     private fun skipEmail() {
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "skip")
-        when (workflow) {
-            // Existing user adding email post-registration — finish the entry activity.
-            EmailWorkFlow.EXISTING_USER -> {
-                requireActivity().finish()
-            }
-
-            // Recovery — finalize account recovery and show the success screen.
-            EmailWorkFlow.RECOVERY -> {
-                finalizeRecoveryAndShowSuccess()
-            }
-
-            // Brand-new signup — continue to photo capture.
-            EmailWorkFlow.REGISTRATION -> {
+        EmailHelper.routeAfterEmailDeclined(
+            fragment = this,
+            workflow = workflow,
+            sessionData = personalIdSessionData,
+            onRegistration = {
                 binding.root
                     .findNavController()
                     .navigate(PersonalIdEmailFragmentDirections.actionPersonalidEmailToPersonalidPhotoCapture())
-            }
-        }
-    }
-
-    private fun finalizeRecoveryAndShowSuccess() {
-        PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
-        navigateToMessageDisplay(
-            getString(R.string.connect_recovery_success_title),
-            getString(R.string.connect_recovery_success_message),
-            isCancellable = false,
-            phase = ConnectConstants.PERSONALID_RECOVERY_SUCCESS,
-            buttonText = R.string.ok,
+            },
+            onRecoverySuccess = {
+                navigateToMessageDisplay(
+                    getString(R.string.connect_recovery_success_title),
+                    getString(R.string.connect_recovery_success_message),
+                    isCancellable = false,
+                    phase = ConnectConstants.PERSONALID_RECOVERY_SUCCESS,
+                    buttonText = R.string.ok,
+                )
+            },
         )
     }
 
