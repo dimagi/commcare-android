@@ -8,13 +8,13 @@
 Give a signed-in PersonalID user a dedicated Profile screen reached from the nav drawer, plus a separate Edit screen for changing editable fields. They can:
 - View name, phone, email, and their photo
 - Update the photo (reusing the existing flow)
-- Tap an edit pencil to change their **name** on a separate Edit screen
+- Tap an edit pencil to change their **name** and **email** on a separate Edit screen. Email changes require OTP verification.
 - Open App Manager from a 3-dot menu
 - Forget their PersonalID via a destructive CTA with a confirmation modal
 
 Forget PersonalID moves out of the Login *and* Setup 3-dot menus into the new Profile screen. App Manager stays in the Login menu — it must remain reachable for users without PersonalID — and is *also* exposed from Profile as an additional entry point.
 
-Phone and email are **not editable** in this MVP — both render as greyed-out, disabled fields on the Edit screen. Phone is permanently not-editable per the Path Forward; email editing is deferred to a future implementation ticket.
+Phone number is **not editable** in this MVP — it renders as a greyed-out, disabled field on the Edit screen (per the Path Forward).
 
 ## Architecture
 
@@ -25,6 +25,17 @@ The screen reads from `ConnectUserDatabaseUtil.getUser(context)` (returns a `Con
 The photo update flow that lives in `BaseDrawerController` today gets extracted into a reusable helper so both the drawer and the Edit Profile screen call the same code path.
 
 **Unlock gate.** Tapping the drawer link runs through `PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS, ...)` before launching `PersonalIdProfileActivity`.
+
+**Email OTP flow.** When the user taps Save with a new email, a confirmation dialog explains that a verification code will be sent. On Continue, Edit first commits any pending name change via `PersonalIdApiHandler.updateProfile(displayName = ...)`; if that call fails, Edit shows the standard error toast and stays put (no OTP navigation, no email change). On a successful name save — or if the name was unchanged — Edit navigates to the shared OTP verification screen passing only the new email. That screen owns the entire verify flow: it calls `requestEmailOtp` on its own create, presents the code input, calls `verifyEmailOtp` to commit the new email, and handles every request/verify error internally (retry UX, error toasts, etc.). When the user is done with the OTP screen — whether they verified successfully or backed out — the OTP screen pops back to Edit with a single `email_verified: Boolean` result. On `true`, Edit persists the new email locally (`ConnectUserRecord.email`, `ConnectUserDatabaseUtil.storeUser`), shows a success toast, and pops to Profile. On `false`, Edit just resumes with the typed values intact; the user can retry from Save. Pure-name edits (email unchanged) skip the OTP path entirely and commit via `updateProfile` directly.
+
+**OTP screen dependency.** Because the verification screen is owned by a separate WIP branch, this plan describes the handoff at a contract level. The implementer of Phase 5.5 must confirm three things with the in-flight feature's owners before wiring:
+1. How the OTP screen is launched (preferred: a nav-graph destination added to `nav_graph_personalid_profile.xml`; fallback: `ActivityResultLauncher` if it's a separate `Activity`).
+2. The arguments it accepts — `newEmail: String`. Nothing else; name is saved separately by Edit before navigation.
+3. The result shape — a `FragmentResult` (or activity result) under a known key (assumed `OTP_RESULT_KEY`) containing one boolean `email_verified`. `true` means the OTP screen committed the new email server-side; `false` means the user backed out without verifying. The OTP screen does *not* dispatch error details to Edit — request and verify errors are handled inside the OTP screen.
+
+If the OTP screen has not merged by the time Phase 5.5 is implemented, stub it behind a local test fragment that exposes a "verify success" and "back out" affordance and dispatches the boolean result so Phase 5 stays unblocked; replace the stub when the real screen lands.
+
+**Name + email ordering caveat.** Because name commits before email and the two saves are independent, a user who saves both fields and then abandons the OTP flow (back arrow or gives up after a verify failure) will see their name change persisted while the email stays at its original value. This is acceptable given the design tradeoff — flagged here so it's not a surprise during QA and so the Phase 6 doc note captures it.
 
 **Dark launch.** The drawer link — the only entry point to all of this work — is hard-coded to `View.GONE` from Phase 1 through Phase 5, so every intermediate phase is safely releasable. Phase 6 swaps the hard-coded `View.GONE` for the real signed-in conditional and removes the legacy `Forget PersonalID` entries from the Login and Setup menus (App Manager stays in Login).
 
@@ -66,8 +77,11 @@ Goal: a tappable "Manage Profile" subtitle below the user's name in the drawer h
    - `personalid_profile_section_personal_information`
    - `personalid_profile_field_name`, `personalid_profile_field_phone`, `personalid_profile_field_email`
    - `personalid_profile_forget_account`, `personalid_profile_menu_app_manager`
+   - `personalid_edit_profile_error_email_invalid` ("Enter a valid email address."), `personalid_edit_profile_error_email_required` ("Email is required.")
+   - `personalid_edit_profile_email_otp_notice` ("Updating your email address will require an OTP verification.")
    - Forget modal: `personalid_profile_forget_confirm_title`, `personalid_profile_forget_confirm_message`
    - Discard modal: `personalid_edit_profile_discard_title` ("Discard your changes?"), `personalid_edit_profile_discard_message` ("Your unsaved changes will be lost."), `personalid_edit_profile_discard_positive` ("Discard"), `personalid_edit_profile_discard_negative` ("Keep editing")
+   - OTP confirmation modal: `personalid_edit_profile_otp_confirm_title` ("Verify your new email"), `personalid_edit_profile_otp_confirm_message` ("We'll send a 6-digit code to %1$s. Enter it on the next screen to verify the email." — note the `%1$s` placeholder for the new email; translators must preserve it), `personalid_edit_profile_otp_confirm_positive` ("Send Code"), `personalid_edit_profile_otp_confirm_negative` ("Cancel")
 
 2. **Drawer header layout.** In `nav_drawer_header.xml`, inside the inner vertical `LinearLayout` that holds `@id/header_user_name` ([around line 71](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/res/layout/nav_drawer_header.xml#L71)), add a second `TextView` directly below with id `@+id/header_manage_profile`, text `@string/personalid_manage_profile`, small white text, and `?attr/selectableItemBackground`. The `<u>` tags in the string render the underline (Fig. 1 in the design doc).
 
@@ -156,7 +170,7 @@ In the menu handler for `action_app_manager`, start `AppManagerActivity` with `I
 
 ## Phase 5 — Edit Profile screen
 
-Goal: a form where the user changes their name and saves. Phone and email are both shown but greyed out and disabled — email editing is deferred to a future implementation ticket. Cancelling or backing out with unsaved changes triggers a discard modal.
+Goal: a form where the user changes their name and/or email and saves. Phone is shown but greyed out and disabled. Email validation fails inline with a red outline. A Save tap that includes a new email triggers an OTP confirmation dialog and hands off to the shared OTP verification screen (see 5.5); a Save tap with name-only changes commits directly via `PersonalIdApiHandler.updateProfile`. Cancelling or backing out with unsaved changes triggers a discard modal.
 
 ### 5.1 Extract the photo update flow into `PersonalIdPhotoUpdater`
 
@@ -188,46 +202,97 @@ Match Fig. 4 / page 8 (right side) of the design doc, top to bottom. Wrap the wh
 - Circular photo **with camera-icon overlay** — reuse the `MaterialCardView` + black-60 overlay pattern from [`nav_drawer_header.xml` lines 30–64](https://github.com/dimagi/commcare-android/blob/ed81450acba5615de8aeb7bf1da0951eb586f331/app/res/layout/nav_drawer_header.xml#L30-L64). IDs `@+id/user_image` and `@+id/user_image_overlay_icon`. Tapping the photo launches the `PersonalIdPhotoUpdater` (wired in 5.4). This is the only screen where the photo is editable.
 - Name (large) and phone (small) underneath, identical to the Profile screen, for visual continuity.
 - Section header "Personal Information".
-- **Name** — `TextInputLayout` wrapping a `TextInputEditText`, id `@+id/profile_input_name`, enabled. This is the only editable text field in MVP.
+- **Name** — `TextInputLayout` wrapping a `TextInputEditText`, id `@+id/profile_input_name`, enabled.
 - **Phone Number** — `TextInputLayout`, id `@+id/profile_input_phone`, `android:enabled="false"`, with a `helperText` that explains it cannot be changed. Match the greyed-out background in the Figma.
-- **Email Address** — `TextInputLayout`, id `@+id/profile_input_email`, `android:enabled="false"`, same greyed-out treatment as phone. No OTP notice TextView — the OTP / email-update copy will be added by the future email-editing ticket.
+- **Email Address** — directly *above* the input wrapper (i.e. between the "Email Address" field label and the input box) add a `TextView` (id `@+id/profile_email_otp_notice`) with `android:text="@string/personalid_edit_profile_email_otp_notice"`, `android:drawableStart="@drawable/ic_personalid_warning"`, a small `drawablePadding`, gray text + `app:drawableTint` matching the gray Figma caption, and a small text size — matching the right side, page 8 of the design doc. Below the notice, the `TextInputLayout`, id `@+id/profile_input_email`, enabled, `android:inputType="textEmailAddress"`. Inline validation errors are surfaced via `TextInputLayout.error` using the strings from Phase 1.
 - Bottom row: a `Cancel` text button on the left (`@+id/btn_cancel`) and a filled `Save` button on the right (`@+id/btn_save`). Save starts disabled.
+
+For validation errors, use `TextInputLayout`'s built-in `error` API — setting `.error = "..."` automatically applies the red outline and error caption that Material's theme drives.
 
 ### 5.3 `PersonalIdEditProfileViewModel`
 
-Constructor takes a `SavedStateHandle`; the original name and current name are stored as `LiveData` via `savedStateHandle.getLiveData(KEY_...)`. This survives both rotation and process death without losing in-progress edits. Email and phone are not tracked here — they are display-only and the ViewModel never reads or writes them.
+Constructor takes a `SavedStateHandle`; originals (`originalName`, `originalEmail`) and current values (`currentName`, `currentEmail`) are stored as `LiveData` via `savedStateHandle.getLiveData(KEY_...)`. This survives rotation, process death, *and* the round-trip to the OTP screen — when Edit comes back into view, the typed name and email are intact. Phone is display-only and the ViewModel never reads or writes it.
 
 Derived booleans:
-- `isModified()` — `currentName != originalName`
-- `canSave() = isModified() && currentName.isNotBlank()` — name cannot be cleared to empty
+- `isNameModified()` — `currentName != originalName`
+- `isEmailModified()` — `currentEmail != originalEmail`
+- `isModified() = isNameModified() || isEmailModified()`
+- `isNameValid() = currentName.isNotBlank()` — name cannot be cleared to empty
+- `isEmailValid()` —
+  - if `originalEmail` is empty: `currentEmail` is empty or matches `android.util.Patterns.EMAIL_ADDRESS`
+  - if `originalEmail` is non-empty: `currentEmail` is non-empty and matches the pattern (clearing an existing email is not allowed in MVP)
+- `canSave() = isModified() && isNameValid() && isEmailValid()`
 
-Expose `initialize(name)` (idempotent — only seeds the original if the handle is empty) and `onNameChanged(String)`.
+Expose `initialize(name, email)` (idempotent — only seeds the originals if the handle is empty), `onNameChanged(String)`, and `onEmailChanged(String)`.
+
+When the email is invalid because it's empty but the original was non-empty, the fragment surfaces `personalid_edit_profile_error_email_required`; for malformed non-empty input it surfaces `personalid_edit_profile_error_email_invalid`.
 
 **Tests** — `@RunWith(AndroidJUnit4::class) @Config(application = CommCareTestApplication::class)` (Robolectric, matches `ConnectJobsListViewModelTest`):
-- `isModified()` flips true when the name changes, and back to false when it is edited back to its original.
-- `canSave()` is false when the name has not been changed, false when the edited name is blank, and true when the name is changed to a non-blank value.
-- `initialize()` called a second time is a no-op; an in-progress edit to the name is preserved.
-- A ViewModel constructed from an already-populated `SavedStateHandle` restores both the original and the current name; a subsequent `initialize` does not overwrite them.
+- `isNameModified()` and `isEmailModified()` each flip true independently when their field changes, and back to false when edited back to original. `isModified()` is their OR.
+- `isNameValid()` is false for blank names, true otherwise.
+- `isEmailValid()` when original email was empty: true for empty and well-formed addresses, false for malformed and whitespace-only.
+- `isEmailValid()` when original email was non-empty: clearing it is invalid; only non-empty matching addresses are valid.
+- `canSave()` is the AND of `isModified()`, `isNameValid()`, and `isEmailValid()`.
+- `initialize()` called a second time is a no-op; in-progress edits to name and email are preserved.
+- A ViewModel constructed from an already-populated `SavedStateHandle` restores both originals and current values; a subsequent `initialize` does not overwrite them.
 
 ### 5.4 `PersonalIdEditProfileFragment`
 
 - Obtain the ViewModel with `by viewModels()` (the Kotlin delegate provides a `SavedStateHandle` automatically).
-- Load the `ConnectUserRecord` in `onViewCreated`, call `viewModel.initialize(user.name)` (idempotent — safe on rotation), pre-fill the Name input from the LiveData, and populate the disabled Phone and Email fields directly from the record (no LiveData needed — they never change on this screen).
-- Render the photo with Glide (same configuration as the Profile screen). Instantiate `PersonalIdPhotoUpdater` as a fragment field and call `updater.register(this)` from `onCreate` so the `ActivityResultLauncher` is registered before `STARTED`. Call `updater.show(onSuccess, onFailure)` from the photo and overlay click listeners — `onSuccess` reloads the photo via Glide and shows a success toast; `onFailure` shows the error toast via `PersonalIdOrConnectApiErrorHandler.handle(...)`. Photo changes save independently of the Name form — they do not affect `isModified()` or the Save button.
-- Attach a `TextWatcher` on the Name `EditText` that forwards to `onNameChanged`.
-- Observe state on every change: `btn_save.isEnabled = viewModel.canSave()`.
-- `btn_save` click: disable the button immediately and re-enable it in both success and failure paths (prevents double-submission). Call `PersonalIdApiHandler.updateProfile` (the wrapper, same path the drawer uses) using **named arguments** — `displayName = newName, secondaryPhone = null, photoAsBase64 = null` — so adjacent nulls cannot silently swap. On success, update the `ConnectUserRecord` in place, call `ConnectUserDatabaseUtil.storeUser(...)`, show a success toast, and `findNavController().popBackStack()`. On failure, surface the standard error via `PersonalIdOrConnectApiErrorHandler.handle(...)`.
-- `btn_cancel` and the toolbar back arrow both call a single `handleBack()` method (see 5.5).
+- Load the `ConnectUserRecord` in `onViewCreated`, call `viewModel.initialize(user.name, user.email ?: "")` (idempotent — safe on rotation *and* on return from the OTP screen), and pre-fill the Name and Email inputs from the LiveData. Populate the disabled Phone field directly from the record (no LiveData needed — it never changes on this screen).
+- Render the photo with Glide (same configuration as the Profile screen). Instantiate `PersonalIdPhotoUpdater` as a fragment field and call `updater.register(this)` from `onCreate` so the `ActivityResultLauncher` is registered before `STARTED`. Call `updater.show(onSuccess, onFailure)` from the photo and overlay click listeners — `onSuccess` reloads the photo via Glide and shows a success toast; `onFailure` shows the error toast via `PersonalIdOrConnectApiErrorHandler.handle(...)`. Photo changes save independently of the Name/Email form — they do not affect `isModified()` or the Save button.
+- Attach `TextWatcher`s on the Name and Email `EditText`s that forward to `onNameChanged` / `onEmailChanged`.
+- Observe state on every change: `btn_save.isEnabled = viewModel.canSave()`; when the email is invalid, set `profile_input_email.error` to `personalid_edit_profile_error_email_required` (empty but original was non-empty) or `personalid_edit_profile_error_email_invalid` (malformed); otherwise clear it.
+- `btn_save` click branches on whether email is dirty:
+   - **Name-only path** (`!viewModel.isEmailModified()`): disable the button immediately and re-enable it in both success and failure paths (prevents double-submission). Call `PersonalIdApiHandler.updateProfile` (the wrapper, same path the drawer uses) using **named arguments** — `displayName = newName, secondaryPhone = null, photoAsBase64 = null` — so adjacent nulls cannot silently swap. On success, update the `ConnectUserRecord` in place, call `ConnectUserDatabaseUtil.storeUser(...)`, show a success toast, and `findNavController().popBackStack()`. On failure, surface the standard error via `PersonalIdOrConnectApiErrorHandler.handle(...)`.
+   - **Email path** (`viewModel.isEmailModified()`): hand off to the OTP confirmation flow in 5.5. 5.5 handles both the optional name save (if name is also dirty) and the OTP screen handoff; do not call `updateProfile` from inside this branch.
+- `btn_cancel` and the toolbar back arrow both call a single `handleBack()` method (see 5.6).
 
-### 5.5 Discard confirmation on back / cancel
+### 5.5 OTP confirmation dialog and handoff to the verification screen
+
+This subsection covers the Save-tap path when `viewModel.isEmailModified()` is true. **Before implementing, confirm the OTP screen contract with the in-flight email feature's owners (see the "OTP screen dependency" note in Architecture).** Stub the OTP screen with a local test fragment if it has not merged yet.
+
+1. **Confirmation dialog.** Show a `StandardAlertDialog` (the same dialog class used elsewhere in the Profile feature) populated from the Phase 1 strings:
+   - Title: `personalid_edit_profile_otp_confirm_title`
+   - Message: `getString(personalid_edit_profile_otp_confirm_message, currentEmail)` — the `%1$s` placeholder is filled with the new email.
+   - Positive button: `personalid_edit_profile_otp_confirm_positive` → continues to step 2.
+   - Negative button: `personalid_edit_profile_otp_confirm_negative` → dismisses the dialog. The Edit screen state is unchanged (typed name and email are preserved); the Save button stays enabled.
+
+2. **Commit the name change first (if dirty).** On Continue:
+   - Disable `btn_save` immediately (prevents double-tap; re-enabled on failure or on return from OTP — see step 5).
+   - If `viewModel.isNameModified()`: call `PersonalIdApiHandler.updateProfile(displayName = currentName, secondaryPhone = null, photoAsBase64 = null)` using **named arguments**. On success, update the `ConnectUserRecord.name` in place via `ConnectUserDatabaseUtil.storeUser(...)` (so the new name is reflected on Profile when control returns), then proceed to step 3. On failure, re-enable `btn_save`, surface the standard error via `PersonalIdOrConnectApiErrorHandler.handle(...)`, and **stop** — do not navigate to the OTP screen. The typed name and email are preserved; the user can retry from Save.
+   - If name is *not* dirty: skip directly to step 3.
+
+3. **Navigate to the OTP screen.** Hand off via the navigation graph if the OTP screen is a `Fragment` destination (preferred — add the destination and an `action_edit_profile_to_otp` to `nav_graph_personalid_profile.xml`) or via an `ActivityResultLauncher` if it's an `Activity` (fallback). Pass one argument: `newEmail: String` — the email being verified. The OTP screen calls `requestEmailOtp` on its own create; Edit does not.
+
+4. **Register the result listener.** In `onCreate` (before `STARTED`), call `setFragmentResultListener(OTP_RESULT_KEY) { _, bundle -> ... }`. The bundle's expected shape (confirm with the in-flight feature): a single boolean `email_verified`.
+   - `email_verified = true`: the OTP screen has committed the new email server-side. Update the local `ConnectUserRecord.email` in place via `ConnectUserDatabaseUtil.storeUser(...)`, show a success toast, and `findNavController().popBackStack()` to land on Profile.
+   - `email_verified = false`: the user backed out of the OTP screen without verifying (the OTP screen handled any request/verify errors internally — Edit does not need to show a toast). Re-enable `btn_save`. The typed name and email are still in the form (the ViewModel's `SavedStateHandle` survived the round-trip); the user can retry from Save.
+
+5. **Re-enabling Save on return.** Whether the listener fires or not, the simplest and idempotent guard against a permanently-disabled Save button is: in `onResume`, set `btn_save.isEnabled = viewModel.canSave()`. This covers both the result-listener paths above and the (theoretical) case where the OTP screen pops back without dispatching a result at all.
+
+### 5.6 Discard confirmation on back / cancel
 
 Register an `OnBackPressedCallback` in `onViewCreated` so the system back button routes through the same `handleBack()` as the Cancel button and the toolbar's Up arrow (intercept `android.R.id.home` in `onOptionsItemSelected` and call `handleBack()`).
 
 `handleBack()` logic: if `!viewModel.isModified()`, `popBackStack()` immediately. Otherwise show a `StandardAlertDialog` with title/message from the new `personalid_edit_profile_discard_*` strings. Positive ("Discard") → pop. Negative ("Keep editing") → dismiss and stay.
 
-**Verify.** Build, open Edit, exercise: prefilled name, disabled phone and email, Save disabled until the name is changed, Save disabled when the name is blanked, valid Save round-trips to backend and updates UI, network failure shows toast and leaves the form populated, cancel/back with changes shows discard modal, no-change back returns immediately. Run the ViewModel tests.
+**Verify.** Build, open Edit, exercise the following matrix:
+- Prefilled name and email, Phone disabled.
+- Save is disabled until *any* field is modified to a valid value; disabled when name is blanked, disabled when email is malformed or (originally non-empty and now) cleared.
+- Invalid email shows the red outline + caption.
+- Name-only Save round-trips to backend, updates the local record, toasts, and pops back to Profile.
+- Name-only Save with a network failure shows the toast and leaves the form populated.
+- Email-only Save shows the OTP confirmation dialog with the new email in the message. Cancel dismisses the dialog with no state change. Continue navigates straight to the OTP screen.
+- Combined name+email Save → confirmation dialog → Continue → name save succeeds → OTP screen appears. The new name is already persisted at this point (visible on Profile if you back-stack out before verifying).
+- Combined name+email Save with a failing name save: error toast on Edit, no OTP navigation, both typed values still in the form, Save re-enables.
+- OTP `email_verified = true` result: local email updates, success toast, pops back to Profile in view mode with the new email reflected.
+- OTP `email_verified = false` result (user backed out): Edit resumes with all typed values preserved, no toast (the OTP screen owns request/verify error UX), Save re-enables.
+- Cancel/back with any field modified shows the discard modal; no-change back returns immediately.
 
-**Commit the photo extraction in 5.1 alone**, then **commit the Edit screen + ViewModel + tests together** (5.2–5.4), then **commit the discard-confirmation behavior** (5.5).
+Run the ViewModel tests with `./gradlew :app:testCommcareDebugUnitTest`.
+
+**Commit the photo extraction in 5.1 alone**, then **commit the Edit screen + ViewModel + tests together** (5.2–5.4), then **commit the OTP confirmation + handoff** (5.5), then **commit the discard-confirmation behavior** (5.6).
 
 ---
 
@@ -264,7 +329,12 @@ Manual test: neither the Login nor the Setup 3-dot menu shows `Forget PersonalID
 
 ### 6.3 Docs
 
-Add `docs/personalid/manage_profile.md` with a short overview: how to reach Profile, where user data is read from and written to, which fields are editable in MVP (name only) vs greyed out (phone, email), where the photo update flow lives (`PersonalIdPhotoUpdater`), and a note that **photo updates and the Name Save are independent network calls** — a photo persists immediately, even if the user later discards or fails to save the form. Call out that email editing is deferred to a future implementation ticket and is intentionally not wired here. Do not link to the design doc or internal tickets — this repo is open-source and external readers won't have access.
+Add `docs/personalid/manage_profile.md` with a short overview: how to reach Profile, where user data is read from and written to, which fields are editable in MVP (name and email) vs greyed out (phone), where the photo update flow lives (`PersonalIdPhotoUpdater`), and notes that:
+- **Photo updates save independently of the Name/Email form** — a photo persists immediately, even if the user later discards or fails to save the form.
+- **Email changes go through an OTP verification screen** owned by a separate email feature. Document the navigation contract: Edit passes only `newEmail`; the OTP screen returns a single `email_verified` boolean via `OTP_RESULT_KEY`. The OTP screen owns the `requestEmailOtp` call, the `verifyEmailOtp` call, and all request/verify error UX.
+- **Name and email saves are independent.** When both are dirty, Edit commits the name first via `updateProfile`, then navigates to the OTP screen for the email. A user who saves both and then abandons the OTP flow will see their name change persisted while their email stays at its original value — that's intentional, not a bug.
+
+Do not link to the design doc or internal tickets — this repo is open-source and external readers won't have access.
 
 ---
 
@@ -272,7 +342,7 @@ Add `docs/personalid/manage_profile.md` with a short overview: how to reach Prof
 
 Per the Path Forward decision in the design doc, plus the scoping calls made in PR review:
 - Phone number editing + OTP verification — phone is greyed out only
-- Email editing — deferred to a future implementation ticket, which will land the `updateUserProfile` parameter, the OTP verification flow, and any related copy. Email is greyed out on the Edit screen in this MVP.
+- The OTP verification screen itself, including the `requestEmailOtp` call, the `verifyEmailOtp` call, and all request/verify error UX — owned by a separate in-flight email feature. This plan integrates with that screen via a navigation contract (`newEmail` in, `email_verified` boolean out) but does not build it.
 - Credentials / "View My Earned Certificates" card on the Profile screen — users already reach Work History from the nav drawer
 - Rate limiting on profile updates
 - Push notification on profile update (V1)
