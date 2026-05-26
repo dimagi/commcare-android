@@ -2,6 +2,7 @@ package org.commcare.activities.connect;
 
 import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
@@ -158,6 +159,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
                 redirectionAction = CCC_DEST_DELIVERY_PROGRESS; //  Generic push notification for delivery progress related
             }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_LEARNING){
                 redirectionAction = CCC_DEST_LEARN_PROGRESS;    // Generic push notification for learning progress related
+            }else {
+                redirectionAction = CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;    // Generic push notification for learning progress related
             }
         }
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
