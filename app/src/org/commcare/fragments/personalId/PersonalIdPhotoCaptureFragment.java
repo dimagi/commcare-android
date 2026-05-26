@@ -137,6 +137,7 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
                 String.valueOf(personalIdSessionData.getBackupCode()), new Date(), photoAsBase64,
                 personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
                 personalIdSessionData.getInvitedUser());
+        user.setEmail(personalIdSessionData.getEmail());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
     }
 
