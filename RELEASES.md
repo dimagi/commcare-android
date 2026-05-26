@@ -80,6 +80,13 @@ we would like to communicate to QA as part of the release testing
     - Press the device Back button on the verification screen — verify the user returns to the Email entry screen with the email address still populated.
     - Switch the device language to a supported locale (e.g. French, Spanish, Hindi, Swahili) and re-walk the screen. Verify the action-bar title, in-screen title, description (with email substitution), Verify button label, resend button + countdown text, error messages, and both failure-dialog buttons all render in the selected language.
   - **Legacy logged-in users prompt:** (will be added here)
+  - **Backup Code → Email entry routing (signup + recovery):**
+    - **Signup with `email_otp_verification` server toggle ON:** Walk a fresh PersonalID signup. After entering and confirming the backup code, verify the Email entry screen appears next (not Photo Capture).
+    - **Signup with `email_otp_verification` server toggle OFF:** Walk a fresh PersonalID signup. After confirming the backup code, verify the flow skips Email and goes directly to Photo Capture.
+    - **Recovery with the server already returning a verified email for the user:** Walk PersonalID account recovery (validate backup code on a new device). Verify the flow skips the Email screen entirely and goes directly to the "Account Recovered" success screen.
+    - **Recovery with no server email, `email_otp_verification` toggle ON:** Recover an account that has no email on file. After backup code validation, verify the Email entry screen appears (so the user can add an email during recovery).
+    - **Recovery with `email_otp_verification` toggle OFF:** Recover any account with the toggle disabled. Verify the flow goes directly from backup code to the "Account Recovered" success screen without the Email screen.
+    - **Email persisted on the user record:** After completing a signup that included entering and verifying an email, verify the HQ admin view of the PersonalID user shows the email address that was entered. Repeat the same check after a recovery that included the Email screen.
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 

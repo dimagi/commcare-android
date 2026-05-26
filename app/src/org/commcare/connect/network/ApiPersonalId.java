@@ -362,7 +362,7 @@ public class ApiPersonalId {
 
     /**
      * Sends an email OTP. Auth source: PersonalID session token when available
-     * (signup / recovery), else basic auth from the supplied {@code user} (legacy
+     * (signup / recovery), else basic auth from the supplied {@code user} (existing user
      * flow where the user is already signed up and no session token exists).
      */
     public static void sendEmailOtp(

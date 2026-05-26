@@ -15,12 +15,10 @@ import java.util.Date
 
 /**
  * Finalises account recovery.
- * Mirrors the logic previously inlined in PersonalIdBackupCodeFragment.handleSuccessfulRecovery().
  * This will be used from:
- *  PersonalIdBackupCodeFragment: whenever the user already has a valid email and there is no need to show the email entry fragment (TODO https://dimagi.atlassian.net/browse/CCCT-2407).
+ *  PersonalIdBackupCodeFragment: whenever the user already has a valid email or the email toggle is inactive and the user is recovering the account
  *  PersonalIdEmailFragment: whenever the user presses skip and is recovering the account
- *  PersonalIdEmailValidationFragment: whenever it validates OTP / skip and the user is recovering the account (TODO https://dimagi.atlassian.net/browse/CCCT-2378).
- * Comments here will be updated as and when ToDo tickets are done.
+ *  PersonalIdEmailValidationFragment: whenever it validates OTP / skip and the user is recovering the account
  */
 object PersonalIdRecoveryCompleter {
     @JvmStatic
@@ -43,7 +41,6 @@ object PersonalIdRecoveryCompleter {
                 sessionData.requiredLock,
                 sessionData.invitedUser,
             )
-        // Email (DB column)
         user.email = sessionData.email
         ConnectUserDatabaseUtil.storeUser(activity, user)
 
