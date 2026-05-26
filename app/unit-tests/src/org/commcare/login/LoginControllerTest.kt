@@ -19,11 +19,7 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Hand-written fakes for collaborators whose suspend functions return sealed types.
- * mockk 1.12.7 cannot fabricate a default placeholder for sealed classes during coEvery
- * recording, so fakes are used instead for KeyRecordOperations, SyncOperations, and
- * DemoLoginPath. ConnectCredentialResolver and PostLoginSideEffects return concrete types
- * and are mocked normally.
+ * Handwritten fakes for collaborators whose suspend functions return sealed types.
  */
 private class FakeKeyRecordOperations(
     private val result: KeyRecordOutcome,
@@ -221,7 +217,7 @@ class LoginControllerTest {
         }
 
     @Test
-    fun `SyncFailed from sync after ReadyForSync returns Failed without side-effects`() =
+    fun `SyncFailed from sync after ReadyForSync returns Failed without side effects`() =
         runTest {
             val (controller, _, _) =
                 buildController(

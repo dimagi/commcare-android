@@ -1,7 +1,10 @@
 package org.commcare.login
 
 import android.content.Context
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
@@ -21,6 +24,21 @@ class LoginController internal constructor(
         credentialResolver = ConnectCredentialResolver(context),
         postLoginSideEffects = PostLoginSideEffects(),
     )
+
+    fun interface ResultCallback {
+        fun onResult(result: LoginResult)
+    }
+
+    fun start(
+        activity: CommCareActivity<*>,
+        request: LoginRequest,
+        sink: LoginProgressSink,
+        callback: ResultCallback,
+    ): Job =
+        activity.lifecycleScope.launch {
+            val result = performLogin(activity, request, sink)
+            callback.onResult(result)
+        }
 
     suspend fun performLogin(
         activity: CommCareActivity<*>,

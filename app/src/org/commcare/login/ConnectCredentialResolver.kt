@@ -51,7 +51,7 @@ class ConnectCredentialResolver(
         val passwordLength = 20
         val charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?"
         val random = SecureRandom()
-        return (1 until passwordLength)
+        return (0 until passwordLength)
             .map { charSet[random.nextInt(charSet.length)] }
             .joinToString("")
     }

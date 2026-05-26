@@ -49,7 +49,7 @@ class PostLoginSideEffectsTest {
     }
 
     @Test
-    fun `not logged into PersonalID — runs only basic side-effects and returns false`() =
+    fun `not logged into PersonalID runs only basic side effects and returns false`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns false
 
@@ -62,7 +62,7 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `personalID logged in, no job — sets analytics null and returns false`() =
+    fun `personalID logged in with no job sets analytics null and returns false`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             every { ConnectJobUtils.getJobForApp(activity, "app-1") } returns null
@@ -76,7 +76,7 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `personalID logged in, job exists, updateJobProgress success, user suspended — returns true`() =
+    fun `personalID logged in with job and updateJobProgress success and user suspended returns true`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
@@ -96,7 +96,7 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `personalID logged in, job exists, updateJobProgress success, user not suspended — returns false`() =
+    fun `personalID logged in with job and updateJobProgress success and user not suspended returns false`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
@@ -114,7 +114,7 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `updateJobProgress callback success=false — returns false even when suspended`() =
+    fun `updateJobProgress callback returns success false returns false even when suspended`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)

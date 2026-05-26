@@ -55,7 +55,7 @@ internal open class SyncOperations(
                         val outcome =
                             when (val pull = result?.data) {
                                 PullTaskResult.DOWNLOAD_SUCCESS -> SyncOutcome.Success
-                                null -> SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", null))
+                                null -> SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", result?.errorMessage))
                                 else -> SyncOutcome.Failed(OutcomeMapper.fromPullTaskResult(pull, result.errorMessage))
                             }
                         if (!continuation.isCompleted) continuation.resume(outcome)

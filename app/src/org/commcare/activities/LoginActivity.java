@@ -40,9 +40,7 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.login.AuthSource;
 import org.commcare.login.LoginController;
-import org.commcare.login.LoginCoordinator;
 import org.commcare.login.LoginError;
-import org.commcare.login.LoginProgress;
 import org.commcare.login.LoginProgressSink;
 import org.commcare.login.LoginRequest;
 import org.commcare.login.LoginResult;
@@ -145,8 +143,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
-    private LoginController loginController;
-    private LoginCoordinator loginCoordinator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,8 +158,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
         initPersonaIdManager();
-        loginController = new LoginController(this);
-        loginCoordinator = new LoginCoordinator(loginController);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
         connectLaunchPerformed = false;
@@ -297,11 +291,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
         if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync(
                 uiController.getEnteredUsername())) {
-            // install update, which triggers login upon completion via localLoginOrPullAndLogin
+            // install update, which triggers login upon completion
             installPendingUpdate();
         } else if (CommCareApplication.instance().isConsumerApp()) {
-            // Consumer apps use the bundled-CCZ LocalReferencePullResponseFactory path which
-            // LoginController/SyncOperations don't yet handle. Stay on the legacy plumbing.
             localLoginOrPullAndLogin(restoreSession);
         } else {
             runLoginPipeline(loginMode, restoreSession, passwordOrPin);
@@ -325,9 +317,13 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 getMatchingUsersCount(username) > 1,
                 /* blockRemoteKeyManagement */ false);
 
-        LoginProgressSink sink = progress -> { /* TODO: Phase 1: no-op. Phase 3 wires this to a dialog. */ };
+        // No-op sink: existing progress UI is driven by the legacy task connectors when
+        // those paths are still in use. A later change will wire this to the activity's
+        // existing progress UI for the LoginController path.
+        LoginProgressSink sink = progress -> { };
 
-        loginCoordinator.start(this, request, sink, result -> handleLoginResult(result));
+        LoginController controller = new LoginController(this);
+        controller.start(this, request, sink, this::handleLoginResult);
     }
 
     private AuthSource determineAuthSource() {
@@ -343,10 +339,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     public void startDataPull(DataPullMode mode, String password) {
-        // The main login pipeline runs via LoginController since CCCT-2437.
-        // This callback is still reached from the demo-user menu path
-        // (loginDemoUser -> tryLocalLogin -> ManageKeyRecordTask) and must keep
-        // running the local/demo restore for that flow.
         switch (mode) {
             case CONSUMER_APP:
                 formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
@@ -529,10 +521,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     public void dataPullCompleted() {
-        // The main login pipeline runs via LoginController since CCCT-2437.
-        // This callback is still reached from the demo-user menu path
-        // (loginDemoUser -> tryLocalLogin -> ManageKeyRecordTask) and must keep
-        // finishing the activity for that flow.
         CrashUtil.registerUserData();
         hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
@@ -591,18 +579,13 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     private void handleLoginResult(LoginResult result) {
         if (result instanceof LoginResult.Success) {
-            onLoginPipelineSuccess((LoginResult.Success) result);
+            onLoginSuccess((LoginResult.Success) result);
         } else {
-            renderLoginError(((LoginResult.Failed) result).getError());
+            onLoginError(((LoginResult.Failed) result).getError());
         }
     }
 
-    private void onLoginPipelineSuccess(LoginResult.Success success) {
-        // PostLoginSideEffects has already run (CrashUtil, notifications, analytics,
-        // updateJobProgress, updateAppAccess). The remaining UI-bound branch is
-        // checkPersonalIdLink, which fires when PersonalID is logged in but no Connect
-        // job is associated with the seated app — that case keeps living here in the
-        // activity because it can prompt the user.
+    private void onLoginSuccess(LoginResult.Success success) {
         if (personalIdManager.isloggedIn()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectJobUtils.getJobForApp(this, appId);
@@ -622,11 +605,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
         finishWithSuccess(
                 success,
-                success.getPostLoginOutcome().getRedirectToConnectOpportunityInfo());
+                success.getPostLoginOutcome().getRedirectToConnectOpportunityInfo()
+        );
     }
 
     private void finishWithSuccess(LoginResult.Success success, boolean navigateToConnectJobs) {
-        CrashUtil.registerUserData();
         hideVirtualKeyboard(LoginActivity.this);
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
@@ -638,7 +621,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         finish();
     }
 
-    private void renderLoginError(LoginError error) {
+    private void onLoginError(LoginError error) {
         if (error instanceof LoginError.BadCredentials) {
             raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
         } else if (error instanceof LoginError.TokenDenied) {
@@ -647,10 +630,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
         } else if (error instanceof LoginError.AuthOverHttpBlocked) {
             raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
-        } else if (error instanceof LoginError.SyncFailed) {
-            LoginError.SyncFailed sf = (LoginError.SyncFailed) error;
-            if (sf.getMessage() != null) {
-                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, sf.getMessage(), true);
+        } else if (error instanceof LoginError.SyncFailed syncFailed) {
+            if (syncFailed.getMessage() != null) {
+                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, syncFailed.getMessage(), true);
             } else {
                 raiseLoginMessage(StockMessages.Restore_Unknown, true);
             }
@@ -928,21 +910,29 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
-        // Consumer apps stay on the legacy LocalReferencePullResponseFactory path because
-        // LoginController/SyncOperations don't yet handle DataPullMode.CONSUMER_APP.
-        // Other callers (post-update reentry) route through the new pipeline.
         if (CommCareApplication.instance().isConsumerApp()) {
-            if (tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                    false, restoreSession, uiController.getLoginMode(), false, DataPullMode.NORMAL)) {
+            String username = getUniformUsername();
+            String passwordOrPin = uiController.getEnteredPasswordOrPin();
+            boolean localLoginStarted = tryLocalLogin(
+                    username,
+                    passwordOrPin,
+                    false,
+                    restoreSession,
+                    uiController.getLoginMode(),
+                    false,
+                    DataPullMode.NORMAL
+            );
+            if (localLoginStarted) {
                 return;
             }
-            startDataPull(DataPullMode.CONSUMER_APP, uiController.getEnteredPasswordOrPin());
+            startDataPull(DataPullMode.CONSUMER_APP, passwordOrPin);
             return;
         }
         runLoginPipeline(
                 uiController.getLoginMode(),
                 restoreSession,
-                uiController.getEnteredPasswordOrPin());
+                uiController.getEnteredPasswordOrPin()
+        );
     }
 
     @Override
@@ -968,10 +958,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend,
                                      boolean usingRemoteKeyManagement) {
-        // The main login pipeline runs via LoginController since CCCT-2437.
-        // This callback is still reached from the demo-user menu path
-        // (loginDemoUser -> tryLocalLogin -> ManageKeyRecordTask -> startDataPull
-        // -> performDemoUserRestore -> DataPullTask) and must keep handling those results.
         DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
         if (result == null) {
             // The task crashed unexpectedly
@@ -999,13 +985,21 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             case STORAGE_FULL:
                 raiseLoginMessage(StockMessages.Storage_Full, true);
                 break;
-            case DOWNLOAD_SUCCESS:
-                if (!tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                        true, uiController.isRestoreSessionChecked(), uiController.getLoginMode(),
-                        !usingRemoteKeyManagement, DataPullMode.NORMAL)) {
+            case DOWNLOAD_SUCCESS: {
+                boolean localLoginStarted = tryLocalLogin(
+                        getUniformUsername(),
+                        uiController.getEnteredPasswordOrPin(),
+                        true,
+                        uiController.isRestoreSessionChecked(),
+                        uiController.getLoginMode(),
+                        !usingRemoteKeyManagement,
+                        DataPullMode.NORMAL
+                );
+                if (!localLoginStarted) {
                     raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                 }
                 break;
+            }
             case UNREACHABLE_HOST:
                 raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
                 break;
@@ -1049,8 +1043,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     public void handlePullTaskUpdate(Integer... update) {
-        // The main login pipeline runs via LoginController since CCCT-2437.
-        // Still reached from the demo-user menu path.
         if (CommCareApplication.instance().isConsumerApp()) {
             return;
         }
@@ -1059,8 +1051,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     public void handlePullTaskError() {
-        // The main login pipeline runs via LoginController since CCCT-2437.
-        // Still reached from the demo-user menu path.
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
 
