@@ -16,6 +16,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -207,5 +208,59 @@ class ConnectRepositoryTest {
             repository.getLearningProgress(mockJob).toList()
 
             coVerify(exactly = 2) { mockNetworkClient.getLearningProgress(any(), any()) }
+        }
+
+    @Test
+    fun testGetDeliveryProgress_alwaysPolicy_networkCalledEachTime() =
+        runBlocking {
+            val mockJob = mockk<ConnectJobRecord>(relaxed = true)
+            val mockModel = DeliveryAppProgressResponseModel()
+            every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
+            every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
+            every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
+            coEvery { mockNetworkClient.getDeliveryProgress(any(), any()) } returns Result.success(mockModel)
+
+            // First call
+            repository.getDeliveryProgress(mockJob).toList()
+            // Second call — ALWAYS policy means shouldRefresh always true
+            repository.getDeliveryProgress(mockJob).toList()
+
+            coVerify(exactly = 2) { mockNetworkClient.getDeliveryProgress(any(), any()) }
+        }
+
+    @Test
+    fun testGetDeliveryProgress_withCache_networkSuccess_emitsCachedThenSuccess() =
+        runBlocking {
+            val mockJob = mockk<ConnectJobRecord>(relaxed = true)
+            val mockModel = DeliveryAppProgressResponseModel()
+            every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
+            every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
+            every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
+            coEvery { mockNetworkClient.getDeliveryProgress(any(), any()) } returns Result.success(mockModel)
+
+            val emissions = repository.getDeliveryProgress(mockJob).toList()
+
+            assertEquals(3, emissions.size)
+            assertTrue(emissions[0] is DataState.Cached)
+            assertTrue(emissions[1] is DataState.Loading)
+            assertTrue(emissions[2] is DataState.Success)
+        }
+
+    @Test
+    fun testGetDeliveryProgress_networkFailure_withCache_emitsError() =
+        runBlocking {
+            val mockJob = mockk<ConnectJobRecord>(relaxed = true)
+            every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
+            every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
+            every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
+            coEvery { mockNetworkClient.getDeliveryProgress(any(), any()) } returns
+                Result.failure(Exception("Network error"))
+
+            val emissions = repository.getDeliveryProgress(mockJob).toList()
+
+            assertEquals(3, emissions.size)
+            assertTrue(emissions[0] is DataState.Cached)
+            assertTrue(emissions[1] is DataState.Loading)
+            assertTrue(emissions[2] is DataState.Error)
         }
 }
