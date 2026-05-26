@@ -42,8 +42,6 @@ public class ConnectUnlockFragment extends Fragment {
     private boolean fromSmsInviteLink = false;
     private String requestedOpportunityUuid = null;
 
-    public static final int TASK_ID_SMS_INVITE_REFRESH = 9241;
-
     public ConnectUnlockFragment() {
         // Required empty public constructor
     }
@@ -93,11 +91,6 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void retrieveOpportunities() {
-        if (fromSmsInviteLink) {
-            ((CommCareActivity<?>) requireActivity())
-                    .showProgressDialog(TASK_ID_SMS_INVITE_REFRESH);
-        }
-
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<List<ConnectJobRecord>>() {
 
@@ -118,13 +111,9 @@ public class ConnectUnlockFragment extends Fragment {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
                 if (fromSmsInviteLink) {
-                    ((CommCareActivity<?>) requireActivity())
-                            .dismissProgressDialogForTask(TASK_ID_SMS_INVITE_REFRESH);
                     ConnectJobRecord requested = findRequestedJob(jobs);
                     if (requested == null) {
                         handleSmsLinkFailure(AnalyticsParamValue.SMS_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
-                        // Fall through to jobs-list redirect by clearing the redirection action;
-                        // setFragmentRedirection() routes the empty action to connect_jobs_list_fragment.
                     } else {
                         FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
                                 AnalyticsParamValue.SMS_INVITE_LINK_SUCCESS);
@@ -148,21 +137,13 @@ public class ConnectUnlockFragment extends Fragment {
         return null;
     }
 
-    /**
-     * Dismisses the SMS-invite progress dialog, fires the given analytics outcome, shows the
-     * "Opportunity not found" toast, and clears the redirection action.
-     * <p>
-     * Per product decision, network failures show the same "Opportunity not found" message as a
-     * missing UUID — no retry option. Analytics still distinguishes the two outcomes for funnel
-     * analysis.
-     */
     private void handleSmsLinkFailure(String analyticsOutcome) {
-        ((CommCareActivity<?>) requireActivity())
-                .dismissProgressDialogForTask(TASK_ID_SMS_INVITE_REFRESH);
         FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(analyticsOutcome);
         Toast.makeText(requireContext(),
                 R.string.connect_sms_invite_opportunity_not_found,
                 Toast.LENGTH_LONG).show();
+
+        //Clear the redirection action so we navigate to the jobs list
         redirectionAction = "";
     }
 

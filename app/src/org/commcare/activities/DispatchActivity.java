@@ -189,7 +189,9 @@ public class DispatchActivity extends AppCompatActivity {
                     pnIntent.getStringExtra(NOTIFICATION_ID)
             );
             startActivity(pnIntent);
-        }else if (currentApp == null) {
+        } else if (handleSmsInviteLinkIntent()) {
+            return;
+        } else if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
@@ -209,12 +211,6 @@ public class DispatchActivity extends AppCompatActivity {
             // Result will be stored for later use
             RecoveryMeasuresHelper.requestRecoveryMeasures();
 
-            // CCCT-2395: SMS opportunity invite App Link. When PersonalID is logged in, this
-            // short-circuits dispatch and launches ConnectActivity directly; otherwise the URI
-            // is dropped and the standard flow continues.
-            if (handleSmsInviteLinkIntent()) {
-                return;
-            }
 
             // Note that the order in which these conditions are checked matters!!
             if (CommCareApplication.instance().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
@@ -280,13 +276,6 @@ public class DispatchActivity extends AppCompatActivity {
                 this.getIntent().hasExtra(SESSION_ENDPOINT_ID);
     }
 
-    /**
-     * Handles the SMS opportunity-invite App Link.
-     *
-     * Returns true when the intent has been routed to ConnectActivity, meaning dispatch() should
-     * stop. Returns false when there is no SMS-link intent, or when PersonalID is not logged in
-     * (in which case the URI is dropped from the intent and the standard dispatch flow continues).
-     */
     private boolean handleSmsInviteLinkIntent() {
         Intent intent = getIntent();
         Uri data = intent.getData();
@@ -294,9 +283,7 @@ public class DispatchActivity extends AppCompatActivity {
             return false;
         }
 
-        // Expect exactly ["users", "invite_redirect", "<uuid>"]. Reject anything longer
-        // (e.g. /users/invite_redirect/<uuid>/extra) or shorter so the UUID we pass on
-        // is unambiguously a single segment.
+        //Expected: /users/invite_redirect/<opp_uuid>
         List<String> segments = data.getPathSegments();
         if (segments.size() != 3
                 || !"users".equals(segments.get(0))
@@ -307,8 +294,7 @@ public class DispatchActivity extends AppCompatActivity {
 
         FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(SMS_INVITE_LINK_INTENT_RECEIVED);
 
-        // Clear the URI immediately so a re-entry to dispatch() (e.g. after PersonalID setup)
-        // doesn't reprocess this link and we don't loop.
+        // Clear the URI immediately so future dispatch() doesn't reprocess this link
         intent.setData(null);
 
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();

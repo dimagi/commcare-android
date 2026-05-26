@@ -55,6 +55,6 @@ public class CCAnalyticsParam {
     public static final String OTP_EVENT_TYPE = "event_type";
     public static final String OTP_METHOD = "method";
 
-    // Param keys for SMS invite link analytics
+
     public static final String SMS_INVITE_LINK_OUTCOME = "sms_invite_link_outcome";
 }
