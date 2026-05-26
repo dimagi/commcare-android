@@ -318,6 +318,7 @@ android {
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
         buildConfigField 'long', 'GOOGLE_CLOUD_PROJECT_NUMBER', "${project.ext.GOOGLE_CLOUD_PROJECT_NUMBER}"
         buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'false'
+        buildConfigField 'boolean', 'COPY_CCZ_ASSETS_TO_DOWNLOADS', 'false'
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
 
@@ -398,6 +399,11 @@ android {
             resources.srcDirs = ['instrumentation-tests/resources']
         }
 
+        maestro {
+            manifest.srcFile 'CommcareAndroidManifest.xml'
+            assets.srcDirs = ['assets', 'instrumentation-tests/resources']
+        }
+
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
         // This moves them out of them default location under src/<type>/... which would
@@ -439,6 +445,12 @@ android {
             // set the app name
             def applicationName = 'CommCare (CCC Staging)'
             resValue 'string', 'application_name', applicationName
+        }
+
+        maestro {
+            // Builds commcare release APK with CCZ test fixtures bundled as assets.
+            // Used for Maestro UI tests on BrowserStack, where adb push is unavailable.
+            buildConfigField 'boolean', 'COPY_CCZ_ASSETS_TO_DOWNLOADS', 'true'
         }
 
         standalone {
@@ -511,11 +523,14 @@ android {
     }
 
     variantFilter { variant ->
+        def flavorName = variant.flavors.isEmpty() ? '' : variant.flavors[0].name
         if (variant.buildType.name == 'qaAutomation') {
-            def flavorName = variant.flavors.isEmpty() ? '' : variant.flavors[0].name
             if (flavorName != 'commcare' && flavorName != 'cccStaging') {
                 variant.setIgnore(true)
             }
+        }
+        if (flavorName == 'maestro' && variant.buildType.name != 'release') {
+            variant.setIgnore(true)
         }
     }
 

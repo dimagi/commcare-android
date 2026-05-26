@@ -1,0 +1,22 @@
+appId: org.commcare.dalvik
+name: Install CommCare App
+# Installs a CommCare app from a .ccz file via the Offline Install menu.
+#
+# Required env vars:
+#   CCZ_NAME - filename to search for in the native file picker (without extension)
+#              e.g. "android_dependency_test"
+---
+- tapOn: "More options"
+- tapOn: "Offline Install"
+- tapOn:
+    id: "screen_multimedia_inflater_filefetch"
+
+- tapOn:
+    id: "com.google.android.documentsui:id/option_menu_search"
+- inputText: ${CCZ_NAME}
+- waitForAnimationToEnd
+- tapOn:
+    id: "com.google.android.documentsui:id/item_root"
+
+- tapOn:
+    id: "screen_multimedia_inflater_install"

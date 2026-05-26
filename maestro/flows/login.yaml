@@ -1,0 +1,24 @@
+appId: org.commcare.dalvik
+name: Login
+# Logs in to a CommCare app.
+#
+# Required env vars:
+#   USERNAME - CommCare username
+#   PASSWORD - CommCare password
+#
+# Expects: login screen is visible ("Welcome back! Please log in.")
+# Leaves:  home screen visible ("Start" button present)
+---
+- assertVisible: "Welcome back! Please log in."
+- tapOn:
+    id: "edit_username"
+- eraseText: 100
+- inputText: ${USERNAME}
+- tapOn:
+    id: "edit_password"
+- eraseText: 100
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "login_button"
+- waitForAnimationToEnd

@@ -220,6 +220,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
+        if (BuildConfig.COPY_CCZ_ASSETS_TO_DOWNLOADS) {
+            copyCczAssetsToDownloads();
+        }
         ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
 
         turnOnStrictMode();
@@ -305,6 +308,77 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             noficationManager.createNotificationChannels();
+        }
+    }
+
+    private void copyCczAssetsToDownloads() {
+        Log.i("MaestroSetup", "copyCczAssetsToDownloads starting, SDK=" + Build.VERSION.SDK_INT);
+        try {
+            for (String filename : getAssets().list("")) {
+                if (filename.endsWith(".ccz")) {
+                    Log.i("MaestroSetup", "Copying " + filename);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        copyCczViaMediaStore(filename);
+                    } else {
+                        copyCczViaFileStream(filename);
+                    }
+                    Log.i("MaestroSetup", "Done copying " + filename);
+                }
+            }
+        } catch (java.io.IOException e) {
+            Log.e("MaestroSetup", "Failed to copy CCZ assets to Downloads", e);
+        }
+        Log.i("MaestroSetup", "copyCczAssetsToDownloads finished");
+    }
+
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.Q)
+    private void copyCczViaMediaStore(String filename) throws java.io.IOException {
+        android.database.Cursor cursor = getContentResolver().query(
+                android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                new String[]{android.provider.MediaStore.Downloads._ID},
+                android.provider.MediaStore.Downloads.DISPLAY_NAME + "=?",
+                new String[]{filename}, null);
+        if (cursor != null) {
+            boolean exists = cursor.getCount() > 0;
+            cursor.close();
+            if (exists) {
+                Log.i("MaestroSetup", filename + " already exists in MediaStore, skipping");
+                return;
+            }
+        }
+        android.content.ContentValues values = new android.content.ContentValues();
+        values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, filename);
+        values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/octet-stream");
+        values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+        android.net.Uri uri = getContentResolver().insert(
+                android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+        if (uri == null) {
+            Log.e("MaestroSetup", "MediaStore insert returned null for " + filename);
+            return;
+        }
+        try (java.io.InputStream in = getAssets().open(filename);
+             java.io.OutputStream out = getContentResolver().openOutputStream(uri)) {
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        }
+    }
+
+    private void copyCczViaFileStream(String filename) throws java.io.IOException {
+        java.io.File dest = new java.io.File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                filename);
+        if (!dest.exists()) {
+            try (java.io.InputStream in = getAssets().open(filename);
+                 java.io.OutputStream out = new java.io.FileOutputStream(dest)) {
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
         }
     }
 

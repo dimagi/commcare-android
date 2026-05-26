@@ -1,0 +1,73 @@
+appId: org.commcare.dalvik
+name: APK Dependencies Test
+# Converted from ApkDependenciesTest.kt (Espresso)
+#
+# NOTE - Limitations vs the Espresso test:
+#   1. Intent verification: the Espresso test verified that "Install from Store" fires an
+#      ACTION_VIEW intent to market://details?id=org.commcare.dalvik.reminders. Maestro
+#      cannot inspect intent data, so we only assert the button is present.
+#   2. Mock-based scenarios: the Espresso test used AndroidPackageUtilsMock to simulate
+#      1 unsatisfied dependency and then 0 unsatisfied dependencies. Maestro has no
+#      equivalent hook; those scenarios require actually installing/uninstalling the APKs.
+#   3. keepConcurrentHashMapConstructor: this is a unit test to force R8 to retain a
+#      constructor — it has no UI equivalent and is omitted.
+#
+# Prerequisites before running:
+#   adb push app/instrumentation-tests/resources/android_dependency_test.ccz /sdcard/Download/
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- assertVisible: "Welcome to CommCare!"
+
+# ── Install "Android Dependency Test" app ─────────────────────────────────────
+- runFlow:
+    file: "flows/install_commcare_app.yaml"
+    env:
+      CCZ_NAME: "android_dependency_test"
+
+# ── Verify dependency dialog on first launch (2 unsatisfied dependencies) ──────
+- assertVisible: "Get Required Apps"
+# The message is a single TextView containing the full list; assert the node by ID
+- assertVisible:
+    id: "org.commcare.dalvik:id/dialog_message"
+# Verify the store button is present
+# (Espresso verified the Play Store URL; Maestro cannot inspect intent data)
+- assertVisible: "INSTALL FROM STORE"
+# Tapping the button causes CommCare to navigate to the login screen (Play Store opens in parallel)
+- tapOn: "INSTALL FROM STORE"
+- launchApp
+- waitForAnimationToEnd
+# The dialog may still be visible on return — dismiss it if so
+- runFlow:
+    when:
+      visible: "Get Required Apps"
+    commands:
+      - back
+
+# ── Login ───────────────────────────────────────────────────────────────────────
+- runFlow:
+    file: "flows/login.yaml"
+    env:
+      USERNAME: "test"
+      PASSWORD: "123"
+
+# ── Tap "Start" → dependency dialog appears again ──────────────────────────────
+- tapOn: "Start"
+- assertVisible: "Get Required Apps"
+- assertVisible:
+    id: "org.commcare.dalvik:id/dialog_message"
+- assertVisible: "INSTALL FROM STORE"
+
+# ── Verify back button dismisses the dialog (verifyDialogDismissOnBack) ────────
+- back
+- assertVisible: "Start"
+# Tap Start again: dialog appears
+- tapOn: "Start"
+- assertVisible: "Get Required Apps"
+- assertVisible: "INSTALL FROM STORE"
+# Back dismisses dialog
+- back
+- assertNotVisible: "Get Required Apps"
+- assertNotVisible: "INSTALL FROM STORE"

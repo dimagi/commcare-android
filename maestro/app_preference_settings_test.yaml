@@ -1,0 +1,177 @@
+appId: org.commcare.dalvik
+name: App Preference Settings Test
+# Converted from AppPreferenceSettingsTest.kt (Espresso)
+#
+# NOTE - Limitations vs the Espresso test:
+#   1. testPrintTemplateSetting: the Espresso test verified that the file picker
+#      fires an ACTION_GET_CONTENT/CATEGORY_OPENABLE/*/* intent. Maestro cannot
+#      inspect intent data; we only verify the file picker UI opens.
+#
+# Prerequisites before running:
+#   adb push app/instrumentation-tests/resources/settings_sheet_tests.ccz /sdcard/Download/
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- assertVisible: "Welcome to CommCare!"
+
+# ── Install app (once for all three tests) ────────────────────────────────────
+- runFlow:
+    file: "flows/install_commcare_app.yaml"
+    env:
+      CCZ_NAME: "settings_sheet_tests"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# testFuzzySearchSetting
+# ══════════════════════════════════════════════════════════════════════════════
+- runFlow:
+    file: "flows/login.yaml"
+    env:
+      USERNAME: "settings.test.1"
+      PASSWORD: "123"
+
+- tapOn: "More options"
+- tapOn: "Settings"
+- assertVisible: "CommCare > Settings"
+
+# selectSetting("Fuzzy Search Matches")
+- scrollUntilVisible:
+    element: "Fuzzy Search Matches"
+    direction: DOWN
+- tapOn: "Fuzzy Search Matches"
+
+# Verify both options are visible
+- assertVisible: "Enabled"
+- assertVisible: "Disabled"
+
+# Check "Enabled" is selected by default
+- assertVisible:
+    text: "Enabled"
+    checked: true
+
+# changePreferenceAndCheckPersistence("Disabled", "Fuzzy Search Matches")
+- tapOn: "Disabled"
+- setOrientation: LANDSCAPE_LEFT
+- scrollUntilVisible:
+    element: "Fuzzy Search Matches"
+    direction: DOWN
+- tapOn: "Fuzzy Search Matches"
+- assertVisible:
+    text: "Disabled"
+    checked: true
+- setOrientation: PORTRAIT
+
+# changePreferenceAndCheckPersistence("Enabled", "Fuzzy Search Matches")
+- tapOn: "Enabled"
+- setOrientation: LANDSCAPE_LEFT
+- scrollUntilVisible:
+    element: "Fuzzy Search Matches"
+    direction: DOWN
+- tapOn: "Fuzzy Search Matches"
+- assertVisible:
+    text: "Enabled"
+    checked: true
+- setOrientation: PORTRAIT
+
+# cancelSettingChangeDialog
+- tapOn: "CANCEL"
+- assertVisible: "CommCare > Settings"
+
+# Return to home and log out
+- back
+- tapOn: "Log out of CommCare"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# testUpdateFrequencySetting
+# ══════════════════════════════════════════════════════════════════════════════
+- runFlow:
+    file: "flows/login.yaml"
+    env:
+      USERNAME: "settings.test.2"
+      PASSWORD: "123"
+
+- tapOn: "More options"
+- tapOn: "Settings"
+- assertVisible: "CommCare > Settings"
+
+# selectSetting("Auto Update Frequency")
+- scrollUntilVisible:
+    element: "Auto Update Frequency"
+    direction: DOWN
+- tapOn: "Auto Update Frequency"
+
+# Verify all options are visible
+- assertVisible: "Never"
+- assertVisible: "Daily"
+- assertVisible: "Weekly"
+
+# changePreferenceAndCheckPersistence("Daily", "Auto Update Frequency")
+- tapOn: "Daily"
+- setOrientation: LANDSCAPE_LEFT
+- scrollUntilVisible:
+    element: "Auto Update Frequency"
+    direction: DOWN
+- tapOn: "Auto Update Frequency"
+- assertVisible:
+    text: "Daily"
+    checked: true
+- setOrientation: PORTRAIT
+
+# changePreferenceAndCheckPersistence("Weekly", "Auto Update Frequency")
+- tapOn: "Weekly"
+- setOrientation: LANDSCAPE_LEFT
+- scrollUntilVisible:
+    element: "Auto Update Frequency"
+    direction: DOWN
+- tapOn: "Auto Update Frequency"
+- assertVisible:
+    text: "Weekly"
+    checked: true
+- setOrientation: PORTRAIT
+
+# changePreferenceAndCheckPersistence("Never", "Auto Update Frequency")
+- tapOn: "Never"
+- setOrientation: LANDSCAPE_LEFT
+- scrollUntilVisible:
+    element: "Auto Update Frequency"
+    direction: DOWN
+- tapOn: "Auto Update Frequency"
+- assertVisible:
+    text: "Never"
+    checked: true
+- setOrientation: PORTRAIT
+
+# cancelSettingChangeDialog
+- tapOn: "CANCEL"
+- assertVisible: "CommCare > Settings"
+
+# Return to home and log out
+- back
+- tapOn: "Log out of CommCare"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# testPrintTemplateSetting
+# ══════════════════════════════════════════════════════════════════════════════
+- runFlow:
+    file: "flows/login.yaml"
+    env:
+      USERNAME: "settings.test.3"
+      PASSWORD: "123"
+
+- tapOn: "More options"
+- tapOn: "Settings"
+- assertVisible: "CommCare > Settings"
+
+# selectSetting("Set Print Template")
+- scrollUntilVisible:
+    element: "Set Print Template"
+    direction: DOWN
+- tapOn: "Set Print Template"
+
+# Tap the file fetch button — the file picker (ACTION_GET_CONTENT) should open
+# (Espresso verified the exact intent; Maestro verifies the file picker UI appears)
+- tapOn:
+    id: "org.commcare.dalvik:id/filefetch"
+- assertVisible: "Recent"
+- back
