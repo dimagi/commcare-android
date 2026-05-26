@@ -30,14 +30,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
     /**
      * Activity-scoped session data populated by upstream PersonalID fragments
-     * (phone / biometric / OTP / name / backup-code). The existing user add-email entry point
-     * does NOT go through those, so this is null in the existing user flow.
+     * (phone / biometric / OTP / name / backup-code).
+     * Null for the existing user flow.
      */
     private var personalIdSessionData: PersonalIdSessionData? = null
 
-    /**
-     * Email the user typed on the previous screen, threaded in as a nav arg.
-     */
     private lateinit var enteredEmail: String
 
     /**
@@ -194,8 +191,6 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
     private fun onEmailVerified() {
         when (workflow) {
-            // Existing user: write straight to the existing ConnectUserRecord; session data is not
-            // populated on this entry path, so do NOT touch personalIdSessionData here.
             EmailWorkFlow.EXISTING_USER -> {
                 val user = ConnectUserDatabaseUtil.getUser(requireActivity())
                 user.email = enteredEmail
@@ -203,15 +198,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 showEmailAddedSuccessDialog()
             }
 
-            // Recovery: stamp the verified address onto session data so
-            // PersonalIdRecoveryCompleter writes it to the new ConnectUserRecord.
             EmailWorkFlow.RECOVERY -> {
                 personalIdSessionData!!.email = enteredEmail
                 finalizeRecoveryAndShowSuccess()
             }
 
-            // Signup: stamp it on session data; PhotoCapture will read it later when it
-            // persists the new ConnectUserRecord.
             EmailWorkFlow.REGISTRATION -> {
                 personalIdSessionData!!.email = enteredEmail
                 navigateToPhotoCapture()
