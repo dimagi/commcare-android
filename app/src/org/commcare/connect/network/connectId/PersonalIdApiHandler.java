@@ -103,6 +103,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             PersonalIdSessionData sessionData
     ) {
         sessionData.setSessionFailureCode(errorCode);
+        sessionData.setSessionFailureSubcode(errorSubCode);
         switch (errorCode) {
             case "LOCKED_ACCOUNT":
                 onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
@@ -112,7 +113,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         LogTypes.TYPE_MAINTENANCE,
                         "Integrity error with subcode " + errorSubCode
                 );
-                sessionData.setSessionFailureSubcode(errorSubCode);
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
             case "INVALID_TOKEN":
