@@ -536,11 +536,16 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     case MISSING_DATA_ERROR: {
                         String subCode = personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode();
                         boolean isIntegrityHeadersMissing = BaseApiHandler.PersonalIdApiSubErrorCodes.INTEGRITY_HEADERS.name().equals(subCode);
-                        if (isIntegrityHeadersMissing && token.isEmpty()) {
-                            retryWithNewIntegrityToken(body);
-                        } else if (isIntegrityHeadersMissing) {
+                        if (isIntegrityHeadersMissing) {
+                            if (!token.isEmpty()) {
+                                Logger.exception("Missing Data error related to ingerity headers",
+                                        new Exception("Missing integrity headers when token is present"));
+                            }
                             onIntegrityConfigurationError();
                         } else {
+                            Logger.exception("Personal ID start configuration failed",
+                                    new Exception("Missing Data error with subcode "
+                                            + subCode));
                             navigateFailure(failureCode, t);
                         }
                         break;
@@ -604,10 +609,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             // Dialog failed to launch or some error occurred
             handleIntegrityFailure(subError, "Integrity dialog failed to launch " + e.getMessage());
         });
-    }
-
-    private void retryWithNewIntegrityToken(HashMap<String, String> body) {
-        fetchIntegrityTokenAndStartConfiguration(body, exception -> onIntegrityConfigurationError());
     }
 
     private void fetchIntegrityTokenAndStartConfiguration(
