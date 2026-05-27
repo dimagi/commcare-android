@@ -7,6 +7,9 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.commcare.activities.LoginMode
 import org.commcare.connect.PersonalIdManager
@@ -213,6 +216,37 @@ class LoginControllerTest {
 
             assertTrue(result is LoginResult.Success)
             assertEquals(true, (result as LoginResult.Success).postLoginOutcome.redirectToConnectOpportunityInfo)
+        }
+
+    @Test
+    fun `post-success side effects run inside NonCancellable when parent scope is cancelled`() =
+        runTest {
+            val (controller, _, _) =
+                buildController(keyRecordOutcome = KeyRecordOutcome.LocalLoginComplete)
+            val sideEffectsStarted = CompletableDeferred<Unit>()
+            val parentJobCancelled = CompletableDeferred<Unit>()
+            val sideEffectsCompleted = CompletableDeferred<PostLoginOutcome>()
+            coEvery { postLoginSideEffects.runOnSuccess("alice") } coAnswers {
+                sideEffectsStarted.complete(Unit)
+                parentJobCancelled.await()
+                val outcome = PostLoginOutcome(redirectToConnectOpportunityInfo = false)
+                sideEffectsCompleted.complete(outcome)
+                outcome
+            }
+
+            val parentJob =
+                launch(start = CoroutineStart.UNDISPATCHED) {
+                    controller.performLogin(manualRequest(), sink)
+                }
+            sideEffectsStarted.await()
+            parentJob.cancel()
+            parentJobCancelled.complete(Unit)
+
+            assertEquals(
+                PostLoginOutcome(redirectToConnectOpportunityInfo = false),
+                sideEffectsCompleted.await(),
+            )
+            coVerify(exactly = 1) { postLoginSideEffects.runOnSuccess("alice") }
         }
 
     private fun manualRequest(username: String = "alice") =
