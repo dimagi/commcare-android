@@ -6,7 +6,6 @@ sealed class LoginResult {
     data class Success(
         val loginMode: LoginMode,
         val restoreSession: Boolean,
-        val manualSwitchToPwMode: Boolean,
         val personalIdManagedLogin: Boolean,
         val connectManagedLogin: Boolean,
         val postLoginOutcome: PostLoginOutcome,

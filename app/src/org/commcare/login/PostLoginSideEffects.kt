@@ -1,10 +1,9 @@
 package org.commcare.login
 
+import android.content.Context
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
-import org.commcare.activities.CommCareActivity
 import org.commcare.activities.LoginActivity
-import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.PersonalIdManager
@@ -13,12 +12,10 @@ import org.commcare.utils.CrashUtil
 import kotlin.coroutines.resume
 
 internal open class PostLoginSideEffects(
+    private val context: Context,
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
 ) {
-    open suspend fun runOnSuccess(
-        activity: CommCareActivity<*>,
-        username: String,
-    ): PostLoginOutcome {
+    open suspend fun runOnSuccess(username: String): PostLoginOutcome {
         CrashUtil.registerUserData()
         CommCareApplication
             .notificationManager()
@@ -29,14 +26,14 @@ internal open class PostLoginSideEffects(
         }
 
         val appId = CommCareApplication.instance().currentApp.uniqueId
-        val job = ConnectJobUtils.getJobForApp(activity, appId)
+        val job = ConnectJobUtils.getJobForApp(context, appId)
         CommCareApplication.instance().setConnectJobIdForAnalytics(job)
+
+        personalIdManager.updateAppAccess(context, appId, username)
 
         if (job == null) {
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
-
-        personalIdManager.updateAppAccess(activity, appId, username)
 
         val updated =
             suspendCancellableCoroutine { continuation ->
@@ -49,7 +46,7 @@ internal open class PostLoginSideEffects(
                             if (!continuation.isCompleted) continuation.resume(success)
                         }
                     }
-                ConnectJobHelper.updateJobProgress(activity, job, listener)
+                ConnectJobHelper.updateJobProgress(context, job, listener)
             }
 
         return PostLoginOutcome(

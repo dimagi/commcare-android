@@ -1,6 +1,5 @@
 package org.commcare.login
 
-import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 
 data class LoginRequest(
@@ -10,21 +9,18 @@ data class LoginRequest(
     val credentialType: LoginMode,
     val authSource: AuthSource,
     val restoreSession: Boolean,
-    val pullMode: DataPullMode,
     val triggerMultipleUsersWarning: Boolean,
     val blockRemoteKeyManagement: Boolean,
-)
+) {
+    override fun toString(): String =
+        "LoginRequest(appId=$appId, username=$username, passwordOrPin=***, " +
+            "credentialType=$credentialType, authSource=$authSource, " +
+            "restoreSession=$restoreSession, triggerMultipleUsersWarning=$triggerMultipleUsersWarning, " +
+            "blockRemoteKeyManagement=$blockRemoteKeyManagement)"
+}
 
 enum class AuthSource {
-    /** User typed credentials into LoginActivity. */
     Manual,
-
-    /** Caller already authenticated externally (Connect, PersonalID-managed login). */
     AutoFromConnect,
-
-    /** MDM-supplied credentials. */
     MdmManaged,
-
-    /** Demo CCZ user — bypass sync. */
-    Demo,
 }

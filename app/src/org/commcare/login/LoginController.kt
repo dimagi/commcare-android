@@ -1,28 +1,26 @@
 package org.commcare.login
 
 import android.content.Context
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
-import org.commcare.activities.CommCareActivity
 import org.commcare.connect.PersonalIdManager
 
 class LoginController internal constructor(
     private val keyRecordOperations: KeyRecordOperations,
     private val syncOperations: SyncOperations,
-    private val demoLoginPath: DemoLoginPath,
     private val credentialResolver: ConnectCredentialResolver,
     private val postLoginSideEffects: PostLoginSideEffects,
 ) {
     constructor(context: Context) : this(
         keyRecordOperations = KeyRecordOperations(context, CommCareApplication.instance().currentApp),
         syncOperations = SyncOperations(context),
-        demoLoginPath = DemoLoginPath(context),
         credentialResolver = ConnectCredentialResolver(context),
-        postLoginSideEffects = PostLoginSideEffects(),
+        postLoginSideEffects = PostLoginSideEffects(context),
     )
 
     fun interface ResultCallback {
@@ -30,28 +28,20 @@ class LoginController internal constructor(
     }
 
     fun start(
-        activity: CommCareActivity<*>,
+        lifecycleOwner: LifecycleOwner,
         request: LoginRequest,
         sink: LoginProgressSink,
         callback: ResultCallback,
     ): Job =
-        activity.lifecycleScope.launch {
-            val result = performLogin(activity, request, sink)
+        lifecycleOwner.lifecycleScope.launch {
+            val result = performLogin(request, sink)
             callback.onResult(result)
         }
 
     suspend fun performLogin(
-        activity: CommCareActivity<*>,
         request: LoginRequest,
         sink: LoginProgressSink,
     ): LoginResult {
-        if (request.authSource == AuthSource.Demo) {
-            return when (val outcome = demoLoginPath.login(sink)) {
-                SyncOutcome.Success -> finishSuccess(activity, request)
-                is SyncOutcome.Failed -> LoginResult.Failed(outcome.error)
-            }
-        }
-
         val effectiveRequest =
             if (request.authSource == AuthSource.AutoFromConnect) {
                 val resolved =
@@ -67,7 +57,7 @@ class LoginController internal constructor(
 
         return when (val keyOutcome = keyRecordOperations.manageKeyRecord(effectiveRequest, sink)) {
             is KeyRecordOutcome.Failed -> LoginResult.Failed(keyOutcome.error)
-            is KeyRecordOutcome.LocalLoginComplete -> finishSuccess(activity, effectiveRequest)
+            is KeyRecordOutcome.LocalLoginComplete -> finishSuccess(effectiveRequest)
             is KeyRecordOutcome.ReadyForSync -> {
                 when (
                     val syncOutcome =
@@ -77,27 +67,23 @@ class LoginController internal constructor(
                             sink = sink,
                         )
                 ) {
-                    is SyncOutcome.Success -> finishSuccess(activity, effectiveRequest)
+                    is SyncOutcome.Success -> finishSuccess(effectiveRequest)
                     is SyncOutcome.Failed -> LoginResult.Failed(syncOutcome.error)
                 }
             }
         }
     }
 
-    private suspend fun finishSuccess(
-        activity: CommCareActivity<*>,
-        request: LoginRequest,
-    ): LoginResult.Success {
+    private suspend fun finishSuccess(request: LoginRequest): LoginResult.Success {
         val postLoginOutcome =
             withContext(NonCancellable) {
-                postLoginSideEffects.runOnSuccess(activity, request.username)
+                postLoginSideEffects.runOnSuccess(request.username)
             }
         val isConnectManaged = request.authSource == AuthSource.AutoFromConnect
 
         return LoginResult.Success(
             loginMode = request.credentialType,
             restoreSession = request.restoreSession,
-            manualSwitchToPwMode = false,
             personalIdManagedLogin = isConnectManaged || PersonalIdManager.getInstance().isloggedIn(),
             connectManagedLogin = isConnectManaged,
             postLoginOutcome = postLoginOutcome,

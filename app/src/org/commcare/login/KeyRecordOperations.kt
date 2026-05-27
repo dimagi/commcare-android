@@ -15,13 +15,10 @@ import org.commcare.views.notifications.NotificationMessage
 import kotlin.coroutines.resume
 
 internal sealed class KeyRecordOutcome {
-    /** Keys are in place but sync still required. */
     data class ReadyForSync(
         val password: String,
-        val pullMode: DataPullMode,
     ) : KeyRecordOutcome()
 
-    /** Local-only login succeeded — sandbox already populated. */
     object LocalLoginComplete : KeyRecordOutcome()
 
     data class Failed(
@@ -51,7 +48,7 @@ internal open class KeyRecordOperations(
                         mode: DataPullMode,
                         password: String,
                     ) {
-                        if (!continuation.isCompleted) continuation.resume(KeyRecordOutcome.ReadyForSync(password, mode))
+                        if (!continuation.isCompleted) continuation.resume(KeyRecordOutcome.ReadyForSync(password))
                     }
 
                     override fun dataPullCompleted() {
@@ -94,7 +91,7 @@ internal open class KeyRecordOperations(
                     request.restoreSession,
                     request.triggerMultipleUsersWarning,
                     request.blockRemoteKeyManagement,
-                    request.pullMode,
+                    DataPullMode.NORMAL,
                 ) {
                     override fun deliverUpdate(
                         receiver: DataPullController,

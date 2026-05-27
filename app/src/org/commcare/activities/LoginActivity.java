@@ -41,6 +41,8 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.login.AuthSource;
 import org.commcare.login.LoginController;
 import org.commcare.login.LoginError;
+import org.commcare.login.LoginPhase;
+import org.commcare.login.LoginProgress;
 import org.commcare.login.LoginProgressSink;
 import org.commcare.login.LoginRequest;
 import org.commcare.login.LoginResult;
@@ -311,21 +313,50 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 loginMode,
                 determineAuthSource(),
                 restoreSession,
-                CommCareApplication.instance().isConsumerApp()
-                        ? DataPullMode.CONSUMER_APP
-                        : DataPullMode.NORMAL,
                 getMatchingUsersCount(username) > 1,
                 /* blockRemoteKeyManagement */ false);
 
-        /*
-         * TODO: No-op sink: existing progress UI is driven by the legacy task connectors when
-         * those paths are still in use. A later change will wire this to the activity's
-         * existing progress UI for the LoginController path.
-         */
-        LoginProgressSink sink = progress -> { };
-
         LoginController controller = new LoginController(this);
-        controller.start(this, request, sink, this::handleLoginResult);
+        controller.start(this, request, createLoginProgressSink(), this::handleLoginResult);
+    }
+
+    private LoginPhase currentLoginPhase;
+
+    private LoginProgressSink createLoginProgressSink() {
+        return progress -> runOnUiThread(() -> updateLoginProgressUi(progress));
+    }
+
+    private void updateLoginProgressUi(LoginProgress progress) {
+        LoginPhase phase = progress.getPhase();
+        int taskId = taskIdForPhase(phase);
+        if (phase != currentLoginPhase) {
+            if (currentLoginPhase != null) {
+                dismissProgressDialogForTask(taskIdForPhase(currentLoginPhase));
+            }
+            currentLoginPhase = phase;
+            showProgressDialog(taskId);
+        }
+        if (progress.getMessage() != null) {
+            updateProgress(progress.getMessage(), taskId);
+        }
+        Integer percent = progress.getPercent();
+        if (percent != null) {
+            updateProgressBar(percent, 100, taskId);
+        }
+    }
+
+    private int taskIdForPhase(LoginPhase phase) {
+        if (phase == LoginPhase.Syncing) {
+            return DataPullTask.DATA_PULL_TASK_ID;
+        }
+        return TASK_KEY_EXCHANGE;
+    }
+
+    private void dismissLoginProgressDialog() {
+        if (currentLoginPhase != null) {
+            dismissProgressDialogForTask(taskIdForPhase(currentLoginPhase));
+            currentLoginPhase = null;
+        }
     }
 
     private AuthSource determineAuthSource() {
@@ -569,17 +600,31 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void setResultAndFinish(boolean navigateToConnectJobs) {
+        setLoginResultAndFinish(
+                uiController.getLoginMode(),
+                navigateToConnectJobs,
+                appLaunchedFromConnect || loginManagedByPersonalId(),
+                appLaunchedFromConnect);
+    }
+
+    private void setLoginResultAndFinish(
+            LoginMode loginMode,
+            boolean navigateToConnectJobs,
+            boolean personalIdManagedLoginExtra,
+            boolean connectManagedLoginExtra) {
+        hideVirtualKeyboard(LoginActivity.this);
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
-        i.putExtra(LOGIN_MODE, uiController.getLoginMode());
+        i.putExtra(LOGIN_MODE, loginMode);
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
-        i.putExtra(PERSONALID_MANAGED_LOGIN, appLaunchedFromConnect || loginManagedByPersonalId());
-        i.putExtra(CONNECT_MANAGED_LOGIN, appLaunchedFromConnect);
+        i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLoginExtra);
+        i.putExtra(CONNECT_MANAGED_LOGIN, connectManagedLoginExtra);
         setResult(RESULT_OK, i);
         finish();
     }
 
     private void handleLoginResult(LoginResult result) {
+        dismissLoginProgressDialog();
         if (result instanceof LoginResult.Success) {
             onLoginSuccess((LoginResult.Success) result);
         } else {
@@ -592,16 +637,16 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectJobUtils.getJobForApp(this, appId);
             if (job == null) {
+                String linkPassword = success.getConnectManagedLogin()
+                        ? ConnectAppUtils.INSTANCE.getPasswordOverride(this, getUniformUsername(), false)
+                        : uiController.getEnteredPasswordOrPin();
                 personalIdManager.checkPersonalIdLink(
                         this,
                         loginManagedByPersonalId(),
                         appId,
                         getUniformUsername(),
-                        uiController.getEnteredPasswordOrPin(),
-                        linkSuccess -> {
-                            personalIdManager.updateAppAccess(this, appId, getUniformUsername());
-                            finishWithSuccess(success, linkSuccess);
-                        });
+                        linkPassword,
+                        linkSuccess -> finishWithSuccess(success, linkSuccess));
                 return;
             }
         }
@@ -612,15 +657,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void finishWithSuccess(LoginResult.Success success, boolean navigateToConnectJobs) {
-        hideVirtualKeyboard(LoginActivity.this);
-        Intent i = new Intent();
-        i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
-        i.putExtra(LOGIN_MODE, success.getLoginMode());
-        i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
-        i.putExtra(PERSONALID_MANAGED_LOGIN, appLaunchedFromConnect || loginManagedByPersonalId());
-        i.putExtra(CONNECT_MANAGED_LOGIN, appLaunchedFromConnect);
-        setResult(RESULT_OK, i);
-        finish();
+        setLoginResultAndFinish(
+                success.getLoginMode(),
+                navigateToConnectJobs,
+                success.getPersonalIdManagedLogin(),
+                success.getConnectManagedLogin());
     }
 
     private void onLoginError(LoginError error) {

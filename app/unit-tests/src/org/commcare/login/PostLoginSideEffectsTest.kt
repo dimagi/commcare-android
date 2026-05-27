@@ -1,5 +1,6 @@
 package org.commcare.login
 
+import android.content.Context
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -11,7 +12,6 @@ import kotlinx.coroutines.test.runTest
 import org.commcare.CommCareApp
 import org.commcare.CommCareApplication
 import org.commcare.CommCareNoficationManager
-import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectJobHelper
@@ -24,7 +24,7 @@ import org.junit.Before
 import org.junit.Test
 
 class PostLoginSideEffectsTest {
-    private val activity = mockk<CommCareActivity<Any>>(relaxed = true)
+    private val context = mockk<Context>(relaxed = true)
     private val personalIdManager = mockk<PersonalIdManager>(relaxed = true)
     private val notificationManager = mockk<CommCareNoficationManager>(relaxed = true)
     private val commCareApplication = mockk<CommCareApplication>(relaxed = true)
@@ -53,7 +53,7 @@ class PostLoginSideEffectsTest {
         runTest {
             every { personalIdManager.isloggedIn() } returns false
 
-            val outcome = PostLoginSideEffects(personalIdManager).runOnSuccess(activity, "alice")
+            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
             assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
             verify { CrashUtil.registerUserData() }
@@ -62,16 +62,16 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `personalID logged in with no job sets analytics null and returns false`() =
+    fun `personalID logged in with no job updates app access and returns false`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
-            every { ConnectJobUtils.getJobForApp(activity, "app-1") } returns null
+            every { ConnectJobUtils.getJobForApp(context, "app-1") } returns null
 
-            val outcome = PostLoginSideEffects(personalIdManager).runOnSuccess(activity, "alice")
+            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
             assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
             verify { commCareApplication.setConnectJobIdForAnalytics(null) }
-            verify(exactly = 0) { personalIdManager.updateAppAccess(any(), any(), any()) }
+            verify { personalIdManager.updateAppAccess(context, "app-1", "alice") }
             verify(exactly = 0) { ConnectJobHelper.updateJobProgress(any(), any(), any()) }
         }
 
@@ -81,18 +81,18 @@ class PostLoginSideEffectsTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
             every { job.isUserSuspended } returns true
-            every { ConnectJobUtils.getJobForApp(activity, "app-1") } returns job
+            every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
 
             val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every { ConnectJobHelper.updateJobProgress(activity, job, capture(listenerSlot)) } answers {
+            every { ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot)) } answers {
                 listenerSlot.captured.connectActivityComplete(true, "")
             }
 
-            val outcome = PostLoginSideEffects(personalIdManager).runOnSuccess(activity, "alice")
+            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
             assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = true), outcome)
             verify { commCareApplication.setConnectJobIdForAnalytics(job) }
-            verify { personalIdManager.updateAppAccess(activity, "app-1", "alice") }
+            verify { personalIdManager.updateAppAccess(context, "app-1", "alice") }
         }
 
     @Test
@@ -101,14 +101,14 @@ class PostLoginSideEffectsTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
             every { job.isUserSuspended } returns false
-            every { ConnectJobUtils.getJobForApp(activity, "app-1") } returns job
+            every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
 
             val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every { ConnectJobHelper.updateJobProgress(activity, job, capture(listenerSlot)) } answers {
+            every { ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot)) } answers {
                 listenerSlot.captured.connectActivityComplete(true, "")
             }
 
-            val outcome = PostLoginSideEffects(personalIdManager).runOnSuccess(activity, "alice")
+            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
             assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
         }
@@ -119,14 +119,14 @@ class PostLoginSideEffectsTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
             every { job.isUserSuspended } returns true
-            every { ConnectJobUtils.getJobForApp(activity, "app-1") } returns job
+            every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
 
             val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every { ConnectJobHelper.updateJobProgress(activity, job, capture(listenerSlot)) } answers {
+            every { ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot)) } answers {
                 listenerSlot.captured.connectActivityComplete(false, "network failure")
             }
 
-            val outcome = PostLoginSideEffects(personalIdManager).runOnSuccess(activity, "alice")
+            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
             assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
         }

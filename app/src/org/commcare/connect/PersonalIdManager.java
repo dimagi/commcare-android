@@ -201,12 +201,12 @@ public class PersonalIdManager {
         parent.startActivityForResult(intent, requestCode);
     }
 
-    public void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId,
+    public void updateAppAccess(Context context, String appId, String username) {
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId,
                 username);
         if (record != null) {
             record.setLastAccessed(new Date());
-            ConnectAppDatabaseUtil.storeApp(activity, record);
+            ConnectAppDatabaseUtil.storeApp(context, record);
         }
     }
 
