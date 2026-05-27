@@ -317,9 +317,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 getMatchingUsersCount(username) > 1,
                 /* blockRemoteKeyManagement */ false);
 
-        // No-op sink: existing progress UI is driven by the legacy task connectors when
-        // those paths are still in use. A later change will wire this to the activity's
-        // existing progress UI for the LoginController path.
+        /*
+         * TODO: No-op sink: existing progress UI is driven by the legacy task connectors when
+         * those paths are still in use. A later change will wire this to the activity's
+         * existing progress UI for the LoginController path.
+         */
         LoginProgressSink sink = progress -> { };
 
         LoginController controller = new LoginController(this);
