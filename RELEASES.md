@@ -69,7 +69,14 @@ we would like to communicate to QA as part of the release testing
         - Tap Yes: the dialog dismisses and the flow advances to the next step (Photo Capture during signup).
     - Switch the device language to a supported locale (e.g. French, Spanish, Hindi, Swahili) and re-walk the screen. Verify the screen title, banner area, header copy, description, input hint, both button labels, and the skip-confirm dialog all render in the selected language.
   - **Email OTP screen:** (will be added here)
-  - **Legacy logged-in users prompt:** (will be added here)
+  - **Existing logged-in users prompt:**
+    - Precondition: signed in to PersonalID as an existing user with **no email** on file, and the `email_otp_verification` server toggle **ON**.
+    - Return to the CommCare home screen. Verify a dialog titled "Add your email address" appears, with a message explaining an email helps recover the account if phone access is lost, and **Add email** / **Not now** buttons.
+    - Tap **Not now**: the dialog dismisses and you land on the home screen normally.
+    - Tap **Add email**: verify the Email entry screen opens (the same screen used during signup, now reached as an existing user).
+    - With the toggle **OFF**, or for a user who **already has an email** on file, return to the home screen and verify the prompt does **not** appear.
+    - The prompt is shown at most twice. On the **CCC Staging** build the second prompt appears on the next return to the home screen (the wait is shortened for testing); after two prompts it never appears again.
+    - Switch the device language to a supported locale and verify the dialog title, message, and both button labels render in the selected language.
   - **Backup Code → Email entry routing (signup + recovery):**
     - **Signup with `email_otp_verification` server toggle ON:** Walk a fresh PersonalID signup. After entering and confirming the backup code, verify the Email entry screen appears next (not Photo Capture).
     - **Signup with `email_otp_verification` server toggle OFF:** Walk a fresh PersonalID signup. After confirming the backup code, verify the flow skips Email and goes directly to Photo Capture.
