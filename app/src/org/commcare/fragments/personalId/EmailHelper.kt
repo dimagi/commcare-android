@@ -1,16 +1,16 @@
 package org.commcare.fragments.personalId
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.dalvik.R
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.utils.StringUtils
-import org.commcare.views.dialogs.StandardAlertDialog
 
 /**
  * Shared helpers for the PersonalID email-entry and email-OTP-verification.
@@ -52,6 +52,12 @@ object EmailHelper {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(status: Boolean) {
+                Toast
+                    .makeText(
+                        activity,
+                        activity.getString(R.string.personalId_email_otp_sent),
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 onSuccess()
             }
 

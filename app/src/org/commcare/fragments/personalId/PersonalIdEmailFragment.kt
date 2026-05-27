@@ -136,14 +136,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             email = email,
             workflow = workflow,
             sessionData = personalIdSessionData,
-            onSuccess = {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.personalId_email_otp_sent),
-                    Toast.LENGTH_SHORT
-                ).show()
-                navigateToEmailVerification(email)
-            },
+            onSuccess = { navigateToEmailVerification(email) },
             onFailure = { failureCode, t ->
                 showError(
                     PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t),
