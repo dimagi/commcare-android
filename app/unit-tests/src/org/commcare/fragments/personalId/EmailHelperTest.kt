@@ -26,6 +26,7 @@ import org.robolectric.annotation.Config
 /**
  * Unit tests for [EmailHelper] covering the three public helpers:
  * - `sendEmailOtp` — workflow → auth-arg mapping (token vs ConnectUserRecord).
+ * - `verifyEmailOtp` — workflow → auth-arg mapping (token vs ConnectUserRecord).
  * - `routeAfterEmailDeclined` — workflow → side-effect routing.
  */
 @Config(application = CommCareTestApplication::class)
