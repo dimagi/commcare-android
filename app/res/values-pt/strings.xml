@@ -286,6 +286,7 @@
     <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
     <string name="personalid_email_added_title">E-mail adicionado</string>
     <string name="personalid_email_added_message">Seu e-mail foi adicionado com sucesso.</string>
+    <string name="personalId_email_otp_sent">Um código de 6 dígitos foi enviado para o seu endereço de e-mail.</string>
     <string name="connect_recovery_success_title">Conta Recuperada</string>
     <string name="connect_recovery_success_message">A sua conta foi recuperada! Pode voltar a utilizar o PersonalID.</string>
     <string name="connect_unlock_title">Desbloquear PersonalId</string>

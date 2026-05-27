@@ -395,6 +395,7 @@
     <string name="personalid_email_otp_failed_skip">Proceed without email</string>
     <string name="personalid_email_added_title">Email Added</string>
     <string name="personalid_email_added_message">Your email has been added successfully.</string>
+    <string name="personalId_email_otp_sent">A 6-digit passcode has been sent to your email address.</string>
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">Your account has been recovered! You may resume using PersonalID.</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>

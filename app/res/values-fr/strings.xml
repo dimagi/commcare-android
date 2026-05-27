@@ -281,6 +281,7 @@ License.
     <string name="personalid_email_otp_failed_skip">Continuer sans e-mail</string>
     <string name="personalid_email_added_title">E-mail ajouté</string>
     <string name="personalid_email_added_message">Votre adresse e-mail a été ajoutée avec succès.</string>
+    <string name="personalId_email_otp_sent">Un code à 6 chiffres a été envoyé à votre adresse e-mail.</string>
     <string name="connect_recovery_success_title">Compte récupéré</string>
     <string name="connect_recovery_success_message">Votre compte a été récupéré ! Vous pouvez reprendre l\'utilisation de PersonalID.</string>
     <string name="connect_unlock_title">Déverrouiller PersonalId</string>

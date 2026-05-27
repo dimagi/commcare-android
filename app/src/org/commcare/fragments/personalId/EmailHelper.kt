@@ -91,31 +91,6 @@ object EmailHelper {
         }.verifyEmailOtp(activity, email, otp, token, user)
     }
 
-    // ---------- Dialogs ------------------------------------------------------------------
-
-    /**
-     * Shows a skip confirmation dialog with caller-supplied [title], [message], [positiveButtonText],
-     * and [negativeButtonText]. Invokes [onConfirm] when the user taps the positive button.
-     */
-    fun showSkipConfirmationDialog(
-        activity: CommCareActivity<*>,
-        title: String,
-        message: String,
-        positiveButtonText: String,
-        negativeButtonText: String,
-        onConfirm: () -> Unit,
-    ) {
-        val dialog = StandardAlertDialog(title, message)
-        dialog.setPositiveButton(positiveButtonText) { _, _ ->
-            activity.dismissAlertDialog()
-            onConfirm()
-        }
-        dialog.setNegativeButton(negativeButtonText) { _, _ ->
-            activity.dismissAlertDialog()
-        }
-        activity.showAlertDialog(dialog)
-    }
-
     // ---------- Workflow routing ---------------------------------------------------------
 
     /**

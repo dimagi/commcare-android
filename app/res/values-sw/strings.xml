@@ -282,6 +282,7 @@
     <string name="personalid_email_otp_failed_skip">Endelea bila barua pepe</string>
     <string name="personalid_email_added_title">Barua pepe imeongezwa</string>
     <string name="personalid_email_added_message">Barua pepe yako imeongezwa kwa mafanikio.</string>
+    <string name="personalId_email_otp_sent">Msimbo wa tarakimu 6 umetumwa kwa anwani yako ya barua pepe.</string>
     <string name="connect_recovery_success_title">Akaunti Imerejeshwa</string>
     <string name="connect_recovery_success_message">Akaunti yako imerejeshwa! Unaweza kuendelea kutumia PersonalID.</string>
     <string name="connect_unlock_title">Fungua PersonalId</string>

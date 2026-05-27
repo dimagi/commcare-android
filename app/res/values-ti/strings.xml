@@ -274,6 +274,7 @@
     <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
     <string name="personalid_email_added_title">ኢመይል ተወሲኹ</string>
     <string name="personalid_email_added_message">ኢመይልካ ብዓወት ተወሲኹ።</string>
+    <string name="personalId_email_otp_sent">ናብ ኢመይል ኣድራሻኻ ናይ 6 ኣሃዝ መሕለፊ ቓል ተላኢኹ ኣሎ።</string>
     <string name="connect_recovery_success_title">ኣካውንት ናብ ንቡር ተመሊሱ</string>
     <string name="connect_recovery_success_message">ሕሳብካ ተመልሱልካ ኣሎ! PersonalID ምጥቃም ክትቅጽል ትኽእል ኢኻ።</string>
     <string name="connect_unlock_title">PersonalId ኽፈት።</string>
