@@ -71,7 +71,7 @@ class BaseApi {
             if (context is CommCareActivity<*>) {
                 val handler = Handler(context.getMainLooper())
                 handler.post {
-                    (context as CommCareActivity<*>).showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_ID)
+                    (context as CommCareActivity<*>).showProgressDialogIfNeeded(ConnectConstants.NETWORK_ACTIVITY_ID)
                 }
             }
         }
