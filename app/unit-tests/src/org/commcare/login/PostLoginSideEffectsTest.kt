@@ -114,7 +114,7 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `updateJobProgress callback returns success false returns false even when suspended`() =
+    fun `updateJobProgress failure returns false even when user is suspended`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
