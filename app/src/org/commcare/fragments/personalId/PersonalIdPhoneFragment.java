@@ -81,6 +81,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
     private String playServicesError;
     private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
+    private boolean isRequestInProgress = false;
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
             Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
@@ -279,7 +280,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void updateContinueButtonState() {
-        enableContinueButton(allowedToContinue());
+        if (!isRequestInProgress) {
+            enableContinueButton(allowedToContinue());
+        }
     }
 
     private boolean allowedToContinue() {
@@ -325,6 +328,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void startConfigurationRequest() {
+        isRequestInProgress = true;
         clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
@@ -493,6 +497,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
+                isRequestInProgress = false;
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
                 FirebaseAnalyticsUtil.flagPersonalIDDemoUser(sessionData.getDemoUser());
@@ -519,6 +524,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     @NonNull PersonalIdOrConnectApiErrorCodes failureCode,
                     @Nullable Throwable t
             ) {
+                isRequestInProgress = false;
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
