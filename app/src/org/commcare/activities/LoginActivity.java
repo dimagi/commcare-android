@@ -674,11 +674,64 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         } else if (error instanceof LoginError.AuthOverHttpBlocked) {
             raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
         } else if (error instanceof LoginError.SyncFailed syncFailed) {
-            if (syncFailed.getMessage() != null) {
-                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, syncFailed.getMessage(), true);
-            } else {
-                raiseLoginMessage(StockMessages.Restore_Unknown, true);
-            }
+            onSyncFailed(syncFailed);
+        }
+    }
+
+    private void onSyncFailed(LoginError.SyncFailed syncFailed) {
+        String message = syncFailed.getMessage();
+        switch (syncFailed.getReason()) {
+            case BAD_DATA:
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, message, true);
+                break;
+            case BAD_DATA_REQUIRES_INTERVENTION:
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, message, true);
+                break;
+            case BAD_RESPONSE:
+                raiseLoginMessage(StockMessages.Remote_BadRestore, true);
+                break;
+            case BAD_SSL_CERTIFICATE:
+                raiseLoginMessage(StockMessages.BadSslCertificate, true,
+                        NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+                break;
+            case STORAGE_FULL:
+                raiseLoginMessage(StockMessages.Storage_Full, true);
+                break;
+            case SERVER_ERROR:
+                raiseLoginMessage(StockMessages.Remote_ServerError, true);
+                break;
+            case RATE_LIMITED_SERVER_ERROR:
+                raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
+                break;
+            case ENCRYPTION_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Encryption_Error, message, true);
+                break;
+            case RECOVERY_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Recovery_Error, message, true);
+                break;
+            case ACTIONABLE_FAILURE:
+                raiseMessage(new NotificationMessage(NOTIFICATION_MESSAGE_LOGIN, message, "", null, new Date()), true);
+                break;
+            case SESSION_EXPIRE:
+                raiseLoginMessage(StockMessages.Session_Expire, true);
+                break;
+            case CANCELLED:
+                raiseLoginMessage(StockMessages.Cancelled, true);
+                break;
+            case EMPTY_URL:
+                raiseLoginMessage(StockMessages.Empty_Url, true);
+                break;
+            case INSUFFICIENT_ROLE_PERMISSION:
+                raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
+                break;
+            case UNKNOWN:
+            default:
+                if (message != null) {
+                    raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, message, true);
+                } else {
+                    raiseLoginMessage(StockMessages.Restore_Unknown, true);
+                }
+                break;
         }
     }
 

@@ -1,18 +1,16 @@
 package org.commcare.login
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApp
 import org.commcare.activities.DataPullController
 import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.network.HttpCalloutTask.HttpCalloutOutcomes
 import org.commcare.tasks.ManageKeyRecordTask
-import org.commcare.tasks.templates.CommCareTask
-import org.commcare.tasks.templates.CommCareTaskConnector
 import org.commcare.views.notifications.MessageTag
 import org.commcare.views.notifications.NotificationActionButtonInfo
 import org.commcare.views.notifications.NotificationMessage
-import kotlin.coroutines.resume
 
 internal sealed class KeyRecordOutcome {
     data class ReadyForSync(
@@ -26,13 +24,6 @@ internal sealed class KeyRecordOutcome {
     ) : KeyRecordOutcome()
 }
 
-/**
- * Suspending wrapper around ManageKeyRecordTask. Emits SigningIn progress events.
- *
- * The wrapper bridges the AsyncTask receiver-callback model to a suspend function.
- *
- * Cancellation is best-effort — AsyncTask cancellation does not preempt running steps.
- */
 internal open class KeyRecordOperations(
     private val context: Context,
     private val app: CommCareApp,
@@ -48,36 +39,46 @@ internal open class KeyRecordOperations(
                         mode: DataPullMode,
                         password: String,
                     ) {
-                        if (!continuation.isCompleted) continuation.resume(KeyRecordOutcome.ReadyForSync(password))
+                        continuation.resumeOnce(KeyRecordOutcome.ReadyForSync(password))
                     }
 
                     override fun dataPullCompleted() {
-                        if (!continuation.isCompleted) continuation.resume(KeyRecordOutcome.LocalLoginComplete)
+                        continuation.resumeOnce(KeyRecordOutcome.LocalLoginComplete)
                     }
 
-                    // Error-path callbacks are no-ops on the receiver; failure is captured via
-                    // keysDoneOther override below, which carries the original HttpCalloutOutcomes value.
                     override fun raiseLoginMessage(
                         messageTag: MessageTag,
                         showTop: Boolean,
-                    ) = Unit
+                    ) {
+                        continuation.resumeOnce(KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN)))
+                    }
 
                     override fun raiseLoginMessage(
                         messageTag: MessageTag,
                         showTop: Boolean,
                         buttonAction: NotificationActionButtonInfo.ButtonAction,
-                    ) = Unit
+                    ) {
+                        continuation.resumeOnce(KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN)))
+                    }
 
                     override fun raiseLoginMessageWithInfo(
                         messageTag: MessageTag,
                         additionalInfo: String?,
                         showTop: Boolean,
-                    ) = Unit
+                    ) {
+                        continuation.resumeOnce(
+                            KeyRecordOutcome.Failed(
+                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN, additionalInfo),
+                            ),
+                        )
+                    }
 
                     override fun raiseMessage(
                         message: NotificationMessage,
                         showTop: Boolean,
-                    ) = Unit
+                    ) {
+                        continuation.resumeOnce(KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN)))
+                    }
                 }
 
             val task =
@@ -104,49 +105,28 @@ internal open class KeyRecordOperations(
                         receiver: DataPullController,
                         outcome: HttpCalloutOutcomes,
                     ) {
-                        if (!continuation.isCompleted) {
-                            continuation.resume(KeyRecordOutcome.Failed(OutcomeMapper.fromHttpCalloutOutcome(outcome)))
-                        }
+                        continuation.resumeOnce(
+                            KeyRecordOutcome.Failed(OutcomeMapper.fromHttpCalloutOutcome(outcome)),
+                        )
                     }
 
                     override fun deliverError(
                         receiver: DataPullController,
                         e: Exception,
                     ) {
-                        if (!continuation.isCompleted) {
-                            continuation.resume(KeyRecordOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e.message)))
-                        }
+                        if (e is CancellationException) throw e
+                        continuation.resumeOnce(
+                            KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN, e.message)),
+                        )
                     }
                 }
 
-            // A minimal CommCareTaskConnector that routes callbacks to our receiver.
-            // startBlockingForTask / stopBlockingForTask are no-ops because we have no UI
-            // progress dialog; the coroutine suspension itself serves as the "blocking" mechanism.
-            val connector =
-                object : CommCareTaskConnector<DataPullController> {
-                    override fun <A, B, C> connectTask(task: CommCareTask<A, B, C, DataPullController>) = Unit
-
-                    override fun startBlockingForTask(id: Int) = Unit
-
-                    override fun stopBlockingForTask(id: Int) = Unit
-
-                    override fun taskCancelled() = Unit
-
-                    override fun getReceiver(): DataPullController = receiver
-
-                    override fun startTaskTransition() = Unit
-
-                    override fun stopTaskTransition(taskId: Int) = Unit
-
-                    override fun hideTaskCancelButton() = Unit
-                }
-
             continuation.invokeOnCancellation { task.cancel(true) }
-            task.connect(connector)
+            task.connect(HeadlessTaskConnector(receiver))
             task.executeParallel()
         }
 
     companion object {
-        private const val TASK_ID = 0x4c47 // unique id for this engine; 'LG' in ASCII
+        private const val TASK_ID = 0x4c47
     }
 }

@@ -9,7 +9,6 @@ import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.utils.CrashUtil
-import kotlin.coroutines.resume
 
 internal open class PostLoginSideEffects(
     private val context: Context,
@@ -43,7 +42,7 @@ internal open class PostLoginSideEffects(
                             success: Boolean,
                             error: String?,
                         ) {
-                            if (!continuation.isCompleted) continuation.resume(success)
+                            continuation.resumeOnce(success)
                         }
                     }
                 ConnectJobHelper.updateJobProgress(context, job, listener)

@@ -1,15 +1,13 @@
 package org.commcare.login
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
 import org.commcare.preferences.ServerUrls
 import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.PullTaskResultReceiver
 import org.commcare.tasks.ResultAndError
-import org.commcare.tasks.templates.CommCareTask
-import org.commcare.tasks.templates.CommCareTaskConnector
-import kotlin.coroutines.resume
 
 internal sealed class SyncOutcome {
     object Success : SyncOutcome()
@@ -19,12 +17,6 @@ internal sealed class SyncOutcome {
     ) : SyncOutcome()
 }
 
-/**
- * Suspending wrapper around DataPullTask for the normal sync restore path.
- * Emits Syncing progress events with a percentage when DataPullTask reports one.
- *
- * Cancellation is best-effort — AsyncTask cancellation does not preempt running steps.
- */
 internal open class SyncOperations(
     private val context: Context,
 ) {
@@ -55,10 +47,13 @@ internal open class SyncOperations(
                         val outcome =
                             when (val pull = result?.data) {
                                 PullTaskResult.DOWNLOAD_SUCCESS -> SyncOutcome.Success
-                                null -> SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", result?.errorMessage))
+                                null ->
+                                    SyncOutcome.Failed(
+                                        LoginError.SyncFailed(SyncFailureReason.UNKNOWN, result?.errorMessage),
+                                    )
                                 else -> SyncOutcome.Failed(OutcomeMapper.fromPullTaskResult(pull, result.errorMessage))
                             }
-                        if (!continuation.isCompleted) continuation.resume(outcome)
+                        continuation.resumeOnce(outcome)
                     }
 
                     override fun deliverUpdate(
@@ -80,33 +75,15 @@ internal open class SyncOperations(
                         receiver: PullTaskResultReceiver,
                         e: Exception?,
                     ) {
-                        if (!continuation.isCompleted) {
-                            continuation.resume(SyncOutcome.Failed(LoginError.SyncFailed("UNKNOWN", e?.message)))
-                        }
+                        if (e is CancellationException) throw e
+                        continuation.resumeOnce(
+                            SyncOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN, e?.message)),
+                        )
                     }
                 }
 
-            val connector =
-                object : CommCareTaskConnector<PullTaskResultReceiver> {
-                    override fun <A, B, C> connectTask(task: CommCareTask<A, B, C, PullTaskResultReceiver>) = Unit
-
-                    override fun startBlockingForTask(id: Int) = Unit
-
-                    override fun stopBlockingForTask(id: Int) = Unit
-
-                    override fun taskCancelled() = Unit
-
-                    override fun getReceiver(): PullTaskResultReceiver = receiver
-
-                    override fun startTaskTransition() = Unit
-
-                    override fun stopTaskTransition(taskId: Int) = Unit
-
-                    override fun hideTaskCancelButton() = Unit
-                }
-
             continuation.invokeOnCancellation { task.cancel(true) }
-            task.connect(connector)
+            task.connect(HeadlessTaskConnector(receiver))
             task.executeParallel()
         }
 }

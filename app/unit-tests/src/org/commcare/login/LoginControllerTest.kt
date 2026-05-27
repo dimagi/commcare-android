@@ -186,13 +186,16 @@ class LoginControllerTest {
             val (controller, _, _) =
                 buildController(
                     keyRecordOutcome = KeyRecordOutcome.ReadyForSync("secret"),
-                    syncOutcome = SyncOutcome.Failed(LoginError.SyncFailed("SERVER_ERROR", "something went wrong")),
+                    syncOutcome =
+                        SyncOutcome.Failed(
+                            LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR, "something went wrong"),
+                        ),
                 )
 
             val result = controller.performLogin(manualRequest(), sink)
 
             assertEquals(
-                LoginResult.Failed(LoginError.SyncFailed("SERVER_ERROR", "something went wrong")),
+                LoginResult.Failed(LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR, "something went wrong")),
                 result,
             )
             coVerify(exactly = 0) { postLoginSideEffects.runOnSuccess(any()) }
