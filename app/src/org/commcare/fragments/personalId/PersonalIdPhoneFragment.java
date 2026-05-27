@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
@@ -64,6 +65,8 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
+
+import static org.commcare.connect.ConnectConstants.NETWORK_ACTIVITY_ID;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements CommCareLocationListener {
@@ -328,7 +331,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void startConfigurationRequest() {
-        isRequestInProgress = true;
+        setRequestProgressState(true);
         clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
@@ -497,7 +500,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
-                isRequestInProgress = false;
+                setRequestProgressState(false);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
                 FirebaseAnalyticsUtil.flagPersonalIDDemoUser(sessionData.getDemoUser());
@@ -524,7 +527,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     @NonNull PersonalIdOrConnectApiErrorCodes failureCode,
                     @Nullable Throwable t
             ) {
-                isRequestInProgress = false;
+                setRequestProgressState(false);
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
@@ -541,7 +544,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                         break;
                     case MISSING_DATA_ERROR: {
                         String subCode = personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode();
-                        boolean isIntegrityHeadersMissing = BaseApiHandler.PersonalIdApiSubErrorCodes.INTEGRITY_HEADERS.name().equals(subCode);
+                        boolean isIntegrityHeadersMissing = PersonalIdApiSubErrorCodes.INTEGRITY_HEADERS.name().equals(subCode);
                         if (isIntegrityHeadersMissing) {
                             if (!token.isEmpty()) {
                                 Logger.exception("Missing Data error related to Integrity check headers",
@@ -565,6 +568,15 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 }
             }
         }.makeStartConfigurationCall(requireActivity(), body, token, requestHash, newSessionData);
+    }
+
+    private void setRequestProgressState(boolean inProgress) {
+        isRequestInProgress = inProgress;
+        if (isRequestInProgress) {
+            ((CommCareActivity<?>)requireActivity()).showProgressDialogIfNeeded(NETWORK_ACTIVITY_ID);
+        } else {
+            ((CommCareActivity<?>)requireActivity()).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+        }
     }
 
     private void onIntegrityConfigurationError() {
