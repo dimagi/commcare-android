@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import org.commcare.activities.CommCareActivity
@@ -18,6 +19,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailBinding
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.KeyboardHelper
+import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
@@ -96,14 +98,20 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     private fun confirmSkipEmail() {
-        EmailHelper.showSkipConfirmationDialog(
-            activity = requireActivity() as CommCareActivity<*>,
-            title = getString(R.string.personalid_email_skip_confirm_title),
-            message = getString(R.string.personalid_email_skip_confirm_message),
-            positiveButtonText = getString(R.string.personalid_link_app_yes),
-            negativeButtonText = getString(R.string.personalid_link_app_no),
-            onConfirm = ::skipEmail,
-        )
+        val commCareActivity = requireActivity() as CommCareActivity<*>
+        val dialog =
+            StandardAlertDialog(
+                getString(R.string.personalid_email_skip_confirm_title),
+                getString(R.string.personalid_email_skip_confirm_message),
+            )
+        dialog.setPositiveButton(getString(R.string.personalid_link_app_yes)) { _, _ ->
+            commCareActivity.dismissAlertDialog()
+            skipEmail()
+        }
+        dialog.setNegativeButton(getString(R.string.personalid_link_app_no)) { _, _ ->
+            commCareActivity.dismissAlertDialog()
+        }
+        commCareActivity.showAlertDialog(dialog)
     }
 
     private fun enableContinueButton(enabled: Boolean) {
@@ -128,7 +136,14 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             email = email,
             workflow = workflow,
             sessionData = personalIdSessionData,
-            onSuccess = { navigateToEmailVerification(email) },
+            onSuccess = {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.personalId_email_otp_sent),
+                    Toast.LENGTH_SHORT
+                ).show()
+                navigateToEmailVerification(email)
+            },
             onFailure = { failureCode, t ->
                 showError(
                     PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t),

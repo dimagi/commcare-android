@@ -272,6 +272,7 @@
     <string name="personalid_email_skip_confirm_title">Ruka barua pepe?</string>
     <string name="personalid_email_skip_confirm_message">Una uhakika unataka kuruka?</string>
     <string name="personalid_email_invalid_format">Tafadhali weka anwani halali ya barua pepe.</string>
+    <string name="personalId_email_otp_sent">Msimbo wa tarakimu 6 umetumwa kwa anwani yako ya barua pepe.</string>
     <string name="connect_recovery_success_title">Akaunti Imerejeshwa</string>
     <string name="connect_recovery_success_message">Akaunti yako imerejeshwa! Unaweza kuendelea kutumia PersonalID.</string>
     <string name="connect_unlock_title">Fungua PersonalId</string>

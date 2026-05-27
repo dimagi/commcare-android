@@ -264,6 +264,7 @@
     <string name="personalid_email_skip_confirm_title">ኢመይል ትሓልፍ?</string>
     <string name="personalid_email_skip_confirm_message">ብርግፅ ክትሓልፎ ትደሊ ዲኻ?</string>
     <string name="personalid_email_invalid_format">በጃኻ ቅኑዕ ኣድራሻ ኢመይል ኣእቱ።</string>
+    <string name="personalId_email_otp_sent">ናብ ኢመይል ኣድራሻኻ ናይ 6 ኣሃዝ መሕለፊ ቓል ተላኢኹ ኣሎ።</string>
     <string name="connect_recovery_success_title">ኣካውንት ናብ ንቡር ተመሊሱ</string>
     <string name="connect_recovery_success_message">ሕሳብካ ተመልሱልካ ኣሎ! PersonalID ምጥቃም ክትቅጽል ትኽእል ኢኻ።</string>
     <string name="connect_unlock_title">PersonalId ኽፈት።</string>

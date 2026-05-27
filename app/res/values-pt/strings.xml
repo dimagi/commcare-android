@@ -276,6 +276,7 @@
     <string name="personalid_email_skip_confirm_title">Pular e-mail?</string>
     <string name="personalid_email_skip_confirm_message">Tem certeza de que deseja pular?</string>
     <string name="personalid_email_invalid_format">Por favor, insira um endereço de e-mail válido.</string>
+    <string name="personalId_email_otp_sent">Um código de 6 dígitos foi enviado para o seu endereço de e-mail.</string>
     <string name="connect_recovery_success_title">Conta Recuperada</string>
     <string name="connect_recovery_success_message">A sua conta foi recuperada! Pode voltar a utilizar o PersonalID.</string>
     <string name="connect_unlock_title">Desbloquear PersonalId</string>
