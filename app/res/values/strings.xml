@@ -390,7 +390,7 @@
     <string name="personalid_email_verification_description">Enter the 6-digit code sent to %1$s</string>
     <string name="personalid_email_verify_button">Verify</string>
     <string name="personalid_email_otp_failed_title">Verification unsuccessful</string>
-    <string name="personalid_email_otp_failed_message">You\'ve entered an incorrect code 3 times. Would you like to try again or proceed without adding an email address?</string>
+    <string name="personalid_email_otp_failed_message">Looks like you\'re having trouble verifying your email. You can skip this for now and try again later, or keep trying.</string>
     <string name="personalid_email_otp_failed_retry">Try again</string>
     <string name="personalid_email_otp_failed_skip">Proceed without email</string>
     <string name="personalid_email_added_title">Email Added</string>

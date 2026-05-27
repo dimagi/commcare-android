@@ -158,7 +158,7 @@
     <string name="personalid_email_verification_description">Skriv inn den 6-sifrede koden sendt til %1$s</string>
     <string name="personalid_email_verify_button">Bekreft</string>
     <string name="personalid_email_otp_failed_title">Bekreftelse mislyktes</string>
-    <string name="personalid_email_otp_failed_message">Du har skrevet inn feil kode 3 ganger. Vil du prøve igjen eller fortsette uten å legge til en e-postadresse?</string>
+    <string name="personalid_email_otp_failed_message">Det ser ut til at du har problemer med å bekrefte e-postadressen din. Du kan hoppe over dette nå og prøve igjen senere, eller fortsette å prøve.</string>
     <string name="personalid_email_otp_failed_retry">Prøv igjen</string>
     <string name="personalid_email_otp_failed_skip">Fortsett uten e-post</string>
     <string name="personalid_email_added_title">E-post lagt til</string>

@@ -276,7 +276,7 @@ License.
     <string name="personalid_email_verification_description">Saisissez le code à 6 chiffres envoyé à %1$s</string>
     <string name="personalid_email_verify_button">Vérifier</string>
     <string name="personalid_email_otp_failed_title">Échec de la vérification</string>
-    <string name="personalid_email_otp_failed_message">Vous avez saisi un code incorrect 3 fois. Souhaitez-vous réessayer ou continuer sans ajouter d\'adresse e-mail ?</string>
+    <string name="personalid_email_otp_failed_message">Il semble que vous ayez du mal à vérifier votre adresse e-mail. Vous pouvez ignorer cette étape pour le moment et réessayer plus tard, ou continuer d\'essayer.</string>
     <string name="personalid_email_otp_failed_retry">Réessayer</string>
     <string name="personalid_email_otp_failed_skip">Continuer sans e-mail</string>
     <string name="personalid_email_added_title">E-mail ajouté</string>

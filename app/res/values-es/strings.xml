@@ -214,7 +214,7 @@
     <string name="personalid_email_verification_description">Introduce el código de 6 dígitos enviado a %1$s</string>
     <string name="personalid_email_verify_button">Verificar</string>
     <string name="personalid_email_otp_failed_title">Verificación incorrecta</string>
-    <string name="personalid_email_otp_failed_message">Has introducido un código incorrecto 3 veces. ¿Quieres volver a intentarlo o continuar sin añadir un correo electrónico?</string>
+    <string name="personalid_email_otp_failed_message">Parece que tienes problemas para verificar tu correo electrónico. Puedes omitir esto por ahora e intentarlo de nuevo más tarde, o seguir intentándolo.</string>
     <string name="personalid_email_otp_failed_retry">Intentar de nuevo</string>
     <string name="personalid_email_otp_failed_skip">Continuar sin correo</string>
     <string name="personalid_email_added_title">Correo añadido</string>

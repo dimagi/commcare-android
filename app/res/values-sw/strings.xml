@@ -277,7 +277,7 @@
     <string name="personalid_email_verification_description">Weka msimbo wa tarakimu 6 uliotumwa kwa %1$s</string>
     <string name="personalid_email_verify_button">Thibitisha</string>
     <string name="personalid_email_otp_failed_title">Uthibitishaji haukufaulu</string>
-    <string name="personalid_email_otp_failed_message">Umeingiza msimbo usio sahihi mara 3. Je, ungependa kujaribu tena au kuendelea bila kuongeza anwani ya barua pepe?</string>
+    <string name="personalid_email_otp_failed_message">Inaonekana una matatizo katika kuthibitisha barua pepe yako. Unaweza kuruka hatua hii kwa sasa na kujaribu tena baadaye, au uendelee kujaribu.</string>
     <string name="personalid_email_otp_failed_retry">Jaribu tena</string>
     <string name="personalid_email_otp_failed_skip">Endelea bila barua pepe</string>
     <string name="personalid_email_added_title">Barua pepe imeongezwa</string>

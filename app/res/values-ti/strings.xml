@@ -269,7 +269,7 @@
     <string name="personalid_email_verification_description">ናብ %1$s ዝተላእከ 6-ቁፅሪ ኮድ ኣእቱ</string>
     <string name="personalid_email_verify_button">ኣረጋግፅ</string>
     <string name="personalid_email_otp_failed_title">ምርግጋፅ ኣይተዓወተን</string>
-    <string name="personalid_email_otp_failed_message">3 ግዜ ጌጋ ኮድ ኣእቲኻ። ከም ብሓዱሽ ክትፍትን ድዩስ ኢመይል ኣእቱኻ ብዘይ ኢመይል ክትቕጽል ዲኻ ትደሊ?</string>
+    <string name="personalid_email_otp_failed_message">ኢመይል ምርግጋጽ ጸገም የጋጥመካ ኣሎ ዝመስል። ንሕጂ ነዚ ክትሓልፎ እሞ ድሕሪ ቑሩብ ግዜ ክትፍትን፣ ወይ ምፍታን ክትቕጽል ትኽእል ኢኻ።</string>
     <string name="personalid_email_otp_failed_retry">ከም ብሓዱሽ ፈትን</string>
     <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
     <string name="personalid_email_added_title">ኢመይል ተወሲኹ</string>

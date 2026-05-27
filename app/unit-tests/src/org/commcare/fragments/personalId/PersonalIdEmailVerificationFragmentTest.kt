@@ -3,6 +3,7 @@ package org.commcare.fragments.personalId
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.Navigation
@@ -214,6 +215,68 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         // The fragment shows exactly one dialog (showProceedWithoutEmailDialog) and only after
         // failedOtpAttempts >= 3, so reaching this point proves the failure path took the
         // dialog branch rather than the per-attempt re-enable branch.
+    }
+
+    @Test
+    fun `retry CTA on verification-unsuccessful dialog clears OTP state and dismisses the dialog`() {
+        mockWebServer.enqueue(incorrectOtpResponse())
+        mockWebServer.enqueue(incorrectOtpResponse())
+        mockWebServer.enqueue(incorrectOtpResponse())
+
+        repeat(3) {
+            enterCode("123456")
+            mockWebServer.takeRequest()
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        }
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        // StandardAlertDialog uses a custom content view, so the buttons are inside that
+        // view (R.id.positive_button / R.id.negative_button) — not the native AlertDialog
+        // BUTTON_POSITIVE / BUTTON_NEGATIVE slots, which are never populated.
+        val retryButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        activity.runOnUiThread { retryButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        val codeView = fragment.view?.findViewById<NumericCodeView>(R.id.otp_code_view)
+        val errorText =
+            fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        val verifyButton =
+            fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_verify_button)
+
+        assertTrue("OTP code should be cleared after Retry", codeView!!.codeValue.isEmpty())
+        assertEquals(
+            "Error text should be hidden after Retry",
+            View.GONE,
+            errorText!!.visibility,
+        )
+        assertFalse(
+            "Verify button should be disabled after Retry (no 6-digit code present)",
+            verifyButton!!.isEnabled,
+        )
+    }
+
+    @Test
+    fun `skip CTA on verification-unsuccessful dialog navigates to photo capture for REGISTRATION`() {
+        mockWebServer.enqueue(incorrectOtpResponse())
+        mockWebServer.enqueue(incorrectOtpResponse())
+        mockWebServer.enqueue(incorrectOtpResponse())
+
+        repeat(3) {
+            enterCode("123456")
+            mockWebServer.takeRequest()
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        }
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val skipButton = dialog.findViewById<Button>(R.id.negative_button)!!
+        activity.runOnUiThread { skipButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(
+            "Skip should route to photo capture for the REGISTRATION workflow",
+            R.id.personalid_photo_capture,
+            navController.currentDestination!!.id,
+        )
     }
 
     // ========== Helpers ==========

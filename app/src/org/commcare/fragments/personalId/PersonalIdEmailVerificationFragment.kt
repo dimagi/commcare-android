@@ -16,13 +16,12 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.views.dialogs.StandardAlertDialog
 import java.util.concurrent.TimeUnit
+import org.javarosa.core.services.Logger
 
 class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailVerificationBinding
@@ -97,7 +96,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         binding.otpCodeView.setCodeCompleteListener { _ -> submitOtp() }
         binding.otpCodeView.setOnEnterKeyPressedListener { submitOtp() }
         binding.personalidEmailVerifyButton.setOnClickListener { submitOtp() }
-        binding.personalidEmailResendButton.setOnClickListener { resendOtp() }
+        binding.personalidEmailResendButton.setOnClickListener { requestOtp() }
 
         enableVerifyButton(false)
         startResendTimer()
@@ -129,63 +128,51 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         }
     }
 
-    private fun resendOtp() {
+    private fun requestOtp() {
         otpRequestTime = System.currentTimeMillis()
         binding.otpCodeView.clearCode()
         clearError()
 
-        val user = ConnectUserDatabaseUtil.getUser(requireActivity())
-        object : PersonalIdApiHandler<Boolean>() {
-            override fun onSuccess(status: Boolean) {
-                startResendTimer()
-            }
-
-            override fun onFailure(
-                failureCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
+        EmailHelper.sendEmailOtp(
+            activity = requireActivity(),
+            email = enteredEmail,
+            workflow = workflow,
+            sessionData = personalIdSessionData,
+            onSuccess = { startResendTimer() },
+            onFailure = { failureCode, t ->
                 showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
-            }
-        }.sendEmailOtp(
-            requireActivity(),
-            enteredEmail,
-            if (workflow == EmailWorkFlow.EXISTING_USER) null else personalIdSessionData?.token,
-            if (workflow == EmailWorkFlow.EXISTING_USER) user else null,
+            },
         )
     }
 
     private fun submitOtp() {
         val otp = binding.otpCodeView.codeValue
-        if (otp.length != 6) return
+        if (otp.length != 6) {
+            Logger.exception("Invalid email otp", Exception("Invalid email otp length error - ${otp.length}"));
+            return
+        }
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, null)
         clearError()
         enableVerifyButton(false)
 
-        val user = ConnectUserDatabaseUtil.getUser(requireActivity())
-        object : PersonalIdApiHandler<Boolean>() {
-            override fun onSuccess(status: Boolean) {
-                onEmailVerified()
-            }
-
-            override fun onFailure(
-                failureCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                if (handleCommonSignupFailures(failureCode)) return
-                showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
-                failedOtpAttempts++
-                if (failedOtpAttempts >= maxOtpAttempts) {
-                    showProceedWithoutEmailDialog()
-                } else if (failureCode.shouldAllowRetry()) {
-                    enableVerifyButton(true)
+        EmailHelper.verifyEmailOtp(
+            activity = requireActivity(),
+            email = enteredEmail,
+            otp = otp,
+            workflow = workflow,
+            sessionData = personalIdSessionData,
+            onSuccess = { onEmailVerified() },
+            onFailure = { failureCode, t ->
+                if (!handleCommonSignupFailures(failureCode)) {
+                    showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
+                    failedOtpAttempts++
+                    if (failedOtpAttempts >= maxOtpAttempts) {
+                        showProceedWithoutEmailDialog()
+                    } else if (failureCode.shouldAllowRetry()) {
+                        enableVerifyButton(true)
+                    }
                 }
-            }
-        }.verifyEmailOtp(
-            requireActivity(),
-            enteredEmail,
-            otp,
-            if (workflow == EmailWorkFlow.EXISTING_USER) null else personalIdSessionData?.token,
-            if (workflow == EmailWorkFlow.EXISTING_USER) user else null,
+            },
         )
     }
 
@@ -200,7 +187,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
             EmailWorkFlow.RECOVERY -> {
                 personalIdSessionData!!.email = enteredEmail
-                finalizeRecoveryAndShowSuccess()
+                EmailHelper.finalizeRecoveryAndShowSuccess(
+                    requireActivity(),
+                    personalIdSessionData!!,
+                    ::navigateToRecoverySuccess,
+                )
             }
 
             EmailWorkFlow.REGISTRATION -> {
@@ -210,8 +201,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         }
     }
 
-    private fun finalizeRecoveryAndShowSuccess() {
-        PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData!!)
+    private fun navigateToRecoverySuccess() {
         navigateToMessageDisplay(
             getString(R.string.connect_recovery_success_title),
             getString(R.string.connect_recovery_success_message),
@@ -264,19 +254,13 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private fun proceedWithoutEmail() {
         // No need to null out sessionData.email — only the OTP-verify success path writes it,
         // and that path was not taken on this branch.
-        when (workflow) {
-            EmailWorkFlow.EXISTING_USER -> {
-                requireActivity().finish()
-            }
-
-            EmailWorkFlow.RECOVERY -> {
-                finalizeRecoveryAndShowSuccess()
-            }
-
-            EmailWorkFlow.REGISTRATION -> {
-                navigateToPhotoCapture()
-            }
-        }
+        EmailHelper.routeAfterEmailDeclined(
+            fragment = this,
+            workflow = workflow,
+            sessionData = personalIdSessionData,
+            onRegistration = { navigateToPhotoCapture() },
+            onRecoverySuccess = { navigateToRecoverySuccess() },
+        )
     }
 
     private fun navigateToPhotoCapture() {

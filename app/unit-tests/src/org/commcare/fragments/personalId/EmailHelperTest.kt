@@ -31,7 +31,6 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class EmailHelperTest {
-
     @Test
     fun `sendEmailOtp uses session token for REGISTRATION workflow`() {
         val activity = mock(Activity::class.java)
@@ -110,6 +109,101 @@ class EmailHelperTest {
                     ApiPersonalId.sendEmailOtp(
                         eq(activity),
                         eq("user@example.com"),
+                        eq(null),
+                        eq(user),
+                        any(),
+                    )
+                }
+            }
+        }
+    }
+
+    // ---------- verifyEmailOtp auth-arg mapping ------------------------------------------
+
+    @Test
+    fun `verifyEmailOtp uses session token for REGISTRATION workflow`() {
+        val activity = mock(Activity::class.java)
+        val sessionData = PersonalIdSessionData(token = "session-token-123")
+
+        mockStatic(ApiPersonalId::class.java).use { mockApi ->
+            EmailHelper.verifyEmailOtp(
+                activity = activity,
+                email = "user@example.com",
+                otp = "123456",
+                workflow = EmailWorkFlow.REGISTRATION,
+                sessionData = sessionData,
+                onSuccess = {},
+                onFailure = { _, _ -> },
+            )
+
+            mockApi.verify {
+                ApiPersonalId.verifyEmailOtp(
+                    eq(activity),
+                    eq("user@example.com"),
+                    eq("123456"),
+                    eq("session-token-123"),
+                    eq(null),
+                    any(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `verifyEmailOtp uses session token for RECOVERY workflow`() {
+        val activity = mock(Activity::class.java)
+        val sessionData = PersonalIdSessionData(token = "session-token-456")
+
+        mockStatic(ApiPersonalId::class.java).use { mockApi ->
+            EmailHelper.verifyEmailOtp(
+                activity = activity,
+                email = "user@example.com",
+                otp = "654321",
+                workflow = EmailWorkFlow.RECOVERY,
+                sessionData = sessionData,
+                onSuccess = {},
+                onFailure = { _, _ -> },
+            )
+
+            mockApi.verify {
+                ApiPersonalId.verifyEmailOtp(
+                    eq(activity),
+                    eq("user@example.com"),
+                    eq("654321"),
+                    eq("session-token-456"),
+                    eq(null),
+                    any(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `verifyEmailOtp uses ConnectUserRecord for EXISTING_USER workflow`() {
+        val activity = mock(Activity::class.java)
+        val user = mock(ConnectUserRecord::class.java)
+
+        mockStatic(ConnectUserDatabaseUtil::class.java).use { mockedDb ->
+            mockedDb
+                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(activity) }
+                .thenReturn(user)
+
+            mockStatic(ApiPersonalId::class.java).use { mockApi ->
+                EmailHelper.verifyEmailOtp(
+                    activity = activity,
+                    email = "user@example.com",
+                    otp = "111111",
+                    workflow = EmailWorkFlow.EXISTING_USER,
+                    sessionData = null,
+                    onSuccess = {},
+                    onFailure = { _, _ -> },
+                )
+
+                mockApi.verify {
+                    ApiPersonalId.verifyEmailOtp(
+                        eq(activity),
+                        eq("user@example.com"),
+                        eq("111111"),
                         eq(null),
                         eq(user),
                         any(),

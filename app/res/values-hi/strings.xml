@@ -276,7 +276,7 @@ License.
     <string name="personalid_email_verification_description">%1$s पर भेजा गया 6-अंकीय कोड दर्ज करें</string>
     <string name="personalid_email_verify_button">सत्यापित करें</string>
     <string name="personalid_email_otp_failed_title">सत्यापन असफल</string>
-    <string name="personalid_email_otp_failed_message">आपने 3 बार गलत कोड दर्ज किया है। क्या आप पुनः प्रयास करना चाहते हैं या ईमेल जोड़े बिना आगे बढ़ना चाहते हैं?</string>
+    <string name="personalid_email_otp_failed_message">लगता है आपको अपना ईमेल सत्यापित करने में समस्या हो रही है। आप इसे अभी छोड़ सकते हैं और बाद में पुनः प्रयास कर सकते हैं, या प्रयास करते रहें।</string>
     <string name="personalid_email_otp_failed_retry">पुनः प्रयास करें</string>
     <string name="personalid_email_otp_failed_skip">ईमेल के बिना आगे बढ़ें</string>
     <string name="personalid_email_added_title">ईमेल जोड़ा गया</string>

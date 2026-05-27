@@ -281,7 +281,7 @@
     <string name="personalid_email_verification_description">Digite o código de 6 dígitos enviado para %1$s</string>
     <string name="personalid_email_verify_button">Verificar</string>
     <string name="personalid_email_otp_failed_title">Falha na verificação</string>
-    <string name="personalid_email_otp_failed_message">Você digitou um código incorreto 3 vezes. Deseja tentar novamente ou continuar sem adicionar um endereço de e-mail?</string>
+    <string name="personalid_email_otp_failed_message">Parece que você está tendo dificuldade para verificar seu e-mail. Você pode pular esta etapa por agora e tentar novamente mais tarde, ou continuar tentando.</string>
     <string name="personalid_email_otp_failed_retry">Tentar novamente</string>
     <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
     <string name="personalid_email_added_title">E-mail adicionado</string>
