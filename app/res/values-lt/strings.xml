@@ -154,6 +154,10 @@
     <string name="personalid_email_skip_confirm_message">Ar tikrai norite praleisti?</string>
     <string name="personalid_email_invalid_format">Įveskite galiojantį el. pašto adresą.</string>
     <string name="personalId_email_otp_sent">Į jūsų el. pašto adresą išsiųstas 6 skaitmenų kodas.</string>
+    <string name="personalid_email_offer_title">Pridėkite savo el. pašto adresą</string>
+    <string name="personalid_email_offer_message">Pridėkite el. paštą, kad galėtumėte atkurti paskyrą, jei prarastumėte prieigą prie telefono.</string>
+    <string name="personalid_email_offer_yes">Pridėti el. paštą</string>
+    <string name="personalid_email_offer_no">Ne dabar</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>

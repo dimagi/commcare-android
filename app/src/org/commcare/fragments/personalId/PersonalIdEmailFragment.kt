@@ -23,7 +23,7 @@ import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
-    private lateinit var personalIdSessionData: PersonalIdSessionData
+    private var personalIdSessionData: PersonalIdSessionData? = null
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,

@@ -210,6 +210,10 @@
     <string name="personalid_email_skip_confirm_message">¿Seguro que quieres omitir este paso?</string>
     <string name="personalid_email_invalid_format">Por favor, introduce una dirección de correo electrónico válida.</string>
     <string name="personalId_email_otp_sent">Se ha enviado un código de 6 dígitos a tu dirección de correo electrónico.</string>
+    <string name="personalid_email_offer_title">Añade tu dirección de correo electrónico</string>
+    <string name="personalid_email_offer_message">Añade un correo electrónico para ayudar a recuperar tu cuenta si pierdes el acceso a tu teléfono.</string>
+    <string name="personalid_email_offer_yes">Añadir correo electrónico</string>
+    <string name="personalid_email_offer_no">Ahora no</string>
     <string name="connect_recovery_success_title">Cuenta recuperada</string>
     <string name="connect_recovery_success_message">¡Su cuenta ha sido recuperada! Puede reanudar el uso de PersonalID.</string>
     <string name="connect_unlock_title">Desbloquear PersonalId</string>
