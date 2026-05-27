@@ -24,14 +24,13 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 /**
- * Unit tests for [EmailHelper] covering the three public helpers:
+ * Unit tests for [EmailHelper] covering the two public helpers:
  * - `sendEmailOtp` — workflow → auth-arg mapping (token vs ConnectUserRecord).
  * - `routeAfterEmailDeclined` — workflow → side-effect routing.
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class EmailHelperTest {
-
     @Test
     fun `sendEmailOtp uses session token for REGISTRATION workflow`() {
         val activity = mock(Activity::class.java)
