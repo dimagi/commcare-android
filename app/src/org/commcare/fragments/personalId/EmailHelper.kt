@@ -96,31 +96,13 @@ object EmailHelper {
             }
 
             EmailWorkFlow.RECOVERY -> {
-                finalizeRecoveryAndShowSuccess(
-                    fragment.requireActivity(),
-                    sessionData!!,
-                    onRecoverySuccess,
-                )
+                onRecoverySuccess()
             }
 
             EmailWorkFlow.REGISTRATION -> {
                 onRegistration()
             }
         }
-    }
-
-    /**
-     * Finalizes account recovery (writes ConnectUserRecord, fires analytics, fires the
-     * second-device notification) and then invokes [onSuccessNavigate] — typically to
-     * navigate to the recovery-success message screen.
-     */
-    fun finalizeRecoveryAndShowSuccess(
-        activity: Activity,
-        sessionData: PersonalIdSessionData,
-        onSuccessNavigate: () -> Unit,
-    ) {
-        PersonalIdRecoveryCompleter.finalizeAccountRecovery(activity, sessionData)
-        onSuccessNavigate()
     }
 
     fun isValidEmail(email: String?) = StringUtils.isValidEmail(email)

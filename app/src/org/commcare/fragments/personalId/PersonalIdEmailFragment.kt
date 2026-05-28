@@ -18,6 +18,7 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailBinding
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.utils.KeyboardHelper
 import org.commcare.views.dialogs.StandardAlertDialog
 
@@ -158,6 +159,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
                     .navigate(PersonalIdEmailFragmentDirections.actionPersonalidEmailToPersonalidPhotoCapture())
             },
             onRecoverySuccess = {
+                PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
                 navigateToMessageDisplay(
                     getString(R.string.connect_recovery_success_title),
                     getString(R.string.connect_recovery_success_message),
