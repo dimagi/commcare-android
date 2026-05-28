@@ -95,7 +95,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/personalid_email_skip_button"
-                style="@style/CustomButtonStyle"
+                style="@style/CustomSecondaryCtaButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"

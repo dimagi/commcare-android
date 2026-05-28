@@ -227,6 +227,18 @@
         <item name="iconPadding">8dp</item>
         <item name="android:layout_margin">@dimen/spacer_small</item>
     </style>
+
+    <style name="CustomSecondaryCtaButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/secondary_cta_btn_background</item>
+        <item name="android:textColor">@color/secondary_cta_btn_text_color</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">12dp</item>
+        <item name="height">40dp</item>
+        <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:layout_margin">@dimen/spacer_small</item>
+    </style>
     
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="shapeAppearanceOverlay">@style/NegativeButtonShapeAppearanceStyle</item>
