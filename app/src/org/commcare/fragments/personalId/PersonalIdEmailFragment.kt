@@ -152,7 +152,6 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
         EmailHelper.routeAfterEmailDeclined(
             fragment = this,
             workflow = workflow,
-            sessionData = personalIdSessionData,
             onRegistration = {
                 binding.root
                     .findNavController()

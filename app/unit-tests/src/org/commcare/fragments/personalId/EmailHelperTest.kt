@@ -132,7 +132,6 @@ class EmailHelperTest {
         EmailHelper.routeAfterEmailDeclined(
             fragment = fragment,
             workflow = EmailWorkFlow.EXISTING_USER,
-            sessionData = null,
             onRegistration = { registrationCalled = true },
             onRecoverySuccess = { recoverySuccessCalled = true },
         )
@@ -154,7 +153,6 @@ class EmailHelperTest {
         EmailHelper.routeAfterEmailDeclined(
             fragment = fragment,
             workflow = EmailWorkFlow.REGISTRATION,
-            sessionData = null,
             onRegistration = { registrationCalled = true },
             onRecoverySuccess = { recoverySuccessCalled = true },
         )
@@ -178,7 +176,6 @@ class EmailHelperTest {
             EmailHelper.routeAfterEmailDeclined(
                 fragment = fragment,
                 workflow = EmailWorkFlow.RECOVERY,
-                sessionData = sessionData,
                 onRegistration = { registrationCalled = true },
                 onRecoverySuccess = { recoverySuccessCalled = true },
             )
