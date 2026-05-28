@@ -171,7 +171,10 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     private fun navigateToEmailVerification(email: String) {
-        // TODO: Add the navigation to the email verification fragment.
+        val action =
+            PersonalIdEmailFragmentDirections
+                .actionPersonalidEmailToPersonalidEmailVerification(email, workflow)
+        binding.root.findNavController().navigate(action)
     }
 
     private fun clearError() {
@@ -204,6 +207,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     companion object {
+        const val ARG_ENTERED_EMAIL = "email"
         const val ARG_EMAIL_WORKFLOW = "workflow"
     }
 }
