@@ -21,12 +21,13 @@ import org.junit.Before
 import org.junit.Test
 
 private class FakeKeyRecordOperations(
-    private val result: KeyRecordOutcome,
+    private vararg val results: KeyRecordOutcome,
 ) : KeyRecordOperations(
         context = mockk(relaxed = true),
         app = mockk(relaxed = true),
     ) {
     var capturedRequest: LoginRequest? = null
+    val capturedRequests = mutableListOf<LoginRequest>()
     var callCount = 0
 
     override suspend fun manageKeyRecord(
@@ -34,8 +35,10 @@ private class FakeKeyRecordOperations(
         sink: LoginProgressSink,
     ): KeyRecordOutcome {
         capturedRequest = request
+        capturedRequests += request
+        val outcome = results[callCount.coerceAtMost(results.lastIndex)]
         callCount++
-        return result
+        return outcome
     }
 }
 
@@ -88,8 +91,9 @@ class LoginControllerTest {
     private fun buildController(
         keyRecordOutcome: KeyRecordOutcome = KeyRecordOutcome.LocalLoginComplete,
         syncOutcome: SyncOutcome = SyncOutcome.Success,
+        keyRecordOutcomes: Array<KeyRecordOutcome> = arrayOf(keyRecordOutcome),
     ): Harness {
-        val fakeKeyRecord = FakeKeyRecordOperations(keyRecordOutcome)
+        val fakeKeyRecord = FakeKeyRecordOperations(*keyRecordOutcomes)
         val fakeSync = FakeSyncOperations(syncOutcome)
         val controller =
             LoginController(
@@ -124,7 +128,11 @@ class LoginControllerTest {
         runTest {
             val (controller, fakeKeyRecord, fakeSync) =
                 buildController(
-                    keyRecordOutcome = KeyRecordOutcome.ReadyForSync("resolved-pw"),
+                    keyRecordOutcomes =
+                        arrayOf(
+                            KeyRecordOutcome.ReadyForSync("resolved-pw"),
+                            KeyRecordOutcome.LocalLoginComplete,
+                        ),
                     syncOutcome = SyncOutcome.Success,
                 )
             val resolved = ResolvedCredentials(password = "resolved-pw", record = mockk(relaxed = true))
@@ -141,7 +149,9 @@ class LoginControllerTest {
             assertTrue(success.personalIdManagedLogin)
             assertEquals("alice", fakeSync.capturedUsername)
             assertEquals("resolved-pw", fakeSync.capturedPassword)
-            assertEquals("resolved-pw", fakeKeyRecord.capturedRequest?.passwordOrPin)
+            assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[0].passwordOrPin)
+            assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[1].passwordOrPin)
+            assertTrue(fakeKeyRecord.capturedRequests[1].blockRemoteKeyManagement)
             verify(exactly = 1) { credentialResolver.resolve("app-1", "alice", true) }
         }
 

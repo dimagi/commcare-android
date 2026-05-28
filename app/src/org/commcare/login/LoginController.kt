@@ -67,10 +67,26 @@ class LoginController internal constructor(
                             sink = sink,
                         )
                 ) {
-                    is SyncOutcome.Success -> finishSuccess(effectiveRequest)
+                    is SyncOutcome.Success -> finalizeAfterSync(effectiveRequest, sink)
                     is SyncOutcome.Failed -> LoginResult.Failed(syncOutcome.error)
                 }
             }
+        }
+    }
+
+    /**
+     * Re-runs the local key-record path after a successful remote sync so the session service is
+     * rebound with the user now persisted in the sandbox.
+     */
+    private suspend fun finalizeAfterSync(
+        request: LoginRequest,
+        sink: LoginProgressSink,
+    ): LoginResult {
+        val rebindRequest = request.copy(blockRemoteKeyManagement = true)
+        return when (val keyOutcome = keyRecordOperations.manageKeyRecord(rebindRequest, sink)) {
+            is KeyRecordOutcome.LocalLoginComplete -> finishSuccess(rebindRequest)
+            is KeyRecordOutcome.Failed -> LoginResult.Failed(keyOutcome.error)
+            is KeyRecordOutcome.ReadyForSync -> LoginResult.Failed(LoginError.BadCredentials)
         }
     }
 
