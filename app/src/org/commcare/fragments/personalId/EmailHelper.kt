@@ -113,7 +113,6 @@ object EmailHelper {
     fun routeAfterEmailDeclined(
         fragment: Fragment,
         workflow: EmailWorkFlow,
-        sessionData: PersonalIdSessionData?,
         onRegistration: () -> Unit,
         onRecoverySuccess: () -> Unit,
     ) {
