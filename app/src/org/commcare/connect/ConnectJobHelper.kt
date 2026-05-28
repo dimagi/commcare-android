@@ -178,7 +178,6 @@ object ConnectJobHelper {
         }.getConnectOpportunities(context, user!!)
     }
 
-    @JvmStatic
     fun retrieveConnectOppInviteIntentIfPresent(context: Context, intent: Intent): Intent? {
         val data = intent.data
         if (Intent.ACTION_VIEW != intent.action || data == null) {

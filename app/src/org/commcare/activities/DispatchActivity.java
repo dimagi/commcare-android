@@ -181,7 +181,7 @@ public class DispatchActivity extends AppCompatActivity {
             return;
         }
 
-        Intent connectOppInviteIntent = ConnectJobHelper.retrieveConnectOppInviteIntentIfPresent(
+        Intent connectOppInviteIntent = ConnectJobHelper.INSTANCE.retrieveConnectOppInviteIntentIfPresent(
                 this, getIntent());
         if(connectOppInviteIntent != null) {
             startActivity(connectOppInviteIntent);
