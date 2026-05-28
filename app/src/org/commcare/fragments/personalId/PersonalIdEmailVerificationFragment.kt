@@ -19,9 +19,10 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.views.dialogs.StandardAlertDialog
-import java.util.concurrent.TimeUnit
 import org.javarosa.core.services.Logger
+import java.util.concurrent.TimeUnit
 
 class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailVerificationBinding
@@ -148,7 +149,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private fun submitOtp() {
         val otp = binding.otpCodeView.codeValue
         if (otp.length != 6) {
-            Logger.exception("Invalid email otp", Exception("Invalid email otp length error - ${otp.length}"));
+            Logger.exception("Invalid email otp", Exception("Invalid email otp length error - ${otp.length}"))
             return
         }
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, null)
@@ -187,11 +188,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
             EmailWorkFlow.RECOVERY -> {
                 personalIdSessionData!!.email = enteredEmail
-                EmailHelper.finalizeRecoveryAndShowSuccess(
-                    requireActivity(),
-                    personalIdSessionData!!,
-                    ::navigateToRecoverySuccess,
-                )
+                finalizeRecoveryAndShowSuccess()
             }
 
             EmailWorkFlow.REGISTRATION -> {
@@ -199,6 +196,14 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 navigateToPhotoCapture()
             }
         }
+    }
+
+    fun finalizeRecoveryAndShowSuccess() {
+        PersonalIdRecoveryCompleter.finalizeAccountRecovery(
+            requireActivity(),
+            personalIdSessionData!!,
+        )
+        navigateToRecoverySuccess()
     }
 
     private fun navigateToRecoverySuccess() {
@@ -257,9 +262,8 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         EmailHelper.routeAfterEmailDeclined(
             fragment = this,
             workflow = workflow,
-            sessionData = personalIdSessionData,
             onRegistration = { navigateToPhotoCapture() },
-            onRecoverySuccess = { navigateToRecoverySuccess() },
+            onRecoverySuccess = { finalizeRecoveryAndShowSuccess() },
         )
     }
 
