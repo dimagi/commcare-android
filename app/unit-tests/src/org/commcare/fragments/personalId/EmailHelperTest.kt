@@ -132,7 +132,6 @@ class EmailHelperTest {
         EmailHelper.routeAfterEmailDeclined(
             fragment = fragment,
             workflow = EmailWorkFlow.EXISTING_USER,
-            sessionData = null,
             onRegistration = { registrationCalled = true },
             onRecoverySuccess = { recoverySuccessCalled = true },
         )
@@ -154,7 +153,6 @@ class EmailHelperTest {
         EmailHelper.routeAfterEmailDeclined(
             fragment = fragment,
             workflow = EmailWorkFlow.REGISTRATION,
-            sessionData = null,
             onRegistration = { registrationCalled = true },
             onRecoverySuccess = { recoverySuccessCalled = true },
         )
@@ -165,7 +163,7 @@ class EmailHelperTest {
     }
 
     @Test
-    fun `routeAfterEmailDeclined finalizes recovery and invokes onRecoverySuccess for RECOVERY`() {
+    fun `routeAfterEmailDeclined invokes onRecoverySuccess for RECOVERY`() {
         val activity = mock(FragmentActivity::class.java)
         val fragment = mock(Fragment::class.java)
         val sessionData = PersonalIdSessionData(token = "tok")
@@ -178,14 +176,9 @@ class EmailHelperTest {
             EmailHelper.routeAfterEmailDeclined(
                 fragment = fragment,
                 workflow = EmailWorkFlow.RECOVERY,
-                sessionData = sessionData,
                 onRegistration = { registrationCalled = true },
                 onRecoverySuccess = { recoverySuccessCalled = true },
             )
-
-            mockCompleter.verify {
-                PersonalIdRecoveryCompleter.finalizeAccountRecovery(activity, sessionData)
-            }
         }
 
         assertFalse(registrationCalled)
