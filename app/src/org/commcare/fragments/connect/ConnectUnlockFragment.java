@@ -23,6 +23,7 @@ import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.dalvik.R;
@@ -101,6 +102,8 @@ public class ConnectUnlockFragment extends Fragment {
                 if (fromOppInviteLink) {
                     handleOppInviteLinkFailure(AnalyticsParamValue.OPP_INVITE_LINK_NETWORK_FAILURE);
                 }
+
+                tryToLoadInvitedOpp();
                 setFragmentRedirection();
             }
 
@@ -110,28 +113,25 @@ public class ConnectUnlockFragment extends Fragment {
                 if (!jobs.isEmpty()) {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
-                if (fromOppInviteLink) {
-                    ConnectJobRecord requested = findRequestedJob(jobs);
-                    if (requested == null) {
-                        handleOppInviteLinkFailure(AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
-                    } else {
-                        FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
-                                AnalyticsParamValue.OPP_INVITE_LINK, true, null);
-                        ((ConnectActivity) requireActivity()).setActiveJob(requested);
-                    }
-                }
+
+                tryToLoadInvitedOpp();
                 setFragmentRedirection();
             }
         }.getConnectOpportunities(requireContext(), user);
     }
 
-    private ConnectJobRecord findRequestedJob(List<ConnectJobRecord> jobs) {
-        for (ConnectJobRecord job : jobs) {
-            if (requestedOpportunityUuid.equals(job.getJobUUID())) {
-                return job;
+    private void tryToLoadInvitedOpp() {
+        if (fromOppInviteLink) {
+            ConnectJobRecord requested = ConnectJobUtils.getCompositeJob(
+                    requireContext(), requestedOpportunityUuid);
+            if (requested == null) {
+                handleOppInviteLinkFailure(AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
+            } else {
+                FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
+                        AnalyticsParamValue.OPP_INVITE_LINK, true, null);
+                ((ConnectActivity) requireActivity()).setActiveJob(requested);
             }
         }
-        return null;
     }
 
     private void handleOppInviteLinkFailure(String analyticsOutcome) {
