@@ -198,15 +198,17 @@ object ConnectJobHelper {
         }
         val uuid = segments[2]
 
-        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(AnalyticsParamValue.SMS_INVITE_LINK_INTENT_RECEIVED)
-
         // Clear the URI immediately so future dispatch() doesn't reprocess this link
         intent.data = null
 
         val personalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(context)
         if (!personalIdManager.isloggedIn()) {
-            FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(AnalyticsParamValue.SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED)
+            FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
+                AnalyticsParamValue.OPP_INVITE_LINK,
+                false,
+                AnalyticsParamValue.OPP_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED,
+            )
             return null
         }
 

@@ -222,9 +222,8 @@ public class AnalyticsParamValue {
     public static final String OTP_EVENT_TYPE_VERIFY = "verify";
 
     // Param values for SMS invite link analytics
-    public static final String SMS_INVITE_LINK_INTENT_RECEIVED = "intent_received";
-    public static final String SMS_INVITE_LINK_SUCCESS = "success";
-    public static final String SMS_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED = "personalid_not_configured";
-    public static final String SMS_INVITE_LINK_OPPORTUNITY_NOT_FOUND = "opportunity_not_found";
-    public static final String SMS_INVITE_LINK_NETWORK_FAILURE = "network_failure";
+    public static final String OPP_INVITE_LINK = "opp_invite_link";
+    public static final String OPP_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED = "personalid_not_configured";
+    public static final String OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND = "opportunity_not_found";
+    public static final String OPP_INVITE_LINK_NETWORK_FAILURE = "network_failure";
 }

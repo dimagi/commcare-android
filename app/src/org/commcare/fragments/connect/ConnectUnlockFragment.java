@@ -39,7 +39,7 @@ public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
     private boolean buttons = false;
-    private boolean fromSmsInviteLink = false;
+    private boolean fromOppInviteLink = false;
     private String requestedOpportunityUuid = null;
 
     public ConnectUnlockFragment() {
@@ -59,7 +59,7 @@ public class ConnectUnlockFragment extends Fragment {
         if(getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
             buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
-            fromSmsInviteLink = getArguments().getBoolean(
+            fromOppInviteLink = getArguments().getBoolean(
                     ConnectConstants.FROM_SMS_INVITE_LINK, false);
             requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
         }
@@ -98,8 +98,8 @@ public class ConnectUnlockFragment extends Fragment {
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode,
                                   @androidx.annotation.Nullable Throwable t) {
                 if (!isAdded()) { return; }
-                if (fromSmsInviteLink) {
-                    handleSmsLinkFailure(AnalyticsParamValue.SMS_INVITE_LINK_NETWORK_FAILURE);
+                if (fromOppInviteLink) {
+                    handleOppInviteLinkFailure(AnalyticsParamValue.OPP_INVITE_LINK_NETWORK_FAILURE);
                 }
                 setFragmentRedirection();
             }
@@ -110,13 +110,13 @@ public class ConnectUnlockFragment extends Fragment {
                 if (!jobs.isEmpty()) {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
-                if (fromSmsInviteLink) {
+                if (fromOppInviteLink) {
                     ConnectJobRecord requested = findRequestedJob(jobs);
                     if (requested == null) {
-                        handleSmsLinkFailure(AnalyticsParamValue.SMS_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
+                        handleOppInviteLinkFailure(AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
                     } else {
-                        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(
-                                AnalyticsParamValue.SMS_INVITE_LINK_SUCCESS);
+                        FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
+                                AnalyticsParamValue.OPP_INVITE_LINK, true, null);
                         ((ConnectActivity) requireActivity()).setActiveJob(requested);
                     }
                 }
@@ -134,8 +134,9 @@ public class ConnectUnlockFragment extends Fragment {
         return null;
     }
 
-    private void handleSmsLinkFailure(String analyticsOutcome) {
-        FirebaseAnalyticsUtil.reportSmsInviteLinkEvent(analyticsOutcome);
+    private void handleOppInviteLinkFailure(String analyticsOutcome) {
+        FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
+                AnalyticsParamValue.OPP_INVITE_LINK, false, analyticsOutcome);
         Toast.makeText(requireContext(),
                 R.string.connect_sms_invite_opportunity_not_found,
                 Toast.LENGTH_LONG).show();
