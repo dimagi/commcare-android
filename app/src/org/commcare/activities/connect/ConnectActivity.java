@@ -151,18 +151,20 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             );
         }
 
-        if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction)) {
+        if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction) && job != null) {
             String paymentId = getIntent().getStringExtra(PAYMENT_UUID);
-            if (!TextUtils.isEmpty(paymentId) && job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-                redirectionAction = CCC_DEST_PAYMENTS;  //  Generic push notification for payment related
-            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING){
-                redirectionAction = CCC_DEST_DELIVERY_PROGRESS; //  Generic push notification for delivery progress related
-            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_LEARNING){
-                redirectionAction = CCC_DEST_LEARN_PROGRESS;    // Generic push notification for learning progress related
-            }else {
-                redirectionAction = CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;    // Generic push notification for learning progress related
+            if (!TextUtils.isEmpty(paymentId) && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+                redirectionAction = CCC_DEST_PAYMENTS;
+            } else if(job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+                redirectionAction = CCC_DEST_DELIVERY_PROGRESS;
+            } else if(job.getStatus() == ConnectJobRecord.STATUS_LEARNING) {
+                redirectionAction = CCC_DEST_LEARN_PROGRESS;
+            } else if(job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE ||
+                    job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE_NEW) {
+                redirectionAction = CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
             }
         }
+        
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
         startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
