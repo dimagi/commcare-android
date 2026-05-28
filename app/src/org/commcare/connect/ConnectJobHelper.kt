@@ -178,6 +178,28 @@ object ConnectJobHelper {
         }.getConnectOpportunities(context, user!!)
     }
 
+    fun resolveGenericOpportunityDestination(
+        currentAction: String?,
+        job: ConnectJobRecord?,
+        paymentUuid: String?,
+    ): String? {
+        if (ConnectConstants.CCC_GENERIC_OPPORTUNITY != currentAction || job == null) {
+            return currentAction
+        }
+        return when {
+            !paymentUuid.isNullOrEmpty() && job.status == ConnectJobRecord.STATUS_DELIVERING ->
+                ConnectConstants.CCC_DEST_PAYMENTS
+            job.status == ConnectJobRecord.STATUS_DELIVERING ->
+                ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
+            job.status == ConnectJobRecord.STATUS_LEARNING ->
+                ConnectConstants.CCC_DEST_LEARN_PROGRESS
+            job.status == ConnectJobRecord.STATUS_AVAILABLE ||
+                job.status == ConnectJobRecord.STATUS_AVAILABLE_NEW ->
+                ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
+            else -> currentAction
+        }
+    }
+
     fun retrieveConnectOppInviteIntentIfPresent(context: Context, intent: Intent): Intent? {
         val data = intent.data
         if (Intent.ACTION_VIEW != intent.action || data == null) {

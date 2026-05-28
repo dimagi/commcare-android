@@ -1,10 +1,5 @@
 package org.commcare.activities.connect;
 
-import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
-import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
@@ -33,6 +28,7 @@ import com.google.common.base.Strings;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -151,20 +147,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             );
         }
 
-        if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction) && job != null) {
-            String paymentId = getIntent().getStringExtra(PAYMENT_UUID);
-            if (!TextUtils.isEmpty(paymentId) && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-                redirectionAction = CCC_DEST_PAYMENTS;
-            } else if(job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-                redirectionAction = CCC_DEST_DELIVERY_PROGRESS;
-            } else if(job.getStatus() == ConnectJobRecord.STATUS_LEARNING) {
-                redirectionAction = CCC_DEST_LEARN_PROGRESS;
-            } else if(job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE ||
-                    job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE_NEW) {
-                redirectionAction = CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
-            }
-        }
-        
+        redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
+                redirectionAction, job, getIntent().getStringExtra(PAYMENT_UUID));
+
+
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
         startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
