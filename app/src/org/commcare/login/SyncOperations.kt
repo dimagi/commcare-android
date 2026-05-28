@@ -26,6 +26,7 @@ internal open class SyncOperations(
         sink: LoginProgressSink,
     ): SyncOutcome =
         suspendCancellableCoroutine { continuation ->
+            sink.onProgress(LoginProgress(LoginPhase.Syncing))
             val receiver = NoOpPullTaskResultReceiver()
 
             val task =

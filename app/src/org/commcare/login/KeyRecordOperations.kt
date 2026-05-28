@@ -33,6 +33,7 @@ internal open class KeyRecordOperations(
         sink: LoginProgressSink,
     ): KeyRecordOutcome =
         suspendCancellableCoroutine { continuation ->
+            sink.onProgress(LoginProgress(LoginPhase.SigningIn))
             val receiver =
                 object : DataPullController {
                     override fun startDataPull(
