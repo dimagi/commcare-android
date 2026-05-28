@@ -189,13 +189,17 @@ object ConnectJobHelper {
         return when {
             !paymentUuid.isNullOrEmpty() && job.status == ConnectJobRecord.STATUS_DELIVERING ->
                 ConnectConstants.CCC_DEST_PAYMENTS
+
             job.status == ConnectJobRecord.STATUS_DELIVERING ->
                 ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
+
             job.status == ConnectJobRecord.STATUS_LEARNING ->
                 ConnectConstants.CCC_DEST_LEARN_PROGRESS
+
             job.status == ConnectJobRecord.STATUS_AVAILABLE ||
-                job.status == ConnectJobRecord.STATUS_AVAILABLE_NEW ->
+                    job.status == ConnectJobRecord.STATUS_AVAILABLE_NEW ->
                 ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
+
             else -> currentAction
         }
     }
@@ -236,7 +240,7 @@ object ConnectJobHelper {
         val connectIntent = Intent(context, ConnectActivity::class.java)
         connectIntent.putExtra(
             ConnectConstants.REDIRECT_ACTION,
-            ConnectConstants.CCC_GENERIC_OPPORTUNITY
+            ConnectConstants.CCC_GENERIC_OPPORTUNITY,
         )
         connectIntent.putExtra(ConnectConstants.OPPORTUNITY_UUID, uuid)
         connectIntent.putExtra(ConnectConstants.FROM_SMS_INVITE_LINK, true)
