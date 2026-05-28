@@ -153,6 +153,16 @@
     <string name="personalid_email_skip_confirm_title">Hoppe over e-post?</string>
     <string name="personalid_email_skip_confirm_message">Er du sikker på at du vil hoppe over?</string>
     <string name="personalid_email_invalid_format">Vennligst skriv inn en gyldig e-postadresse.</string>
+    <string name="personalid_email_verification_appbar_title">Bekreft e-post</string>
+    <string name="personalid_email_verification_title">Bekreft e-postadressen din</string>
+    <string name="personalid_email_verification_description">Skriv inn den 6-sifrede koden sendt til %1$s</string>
+    <string name="personalid_email_verify_button">Bekreft</string>
+    <string name="personalid_email_otp_failed_title">Bekreftelse mislyktes</string>
+    <string name="personalid_email_otp_failed_message">Det ser ut til at du har problemer med å bekrefte e-postadressen din. Du kan hoppe over dette nå og prøve igjen senere, eller fortsette å prøve.</string>
+    <string name="personalid_email_otp_failed_retry">Prøv igjen</string>
+    <string name="personalid_email_otp_failed_skip">Fortsett uten e-post</string>
+    <string name="personalid_email_added_title">E-post lagt til</string>
+    <string name="personalid_email_added_message">E-postadressen din er lagt til.</string>
     <string name="personalId_email_otp_sent">En 6-sifret kode er sendt til e-postadressen din.</string>
     <string name="personalid_email_offer_title">Legg til e-postadressen din</string>
     <string name="personalid_email_offer_message">Legg til en e-post for å hjelpe deg med å gjenopprette kontoen din hvis du mister tilgang til telefonen.</string>
@@ -206,6 +216,7 @@
     <string name="connect_offline">Frakoblet</string>
     <string name="connect_back_online">Tilbake på nett</string>
     <string name="connect_never">Aldri</string>
+    <string name="cannot_navigate_during_form_save">Kan ikke forlate siden mens skjemaet lagres</string>
 
     <string name="install_keep_trying">Fortsett å prøve hvis tilkoblingen blir avbrutt</string>
     <string name="install_manual">Vennligst skriv inn URL-en</string>

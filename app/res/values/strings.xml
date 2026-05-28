@@ -385,6 +385,16 @@
     <string name="personalid_email_skip_confirm_title">Skip email?</string>
     <string name="personalid_email_skip_confirm_message">Are you sure you want to skip?</string>
     <string name="personalid_email_invalid_format">Please enter a valid email address.</string>
+    <string name="personalid_email_verification_appbar_title">Verify Email</string>
+    <string name="personalid_email_verification_title">Verify your email</string>
+    <string name="personalid_email_verification_description">Enter the 6-digit code sent to %1$s</string>
+    <string name="personalid_email_verify_button">Verify</string>
+    <string name="personalid_email_otp_failed_title">Verification unsuccessful</string>
+    <string name="personalid_email_otp_failed_message">Looks like you\'re having trouble verifying your email. You can skip this for now and try again later, or keep trying.</string>
+    <string name="personalid_email_otp_failed_retry">Try again</string>
+    <string name="personalid_email_otp_failed_skip">Proceed without email</string>
+    <string name="personalid_email_added_title">Email Added</string>
+    <string name="personalid_email_added_message">Your email has been added successfully.</string>
     <string name="personalId_email_otp_sent">A 6-digit passcode has been sent to your email address.</string>
     <string name="personalid_email_offer_title">Add your email address</string>
     <string name="personalid_email_offer_message">Add an email to help recover your account if you lose access to your phone.</string>
@@ -778,4 +788,6 @@
     <string name="network_notification_service_downloading_files">Downloading application files...</string>
     <string name="form_attachment_limit_reached_title" cc:translatable="true">Attachment limit reached</string>
     <string name="form_attachment_limit_reached" cc:translatable="true">This form has reached the maximum of %s attachments. To add a new one, remove an existing attachment first.</string>
+
+    <string name="cannot_navigate_during_form_save" cc:translatable="true">Can\'t leave page while saving form</string>
 </resources>

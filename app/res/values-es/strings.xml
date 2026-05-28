@@ -209,6 +209,16 @@
     <string name="personalid_email_skip_confirm_title">¿Omitir el correo electrónico?</string>
     <string name="personalid_email_skip_confirm_message">¿Seguro que quieres omitir este paso?</string>
     <string name="personalid_email_invalid_format">Por favor, introduce una dirección de correo electrónico válida.</string>
+    <string name="personalid_email_verification_appbar_title">Verificar correo</string>
+    <string name="personalid_email_verification_title">Verifica tu correo electrónico</string>
+    <string name="personalid_email_verification_description">Introduce el código de 6 dígitos enviado a %1$s</string>
+    <string name="personalid_email_verify_button">Verificar</string>
+    <string name="personalid_email_otp_failed_title">Verificación incorrecta</string>
+    <string name="personalid_email_otp_failed_message">Parece que tienes problemas para verificar tu correo electrónico. Puedes omitir esto por ahora e intentarlo de nuevo más tarde, o seguir intentándolo.</string>
+    <string name="personalid_email_otp_failed_retry">Intentar de nuevo</string>
+    <string name="personalid_email_otp_failed_skip">Continuar sin correo</string>
+    <string name="personalid_email_added_title">Correo añadido</string>
+    <string name="personalid_email_added_message">Tu correo electrónico se ha añadido correctamente.</string>
     <string name="personalId_email_otp_sent">Se ha enviado un código de 6 dígitos a tu dirección de correo electrónico.</string>
     <string name="personalid_email_offer_title">Añade tu dirección de correo electrónico</string>
     <string name="personalid_email_offer_message">Añade un correo electrónico para ayudar a recuperar tu cuenta si pierdes el acceso a tu teléfono.</string>
@@ -611,4 +621,5 @@
     <string name="connect_offline">Sin conexión</string>
     <string name="connect_back_online">De vuelta en línea</string>
     <string name="connect_never">Nunca</string>
+    <string name="cannot_navigate_during_form_save">No se puede salir de la página mientras se guarda el formulario</string>
 </resources>

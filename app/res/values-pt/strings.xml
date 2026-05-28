@@ -276,6 +276,16 @@
     <string name="personalid_email_skip_confirm_title">Pular e-mail?</string>
     <string name="personalid_email_skip_confirm_message">Tem certeza de que deseja pular?</string>
     <string name="personalid_email_invalid_format">Por favor, insira um endereço de e-mail válido.</string>
+    <string name="personalid_email_verification_appbar_title">Verificar e-mail</string>
+    <string name="personalid_email_verification_title">Verifique seu e-mail</string>
+    <string name="personalid_email_verification_description">Digite o código de 6 dígitos enviado para %1$s</string>
+    <string name="personalid_email_verify_button">Verificar</string>
+    <string name="personalid_email_otp_failed_title">Falha na verificação</string>
+    <string name="personalid_email_otp_failed_message">Parece que você está tendo dificuldade para verificar seu e-mail. Você pode pular esta etapa por agora e tentar novamente mais tarde, ou continuar tentando.</string>
+    <string name="personalid_email_otp_failed_retry">Tentar novamente</string>
+    <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
+    <string name="personalid_email_added_title">E-mail adicionado</string>
+    <string name="personalid_email_added_message">Seu e-mail foi adicionado com sucesso.</string>
     <string name="personalId_email_otp_sent">Um código de 6 dígitos foi enviado para o seu endereço de e-mail.</string>
     <string name="personalid_email_offer_title">Adicione seu endereço de e-mail</string>
     <string name="personalid_email_offer_message">Adicione um e-mail para ajudar a recuperar sua conta caso perca o acesso ao seu telefone.</string>
@@ -616,4 +626,5 @@
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">De volta online</string>
     <string name="connect_never">Nunca</string>
+    <string name="cannot_navigate_during_form_save">Não é possível sair da página enquanto o formulário é salvo</string>
 </resources>

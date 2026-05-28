@@ -103,6 +103,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             PersonalIdSessionData sessionData
     ) {
         sessionData.setSessionFailureCode(errorCode);
+        sessionData.setSessionFailureSubcode(errorSubCode);
         switch (errorCode) {
             case "LOCKED_ACCOUNT":
                 onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
@@ -112,7 +113,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         LogTypes.TYPE_MAINTENANCE,
                         "Integrity error with subcode " + errorSubCode
                 );
-                sessionData.setSessionFailureSubcode(errorSubCode);
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
             case "INVALID_TOKEN":
@@ -352,13 +352,24 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void verifyEmailOtp(Activity activity, String email, String otp,
-                                   PersonalIdSessionData sessionData) {
+    /**
+     * Verifies an email OTP. Uses the PersonalID session token when present
+     * (signup / recovery); otherwise authenticates with the supplied
+     * {@code user}'s credentials (existing user flow).
+     */
+    public void verifyEmailOtp(
+            Activity activity,
+            String email,
+            String otp,
+            String personalIdConfigurationToken,
+            ConnectUserRecord user
+    ) {
         ApiPersonalId.verifyEmailOtp(
                 activity,
                 email,
                 otp,
-                sessionData.getToken(),
+                personalIdConfigurationToken,
+                user,
                 createCallback(new NoParsingResponseParser<>(), null)
         );
     }

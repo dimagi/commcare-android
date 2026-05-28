@@ -271,6 +271,16 @@ License.
     <string name="personalid_email_skip_confirm_title">ईमेल छोड़ें?</string>
     <string name="personalid_email_skip_confirm_message">क्या आप वाकई इसे छोड़ना चाहते हैं?</string>
     <string name="personalid_email_invalid_format">कृपया एक मान्य ईमेल पता दर्ज करें।</string>
+    <string name="personalid_email_verification_appbar_title">ईमेल सत्यापित करें</string>
+    <string name="personalid_email_verification_title">अपना ईमेल सत्यापित करें</string>
+    <string name="personalid_email_verification_description">%1$s पर भेजा गया 6-अंकीय कोड दर्ज करें</string>
+    <string name="personalid_email_verify_button">सत्यापित करें</string>
+    <string name="personalid_email_otp_failed_title">सत्यापन असफल</string>
+    <string name="personalid_email_otp_failed_message">लगता है आपको अपना ईमेल सत्यापित करने में समस्या हो रही है। आप इसे अभी छोड़ सकते हैं और बाद में पुनः प्रयास कर सकते हैं, या प्रयास करते रहें।</string>
+    <string name="personalid_email_otp_failed_retry">पुनः प्रयास करें</string>
+    <string name="personalid_email_otp_failed_skip">ईमेल के बिना आगे बढ़ें</string>
+    <string name="personalid_email_added_title">ईमेल जोड़ा गया</string>
+    <string name="personalid_email_added_message">आपका ईमेल सफलतापूर्वक जोड़ दिया गया है।</string>
     <string name="personalId_email_otp_sent">आपके ईमेल पते पर 6 अंकों का पासकोड भेजा गया है।</string>
     <string name="personalid_email_offer_title">अपना ईमेल पता जोड़ें</string>
     <string name="personalid_email_offer_message">यदि आप अपने फ़ोन तक पहुँच खो देते हैं तो अपने खाते को पुनर्प्राप्त करने में सहायता के लिए एक ईमेल जोड़ें।</string>
@@ -607,4 +617,5 @@ License.
     <string name="connect_offline">ऑफ़लाइन</string>
     <string name="connect_back_online">वापस ऑनलाइन</string>
     <string name="connect_never">कभी नहीं</string>
+    <string name="cannot_navigate_during_form_save">फ़ॉर्म सहेजते समय पृष्ठ नहीं छोड़ सकते</string>
 </resources>

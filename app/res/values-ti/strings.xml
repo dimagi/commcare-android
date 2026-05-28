@@ -264,6 +264,16 @@
     <string name="personalid_email_skip_confirm_title">ኢመይል ትሓልፍ?</string>
     <string name="personalid_email_skip_confirm_message">ብርግፅ ክትሓልፎ ትደሊ ዲኻ?</string>
     <string name="personalid_email_invalid_format">በጃኻ ቅኑዕ ኣድራሻ ኢመይል ኣእቱ።</string>
+    <string name="personalid_email_verification_appbar_title">ኢመይል ኣረጋግፅ</string>
+    <string name="personalid_email_verification_title">ኢመይልካ ኣረጋግፅ</string>
+    <string name="personalid_email_verification_description">ናብ %1$s ዝተላእከ 6-ቁፅሪ ኮድ ኣእቱ</string>
+    <string name="personalid_email_verify_button">ኣረጋግፅ</string>
+    <string name="personalid_email_otp_failed_title">ምርግጋፅ ኣይተዓወተን</string>
+    <string name="personalid_email_otp_failed_message">ኢመይል ምርግጋጽ ጸገም የጋጥመካ ኣሎ ዝመስል። ንሕጂ ነዚ ክትሓልፎ እሞ ድሕሪ ቑሩብ ግዜ ክትፍትን፣ ወይ ምፍታን ክትቕጽል ትኽእል ኢኻ።</string>
+    <string name="personalid_email_otp_failed_retry">ከም ብሓዱሽ ፈትን</string>
+    <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
+    <string name="personalid_email_added_title">ኢመይል ተወሲኹ</string>
+    <string name="personalid_email_added_message">ኢመይልካ ብዓወት ተወሲኹ።</string>
     <string name="personalId_email_otp_sent">ናብ ኢመይል ኣድራሻኻ ናይ 6 ኣሃዝ መሕለፊ ቓል ተላኢኹ ኣሎ።</string>
     <string name="personalid_email_offer_title">ኢመይል ኣድራሻኻ ኣእቱ</string>
     <string name="personalid_email_offer_message">ናብ ስልክኻ ምእታው እንተ ስኢንካ ሕሳብካ ንምምላስ ዝሕግዝ ኢመይል ኣእቱ።</string>
@@ -599,4 +609,5 @@
     <string name="connect_offline">ኦፍላይን</string>
     <string name="connect_back_online">ናብ ኦንላይን ተመሊሱ</string>
     <string name="connect_never">ፈጺሙ</string>
+    <string name="cannot_navigate_during_form_save">ቅጥዒ እንዳተዓቀበ ካብ ገጽ ክትወጽእ ኣይትኽእልን</string>
 </resources>

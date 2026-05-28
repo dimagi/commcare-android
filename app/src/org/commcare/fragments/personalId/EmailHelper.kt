@@ -70,6 +70,33 @@ object EmailHelper {
         }.sendEmailOtp(activity, email, token, user)
     }
 
+    /**
+     * Verifies an email OTP.
+     */
+    fun verifyEmailOtp(
+        activity: Activity,
+        email: String,
+        otp: String,
+        workflow: EmailWorkFlow,
+        sessionData: PersonalIdSessionData?,
+        onSuccess: () -> Unit,
+        onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
+    ) {
+        val (token, user) = buildAuthArgs(activity, workflow, sessionData)
+        object : PersonalIdApiHandler<Boolean>() {
+            override fun onSuccess(status: Boolean) {
+                onSuccess()
+            }
+
+            override fun onFailure(
+                failureCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                onFailure(failureCode, t)
+            }
+        }.verifyEmailOtp(activity, email, otp, token, user)
+    }
+
     // ---------- Workflow routing ---------------------------------------------------------
 
     /**

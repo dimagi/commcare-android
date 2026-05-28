@@ -25,7 +25,7 @@ Tech documentation for this repo is organized by Gradle submodule and, within th
 - Any new classes should be written in Kotlin
 - Old classes can remain in Java unless it affects new code architecture significantly
 - Use standard Android APIs where applicable
-- Use comments sparingly only to explain complex logic
+- Do not add any in-code comments unless explicitly requested. 
 
 ## Testing
 - Use unit tests for logic verification
