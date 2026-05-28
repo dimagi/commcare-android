@@ -75,37 +75,41 @@ class ConnectJobHelperOppInviteTest {
 
     @Test
     fun `returns null when scheme is not https`() {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("http://${BuildConfig.CCC_HOST}/users/invite_redirect/$uuid"),
-        )
+        val intent =
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("http://${BuildConfig.CCC_HOST}/users/invite_redirect/$uuid"),
+            )
         assertNull(ConnectJobHelper.retrieveConnectOppInviteIntentIfPresent(context, intent))
     }
 
     @Test
     fun `returns null when host does not match CCC_HOST`() {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("https://evil.example.com/users/invite_redirect/$uuid"),
-        )
+        val intent =
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://evil.example.com/users/invite_redirect/$uuid"),
+            )
         assertNull(ConnectJobHelper.retrieveConnectOppInviteIntentIfPresent(context, intent))
     }
 
     @Test
     fun `returns null when path prefix does not match invite_redirect`() {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("https://${BuildConfig.CCC_HOST}/users/profile/$uuid"),
-        )
+        val intent =
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://${BuildConfig.CCC_HOST}/users/profile/$uuid"),
+            )
         assertNull(ConnectJobHelper.retrieveConnectOppInviteIntentIfPresent(context, intent))
     }
 
     @Test
     fun `returns null when path has wrong number of segments`() {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("https://${BuildConfig.CCC_HOST}/users/invite_redirect/$uuid/extra"),
-        )
+        val intent =
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://${BuildConfig.CCC_HOST}/users/invite_redirect/$uuid/extra"),
+            )
         assertNull(ConnectJobHelper.retrieveConnectOppInviteIntentIfPresent(context, intent))
     }
 

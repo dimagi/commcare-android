@@ -186,38 +186,50 @@ object ConnectJobHelper {
         if (ConnectConstants.CCC_GENERIC_OPPORTUNITY != currentAction || job == null) {
             return currentAction
         }
-        return when {
-            !paymentUuid.isNullOrEmpty() && job.status == ConnectJobRecord.STATUS_DELIVERING ->
-                ConnectConstants.CCC_DEST_PAYMENTS
+        return when (job.status) {
+            ConnectJobRecord.STATUS_DELIVERING -> {
+                if (!paymentUuid.isNullOrEmpty()) {
+                    ConnectConstants.CCC_DEST_PAYMENTS
+                } else {
+                    ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
+                }
+            }
 
-            job.status == ConnectJobRecord.STATUS_DELIVERING ->
-                ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
-
-            job.status == ConnectJobRecord.STATUS_LEARNING ->
+            ConnectJobRecord.STATUS_LEARNING -> {
                 ConnectConstants.CCC_DEST_LEARN_PROGRESS
+            }
 
-            job.status == ConnectJobRecord.STATUS_AVAILABLE ||
-                    job.status == ConnectJobRecord.STATUS_AVAILABLE_NEW ->
+            ConnectJobRecord.STATUS_AVAILABLE,
+            ConnectJobRecord.STATUS_AVAILABLE_NEW,
+            -> {
                 ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
+            }
 
-            else -> currentAction
+            else -> {
+                currentAction
+            }
         }
     }
 
-    fun retrieveConnectOppInviteIntentIfPresent(context: Context, intent: Intent): Intent? {
+    fun retrieveConnectOppInviteIntentIfPresent(
+        context: Context,
+        intent: Intent,
+    ): Intent? {
         val data = intent.data
         if (Intent.ACTION_VIEW != intent.action || data == null) {
             return null
         }
 
-        //Require https://<connect_server>
+        // Require https://<connect_server>
         if ("https" != data.scheme || BuildConfig.CCC_HOST != data.host) {
             return null
         }
 
-        //Require /users/invite_redirect/<opp_uuid>
+        // Require /users/invite_redirect/<opp_uuid>
         val segments = data.pathSegments
-        if (segments.size != 3 || ("users" != segments[0]) || ("invite_redirect" != segments[1])
+        if (segments.size != 3 ||
+            ("users" != segments[0]) ||
+            ("invite_redirect" != segments[1])
         ) {
             return null
         }
