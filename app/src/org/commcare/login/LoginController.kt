@@ -56,8 +56,14 @@ class LoginController internal constructor(
             }
 
         return when (val keyOutcome = keyRecordOperations.manageKeyRecord(effectiveRequest, sink)) {
-            is KeyRecordOutcome.Failed -> LoginResult.Failed(keyOutcome.error)
-            is KeyRecordOutcome.LocalLoginComplete -> finishSuccess(effectiveRequest)
+            is KeyRecordOutcome.Failed -> {
+                LoginResult.Failed(keyOutcome.error)
+            }
+
+            is KeyRecordOutcome.LocalLoginComplete -> {
+                finishSuccess(effectiveRequest)
+            }
+
             is KeyRecordOutcome.ReadyForSync -> {
                 when (
                     val syncOutcome =

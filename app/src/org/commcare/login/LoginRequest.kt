@@ -22,8 +22,10 @@ data class LoginRequest(
 enum class AuthSource {
     /** User typed credentials into LoginActivity. */
     Manual,
+
     /** Caller already authenticated externally (Connect, PersonalID-managed login). */
     AutoFromConnect,
+
     /** MDM-supplied credentials. */
     MdmManaged,
 }
