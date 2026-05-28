@@ -181,7 +181,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
     private List<ConnectPaymentUnitRecord> paymentUnits;
-    static Date startDate = new Date();
 
     private boolean claimed;
 
@@ -212,9 +211,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.organization = json.getString(META_ORGANIZATION);
         job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
         job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
-        if (job.projectStartDate != null && job.projectStartDate.after(startDate)) {
-            startDate = job.projectStartDate;
-        }
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
         job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
@@ -488,7 +484,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getDaysRemaining() {
-        long millis = projectEndDate.getTime() - (startDate).getTime();
+        long millis = projectEndDate.getTime() - new Date().getTime();
         //End date has 00:00 time, but project is valid until midnight
         //So add just under one day to the difference
         millis += 86399999; //one ms less than 24 hours
@@ -867,14 +863,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public void setJobUUID(String modelId) {
         this.jobUUID = modelId;
-    }
-
-    public static Date getStartDate() {
-        return startDate;
-    }
-
-    public static void setStartDate(Date startDate) {
-        ConnectJobRecord.startDate = startDate;
     }
 
     public boolean isClaimed() {

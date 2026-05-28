@@ -103,6 +103,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             PersonalIdSessionData sessionData
     ) {
         sessionData.setSessionFailureCode(errorCode);
+        sessionData.setSessionFailureSubcode(errorSubCode);
         switch (errorCode) {
             case "LOCKED_ACCOUNT":
                 onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
@@ -112,7 +113,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         LogTypes.TYPE_MAINTENANCE,
                         "Integrity error with subcode " + errorSubCode
                 );
-                sessionData.setSessionFailureSubcode(errorSubCode);
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
             case "INVALID_TOKEN":
@@ -181,6 +181,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "PHONE_NOT_VALIDATED", "UNSUPPORTED_COUNTRY", "NOT_ALLOWED":
                 // The "NOT_ALLOWED" error code relates to an uninvited user receiving an OTP.
                 onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
+                return true;
+            case "RATE_LIMITED":
+                onFailure(PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR, null);
                 return true;
             case "ACTIVE_USER_EXISTS":
                 onFailure(
@@ -312,20 +315,62 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void sendOtp(Activity activity, PersonalIdSessionData sessionData) {
-        ApiPersonalId.sendOtp(
+    public void sendPhoneOtp(Activity activity, PersonalIdSessionData sessionData) {
+        ApiPersonalId.sendPhoneOtp(
                 activity,
                 sessionData.getToken(),
                 createCallback(sessionData, null)
         );
     }
 
-    public void validateOtp(Activity activity, String otp, PersonalIdSessionData sessionData) {
-        ApiPersonalId.validateOtp(
+    public void validatePhoneOtp(Activity activity, String otp, PersonalIdSessionData sessionData) {
+        ApiPersonalId.validatePhoneOtp(
                 activity,
                 sessionData.getToken(),
                 otp,
                 createCallback(sessionData, null)
+        );
+    }
+
+    /**
+     * Sends an email OTP. Uses the PersonalID session token when present
+     * (signup / recovery); otherwise authenticates with the supplied
+     * {@code user}'s credentials (legacy flow).
+     */
+    public void sendEmailOtp(
+            Activity activity,
+            String email,
+            String personalIdConfigurationToken,
+            ConnectUserRecord user
+    ) {
+        ApiPersonalId.sendEmailOtp(
+                activity,
+                email,
+                personalIdConfigurationToken,
+                user,
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
+    /**
+     * Verifies an email OTP. Uses the PersonalID session token when present
+     * (signup / recovery); otherwise authenticates with the supplied
+     * {@code user}'s credentials (existing user flow).
+     */
+    public void verifyEmailOtp(
+            Activity activity,
+            String email,
+            String otp,
+            String personalIdConfigurationToken,
+            ConnectUserRecord user
+    ) {
+        ApiPersonalId.verifyEmailOtp(
+                activity,
+                email,
+                otp,
+                personalIdConfigurationToken,
+                user,
+                createCallback(new NoParsingResponseParser<>(), null)
         );
     }
 

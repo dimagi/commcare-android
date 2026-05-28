@@ -145,6 +145,25 @@
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
     <string name="personalid_network_response_parsing_error">Klaida analizuojant duomenis iš serverio. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
+    <string name="personalid_email_appbar_title">El. paštas</string>
+    <string name="personalid_email_title">Pridėkite savo el. paštą (neprivaloma)</string>
+    <string name="personalid_email_description">Jūsų el. paštas padės atkurti paskyrą, jei prarasite prieigą prie telefono.</string>
+    <string name="personalid_email_hint">El. pašto adresas</string>
+    <string name="personalid_email_skip">Praleisti kol kas</string>
+    <string name="personalid_email_skip_confirm_title">Praleisti el. paštą?</string>
+    <string name="personalid_email_skip_confirm_message">Ar tikrai norite praleisti?</string>
+    <string name="personalid_email_invalid_format">Įveskite galiojantį el. pašto adresą.</string>
+    <string name="personalid_email_verification_appbar_title">Patvirtinti el. paštą</string>
+    <string name="personalid_email_verification_title">Patvirtinkite savo el. paštą</string>
+    <string name="personalid_email_verification_description">Įveskite 6 skaitmenų kodą, išsiųstą į %1$s</string>
+    <string name="personalid_email_verify_button">Patvirtinti</string>
+    <string name="personalid_email_otp_failed_title">Patvirtinimas nepavyko</string>
+    <string name="personalid_email_otp_failed_message">Atrodo, kad turite problemų patvirtindami savo el. paštą. Galite šį žingsnį dabar praleisti ir pabandyti vėliau, arba bandyti toliau.</string>
+    <string name="personalid_email_otp_failed_retry">Bandyti dar kartą</string>
+    <string name="personalid_email_otp_failed_skip">Tęsti be el. pašto</string>
+    <string name="personalid_email_added_title">El. paštas pridėtas</string>
+    <string name="personalid_email_added_message">Jūsų el. pašto adresas sėkmingai pridėtas.</string>
+    <string name="personalId_email_otp_sent">Į jūsų el. pašto adresą išsiųstas 6 skaitmenų kodas.</string>
     <string name="connect_recovery_success_message">Jūsų paskyra atkurta! Galite toliau naudoti „PersonalID“.</string>
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
@@ -201,7 +220,9 @@
     <string name="connect_sync_successful">Paskutinė sinchronizacija: Ką tik</string>
     <string name="connect_sync_failed">Sinchronizacija nepavyko, paskutinė sinchronizacija: %s</string>
     <string name="connect_offline">Neprisijungęs</string>
+    <string name="connect_back_online">Vėl prisijungta</string>
     <string name="connect_never">Niekada</string>
+    <string name="cannot_navigate_during_form_save">Negalima palikti puslapio, kol išsaugoma forma</string>
 
     <string name="install_keep_trying">Toliau bandykite, jei ryšys nutrūksta</string>
     <string name="install_manual">Įveskite URL</string>

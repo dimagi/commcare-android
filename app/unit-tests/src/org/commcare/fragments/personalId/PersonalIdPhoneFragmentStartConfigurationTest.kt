@@ -18,7 +18,6 @@ import org.commcare.utils.HashUtils
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
@@ -271,6 +270,28 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
             "Message should indicate account is locked",
             expectedMessage,
             actualMessage,
+        )
+    }
+
+    @Test
+    fun testStartConfiguration_missingDataIntegrityHeaders_tokenPresent_noRetry() {
+        setupFragmentForRequest()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(400)
+                .setBody("""{"error_code": "MISSING_DATA", "error_sub_code": "INTEGRITY_HEADERS"}"""),
+        )
+
+        clickContinueButton()
+
+        mockWebServer.takeRequest()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        assertEquals(
+            "Should navigate to failure screen",
+            R.id.personalid_message_display,
+            navController.currentDestination!!.id,
         )
     }
 

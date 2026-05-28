@@ -201,6 +201,25 @@
     <string name="connect_backup_code_mismatch">Los códigos de respaldo que ingrese deben coincidir.</string>
     <string name="connect_backup_fail_title">Código incorrecto</string>
     <string name="personalid_network_response_parsing_error">Error al analizar los datos del servidor. Por favor, contacte con el soporte al cliente.</string>
+    <string name="personalid_email_appbar_title">Correo electrónico</string>
+    <string name="personalid_email_title">Añade tu correo electrónico (opcional)</string>
+    <string name="personalid_email_description">Tu correo electrónico te ayuda a recuperar tu cuenta si pierdes el acceso a tu teléfono.</string>
+    <string name="personalid_email_hint">Correo electrónico</string>
+    <string name="personalid_email_skip">Omitir por ahora</string>
+    <string name="personalid_email_skip_confirm_title">¿Omitir el correo electrónico?</string>
+    <string name="personalid_email_skip_confirm_message">¿Seguro que quieres omitir este paso?</string>
+    <string name="personalid_email_invalid_format">Por favor, introduce una dirección de correo electrónico válida.</string>
+    <string name="personalid_email_verification_appbar_title">Verificar correo</string>
+    <string name="personalid_email_verification_title">Verifica tu correo electrónico</string>
+    <string name="personalid_email_verification_description">Introduce el código de 6 dígitos enviado a %1$s</string>
+    <string name="personalid_email_verify_button">Verificar</string>
+    <string name="personalid_email_otp_failed_title">Verificación incorrecta</string>
+    <string name="personalid_email_otp_failed_message">Parece que tienes problemas para verificar tu correo electrónico. Puedes omitir esto por ahora e intentarlo de nuevo más tarde, o seguir intentándolo.</string>
+    <string name="personalid_email_otp_failed_retry">Intentar de nuevo</string>
+    <string name="personalid_email_otp_failed_skip">Continuar sin correo</string>
+    <string name="personalid_email_added_title">Correo añadido</string>
+    <string name="personalid_email_added_message">Tu correo electrónico se ha añadido correctamente.</string>
+    <string name="personalId_email_otp_sent">Se ha enviado un código de 6 dígitos a tu dirección de correo electrónico.</string>
     <string name="connect_recovery_success_title">Cuenta recuperada</string>
     <string name="connect_recovery_success_message">¡Su cuenta ha sido recuperada! Puede reanudar el uso de PersonalID.</string>
     <string name="connect_unlock_title">Desbloquear PersonalId</string>
@@ -596,5 +615,7 @@
     <string name="connect_sync_successful">Última sincronización: Justo ahora</string>
     <string name="connect_sync_failed">Sincronización fallida, última sincronización: %s</string>
     <string name="connect_offline">Sin conexión</string>
+    <string name="connect_back_online">De vuelta en línea</string>
     <string name="connect_never">Nunca</string>
+    <string name="cannot_navigate_during_form_save">No se puede salir de la página mientras se guarda el formulario</string>
 </resources>

@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.PushNotificationLaunchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
@@ -547,16 +548,24 @@ public class FirebaseMessagingUtil {
      * @return NotificationCompat.Builder
      */
     private static NotificationCompat.Builder buildNotification(Context context, Intent intent, FCMMessageData fcmMessageData) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Bundle bundleExtras = new Bundle();
+        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+
+        Intent launchIntent = new Intent(context, PushNotificationLaunchActivity.class);
+        launchIntent.putExtra(
+                PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT,
+                intent);
 
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 : PendingIntent.FLAG_UPDATE_CURRENT;
 
-        Bundle bundleExtras = new Bundle();
-        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
-
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, flags);
+        String notificationId = fcmMessageData.getPayloadData().get(NOTIFICATION_ID);
+        int requestCode = !TextUtils.isEmpty(notificationId)
+                ? NotificationIdentifiers.generateNotificationIdFromString(notificationId)
+                : FCM_NOTIFICATION_ID;
+        launchIntent.setAction("org.commcare.notifications.tap." + requestCode);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, requestCode, launchIntent, flags);
 
         if (Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationTitle()) && Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationText())) {
             Logger.exception("Empty push notification",
@@ -579,7 +588,6 @@ public class FirebaseMessagingUtil {
         }
         return fcmNotification;
     }
-
 
     /**
      * Show notification

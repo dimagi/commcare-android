@@ -260,6 +260,75 @@ class StartConfigurationResponseParserTest {
     }
 
     @Test
+    fun testParseSetsEmailWhenServerReturnsIt() {
+        val json =
+            JSONObject().apply {
+                put("email", "user@example.com")
+            }
+
+        parser.parse(json, sessionData)
+
+        assertEquals("user@example.com", sessionData.email)
+    }
+
+    @Test
+    fun testParseLeavesEmailNullWhenServerOmitsEmail() {
+        val json = JSONObject()
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun testParseLeavesEmailNullWhenServerReturnsBlank() {
+        val json =
+            JSONObject().apply {
+                put("email", "   ")
+            }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun testParseLeavesEmailNullWhenServerReturnsEmptyString() {
+        val json =
+            JSONObject().apply {
+                put("email", "")
+            }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun testParseLeavesEmailNullWhenServerReturnsMalformedAddress() {
+        val json =
+            JSONObject().apply {
+                put("email", "not-an-email")
+            }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun testParseLeavesEmailNullWhenServerReturnsJsonNull() {
+        val json =
+            JSONObject().apply {
+                put("email", JSONObject.NULL)
+            }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
     fun testParseOverwritesPreviousValues() {
         // Arrange
         val json1 =
