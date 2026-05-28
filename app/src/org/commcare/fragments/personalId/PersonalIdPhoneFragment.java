@@ -572,10 +572,15 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     private void setRequestProgressState(boolean inProgress) {
         isRequestInProgress = inProgress;
-        if (isRequestInProgress) {
-            ((CommCareActivity<?>)requireActivity()).showProgressDialogIfNeeded(NETWORK_ACTIVITY_ID);
-        } else {
-            ((CommCareActivity<?>)requireActivity()).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(() -> {
+                if (inProgress) {
+                    ((CommCareActivity<?>)activity).showProgressDialogIfNeeded(NETWORK_ACTIVITY_ID);
+                } else {
+                    ((CommCareActivity<?>)activity).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+                }
+            });
         }
     }
 
