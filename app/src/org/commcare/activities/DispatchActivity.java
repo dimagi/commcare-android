@@ -193,9 +193,9 @@ public class DispatchActivity extends AppCompatActivity {
             return;
         }
 
-        Intent smsIntent = retrieveSmsInviteIntentIfPresent();
-        if(smsIntent != null) {
-            startActivity(smsIntent);
+        Intent connectOppInviteIntent = retrieveConnectOppInviteIntentIfPresent();
+        if(connectOppInviteIntent != null) {
+            startActivity(connectOppInviteIntent);
             return;
         }
 
@@ -284,7 +284,7 @@ public class DispatchActivity extends AppCompatActivity {
                 this.getIntent().hasExtra(SESSION_ENDPOINT_ID);
     }
 
-    private Intent retrieveSmsInviteIntentIfPresent() {
+    private Intent retrieveConnectOppInviteIntentIfPresent() {
         Intent intent = getIntent();
         Uri data = intent.getData();
         if (!Intent.ACTION_VIEW.equals(intent.getAction()) || data == null) {
