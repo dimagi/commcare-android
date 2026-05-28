@@ -19,11 +19,14 @@ internal object OutcomeMapper {
             HttpCalloutOutcomes.TokenRequestDenied -> LoginError.TokenDenied
             HttpCalloutOutcomes.AuthOverHttp -> LoginError.AuthOverHttpBlocked
 
-            HttpCalloutOutcomes.BadResponse -> LoginError.SyncFailed(SyncFailureReason.BAD_RESPONSE)
-            HttpCalloutOutcomes.BadSslCertificate -> LoginError.SyncFailed(SyncFailureReason.BAD_SSL_CERTIFICATE)
+            HttpCalloutOutcomes.BadResponse ->
+                LoginError.SyncFailed(SyncFailureReason.BAD_RESPONSE)
+            HttpCalloutOutcomes.BadSslCertificate ->
+                LoginError.SyncFailed(SyncFailureReason.BAD_SSL_CERTIFICATE)
             HttpCalloutOutcomes.InsufficientRolePermission ->
                 LoginError.SyncFailed(SyncFailureReason.INSUFFICIENT_ROLE_PERMISSION)
-            HttpCalloutOutcomes.UnknownError -> LoginError.SyncFailed(SyncFailureReason.UNKNOWN)
+            HttpCalloutOutcomes.UnknownError ->
+                LoginError.SyncFailed(SyncFailureReason.UNKNOWN)
 
             HttpCalloutOutcomes.Success -> error("Success is not a failure outcome")
         }
@@ -43,11 +46,17 @@ internal object OutcomeMapper {
             PullTaskResult.TOKEN_UNAVAILABLE,
             -> LoginError.NetworkUnavailable
 
-            PullTaskResult.BAD_DATA -> LoginError.SyncFailed(SyncFailureReason.BAD_DATA, errorMessage)
+            PullTaskResult.BAD_DATA ->
+                LoginError.SyncFailed(SyncFailureReason.BAD_DATA, errorMessage)
             PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION ->
-                LoginError.SyncFailed(SyncFailureReason.BAD_DATA_REQUIRES_INTERVENTION, errorMessage)
-            PullTaskResult.STORAGE_FULL -> LoginError.SyncFailed(SyncFailureReason.STORAGE_FULL)
-            PullTaskResult.SERVER_ERROR -> LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR)
+                LoginError.SyncFailed(
+                    SyncFailureReason.BAD_DATA_REQUIRES_INTERVENTION,
+                    errorMessage,
+                )
+            PullTaskResult.STORAGE_FULL ->
+                LoginError.SyncFailed(SyncFailureReason.STORAGE_FULL)
+            PullTaskResult.SERVER_ERROR ->
+                LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR)
             PullTaskResult.RATE_LIMITED_SERVER_ERROR ->
                 LoginError.SyncFailed(SyncFailureReason.RATE_LIMITED_SERVER_ERROR)
             PullTaskResult.ENCRYPTION_FAILURE ->
@@ -56,9 +65,12 @@ internal object OutcomeMapper {
                 LoginError.SyncFailed(SyncFailureReason.RECOVERY_FAILURE, errorMessage)
             PullTaskResult.ACTIONABLE_FAILURE ->
                 LoginError.SyncFailed(SyncFailureReason.ACTIONABLE_FAILURE, errorMessage)
-            PullTaskResult.SESSION_EXPIRE -> LoginError.SyncFailed(SyncFailureReason.SESSION_EXPIRE)
-            PullTaskResult.CANCELLED -> LoginError.SyncFailed(SyncFailureReason.CANCELLED)
-            PullTaskResult.EMPTY_URL -> LoginError.SyncFailed(SyncFailureReason.EMPTY_URL)
+            PullTaskResult.SESSION_EXPIRE ->
+                LoginError.SyncFailed(SyncFailureReason.SESSION_EXPIRE)
+            PullTaskResult.CANCELLED ->
+                LoginError.SyncFailed(SyncFailureReason.CANCELLED)
+            PullTaskResult.EMPTY_URL ->
+                LoginError.SyncFailed(SyncFailureReason.EMPTY_URL)
 
             PullTaskResult.UNKNOWN_FAILURE,
             PullTaskResult.RETRY_NEEDED,

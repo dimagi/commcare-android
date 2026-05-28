@@ -26,5 +26,7 @@ internal class HeadlessTaskConnector<R>(
 }
 
 internal fun <T> CancellableContinuation<T>.resumeOnce(value: T) {
-    if (!isCompleted) resume(value)
+    if (!isCompleted) {
+        resume(value)
+    }
 }

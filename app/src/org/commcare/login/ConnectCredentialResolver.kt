@@ -27,9 +27,11 @@ class ConnectCredentialResolver(
                 }
                 storeNewRecord(appId, username)
             }
+
         if (record.isUsingLocalPassphrase) {
             FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(appId)
         }
+
         return ResolvedCredentials(record.password, record)
     }
 

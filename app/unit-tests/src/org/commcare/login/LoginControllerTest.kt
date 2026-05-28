@@ -69,7 +69,9 @@ class LoginControllerTest {
         mockkStatic(PersonalIdManager::class)
         every { PersonalIdManager.getInstance() } returns personalIdManager
         every { personalIdManager.isloggedIn() } returns false
-        coEvery { postLoginSideEffects.runOnSuccess(any()) } returns PostLoginOutcome(false)
+        coEvery {
+            postLoginSideEffects.runOnSuccess(any())
+        } returns PostLoginOutcome(false)
     }
 
     @After
@@ -126,7 +128,9 @@ class LoginControllerTest {
                     syncOutcome = SyncOutcome.Success,
                 )
             val resolved = ResolvedCredentials(password = "resolved-pw", record = mockk(relaxed = true))
-            every { credentialResolver.resolve("app-1", "alice", true) } returns resolved
+            every {
+                credentialResolver.resolve("app-1", "alice", true)
+            } returns resolved
 
             val request = manualRequest().copy(authSource = AuthSource.AutoFromConnect)
             val result = controller.performLogin(request, sink)

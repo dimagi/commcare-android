@@ -49,9 +49,18 @@ internal open class SyncOperations(
                                 PullTaskResult.DOWNLOAD_SUCCESS -> SyncOutcome.Success
                                 null ->
                                     SyncOutcome.Failed(
-                                        LoginError.SyncFailed(SyncFailureReason.UNKNOWN, result?.errorMessage),
+                                        LoginError.SyncFailed(
+                                            SyncFailureReason.UNKNOWN,
+                                            result?.errorMessage,
+                                        ),
                                     )
-                                else -> SyncOutcome.Failed(OutcomeMapper.fromPullTaskResult(pull, result.errorMessage))
+                                else ->
+                                    SyncOutcome.Failed(
+                                        OutcomeMapper.fromPullTaskResult(
+                                            pull,
+                                            result.errorMessage,
+                                        ),
+                                    )
                             }
                         continuation.resumeOnce(outcome)
                     }
@@ -68,16 +77,26 @@ internal open class SyncOperations(
                             } else {
                                 null
                             }
-                        sink.onProgress(LoginProgress(LoginPhase.Syncing, percent = percent))
+                        sink.onProgress(
+                            LoginProgress(LoginPhase.Syncing, percent = percent),
+                        )
                     }
 
                     override fun deliverError(
                         receiver: PullTaskResultReceiver,
                         e: Exception?,
                     ) {
-                        if (e is CancellationException) throw e
+                        if (e is CancellationException) {
+                            throw e
+                        }
+
                         continuation.resumeOnce(
-                            SyncOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN, e?.message)),
+                            SyncOutcome.Failed(
+                                LoginError.SyncFailed(
+                                    SyncFailureReason.UNKNOWN,
+                                    e?.message,
+                                ),
+                            ),
                         )
                     }
                 }

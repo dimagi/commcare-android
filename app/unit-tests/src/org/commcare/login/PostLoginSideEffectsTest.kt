@@ -84,7 +84,9 @@ class PostLoginSideEffectsTest {
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
 
             val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every { ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot)) } answers {
+            every {
+                ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot))
+            } answers {
                 listenerSlot.captured.connectActivityComplete(true, "")
             }
 
@@ -104,7 +106,9 @@ class PostLoginSideEffectsTest {
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
 
             val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every { ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot)) } answers {
+            every {
+                ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot))
+            } answers {
                 listenerSlot.captured.connectActivityComplete(true, "")
             }
 
@@ -122,7 +126,9 @@ class PostLoginSideEffectsTest {
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
 
             val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every { ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot)) } answers {
+            every {
+                ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot))
+            } answers {
                 listenerSlot.captured.connectActivityComplete(false, "network failure")
             }
 

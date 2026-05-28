@@ -4,9 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import org.commcare.CommCareApplication;
-import org.commcare.personalId.PersonalIdUnlocker;
-import org.commcare.personalId.UnlockPolicy;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -22,10 +31,11 @@ import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.core.network.AuthInfo;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.preferences.NotificationPrefs;
 import org.commcare.util.LogTypes;
@@ -37,18 +47,6 @@ import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.fragment.app.FragmentActivity;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_USER_DENIED;
@@ -202,8 +200,8 @@ public class PersonalIdManager {
     }
 
     public void updateAppAccess(Context context, String appId, String username) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId,
-                username);
+        ConnectLinkedAppRecord record =
+                ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username);
         if (record != null) {
             record.setLastAccessed(new Date());
             ConnectAppDatabaseUtil.storeApp(context, record);

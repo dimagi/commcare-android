@@ -14,6 +14,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
 import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
@@ -26,8 +32,6 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.personalId.PersonalIdUnlocker;
-import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -49,6 +53,8 @@ import org.commcare.login.LoginResult;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -63,7 +69,6 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.notifications.MessageTag;
@@ -77,12 +82,6 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
@@ -145,6 +144,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
+
+    private LoginPhase currentLoginPhase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -314,13 +315,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 determineAuthSource(),
                 restoreSession,
                 getMatchingUsersCount(username) > 1,
-                /* blockRemoteKeyManagement */ false);
+                false
+        );
 
         LoginController controller = new LoginController(this);
         controller.start(this, request, createLoginProgressSink(), this::handleLoginResult);
     }
-
-    private LoginPhase currentLoginPhase;
 
     private LoginProgressSink createLoginProgressSink() {
         return progress -> runOnUiThread(() -> updateLoginProgressUi(progress));
@@ -329,16 +329,20 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private void updateLoginProgressUi(LoginProgress progress) {
         LoginPhase phase = progress.getPhase();
         int taskId = taskIdForPhase(phase);
+
         if (phase != currentLoginPhase) {
             if (currentLoginPhase != null) {
                 dismissProgressDialogForTask(taskIdForPhase(currentLoginPhase));
             }
+
             currentLoginPhase = phase;
             showProgressDialog(taskId);
         }
+
         if (progress.getMessage() != null) {
             updateProgress(progress.getMessage(), taskId);
         }
+
         Integer percent = progress.getPercent();
         if (percent != null) {
             updateProgressBar(percent, 100, taskId);
@@ -349,6 +353,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         if (phase == LoginPhase.Syncing) {
             return DataPullTask.DATA_PULL_TASK_ID;
         }
+
         return TASK_KEY_EXCHANGE;
     }
 
@@ -360,8 +365,14 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private AuthSource determineAuthSource() {
-        if (appLaunchedFromConnect) return AuthSource.AutoFromConnect;
-        if (uiController.getLoginMode() == LoginMode.PRIMED) return AuthSource.MdmManaged;
+        if (appLaunchedFromConnect) {
+            return AuthSource.AutoFromConnect;
+        }
+
+        if (uiController.getLoginMode() == LoginMode.PRIMED) {
+            return AuthSource.MdmManaged;
+        }
+
         return AuthSource.Manual;
     }
 
@@ -604,14 +615,16 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 uiController.getLoginMode(),
                 navigateToConnectJobs,
                 appLaunchedFromConnect || loginManagedByPersonalId(),
-                appLaunchedFromConnect);
+                appLaunchedFromConnect
+        );
     }
 
     private void setLoginResultAndFinish(
             LoginMode loginMode,
             boolean navigateToConnectJobs,
             boolean personalIdManagedLoginExtra,
-            boolean connectManagedLoginExtra) {
+            boolean connectManagedLoginExtra
+    ) {
         hideVirtualKeyboard(LoginActivity.this);
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
@@ -625,6 +638,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     private void handleLoginResult(LoginResult result) {
         dismissLoginProgressDialog();
+
         if (result instanceof LoginResult.Success) {
             onLoginSuccess((LoginResult.Success) result);
         } else {
@@ -636,20 +650,25 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         if (personalIdManager.isloggedIn()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectJobUtils.getJobForApp(this, appId);
+
             if (job == null) {
                 String linkPassword = success.getConnectManagedLogin()
                         ? ConnectAppUtils.INSTANCE.getPasswordOverride(this, getUniformUsername(), false)
                         : uiController.getEnteredPasswordOrPin();
+
                 personalIdManager.checkPersonalIdLink(
                         this,
                         loginManagedByPersonalId(),
                         appId,
                         getUniformUsername(),
                         linkPassword,
-                        linkSuccess -> finishWithSuccess(success, linkSuccess));
+                        linkSuccess -> finishWithSuccess(success, linkSuccess)
+                );
+
                 return;
             }
         }
+
         finishWithSuccess(
                 success,
                 success.getPostLoginOutcome().getRedirectToConnectOpportunityInfo()
@@ -661,7 +680,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 success.getLoginMode(),
                 navigateToConnectJobs,
                 success.getPersonalIdManagedLogin(),
-                success.getConnectManagedLogin());
+                success.getConnectManagedLogin()
+        );
     }
 
     private void onLoginError(LoginError error) {
@@ -685,14 +705,21 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, message, true);
                 break;
             case BAD_DATA_REQUIRES_INTERVENTION:
-                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, message, true);
+                raiseLoginMessageWithInfo(
+                        StockMessages.Remote_BadRestoreRequiresIntervention,
+                        message,
+                        true
+                );
                 break;
             case BAD_RESPONSE:
                 raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                 break;
             case BAD_SSL_CERTIFICATE:
-                raiseLoginMessage(StockMessages.BadSslCertificate, true,
-                        NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+                raiseLoginMessage(
+                        StockMessages.BadSslCertificate,
+                        true,
+                        NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS
+                );
                 break;
             case STORAGE_FULL:
                 raiseLoginMessage(StockMessages.Storage_Full, true);
@@ -710,7 +737,16 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 raiseLoginMessageWithInfo(StockMessages.Recovery_Error, message, true);
                 break;
             case ACTIONABLE_FAILURE:
-                raiseMessage(new NotificationMessage(NOTIFICATION_MESSAGE_LOGIN, message, "", null, new Date()), true);
+                raiseMessage(
+                        new NotificationMessage(
+                                NOTIFICATION_MESSAGE_LOGIN,
+                                message,
+                                "",
+                                null,
+                                new Date()
+                        ),
+                        true
+                );
                 break;
             case SESSION_EXPIRE:
                 raiseLoginMessage(StockMessages.Session_Expire, true);
@@ -1018,12 +1054,15 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                     false,
                     DataPullMode.NORMAL
             );
+
             if (localLoginStarted) {
                 return;
             }
+
             startDataPull(DataPullMode.CONSUMER_APP, passwordOrPin);
             return;
         }
+
         runLoginPipeline(
                 uiController.getLoginMode(),
                 restoreSession,
@@ -1081,7 +1120,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             case STORAGE_FULL:
                 raiseLoginMessage(StockMessages.Storage_Full, true);
                 break;
-            case DOWNLOAD_SUCCESS: {
+            case DOWNLOAD_SUCCESS:
                 boolean localLoginStarted = tryLocalLogin(
                         getUniformUsername(),
                         uiController.getEnteredPasswordOrPin(),
@@ -1095,7 +1134,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                     raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                 }
                 break;
-            }
             case UNREACHABLE_HOST:
                 raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
                 break;

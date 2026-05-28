@@ -50,7 +50,11 @@ internal open class KeyRecordOperations(
                         messageTag: MessageTag,
                         showTop: Boolean,
                     ) {
-                        continuation.resumeOnce(KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN)))
+                        continuation.resumeOnce(
+                            KeyRecordOutcome.Failed(
+                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN),
+                            ),
+                        )
                     }
 
                     override fun raiseLoginMessage(
@@ -58,7 +62,11 @@ internal open class KeyRecordOperations(
                         showTop: Boolean,
                         buttonAction: NotificationActionButtonInfo.ButtonAction,
                     ) {
-                        continuation.resumeOnce(KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN)))
+                        continuation.resumeOnce(
+                            KeyRecordOutcome.Failed(
+                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN),
+                            ),
+                        )
                     }
 
                     override fun raiseLoginMessageWithInfo(
@@ -68,7 +76,10 @@ internal open class KeyRecordOperations(
                     ) {
                         continuation.resumeOnce(
                             KeyRecordOutcome.Failed(
-                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN, additionalInfo),
+                                LoginError.SyncFailed(
+                                    SyncFailureReason.UNKNOWN,
+                                    additionalInfo,
+                                ),
                             ),
                         )
                     }
@@ -77,7 +88,11 @@ internal open class KeyRecordOperations(
                         message: NotificationMessage,
                         showTop: Boolean,
                     ) {
-                        continuation.resumeOnce(KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN)))
+                        continuation.resumeOnce(
+                            KeyRecordOutcome.Failed(
+                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN),
+                            ),
+                        )
                     }
                 }
 
@@ -98,7 +113,12 @@ internal open class KeyRecordOperations(
                         receiver: DataPullController,
                         vararg update: String,
                     ) {
-                        sink.onProgress(LoginProgress(LoginPhase.SigningIn, message = update.firstOrNull()))
+                        sink.onProgress(
+                            LoginProgress(
+                                LoginPhase.SigningIn,
+                                message = update.firstOrNull(),
+                            ),
+                        )
                     }
 
                     override fun keysDoneOther(
@@ -106,7 +126,9 @@ internal open class KeyRecordOperations(
                         outcome: HttpCalloutOutcomes,
                     ) {
                         continuation.resumeOnce(
-                            KeyRecordOutcome.Failed(OutcomeMapper.fromHttpCalloutOutcome(outcome)),
+                            KeyRecordOutcome.Failed(
+                                OutcomeMapper.fromHttpCalloutOutcome(outcome),
+                            ),
                         )
                     }
 
@@ -114,9 +136,17 @@ internal open class KeyRecordOperations(
                         receiver: DataPullController,
                         e: Exception,
                     ) {
-                        if (e is CancellationException) throw e
+                        if (e is CancellationException) {
+                            throw e
+                        }
+
                         continuation.resumeOnce(
-                            KeyRecordOutcome.Failed(LoginError.SyncFailed(SyncFailureReason.UNKNOWN, e.message)),
+                            KeyRecordOutcome.Failed(
+                                LoginError.SyncFailed(
+                                    SyncFailureReason.UNKNOWN,
+                                    e.message,
+                                ),
+                            ),
                         )
                     }
                 }
@@ -127,6 +157,6 @@ internal open class KeyRecordOperations(
         }
 
     companion object {
-        private const val TASK_ID = 0x4c47
+        private const val TASK_ID = 0x4c47 // unique id for this engine; 'LG' in ASCII
     }
 }
