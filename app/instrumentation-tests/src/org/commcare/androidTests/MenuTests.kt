@@ -62,6 +62,9 @@ class MenuTests: BaseTest() {
         checkStringExists(homeMenuItems)
         InstrumentationUtility.rotatePortrait()
 
+        // wait for the menu to settle after the rotation flash
+       InstrumentationUtility.waitForView(withText(homeMenuItems[0]))
+
         onView(withText(homeMenuItems[0]))
                 .perform(click())
         Intents.intended(IntentMatchers.hasComponent(UpdateActivity::class.java.name))
