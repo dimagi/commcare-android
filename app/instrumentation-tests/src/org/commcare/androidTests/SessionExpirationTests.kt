@@ -15,6 +15,7 @@ import org.commcare.dalvik.R
 import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.Until.findObject
 import junit.framework.Assert.assertNotNull
+import org.commcare.AppUtils
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.test.BuildConfig
 import org.commcare.utils.InstrumentationUtility
@@ -52,7 +53,7 @@ class SessionExpirationTests: BaseTest() {
     fun testRestoreUser(){
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.openNotification()
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG || AppUtils.getInstalledAppRecords().size <= 1) {
             uiDevice.wait(Until.hasObject(By.textStartsWith("Logged Into Commcare")),5000)
         } else {
             uiDevice.wait(Until.hasObject(By.textStartsWith("Logged Into "+ APP_NAME)),5000)
