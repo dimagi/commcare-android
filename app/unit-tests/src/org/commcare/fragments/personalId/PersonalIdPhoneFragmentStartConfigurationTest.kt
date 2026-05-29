@@ -159,7 +159,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         assertEquals(
             "Should navigate to biometric config fragment on success",
@@ -183,7 +183,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         assertEquals(
             "Should navigate to message display screen on forbidden error",
@@ -216,7 +216,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         val errorView = fragment.view!!.findViewById<android.widget.TextView>(R.id.personalid_phone_error)
         assertEquals(
@@ -253,7 +253,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         // Verify navigation to message display occurred
         assertEquals(
@@ -286,7 +286,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         clickContinueButton()
 
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         assertEquals(
             "Should navigate to failure screen",
