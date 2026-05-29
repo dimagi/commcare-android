@@ -2,6 +2,7 @@ package org.commcare.login
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,6 +12,7 @@ import org.commcare.CommCareApp
 import org.commcare.CommCareApplication
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.utils.MultipleAppsUtil
+import org.javarosa.core.services.Logger
 
 sealed class SeatResult {
     object Success : SeatResult()
@@ -23,6 +25,7 @@ sealed class SeatResult {
 enum class SeatFailure {
     APP_NOT_FOUND,
     CORRUPTED,
+    SEAT_ERROR,
 }
 
 class AppSeater
@@ -55,12 +58,19 @@ class AppSeater
             sink: LoginProgressSink,
         ): SeatResult {
             sink.onProgress(LoginProgress(LoginPhase.Seating))
-            val record = recordLookup(appId) ?: return SeatResult.Failed(SeatFailure.APP_NOT_FOUND)
-            val resourceState = withContext(ioDispatcher) { seatApp(record) }
-            return if (resourceState == CommCareApplication.STATE_CORRUPTED) {
-                SeatResult.Failed(SeatFailure.CORRUPTED)
-            } else {
-                SeatResult.Success
+            return try {
+                val record = recordLookup(appId) ?: return SeatResult.Failed(SeatFailure.APP_NOT_FOUND)
+                val resourceState = withContext(ioDispatcher) { seatApp(record) }
+                if (resourceState == CommCareApplication.STATE_CORRUPTED) {
+                    SeatResult.Failed(SeatFailure.CORRUPTED)
+                } else {
+                    SeatResult.Success
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logger.exception("Unexpected error while seating app $appId", e)
+                SeatResult.Failed(SeatFailure.SEAT_ERROR)
             }
         }
     }

@@ -68,6 +68,37 @@ class AppSeaterTest {
         }
 
     @Test
+    fun `seatApp throwing returns Failed SEAT_ERROR instead of propagating`() =
+        runTest {
+            val record = mockk<ApplicationRecord>(relaxed = true)
+            val seater =
+                AppSeater(
+                    recordLookup = { record },
+                    seatApp = { throw IllegalStateException("seat blew up") },
+                    ioDispatcher = Dispatchers.Unconfined,
+                )
+
+            val result = seater.seatIfNeeded("app-1", sink)
+
+            assertEquals(SeatResult.Failed(SeatFailure.SEAT_ERROR), result)
+        }
+
+    @Test
+    fun `recordLookup throwing returns Failed SEAT_ERROR instead of propagating`() =
+        runTest {
+            val seater =
+                AppSeater(
+                    recordLookup = { throw RuntimeException("db unavailable") },
+                    seatApp = { STATE_READY },
+                    ioDispatcher = Dispatchers.Unconfined,
+                )
+
+            val result = seater.seatIfNeeded("app-1", sink)
+
+            assertEquals(SeatResult.Failed(SeatFailure.SEAT_ERROR), result)
+        }
+
+    @Test
     fun `emits Seating progress`() =
         runTest {
             val record = mockk<ApplicationRecord>(relaxed = true)

@@ -31,11 +31,12 @@ public class SeatAppActivity extends CommonBaseActivity {
     }
 
     private void finishWithResult(SeatResult result) {
-        boolean appNotFound = result instanceof SeatResult.Failed
-                && ((SeatResult.Failed)result).getReason() == SeatFailure.APP_NOT_FOUND;
         // A corrupted seat still returns RESULT_OK; DispatchActivity detects
         // STATE_CORRUPTED and routes to recovery.
-        setResult(appNotFound ? RESULT_CANCELED : RESULT_OK, new Intent(getIntent()));
+        boolean treatAsSeated = result instanceof SeatResult.Success
+                || (result instanceof SeatResult.Failed
+                && ((SeatResult.Failed)result).getReason() == SeatFailure.CORRUPTED);
+        setResult(treatAsSeated ? RESULT_OK : RESULT_CANCELED, new Intent(getIntent()));
         finish();
     }
 
