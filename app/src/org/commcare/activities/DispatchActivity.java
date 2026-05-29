@@ -547,9 +547,10 @@ public class DispatchActivity extends AppCompatActivity {
         boolean manualSwitchToPwMode =
                 intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
         boolean personalIdManaged = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+        boolean restoreSession = false;
         LoginResult.Success success = new LoginResult.Success(
                 loginMode,
-                false,
+                restoreSession,
                 personalIdManaged,
                 connectManagedLogin,
                 new PostLoginOutcome(redirectToConnectOpportunityInfo));
