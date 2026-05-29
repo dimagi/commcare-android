@@ -15,9 +15,6 @@ import java.util.concurrent.TimeUnit
 object EmailOfferHelper {
     private const val DAYS_TO_SECOND_EMAIL_OFFER = 30L
 
-    // Shortened on CCC Staging so QA can verify the second email offer without waiting the full window of 30 days.
-    private const val DAYS_TO_SECOND_EMAIL_OFFER_STAGING = 0L
-
     private fun shouldOfferEmail(context: Context): Boolean {
         if (!PersonalIdManager.getInstance().isloggedIn()) {
             return false
@@ -40,9 +37,7 @@ object EmailOfferHelper {
         val lastOffer = PersonalIdUserPreferences.getLastEmailOfferDate() ?: return true
         val millis = Date().time - lastOffer.time
         val days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS)
-        val secondOfferThreshold =
-            if (BuildConfig.FLAVOR == "cccStaging") DAYS_TO_SECOND_EMAIL_OFFER_STAGING else DAYS_TO_SECOND_EMAIL_OFFER
-        return days >= secondOfferThreshold
+        return days >= DAYS_TO_SECOND_EMAIL_OFFER
     }
 
     @JvmStatic
