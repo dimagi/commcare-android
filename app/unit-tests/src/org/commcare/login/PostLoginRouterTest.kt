@@ -59,6 +59,25 @@ class PostLoginRouterTest {
     }
 
     @Test
+    fun `redirectToConnectOpportunityInfo does not affect Home destination`() {
+        val destination =
+            PostLoginRouter.route(
+                success(redirectToConnectOpportunityInfo = true),
+                LaunchContext(startFromLogin = true, manualSwitchToPwMode = false),
+            )
+
+        assertEquals(
+            PostLoginDestination.Home(
+                loginMode = LoginMode.PASSWORD,
+                startFromLogin = true,
+                manualSwitchToPwMode = false,
+                personalIdManagedLogin = false,
+            ),
+            destination,
+        )
+    }
+
+    @Test
     fun `bad credentials routes to TerminalFailure`() {
         assertEquals(
             PostLoginDestination.TerminalFailure(LoginError.BadCredentials),
