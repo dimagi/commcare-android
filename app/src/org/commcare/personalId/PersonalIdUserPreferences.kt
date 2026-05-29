@@ -34,10 +34,11 @@ object PersonalIdUserPreferences {
      * - null = never offered
      */
     @JvmStatic
-    fun getLastEmailOfferDate(): Date? {
-        val p = prefs()
-        return if (p.contains(KEY_LAST_EMAIL_OFFER_DATE)) Date(p.getLong(KEY_LAST_EMAIL_OFFER_DATE, 0L)) else null
-    }
+    fun getLastEmailOfferDate(): Date? =
+        prefs()
+            .getLong(KEY_LAST_EMAIL_OFFER_DATE, -1L)
+            .takeIf { it != -1L }
+            ?.let(::Date)
 
     @JvmStatic
     fun setLastEmailOfferDate(value: Date?) {
