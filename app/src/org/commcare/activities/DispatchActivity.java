@@ -26,6 +26,11 @@ import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.login.LaunchContext;
+import org.commcare.login.LoginResult;
+import org.commcare.login.PostLoginDestination;
+import org.commcare.login.PostLoginOutcome;
+import org.commcare.login.PostLoginRouter;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -515,12 +520,8 @@ public class DispatchActivity extends AppCompatActivity {
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = true;
                 } else if (intent != null) {
-                    lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
-                    userManuallyEnteredPasswordMode =
-                            intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                    personalIdManagedLogin = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
                     connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
-                    startFromLogin = true;
+                    applyPostLoginDestination(routeLoginResult(intent));
                 }
                 return;
             case HOME_SCREEN:
@@ -539,5 +540,31 @@ public class DispatchActivity extends AppCompatActivity {
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private PostLoginDestination routeLoginResult(Intent intent) {
+        LoginMode loginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
+        boolean manualSwitchToPwMode =
+                intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
+        boolean personalIdManaged = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+        LoginResult.Success success = new LoginResult.Success(
+                loginMode,
+                false,
+                personalIdManaged,
+                connectManagedLogin,
+                new PostLoginOutcome(redirectToConnectOpportunityInfo));
+        return PostLoginRouter.route(success, new LaunchContext(true, manualSwitchToPwMode));
+    }
+
+    private void applyPostLoginDestination(PostLoginDestination destination) {
+        if (destination instanceof PostLoginDestination.Home) {
+            PostLoginDestination.Home home = (PostLoginDestination.Home)destination;
+            lastLoginMode = home.getLoginMode();
+            userManuallyEnteredPasswordMode = home.getManualSwitchToPwMode();
+            personalIdManagedLogin = home.getPersonalIdManagedLogin();
+            startFromLogin = home.getStartFromLogin();
+        } else {
+            shouldFinish = true;
+        }
     }
 }
