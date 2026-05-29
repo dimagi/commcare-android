@@ -1,19 +1,11 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
-import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
-import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
-import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
-import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
-import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
-
 import android.content.Intent;
 import android.os.Bundle;
-
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -43,9 +35,16 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import javax.annotation.Nullable;
+
+import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
+import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
 /**
  * Dispatches install, login, and home screen activities.
@@ -543,7 +542,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private PostLoginDestination routeLoginResult(Intent intent) {
-        LoginMode loginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
+        LoginMode loginMode = (LoginMode) intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
         boolean manualSwitchToPwMode =
                 intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
         boolean personalIdManaged = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
@@ -553,13 +552,14 @@ public class DispatchActivity extends AppCompatActivity {
                 restoreSession,
                 personalIdManaged,
                 connectManagedLogin,
-                new PostLoginOutcome(redirectToConnectOpportunityInfo));
+                new PostLoginOutcome(redirectToConnectOpportunityInfo)
+        );
+
         return PostLoginRouter.route(success, new LaunchContext(true, manualSwitchToPwMode));
     }
 
     private void applyPostLoginDestination(PostLoginDestination destination) {
-        if (destination instanceof PostLoginDestination.Home) {
-            PostLoginDestination.Home home = (PostLoginDestination.Home)destination;
+        if (destination instanceof PostLoginDestination.Home home) {
             lastLoginMode = home.getLoginMode();
             userManuallyEnteredPasswordMode = home.getManualSwitchToPwMode();
             personalIdManagedLogin = home.getPersonalIdManagedLogin();

@@ -110,7 +110,7 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            seater.seatIfNeeded("app-1", LoginProgressSink { phases += it.phase })
+            seater.seatIfNeeded("app-1") { phases += it.phase }
 
             assertTrue(phases.contains(LoginPhase.Seating))
         }
