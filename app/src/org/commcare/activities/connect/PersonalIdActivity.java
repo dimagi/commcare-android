@@ -11,6 +11,7 @@ import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import org.commcare.fragments.personalId.PersonalIdEmailFragment;
 
@@ -80,19 +81,15 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     }
 
     private void checkForEmailScreen() {
-        if (getIntent().getBooleanExtra(EXTRA_EXISTING_USER_EMAIL_FLOW, false)) {
-            NavHostFragment navHostFragment =
-                    (NavHostFragment)getSupportFragmentManager()
-                            .findFragmentById(R.id.nav_host_fragment_connectid);
-            if (navHostFragment != null) {
-                Bundle args = new Bundle();
-                args.putSerializable(PersonalIdEmailFragment.ARG_EMAIL_WORKFLOW, EmailWorkFlow.EXISTING_USER);
-                navHostFragment.getNavController().navigate(R.id.personalid_email, args,
-                        new androidx.navigation.NavOptions.Builder()
-                                .setPopUpTo(R.id.personalid_phone_fragment, true)
-                                .build());
-            }
+        if (!getIntent().getBooleanExtra(EXTRA_EXISTING_USER_EMAIL_FLOW, false)) {
+            return;
         }
+        Bundle args = new Bundle();
+        args.putSerializable(PersonalIdEmailFragment.ARG_EMAIL_WORKFLOW, EmailWorkFlow.EXISTING_USER);
+        getHostFragment().getNavController().navigate(R.id.personalid_email, args,
+                new NavOptions.Builder()
+                        .setPopUpTo(R.id.personalid_phone_fragment, true)
+                        .build());
     }
 }
 

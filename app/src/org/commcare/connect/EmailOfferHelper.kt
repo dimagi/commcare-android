@@ -7,7 +7,7 @@ import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
-import org.commcare.personalId.PersonalIdPreferences
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.dialogs.StandardAlertDialog
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -18,8 +18,11 @@ object EmailOfferHelper {
     // Shortened on CCC Staging so QA can verify the second email offer without waiting the full window of 30 days.
     private const val DAYS_TO_SECOND_EMAIL_OFFER_STAGING = 0L
 
-    @JvmStatic
-    fun shouldOfferEmail(context: Context): Boolean {
+    private fun shouldOfferEmail(context: Context): Boolean {
+        if (!PersonalIdManager.getInstance().isloggedIn()) {
+            return false
+        }
+
         if (!ReleaseToggleHelper.isEmailOtpVerificationActive(context)) {
             return false
         }
@@ -29,12 +32,12 @@ object EmailOfferHelper {
             return false
         }
 
-        val count = PersonalIdPreferences.getEmailOfferCount(context)
-        if (count != null && count >= 2) {
+        val count = PersonalIdUserPreferences.getEmailOfferCount()
+        if (count >= 2) {
             return false
         }
 
-        val lastOffer = PersonalIdPreferences.getLastEmailOfferDate(context) ?: return true
+        val lastOffer = PersonalIdUserPreferences.getLastEmailOfferDate() ?: return true
         val millis = Date().time - lastOffer.time
         val days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS)
         val secondOfferThreshold =
@@ -50,9 +53,9 @@ object EmailOfferHelper {
 
         // Increment count and record date BEFORE showing dialog (so the offer is recorded
         // even if the user dismisses the dialog by swiping away or backing out).
-        val current = PersonalIdPreferences.getEmailOfferCount(activity)
-        PersonalIdPreferences.setEmailOfferCount(activity, (current ?: 0) + 1)
-        PersonalIdPreferences.setLastEmailOfferDate(activity, Date())
+        val current = PersonalIdUserPreferences.getEmailOfferCount()
+        PersonalIdUserPreferences.setEmailOfferCount(current + 1)
+        PersonalIdUserPreferences.setLastEmailOfferDate(Date())
 
         showEmailOfferDialog(activity)
     }

@@ -158,7 +158,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
                     .navigate(PersonalIdEmailFragmentDirections.actionPersonalidEmailToPersonalidPhotoCapture())
             },
             onRecoverySuccess = {
-                PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
+                PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData!!)
                 navigateToMessageDisplay(
                     getString(R.string.connect_recovery_success_title),
                     getString(R.string.connect_recovery_success_message),
