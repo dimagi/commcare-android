@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -63,6 +64,7 @@ public class PhoneNumberHelper {
             Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
             return phoneNumberUtil.isValidNumber(phoneNumber);
         } catch (NumberParseException e) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Parse exception for phone " + phone);
             Logger.exception("Exception occurred while verifying phone number", e);
             return false;
         }
