@@ -22,6 +22,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -181,7 +182,7 @@ public class DispatchActivity extends AppCompatActivity {
             return;
         }
 
-        Intent connectOppInviteIntent = ConnectJobHelper.INSTANCE.retrieveConnectOppInviteIntentIfPresent(
+        Intent connectOppInviteIntent = DeepLinkHelper.INSTANCE.retrieveConnectOppInviteIntentIfPresent(
                 this, getIntent());
         if(connectOppInviteIntent != null) {
             startActivity(connectOppInviteIntent);
