@@ -334,10 +334,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         int taskId = taskIdForPhase(phase);
 
         if (phase != currentLoginPhase) {
-            if (currentLoginPhase != null) {
-                dismissProgressDialogForTask(taskIdForPhase(currentLoginPhase));
-            }
-
+            dismissLoginProgressDialog();
             currentLoginPhase = phase;
             showProgressDialog(taskId);
         }
