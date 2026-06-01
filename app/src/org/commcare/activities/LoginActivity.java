@@ -296,10 +296,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 uiController.getEnteredUsername())) {
             // install update, which triggers login upon completion
             installPendingUpdate();
-        } else if (CommCareApplication.instance().isConsumerApp()) {
-            localLoginOrPullAndLogin(restoreSession);
         } else {
-            runLoginPipeline(loginMode, restoreSession, passwordOrPin);
+            localLoginOrPullAndLogin(restoreSession);
         }
     }
 
