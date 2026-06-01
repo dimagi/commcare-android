@@ -43,12 +43,14 @@ class LoginController internal constructor(
         sink: LoginProgressSink,
     ): LoginResult {
         val effectiveRequest =
-            if (request.authSource == AuthSource.AutoFromConnect) {
+            if (request.authSource == AuthSource.AutoFromConnect ||
+                request.authSource == AuthSource.PersonalIdManaged
+            ) {
                 val resolved =
                     credentialResolver.resolve(
                         appId = request.appId,
                         username = request.username,
-                        createIfNeeded = true,
+                        createIfNeeded = request.authSource == AuthSource.AutoFromConnect,
                     )
                 request.copy(passwordOrPin = resolved.password)
             } else {

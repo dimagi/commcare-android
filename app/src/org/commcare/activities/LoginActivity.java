@@ -369,6 +369,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             return AuthSource.AutoFromConnect;
         }
 
+        if (personalIdManager.isloggedIn() && loginManagedByPersonalId()) {
+            return AuthSource.PersonalIdManaged;
+        }
+
         if (uiController.getLoginMode() == LoginMode.PRIMED) {
             return AuthSource.MdmManaged;
         }

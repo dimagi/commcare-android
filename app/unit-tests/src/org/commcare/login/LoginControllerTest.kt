@@ -156,6 +156,34 @@ class LoginControllerTest {
         }
 
     @Test
+    fun `PersonalIdManaged rewrites password using credentialResolver without creating a record`() =
+        runTest {
+            val (controller, fakeKeyRecord, fakeSync) =
+                buildController(
+                    keyRecordOutcomes =
+                        arrayOf(
+                            KeyRecordOutcome.ReadyForSync("resolved-pw"),
+                            KeyRecordOutcome.LocalLoginComplete,
+                        ),
+                    syncOutcome = SyncOutcome.Success,
+                )
+            val resolved = ResolvedCredentials(password = "resolved-pw", record = mockk(relaxed = true))
+            every {
+                credentialResolver.resolve("app-1", "alice", false)
+            } returns resolved
+
+            val request = manualRequest().copy(authSource = AuthSource.PersonalIdManaged)
+            val result = controller.performLogin(request, sink)
+
+            assertTrue(result is LoginResult.Success)
+            val success = result as LoginResult.Success
+            assertFalse(success.connectManagedLogin)
+            assertEquals("resolved-pw", fakeSync.capturedPassword)
+            assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[0].passwordOrPin)
+            verify(exactly = 1) { credentialResolver.resolve("app-1", "alice", false) }
+        }
+
+    @Test
     fun `BadCredentials from key-record returns Failed without running side-effects`() =
         runTest {
             val (controller, _, _) =
