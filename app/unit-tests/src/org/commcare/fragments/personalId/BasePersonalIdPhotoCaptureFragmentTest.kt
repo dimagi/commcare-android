@@ -93,8 +93,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
         connectDatabaseHelperMock = Mockito.mockStatic(ConnectDatabaseHelper::class.java)
         connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
         firebaseAnalyticsUtilMock = Mockito.mockStatic(FirebaseAnalyticsUtil::class.java)
-        // NavigationHostCommCareActivity.onCreate calls this static and stores the result.
-        // onResume then passes it to addOnDestinationChangedListener, which rejects null.
         firebaseAnalyticsUtilMock
             .`when`<NavController.OnDestinationChangedListener> {
                 FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener()
@@ -108,7 +106,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
             .thenReturn(mockBitmap)
 
         apiPersonalIdMock = Mockito.mockStatic(ApiPersonalId::class.java)
-        // setPhotoAndCompleteProfile is a no-op stub; tests verify invocation args.
 
         errorHandlerMock = Mockito.mockStatic(PersonalIdOrConnectApiErrorHandler::class.java)
         errorHandlerMock
@@ -123,13 +120,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
 
     protected fun setUpPhotoCaptureFragment(sessionData: PersonalIdSessionData = testSessionData) {
         activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
-        // Stop at STARTED rather than RESUMED. PersonalIdPhoneFragment is the nav
-        // graph's start destination; if we resume it, its onResume registers a
-        // BroadcastReceiver only when location permission is granted (it isn't, in
-        // tests), but its onPause unconditionally unregisters and throws under
-        // Robolectric. Replacing the fragment while still at STARTED moves it
-        // STARTED → DESTROYED without going through PAUSED.
-        activity = activityController.create().start().get()
+        activity = activityController.create().start().resume().get()
 
         // Seed the ViewModel before swapping the fragment in; onCreateView reads it.
         activity.runOnUiThread {
@@ -156,18 +147,10 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
             fragment = testableFragment
         }
         ShadowLooper.idleMainLooper()
-
-        // Now that the phone fragment is gone, resume the activity so the photo
-        // fragment reaches RESUMED for the tests.
-        activityController.resume()
-        ShadowLooper.idleMainLooper()
     }
 
     @After
     open fun tearDown() {
-        // Cleanup steps must all run even if an earlier one throws — otherwise a
-        // failure in activity destroy leaves the MockedStatic registrations open
-        // and the next test's setUp fails with "static mocking is already registered".
         val errors = mutableListOf<Throwable>()
         listOf(
             { activityController.pause().stop().destroy() },
@@ -223,12 +206,6 @@ class TestablePersonalIdPhotoCaptureFragment(
     /**
      * Mirrors the body of the lambda registered with the takePhotoLauncher, exercising
      * the same private methods the production callback calls.
-     *
-     * We can't reflect into Fragment.registerForActivityResult's returned launcher
-     * (Fragment$10) to find the callback — the callback is held inside the
-     * ActivityResultRegistry's keyed map, not on the launcher itself. Replicating the
-     * lambda's body here keeps the test focused on the UI-state behavior it actually
-     * asserts on.
      */
     fun simulatePhotoResult(
         resultCode: Int,
