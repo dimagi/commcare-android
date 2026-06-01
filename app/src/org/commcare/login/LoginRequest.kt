@@ -1,5 +1,6 @@
 package org.commcare.login
 
+import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 
 data class LoginRequest(
@@ -11,12 +12,13 @@ data class LoginRequest(
     val restoreSession: Boolean,
     val triggerMultipleUsersWarning: Boolean,
     val blockRemoteKeyManagement: Boolean,
+    val dataPullMode: DataPullMode = DataPullMode.NORMAL,
 ) {
     override fun toString(): String =
         "LoginRequest(appId=$appId, username=$username, passwordOrPin=***, " +
             "credentialType=$credentialType, authSource=$authSource, " +
             "restoreSession=$restoreSession, triggerMultipleUsersWarning=$triggerMultipleUsersWarning, " +
-            "blockRemoteKeyManagement=$blockRemoteKeyManagement)"
+            "blockRemoteKeyManagement=$blockRemoteKeyManagement, dataPullMode=$dataPullMode)"
 }
 
 enum class AuthSource {

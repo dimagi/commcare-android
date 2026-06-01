@@ -109,7 +109,7 @@ internal open class KeyRecordOperations(
                     request.restoreSession,
                     request.triggerMultipleUsersWarning,
                     request.blockRemoteKeyManagement,
-                    DataPullMode.NORMAL,
+                    request.dataPullMode,
                 ) {
                     override fun deliverUpdate(
                         receiver: DataPullController,

@@ -318,7 +318,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 determineAuthSource(),
                 restoreSession,
                 getMatchingUsersCount(username) > 1,
-                blockRemoteKeyManagement
+                blockRemoteKeyManagement,
+                DataPullMode.NORMAL
         );
 
         LoginController controller = new LoginController(this);
