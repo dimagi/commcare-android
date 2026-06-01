@@ -28,11 +28,11 @@ internal open class PostLoginSideEffects(
         val job = ConnectJobUtils.getJobForApp(context, appId)
         CommCareApplication.instance().setConnectJobIdForAnalytics(job)
 
-        personalIdManager.updateAppAccess(context, appId, username)
-
         if (job == null) {
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
+
+        personalIdManager.updateAppAccess(context, appId, username)
 
         suspendCancellableCoroutine { continuation ->
             val listener =
