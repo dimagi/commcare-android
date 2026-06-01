@@ -12,6 +12,7 @@ import org.commcare.tasks.ManageKeyRecordTask
 import org.commcare.views.notifications.MessageTag
 import org.commcare.views.notifications.NotificationActionButtonInfo
 import org.commcare.views.notifications.NotificationMessage
+import org.javarosa.core.services.Logger
 
 internal sealed class KeyRecordOutcome {
     data class ReadyForSync(
@@ -137,6 +138,8 @@ internal open class KeyRecordOperations(
                         receiver: DataPullController,
                         e: Exception,
                     ) {
+                        Logger.exception("Error while managing key record during login", e)
+
                         if (e is CancellationException) {
                             throw e
                         }
