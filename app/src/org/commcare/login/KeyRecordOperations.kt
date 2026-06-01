@@ -4,6 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApp
+import org.commcare.CommCareApplication
 import org.commcare.activities.DataPullController
 import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.network.HttpCalloutTask.HttpCalloutOutcomes
@@ -89,11 +90,10 @@ internal open class KeyRecordOperations(
                         message: NotificationMessage,
                         showTop: Boolean,
                     ) {
-                        continuation.resumeOnce(
-                            KeyRecordOutcome.Failed(
-                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN),
-                            ),
-                        )
+                        // Fired as a non-terminal warning (e.g. multiple sandboxes) on an otherwise successful login.
+                        if (showTop) {
+                            CommCareApplication.notificationManager().reportNotificationMessage(message)
+                        }
                     }
                 }
 
