@@ -29,7 +29,6 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class SmsInviteLinkFlowTest {
@@ -102,6 +101,31 @@ class SmsInviteLinkFlowTest {
             ConnectConstants.CCC_GENERIC_OPPORTUNITY,
             launchSmsInvite(validUri, jobInDb = null),
         )
+    }
+
+    @Test
+    fun `SMS link redirection is re-resolved against synced job after opportunities load`() {
+        // First pass mirrors ConnectActivity.handleSecureRedirect when the opp hasn't synced yet:
+        // job is null, so the helper returns CCC_GENERIC_OPPORTUNITY unchanged and the fragment
+        // is launched with that action.
+        val preSync =
+            ConnectJobHelper.resolveGenericOpportunityDestination(
+                ConnectConstants.CCC_GENERIC_OPPORTUNITY,
+                null,
+                null,
+            )
+        assertEquals(ConnectConstants.CCC_GENERIC_OPPORTUNITY, preSync)
+
+        // After ConnectUnlockFragment syncs and loads the invited opp, re-resolving with the now-
+        // available job must produce the status-appropriate destination instead of falling through
+        // to the generic jobs list.
+        val postSync =
+            ConnectJobHelper.resolveGenericOpportunityDestination(
+                preSync,
+                jobWithStatus(ConnectJobRecord.STATUS_DELIVERING),
+                null,
+            )
+        assertEquals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS, postSync)
     }
 
     @Test

@@ -23,6 +23,7 @@ import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiHandler;
@@ -130,6 +131,8 @@ public class ConnectUnlockFragment extends Fragment {
                 FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
                         AnalyticsParamValue.OPP_INVITE_LINK, true, null);
                 ((ConnectActivity) requireActivity()).setActiveJob(requested);
+                redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
+                        redirectionAction, requested, null);
             }
         }
     }
