@@ -301,7 +301,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
     }
 
-    private void runLoginPipeline(LoginMode loginMode, boolean restoreSession, String passwordOrPin) {
+    private void runLoginPipeline(
+            LoginMode loginMode,
+            boolean restoreSession,
+            String passwordOrPin,
+            boolean blockRemoteKeyManagement
+    ) {
         String username = getUniformUsername();
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
@@ -313,7 +318,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 determineAuthSource(),
                 restoreSession,
                 getMatchingUsersCount(username) > 1,
-                false
+                blockRemoteKeyManagement
         );
 
         LoginController controller = new LoginController(this);
@@ -1068,7 +1073,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         runLoginPipeline(
                 uiController.getLoginMode(),
                 restoreSession,
-                uiController.getEnteredPasswordOrPin()
+                uiController.getEnteredPasswordOrPin(),
+                false
         );
     }
 
