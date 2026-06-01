@@ -11,11 +11,11 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.utils.CrashUtil
 
-internal open class PostLoginSideEffects(
+internal class PostLoginSideEffects(
     private val context: Context,
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
 ) {
-    open suspend fun runOnSuccess(username: String): PostLoginOutcome {
+    suspend fun runOnSuccess(username: String): PostLoginOutcome {
         CrashUtil.registerUserData()
         CommCareApplication
             .notificationManager()
