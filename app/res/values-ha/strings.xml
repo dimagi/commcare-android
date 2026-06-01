@@ -120,6 +120,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_email_added_title">An ƙara imel</string>
     <string name="personalid_email_added_message">An ƙara imel ɗinka cikin nasara.</string>
     <string name="personalId_email_otp_sent">An aika lambar sirri mai lamba 6 zuwa adireshin imel ɗinku.</string>
+    <string name="personalid_email_offer_title">Ƙara adireshin imel ɗinku</string>
+    <string name="personalid_email_offer_message">Ƙara imel don taimakawa wajen dawo da asusunku idan kun rasa damar shiga wayarku.</string>
+    <string name="personalid_email_offer_yes">Ƙara imel</string>
+    <string name="personalid_email_offer_no">Ba yanzu ba</string>
     <string name="connect_recovery_success_title">An Dawo da Asusu</string>
     <string name="connect_recovery_success_message">An dawo da asusunka! Za ka iya ci gaba da amfani da PersonalID.</string>
     <string name="connect_unlock_title">Buɗe PersonalID</string>

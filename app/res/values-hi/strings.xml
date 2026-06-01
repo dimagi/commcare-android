@@ -282,6 +282,10 @@ License.
     <string name="personalid_email_added_title">ईमेल जोड़ा गया</string>
     <string name="personalid_email_added_message">आपका ईमेल सफलतापूर्वक जोड़ दिया गया है।</string>
     <string name="personalId_email_otp_sent">आपके ईमेल पते पर 6 अंकों का पासकोड भेजा गया है।</string>
+    <string name="personalid_email_offer_title">अपना ईमेल पता जोड़ें</string>
+    <string name="personalid_email_offer_message">यदि आप अपने फ़ोन तक पहुँच खो देते हैं तो अपने खाते को पुनर्प्राप्त करने में सहायता के लिए एक ईमेल जोड़ें।</string>
+    <string name="personalid_email_offer_yes">ईमेल जोड़ें</string>
+    <string name="personalid_email_offer_no">अभी नहीं</string>
     <string name="connect_recovery_success_title">खाता पुनर्प्राप्त किया गया</string>
     <string name="connect_recovery_success_message">आपका खाता पुनर्प्राप्त कर लिया गया है! आप PersonalID का उपयोग फिर से शुरू कर सकते हैं।</string>
     <string name="connect_unlock_title">PersonalId अनलॉक करें</string>
