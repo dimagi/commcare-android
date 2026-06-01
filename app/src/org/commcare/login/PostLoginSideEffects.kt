@@ -34,22 +34,21 @@ internal open class PostLoginSideEffects(
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
 
-        val updated =
-            suspendCancellableCoroutine { continuation ->
-                val listener =
-                    object : ConnectActivityCompleteListener {
-                        override fun connectActivityComplete(
-                            success: Boolean,
-                            error: String?,
-                        ) {
-                            continuation.resumeOnce(success)
-                        }
+        suspendCancellableCoroutine { continuation ->
+            val listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        continuation.resumeOnce(success)
                     }
-                ConnectJobHelper.updateJobProgress(context, job, listener)
-            }
+                }
+            ConnectJobHelper.updateJobProgress(context, job, listener)
+        }
 
         return PostLoginOutcome(
-            redirectToConnectOpportunityInfo = updated && job.isUserSuspended,
+            redirectToConnectOpportunityInfo = job.isUserSuspended,
         )
     }
 }
