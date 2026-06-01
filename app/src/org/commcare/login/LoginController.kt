@@ -106,6 +106,8 @@ class LoginController internal constructor(
         val isConnectManaged = request.authSource == AuthSource.AutoFromConnect
 
         return LoginResult.Success(
+            appId = request.appId,
+            username = request.username,
             loginMode = request.credentialType,
             restoreSession = request.restoreSession,
             personalIdManagedLogin = isConnectManaged || PersonalIdManager.getInstance().isloggedIn(),
