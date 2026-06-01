@@ -199,15 +199,6 @@ public class PersonalIdManager {
         parent.startActivityForResult(intent, requestCode);
     }
 
-    public void updateAppAccess(Context context, String appId, String username) {
-        ConnectLinkedAppRecord record =
-                ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username);
-        if (record != null) {
-            record.setLastAccessed(new Date());
-            ConnectAppDatabaseUtil.storeApp(context, record);
-        }
-    }
-
     public void checkPersonalIdLink(CommCareActivity<?> activity, boolean personalIdManagedLogin, String appId,
                                     String username, String password, ConnectActivityCompleteListener callback) {
         switch (evaluateAppState(activity, appId, username)) {

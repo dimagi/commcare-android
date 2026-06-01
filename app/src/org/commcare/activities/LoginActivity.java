@@ -593,7 +593,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             CommCareApplication.instance().setConnectJobIdForAnalytics(job);
 
             if (job != null) {
-                personalIdManager.updateAppAccess(context, appId, username);
+                ConnectAppUtils.INSTANCE.updateLastAccessed(context, appId, username);
                 ConnectJobHelper.INSTANCE.updateJobProgress(context, job, (success, error) -> setResultAndFinish(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link PersonalId-managed login
@@ -603,7 +603,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                         username,
                         enteredPasswordPin,
                         success -> {
-                            personalIdManager.updateAppAccess(context, appId, username);
+                            ConnectAppUtils.INSTANCE.updateLastAccessed(context, appId, username);
                             setResultAndFinish(success);
                         }
                 );

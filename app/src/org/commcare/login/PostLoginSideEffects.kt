@@ -5,6 +5,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
 import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
@@ -32,7 +33,7 @@ internal open class PostLoginSideEffects(
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
 
-        personalIdManager.updateAppAccess(context, appId, username)
+        ConnectAppUtils.updateLastAccessed(context, appId, username)
 
         suspendCancellableCoroutine { continuation ->
             val listener =
