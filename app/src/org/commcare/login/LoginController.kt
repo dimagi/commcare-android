@@ -46,13 +46,13 @@ class LoginController internal constructor(
             if (request.authSource == AuthSource.AutoFromConnect ||
                 request.authSource == AuthSource.PersonalIdManaged
             ) {
-                val resolved =
+                val record =
                     credentialResolver.resolve(
                         appId = request.appId,
                         username = request.username,
                         createIfNeeded = request.authSource == AuthSource.AutoFromConnect,
                     )
-                request.copy(passwordOrPin = resolved.password)
+                request.copy(passwordOrPin = record.password)
             } else {
                 request
             }

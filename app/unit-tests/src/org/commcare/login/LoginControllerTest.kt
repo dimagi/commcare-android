@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.commcare.activities.LoginMode
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.connect.PersonalIdManager
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -135,7 +136,8 @@ class LoginControllerTest {
                         ),
                     syncOutcome = SyncOutcome.Success,
                 )
-            val resolved = ResolvedCredentials(password = "resolved-pw", record = mockk(relaxed = true))
+            val resolved = mockk<ConnectLinkedAppRecord>()
+            every { resolved.password } returns "resolved-pw"
             every {
                 credentialResolver.resolve("app-1", "alice", true)
             } returns resolved
@@ -167,7 +169,8 @@ class LoginControllerTest {
                         ),
                     syncOutcome = SyncOutcome.Success,
                 )
-            val resolved = ResolvedCredentials(password = "resolved-pw", record = mockk(relaxed = true))
+            val resolved = mockk<ConnectLinkedAppRecord>()
+            every { resolved.password } returns "resolved-pw"
             every {
                 credentialResolver.resolve("app-1", "alice", false)
             } returns resolved
