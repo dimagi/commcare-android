@@ -62,14 +62,14 @@ public class PhoneNumberHelper {
      * Validates whether the given phone number is valid.
      */
     public boolean isValidPhoneNumber(String phone) {
+        if (isEmpty(phone)) {
+            return false;
+        }
         try {
             Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
             return phoneNumberUtil.isValidNumber(phoneNumber);
         } catch (NumberParseException e) {
-            String redactedPhone = "";
-            if (!isEmpty(phone)) {
-                redactedPhone = phone.length() < 4 ? "<redacted>" : "***" + phone.substring(phone.length() - 4);
-            }
+            String redactedPhone = phone.length() < 4 ? "<redacted>" : "***" + phone.substring(phone.length() - 4);
             Logger.log(LogTypes.TYPE_MAINTENANCE, "Parse exception for phone " + redactedPhone);
             Logger.exception("Exception occurred while verifying phone number", e);
             return false;
