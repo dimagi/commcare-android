@@ -100,11 +100,8 @@ public class ConnectUnlockFragment extends Fragment {
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode,
                                   @androidx.annotation.Nullable Throwable t) {
                 if (!isAdded()) { return; }
-                if (fromOppInviteLink) {
-                    handleOppInviteLinkFailure(AnalyticsParamValue.OPP_INVITE_LINK_NETWORK_FAILURE);
-                }
 
-                tryToLoadInvitedOpp();
+                tryToLoadInvitedOpp(false);
                 setFragmentRedirection();
             }
 
@@ -115,18 +112,21 @@ public class ConnectUnlockFragment extends Fragment {
                     ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
                 }
 
-                tryToLoadInvitedOpp();
+                tryToLoadInvitedOpp(true);
                 setFragmentRedirection();
             }
         }.getConnectOpportunities(requireContext(), user);
     }
 
-    private void tryToLoadInvitedOpp() {
+    private void tryToLoadInvitedOpp(boolean refreshSucceeded) {
         if (fromOppInviteLink) {
             ConnectJobRecord requested = ConnectJobUtils.getCompositeJob(
                     requireContext(), requestedOpportunityUuid);
             if (requested == null) {
-                handleOppInviteLinkFailure(AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND);
+                String failure = refreshSucceeded ?
+                        AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND :
+                        AnalyticsParamValue.OPP_INVITE_LINK_NETWORK_FAILURE;
+                handleOppInviteLinkFailure(failure);
             } else {
                 FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
                         AnalyticsParamValue.OPP_INVITE_LINK, true, null);
