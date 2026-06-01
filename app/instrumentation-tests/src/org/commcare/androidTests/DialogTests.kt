@@ -69,7 +69,7 @@ class DialogTests: BaseTest() {
         InstrumentationUtility.rotateLeft()
         withText(text).isDisplayed()
         InstrumentationUtility.rotatePortrait()
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
                 .perform(click())
     }
 

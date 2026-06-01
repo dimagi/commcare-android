@@ -115,7 +115,7 @@ object InstrumentationUtility {
         clickListItem(R.id.apps_list_view, 0)
         onView(withText("Uninstall"))
             .perform(click())
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
             .inRoot(RootMatchers.isDialog())
             .perform(click())
         onView(withId(R.id.install_app_button))
@@ -171,7 +171,7 @@ object InstrumentationUtility {
             openOptionsMenu()
             onView(withText("About CommCare"))
                 .perform(click())
-            onView(withText("OK"))
+            onView(withText(R.string.ok))
                 .perform(click())
         }
     }

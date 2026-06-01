@@ -99,7 +99,7 @@ class MenuTests: BaseTest() {
                 .perform(click())
         onView(withText("About CommCare"))
                 .check(matches(isDisplayed()))
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
                 .perform(click())
         InstrumentationUtility.gotoHome()
 

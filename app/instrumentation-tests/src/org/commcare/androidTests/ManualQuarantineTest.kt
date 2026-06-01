@@ -83,7 +83,7 @@ class ManualQuarantineTest: BaseTest() {
         onView(withText("Scan Record Integrity"))
                 .perform(click())
         withText("QUARANTINE FORM").doesNotExist()
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
                 .perform(click())
 
         enableFormQuarantine()
