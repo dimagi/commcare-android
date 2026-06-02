@@ -223,6 +223,7 @@ public class AnalyticsParamValue {
 
     // Param values for SMS invite link analytics
     public static final String OPP_INVITE_LINK = "opp_invite_link";
+    public static final String OPP_INVITE_PUSH_NOTIFICATION = "opp_invite_push_notification";
     public static final String OPP_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED = "personalid_not_configured";
     public static final String OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND = "opportunity_not_found";
     public static final String OPP_INVITE_LINK_NETWORK_FAILURE = "network_failure";

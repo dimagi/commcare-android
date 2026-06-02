@@ -119,33 +119,37 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void tryToLoadInvitedOpp(boolean refreshSucceeded) {
-        if (fromOppInviteLink) {
-            ConnectJobRecord requested = ConnectJobUtils.getCompositeJob(
-                    requireContext(), requestedOpportunityUuid);
-            if (requested == null) {
-                String failure = refreshSucceeded ?
-                        AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND :
-                        AnalyticsParamValue.OPP_INVITE_LINK_NETWORK_FAILURE;
-                handleOppInviteLinkFailure(failure);
-            } else {
-                FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
-                        AnalyticsParamValue.OPP_INVITE_LINK, true, null);
-                ((ConnectActivity) requireActivity()).setActiveJob(requested);
-                redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
-                        redirectionAction, requested, null);
-            }
+        ConnectJobRecord requested = ConnectJobUtils.getCompositeJob(
+                requireContext(), requestedOpportunityUuid);
+        if (requested == null) {
+            String failure = refreshSucceeded ?
+                    AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND :
+                    AnalyticsParamValue.OPP_INVITE_LINK_NETWORK_FAILURE;
+            handleOppInviteLinkFailure(failure);
+        } else {
+            FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
+                    getOppInviteSource(), true, null);
+            ((ConnectActivity) requireActivity()).setActiveJob(requested);
+            redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
+                    redirectionAction, requested, null);
         }
     }
 
     private void handleOppInviteLinkFailure(String analyticsOutcome) {
         FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
-                AnalyticsParamValue.OPP_INVITE_LINK, false, analyticsOutcome);
+                getOppInviteSource(), false, analyticsOutcome);
         Toast.makeText(requireContext(),
                 R.string.connect_sms_invite_opportunity_not_found,
                 Toast.LENGTH_LONG).show();
 
         //Clear the redirection action so we navigate to the jobs list
         redirectionAction = "";
+    }
+
+    private String getOppInviteSource() {
+        return fromOppInviteLink ?
+                AnalyticsParamValue.OPP_INVITE_LINK :
+                AnalyticsParamValue.OPP_INVITE_PUSH_NOTIFICATION;
     }
 
     /**
