@@ -586,6 +586,7 @@ object InstrumentationUtility {
      * A utility to wait until a certain view appears
      * usage: onView(isRoot()).perform(waitForView(withText("<text>")))
      */
+    @JvmStatic
     fun waitForView(
         viewMatcher: Matcher<View>,
         timeout: Long = 10000,
