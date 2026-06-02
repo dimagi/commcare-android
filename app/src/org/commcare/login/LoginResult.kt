@@ -20,4 +20,5 @@ sealed class LoginResult {
 
 data class PostLoginOutcome(
     val redirectToConnectOpportunityInfo: Boolean,
+    val needsPersonalIdLinkCheck: Boolean = false,
 )

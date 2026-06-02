@@ -652,26 +652,21 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void onLoginSuccess(LoginResult.Success success) {
-        if (personalIdManager.isloggedIn()) {
-            String appId = success.getAppId();
-            ConnectJobRecord job = ConnectJobUtils.getJobForApp(this, appId);
+        if (success.getPostLoginOutcome().getNeedsPersonalIdLinkCheck()) {
+            String linkPassword = success.getConnectManagedLogin()
+                    ? ConnectAppUtils.INSTANCE.getPasswordOverride(this, success.getUsername(), false)
+                    : uiController.getEnteredPasswordOrPin();
 
-            if (job == null) {
-                String linkPassword = success.getConnectManagedLogin()
-                        ? ConnectAppUtils.INSTANCE.getPasswordOverride(this, success.getUsername(), false)
-                        : uiController.getEnteredPasswordOrPin();
+            personalIdManager.checkPersonalIdLink(
+                    this,
+                    loginManagedByPersonalId(),
+                    success.getAppId(),
+                    success.getUsername(),
+                    linkPassword,
+                    linkSuccess -> finishWithSuccess(success, linkSuccess)
+            );
 
-                personalIdManager.checkPersonalIdLink(
-                        this,
-                        loginManagedByPersonalId(),
-                        appId,
-                        success.getUsername(),
-                        linkPassword,
-                        linkSuccess -> finishWithSuccess(success, linkSuccess)
-                );
-
-                return;
-            }
+            return;
         }
 
         finishWithSuccess(

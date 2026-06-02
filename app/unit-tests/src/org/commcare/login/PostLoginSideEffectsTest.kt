@@ -65,14 +65,17 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `personalID logged in with no job does not update app access and returns false`() =
+    fun `personalID logged in with no job does not update app access and flags link check`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns null
 
             val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
-            assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
+            assertEquals(
+                PostLoginOutcome(redirectToConnectOpportunityInfo = false, needsPersonalIdLinkCheck = true),
+                outcome,
+            )
             verify { commCareApplication.setConnectJobIdForAnalytics(null) }
             verify(exactly = 0) { ConnectAppUtils.updateLastAccessed(any(), any(), any()) }
             verify(exactly = 0) { ConnectJobHelper.updateJobProgress(any(), any(), any()) }

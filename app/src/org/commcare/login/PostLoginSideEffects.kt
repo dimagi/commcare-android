@@ -30,7 +30,10 @@ internal class PostLoginSideEffects(
         CommCareApplication.instance().setConnectJobIdForAnalytics(job)
 
         if (job == null) {
-            return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
+            return PostLoginOutcome(
+                redirectToConnectOpportunityInfo = false,
+                needsPersonalIdLinkCheck = true,
+            )
         }
 
         ConnectAppUtils.updateLastAccessed(context, appId, username)
