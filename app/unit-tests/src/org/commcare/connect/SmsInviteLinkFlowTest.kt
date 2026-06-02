@@ -161,17 +161,17 @@ class SmsInviteLinkFlowTest {
     @Test
     fun `intent without VIEW action falls through to the landing page`() {
         val intent = Intent(Intent.ACTION_MAIN).setData(validUri)
-        assertRoutedToLandingPage(intent)
+        assertRoutedToLoginOrSetupPage(intent)
     }
 
     @Test
     fun `intent without a data uri falls through to the landing page`() {
-        assertRoutedToLandingPage(Intent(Intent.ACTION_VIEW))
+        assertRoutedToLoginOrSetupPage(Intent(Intent.ACTION_VIEW))
     }
 
     @Test
     fun `http scheme falls through to the landing page`() {
-        assertRoutedToLandingPage(
+        assertRoutedToLoginOrSetupPage(
             Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("http://${BuildConfig.CCC_HOST}/users/invite_redirect/$uuid"),
@@ -181,7 +181,7 @@ class SmsInviteLinkFlowTest {
 
     @Test
     fun `mismatched host falls through to the landing page`() {
-        assertRoutedToLandingPage(
+        assertRoutedToLoginOrSetupPage(
             Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("https://evil.example.com/users/invite_redirect/$uuid"),
@@ -192,7 +192,7 @@ class SmsInviteLinkFlowTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.Q])
     fun `path that is not invite_redirect falls through to the landing page`() {
-        assertRoutedToLandingPage(
+        assertRoutedToLoginOrSetupPage(
             Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("https://${BuildConfig.CCC_HOST}/users/profile/$uuid"),
@@ -202,7 +202,7 @@ class SmsInviteLinkFlowTest {
 
     @Test
     fun `path with extra segments falls through to the landing page`() {
-        assertRoutedToLandingPage(
+        assertRoutedToLoginOrSetupPage(
             Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("https://${BuildConfig.CCC_HOST}/users/invite_redirect/$uuid/extra"),
@@ -215,7 +215,7 @@ class SmsInviteLinkFlowTest {
         PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.NotIntroduced
         val intent = Intent(Intent.ACTION_VIEW, validUri)
 
-        assertRoutedToLandingPage(intent)
+        assertRoutedToLoginOrSetupPage(intent)
 
         // The URI was cleared so a future dispatch pass doesn't reprocess it
         assertNull(intent.data)
@@ -274,7 +274,7 @@ class SmsInviteLinkFlowTest {
             ?.getString(ConnectConstants.REDIRECT_ACTION)
     }
 
-    private fun assertRoutedToLandingPage(intent: Intent) {
+    private fun assertRoutedToLoginOrSetupPage(intent: Intent) {
         val dispatch =
             Robolectric
                 .buildActivity(DispatchActivity::class.java, intent)
