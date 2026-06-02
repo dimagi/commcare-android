@@ -24,7 +24,7 @@ import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
-    private lateinit var personalIdSessionData: PersonalIdSessionData
+    private var personalIdSessionData: PersonalIdSessionData? = null
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,
@@ -158,7 +158,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
                     .navigate(PersonalIdEmailFragmentDirections.actionPersonalidEmailToPersonalidPhotoCapture())
             },
             onRecoverySuccess = {
-                PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
+                PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData!!)
                 navigateToMessageDisplay(
                     getString(R.string.connect_recovery_success_title),
                     getString(R.string.connect_recovery_success_message),

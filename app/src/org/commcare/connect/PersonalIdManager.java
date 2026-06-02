@@ -16,6 +16,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -175,6 +176,7 @@ public class PersonalIdManager {
 
         ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
         PersonalIdUnlocker.INSTANCE.resetSession();
+        PersonalIdUserPreferences.clear();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {

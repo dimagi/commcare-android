@@ -26,6 +26,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.personalId.PersonalIdRecoveryCompleter;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
@@ -244,6 +245,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void navigateToEmail() {
+        PersonalIdUserPreferences.setLastEmailOfferDate(new Date());
         EmailWorkFlow emailWorkFlow = isRecovery ? EmailWorkFlow.RECOVERY : EmailWorkFlow.REGISTRATION;
         NavDirections action = PersonalIdBackupCodeFragmentDirections
                 .actionPersonalidBackupcodeToPersonalidEmail(emailWorkFlow);
