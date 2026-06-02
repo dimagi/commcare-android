@@ -220,4 +220,7 @@ public class AnalyticsParamValue {
     public static final String OTP_OUTCOME_FAILURE = "failure";
     public static final String OTP_EVENT_TYPE_REQUEST = "request";
     public static final String OTP_EVENT_TYPE_VERIFY = "verify";
+    public static final String OTP_METHOD_EMAIL = "email";
+    public static final String OTP_EVENT_TYPE_REQUEST_EMAIL = "request_email";
+    public static final String OTP_EVENT_TYPE_VERIFY_EMAIL = "verify_email";
 }

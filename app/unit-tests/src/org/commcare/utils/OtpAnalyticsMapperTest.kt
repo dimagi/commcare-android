@@ -174,6 +174,22 @@ class OtpAnalyticsMapperTest {
     }
 
     @Test
+    fun `getEventType returns request_email for REQUEST_EMAIL`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST_EMAIL,
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL),
+        )
+    }
+
+    @Test
+    fun `getEventType returns verify_email for VERIFY_EMAIL`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY_EMAIL,
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL),
+        )
+    }
+
+    @Test
     fun `getEventType returns null for null input`() {
         assertNull(OtpAnalyticsMapper.getEventType(null))
     }

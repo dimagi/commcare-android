@@ -162,6 +162,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             otp = otp,
             workflow = workflow,
             sessionData = personalIdSessionData,
+            failedAttempts = failedOtpAttempts,
             onSuccess = { onEmailVerified() },
             onFailure = { failureCode, t ->
                 if (!handleCommonSignupFailures(failureCode)) {
@@ -257,6 +258,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     }
 
     private fun proceedWithoutEmail() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "proceed_without_email")
         // No need to null out sessionData.email — only the OTP-verify success path writes it,
         // and that path was not taken on this branch.
         EmailHelper.routeAfterEmailDeclined(

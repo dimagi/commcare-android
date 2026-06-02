@@ -7,6 +7,7 @@ import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.dialogs.StandardAlertDialog
 import java.util.Date
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object EmailOfferHelper {
     private const val DAYS_TO_SECOND_EMAIL_OFFER = 30L
+    private const val EMAIL_OFFER_SCREEN = "EmailOfferDialog"
 
     private fun shouldOfferEmail(context: Context): Boolean {
         if (!PersonalIdManager.getInstance().isloggedIn()) {
@@ -62,10 +64,12 @@ object EmailOfferHelper {
                 activity.getString(R.string.personalid_email_offer_message),
             )
         dialog.setPositiveButton(activity.getString(R.string.personalid_email_offer_yes)) { _, _ ->
+            FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(EMAIL_OFFER_SCREEN, null)
             activity.dismissAlertDialog()
             launchPersonalIdForEmailCollection(activity)
         }
         dialog.setNegativeButton(activity.getString(R.string.personalid_email_offer_no)) { _, _ ->
+            FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(EMAIL_OFFER_SCREEN, "skip")
             activity.dismissAlertDialog()
         }
         activity.showAlertDialog(dialog)

@@ -9,7 +9,10 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
+import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.StringUtils
 
 /**
@@ -52,6 +55,12 @@ object EmailHelper {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(status: Boolean) {
+                FirebaseAnalyticsUtil.reportEmailOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
+                    null,
+                    0,
+                )
                 Toast
                     .makeText(
                         activity,
@@ -65,6 +74,12 @@ object EmailHelper {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                FirebaseAnalyticsUtil.reportEmailOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    OtpAnalyticsMapper.reasonFrom(failureCode),
+                    0,
+                )
                 onFailure(failureCode, t)
             }
         }.sendEmailOtp(activity, email, token, user)
@@ -79,12 +94,19 @@ object EmailHelper {
         otp: String,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
+        failedAttempts: Int,
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(status: Boolean) {
+                FirebaseAnalyticsUtil.reportEmailOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
+                    null,
+                    failedAttempts,
+                )
                 onSuccess()
             }
 
@@ -92,6 +114,12 @@ object EmailHelper {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                FirebaseAnalyticsUtil.reportEmailOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    OtpAnalyticsMapper.reasonFrom(failureCode),
+                    failedAttempts,
+                )
                 onFailure(failureCode, t)
             }
         }.verifyEmailOtp(activity, email, otp, token, user)

@@ -21,12 +21,21 @@ object OtpAnalyticsMapper {
     @JvmStatic
     fun methodFromSmsMethod(otpMethod: String?): String? =
         when {
-            otpMethod == null -> AnalyticsParamValue.OTP_METHOD_FIREBASE
-            otpMethod.equals(OtpManager.SMS_METHOD_PERSONAL_ID, ignoreCase = true) ->
-                AnalyticsParamValue.OTP_METHOD_PERSONAL_ID
-            otpMethod.equals(OtpManager.SMS_METHOD_FIREBASE, ignoreCase = true) ->
+            otpMethod == null -> {
                 AnalyticsParamValue.OTP_METHOD_FIREBASE
-            else -> "UNKNOWN-$otpMethod"
+            }
+
+            otpMethod.equals(OtpManager.SMS_METHOD_PERSONAL_ID, ignoreCase = true) -> {
+                AnalyticsParamValue.OTP_METHOD_PERSONAL_ID
+            }
+
+            otpMethod.equals(OtpManager.SMS_METHOD_FIREBASE, ignoreCase = true) -> {
+                AnalyticsParamValue.OTP_METHOD_FIREBASE
+            }
+
+            else -> {
+                "UNKNOWN-$otpMethod"
+            }
         }
 
     /**
@@ -47,14 +56,28 @@ object OtpAnalyticsMapper {
     enum class OtpOp {
         REQUEST,
         VERIFY,
+        REQUEST_EMAIL,
+        VERIFY_EMAIL,
     }
 
     @JvmStatic
     fun getEventType(currentOtpOp: OtpOp?): String? =
         when {
-            OtpOp.REQUEST == currentOtpOp -> AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST
+            OtpOp.REQUEST == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST
+            }
 
-            OtpOp.VERIFY == currentOtpOp -> AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY
+            OtpOp.VERIFY == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY
+            }
+
+            OtpOp.REQUEST_EMAIL == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST_EMAIL
+            }
+
+            OtpOp.VERIFY_EMAIL == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY_EMAIL
+            }
 
             else -> {
                 Logger.log(

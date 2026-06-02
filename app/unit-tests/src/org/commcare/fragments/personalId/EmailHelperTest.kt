@@ -133,6 +133,7 @@ class EmailHelperTest {
                 otp = "123456",
                 workflow = EmailWorkFlow.REGISTRATION,
                 sessionData = sessionData,
+                failedAttempts = 0,
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -162,6 +163,7 @@ class EmailHelperTest {
                 otp = "654321",
                 workflow = EmailWorkFlow.RECOVERY,
                 sessionData = sessionData,
+                failedAttempts = 0,
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -196,6 +198,7 @@ class EmailHelperTest {
                     otp = "111111",
                     workflow = EmailWorkFlow.EXISTING_USER,
                     sessionData = null,
+                    failedAttempts = 0,
                     onSuccess = {},
                     onFailure = { _, _ -> },
                 )
