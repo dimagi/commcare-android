@@ -653,16 +653,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     private void onLoginSuccess(LoginResult.Success success) {
         if (success.getPostLoginOutcome().getNeedsPersonalIdLinkCheck()) {
-            String linkPassword = success.getConnectManagedLogin()
-                    ? ConnectAppUtils.INSTANCE.getPasswordOverride(this, success.getUsername(), false)
-                    : uiController.getEnteredPasswordOrPin();
-
             personalIdManager.checkPersonalIdLink(
                     this,
-                    loginManagedByPersonalId(),
+                    success.getPersonalIdManagedLogin(),
                     success.getAppId(),
                     success.getUsername(),
-                    linkPassword,
+                    success.getLinkPassword(),
                     linkSuccess -> finishWithSuccess(success, linkSuccess)
             );
 

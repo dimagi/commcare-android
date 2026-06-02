@@ -120,6 +120,7 @@ class LoginControllerTest {
             assertFalse(success.personalIdManagedLogin)
             assertEquals(LoginMode.PASSWORD, success.loginMode)
             assertFalse(success.restoreSession)
+            assertEquals("secret", success.linkPassword)
             assertEquals(1, fakeKeyRecord.callCount)
             coVerify(exactly = 1) { postLoginSideEffects.runOnSuccess("alice") }
         }
@@ -153,6 +154,7 @@ class LoginControllerTest {
             assertEquals("resolved-pw", fakeSync.capturedPassword)
             assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[0].passwordOrPin)
             assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[1].passwordOrPin)
+            assertEquals("resolved-pw", success.linkPassword)
             assertTrue(fakeKeyRecord.capturedRequests[1].blockRemoteKeyManagement)
             verify(exactly = 1) { credentialResolver.resolve("app-1", "alice", true) }
         }

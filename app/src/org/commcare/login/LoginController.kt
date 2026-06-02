@@ -112,6 +112,7 @@ class LoginController internal constructor(
             restoreSession = request.restoreSession,
             personalIdManagedLogin = isConnectManaged || PersonalIdManager.getInstance().isloggedIn(),
             connectManagedLogin = isConnectManaged,
+            linkPassword = request.passwordOrPin,
             postLoginOutcome = postLoginOutcome,
         )
     }
