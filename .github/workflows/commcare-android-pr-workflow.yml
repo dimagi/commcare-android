@@ -238,5 +238,5 @@ jobs:
           BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
           RELEASE_APP_LOCATION: commcare-release-apk/app-commcare-release.apk
           TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
-          BROWSERSTACK_DEVICES: "Samsung Galaxy S20-10.0"
+          BROWSERSTACK_DEVICES: "Samsung Galaxy S20-10.0,Samsung Galaxy S20 Ultra-10.0,Samsung Galaxy S23-13.0"
           PR_NUMBER: ${{ github.event.number }}
