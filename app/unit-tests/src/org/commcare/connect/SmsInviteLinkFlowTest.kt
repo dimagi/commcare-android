@@ -57,13 +57,14 @@ class SmsInviteLinkFlowTest {
 
         every {
             FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener()
-        } returns object : NavController.OnDestinationChangedListener {
-            override fun onDestinationChanged(
-                controller: NavController,
-                destination: NavDestination,
-                arguments: Bundle?,
-            ) = Unit
-        }
+        } returns
+            object : NavController.OnDestinationChangedListener {
+                override fun onDestinationChanged(
+                    controller: NavController,
+                    destination: NavDestination,
+                    arguments: Bundle?,
+                ) = Unit
+            }
 
         mockkStatic(ConnectJobUtils::class)
 
