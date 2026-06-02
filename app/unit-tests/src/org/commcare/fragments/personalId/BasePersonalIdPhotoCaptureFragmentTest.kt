@@ -120,7 +120,12 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
 
     protected fun setUpPhotoCaptureFragment(sessionData: PersonalIdSessionData = testSessionData) {
         activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
-        activity = activityController.create().start().resume().get()
+        activity =
+            activityController
+                .create()
+                .start()
+                .resume()
+                .get()
 
         // Seed the ViewModel before swapping the fragment in; onCreateView reads it.
         activity.runOnUiThread {
