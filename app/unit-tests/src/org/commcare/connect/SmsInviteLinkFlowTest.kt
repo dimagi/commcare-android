@@ -2,6 +2,11 @@ package org.commcare.connect
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockk
@@ -14,7 +19,9 @@ import org.commcare.activities.DispatchActivity
 import org.commcare.activities.LoginActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.BuildConfig
+import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.junit.After
@@ -47,15 +54,33 @@ class SmsInviteLinkFlowTest {
         every {
             FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(any(), any(), any())
         } returns Unit
+
+        every {
+            FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener()
+        } returns object : NavController.OnDestinationChangedListener {
+            override fun onDestinationChanged(
+                controller: NavController,
+                destination: NavDestination,
+                arguments: Bundle?,
+            ) = Unit
+        }
+
+        mockkStatic(ConnectJobUtils::class)
+
+        mockkStatic(MessageManager::class)
+        every { MessageManager.retrieveMessages(any(), any()) } returns Unit
     }
 
     @After
     fun tearDown() {
         PersonalIdManager.getInstance().status = savedStatus
         unmockkStatic(FirebaseAnalyticsUtil::class)
+        unmockkStatic(ConnectJobUtils::class)
+        unmockkStatic(MessageManager::class)
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
     fun `SMS link to job in delivery status lands on delivery progress screen`() {
         assertEquals(
             ConnectConstants.CCC_DEST_DELIVERY_PROGRESS,
@@ -64,6 +89,7 @@ class SmsInviteLinkFlowTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
     fun `SMS link to job in learning status lands on learn progress screen`() {
         assertEquals(
             ConnectConstants.CCC_DEST_LEARN_PROGRESS,
@@ -72,6 +98,7 @@ class SmsInviteLinkFlowTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
     fun `SMS link to available job lands on opportunity summary screen`() {
         assertEquals(
             ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
@@ -80,6 +107,7 @@ class SmsInviteLinkFlowTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
     fun `SMS link to new available job lands on opportunity summary screen`() {
         assertEquals(
             ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
@@ -88,6 +116,7 @@ class SmsInviteLinkFlowTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
     fun `SMS link with unknown job status falls back to generic opportunity destination`() {
         assertEquals(
             ConnectConstants.CCC_GENERIC_OPPORTUNITY,
@@ -96,6 +125,7 @@ class SmsInviteLinkFlowTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
     fun `SMS link with no matching job in DB falls back to generic opportunity destination`() {
         assertEquals(
             ConnectConstants.CCC_GENERIC_OPPORTUNITY,
@@ -160,6 +190,7 @@ class SmsInviteLinkFlowTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
     fun `path that is not invite_redirect falls through to the landing page`() {
         assertRoutedToLandingPage(
             Intent(
@@ -198,8 +229,9 @@ class SmsInviteLinkFlowTest {
     }
 
     /**
-     * Drives the SMS-invite click flow end-to-end for [uri] and returns the destination
-     * string that determines the final screen.
+     * Drives the SMS-invite click flow end-to-end for [uri] and returns the REDIRECT_ACTION
+     * argument that ConnectActivity passes to its start destination — i.e. the destination
+     * the user would land on after the nav graph resolves.
      */
     private fun launchSmsInvite(
         uri: Uri,
@@ -225,11 +257,21 @@ class SmsInviteLinkFlowTest {
         assertTrue(connectIntent.getBooleanExtra(ConnectConstants.SHOW_LAUNCH_BUTTON, false))
         assertEquals(uuid, connectIntent.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
 
-        return ConnectJobHelper.resolveGenericOpportunityDestination(
-            connectIntent.getStringExtra(ConnectConstants.REDIRECT_ACTION),
-            jobInDb,
-            connectIntent.getStringExtra(ConnectConstants.PAYMENT_UUID),
-        )
+        every { ConnectJobUtils.getCompositeJob(any(), eq(uuid)) } returns jobInDb
+
+        val connect =
+            Robolectric
+                .buildActivity(ConnectActivity::class.java, connectIntent)
+                .create()
+                .resume()
+                .get()
+
+        val navHost =
+            connect.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect)
+                as NavHostFragment
+        return navHost.navController.currentBackStackEntry
+            ?.arguments
+            ?.getString(ConnectConstants.REDIRECT_ACTION)
     }
 
     private fun assertRoutedToLandingPage(intent: Intent) {
