@@ -19,8 +19,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @BrowserstackTests
-class DialogTests: BaseTest() {
-
+class DialogTests : BaseTest() {
     companion object {
         const val CCZ_NAME = "integration_test_app.ccz"
         const val APP_NAME = "Integration Tests"
@@ -36,26 +35,26 @@ class DialogTests: BaseTest() {
     fun testDialogCreation() {
         InstrumentationUtility.openModule("Errors")
         onView(withText("Error on open"))
-                .perform(click())
+            .perform(click())
 
         checkDialogExistence_withRotation("Error Occurred")
 
         onView(withText("Error on repeat creation"))
-                .perform(click())
+            .perform(click())
         onView(withId(R.id.nav_btn_next))
-                .perform(click())
+            .perform(click())
 
         onView(withId(R.id.choice_dialog_panel_2)).check(matches(withText("Add a new Error on add?")))
 
         InstrumentationUtility.rotateLeft()
-        //TODO Expect dialog to not persist due to a activity lifecycle bug in our dialog framework.
+        // TODO Expect dialog to not persist due to a activity lifecycle bug in our dialog framework.
         withText(R.id.choice_dialog_panel_2).doesNotExist()
 
         InstrumentationUtility.rotatePortrait()
         onView(withId(R.id.nav_btn_next))
-                .perform(click())
+            .perform(click())
         onView(withId(R.id.choice_dialog_panel_2))
-                .perform(click())
+            .perform(click())
 
         checkDialogExistence_withRotation("Error Occurred")
 
@@ -70,7 +69,6 @@ class DialogTests: BaseTest() {
         withText(text).isDisplayed()
         InstrumentationUtility.rotatePortrait()
         onView(withText(R.string.ok))
-                .perform(click())
+            .perform(click())
     }
-
 }
