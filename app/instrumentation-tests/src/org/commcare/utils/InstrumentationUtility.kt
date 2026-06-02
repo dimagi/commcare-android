@@ -337,7 +337,10 @@ object InstrumentationUtility {
         waitForWifiState(enable)
     }
 
-    private fun waitForWifiState(expectedEnabled: Boolean, timeoutMs: Long = 10_000) {
+    private fun waitForWifiState(
+        expectedEnabled: Boolean,
+        timeoutMs: Long = 10_000,
+    ) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val deadline = System.currentTimeMillis() + timeoutMs
@@ -345,9 +348,10 @@ object InstrumentationUtility {
             if (wifiManager.isWifiEnabled == expectedEnabled) return
             sleep(2)
         }
-        throw IllegalStateException("changeWifi did not reach state=${expectedEnabled.let { if (it) "enabled" else "disabled" }} within ${timeoutMs}ms")
+        throw IllegalStateException(
+            "changeWifi did not reach state=${expectedEnabled.let { if (it) "enabled" else "disabled" }} within ${timeoutMs}ms",
+        )
     }
-
 
     /**
      * A wrapper around espresso's typeText api. This method will type text into the specified
@@ -593,7 +597,8 @@ object InstrumentationUtility {
             override fun getDescription(): String {
                 val matcherDescription = StringDescription()
                 viewMatcher.describeTo(matcherDescription)
-                return "wait for a specific view <$matcherDescription> to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
+                return "wait for a specific view <$matcherDescription> " +
+                    "to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
             }
 
             override fun perform(

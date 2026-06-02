@@ -10,7 +10,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.commcare.dalvik.R
-import org.commcare.utils.*
+import org.commcare.utils.CustomMatchers
+import org.commcare.utils.InstrumentationUtility
+import org.commcare.utils.doesNotExist
+import org.commcare.utils.isDisplayed
 import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
@@ -23,8 +26,7 @@ import org.junit.runners.MethodSorters
 @LargeTest
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class ManualQuarantineTest: BaseTest() {
-
+class ManualQuarantineTest : BaseTest() {
     companion object {
         const val CCZ_NAME = "ccqa.ccz"
         const val APP_NAME = "Basic Tests"
@@ -49,7 +51,7 @@ class ManualQuarantineTest: BaseTest() {
         InstrumentationUtility.gotoHome()
         InstrumentationUtility.selectOptionItem(withText("Advanced"))
         onView(withText("Enable Manual Form Quarantine"))
-                .perform(click())
+            .perform(click())
         InstrumentationUtility.gotoHome()
     }
 
@@ -57,82 +59,86 @@ class ManualQuarantineTest: BaseTest() {
     fun test_A_Quarantine() {
         InstrumentationUtility.openModule(MODULE_DISPLAY_FORM)
         onView(withId(R.id.nav_btn_finish))
-                .perform(click())
+            .perform(click())
         InstrumentationUtility.openModule(MODULE_DISPLAY_FORM)
         onView(withId(R.id.nav_btn_finish))
-                .perform(click())
+            .perform(click())
 
         // Go to saved forms and quarantine them
         InstrumentationUtility.selectOptionItem(withText("Saved Forms"))
 
         // Quarantine first form.
-        onView(CustomMatchers.find(
+        onView(
+            CustomMatchers.find(
                 allOf(withText("Display Form")),
-                1
-        )).perform(longClick())
+                1,
+            ),
+        ).perform(longClick())
         // Unsent forms should not be delete-able
         withText("Delete Record").doesNotExist()
         onView(withText("Scan Record Integrity"))
-                .perform(click())
+            .perform(click())
         onView(withText("QUARANTINE FORM"))
-                .perform(click())
+            .perform(click())
 
         // After quarantining one form we can't quarantine another before re-enabling it from setting.
         onView(withText("Display Form"))
-                .perform(longClick())
+            .perform(longClick())
         onView(withText("Scan Record Integrity"))
-                .perform(click())
+            .perform(click())
         withText("QUARANTINE FORM").doesNotExist()
-        onView(withText("OK"))
-                .perform(click())
+        onView(withText(R.string.ok))
+            .perform(click())
 
         enableFormQuarantine()
 
         // Quarantine second form
         InstrumentationUtility.selectOptionItem(withText("Saved Forms"))
         onView(withText("Display Form"))
-                .perform(longClick())
+            .perform(longClick())
         withText("Delete Record").doesNotExist()
         onView(withText("Scan Record Integrity"))
-                .perform(click())
+            .perform(click())
         onView(withText("QUARANTINE FORM"))
-                .perform(click())
+            .perform(click())
     }
 
     @Test
     fun test_B_FormSubmission_withQuarantineForm() {
         InstrumentationUtility.selectOptionItem(withText("Saved Forms"))
         onView(withId(R.id.entity_select_filter_dropdown))
-                .perform(click())
+            .perform(click())
         onView(withText("Filter: Quarantined Forms"))
-                .perform(click())
+            .perform(click())
 
         // Send 1 form back to unsent queue
-        onView(CustomMatchers.find(
+        onView(
+            CustomMatchers.find(
                 allOf(withText("Display Form")),
-                1
-        )).perform(longClick())
+                1,
+            ),
+        ).perform(longClick())
         onView(withText("Add Record Back to Unsent Queue"))
-                .perform(click())
+            .perform(click())
 
         // Confirm there is 1 form left in quarantine, and that you can delete it
         onView(withText("Display Form"))
-                .perform(longClick())
+            .perform(longClick())
         onView(withText("Delete Record"))
-                .perform(click())
+            .perform(click())
         withText("Display Form").doesNotExist()
 
         // Confirm 1 form is now in unsent
         onView(withId(R.id.entity_select_filter_dropdown))
-                .perform(click())
+            .perform(click())
         onView(withText("Filter By: Only Unsent Forms"))
-                .perform(click())
+            .perform(click())
         withText("Display Form").isDisplayed()
 
         InstrumentationUtility.changeWifi(true)
         InstrumentationUtility.gotoHome()
         onView(withText("Sync with Server"))
-                .perform(click())
+            .perform(click())
         withText("Sync Successful! Your information is up to date.").isDisplayed()
     }
 }
