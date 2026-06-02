@@ -29,19 +29,19 @@ internal object OutcomeMapper {
             }
 
             HttpCalloutOutcomes.BadResponse -> {
-                LoginError.SyncFailed(SyncFailureReason.BAD_RESPONSE)
+                LoginError.BadResponse
             }
 
             HttpCalloutOutcomes.BadSslCertificate -> {
-                LoginError.SyncFailed(SyncFailureReason.BAD_SSL_CERTIFICATE)
+                LoginError.BadSslCertificate
             }
 
             HttpCalloutOutcomes.InsufficientRolePermission -> {
-                LoginError.SyncFailed(SyncFailureReason.INSUFFICIENT_ROLE_PERMISSION)
+                LoginError.InsufficientRolePermission
             }
 
             HttpCalloutOutcomes.UnknownError -> {
-                LoginError.SyncFailed(SyncFailureReason.UNKNOWN)
+                LoginError.UnknownFailure()
             }
 
             HttpCalloutOutcomes.Success -> {
@@ -75,57 +75,54 @@ internal object OutcomeMapper {
             }
 
             PullTaskResult.BAD_DATA -> {
-                LoginError.SyncFailed(SyncFailureReason.BAD_DATA, errorMessage)
+                LoginError.BadData(errorMessage)
             }
 
             PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION -> {
-                LoginError.SyncFailed(
-                    SyncFailureReason.BAD_DATA_REQUIRES_INTERVENTION,
-                    errorMessage,
-                )
+                LoginError.BadDataRequiresIntervention(errorMessage)
             }
 
             PullTaskResult.STORAGE_FULL -> {
-                LoginError.SyncFailed(SyncFailureReason.STORAGE_FULL)
+                LoginError.StorageFull
             }
 
             PullTaskResult.SERVER_ERROR -> {
-                LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR)
+                LoginError.ServerError
             }
 
             PullTaskResult.RATE_LIMITED_SERVER_ERROR -> {
-                LoginError.SyncFailed(SyncFailureReason.RATE_LIMITED_SERVER_ERROR)
+                LoginError.RateLimitedServerError
             }
 
             PullTaskResult.ENCRYPTION_FAILURE -> {
-                LoginError.SyncFailed(SyncFailureReason.ENCRYPTION_FAILURE, errorMessage)
+                LoginError.EncryptionFailure(errorMessage)
             }
 
             PullTaskResult.RECOVERY_FAILURE -> {
-                LoginError.SyncFailed(SyncFailureReason.RECOVERY_FAILURE, errorMessage)
+                LoginError.RecoveryFailure(errorMessage)
             }
 
             PullTaskResult.ACTIONABLE_FAILURE -> {
-                LoginError.SyncFailed(SyncFailureReason.ACTIONABLE_FAILURE, errorMessage)
+                LoginError.ActionableFailure(errorMessage)
             }
 
             PullTaskResult.SESSION_EXPIRE -> {
-                LoginError.SyncFailed(SyncFailureReason.SESSION_EXPIRE)
+                LoginError.SessionExpire
             }
 
             PullTaskResult.CANCELLED -> {
-                LoginError.SyncFailed(SyncFailureReason.CANCELLED)
+                LoginError.Cancelled
             }
 
             PullTaskResult.EMPTY_URL -> {
-                LoginError.SyncFailed(SyncFailureReason.EMPTY_URL)
+                LoginError.EmptyUrl
             }
 
             PullTaskResult.UNKNOWN_FAILURE,
             PullTaskResult.RETRY_NEEDED,
             PullTaskResult.BAD_CERTIFICATE,
             -> {
-                LoginError.SyncFailed(SyncFailureReason.UNKNOWN, errorMessage)
+                LoginError.UnknownFailure(errorMessage)
             }
 
             PullTaskResult.DOWNLOAD_SUCCESS -> {

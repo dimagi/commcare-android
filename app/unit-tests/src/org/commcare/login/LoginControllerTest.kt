@@ -231,21 +231,21 @@ class LoginControllerTest {
         }
 
     @Test
-    fun `SyncFailed from sync after ReadyForSync returns Failed without side effects`() =
+    fun `sync failure after ReadyForSync returns Failed without side effects`() =
         runTest {
             val (controller, _, _) =
                 buildController(
                     keyRecordOutcome = KeyRecordOutcome.ReadyForSync("secret"),
                     syncOutcome =
                         SyncOutcome.Failed(
-                            LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR, "something went wrong"),
+                            LoginError.UnknownFailure("something went wrong"),
                         ),
                 )
 
             val result = controller.performLogin(manualRequest(), sink)
 
             assertEquals(
-                LoginResult.Failed(LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR, "something went wrong")),
+                LoginResult.Failed(LoginError.UnknownFailure("something went wrong")),
                 result,
             )
             coVerify(exactly = 0) { postLoginSideEffects.runOnSuccess(any()) }

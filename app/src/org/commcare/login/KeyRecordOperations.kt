@@ -55,7 +55,7 @@ internal open class KeyRecordOperations(
                     ) {
                         continuation.resumeOnce(
                             KeyRecordOutcome.Failed(
-                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN),
+                                LoginError.UnknownFailure(),
                             ),
                         )
                     }
@@ -67,7 +67,7 @@ internal open class KeyRecordOperations(
                     ) {
                         continuation.resumeOnce(
                             KeyRecordOutcome.Failed(
-                                LoginError.SyncFailed(SyncFailureReason.UNKNOWN),
+                                LoginError.UnknownFailure(),
                             ),
                         )
                     }
@@ -79,10 +79,7 @@ internal open class KeyRecordOperations(
                     ) {
                         continuation.resumeOnce(
                             KeyRecordOutcome.Failed(
-                                LoginError.SyncFailed(
-                                    SyncFailureReason.UNKNOWN,
-                                    additionalInfo,
-                                ),
+                                LoginError.UnknownFailure(additionalInfo),
                             ),
                         )
                     }
@@ -146,10 +143,7 @@ internal open class KeyRecordOperations(
 
                         continuation.resumeOnce(
                             KeyRecordOutcome.Failed(
-                                LoginError.SyncFailed(
-                                    SyncFailureReason.UNKNOWN,
-                                    e.message,
-                                ),
+                                LoginError.UnknownFailure(e.message),
                             ),
                         )
                     }

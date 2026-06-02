@@ -53,10 +53,7 @@ internal open class SyncOperations(
 
                                 null -> {
                                     SyncOutcome.Failed(
-                                        LoginError.SyncFailed(
-                                            SyncFailureReason.UNKNOWN,
-                                            result?.errorMessage,
-                                        ),
+                                        LoginError.UnknownFailure(result?.errorMessage),
                                     )
                                 }
 
@@ -99,10 +96,7 @@ internal open class SyncOperations(
 
                         continuation.resumeOnce(
                             SyncOutcome.Failed(
-                                LoginError.SyncFailed(
-                                    SyncFailureReason.UNKNOWN,
-                                    e?.message,
-                                ),
+                                LoginError.UnknownFailure(e?.message),
                             ),
                         )
                     }
