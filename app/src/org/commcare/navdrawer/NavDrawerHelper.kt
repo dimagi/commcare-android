@@ -7,8 +7,7 @@ import androidx.core.content.edit
 
 object NavDrawerHelper {
 
-    @VisibleForTesting
-    const val SIDE_DRAWER_SHOWN: String = "side-drawer-shown"
+    private const val SIDE_DRAWER_SHOWN: String = "side-drawer-shown"
 
     fun drawerShownBefore(): Boolean {
         val prefs = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
