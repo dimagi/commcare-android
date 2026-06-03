@@ -130,7 +130,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
         // Seed the ViewModel before swapping the fragment in; onCreateView reads it.
         activity.runOnUiThread {
             val viewModel = ViewModelProvider(activity)[PersonalIdSessionDataViewModel::class.java]
-            viewModel.setPersonalIdSessionData(sessionData)
+            viewModel.personalIdSessionData = sessionData
         }
         ShadowLooper.idleMainLooper()
 
@@ -199,13 +199,6 @@ class TestablePersonalIdPhotoCaptureFragment(
         val field = PersonalIdPhotoCaptureFragment::class.java.getDeclaredField("takePhotoLauncher")
         field.isAccessible = true
         field.set(this, launcher)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun getTakePhotoLauncher(): ActivityResultLauncher<Intent> {
-        val field = PersonalIdPhotoCaptureFragment::class.java.getDeclaredField("takePhotoLauncher")
-        field.isAccessible = true
-        return field.get(this) as ActivityResultLauncher<Intent>
     }
 
     /**
