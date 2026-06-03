@@ -30,8 +30,10 @@ import org.junit.runner.RunWith
 @LargeTest
 @BrowserstackTests
 class FormAttachmentLimitTest : BaseTest() {
-    private val CCZ_NAME = "media_capture.ccz"
-    private val APP_NAME = "Media Capture Test"
+    companion object {
+        const val CCZ_NAME = "media_capture.ccz"
+        const val APP_NAME = "Media Capture Test"
+    }
 
     @Before
     fun setup() {
