@@ -142,7 +142,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     }
 
     private void refreshData() {
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, true, this, (success,error) -> {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, (success,error) -> {
             if (success) {
                 updatePendingFilterVisibility();
                 adapter.updateDeliveries(getFilteredDeliveries());

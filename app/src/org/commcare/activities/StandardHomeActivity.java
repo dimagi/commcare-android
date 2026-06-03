@@ -16,6 +16,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.EmailOfferHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -58,6 +59,7 @@ public class StandardHomeActivity
         uiController.setupUI();
         personalIdManagedLogin = getIntent()
                 .getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+        EmailOfferHelper.checkEmailCollection(this);
     }
 
     @Override
@@ -351,7 +353,7 @@ public class StandardHomeActivity
     public void fetchJobProgressOverNetwork() {
         ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, null,null,(success, error) -> {
+            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, (success, error) -> {
                 if (success) {
                     uiController.updateConnectJobProgress();
                 }

@@ -18,7 +18,6 @@ import org.commcare.utils.HashUtils
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
@@ -160,7 +159,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         assertEquals(
             "Should navigate to biometric config fragment on success",
@@ -184,7 +183,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         assertEquals(
             "Should navigate to message display screen on forbidden error",
@@ -217,7 +216,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         val errorView = fragment.view!!.findViewById<android.widget.TextView>(R.id.personalid_phone_error)
         assertEquals(
@@ -254,7 +253,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
 
         // Assert
         mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper()
 
         // Verify navigation to message display occurred
         assertEquals(
@@ -271,6 +270,28 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
             "Message should indicate account is locked",
             expectedMessage,
             actualMessage,
+        )
+    }
+
+    @Test
+    fun testStartConfiguration_missingDataIntegrityHeaders_tokenPresent_noRetry() {
+        setupFragmentForRequest()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(400)
+                .setBody("""{"error_code": "MISSING_DATA", "error_sub_code": "INTEGRITY_HEADERS"}"""),
+        )
+
+        clickContinueButton()
+
+        mockWebServer.takeRequest()
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(
+            "Should navigate to failure screen",
+            R.id.personalid_message_display,
+            navController.currentDestination!!.id,
         )
     }
 

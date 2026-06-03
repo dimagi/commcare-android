@@ -135,7 +135,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     getNotificationActionFromIntent(getIntent()),
                     getIntent().getStringExtra(NOTIFICATION_ID)
             );
-            PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.ALWAYS, success -> {
+            PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
                 if (success) {
                     String channelId = getIntent().getStringExtra(
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);

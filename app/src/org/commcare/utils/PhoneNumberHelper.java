@@ -1,5 +1,7 @@
 package org.commcare.utils;
 
+import static org.commcare.cases.util.StringUtils.isEmpty;
+
 import android.app.Activity;
 import android.content.Context;
 
@@ -17,6 +19,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -59,10 +62,15 @@ public class PhoneNumberHelper {
      * Validates whether the given phone number is valid.
      */
     public boolean isValidPhoneNumber(String phone) {
+        if (isEmpty(phone)) {
+            return false;
+        }
         try {
             Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
             return phoneNumberUtil.isValidNumber(phoneNumber);
         } catch (NumberParseException e) {
+            String redactedPhone = phone.length() < 4 ? "<redacted>" : "***" + phone.substring(phone.length() - 4);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Parse exception for phone " + redactedPhone);
             Logger.exception("Exception occurred while verifying phone number", e);
             return false;
         }
