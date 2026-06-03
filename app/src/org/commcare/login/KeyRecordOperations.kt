@@ -52,37 +52,19 @@ internal open class KeyRecordOperations(
                     override fun raiseLoginMessage(
                         messageTag: MessageTag,
                         showTop: Boolean,
-                    ) {
-                        continuation.resumeOnce(
-                            KeyRecordOutcome.Failed(
-                                LoginError.UnknownFailure(),
-                            ),
-                        )
-                    }
+                    ): Unit = throw unexpectedRaiseLoginMessage()
 
                     override fun raiseLoginMessage(
                         messageTag: MessageTag,
                         showTop: Boolean,
                         buttonAction: NotificationActionButtonInfo.ButtonAction,
-                    ) {
-                        continuation.resumeOnce(
-                            KeyRecordOutcome.Failed(
-                                LoginError.UnknownFailure(),
-                            ),
-                        )
-                    }
+                    ): Unit = throw unexpectedRaiseLoginMessage()
 
                     override fun raiseLoginMessageWithInfo(
                         messageTag: MessageTag,
                         additionalInfo: String?,
                         showTop: Boolean,
-                    ) {
-                        continuation.resumeOnce(
-                            KeyRecordOutcome.Failed(
-                                LoginError.UnknownFailure(additionalInfo),
-                            ),
-                        )
-                    }
+                    ): Unit = throw unexpectedRaiseLoginMessage()
 
                     override fun raiseMessage(
                         message: NotificationMessage,
@@ -153,6 +135,12 @@ internal open class KeyRecordOperations(
             task.connect(HeadlessTaskConnector(receiver))
             task.executeParallel()
         }
+
+    private fun unexpectedRaiseLoginMessage(): IllegalStateException =
+        IllegalStateException(
+            "ManageKeyRecordTask failures are routed through keysDoneOther/OutcomeMapper; " +
+                "raiseLoginMessage should not be reached",
+        )
 
     companion object {
         private const val TASK_ID = 0x4c47 // unique id for this engine; 'LG' in ASCII
