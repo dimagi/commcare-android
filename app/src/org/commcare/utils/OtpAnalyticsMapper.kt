@@ -1,6 +1,7 @@
 package org.commcare.utils
 
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
@@ -52,10 +53,17 @@ object OtpAnalyticsMapper {
     @JvmStatic
     fun reasonFrom(errorCode: PersonalIdOrConnectApiErrorCodes?): String? = errorCode?.name?.lowercase()
 
+    /**
+     * Maps the email [EmailWorkFlow] (registration / recovery / existing-user) to a stable
+     * lowercase analytics string logged with the email OTP events.
+     */
+    @JvmStatic
+    fun workflowParam(workflow: EmailWorkFlow): String = workflow.name.lowercase()
+
     /** Which OTP call is currently in flight, used to attribute the next callback. */
     enum class OtpOp {
-        REQUEST,
-        VERIFY,
+        REQUEST_PHONE,
+        VERIFY_PHONE,
         REQUEST_EMAIL,
         VERIFY_EMAIL,
     }
@@ -63,11 +71,11 @@ object OtpAnalyticsMapper {
     @JvmStatic
     fun getEventType(currentOtpOp: OtpOp?): String? =
         when {
-            OtpOp.REQUEST == currentOtpOp -> {
+            OtpOp.REQUEST_PHONE == currentOtpOp -> {
                 AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST
             }
 
-            OtpOp.VERIFY == currentOtpOp -> {
+            OtpOp.VERIFY_PHONE == currentOtpOp -> {
                 AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY
             }
 

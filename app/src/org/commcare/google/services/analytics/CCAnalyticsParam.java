@@ -54,4 +54,6 @@ public class CCAnalyticsParam {
     public static final String OTP_OUTCOME = "outcome";
     public static final String OTP_EVENT_TYPE = "event_type";
     public static final String OTP_METHOD = "method";
+    public static final String EMAIL_OTP_FAILED_ATTEMPTS = "failed_attempts";
+    public static final String EMAIL_OTP_WORKFLOW = "workflow";
 }

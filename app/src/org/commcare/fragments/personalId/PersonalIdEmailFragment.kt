@@ -25,6 +25,7 @@ import org.commcare.views.dialogs.StandardAlertDialog
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
     private var personalIdSessionData: PersonalIdSessionData? = null
+    private val emailOtpTracker = EmailOtpAttemptTracker()
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,
@@ -137,6 +138,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             email = email,
             workflow = workflow,
             sessionData = personalIdSessionData,
+            tracker = emailOtpTracker,
             onSuccess = { navigateToEmailVerification(email) },
             onFailure = { failureCode, t ->
                 showError(
@@ -174,6 +176,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
         val action =
             PersonalIdEmailFragmentDirections
                 .actionPersonalidEmailToPersonalidEmailVerification(email, workflow)
+                .setEmailOtpRequestCount(emailOtpTracker.requestCount)
         binding.root.findNavController().navigate(action)
     }
 

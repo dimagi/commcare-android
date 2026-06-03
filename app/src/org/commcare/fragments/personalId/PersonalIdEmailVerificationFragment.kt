@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit
 class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailVerificationBinding
     private lateinit var activity: Activity
+    private lateinit var emailOtpTracker: EmailOtpAttemptTracker
 
     /**
      * Activity-scoped session data populated by upstream PersonalID fragments
@@ -78,6 +79,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 .personalIdSessionData
         enteredEmail = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).email
         workflow = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).workflow
+        emailOtpTracker =
+            EmailOtpAttemptTracker(
+                initialRequestCount =
+                    PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).emailOtpRequestCount,
+            )
     }
 
     override fun onCreateView(
@@ -139,6 +145,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             email = enteredEmail,
             workflow = workflow,
             sessionData = personalIdSessionData,
+            tracker = emailOtpTracker,
             onSuccess = { startResendTimer() },
             onFailure = { failureCode, t ->
                 showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
@@ -162,7 +169,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             otp = otp,
             workflow = workflow,
             sessionData = personalIdSessionData,
-            failedAttempts = failedOtpAttempts,
+            tracker = emailOtpTracker,
             onSuccess = { onEmailVerified() },
             onFailure = { failureCode, t ->
                 if (!handleCommonSignupFailures(failureCode)) {

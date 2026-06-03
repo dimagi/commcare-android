@@ -354,7 +354,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
       String eventType = getEventType(currentOtpOp);
         if (eventType == null) return;
         String method = OtpAnalyticsMapper.methodFromSmsMethod(lastOtpMethod);
-        FirebaseAnalyticsUtil.reportOtpEvent(
+        FirebaseAnalyticsUtil.reportPhoneOtpEvent(
                 eventType,
                 outcome,
                 method,
@@ -365,7 +365,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private void requestOtp() {
         clearOtpError();
         otpRequestTime = new DateTime();
-        currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST;
+        currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST_PHONE;
         otpManager.requestOtp(primaryPhone);
         personalIdSessionData.setOtpAttempts(personalIdSessionData.getOtpAttempts() + 1);
     }
@@ -378,7 +378,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
-            currentOtpOp = OtpAnalyticsMapper.OtpOp.VERIFY;
+            currentOtpOp = OtpAnalyticsMapper.OtpOp.VERIFY_PHONE;
             otpManager.verifyOtp(otpCode);
         }
     }

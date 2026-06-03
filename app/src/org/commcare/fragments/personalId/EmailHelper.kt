@@ -49,17 +49,21 @@ object EmailHelper {
         email: String,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
+        tracker: EmailOtpAttemptTracker = EmailOtpAttemptTracker(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
+        tracker.recordRequest()
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(status: Boolean) {
                 FirebaseAnalyticsUtil.reportEmailOtpEvent(
                     OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
                     null,
-                    0,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
                 )
                 Toast
                     .makeText(
@@ -78,7 +82,9 @@ object EmailHelper {
                     OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                     OtpAnalyticsMapper.reasonFrom(failureCode),
-                    0,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
                 )
                 onFailure(failureCode, t)
             }
@@ -94,7 +100,7 @@ object EmailHelper {
         otp: String,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
-        failedAttempts: Int,
+        tracker: EmailOtpAttemptTracker = EmailOtpAttemptTracker(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
@@ -105,7 +111,9 @@ object EmailHelper {
                     OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
                     null,
-                    failedAttempts,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
                 )
                 onSuccess()
             }
@@ -114,11 +122,14 @@ object EmailHelper {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                tracker.recordFailedVerification()
                 FirebaseAnalyticsUtil.reportEmailOtpEvent(
                     OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                     OtpAnalyticsMapper.reasonFrom(failureCode),
-                    failedAttempts,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
                 )
                 onFailure(failureCode, t)
             }

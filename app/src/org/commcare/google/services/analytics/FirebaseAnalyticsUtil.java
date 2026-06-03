@@ -739,18 +739,14 @@ public class FirebaseAnalyticsUtil {
     }
 
     /**
-     * Reports the otp_requested event with the outcome and reason of an OTP request
-     * or verify call.
+     * Reports the otp_requested event for a phone OTP request or verify call.
      *
      * @param eventType    one of {@link AnalyticsParamValue#OTP_EVENT_TYPE_REQUEST} /
-     *                     {@link AnalyticsParamValue#OTP_EVENT_TYPE_VERIFY} for phone OTP, or
-     *                     {@link AnalyticsParamValue#OTP_EVENT_TYPE_REQUEST_EMAIL} /
-     *                     {@link AnalyticsParamValue#OTP_EVENT_TYPE_VERIFY_EMAIL} for email OTP.
+     *                     {@link AnalyticsParamValue#OTP_EVENT_TYPE_VERIFY}.
      * @param outcome      one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
      *                     {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
      * @param method       one of {@link AnalyticsParamValue#OTP_METHOD_FIREBASE} /
-     *                     {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID} for phone OTP, or
-     *                     {@link AnalyticsParamValue#OTP_METHOD_EMAIL} for email OTP.
+     *                     {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID}.
      * @param reason       failure reason from {@link org.commcare.utils.OtpAnalyticsMapper};
      *                     pass null for success events. Null reasons are omitted from the
      *                     bundle (Firebase does not accept null string params). Logged under
@@ -759,7 +755,7 @@ public class FirebaseAnalyticsUtil {
      *                     {@link FirebaseAnalytics.Param#VALUE} for backwards compatibility
      *                     with the original event signature.
      */
-    public static void reportOtpEvent(String eventType,
+    public static void reportPhoneOtpEvent(String eventType,
                                       String outcome,
                                       String method,
                                       @Nullable String reason,
@@ -777,25 +773,42 @@ public class FirebaseAnalyticsUtil {
 
     /**
      * Reports an email OTP request/verify event. Resolves the email-specific event type via
-     * {@link OtpAnalyticsMapper#getEventType} and delegates to {@link #reportOtpEvent} with the
-     * {@link AnalyticsParamValue#OTP_METHOD_EMAIL} method. No-ops when the op cannot be mapped.
+     * {@link OtpAnalyticsMapper#getEventType} and emits it with the
+     * {@link AnalyticsParamValue#OTP_METHOD_EMAIL} method.
      *
-     * @param op       {@link OtpAnalyticsMapper.OtpOp#REQUEST_EMAIL} /
-     *                 {@link OtpAnalyticsMapper.OtpOp#VERIFY_EMAIL}.
-     * @param outcome  one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
-     *                 {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
-     * @param reason   failure reason from {@link OtpAnalyticsMapper}; pass null for success.
-     * @param attempts attempt counter; logged to {@link FirebaseAnalytics.Param#VALUE}.
+     * @param op             {@link OtpAnalyticsMapper.OtpOp#REQUEST_EMAIL} /
+     *                       {@link OtpAnalyticsMapper.OtpOp#VERIFY_EMAIL}.
+     * @param outcome        one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
+     * @param reason         failure reason from {@link OtpAnalyticsMapper}; pass null for success.
+     * @param requestCount   total number of times an email OTP was sent/requested this session. Logged to {@link FirebaseAnalytics.Param#VALUE}.
+     * @param failedAttempts absolute number of failed email OTP verifications this session. Logged
+     *                       to {@link CCAnalyticsParam#EMAIL_OTP_FAILED_ATTEMPTS}.
+     * @param workflow       the email workflow string from
+     *                       {@link OtpAnalyticsMapper#workflowParam}. Logged to
+     *                       {@link CCAnalyticsParam#EMAIL_OTP_WORKFLOW}.
      */
     public static void reportEmailOtpEvent(OtpAnalyticsMapper.OtpOp op,
                                            String outcome,
                                            @Nullable String reason,
-                                           int attempts) {
+                                           int requestCount,
+                                           int failedAttempts,
+                                           String workflow) {
         String eventType = OtpAnalyticsMapper.getEventType(op);
         if (eventType == null) {
             return;
         }
-        reportOtpEvent(eventType, outcome, AnalyticsParamValue.OTP_METHOD_EMAIL, reason, attempts);
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.OTP_EVENT_TYPE, eventType);
+        bundle.putString(CCAnalyticsParam.OTP_OUTCOME, outcome);
+        bundle.putString(CCAnalyticsParam.OTP_METHOD, AnalyticsParamValue.OTP_METHOD_EMAIL);
+        if (reason != null) {
+            bundle.putString(CCAnalyticsParam.REASON, reason);
+        }
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, requestCount);
+        bundle.putLong(CCAnalyticsParam.EMAIL_OTP_FAILED_ATTEMPTS, failedAttempts);
+        bundle.putString(CCAnalyticsParam.EMAIL_OTP_WORKFLOW, workflow);
+        reportEvent(CCAnalyticsEvent.OTP_REQUESTED, bundle);
     }
 
     public static void reportNotificationEvent(
