@@ -1,12 +1,10 @@
 package org.commcare.navdrawer
 
-import androidx.annotation.VisibleForTesting
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import org.commcare.CommCareApplication
-import androidx.core.content.edit
 
 object NavDrawerHelper {
-
     private const val SIDE_DRAWER_SHOWN: String = "side-drawer-shown"
 
     fun drawerShownBefore(): Boolean {
