@@ -10,7 +10,7 @@ The controller composes:
 
 - `ConnectCredentialResolver` — resolves the Connect-managed password for an `(appId, username)` pair when `authSource` is `AutoFromConnect` (creates the linked-app record if missing) or `PersonalIdManaged` (existing record only).
 - `KeyRecordOperations` — suspending wrapper around `ManageKeyRecordTask`. Yields a `KeyRecordOutcome` (`LocalLoginComplete`, `ReadyForSync`, or `Failed`).
-- `SyncOperations` — suspending wrapper around `DataPullTask` for `DataPullMode.NORMAL`.
+- `SyncOperations` — suspending wrapper around `DataPullTask`. `pullData` takes the `DataPullMode` from the request and resolves a per-mode `PullPlan` (server, userId, requester, `blockRemoteKeyManagement`, payload references): `NORMAL` is the OTA pull against the data server; `CONSUMER_APP` and `CCZ_DEMO` are bundled-CCZ local restores via `LocalReferencePullResponseFactory` against a fake server.
 - `PostLoginSideEffects` — the deterministic post-success chain: `CrashUtil.registerUserData`, notification clear, `setConnectJobIdForAnalytics`, `ConnectAppUtils.updateLastAccessed`, `ConnectJobHelper.updateJobProgress`. Runs inside `withContext(NonCancellable)` so analytics still fire if the caller cancels after success. Returns a `PostLoginOutcome(redirectToConnectOpportunityInfo, needsPersonalIdLinkCheck)`.
 - `OutcomeMapper` — pure functions mapping `HttpCalloutOutcomes` and `PullTaskResult` to `LoginError`.
 
@@ -54,12 +54,13 @@ The controller composes:
 
 Two `HttpCalloutOutcomes` values are coalesced into `NetworkUnavailable` per the Phase 1 plan: `NetworkFailureBadPassword` (legacy: `Remote_NoNetwork_BadPass`) and `CaptivePortal` (legacy: `Sync_CaptivePortal`). `IncorrectPin` (legacy: `Auth_InvalidPin`) is coalesced into `BadCredentials` per the plan. These are intentional regressions and will be revisited if user reports warrant it.
 
-## What stays on the legacy path
+## Data pull modes
 
-Two flows still use the original `tryLocalLogin` / `startDataPull` / `dataPullCompleted` / `handlePullTaskResult` plumbing on `LoginActivity`:
+All `LoginActivity` flows now route through `LoginController`; the legacy `tryLocalLogin` / `startDataPull` / `dataPullCompleted` / `handlePullTaskResult` plumbing has been removed. The flow is selected by the `LoginRequest.dataPullMode`:
 
-- **Consumer-app launches** (`DataPullMode.CONSUMER_APP`) — bundled-CCZ restore via `LocalReferencePullResponseFactory` with `SingleAppInstallation.LOCAL_RESTORE_REFERENCE`. `SyncOperations` only handles `NORMAL`.
-- **Demo-user practice menu** — `LoginActivity.loginDemoUser()` drives `tryLocalLogin` directly with the bundled demo CCZ.
+- **`NORMAL`** — manual, Connect, and PersonalID logins; OTA restore against the data server.
+- **`CONSUMER_APP`** — consumer-app launches; bundled-CCZ local restore via `LocalReferencePullResponseFactory` with `SingleAppInstallation.LOCAL_RESTORE_REFERENCE` (`userId="unused"`).
+- **`CCZ_DEMO`** — demo/practice menu (`LoginActivity.loginDemoUser()`) when a bundled `OfflineUserRestore` is present; local restore from the demo reference (`userId="demo_id"`). The non-bundled demo sub-case calls `DemoUserBuilder.build(...)` and then logs in with `NORMAL` (no sync).
 
 ## Adding a new caller
 

@@ -4,10 +4,16 @@ import android.content.Context
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
+import org.commcare.activities.DataPullController.DataPullMode
+import org.commcare.engine.resource.installers.SingleAppInstallation
+import org.commcare.network.DataPullRequester
+import org.commcare.network.LocalReferencePullResponseFactory
 import org.commcare.preferences.ServerUrls
 import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.PullTaskResultReceiver
 import org.commcare.tasks.ResultAndError
+import org.javarosa.core.reference.ReferenceManager
+import org.javarosa.core.services.Logger
 
 internal sealed class SyncOutcome {
     object Success : SyncOutcome()
@@ -17,27 +23,49 @@ internal sealed class SyncOutcome {
     ) : SyncOutcome()
 }
 
+internal data class PullPlan(
+    val server: String,
+    val userId: String?,
+    val requester: DataPullRequester,
+    val blockRemoteKeyManagement: Boolean,
+    val payloadReferences: List<String>,
+)
+
 internal open class SyncOperations(
     private val context: Context,
 ) {
     open suspend fun pullData(
         username: String,
         password: String,
+        mode: DataPullMode,
         sink: LoginProgressSink,
     ): SyncOutcome =
         suspendCancellableCoroutine { continuation ->
             sink.onProgress(LoginProgress(LoginPhase.Syncing))
+
+            if (mode == DataPullMode.CONSUMER_APP && !localRestoreReferenceExists()) {
+                continuation.resumeOnce(
+                    SyncOutcome.Failed(LoginError.UnknownFailure("Local restore file missing")),
+                )
+                return@suspendCancellableCoroutine
+            }
+
+            val plan = resolvePullPlan(mode)
+            if (plan.payloadReferences.isNotEmpty()) {
+                LocalReferencePullResponseFactory.setRequestPayloads(plan.payloadReferences.toTypedArray())
+            }
+
             val receiver = NoOpPullTaskResultReceiver()
 
             val task =
                 object : DataPullTask<PullTaskResultReceiver>(
                     username,
                     password,
-                    null,
-                    ServerUrls.getDataServerKey(),
+                    plan.userId,
+                    plan.server,
                     context,
-                    CommCareApplication.instance().getDataPullRequester(),
-                    false,
+                    plan.requester,
+                    plan.blockRemoteKeyManagement,
                     false,
                     false,
                 ) {
@@ -106,6 +134,57 @@ internal open class SyncOperations(
             task.connect(HeadlessTaskConnector(receiver))
             task.executeParallel()
         }
+
+    internal fun resolvePullPlan(mode: DataPullMode): PullPlan =
+        when (mode) {
+            DataPullMode.NORMAL ->
+                PullPlan(
+                    server = ServerUrls.getDataServerKey(),
+                    userId = null,
+                    requester = CommCareApplication.instance().dataPullRequester,
+                    blockRemoteKeyManagement = false,
+                    payloadReferences = emptyList(),
+                )
+
+            DataPullMode.CONSUMER_APP ->
+                PullPlan(
+                    server = FAKE_SERVER,
+                    userId = UNUSED_USER_ID,
+                    requester = LocalReferencePullResponseFactory.INSTANCE,
+                    blockRemoteKeyManagement = true,
+                    payloadReferences = listOf(SingleAppInstallation.LOCAL_RESTORE_REFERENCE),
+                )
+
+            DataPullMode.CCZ_DEMO -> {
+                val demoUserRestore =
+                    CommCareApplication.instance().commCarePlatform.demoUserRestore
+                PullPlan(
+                    server = FAKE_SERVER,
+                    userId = DEMO_USER_ID,
+                    requester = LocalReferencePullResponseFactory.INSTANCE,
+                    blockRemoteKeyManagement = true,
+                    payloadReferences = listOf(demoUserRestore.reference),
+                )
+            }
+        }
+
+    private fun localRestoreReferenceExists(): Boolean =
+        try {
+            ReferenceManager
+                .instance()
+                .DeriveReference(SingleAppInstallation.LOCAL_RESTORE_REFERENCE)
+                .stream
+            true
+        } catch (e: Exception) {
+            Logger.exception("Local restore reference missing during consumer-app login", e)
+            false
+        }
+
+    companion object {
+        private const val FAKE_SERVER = "fake-server-that-is-never-used"
+        private const val UNUSED_USER_ID = "unused"
+        private const val DEMO_USER_ID = "demo_id"
+    }
 }
 
 internal class NoOpPullTaskResultReceiver : PullTaskResultReceiver {

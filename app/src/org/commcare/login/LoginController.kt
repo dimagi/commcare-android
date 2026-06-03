@@ -72,6 +72,7 @@ class LoginController internal constructor(
                         syncOperations.pullData(
                             username = effectiveRequest.username,
                             password = keyOutcome.password,
+                            mode = effectiveRequest.dataPullMode,
                             sink = sink,
                         )
                 ) {
