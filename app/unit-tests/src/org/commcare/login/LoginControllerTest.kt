@@ -120,7 +120,6 @@ class LoginControllerTest {
 
             assertTrue(result is LoginResult.Success)
             val success = result as LoginResult.Success
-            assertFalse(success.connectManagedLogin)
             assertFalse(success.personalIdManagedLogin)
             assertEquals(LoginMode.PASSWORD, success.loginMode)
             assertFalse(success.restoreSession)
@@ -130,7 +129,7 @@ class LoginControllerTest {
         }
 
     @Test
-    fun `AutoFromConnect rewrites password using credentialResolver`() =
+    fun `PersonalId rewrites password using credentialResolver`() =
         runTest {
             val (controller, fakeKeyRecord, fakeSync) =
                 buildController(
@@ -147,12 +146,11 @@ class LoginControllerTest {
                 credentialResolver.resolve("app-1", "alice", true)
             } returns resolved
 
-            val request = manualRequest().copy(authSource = AuthSource.AutoFromConnect)
+            val request = manualRequest().copy(authSource = AuthSource.PersonalId)
             val result = controller.performLogin(request, sink)
 
             assertTrue(result is LoginResult.Success)
             val success = result as LoginResult.Success
-            assertTrue(success.connectManagedLogin)
             assertTrue(success.personalIdManagedLogin)
             assertEquals("alice", fakeSync.capturedUsername)
             assertEquals("resolved-pw", fakeSync.capturedPassword)
@@ -161,35 +159,6 @@ class LoginControllerTest {
             assertEquals("resolved-pw", success.linkPassword)
             assertTrue(fakeKeyRecord.capturedRequests[1].blockRemoteKeyManagement)
             verify(exactly = 1) { credentialResolver.resolve("app-1", "alice", true) }
-        }
-
-    @Test
-    fun `PersonalIdManaged rewrites password using credentialResolver without creating a record`() =
-        runTest {
-            val (controller, fakeKeyRecord, fakeSync) =
-                buildController(
-                    keyRecordOutcomes =
-                        arrayOf(
-                            KeyRecordOutcome.ReadyForSync("resolved-pw"),
-                            KeyRecordOutcome.LocalLoginComplete,
-                        ),
-                    syncOutcome = SyncOutcome.Success,
-                )
-            val resolved = mockk<ConnectLinkedAppRecord>()
-            every { resolved.password } returns "resolved-pw"
-            every {
-                credentialResolver.resolve("app-1", "alice", false)
-            } returns resolved
-
-            val request = manualRequest().copy(authSource = AuthSource.PersonalIdManaged)
-            val result = controller.performLogin(request, sink)
-
-            assertTrue(result is LoginResult.Success)
-            val success = result as LoginResult.Success
-            assertFalse(success.connectManagedLogin)
-            assertEquals("resolved-pw", fakeSync.capturedPassword)
-            assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[0].passwordOrPin)
-            verify(exactly = 1) { credentialResolver.resolve("app-1", "alice", false) }
         }
 
     @Test

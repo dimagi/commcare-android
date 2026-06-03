@@ -359,12 +359,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private AuthSource determineAuthSource() {
-        if (appLaunchedFromConnect) {
-            return AuthSource.AutoFromConnect;
-        }
-
-        if (personalIdManager.isloggedIn() && loginManagedByPersonalId()) {
-            return AuthSource.PersonalIdManaged;
+        if (appLaunchedFromConnect || (personalIdManager.isloggedIn() && loginManagedByPersonalId())) {
+            return AuthSource.PersonalId;
         }
 
         if (uiController.getLoginMode() == LoginMode.PRIMED) {
@@ -557,7 +553,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 success.getLoginMode(),
                 navigateToConnectJobs,
                 success.getPersonalIdManagedLogin(),
-                success.getConnectManagedLogin()
+                appLaunchedFromConnect
         );
     }
 

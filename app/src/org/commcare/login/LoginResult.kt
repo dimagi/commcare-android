@@ -9,15 +9,13 @@ sealed class LoginResult {
         val loginMode: LoginMode,
         val restoreSession: Boolean,
         val personalIdManagedLogin: Boolean,
-        val connectManagedLogin: Boolean,
         val linkPassword: String,
         val postLoginOutcome: PostLoginOutcome,
     ) : LoginResult() {
         override fun toString(): String =
             "Success(appId=$appId, username=$username, loginMode=$loginMode, " +
                 "restoreSession=$restoreSession, personalIdManagedLogin=$personalIdManagedLogin, " +
-                "connectManagedLogin=$connectManagedLogin, linkPassword=***, " +
-                "postLoginOutcome=$postLoginOutcome)"
+                "linkPassword=***, postLoginOutcome=$postLoginOutcome)"
     }
 
     data class Failed(

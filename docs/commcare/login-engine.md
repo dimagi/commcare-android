@@ -8,13 +8,13 @@ The `org.commcare.login` package implements the CommCare login pipeline without 
 
 The controller composes:
 
-- `ConnectCredentialResolver` — resolves the Connect-managed password for an `(appId, username)` pair when `authSource` is `AutoFromConnect` (creates the linked-app record if missing) or `PersonalIdManaged` (existing record only).
+- `ConnectCredentialResolver` — resolves the Connect-managed password for an `(appId, username)` pair when `authSource` is `PersonalId` (creating the linked-app record if missing).
 - `KeyRecordOperations` — suspending wrapper around `ManageKeyRecordTask`. Yields a `KeyRecordOutcome` (`LocalLoginComplete`, `ReadyForSync`, or `Failed`).
 - `SyncOperations` — suspending wrapper around `DataPullTask`. `pullData` takes the `DataPullMode` from the request and resolves a per-mode `PullPlan` (server, userId, requester, `blockRemoteKeyManagement`, payload references): `NORMAL` is the OTA pull against the data server; `CONSUMER_APP` and `CCZ_DEMO` are bundled-CCZ local restores via `LocalReferencePullResponseFactory` against a fake server.
 - `PostLoginSideEffects` — the deterministic post-success chain: `CrashUtil.registerUserData`, notification clear, `setConnectJobIdForAnalytics`, `ConnectAppUtils.updateLastAccessed`, `ConnectJobHelper.updateJobProgress`. Runs inside `withContext(NonCancellable)` so analytics still fire if the caller cancels after success. Returns a `PostLoginOutcome(redirectToConnectOpportunityInfo, needsPersonalIdLinkCheck)`.
 - `OutcomeMapper` — pure functions mapping `HttpCalloutOutcomes` and `PullTaskResult` to `LoginError`.
 
-`LoginResult` is `Success(appId, username, loginMode, restoreSession, personalIdManagedLogin, connectManagedLogin, linkPassword, postLoginOutcome)` or `Failed(LoginError)`. `LoginError` is a flat sealed class — each failure is its own variant (no grouping wrapper): `BadCredentials`, `TokenDenied`, `NetworkUnavailable`, `AuthOverHttpBlocked`, `BadResponse`, `BadSslCertificate`, `StorageFull`, `ServerError`, `RateLimitedServerError`, `SessionExpire`, `Cancelled`, `EmptyUrl`, `InsufficientRolePermission`, and the message-carrying `BadData`, `BadDataRequiresIntervention`, `EncryptionFailure`, `RecoveryFailure`, `ActionableFailure`, `UnknownFailure`.
+`LoginResult` is `Success(appId, username, loginMode, restoreSession, personalIdManagedLogin, linkPassword, postLoginOutcome)` or `Failed(LoginError)`. `LoginError` is a flat sealed class — each failure is its own variant (no grouping wrapper): `BadCredentials`, `TokenDenied`, `NetworkUnavailable`, `AuthOverHttpBlocked`, `BadResponse`, `BadSslCertificate`, `StorageFull`, `ServerError`, `RateLimitedServerError`, `SessionExpire`, `Cancelled`, `EmptyUrl`, `InsufficientRolePermission`, and the message-carrying `BadData`, `BadDataRequiresIntervention`, `EncryptionFailure`, `RecoveryFailure`, `ActionableFailure`, `UnknownFailure`.
 
 ## Progress events
 
@@ -65,6 +65,6 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 ## Adding a new caller
 
 1. Construct a `LoginController` with a `Context`.
-2. Build a `LoginRequest`. For Connect-managed launches set `authSource = AutoFromConnect`, and for manual PersonalID-managed login set `authSource = PersonalIdManaged`; in both the controller replaces `passwordOrPin` with the resolver's value.
+2. Build a `LoginRequest`. For PersonalID-managed login (launched from Connect or manual) set `authSource = PersonalId`; the controller replaces `passwordOrPin` with the resolver's value. App navigation (e.g. returning to Connect on back-out) is driven by launch context at the call site, not by `authSource`.
 3. Implement `LoginProgressSink` to render `LoginProgress(phase, percent?, message?)` events.
-4. Handle the returned `LoginResult`. `Success` carries the resolved `appId`/`username`, routing fields (`loginMode`, `restoreSession`, `personalIdManagedLogin`, `connectManagedLogin`), the `linkPassword` for a PersonalID link check, and `postLoginOutcome` (`redirectToConnectOpportunityInfo`, `needsPersonalIdLinkCheck`). Failures: handle the variants you care about and funnel the rest in an `else`/default branch.
+4. Handle the returned `LoginResult`. `Success` carries the resolved `appId`/`username`, routing fields (`loginMode`, `restoreSession`, `personalIdManagedLogin`), the `linkPassword` for a PersonalID link check, and `postLoginOutcome` (`redirectToConnectOpportunityInfo`, `needsPersonalIdLinkCheck`). Failures: handle the variants you care about and funnel the rest in an `else`/default branch.

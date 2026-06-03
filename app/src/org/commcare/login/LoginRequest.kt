@@ -25,11 +25,8 @@ enum class AuthSource {
     /** User typed credentials into LoginActivity. */
     Manual,
 
-    /** Launched from Connect; credentials are resolved from the linked-app record, created if missing. */
-    AutoFromConnect,
-
-    /** Manual PersonalID-managed login; credentials are resolved from the existing linked-app record. */
-    PersonalIdManaged,
+    /** PersonalID-managed login; credentials are resolved from the linked-app record, created if missing. */
+    PersonalId,
 
     /** MDM-supplied credentials. */
     MdmManaged,

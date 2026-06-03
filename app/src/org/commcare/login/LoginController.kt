@@ -8,7 +8,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
-import org.commcare.connect.PersonalIdManager
 
 class LoginController internal constructor(
     private val keyRecordOperations: KeyRecordOperations,
@@ -43,14 +42,12 @@ class LoginController internal constructor(
         sink: LoginProgressSink,
     ): LoginResult {
         val effectiveRequest =
-            if (request.authSource == AuthSource.AutoFromConnect ||
-                request.authSource == AuthSource.PersonalIdManaged
-            ) {
+            if (request.authSource == AuthSource.PersonalId) {
                 val record =
                     credentialResolver.resolve(
                         appId = request.appId,
                         username = request.username,
-                        createIfNeeded = request.authSource == AuthSource.AutoFromConnect,
+                        createIfNeeded = true,
                     )
                 request.copy(passwordOrPin = record.password)
             } else {
@@ -104,15 +101,12 @@ class LoginController internal constructor(
             withContext(NonCancellable) {
                 postLoginSideEffects.runOnSuccess(request.username)
             }
-        val isConnectManaged = request.authSource == AuthSource.AutoFromConnect
-
         return LoginResult.Success(
             appId = request.appId,
             username = request.username,
             loginMode = request.credentialType,
             restoreSession = request.restoreSession,
-            personalIdManagedLogin = isConnectManaged || PersonalIdManager.getInstance().isloggedIn(),
-            connectManagedLogin = isConnectManaged,
+            personalIdManagedLogin = request.authSource == AuthSource.PersonalId,
             linkPassword = request.passwordOrPin,
             postLoginOutcome = postLoginOutcome,
         )
