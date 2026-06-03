@@ -2,35 +2,26 @@ package org.commcare.fragments.personalId
 
 import android.location.Location
 import androidx.annotation.CallSuper
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
-import com.google.android.play.core.integrity.StandardIntegrityManager
 import org.commcare.activities.connect.PersonalIdActivity
-import org.commcare.android.CommCareViewModelProvider
-import org.commcare.android.integrity.IntegrityTokenViewModel
 import org.commcare.dalvik.R
-import org.junit.After
 import org.junit.Before
 import org.mockito.Mock
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.any
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
 
-const val TEST_INTEGRITY_TOKEN: String = "test_integrity_token_12345"
-
 /**
  * Base test class for PersonalIdPhoneFragment tests.
- * Contains common setup and teardown logic for fragment testing.
+ * Inherits integrity-token mock setup from [BasePersonalIdConfigurationTest] and adds
+ * phone-fragment-specific setup (Mockito annotations, mocked Location, activity host).
  */
-abstract class BasePersonalIdPhoneFragmentTest {
+abstract class BasePersonalIdPhoneFragmentTest : BasePersonalIdConfigurationTest() {
     protected lateinit var mocksCloseable: AutoCloseable
     protected lateinit var activityController: ActivityController<PersonalIdActivity>
     protected lateinit var activity: PersonalIdActivity
@@ -42,10 +33,10 @@ abstract class BasePersonalIdPhoneFragmentTest {
 
     @Before
     @CallSuper
-    open fun setUp() {
+    override fun setUp() {
+        super.setUp()
         mocksCloseable = MockitoAnnotations.openMocks(this)
         mockLocation()
-        setupMockIntegrityTokenViewModel()
         setUpPersonalIdActivityWithFragment()
     }
 
@@ -54,35 +45,6 @@ abstract class BasePersonalIdPhoneFragmentTest {
         `when`(mockLocation.longitude).thenReturn(-122.4194)
         `when`(mockLocation.hasAccuracy()).thenReturn(true)
         `when`(mockLocation.accuracy).thenReturn(10.0f)
-    }
-
-    protected fun setupMockIntegrityTokenViewModel() {
-        val mockToken = mock(StandardIntegrityManager.StandardIntegrityToken::class.java)
-        val mockTokenProvider = mock(StandardIntegrityManager.StandardIntegrityTokenProvider::class.java)
-        val mockViewModel = mock(IntegrityTokenViewModel::class.java)
-
-        `when`(mockToken.token()).thenReturn(TEST_INTEGRITY_TOKEN)
-
-        // Setup providerState LiveData to return Success
-        val providerStateLiveData = MutableLiveData<IntegrityTokenViewModel.TokenProviderState>()
-        providerStateLiveData.postValue(IntegrityTokenViewModel.TokenProviderState.Success(mockTokenProvider))
-        `when`(mockViewModel.providerState).thenReturn(providerStateLiveData)
-
-        doAnswer { invocation ->
-            val callback = invocation.arguments[2] as IntegrityTokenViewModel.IntegrityTokenCallback
-            val requestHash = invocation.arguments[0] as String
-            callback.onTokenReceived(requestHash, mockToken)
-            null
-        }.`when`(mockViewModel).requestIntegrityToken(
-            any(),
-            any(),
-            any(),
-        )
-
-        // Inject mock into CommCareViewModelProvider using reflection
-        val field = CommCareViewModelProvider::class.java.getDeclaredField("integrityTokenViewModel")
-        field.isAccessible = true
-        field.set(null, mockViewModel)
     }
 
     protected fun setUpPersonalIdActivityWithFragment() {
@@ -111,14 +73,10 @@ abstract class BasePersonalIdPhoneFragmentTest {
         ShadowLooper.idleMainLooper()
     }
 
-    @After
     @CallSuper
-    open fun tearDown() {
-        val viewModelField = CommCareViewModelProvider::class.java.getDeclaredField("integrityTokenViewModel")
-        viewModelField.isAccessible = true
-        viewModelField.set(null, null)
-
+    override fun tearDown() {
         activityController.pause().stop().destroy()
         mocksCloseable.close()
+        super.tearDown()
     }
 }

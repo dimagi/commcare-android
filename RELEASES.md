@@ -64,9 +64,41 @@ we would like to communicate to QA as part of the release testing
     - Signup: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered) → Photo
     - Recovery, no verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered)
     - Recovery, verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code
-  - **Email entry screen:** (will be added here)
-  - **Email OTP screen:** (will be added here)
-  - **Legacy logged-in users prompt:** (will be added here)
+  - **Email entry screen:**
+    - Open the email entry screen (currently reachable only once the upstream PR wires it from the Backup Code step). Verify the CommCare-by-Dimagi banner is shown at the top, the action bar title reads "Email", and the screen shows an envelope icon next to the email input, with "Add your email (optional)" and a short description below the divider.
+    - With the input empty or containing whitespace only, verify the Continue button is disabled and Skip for now is enabled.
+    - Type a malformed email (e.g. `abc`, `user@`, `@nodomain.com`) and verify Continue stays disabled. With a malformed value in the field, press the keyboard Done key and verify nothing submits — the keyboard simply hides.
+    - Type a well-formed email (e.g. `user@example.com`) and verify Continue becomes enabled.
+    - Tap Skip for now. Verify a confirmation dialog appears with the title "Skip email?", the message "Are you sure you want to skip?", and Yes / No buttons.
+        - Tap No: the dialog dismisses and the email screen stays put with any typed value preserved.
+        - Tap Yes: the dialog dismisses and the flow advances to the next step (Photo Capture during signup).
+    - Switch the device language to a supported locale (e.g. French, Spanish, Hindi, Swahili) and re-walk the screen. Verify the screen title, banner area, header copy, description, input hint, both button labels, and the skip-confirm dialog all render in the selected language.
+  - **Email OTP screen:**
+      - Reach the screen by entering a valid email on the previous step and tapping Continue. Verify the CommCare-by-Dimagi banner is shown at the top, the action bar title reads "Verify Email", a lock icon sits to the left of the 6-digit OTP field, and the description below the divider reads "Enter the 6-digit code sent to <email>" with the address the user typed.
+      - On open, verify the Verify button is disabled, the OTP field is empty, the resend area shows a "Didn't receive your code? Resend in 120 s" countdown that decrements every second, and the Resend Code button itself is hidden.
+      - Wait for (or fast-forward by changing device time) the cooldown to expire. Verify the countdown disappears and the Resend Code button becomes visible. Tap Resend Code — verify a fresh OTP arrives and the 2-minute countdown restarts.
+      - Type 5 digits — verify the Verify button stays disabled. Type the 6th digit — verification fires automatically. With a correct code:
+          - **Signup**: the flow advances to Photo Capture.
+          - **Recovery**: the recovery-success screen is shown.
+          - **Existing user**: a non-cancellable confirmation dialog appears with the title "Email Added" and message "Your email has been added successfully."; tapping OK closes the screen and the new email is visible on the user's HQ admin profile.
+      - With an incorrect code, verify an error message appears under the OTP field and the OTP cells switch to a red error state. Enter a wrong code 3 times in a row — verify a dialog appears titled "Verification unsuccessful" with the message about 3 incorrect attempts, and two buttons: "Try again" (dismisses dialog, clears the OTP field, lets the user retry) and "Proceed without email" (advances to the next step without saving an email).
+      - Press the device Back button on the verification screen — verify the user returns to the Email entry screen with the email address still populated.
+      - Switch the device language to a supported locale (e.g. French, Spanish, Hindi, Swahili) and re-walk the screen. Verify the action-bar title, in-screen title, description (with email substitution), Verify button label, resend button + countdown text, error messages, and both failure-dialog buttons all render in the selected language.
+  - **Existing logged-in users prompt:**
+    - Precondition: signed in to PersonalID as an existing user with **no email** on file, and the `email_otp_verification` server toggle **ON**.
+    - Return to the CommCare home screen. Verify a dialog titled "Add your email address" appears, with a message explaining an email helps recover the account if phone access is lost, and **Add email** / **Not now** buttons.
+    - Tap **Not now**: the dialog dismisses and you land on the home screen normally.
+    - Tap **Add email**: verify the Email entry screen opens (the same screen used during signup, now reached as an existing user).
+    - With the toggle **OFF**, or for a user who **already has an email** on file, return to the home screen and verify the prompt does **not** appear.
+    - The prompt is shown at most twice, and will not appear again thereafter.
+    - Switch the device language to a supported locale and verify the dialog title, message, and both button labels render in the selected language.
+  - **Backup Code → Email entry routing (signup + recovery):**
+    - **Signup with `email_otp_verification` server toggle ON:** Walk a fresh PersonalID signup. After entering and confirming the backup code, verify the Email entry screen appears next (not Photo Capture).
+    - **Signup with `email_otp_verification` server toggle OFF:** Walk a fresh PersonalID signup. After confirming the backup code, verify the flow skips Email and goes directly to Photo Capture.
+    - **Recovery with the server already returning a verified email for the user:** Walk PersonalID account recovery (validate backup code on a new device). Verify the flow skips the Email screen entirely and goes directly to the "Account Recovered" success screen.
+    - **Recovery with no server email, `email_otp_verification` toggle ON:** Recover an account that has no email on file. After backup code validation, verify the Email entry screen appears (so the user can add an email during recovery).
+    - **Recovery with `email_otp_verification` toggle OFF:** Recover any account with the toggle disabled. Verify the flow goes directly from backup code to the "Account Recovered" success screen without the Email screen.
+    - **Email persisted on the user record:** After completing a signup that included entering and verifying an email, verify the HQ admin view of the PersonalID user shows the email address that was entered. Repeat the same check after a recovery that included the Email screen.
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 

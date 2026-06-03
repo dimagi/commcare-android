@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 
 import org.commcare.CommCareApplication;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.UnlockPolicy;
 import org.commcare.activities.CommCareActivity;
@@ -177,6 +178,7 @@ public class PersonalIdManager {
 
         ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
         PersonalIdUnlocker.INSTANCE.resetSession();
+        PersonalIdUserPreferences.clear();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
