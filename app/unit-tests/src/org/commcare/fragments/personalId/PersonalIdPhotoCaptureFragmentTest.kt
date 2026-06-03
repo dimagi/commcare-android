@@ -34,7 +34,7 @@ import org.robolectric.shadows.ShadowLooper
 @RunWith(AndroidJUnit4::class)
 class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTest() {
     @Test
-    fun testInitialState_titleContainsUserName() {
+    fun `title shows the user's name`() {
         val title = fragment.view!!.findViewById<TextView>(R.id.title)
         assertEquals(
             fragment.getString(R.string.personalid_photo_capture_title, "Test User"),
@@ -43,25 +43,25 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testInitialState_savePhotoButtonDisabled() {
+    fun `save button is disabled before a photo is taken`() {
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         assertFalse("Save button should be disabled initially", saveButton.isEnabled)
     }
 
     @Test
-    fun testInitialState_takePhotoButtonEnabled() {
+    fun `take photo button is enabled before a photo is taken`() {
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         assertTrue("Take photo button should be enabled initially", takeButton.isEnabled)
     }
 
     @Test
-    fun testInitialState_errorTextViewHidden() {
+    fun `error message is hidden before a photo is taken`() {
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
         assertEquals(View.GONE, errorView.visibility)
     }
 
     @Test
-    fun testTakePhotoClick_disablesButtonAndLaunchesMicroImageActivity() {
+    fun `tapping take photo disables the button and launches the camera`() {
         // Mock
         @Suppress("UNCHECKED_CAST")
         val mockLauncher =
@@ -95,7 +95,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testPhotoResult_onSuccess_displaysImageAndEnablesSaveButton() {
+    fun `a successful capture shows the photo and enables the save button`() {
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val photoView = fragment.view!!.findViewById<ImageView>(R.id.photo_image_view)
@@ -120,7 +120,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testPhotoResult_onCancel_keepsSaveDisabledAndReenablesTakeButton() {
+    fun `cancelling the capture keeps save disabled and re-enables take photo`() {
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
 
@@ -144,7 +144,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testSavePhotoClick_callsCompleteProfileWithCorrectArgs() {
+    fun `tapping save uploads the photo and completes the profile`() {
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
@@ -183,7 +183,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testCompleteProfile_onSuccess_storesUserAndNavigatesToSuccess() {
+    fun `completing the profile stores the user and navigates to the success screen`() {
         // Act
         activity.runOnUiThread {
             fragment.invokePhotoUploadSuccess("fake-base64-photo")
@@ -227,7 +227,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testCompleteProfile_onAccountLocked_navigatesToFailureMessageDisplay() {
+    fun `a locked account navigates to the failure screen`() {
         // Act
         activity.runOnUiThread {
             fragment.invokeCompleteProfileFailure(
@@ -248,7 +248,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testCompleteProfile_onRetryableFailure_reenablesButtonsAndShowsError() {
+    fun `a retryable failure re-enables the buttons and shows an error`() {
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
@@ -281,7 +281,7 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun testCompleteProfile_onNonRetryableFailure_buttonsStayDisabled() {
+    fun `a non-retryable failure leaves the buttons disabled`() {
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
