@@ -528,6 +528,12 @@
     <string name="connect_download_learn">Download Learn App</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
     <string name="connect_downloading_delivery">Downloading Delivery App</string>
+    <string name="connect_silent_launch_title">Launching app</string>
+    <string name="connect_silent_launch_seating">Setting up the app…</string>
+    <string name="connect_silent_launch_signing_in">Signing you in…</string>
+    <string name="connect_silent_launch_syncing">Syncing data…</string>
+    <string name="connect_silent_launch_failed_title">Couldn\'t open the app</string>
+    <string name="connect_silent_launch_failed_message">Something went wrong while opening the app. Try again?</string>
     <string name="connect_results_summary_all">All</string>
     <string name="connect_results_summary_pending">Pending</string>
     <string name="connect_results_summary_rejected">Rejected</string>

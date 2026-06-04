@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,14 +13,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectAppLauncher;
+import org.commcare.connect.SilentLaunchOutcome;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -28,8 +34,19 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.fragments.base.BaseConnectFragment;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.OnJobSelectionClick;
+import org.commcare.login.LaunchContext;
+import org.commcare.login.LoginError;
+import org.commcare.login.LoginPhase;
+import org.commcare.login.LoginProgress;
+import org.commcare.login.PostLoginDestination;
+import org.commcare.login.PostLoginRouter;
 import org.commcare.models.connect.ConnectLoginJobListModel;
+import org.commcare.util.LogTypes;
+import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -58,6 +75,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> newJobs;
     ArrayList<ConnectLoginJobListModel> finishedJobs;
     private ConnectJobsListViewModel viewModel;
+
+    private static final String SILENT_LAUNCH_DIALOG_TAG = "connect_silent_launch_progress";
+    private static final int SILENT_LAUNCH_DIALOG_TASK_ID = -10;
+    private CustomProgressDialog silentLaunchDialog;
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -165,7 +186,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else if (isLearning && job.passedAssessment()) {
             navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
+            launchAppSilently(job, isLearning, appId);
         } else {
             int textId = isLearning
                     ? R.string.connect_downloading_learn
@@ -178,6 +199,113 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                             )
             );
         }
+    }
+
+    private void launchAppSilently(ConnectJobRecord job, boolean isLearning, String appId) {
+        showSilentLaunchDialog();
+        new ConnectAppLauncher().start(
+                getViewLifecycleOwner(),
+                requireContext(),
+                appId,
+                isLearning,
+                progress -> requireActivity().runOnUiThread(() -> updateSilentLaunchProgress(progress)),
+                outcome -> handleSilentLaunchOutcome(outcome, job, isLearning, appId)
+        );
+    }
+
+    private void updateSilentLaunchProgress(LoginProgress progress) {
+        if (silentLaunchDialog == null) {
+            return;
+        }
+        if (progress.getPhase() == LoginPhase.Seating) {
+            silentLaunchDialog.updateMessage(getString(R.string.connect_silent_launch_seating));
+        } else if (progress.getPhase() == LoginPhase.SigningIn) {
+            silentLaunchDialog.updateMessage(getString(R.string.connect_silent_launch_signing_in));
+        } else if (progress.getPhase() == LoginPhase.Syncing) {
+            silentLaunchDialog.updateMessage(getString(R.string.connect_silent_launch_syncing));
+            Integer percent = progress.getPercent();
+            if (percent != null) {
+                silentLaunchDialog.updateProgressBar(percent, 100);
+            }
+        }
+    }
+
+    private void handleSilentLaunchOutcome(
+            SilentLaunchOutcome outcome,
+            ConnectJobRecord job,
+            boolean isLearning,
+            String appId
+    ) {
+        dismissSilentLaunchDialog();
+        if (outcome instanceof SilentLaunchOutcome.Launched launched) {
+            PostLoginDestination destination = PostLoginRouter.route(
+                    launched.getSuccess(),
+                    new LaunchContext(true, false)
+            );
+            if (destination instanceof PostLoginDestination.Home home) {
+                HomeScreenBaseActivity.launchPostLoginHome(requireActivity(), home);
+            }
+        } else if (outcome instanceof SilentLaunchOutcome.TokenDenied) {
+            TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
+        } else if (outcome instanceof SilentLaunchOutcome.AppSeatFailed) {
+            startDispatchAfterSeatFailure();
+        } else if (outcome instanceof SilentLaunchOutcome.Retryable retryable) {
+            reportSilentLaunchFailure(appId, retryable.getError());
+            showSilentLaunchRetryDialog(job, isLearning, appId);
+        }
+    }
+
+    private void startDispatchAfterSeatFailure() {
+        Intent intent = new Intent(requireActivity(), DispatchActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        requireActivity().finish();
+    }
+
+    private void reportSilentLaunchFailure(String appId, LoginError error) {
+        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
+                "Connect silent launch failed for app " + appId + ": "
+                        + error.getClass().getSimpleName());
+        FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(appId);
+    }
+
+    private void showSilentLaunchRetryDialog(ConnectJobRecord job, boolean isLearning, String appId) {
+        CommCareActivity<?> activity = (CommCareActivity<?>)requireActivity();
+        StandardAlertDialog dialog = new StandardAlertDialog(
+                getString(R.string.connect_silent_launch_failed_title),
+                getString(R.string.connect_silent_launch_failed_message)
+        );
+        dialog.setPositiveButton(getString(R.string.retry_button_text), (d, which) -> {
+            activity.dismissAlertDialog();
+            launchAppSilently(job, isLearning, appId);
+        });
+        dialog.setNegativeButton(getString(R.string.cancel), (d, which) -> activity.dismissAlertDialog());
+        activity.showAlertDialog(dialog);
+    }
+
+    private void showSilentLaunchDialog() {
+        silentLaunchDialog = CustomProgressDialog.newInstance(
+                getString(R.string.connect_silent_launch_title),
+                getString(R.string.connect_silent_launch_seating),
+                SILENT_LAUNCH_DIALOG_TASK_ID
+        );
+        silentLaunchDialog.addProgressBar();
+        silentLaunchDialog.showNow(getChildFragmentManager(), SILENT_LAUNCH_DIALOG_TAG);
+    }
+
+    private void dismissSilentLaunchDialog() {
+        if (silentLaunchDialog != null) {
+            if (silentLaunchDialog.isAdded()) {
+                silentLaunchDialog.dismissAllowingStateLoss();
+            }
+            silentLaunchDialog = null;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        dismissSilentLaunchDialog();
+        super.onDestroyView();
     }
 
     private void navigateToDeliveryProgress() {

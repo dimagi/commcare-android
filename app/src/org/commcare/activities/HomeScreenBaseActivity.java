@@ -7,6 +7,7 @@ import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPOR
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
@@ -14,6 +15,7 @@ import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,6 +50,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.login.PostLoginDestination;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
@@ -1213,6 +1216,24 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 startActivityForResult(detailIntent, GET_CASE);
             }
         }
+    }
+
+    public static void launchPostLoginHome(Activity caller, PostLoginDestination.Home home) {
+        Intent i;
+        if (DispatchActivity.useRootMenuHomeActivity()) {
+            i = new Intent(caller, RootMenuHomeActivity.class);
+            addPendingDataExtra(i,
+                    CommCareApplication.instance().getCurrentSessionWrapper().getSession());
+        } else {
+            i = new Intent(caller, StandardHomeActivity.class);
+        }
+        i.putExtra(DispatchActivity.START_FROM_LOGIN, home.getStartFromLogin());
+        i.putExtra(LoginActivity.LOGIN_MODE, home.getLoginMode());
+        i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, home.getManualSwitchToPwMode());
+        i.putExtra(PERSONALID_MANAGED_LOGIN, home.getPersonalIdManagedLogin());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        caller.startActivity(i);
+        caller.finish();
     }
 
     protected static void addPendingDataExtra(Intent i, CommCareSession session) {
