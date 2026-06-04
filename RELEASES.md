@@ -20,6 +20,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 #### Important Bug Fixes
 
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
+- Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
 - Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
 
 #### Internal Release Notes
