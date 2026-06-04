@@ -17,6 +17,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ReleaseToggleHelper;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
@@ -25,6 +26,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.personalId.PersonalIdUserPreferences;
+import org.commcare.personalId.PersonalIdRecoveryCompleter;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
 import org.commcare.views.connect.NumericCodeView;
@@ -171,13 +174,17 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void handleBackupCodeSubmission() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null);
         if (isRecovery) {
             confirmBackupCode();
         } else {
             personalIdSessionData.setBackupCode(
                     binding.backupCodeView.getCodeValue());
-            navigateToPhoto();
+            if (ReleaseToggleHelper.INSTANCE.isEmailOtpVerificationActive(personalIdSessionData)) {
+                navigateToEmail();
+            } else {
+                navigateToPhoto();
+            }
         }
     }
 
@@ -190,7 +197,7 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
-                    handleSuccessfulRecovery();
+                    handleConfirmBackupCodeSuccess();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
@@ -209,19 +216,14 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
         }.confirmBackupCode(activity, backupCode, personalIdSessionData);
     }
 
-    private void handleSuccessfulRecovery() {
-        ConnectDatabaseHelper.handleReceivedDbPassphrase(activity, personalIdSessionData.getDbKey());
-        ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
-                personalIdSessionData.getPersonalId(),
-                personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                binding.backupCodeView.getCodeValue(), new Date(),
-                personalIdSessionData.getPhotoBase64(),
-                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
-                personalIdSessionData.getInvitedUser());
-        ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
-        logRecoveryResult(true);
-        handleSecondDeviceLogin();
-        navigateToSuccess();
+    private void handleConfirmBackupCodeSuccess() {
+        if (personalIdSessionData.getEmail() == null &&
+                ReleaseToggleHelper.INSTANCE.isEmailOtpVerificationActive(personalIdSessionData)) {
+            navigateToEmail();
+        } else {
+            PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData);
+            navigateToSuccess();
+        }
     }
 
     private void clearError() {
@@ -235,37 +237,23 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     }
 
     private void handleFailedBackupCodeAttempt() {
-        logRecoveryResult(false);
+        logRecoveryFailureResult();
         clearBackupCodeFields();
         navigateWithMessage(getString(R.string.connect_backup_fail_title),
                 getString(R.string.personalid_wrong_backup_message, personalIdSessionData.getAttemptsLeft()),
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
     }
 
-    private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+    private void navigateToEmail() {
+        PersonalIdUserPreferences.setLastEmailOfferDate(new Date());
+        EmailWorkFlow emailWorkFlow = isRecovery ? EmailWorkFlow.RECOVERY : EmailWorkFlow.REGISTRATION;
+        NavDirections action = PersonalIdBackupCodeFragmentDirections
+                .actionPersonalidBackupcodeToPersonalidEmail(emailWorkFlow);
+        Navigation.findNavController(binding.getRoot()).navigate(action);
     }
 
-    private void handleSecondDeviceLogin() {
-        if(personalIdSessionData.getPreviousDevice() != null) {
-            int titleId = R.string.personalid_second_device_login_title;
-            String message;
-            if (personalIdSessionData.getLastAccessed() != null) {
-                message = getString(R.string.personalid_second_device_login_message,
-                        personalIdSessionData.getPreviousDevice(),
-                        DateUtils.getShortStringValue(personalIdSessionData.getLastAccessed()));
-            } else {
-                message = getString(R.string.personalid_second_device_login_message_no_date,
-                        personalIdSessionData.getPreviousDevice());
-            }
-
-            NotificationUtil.showNotification(requireContext(),
-                    CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
-                    titleId,
-                    getString(titleId),
-                    message,
-                    null);
-        }
+    private void logRecoveryFailureResult() {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(false, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {
