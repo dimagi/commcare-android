@@ -519,7 +519,6 @@ public class DispatchActivity extends AppCompatActivity {
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = true;
                 } else if (intent != null) {
-                    connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
                     applyPostLoginDestination(routeLoginResult(intent));
                 }
                 return;
@@ -546,6 +545,7 @@ public class DispatchActivity extends AppCompatActivity {
         boolean manualSwitchToPwMode =
                 intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
         boolean personalIdManaged = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+        connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
         boolean restoreSession = false;
         LoginResult.Success success = new LoginResult.Success(
                 "",
