@@ -68,6 +68,7 @@ public class CommCareAudioWidget extends AudioWidget
 
         mPlayButton = layout.findViewById(R.id.play_audio);
         captureButton = layout.findViewById(R.id.capture_button);
+        recordingContainer = layout.findViewById(R.id.recording_container);
         ImageButton chooseButton = layout.findViewById(R.id.choose_file);
         playbackDuration = layout.findViewById(R.id.playback_duration);
         playbackTime = layout.findViewById(R.id.playback_time);
@@ -227,11 +228,11 @@ public class CommCareAudioWidget extends AudioWidget
     protected void togglePlayButton(boolean enabled) {
         if (enabled) {
             initAudioPlayer();
-            captureButton.setBackgroundResource(R.drawable.recording_trash);
+            recordingContainer.setVisibility(GONE);
         } else {
             resetAudioPlayer();
             hidePlaybackIndicators();
-            captureButton.setBackgroundResource(R.drawable.record);
+            recordingContainer.setVisibility(VISIBLE);
         }
     }
 
