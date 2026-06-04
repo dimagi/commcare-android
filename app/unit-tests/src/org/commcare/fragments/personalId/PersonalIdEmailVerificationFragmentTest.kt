@@ -6,9 +6,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.navigation.Navigation
-import androidx.navigation.testing.TestNavHostController
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
@@ -46,7 +43,6 @@ import org.robolectric.shadows.ShadowLooper
 @RunWith(AndroidJUnit4::class)
 class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var navController: TestNavHostController
 
     @Before
     override fun setUp() {
@@ -68,16 +64,13 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
     }
 
     private fun attachTestNavController() {
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         val args =
             Bundle().apply {
                 putString("email", TEST_EMAIL)
                 putSerializable("workflow", EmailWorkFlow.REGISTRATION)
             }
         activity.runOnUiThread {
-            navController.setGraph(R.navigation.nav_graph_personalid)
-            navController.setCurrentDestination(R.id.personalid_email_verification, args)
-            Navigation.setViewNavController(fragment.requireView(), navController)
+            installTestNavController(fragment.requireView(), R.id.personalid_email_verification, args)
         }
         ShadowLooper.idleMainLooper()
     }

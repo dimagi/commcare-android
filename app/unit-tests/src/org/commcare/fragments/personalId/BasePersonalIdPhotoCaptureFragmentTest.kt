@@ -4,15 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import androidx.activity.result.ActivityResultLauncher
-import androidx.lifecycle.ViewModelProvider
+import androidx.annotation.CallSuper
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.Navigation
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.testing.TestNavHostController
-import androidx.test.core.app.ApplicationProvider
-import org.commcare.activities.connect.PersonalIdActivity
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -31,9 +25,6 @@ import org.mockito.Mock
 import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import org.robolectric.Robolectric
-import org.robolectric.android.controller.ActivityController
-import org.robolectric.shadows.ShadowLooper
 
 /**
  * Base test class for PersonalIdPhotoCaptureFragment tests.
@@ -41,12 +32,8 @@ import org.robolectric.shadows.ShadowLooper
  * and the static mocks that prevent the fragment from hitting the network,
  * database, analytics, and bitmap decoding during tests.
  */
-abstract class BasePersonalIdPhotoCaptureFragmentTest {
+abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurationTest<TestablePersonalIdPhotoCaptureFragment>() {
     protected lateinit var mocksCloseable: AutoCloseable
-    protected lateinit var activityController: ActivityController<PersonalIdActivity>
-    protected lateinit var activity: PersonalIdActivity
-    protected lateinit var fragment: TestablePersonalIdPhotoCaptureFragment
-    protected lateinit var navController: TestNavHostController
 
     protected lateinit var personalIdManagerMock: MockedStatic<PersonalIdManager>
     protected lateinit var connectDatabaseHelperMock: MockedStatic<ConnectDatabaseHelper>
@@ -77,7 +64,9 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
         )
 
     @Before
-    open fun setUp() {
+    @CallSuper
+    override fun setUp() {
+        super.setUp()
         mocksCloseable = MockitoAnnotations.openMocks(this)
         MockAndroidKeyStoreProvider.registerProvider()
         openStaticMocks()
@@ -119,43 +108,14 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
     }
 
     protected fun setUpPhotoCaptureFragment(sessionData: PersonalIdSessionData = testSessionData) {
-        activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
-        activity =
-            activityController
-                .create()
-                .start()
-                .resume()
-                .get()
-
-        // Seed the ViewModel before swapping the fragment in; onCreateView reads it.
-        activity.runOnUiThread {
-            val viewModel = ViewModelProvider(activity)[PersonalIdSessionDataViewModel::class.java]
-            viewModel.personalIdSessionData = sessionData
+        launchFragmentForTest(sessionData, R.id.personalid_photo_capture) {
+            TestablePersonalIdPhotoCaptureFragment(it)
         }
-        ShadowLooper.idleMainLooper()
-
-        val navHostFragment =
-            activity.supportFragmentManager
-                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
-
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-        navController.setGraph(R.navigation.nav_graph_personalid)
-        navController.setCurrentDestination(R.id.personalid_photo_capture)
-
-        activity.runOnUiThread {
-            Navigation.setViewNavController(navHostFragment.requireView(), navController)
-            val testableFragment = TestablePersonalIdPhotoCaptureFragment(navController)
-            navHostFragment.childFragmentManager
-                .beginTransaction()
-                .replace(R.id.nav_host_fragment_connectid, testableFragment)
-                .commitNow()
-            fragment = testableFragment
-        }
-        ShadowLooper.idleMainLooper()
     }
 
     @After
-    open fun tearDown() {
+    @CallSuper
+    override fun tearDown() {
         val errors = mutableListOf<Throwable>()
         listOf(
             { activityController.pause().stop().destroy() },
@@ -168,6 +128,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest {
             { personalIdManagerMock.close() },
             { mocksCloseable.close() },
             { MockAndroidKeyStoreProvider.deregisterProvider() },
+            { super.tearDown() },
         ).forEach { step ->
             try {
                 step()
