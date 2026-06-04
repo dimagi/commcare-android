@@ -23,6 +23,7 @@ internal sealed class SyncOutcome {
     ) : SyncOutcome()
 }
 
+/** Per-[DataPullMode] data-pull configuration: OTA against the data server vs a bundled-reference local restore. */
 internal data class PullPlan(
     val server: String,
     val userId: String?,
@@ -31,6 +32,10 @@ internal data class PullPlan(
     val payloadReferences: List<String>,
 )
 
+/**
+ * Suspending wrapper around [DataPullTask]: resolves a [PullPlan] from the request's [DataPullMode],
+ * runs the pull off the UI thread, and reduces it to a single [SyncOutcome].
+ */
 internal open class SyncOperations(
     private val context: Context,
 ) {

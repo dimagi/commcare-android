@@ -2,6 +2,7 @@ package org.commcare.login
 
 import org.commcare.activities.LoginMode
 
+/** Terminal outcome of [LoginController.performLogin]. */
 sealed class LoginResult {
     data class Success(
         val appId: String,
@@ -23,6 +24,7 @@ sealed class LoginResult {
     ) : LoginResult()
 }
 
+/** Post-success routing signals the caller acts on once login completes. */
 data class PostLoginOutcome(
     val redirectToConnectOpportunityInfo: Boolean,
     val needsPersonalIdLinkCheck: Boolean = false,

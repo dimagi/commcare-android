@@ -3,6 +3,7 @@ package org.commcare.login
 import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 
+/** Caller-supplied description of a login attempt; [authSource] decides how credentials are resolved. */
 data class LoginRequest(
     val appId: String,
     val username: String,

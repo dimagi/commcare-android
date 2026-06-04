@@ -26,6 +26,10 @@ internal sealed class KeyRecordOutcome {
     ) : KeyRecordOutcome()
 }
 
+/**
+ * Suspending wrapper around [ManageKeyRecordTask]: drives key validation/unwrap off the UI thread
+ * and reduces the task's callbacks to a single [KeyRecordOutcome].
+ */
 internal open class KeyRecordOperations(
     private val context: Context,
     private val app: CommCareApp,

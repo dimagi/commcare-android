@@ -1,5 +1,9 @@
 package org.commcare.login
 
+/**
+ * Flat set of login failure reasons. The caller handles the variants it cares about and funnels the
+ * rest to a generic error; message-carrying variants pass through the underlying server detail.
+ */
 sealed class LoginError {
     object BadCredentials : LoginError()
 

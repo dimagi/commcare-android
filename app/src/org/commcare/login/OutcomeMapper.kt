@@ -3,6 +3,7 @@ package org.commcare.login
 import org.commcare.network.HttpCalloutTask.HttpCalloutOutcomes
 import org.commcare.tasks.DataPullTask.PullTaskResult
 
+/** Maps task-layer outcomes ([HttpCalloutOutcomes], [PullTaskResult]) onto [LoginError]s. */
 internal object OutcomeMapper {
     fun fromHttpCalloutOutcome(outcome: HttpCalloutOutcomes): LoginError =
         when (outcome) {

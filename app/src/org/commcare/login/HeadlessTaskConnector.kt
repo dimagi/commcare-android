@@ -5,6 +5,10 @@ import org.commcare.tasks.templates.CommCareTask
 import org.commcare.tasks.templates.CommCareTaskConnector
 import kotlin.coroutines.resume
 
+/**
+ * No-op [CommCareTaskConnector] that lets the login engine run Activity-bound tasks without an
+ * Activity, routing their callbacks to [receiver].
+ */
 internal class HeadlessTaskConnector<R>(
     private val receiver: R,
 ) : CommCareTaskConnector<R> {

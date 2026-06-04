@@ -9,6 +9,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 
+/**
+ * Activity-free entry point for the login pipeline: resolves credentials, manages the key record,
+ * syncs, re-binds the session, and runs post-success side effects, producing a [LoginResult].
+ */
 class LoginController internal constructor(
     private val keyRecordOperations: KeyRecordOperations,
     private val syncOperations: SyncOperations,

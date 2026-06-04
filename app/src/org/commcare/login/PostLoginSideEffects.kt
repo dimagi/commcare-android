@@ -11,6 +11,10 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.utils.CrashUtil
 
+/**
+ * Runs the deterministic post-success chain (analytics, notification clears, Connect job update)
+ * and returns the [PostLoginOutcome] routing signals.
+ */
 internal class PostLoginSideEffects(
     private val context: Context,
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
