@@ -18,6 +18,7 @@ import org.commcare.connect.PersonalIdManager
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -146,13 +147,18 @@ class LoginControllerTest {
                 credentialResolver.resolve("app-1", "alice", true)
             } returns resolved
 
-            val request = manualRequest().copy(authSource = AuthSource.PersonalId)
+            val request =
+                manualRequest().copy(
+                    authSource = AuthSource.PersonalId,
+                    passwordOrPin = "user-entered-pw",
+                )
             val result = controller.performLogin(request, sink)
 
             assertTrue(result is LoginResult.Success)
             val success = result as LoginResult.Success
             assertTrue(success.personalIdManagedLogin)
             assertEquals("alice", fakeSync.capturedUsername)
+            assertNotEquals("user-entered-pw", fakeSync.capturedPassword)
             assertEquals("resolved-pw", fakeSync.capturedPassword)
             assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[0].passwordOrPin)
             assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[1].passwordOrPin)
