@@ -67,8 +67,8 @@ class AppSeaterTest {
             assertEquals(SeatResult.Failed(SeatFailure.CORRUPTED), result)
         }
 
-    @Test
-    fun `seatApp throwing returns Failed SEAT_ERROR instead of propagating`() =
+    @Test(expected = IllegalStateException::class)
+    fun `seatApp throwing propagates instead of being swallowed`() =
         runTest {
             val record = mockk<ApplicationRecord>(relaxed = true)
             val seater =
@@ -78,13 +78,11 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            val result = seater.seatIfNeeded("app-1", sink)
-
-            assertEquals(SeatResult.Failed(SeatFailure.SEAT_ERROR), result)
+            seater.seatIfNeeded("app-1", sink)
         }
 
-    @Test
-    fun `recordLookup throwing returns Failed SEAT_ERROR instead of propagating`() =
+    @Test(expected = RuntimeException::class)
+    fun `recordLookup throwing propagates instead of being swallowed`() =
         runTest {
             val seater =
                 AppSeater(
@@ -93,9 +91,7 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            val result = seater.seatIfNeeded("app-1", sink)
-
-            assertEquals(SeatResult.Failed(SeatFailure.SEAT_ERROR), result)
+            seater.seatIfNeeded("app-1", sink)
         }
 
     @Test

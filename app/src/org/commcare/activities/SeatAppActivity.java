@@ -6,7 +6,6 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.login.AppSeater;
-import org.commcare.login.SeatFailure;
 import org.commcare.login.SeatResult;
 import org.javarosa.core.services.locale.Localization;
 
@@ -31,12 +30,7 @@ public class SeatAppActivity extends CommonBaseActivity {
     }
 
     private void finishWithResult(SeatResult result) {
-        // A corrupted seat still returns RESULT_OK; DispatchActivity detects
-        // STATE_CORRUPTED and routes to recovery.
-        boolean treatAsSeated = result instanceof SeatResult.Success
-                || (result instanceof SeatResult.Failed
-                && ((SeatResult.Failed)result).getReason() == SeatFailure.CORRUPTED);
-        setResult(treatAsSeated ? RESULT_OK : RESULT_CANCELED, new Intent(getIntent()));
+        setResult(RESULT_OK, new Intent(getIntent()));
         finish();
     }
 
