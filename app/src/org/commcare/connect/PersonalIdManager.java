@@ -16,6 +16,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -175,6 +176,7 @@ public class PersonalIdManager {
 
         ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
         PersonalIdUnlocker.INSTANCE.resetSession();
+        PersonalIdUserPreferences.clear();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -197,15 +199,6 @@ public class PersonalIdManager {
     public void launchPersonalId(CommCareActivity<?> parent, int requestCode) {
         Intent intent = new Intent(parent, PersonalIdActivity.class);
         parent.startActivityForResult(intent, requestCode);
-    }
-
-    public void updateAppAccess(Context context, String appId, String username) {
-        ConnectLinkedAppRecord record =
-                ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username);
-        if (record != null) {
-            record.setLastAccessed(new Date());
-            ConnectAppDatabaseUtil.storeApp(context, record);
-        }
     }
 
     public void checkPersonalIdLink(CommCareActivity<?> activity, boolean personalIdManagedLogin, String appId,

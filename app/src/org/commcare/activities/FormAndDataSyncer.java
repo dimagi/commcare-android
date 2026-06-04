@@ -4,14 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
-import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.network.mocks.LocalFilePullResponseFactory;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
-import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.sync.ProcessAndSendTask;
@@ -19,12 +16,9 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.model.User;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Processes and submits forms and syncs data with server
@@ -131,11 +125,6 @@ public class FormAndDataSyncer {
                 u.getUsername(), u.getCachedPwd(), u.getUniqueId());
     }
 
-    public void performOtaRestore(LoginActivity context, String username, String password) {
-        syncData(context, false, false, ServerUrls.getDataServerKey(),
-                username, password, null);
-    }
-
     public <I extends CommCareActivity & PullTaskResultReceiver> void performCustomRestoreFromFile(
             I context,
             File incomingRestoreFile) {
@@ -147,34 +136,6 @@ public class FormAndDataSyncer {
                 LocalFilePullResponseFactory.INSTANCE, true);
     }
 
-
-    public <I extends CommCareActivity & PullTaskResultReceiver> void performLocalRestore(
-            I context,
-            String username,
-            String password) {
-
-        try {
-            ReferenceManager.instance().DeriveReference(
-                    SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
-        } catch (InvalidReferenceException | IOException e) {
-            throw new RuntimeException("Local restore file missing");
-        }
-
-        LocalReferencePullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
-        syncData(context, false, false, "fake-server-that-is-never-used", username, password, "unused",
-                LocalReferencePullResponseFactory.INSTANCE, true);
-    }
-
-
-    public <I extends CommCareActivity & PullTaskResultReceiver> void performDemoUserRestore(
-            I context,
-            OfflineUserRestore offlineUserRestore) {
-        String[] demoUserRestore = new String[]{offlineUserRestore.getReference()};
-        LocalReferencePullResponseFactory.setRequestPayloads(demoUserRestore);
-        syncData(context, false, false, "fake-server-that-is-never-used",
-                offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD, "demo_id",
-                LocalReferencePullResponseFactory.INSTANCE, true);
-    }
 
     public <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
             final I activity, final boolean formsToSend,

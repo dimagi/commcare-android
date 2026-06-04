@@ -6,9 +6,7 @@ import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import java.security.SecureRandom
 
-/**
- * Resolves the Connect-managed password for an (appId, username) pair.
- */
+/** Resolves (creating one if needed) the Connect linked-app record holding the managed password for an (appId, username) pair. */
 class ConnectCredentialResolver(
     private val context: Context,
 ) {
@@ -16,7 +14,7 @@ class ConnectCredentialResolver(
         appId: String,
         username: String,
         createIfNeeded: Boolean,
-    ): ResolvedCredentials {
+    ): ConnectLinkedAppRecord {
         val existing = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username)
         val record =
             existing ?: run {
@@ -32,7 +30,7 @@ class ConnectCredentialResolver(
             FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(appId)
         }
 
-        return ResolvedCredentials(record.password, record)
+        return record
     }
 
     private fun storeNewRecord(
@@ -58,8 +56,3 @@ class ConnectCredentialResolver(
             .joinToString("")
     }
 }
-
-data class ResolvedCredentials(
-    val password: String,
-    val record: ConnectLinkedAppRecord,
-)

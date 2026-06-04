@@ -1,7 +1,9 @@
 package org.commcare.login
 
+import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 
+/** Caller-supplied description of a login attempt; [authSource] decides how credentials are resolved. */
 data class LoginRequest(
     val appId: String,
     val username: String,
@@ -11,20 +13,21 @@ data class LoginRequest(
     val restoreSession: Boolean,
     val triggerMultipleUsersWarning: Boolean,
     val blockRemoteKeyManagement: Boolean,
+    val dataPullMode: DataPullMode = DataPullMode.NORMAL,
 ) {
     override fun toString(): String =
         "LoginRequest(appId=$appId, username=$username, passwordOrPin=***, " +
             "credentialType=$credentialType, authSource=$authSource, " +
             "restoreSession=$restoreSession, triggerMultipleUsersWarning=$triggerMultipleUsersWarning, " +
-            "blockRemoteKeyManagement=$blockRemoteKeyManagement)"
+            "blockRemoteKeyManagement=$blockRemoteKeyManagement, dataPullMode=$dataPullMode)"
 }
 
 enum class AuthSource {
     /** User typed credentials into LoginActivity. */
     Manual,
 
-    /** Caller already authenticated externally (Connect, PersonalID-managed login). */
-    AutoFromConnect,
+    /** PersonalID-managed login; credentials are resolved from the linked-app record, created if missing. */
+    PersonalId,
 
     /** MDM-supplied credentials. */
     MdmManaged,

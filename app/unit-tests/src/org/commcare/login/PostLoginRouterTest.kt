@@ -8,13 +8,14 @@ class PostLoginRouterTest {
     private fun success(
         loginMode: LoginMode = LoginMode.PASSWORD,
         personalIdManagedLogin: Boolean = false,
-        connectManagedLogin: Boolean = false,
         redirectToConnectOpportunityInfo: Boolean = false,
     ) = LoginResult.Success(
+        appId = "app-1",
+        username = "user",
         loginMode = loginMode,
         restoreSession = false,
         personalIdManagedLogin = personalIdManagedLogin,
-        connectManagedLogin = connectManagedLogin,
+        linkPassword = "",
         postLoginOutcome = PostLoginOutcome(redirectToConnectOpportunityInfo),
     )
 
@@ -34,25 +35,6 @@ class PostLoginRouterTest {
                 startFromLogin = true,
                 manualSwitchToPwMode = true,
                 personalIdManagedLogin = true,
-            ),
-            destination,
-        )
-    }
-
-    @Test
-    fun `connectManagedLogin does not affect Home destination`() {
-        val destination =
-            PostLoginRouter.route(
-                success(connectManagedLogin = true),
-                LaunchContext(startFromLogin = false, manualSwitchToPwMode = false),
-            )
-
-        assertEquals(
-            PostLoginDestination.Home(
-                loginMode = LoginMode.PASSWORD,
-                startFromLogin = false,
-                manualSwitchToPwMode = false,
-                personalIdManagedLogin = false,
             ),
             destination,
         )
@@ -110,8 +92,8 @@ class PostLoginRouterTest {
     }
 
     @Test
-    fun `sync failed preserves reason and message`() {
-        val error = LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR, "boom")
+    fun `message-carrying failure passes through to TerminalFailure`() {
+        val error = LoginError.BadData("boom")
         assertEquals(
             PostLoginDestination.TerminalFailure(error),
             PostLoginRouter.route(LoginResult.Failed(error), anyContext()),

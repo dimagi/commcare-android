@@ -11,11 +11,14 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.connect.PersonalIdManager
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -47,15 +50,18 @@ private class FakeSyncOperations(
 ) : SyncOperations(context = mockk(relaxed = true)) {
     var capturedUsername: String? = null
     var capturedPassword: String? = null
+    var capturedMode: DataPullMode? = null
     var callCount = 0
 
     override suspend fun pullData(
         username: String,
         password: String,
+        mode: DataPullMode,
         sink: LoginProgressSink,
     ): SyncOutcome {
         capturedUsername = username
         capturedPassword = password
+        capturedMode = mode
         callCount++
         return result
     }
@@ -115,16 +121,16 @@ class LoginControllerTest {
 
             assertTrue(result is LoginResult.Success)
             val success = result as LoginResult.Success
-            assertFalse(success.connectManagedLogin)
             assertFalse(success.personalIdManagedLogin)
             assertEquals(LoginMode.PASSWORD, success.loginMode)
             assertFalse(success.restoreSession)
+            assertEquals("secret", success.linkPassword)
             assertEquals(1, fakeKeyRecord.callCount)
             coVerify(exactly = 1) { postLoginSideEffects.runOnSuccess("alice") }
         }
 
     @Test
-    fun `AutoFromConnect rewrites password using credentialResolver`() =
+    fun `PersonalId rewrites password using credentialResolver`() =
         runTest {
             val (controller, fakeKeyRecord, fakeSync) =
                 buildController(
@@ -135,22 +141,28 @@ class LoginControllerTest {
                         ),
                     syncOutcome = SyncOutcome.Success,
                 )
-            val resolved = ResolvedCredentials(password = "resolved-pw", record = mockk(relaxed = true))
+            val resolved = mockk<ConnectLinkedAppRecord>()
+            every { resolved.password } returns "resolved-pw"
             every {
                 credentialResolver.resolve("app-1", "alice", true)
             } returns resolved
 
-            val request = manualRequest().copy(authSource = AuthSource.AutoFromConnect)
+            val request =
+                manualRequest().copy(
+                    authSource = AuthSource.PersonalId,
+                    passwordOrPin = "user-entered-pw",
+                )
             val result = controller.performLogin(request, sink)
 
             assertTrue(result is LoginResult.Success)
             val success = result as LoginResult.Success
-            assertTrue(success.connectManagedLogin)
             assertTrue(success.personalIdManagedLogin)
             assertEquals("alice", fakeSync.capturedUsername)
+            assertNotEquals("user-entered-pw", fakeSync.capturedPassword)
             assertEquals("resolved-pw", fakeSync.capturedPassword)
             assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[0].passwordOrPin)
             assertEquals("resolved-pw", fakeKeyRecord.capturedRequests[1].passwordOrPin)
+            assertEquals("resolved-pw", success.linkPassword)
             assertTrue(fakeKeyRecord.capturedRequests[1].blockRemoteKeyManagement)
             verify(exactly = 1) { credentialResolver.resolve("app-1", "alice", true) }
         }
@@ -198,21 +210,21 @@ class LoginControllerTest {
         }
 
     @Test
-    fun `SyncFailed from sync after ReadyForSync returns Failed without side effects`() =
+    fun `sync failure after ReadyForSync returns Failed without side effects`() =
         runTest {
             val (controller, _, _) =
                 buildController(
                     keyRecordOutcome = KeyRecordOutcome.ReadyForSync("secret"),
                     syncOutcome =
                         SyncOutcome.Failed(
-                            LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR, "something went wrong"),
+                            LoginError.UnknownFailure("something went wrong"),
                         ),
                 )
 
             val result = controller.performLogin(manualRequest(), sink)
 
             assertEquals(
-                LoginResult.Failed(LoginError.SyncFailed(SyncFailureReason.SERVER_ERROR, "something went wrong")),
+                LoginResult.Failed(LoginError.UnknownFailure("something went wrong")),
                 result,
             )
             coVerify(exactly = 0) { postLoginSideEffects.runOnSuccess(any()) }
@@ -261,6 +273,70 @@ class LoginControllerTest {
                 sideEffectsCompleted.await(),
             )
             coVerify(exactly = 1) { postLoginSideEffects.runOnSuccess("alice") }
+        }
+
+    @Test
+    fun `CONSUMER_APP happy path syncs with consumer-app mode then completes`() =
+        runTest {
+            val (controller, fakeKeyRecord, fakeSync) =
+                buildController(
+                    keyRecordOutcomes =
+                        arrayOf(
+                            KeyRecordOutcome.ReadyForSync("secret"),
+                            KeyRecordOutcome.LocalLoginComplete,
+                        ),
+                    syncOutcome = SyncOutcome.Success,
+                )
+
+            val request = manualRequest().copy(dataPullMode = DataPullMode.CONSUMER_APP)
+            val result = controller.performLogin(request, sink)
+
+            assertTrue(result is LoginResult.Success)
+            assertEquals(DataPullMode.CONSUMER_APP, fakeSync.capturedMode)
+            assertEquals(1, fakeSync.callCount)
+            assertEquals(2, fakeKeyRecord.callCount)
+            assertTrue(fakeKeyRecord.capturedRequests[1].blockRemoteKeyManagement)
+            coVerify(exactly = 1) { postLoginSideEffects.runOnSuccess("alice") }
+        }
+
+    @Test
+    fun `CCZ_DEMO happy path syncs with demo mode then completes`() =
+        runTest {
+            val (controller, _, fakeSync) =
+                buildController(
+                    keyRecordOutcomes =
+                        arrayOf(
+                            KeyRecordOutcome.ReadyForSync("demo-user-password"),
+                            KeyRecordOutcome.LocalLoginComplete,
+                        ),
+                    syncOutcome = SyncOutcome.Success,
+                )
+
+            val request =
+                manualRequest(username = "demo_user").copy(
+                    dataPullMode = DataPullMode.CCZ_DEMO,
+                    blockRemoteKeyManagement = true,
+                )
+            val result = controller.performLogin(request, sink)
+
+            assertTrue(result is LoginResult.Success)
+            assertEquals(DataPullMode.CCZ_DEMO, fakeSync.capturedMode)
+            assertEquals("demo_user", fakeSync.capturedUsername)
+            assertEquals("demo-user-password", fakeSync.capturedPassword)
+            coVerify(exactly = 1) { postLoginSideEffects.runOnSuccess("demo_user") }
+        }
+
+    @Test
+    fun `CONSUMER_APP local login without sync skips pullData`() =
+        runTest {
+            val (controller, _, fakeSync) =
+                buildController(keyRecordOutcome = KeyRecordOutcome.LocalLoginComplete)
+
+            val request = manualRequest().copy(dataPullMode = DataPullMode.CONSUMER_APP)
+            val result = controller.performLogin(request, sink)
+
+            assertTrue(result is LoginResult.Success)
+            assertEquals(0, fakeSync.callCount)
         }
 
     private fun manualRequest(username: String = "alice") =

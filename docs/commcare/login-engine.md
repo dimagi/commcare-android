@@ -8,13 +8,13 @@ The `org.commcare.login` package implements the CommCare login pipeline without 
 
 The controller composes:
 
-- `ConnectCredentialResolver` — resolves the Connect-managed password for an `(appId, username)` pair when `authSource = AutoFromConnect`.
+- `ConnectCredentialResolver` — resolves the Connect-managed password for an `(appId, username)` pair when `authSource` is `PersonalId` (creating the linked-app record if missing).
 - `KeyRecordOperations` — suspending wrapper around `ManageKeyRecordTask`. Yields a `KeyRecordOutcome` (`LocalLoginComplete`, `ReadyForSync`, or `Failed`).
-- `SyncOperations` — suspending wrapper around `DataPullTask` for `DataPullMode.NORMAL`.
-- `PostLoginSideEffects` — the deterministic post-success chain: `CrashUtil.registerUserData`, notification clear, `setConnectJobIdForAnalytics`, `PersonalIdManager.updateAppAccess`, `ConnectJobHelper.updateJobProgress`. Runs inside `withContext(NonCancellable)` so analytics still fire if the caller cancels after success.
+- `SyncOperations` — suspending wrapper around `DataPullTask`. `pullData` takes the `DataPullMode` from the request and resolves a per-mode `PullPlan` (server, userId, requester, `blockRemoteKeyManagement`, payload references): `NORMAL` is the OTA pull against the data server; `CONSUMER_APP` and `CCZ_DEMO` are bundled-CCZ local restores via `LocalReferencePullResponseFactory` against a fake server.
+- `PostLoginSideEffects` — the deterministic post-success chain: `CrashUtil.registerUserData`, notification clear, `setConnectJobIdForAnalytics`, `ConnectAppUtils.updateLastAccessed`, `ConnectJobHelper.updateJobProgress`. Runs inside `withContext(NonCancellable)` so analytics still fire if the caller cancels after success. Returns a `PostLoginOutcome(redirectToConnectOpportunityInfo, needsPersonalIdLinkCheck)`.
 - `OutcomeMapper` — pure functions mapping `HttpCalloutOutcomes` and `PullTaskResult` to `LoginError`.
 
-`LoginResult` is `Success(loginMode, restoreSession, personalIdManagedLogin, connectManagedLogin, postLoginOutcome)` or `Failed(LoginError)`. `LoginError` variants: `BadCredentials`, `TokenDenied`, `NetworkUnavailable`, `AuthOverHttpBlocked`, `SyncFailed(reason: SyncFailureReason, message?)`.
+`LoginResult` is `Success(appId, username, loginMode, restoreSession, personalIdManagedLogin, linkPassword, postLoginOutcome)` or `Failed(LoginError)`. `LoginError` is a flat sealed class — each failure is its own variant (no grouping wrapper): `BadCredentials`, `TokenDenied`, `NetworkUnavailable`, `AuthOverHttpBlocked`, `BadResponse`, `BadSslCertificate`, `StorageFull`, `ServerError`, `RateLimitedServerError`, `SessionExpire`, `Cancelled`, `EmptyUrl`, `InsufficientRolePermission`, and the message-carrying `BadData`, `BadDataRequiresIntervention`, `EncryptionFailure`, `RecoveryFailure`, `ActionableFailure`, `UnknownFailure`.
 
 ## Progress events
 
@@ -36,34 +36,35 @@ The controller composes:
 | `TokenDenied` | `TokenDenied` |
 | `NetworkUnavailable` | `Remote_NoNetwork` |
 | `AuthOverHttpBlocked` | `Auth_Over_HTTP` |
-| `SyncFailed(BAD_DATA, msg)` | `Remote_BadRestore` (with `msg`) |
-| `SyncFailed(BAD_DATA_REQUIRES_INTERVENTION, msg)` | `Remote_BadRestoreRequiresIntervention` (with `msg`) |
-| `SyncFailed(BAD_RESPONSE)` | `Remote_BadRestore` |
-| `SyncFailed(BAD_SSL_CERTIFICATE)` | `BadSslCertificate` (with `LAUNCH_DATE_SETTINGS` button) |
-| `SyncFailed(STORAGE_FULL)` | `Storage_Full` |
-| `SyncFailed(SERVER_ERROR)` | `Remote_ServerError` |
-| `SyncFailed(RATE_LIMITED_SERVER_ERROR)` | `Remote_RateLimitedServerError` |
-| `SyncFailed(ENCRYPTION_FAILURE, msg)` | `Encryption_Error` (with `msg`) |
-| `SyncFailed(RECOVERY_FAILURE, msg)` | `Recovery_Error` (with `msg`) |
-| `SyncFailed(ACTIONABLE_FAILURE, msg)` | Raw `NotificationMessage(msg)` |
-| `SyncFailed(SESSION_EXPIRE)` | `Session_Expire` |
-| `SyncFailed(CANCELLED)` | `Cancelled` |
-| `SyncFailed(EMPTY_URL)` | `Empty_Url` |
-| `SyncFailed(INSUFFICIENT_ROLE_PERMISSION)` | `Auth_InsufficientRolePermission` |
-| `SyncFailed(UNKNOWN, msg?)` | `Restore_Unknown` (with `msg` if present) |
+| `BadData(msg)` | `Remote_BadRestore` (with `msg`) |
+| `BadDataRequiresIntervention(msg)` | `Remote_BadRestoreRequiresIntervention` (with `msg`) |
+| `BadResponse` | `Remote_BadRestore` |
+| `BadSslCertificate` | `BadSslCertificate` (with `LAUNCH_DATE_SETTINGS` button) |
+| `StorageFull` | `Storage_Full` |
+| `ServerError` | `Remote_ServerError` |
+| `RateLimitedServerError` | `Remote_RateLimitedServerError` |
+| `EncryptionFailure(msg)` | `Encryption_Error` (with `msg`) |
+| `RecoveryFailure(msg)` | `Recovery_Error` (with `msg`) |
+| `ActionableFailure(msg)` | Raw `NotificationMessage(msg)` |
+| `SessionExpire` | `Session_Expire` |
+| `Cancelled` | `Cancelled` |
+| `EmptyUrl` | `Empty_Url` |
+| `InsufficientRolePermission` | `Auth_InsufficientRolePermission` |
+| `UnknownFailure(msg?)` | `Restore_Unknown` (with `msg` if present) |
 
 Two `HttpCalloutOutcomes` values are coalesced into `NetworkUnavailable` per the Phase 1 plan: `NetworkFailureBadPassword` (legacy: `Remote_NoNetwork_BadPass`) and `CaptivePortal` (legacy: `Sync_CaptivePortal`). `IncorrectPin` (legacy: `Auth_InvalidPin`) is coalesced into `BadCredentials` per the plan. These are intentional regressions and will be revisited if user reports warrant it.
 
-## What stays on the legacy path
+## Data pull modes
 
-Two flows still use the original `tryLocalLogin` / `startDataPull` / `dataPullCompleted` / `handlePullTaskResult` plumbing on `LoginActivity`:
+All `LoginActivity` flows now route through `LoginController`; the legacy `tryLocalLogin` / `startDataPull` / `dataPullCompleted` / `handlePullTaskResult` plumbing has been removed. The flow is selected by the `LoginRequest.dataPullMode`:
 
-- **Consumer-app launches** (`DataPullMode.CONSUMER_APP`) — bundled-CCZ restore via `LocalReferencePullResponseFactory` with `SingleAppInstallation.LOCAL_RESTORE_REFERENCE`. `SyncOperations` only handles `NORMAL`.
-- **Demo-user practice menu** — `LoginActivity.loginDemoUser()` drives `tryLocalLogin` directly with the bundled demo CCZ.
+- **`NORMAL`** — manual, Connect, and PersonalID logins; OTA restore against the data server.
+- **`CONSUMER_APP`** — consumer-app launches; bundled-CCZ local restore via `LocalReferencePullResponseFactory` with `SingleAppInstallation.LOCAL_RESTORE_REFERENCE` (`userId="unused"`).
+- **`CCZ_DEMO`** — demo/practice menu (`LoginActivity.loginDemoUser()`) when a bundled `OfflineUserRestore` is present; local restore from the demo reference (`userId="demo_id"`). The non-bundled demo sub-case calls `DemoUserBuilder.build(...)` and then logs in with `NORMAL` (no sync).
 
 ## Adding a new caller
 
 1. Construct a `LoginController` with a `Context`.
-2. Build a `LoginRequest`. For Connect-managed launches, set `authSource = AutoFromConnect`; the controller replaces `passwordOrPin` with the resolver's value.
+2. Build a `LoginRequest`. For PersonalID-managed login (launched from Connect or manual) set `authSource = PersonalId`; the controller replaces `passwordOrPin` with the resolver's value. App navigation (e.g. returning to Connect on back-out) is driven by launch context at the call site, not by `authSource`.
 3. Implement `LoginProgressSink` to render `LoginProgress(phase, percent?, message?)` events.
-4. Handle the returned `LoginResult`. `Success` carries routing fields (`loginMode`, `restoreSession`, `personalIdManagedLogin`, `connectManagedLogin`) plus `postLoginOutcome.redirectToConnectOpportunityInfo`. Failures: switch on `Failed.error`.
+4. Handle the returned `LoginResult`. `Success` carries the resolved `appId`/`username`, routing fields (`loginMode`, `restoreSession`, `personalIdManagedLogin`), the `linkPassword` for a PersonalID link check, and `postLoginOutcome` (`redirectToConnectOpportunityInfo`, `needsPersonalIdLinkCheck`). Failures: handle the variants you care about and funnel the rest in an `else`/default branch.

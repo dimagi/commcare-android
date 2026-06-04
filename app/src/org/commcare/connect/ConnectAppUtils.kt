@@ -4,12 +4,14 @@ import android.app.Activity
 import android.content.Context
 import org.commcare.CommCareApplication
 import org.commcare.commcaresupportlibrary.CommCareLauncher
+import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.ConnectCredentialResolver
 import org.commcare.tasks.ResourceEngineListener
 import org.commcare.tasks.templates.CommCareTask
 import org.commcare.tasks.templates.CommCareTaskConnector
+import java.util.Date
 
 object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
@@ -70,6 +72,18 @@ object ConnectAppUtils {
     ): String {
         val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
         return ConnectCredentialResolver(context).resolve(seatedAppId, username, createIfNeeded).password
+    }
+
+    fun updateLastAccessed(
+        context: Context,
+        appId: String,
+        username: String,
+    ) {
+        val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username)
+        if (record != null) {
+            record.lastAccessed = Date()
+            ConnectAppDatabaseUtil.storeApp(context, record)
+        }
     }
 
     fun launchApp(

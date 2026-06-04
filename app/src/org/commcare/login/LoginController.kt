@@ -8,8 +8,11 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
-import org.commcare.connect.PersonalIdManager
 
+/**
+ * Activity-free entry point for the login pipeline: resolves credentials, manages the key record,
+ * syncs, re-binds the session, and runs post-success side effects, producing a [LoginResult].
+ */
 class LoginController internal constructor(
     private val keyRecordOperations: KeyRecordOperations,
     private val syncOperations: SyncOperations,
@@ -43,14 +46,14 @@ class LoginController internal constructor(
         sink: LoginProgressSink,
     ): LoginResult {
         val effectiveRequest =
-            if (request.authSource == AuthSource.AutoFromConnect) {
-                val resolved =
+            if (request.authSource == AuthSource.PersonalId) {
+                val record =
                     credentialResolver.resolve(
                         appId = request.appId,
                         username = request.username,
                         createIfNeeded = true,
                     )
-                request.copy(passwordOrPin = resolved.password)
+                request.copy(passwordOrPin = record.password)
             } else {
                 request
             }
@@ -70,6 +73,7 @@ class LoginController internal constructor(
                         syncOperations.pullData(
                             username = effectiveRequest.username,
                             password = keyOutcome.password,
+                            mode = effectiveRequest.dataPullMode,
                             sink = sink,
                         )
                 ) {
@@ -101,13 +105,13 @@ class LoginController internal constructor(
             withContext(NonCancellable) {
                 postLoginSideEffects.runOnSuccess(request.username)
             }
-        val isConnectManaged = request.authSource == AuthSource.AutoFromConnect
-
         return LoginResult.Success(
+            appId = request.appId,
+            username = request.username,
             loginMode = request.credentialType,
             restoreSession = request.restoreSession,
-            personalIdManagedLogin = isConnectManaged || PersonalIdManager.getInstance().isloggedIn(),
-            connectManagedLogin = isConnectManaged,
+            personalIdManagedLogin = request.authSource == AuthSource.PersonalId,
+            linkPassword = request.passwordOrPin,
             postLoginOutcome = postLoginOutcome,
         )
     }

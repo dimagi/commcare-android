@@ -14,6 +14,7 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareNoficationManager
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
@@ -36,6 +37,8 @@ class PostLoginSideEffectsTest {
         mockkStatic(CrashUtil::class)
         mockkStatic(ConnectJobUtils::class)
         mockkObject(ConnectJobHelper)
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.updateLastAccessed(any(), any(), any()) } returns Unit
         every { CommCareApplication.notificationManager() } returns notificationManager
         every { CommCareApplication.instance() } returns commCareApplication
         every { commCareApplication.currentApp } returns currentApp
@@ -62,25 +65,27 @@ class PostLoginSideEffectsTest {
         }
 
     @Test
-    fun `personalID logged in with no job updates app access and returns false`() =
+    fun `personalID logged in with no job does not update app access and flags link check`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns null
 
             val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
-            assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
+            assertEquals(
+                PostLoginOutcome(redirectToConnectOpportunityInfo = false, needsPersonalIdLinkCheck = true),
+                outcome,
+            )
             verify { commCareApplication.setConnectJobIdForAnalytics(null) }
-            verify { personalIdManager.updateAppAccess(context, "app-1", "alice") }
+            verify(exactly = 0) { ConnectAppUtils.updateLastAccessed(any(), any(), any()) }
             verify(exactly = 0) { ConnectJobHelper.updateJobProgress(any(), any(), any()) }
         }
 
     @Test
-    fun `personalID logged in with job and updateJobProgress success and user suspended returns true`() =
+    fun `personalID logged in with job updates app access and job progress`() =
         runTest {
             every { personalIdManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
-            every { job.isUserSuspended } returns true
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
 
             val listenerSlot = slot<ConnectActivityCompleteListener>()
@@ -90,50 +95,10 @@ class PostLoginSideEffectsTest {
                 listenerSlot.captured.connectActivityComplete(true, "")
             }
 
-            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
+            PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
 
-            assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = true), outcome)
             verify { commCareApplication.setConnectJobIdForAnalytics(job) }
-            verify { personalIdManager.updateAppAccess(context, "app-1", "alice") }
-        }
-
-    @Test
-    fun `personalID logged in with job and updateJobProgress success and user not suspended returns false`() =
-        runTest {
-            every { personalIdManager.isloggedIn() } returns true
-            val job = mockk<ConnectJobRecord>(relaxed = true)
-            every { job.isUserSuspended } returns false
-            every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
-
-            val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every {
-                ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot))
-            } answers {
-                listenerSlot.captured.connectActivityComplete(true, "")
-            }
-
-            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
-
-            assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
-        }
-
-    @Test
-    fun `updateJobProgress failure returns false even when user is suspended`() =
-        runTest {
-            every { personalIdManager.isloggedIn() } returns true
-            val job = mockk<ConnectJobRecord>(relaxed = true)
-            every { job.isUserSuspended } returns true
-            every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
-
-            val listenerSlot = slot<ConnectActivityCompleteListener>()
-            every {
-                ConnectJobHelper.updateJobProgress(context, job, capture(listenerSlot))
-            } answers {
-                listenerSlot.captured.connectActivityComplete(false, "network failure")
-            }
-
-            val outcome = PostLoginSideEffects(context, personalIdManager).runOnSuccess("alice")
-
-            assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
+            verify { ConnectAppUtils.updateLastAccessed(context, "app-1", "alice") }
+            verify { ConnectJobHelper.updateJobProgress(context, job, any()) }
         }
 }

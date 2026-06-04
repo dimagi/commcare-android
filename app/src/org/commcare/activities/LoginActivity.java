@@ -24,15 +24,13 @@ import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.DataPullController.DataPullMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -61,11 +59,7 @@ import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
-import org.commcare.tasks.ManageKeyRecordTask;
-import org.commcare.tasks.PullTaskResultReceiver;
-import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConsumerAppsUtil;
-import org.commcare.utils.CrashUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
@@ -96,8 +90,7 @@ import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
  * @author ctsims
  */
 public class LoginActivity extends BaseDrawerActivity<LoginActivity>
-        implements OnItemSelectedListener, DataPullController,
-        RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
+        implements OnItemSelectedListener, RuntimePermissionRequester, WithUIController {
 
     public static final String EXTRA_APP_ID = "extra_app_id";
     public static final String EXTRA_FORCE_SINGLE_APP_MODE = "extra_force_single_app_mode";
@@ -130,7 +123,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private String passwordOrPinBeforeRotation;
 
     private LoginActivityUIController uiController;
-    private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect = false;
 
@@ -159,7 +151,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
 
         uiController.setupUI();
-        formAndDataSyncer = new FormAndDataSyncer();
         initPersonaIdManager();
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
@@ -296,15 +287,20 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 uiController.getEnteredUsername())) {
             // install update, which triggers login upon completion
             installPendingUpdate();
-        } else if (CommCareApplication.instance().isConsumerApp()) {
-            localLoginOrPullAndLogin(restoreSession);
         } else {
-            runLoginPipeline(loginMode, restoreSession, passwordOrPin);
+            localLoginOrPullAndLogin(restoreSession);
         }
     }
 
-    private void runLoginPipeline(LoginMode loginMode, boolean restoreSession, String passwordOrPin) {
-        String username = getUniformUsername();
+    private void runLoginPipeline(
+            String username,
+            String passwordOrPin,
+            LoginMode loginMode,
+            AuthSource authSource,
+            boolean restoreSession,
+            boolean blockRemoteKeyManagement,
+            DataPullMode dataPullMode
+    ) {
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         LoginRequest request = new LoginRequest(
@@ -312,10 +308,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 username,
                 passwordOrPin,
                 loginMode,
-                determineAuthSource(),
+                authSource,
                 restoreSession,
                 getMatchingUsersCount(username) > 1,
-                false
+                blockRemoteKeyManagement,
+                dataPullMode
         );
 
         LoginController controller = new LoginController(this);
@@ -331,10 +328,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         int taskId = taskIdForPhase(phase);
 
         if (phase != currentLoginPhase) {
-            if (currentLoginPhase != null) {
-                dismissProgressDialogForTask(taskIdForPhase(currentLoginPhase));
-            }
-
+            dismissLoginProgressDialog();
             currentLoginPhase = phase;
             showProgressDialog(taskId);
         }
@@ -365,8 +359,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private AuthSource determineAuthSource() {
-        if (appLaunchedFromConnect) {
-            return AuthSource.AutoFromConnect;
+        if (appLaunchedFromConnect || (personalIdManager.isloggedIn() && loginManagedByPersonalId())) {
+            return AuthSource.PersonalId;
         }
 
         if (uiController.getLoginMode() == LoginMode.PRIMED) {
@@ -379,26 +373,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private boolean isUsernameValid(String username) {
         return (username != null && !username.isEmpty()) &&
                 (!username.contains("@") || username.endsWith("@" + HiddenPreferences.getUserDomain()));
-    }
-
-    @Override
-    public void startDataPull(DataPullMode mode, String password) {
-        switch (mode) {
-            case CONSUMER_APP:
-                formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
-                        uiController.getEnteredPasswordOrPin());
-                break;
-            case CCZ_DEMO:
-                OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform()
-                        .getDemoUserRestore();
-                uiController.setUsername(offlineUserRestore.getUsername());
-                uiController.setPasswordOrPin(OfflineUserRestore.DEMO_USER_PASSWORD);
-                formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
-                break;
-            case NORMAL:
-                formAndDataSyncer.performOtaRestore(this, getUniformUsername(), password);
-                break;
-        }
     }
 
     @Override
@@ -517,42 +491,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return username.toLowerCase().trim();
     }
 
-    private boolean tryLocalLogin(final String username, String passwordOrPin,
-                                  final boolean warnMultipleAccounts, final boolean restoreSession,
-                                  LoginMode loginMode, boolean blockRemoteKeyManagement,
-                                  DataPullMode pullModeToUse) {
-        try {
-            if (ConnectAppUtils.INSTANCE.shouldOverridePassword(loginManagedByPersonalId())) {
-                passwordOrPin = ConnectAppUtils.INSTANCE.getPasswordOverride(
-                        this, username, appLaunchedFromConnect);
-            }
-
-            final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
-                    && warnMultipleAccounts;
-
-            ManageKeyRecordTask<LoginActivity> task =
-                    new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
-                            passwordOrPin, loginMode,
-                            CommCareApplication.instance().getCurrentApp(), restoreSession,
-                            triggerMultipleUsersWarning, blockRemoteKeyManagement, pullModeToUse) {
-
-                        @Override
-                        protected void deliverUpdate(LoginActivity receiver, String... update) {
-                            receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
-                        }
-
-                    };
-
-            task.connect(this);
-            task.executeParallel();
-
-            return true;
-        } catch (Exception e) {
-            Logger.exception("Error while local login", e);
-            return false;
-        }
-    }
-
     private int getMatchingUsersCount(String username) {
         int count = 0;
         for (UserKeyRecord record : CommCareApplication.instance().getAppStorage(UserKeyRecord.class)) {
@@ -561,62 +499,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             }
         }
         return count;
-    }
-
-    @Override
-    public void dataPullCompleted() {
-        CrashUtil.registerUserData();
-        hideVirtualKeyboard(LoginActivity.this);
-        CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-        if (handleConnectSignIn(this, getUniformUsername(),
-                uiController.getEnteredPasswordOrPin())) {
-            setResultAndFinish(false);
-        }
-    }
-
-    /**
-     * Handles sign in related ops for Connect
-     *
-     * @param context            Android activity we are signing in from
-     * @param username           Username for user signing in
-     * @param enteredPasswordPin user entered password or pin for non-connect apps
-     * @return if we should finish after calling this method
-     */
-    private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
-        if (personalIdManager.isloggedIn()) {
-            String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = ConnectJobUtils.getJobForApp(context, appId);
-            CommCareApplication.instance().setConnectJobIdForAnalytics(job);
-
-            if (job != null) {
-                personalIdManager.updateAppAccess(context, appId, username);
-                ConnectJobHelper.INSTANCE.updateJobProgress(context, job, (success, error) -> setResultAndFinish(job.getIsUserSuspended()));
-            } else {
-                //Possibly offer to link or de-link PersonalId-managed login
-                personalIdManager.checkPersonalIdLink(context,
-                        loginManagedByPersonalId(),
-                        appId,
-                        username,
-                        enteredPasswordPin,
-                        success -> {
-                            personalIdManager.updateAppAccess(context, appId, username);
-                            setResultAndFinish(success);
-                        }
-                );
-            }
-            return false;
-        }
-
-        return true;
-    }
-
-    private void setResultAndFinish(boolean navigateToConnectJobs) {
-        setLoginResultAndFinish(
-                uiController.getLoginMode(),
-                navigateToConnectJobs,
-                appLaunchedFromConnect || loginManagedByPersonalId(),
-                appLaunchedFromConnect
-        );
     }
 
     private void setLoginResultAndFinish(
@@ -647,26 +529,17 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void onLoginSuccess(LoginResult.Success success) {
-        if (personalIdManager.isloggedIn()) {
-            String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = ConnectJobUtils.getJobForApp(this, appId);
+        if (success.getPostLoginOutcome().getNeedsPersonalIdLinkCheck()) {
+            personalIdManager.checkPersonalIdLink(
+                    this,
+                    success.getPersonalIdManagedLogin(),
+                    success.getAppId(),
+                    success.getUsername(),
+                    success.getLinkPassword(),
+                    linkSuccess -> finishWithSuccess(success, linkSuccess)
+            );
 
-            if (job == null) {
-                String linkPassword = success.getConnectManagedLogin()
-                        ? ConnectAppUtils.INSTANCE.getPasswordOverride(this, getUniformUsername(), false)
-                        : uiController.getEnteredPasswordOrPin();
-
-                personalIdManager.checkPersonalIdLink(
-                        this,
-                        loginManagedByPersonalId(),
-                        appId,
-                        getUniformUsername(),
-                        linkPassword,
-                        linkSuccess -> finishWithSuccess(success, linkSuccess)
-                );
-
-                return;
-            }
+            return;
         }
 
         finishWithSuccess(
@@ -680,7 +553,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 success.getLoginMode(),
                 navigateToConnectJobs,
                 success.getPersonalIdManagedLogin(),
-                success.getConnectManagedLogin()
+                appLaunchedFromConnect
         );
     }
 
@@ -693,81 +566,57 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
         } else if (error instanceof LoginError.AuthOverHttpBlocked) {
             raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
-        } else if (error instanceof LoginError.SyncFailed syncFailed) {
-            onSyncFailed(syncFailed);
-        }
-    }
-
-    private void onSyncFailed(LoginError.SyncFailed syncFailed) {
-        String message = syncFailed.getMessage();
-        switch (syncFailed.getReason()) {
-            case BAD_DATA:
-                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, message, true);
-                break;
-            case BAD_DATA_REQUIRES_INTERVENTION:
-                raiseLoginMessageWithInfo(
-                        StockMessages.Remote_BadRestoreRequiresIntervention,
-                        message,
-                        true
-                );
-                break;
-            case BAD_RESPONSE:
-                raiseLoginMessage(StockMessages.Remote_BadRestore, true);
-                break;
-            case BAD_SSL_CERTIFICATE:
-                raiseLoginMessage(
-                        StockMessages.BadSslCertificate,
-                        true,
-                        NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS
-                );
-                break;
-            case STORAGE_FULL:
-                raiseLoginMessage(StockMessages.Storage_Full, true);
-                break;
-            case SERVER_ERROR:
-                raiseLoginMessage(StockMessages.Remote_ServerError, true);
-                break;
-            case RATE_LIMITED_SERVER_ERROR:
-                raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
-                break;
-            case ENCRYPTION_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Encryption_Error, message, true);
-                break;
-            case RECOVERY_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Recovery_Error, message, true);
-                break;
-            case ACTIONABLE_FAILURE:
-                raiseMessage(
-                        new NotificationMessage(
-                                NOTIFICATION_MESSAGE_LOGIN,
-                                message,
-                                "",
-                                null,
-                                new Date()
-                        ),
-                        true
-                );
-                break;
-            case SESSION_EXPIRE:
-                raiseLoginMessage(StockMessages.Session_Expire, true);
-                break;
-            case CANCELLED:
-                raiseLoginMessage(StockMessages.Cancelled, true);
-                break;
-            case EMPTY_URL:
-                raiseLoginMessage(StockMessages.Empty_Url, true);
-                break;
-            case INSUFFICIENT_ROLE_PERMISSION:
-                raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
-                break;
-            case UNKNOWN:
-            default:
-                if (message != null) {
-                    raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, message, true);
-                } else {
-                    raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                }
-                break;
+        } else if (error instanceof LoginError.BadData badData) {
+            raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, badData.getMessage(), true);
+        } else if (error instanceof LoginError.BadDataRequiresIntervention badDataRequiresIntervention) {
+            raiseLoginMessageWithInfo(
+                    StockMessages.Remote_BadRestoreRequiresIntervention,
+                    badDataRequiresIntervention.getMessage(),
+                    true
+            );
+        } else if (error instanceof LoginError.BadResponse) {
+            raiseLoginMessage(StockMessages.Remote_BadRestore, true);
+        } else if (error instanceof LoginError.BadSslCertificate) {
+            raiseLoginMessage(
+                    StockMessages.BadSslCertificate,
+                    true,
+                    NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS
+            );
+        } else if (error instanceof LoginError.StorageFull) {
+            raiseLoginMessage(StockMessages.Storage_Full, true);
+        } else if (error instanceof LoginError.ServerError) {
+            raiseLoginMessage(StockMessages.Remote_ServerError, true);
+        } else if (error instanceof LoginError.RateLimitedServerError) {
+            raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
+        } else if (error instanceof LoginError.EncryptionFailure encryptionFailure) {
+            raiseLoginMessageWithInfo(StockMessages.Encryption_Error, encryptionFailure.getMessage(), true);
+        } else if (error instanceof LoginError.RecoveryFailure recoveryFailure) {
+            raiseLoginMessageWithInfo(StockMessages.Recovery_Error, recoveryFailure.getMessage(), true);
+        } else if (error instanceof LoginError.ActionableFailure actionableFailure) {
+            raiseMessage(
+                    new NotificationMessage(
+                            NOTIFICATION_MESSAGE_LOGIN,
+                            actionableFailure.getMessage(),
+                            "",
+                            null,
+                            new Date()
+                    ),
+                    true
+            );
+        } else if (error instanceof LoginError.SessionExpire) {
+            raiseLoginMessage(StockMessages.Session_Expire, true);
+        } else if (error instanceof LoginError.Cancelled) {
+            raiseLoginMessage(StockMessages.Cancelled, true);
+        } else if (error instanceof LoginError.EmptyUrl) {
+            raiseLoginMessage(StockMessages.Empty_Url, true);
+        } else if (error instanceof LoginError.InsufficientRolePermission) {
+            raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
+        } else if (error instanceof LoginError.UnknownFailure unknownFailure) {
+            if (unknownFailure.getMessage() != null) {
+                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, unknownFailure.getMessage(), true);
+            } else {
+                raiseLoginMessage(StockMessages.Restore_Unknown, true);
+            }
         }
     }
 
@@ -874,16 +723,29 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         FirebaseAnalyticsUtil.reportPracticeModeUsage(offlineUserRestore);
 
         if (offlineUserRestore != null) {
-            tryLocalLogin(offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
-                    false, false, LoginMode.PASSWORD, true, DataPullMode.CCZ_DEMO);
+            runLoginPipeline(
+                    offlineUserRestore.getUsername(),
+                    OfflineUserRestore.DEMO_USER_PASSWORD,
+                    LoginMode.PASSWORD,
+                    AuthSource.Manual,
+                    false,
+                    true,
+                    DataPullMode.CCZ_DEMO
+            );
         } else {
             DemoUserBuilder.build(this, CommCareApplication.instance().getCurrentApp());
-            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                    false, LoginMode.PASSWORD, false, DataPullMode.NORMAL);
+            runLoginPipeline(
+                    DemoUserBuilder.DEMO_USERNAME,
+                    DemoUserBuilder.DEMO_PASSWORD,
+                    LoginMode.PASSWORD,
+                    AuthSource.Manual,
+                    false,
+                    false,
+                    DataPullMode.NORMAL
+            );
         }
     }
 
-    @Override
     public void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop) {
         NotificationMessage message =
                 NotificationMessageFactory.message(messageTag,
@@ -896,7 +758,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         raiseLoginMessage(messageTag, showTop, NotificationActionButtonInfo.ButtonAction.NONE);
     }
 
-    @Override
     public void raiseLoginMessage(MessageTag messageTag, boolean showTop,
                                   NotificationActionButtonInfo.ButtonAction buttonAction) {
         NotificationMessage message = NotificationMessageFactory.message(messageTag,
@@ -904,7 +765,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         raiseMessage(message, showTop);
     }
 
-    @Override
     public void raiseMessage(NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
         if (showTop) {
@@ -1042,31 +902,18 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
-        if (CommCareApplication.instance().isConsumerApp()) {
-            String username = getUniformUsername();
-            String passwordOrPin = uiController.getEnteredPasswordOrPin();
-            boolean localLoginStarted = tryLocalLogin(
-                    username,
-                    passwordOrPin,
-                    false,
-                    restoreSession,
-                    uiController.getLoginMode(),
-                    false,
-                    DataPullMode.NORMAL
-            );
-
-            if (localLoginStarted) {
-                return;
-            }
-
-            startDataPull(DataPullMode.CONSUMER_APP, passwordOrPin);
-            return;
-        }
+        DataPullMode dataPullMode = CommCareApplication.instance().isConsumerApp()
+                ? DataPullMode.CONSUMER_APP
+                : DataPullMode.NORMAL;
 
         runLoginPipeline(
+                getUniformUsername(),
+                uiController.getEnteredPasswordOrPin(),
                 uiController.getLoginMode(),
+                determineAuthSource(),
                 restoreSession,
-                uiController.getEnteredPasswordOrPin()
+                false,
+                dataPullMode
         );
     }
 
@@ -1087,105 +934,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     @Override
     public boolean isBackEnabled() {
         return false;
-    }
-
-    @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
-                                     boolean userTriggeredSync, boolean formsToSend,
-                                     boolean usingRemoteKeyManagement) {
-        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
-        if (result == null) {
-            // The task crashed unexpectedly
-            raiseLoginMessage(StockMessages.Restore_Unknown, true);
-            return;
-        }
-
-        switch (result) {
-            case EMPTY_URL:
-                raiseLoginMessage(StockMessages.Empty_Url, true);
-                break;
-            case TOKEN_UNAVAILABLE:
-                raiseLoginMessage(StockMessages.TokenUnavailable, false);
-            case TOKEN_DENIED:
-                raiseLoginMessage(StockMessages.TokenDenied, false);
-            case AUTH_FAILED:
-                raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
-                break;
-            case BAD_DATA_REQUIRES_INTERVENTION:
-                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
-                break;
-            case BAD_DATA:
-                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
-                break;
-            case STORAGE_FULL:
-                raiseLoginMessage(StockMessages.Storage_Full, true);
-                break;
-            case DOWNLOAD_SUCCESS:
-                boolean localLoginStarted = tryLocalLogin(
-                        getUniformUsername(),
-                        uiController.getEnteredPasswordOrPin(),
-                        true,
-                        uiController.isRestoreSessionChecked(),
-                        uiController.getLoginMode(),
-                        !usingRemoteKeyManagement,
-                        DataPullMode.NORMAL
-                );
-                if (!localLoginStarted) {
-                    raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                }
-                break;
-            case UNREACHABLE_HOST:
-                raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
-                break;
-            case CONNECTION_TIMEOUT:
-                raiseLoginMessage(StockMessages.Remote_Timeout, true);
-                break;
-            case SERVER_ERROR:
-                raiseLoginMessage(StockMessages.Remote_ServerError, true);
-                break;
-            case RATE_LIMITED_SERVER_ERROR:
-                raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
-                break;
-            case UNKNOWN_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
-                break;
-            case CANCELLED:
-                raiseLoginMessage(StockMessages.Cancelled, true);
-                break;
-            case ENCRYPTION_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Encryption_Error, resultAndErrorMessage.errorMessage, true);
-                break;
-            case SESSION_EXPIRE:
-                raiseLoginMessage(StockMessages.Session_Expire, true);
-                break;
-            case RECOVERY_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Recovery_Error, resultAndErrorMessage.errorMessage, true);
-                break;
-            case ACTIONABLE_FAILURE:
-                NotificationMessage message = new NotificationMessage(NOTIFICATION_MESSAGE_LOGIN,
-                        resultAndErrorMessage.errorMessage, "", null, new Date());
-                raiseMessage(message, true);
-                break;
-            case AUTH_OVER_HTTP:
-                raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
-                break;
-            case CAPTIVE_PORTAL:
-                raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
-                break;
-        }
-    }
-
-    @Override
-    public void handlePullTaskUpdate(Integer... update) {
-        if (CommCareApplication.instance().isConsumerApp()) {
-            return;
-        }
-        SyncCapableCommCareActivity.handleSyncUpdate(this, update);
-    }
-
-    @Override
-    public void handlePullTaskError() {
-        raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
 
     private void checkManagedConfiguration() {

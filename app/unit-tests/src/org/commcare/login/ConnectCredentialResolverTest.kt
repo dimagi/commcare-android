@@ -46,7 +46,7 @@ class ConnectCredentialResolverTest {
         val result = resolver.resolve("app-1", "alice", createIfNeeded = false)
 
         assertEquals("stored-pw", result.password)
-        assertSame(record, result.record)
+        assertSame(record, result)
         verify(exactly = 0) { FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(any()) }
     }
 

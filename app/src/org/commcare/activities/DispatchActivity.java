@@ -548,11 +548,13 @@ public class DispatchActivity extends AppCompatActivity {
         boolean personalIdManaged = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
         boolean restoreSession = false;
         LoginResult.Success success = new LoginResult.Success(
+                "",
+                "",
                 loginMode,
                 restoreSession,
                 personalIdManaged,
-                connectManagedLogin,
-                new PostLoginOutcome(redirectToConnectOpportunityInfo)
+                "",
+                new PostLoginOutcome(redirectToConnectOpportunityInfo, false)
         );
 
         return PostLoginRouter.route(success, new LaunchContext(true, manualSwitchToPwMode));

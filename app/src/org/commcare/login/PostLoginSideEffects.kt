@@ -5,16 +5,21 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
 import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.utils.CrashUtil
 
-internal open class PostLoginSideEffects(
+/**
+ * Runs the deterministic post-success chain (analytics, notification clears, Connect job update)
+ * and returns the [PostLoginOutcome] routing signals.
+ */
+internal class PostLoginSideEffects(
     private val context: Context,
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
 ) {
-    open suspend fun runOnSuccess(username: String): PostLoginOutcome {
+    suspend fun runOnSuccess(username: String): PostLoginOutcome {
         CrashUtil.registerUserData()
         CommCareApplication
             .notificationManager()
@@ -28,28 +33,30 @@ internal open class PostLoginSideEffects(
         val job = ConnectJobUtils.getJobForApp(context, appId)
         CommCareApplication.instance().setConnectJobIdForAnalytics(job)
 
-        personalIdManager.updateAppAccess(context, appId, username)
-
         if (job == null) {
-            return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
+            return PostLoginOutcome(
+                redirectToConnectOpportunityInfo = false,
+                needsPersonalIdLinkCheck = true,
+            )
         }
 
-        val updated =
-            suspendCancellableCoroutine { continuation ->
-                val listener =
-                    object : ConnectActivityCompleteListener {
-                        override fun connectActivityComplete(
-                            success: Boolean,
-                            error: String?,
-                        ) {
-                            continuation.resumeOnce(success)
-                        }
+        ConnectAppUtils.updateLastAccessed(context, appId, username)
+
+        suspendCancellableCoroutine { continuation ->
+            val listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        continuation.resumeOnce(success)
                     }
-                ConnectJobHelper.updateJobProgress(context, job, listener)
-            }
+                }
+            ConnectJobHelper.updateJobProgress(context, job, listener)
+        }
 
         return PostLoginOutcome(
-            redirectToConnectOpportunityInfo = updated && job.isUserSuspended,
+            redirectToConnectOpportunityInfo = job.isUserSuspended,
         )
     }
 }
