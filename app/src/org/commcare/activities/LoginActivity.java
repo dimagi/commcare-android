@@ -959,7 +959,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         personalIdManager.launchPersonalId(this, ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH);
     }
 
-    protected boolean seatAppIfNeeded(String appId) {
+    protected void seatAppIfNeeded(String appId) {
         boolean selectedNewApp = !isAppSeated(appId);
         if (selectedNewApp) {
             // Set the id of the last selected app
@@ -971,7 +971,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
-        return selectedNewApp;
     }
 
     private boolean isAppSeated(String appId) {
