@@ -1,36 +1,40 @@
 package org.commcare.fragments.personalId
 
 import android.app.Activity
+import android.app.Instrumentation
 import android.content.Intent
 import android.graphics.Bitmap
-import androidx.activity.result.ActivityResultLauncher
+import android.widget.Button
 import androidx.annotation.CallSuper
+import androidx.annotation.IdRes
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ApiPersonalId
+import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.dalvik.R
+import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import org.robolectric.shadows.ShadowLooper
 
 /**
  * Base test class for PersonalIdPhotoCaptureFragment tests.
- * Owns setup/teardown of the activity, the fragment, the test NavController,
- * and the static mocks that prevent the fragment from hitting the network,
- * database, analytics, and bitmap decoding during tests.
  */
 abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurationTest<TestablePersonalIdPhotoCaptureFragment>() {
     protected lateinit var mocksCloseable: AutoCloseable
@@ -69,6 +73,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         super.setUp()
         mocksCloseable = MockitoAnnotations.openMocks(this)
         MockAndroidKeyStoreProvider.registerProvider()
+        Intents.init()
         openStaticMocks()
         setUpPhotoCaptureFragment()
     }
@@ -113,12 +118,84 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         }
     }
 
+    protected fun intendPhotoCaptureResult(
+        resultCode: Int,
+        photoBase64: String?,
+    ) {
+        val data =
+            photoBase64?.let {
+                Intent().putExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY, it)
+            }
+        Intents
+            .intending(hasComponent(MicroImageActivity::class.java.name))
+            .respondWith(Instrumentation.ActivityResult(resultCode, data))
+    }
+
+    protected fun takePhoto(photoBase64: String) {
+        intendPhotoCaptureResult(Activity.RESULT_OK, photoBase64)
+        clickButton(R.id.take_photo_button)
+    }
+
+    protected fun clickSavePhoto() = clickButton(R.id.save_photo_button)
+
+    protected fun clickButton(
+        @IdRes buttonId: Int,
+    ) {
+        val button = fragment.requireView().findViewById<Button>(buttonId)
+        activity.runOnUiThread { button.performClick() }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun captureCompleteProfileApiCallback(): IApiCallback {
+        val captor = ArgumentCaptor.forClass(IApiCallback::class.java)
+        apiPersonalIdMock.verify {
+            ApiPersonalId.setPhotoAndCompleteProfile(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                captor.capture(),
+            )
+        }
+        return captor.value
+    }
+
+    protected fun deliverCompleteProfileSuccess() {
+        val responseJson =
+            """
+            {
+                "username": "${testSessionData.personalId}",
+                "db_key": "${testSessionData.dbKey}",
+                "password": "${testSessionData.oauthPassword}"
+            }
+            """.trimIndent()
+        val callback = captureCompleteProfileApiCallback()
+        activity.runOnUiThread {
+            callback.processSuccess(200, responseJson.byteInputStream())
+        }
+        ShadowLooper.idleMainLooper()
+    }
+
+    protected fun deliverCompleteProfileFailure(
+        responseCode: Int,
+        errorBody: String,
+        t: Throwable = RuntimeException("test failure"),
+    ) {
+        val callback = captureCompleteProfileApiCallback()
+        activity.runOnUiThread {
+            callback.processFailure(responseCode, "test-url", errorBody, t)
+        }
+        ShadowLooper.idleMainLooper()
+    }
+
     @After
     @CallSuper
     override fun tearDown() {
         val errors = mutableListOf<Throwable>()
         listOf(
             { activityController.pause().stop().destroy() },
+            { Intents.release() },
             { errorHandlerMock.close() },
             { apiPersonalIdMock.close() },
             { mediaUtilMock.close() },
@@ -145,77 +222,10 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
 }
 
 /**
- * Testable subclass of PersonalIdPhotoCaptureFragment that exposes:
- *  - an injectable NavController (matches PersonalIdBiometricConfigFragment pattern)
- *  - reflection helpers to drive the private callback methods
- *  - a helper to replace the takePhotoLauncher with a mock for intent-capture tests
- *  - a setter for the private photoAsBase64 field
+ * Testable subclass of PersonalIdPhotoCaptureFragment that exposes an injectable NavController
  */
 class TestablePersonalIdPhotoCaptureFragment(
     private val testNavController: NavController? = null,
 ) : PersonalIdPhotoCaptureFragment() {
     override fun getNavController(): NavController = testNavController ?: super.getNavController()
-
-    fun replaceTakePhotoLauncher(launcher: ActivityResultLauncher<Intent>) {
-        val field = PersonalIdPhotoCaptureFragment::class.java.getDeclaredField("takePhotoLauncher")
-        field.isAccessible = true
-        field.set(this, launcher)
-    }
-
-    /**
-     * Mirrors the body of the lambda registered with the takePhotoLauncher, exercising
-     * the same private methods the production callback calls.
-     */
-    fun simulatePhotoResult(
-        resultCode: Int,
-        photoBase64: String?,
-    ) {
-        if (resultCode == Activity.RESULT_OK && photoBase64 != null) {
-            setPhotoAsBase64(photoBase64)
-            invokePrivate("displayImage", String::class.java to photoBase64)
-            invokePrivate("enableSaveButton")
-        }
-        invokePrivate("enableTakePhotoButton")
-    }
-
-    private fun invokePrivate(
-        methodName: String,
-        vararg args: Pair<Class<*>, Any?>,
-    ) {
-        val method =
-            PersonalIdPhotoCaptureFragment::class.java
-                .getDeclaredMethod(methodName, *args.map { it.first }.toTypedArray())
-        method.isAccessible = true
-        method.invoke(this, *args.map { it.second }.toTypedArray())
-    }
-
-    fun invokePhotoUploadSuccess(photoBase64: String) {
-        setPhotoAsBase64(photoBase64)
-        val method =
-            PersonalIdPhotoCaptureFragment::class.java
-                .getDeclaredMethod("onPhotoUploadSuccess", String::class.java)
-        method.isAccessible = true
-        method.invoke(this, photoBase64)
-    }
-
-    fun invokeCompleteProfileFailure(
-        failureCode: PersonalIdOrConnectApiErrorCodes,
-        t: Throwable?,
-    ) {
-        val method =
-            PersonalIdPhotoCaptureFragment::class.java
-                .getDeclaredMethod(
-                    "onCompleteProfileFailure",
-                    PersonalIdOrConnectApiErrorCodes::class.java,
-                    Throwable::class.java,
-                )
-        method.isAccessible = true
-        method.invoke(this, failureCode, t)
-    }
-
-    fun setPhotoAsBase64(photoBase64: String?) {
-        val field = PersonalIdPhotoCaptureFragment::class.java.getDeclaredField("photoAsBase64")
-        field.isAccessible = true
-        field.set(this, photoBase64)
-    }
 }

@@ -1,12 +1,12 @@
 package org.commcare.fragments.personalId
 
 import android.app.Activity
-import android.content.Intent
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.result.ActivityResultLauncher
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
@@ -14,11 +14,12 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ApiPersonalId
-import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.allOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -62,35 +63,24 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
     @Test
     fun `tapping take photo disables the button and launches the camera`() {
-        // Mock
-        @Suppress("UNCHECKED_CAST")
-        val mockLauncher =
-            Mockito.mock(ActivityResultLauncher::class.java)
-                as ActivityResultLauncher<Intent>
-        fragment.replaceTakePhotoLauncher(mockLauncher)
-
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
 
         // Act
-        activity.runOnUiThread { takeButton.performClick() }
-        ShadowLooper.idleMainLooper()
+        clickButton(R.id.take_photo_button)
 
         // Verify
         assertFalse("Take photo button should be disabled after click", takeButton.isEnabled)
-        val intentCaptor = ArgumentCaptor.forClass(Intent::class.java)
-        Mockito.verify(mockLauncher).launch(intentCaptor.capture())
-        val launched = intentCaptor.value
-        assertEquals(
-            MicroImageActivity::class.java.name,
-            launched.component?.className,
-        )
-        assertEquals(
-            160,
-            launched.getIntExtra(MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, -1),
-        )
-        assertEquals(
-            100 * 1024,
-            launched.getIntExtra(MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, -1),
+        val cameraIntents =
+            Intents.getIntents().filter {
+                it.component?.className == MicroImageActivity::class.java.name
+            }
+        assertEquals("Expected exactly one MicroImageActivity launch", 1, cameraIntents.size)
+        assertThat(
+            cameraIntents.single(),
+            allOf(
+                hasExtra(MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, 160),
+                hasExtra(MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, 100 * 1024),
+            ),
         )
     }
 
@@ -100,15 +90,8 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val photoView = fragment.view!!.findViewById<ImageView>(R.id.photo_image_view)
 
-        // Setup
-        activity.runOnUiThread { takeButton.isEnabled = false }
-        ShadowLooper.idleMainLooper()
-
         // Act
-        activity.runOnUiThread {
-            fragment.simulatePhotoResult(Activity.RESULT_OK, "fake-base64-photo")
-        }
-        ShadowLooper.idleMainLooper()
+        takePhoto("fake-base64-photo")
 
         // Verify
         assertTrue("Save button should be enabled after successful capture", saveButton.isEnabled)
@@ -124,15 +107,9 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
 
-        // Setup
-        activity.runOnUiThread { takeButton.isEnabled = false }
-        ShadowLooper.idleMainLooper()
-
         // Act
-        activity.runOnUiThread {
-            fragment.simulatePhotoResult(Activity.RESULT_CANCELED, null)
-        }
-        ShadowLooper.idleMainLooper()
+        intendPhotoCaptureResult(Activity.RESULT_CANCELED, null)
+        clickButton(R.id.take_photo_button)
 
         // Verify
         assertFalse("Save button should remain disabled on cancel", saveButton.isEnabled)
@@ -149,19 +126,16 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
 
-        // Setup: set up the post-capture state directly.
+        // Setup
+        takePhoto("fake-base64-photo")
         activity.runOnUiThread {
-            fragment.setPhotoAsBase64("fake-base64-photo")
-            saveButton.isEnabled = true
-
             errorView.visibility = View.VISIBLE
             errorView.text = "stale error"
         }
         ShadowLooper.idleMainLooper()
 
         // Act
-        activity.runOnUiThread { saveButton.performClick() }
-        ShadowLooper.idleMainLooper()
+        clickSavePhoto()
 
         // Verify
         apiPersonalIdMock.verify {
@@ -184,11 +158,12 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
     @Test
     fun `completing the profile stores the user and navigates to the success screen`() {
+        // Setup
+        takePhoto("fake-base64-photo")
+        clickSavePhoto()
+
         // Act
-        activity.runOnUiThread {
-            fragment.invokePhotoUploadSuccess("fake-base64-photo")
-        }
-        ShadowLooper.idleMainLooper()
+        deliverCompleteProfileSuccess()
 
         // Verify
         connectDatabaseHelperMock.verify {
@@ -228,14 +203,12 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
     @Test
     fun `a locked account navigates to the failure screen`() {
+        // Setup
+        takePhoto("fake-base64-photo")
+        clickSavePhoto()
+
         // Act
-        activity.runOnUiThread {
-            fragment.invokeCompleteProfileFailure(
-                PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
-                null,
-            )
-        }
-        ShadowLooper.idleMainLooper()
+        deliverCompleteProfileFailure(400, """{"error_code":"LOCKED_ACCOUNT"}""")
 
         // Verify
         assertEquals(R.id.personalid_message_display, navController.currentDestination?.id)
@@ -253,22 +226,12 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
 
-        // Setup: post-capture state + save click so both buttons are disabled.
-        activity.runOnUiThread {
-            fragment.setPhotoAsBase64("fake-base64-photo")
-            saveButton.isEnabled = true
-            saveButton.performClick()
-        }
-        ShadowLooper.idleMainLooper()
+        // Setup
+        takePhoto("fake-base64-photo")
+        clickSavePhoto()
 
         // Act
-        activity.runOnUiThread {
-            fragment.invokeCompleteProfileFailure(
-                PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
-                RuntimeException("boom"),
-            )
-        }
-        ShadowLooper.idleMainLooper()
+        deliverCompleteProfileFailure(500, "{}", RuntimeException("boom"))
 
         // Verify
         assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)
@@ -287,21 +250,11 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
 
         // Setup
-        activity.runOnUiThread {
-            fragment.setPhotoAsBase64("fake-base64-photo")
-            saveButton.isEnabled = true
-            saveButton.performClick()
-        }
-        ShadowLooper.idleMainLooper()
+        takePhoto("fake-base64-photo")
+        clickSavePhoto()
 
         // Act
-        activity.runOnUiThread {
-            fragment.invokeCompleteProfileFailure(
-                PersonalIdOrConnectApiErrorCodes.TOKEN_INVALID_ERROR,
-                null,
-            )
-        }
-        ShadowLooper.idleMainLooper()
+        deliverCompleteProfileFailure(400, """{"error_code":"INVALID_TOKEN"}""")
 
         // Verify
         assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)
