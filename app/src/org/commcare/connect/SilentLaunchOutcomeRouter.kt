@@ -15,7 +15,7 @@ interface SilentLaunchActions {
 
     fun recoverFromSeatFailure()
 
-    fun showRetry()
+    fun fallBackToLegacyLaunch()
 
     fun reportFailure(reason: String)
 
@@ -38,11 +38,11 @@ object SilentLaunchOutcomeRouter {
             SilentLaunchOutcome.AppSeatFailed -> actions.recoverFromSeatFailure()
             SilentLaunchOutcome.CredentialResolutionFailed -> {
                 actions.reportFailure("CredentialResolutionFailed")
-                actions.showRetry()
+                actions.fallBackToLegacyLaunch()
             }
             is SilentLaunchOutcome.Retryable -> {
                 actions.reportFailure(outcome.error::class.java.simpleName)
-                actions.showRetry()
+                actions.fallBackToLegacyLaunch()
             }
             SilentLaunchOutcome.AlreadyLaunching -> actions.ignoreAlreadyLaunching()
         }

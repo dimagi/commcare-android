@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.activities.connect.ConnectActivity;
@@ -24,6 +23,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppLauncher;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.SilentLaunchActions;
 import org.commcare.connect.SilentLaunchOutcome;
 import org.commcare.connect.SilentLaunchOutcomeRouter;
@@ -45,8 +45,8 @@ import org.commcare.login.PostLoginDestination;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.commcare.util.LogTypes;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -81,6 +81,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     private static final int SILENT_LAUNCH_DIALOG_TASK_ID = -10;
     private static final int PROGRESS_BAR_MAX = 100;
     private CustomProgressDialog silentLaunchDialog;
+    private boolean silentLaunchShowingSyncDialog;
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -188,7 +189,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else if (isLearning && job.passedAssessment()) {
             navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
-            launchAppSilently(job, isLearning, appId);
+            launchAppSilently(isLearning, appId);
         } else {
             int textId = isLearning
                     ? R.string.connect_downloading_learn
@@ -203,42 +204,43 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         }
     }
 
-    private void launchAppSilently(ConnectJobRecord job, boolean isLearning, String appId) {
+    private void launchAppSilently(boolean isLearning, String appId) {
         // Resolve the host on the main thread up front; the progress sink fires from a background
         // thread, where requireActivity() would crash a detached fragment.
         FragmentActivity activity = requireActivity();
-        showSilentLaunchDialog();
+        showSilentLaunchDialog(false);
         new ConnectAppLauncher().start(
                 getViewLifecycleOwner(),
                 activity,
                 appId,
                 isLearning,
                 progress -> activity.runOnUiThread(() -> updateSilentLaunchProgress(progress)),
-                outcome -> handleSilentLaunchOutcome(outcome, activity, job, isLearning, appId)
+                outcome -> handleSilentLaunchOutcome(outcome, activity, isLearning, appId)
         );
     }
 
     private void updateSilentLaunchProgress(LoginProgress progress) {
-        if (!isAdded() || silentLaunchDialog == null) {
+        if (!isAdded()) {
             return;
         }
-        if (progress.getPhase() == LoginPhase.Seating) {
-            silentLaunchDialog.updateMessage(getString(R.string.connect_silent_launch_seating));
-        } else if (progress.getPhase() == LoginPhase.SigningIn) {
-            silentLaunchDialog.updateMessage(getString(R.string.connect_silent_launch_signing_in));
-        } else if (progress.getPhase() == LoginPhase.Syncing) {
-            silentLaunchDialog.updateMessage(getString(R.string.connect_silent_launch_syncing));
-            Integer percent = progress.getPercent();
-            if (percent != null) {
-                silentLaunchDialog.updateProgressBar(percent, PROGRESS_BAR_MAX);
-            }
+        // Mirror LoginActivity: an indeterminate (spinner) dialog while keys are exchanged, swapped for
+        // a determinate (bar) dialog once the data pull starts.
+        boolean syncing = progress.getPhase() == LoginPhase.Syncing;
+        if (silentLaunchDialog == null || syncing != silentLaunchShowingSyncDialog) {
+            showSilentLaunchDialog(syncing);
+        }
+        if (progress.getMessage() != null) {
+            silentLaunchDialog.updateMessage(progress.getMessage());
+        }
+        Integer percent = progress.getPercent();
+        if (syncing && percent != null) {
+            silentLaunchDialog.updateProgressBar(percent, PROGRESS_BAR_MAX);
         }
     }
 
     private void handleSilentLaunchOutcome(
             SilentLaunchOutcome outcome,
             FragmentActivity activity,
-            ConnectJobRecord job,
             boolean isLearning,
             String appId
     ) {
@@ -264,8 +266,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             }
 
             @Override
-            public void showRetry() {
-                showSilentLaunchRetryDialog(activity, job, isLearning, appId);
+            public void fallBackToLegacyLaunch() {
+                ConnectAppUtils.INSTANCE.launchApp(activity, isLearning, appId);
             }
 
             @Override
@@ -294,35 +296,23 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(appId);
     }
 
-    private void showSilentLaunchRetryDialog(
-            FragmentActivity activity,
-            ConnectJobRecord job,
-            boolean isLearning,
-            String appId
-    ) {
-        if (!(activity instanceof CommCareActivity)) {
-            return;
+    private void showSilentLaunchDialog(boolean syncing) {
+        dismissSilentLaunchDialog();
+        if (syncing) {
+            silentLaunchDialog = CustomProgressDialog.newInstance(
+                    Localization.get("sync.communicating.title"),
+                    Localization.get("sync.progress.starting"),
+                    SILENT_LAUNCH_DIALOG_TASK_ID
+            );
+            silentLaunchDialog.addProgressBar();
+        } else {
+            silentLaunchDialog = CustomProgressDialog.newInstance(
+                    Localization.get("key.manage.title"),
+                    Localization.get("key.manage.start"),
+                    SILENT_LAUNCH_DIALOG_TASK_ID
+            );
         }
-        CommCareActivity<?> commCareActivity = (CommCareActivity<?>) activity;
-        StandardAlertDialog dialog = new StandardAlertDialog(
-                getString(R.string.connect_silent_launch_failed_title),
-                getString(R.string.connect_silent_launch_failed_message)
-        );
-        dialog.setPositiveButton(getString(R.string.retry_button_text), (d, which) -> {
-            commCareActivity.dismissAlertDialog();
-            launchAppSilently(job, isLearning, appId);
-        });
-        dialog.setNegativeButton(getString(R.string.cancel), (d, which) -> commCareActivity.dismissAlertDialog());
-        commCareActivity.showAlertDialog(dialog);
-    }
-
-    private void showSilentLaunchDialog() {
-        silentLaunchDialog = CustomProgressDialog.newInstance(
-                getString(R.string.connect_silent_launch_title),
-                getString(R.string.connect_silent_launch_seating),
-                SILENT_LAUNCH_DIALOG_TASK_ID
-        );
-        silentLaunchDialog.addProgressBar();
+        silentLaunchShowingSyncDialog = syncing;
         silentLaunchDialog.showNow(getChildFragmentManager(), SILENT_LAUNCH_DIALOG_TAG);
     }
 

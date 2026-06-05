@@ -50,21 +50,21 @@ class SilentLaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `credential resolution failure reports and offers retry`() {
+    fun `credential resolution failure reports and falls back to the legacy launch`() {
         SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.CredentialResolutionFailed, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("CredentialResolutionFailed") }
-        verify(exactly = 1) { actions.showRetry() }
+        verify(exactly = 1) { actions.fallBackToLegacyLaunch() }
     }
 
     @Test
-    fun `retryable reports the error name and offers retry`() {
+    fun `retryable reports the error name and falls back to the legacy launch`() {
         SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.Retryable(LoginError.BadCredentials), actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("BadCredentials") }
-        verify(exactly = 1) { actions.showRetry() }
+        verify(exactly = 1) { actions.fallBackToLegacyLaunch() }
     }
 
     @Test
