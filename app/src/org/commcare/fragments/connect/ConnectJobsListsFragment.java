@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
-import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -41,7 +40,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.login.LoginPhase;
 import org.commcare.login.LoginProgress;
-import org.commcare.login.PostLoginDestination;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.commcare.util.LogTypes;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -223,11 +221,19 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         if (!isAdded()) {
             return;
         }
-        // Mirror LoginActivity: an indeterminate (spinner) dialog while keys are exchanged, swapped for
-        // a determinate (bar) dialog once the data pull starts.
-        boolean syncing = progress.getPhase() == LoginPhase.Syncing;
+        // Mirror LoginActivity: an indeterminate (spinner) dialog while seating/keys are exchanged,
+        // swapped for a determinate (bar) dialog once the data pull starts.
+        LoginPhase phase = progress.getPhase();
+        boolean syncing = phase == LoginPhase.Syncing;
         if (silentLaunchDialog == null || syncing != silentLaunchShowingSyncDialog) {
             showSilentLaunchDialog(syncing);
+        }
+        if (phase == LoginPhase.Seating) {
+            silentLaunchDialog.updateTitle(Localization.get("seating.app"));
+            silentLaunchDialog.updateMessage(Localization.get("seating.app"));
+        } else if (phase == LoginPhase.SigningIn) {
+            silentLaunchDialog.updateTitle(Localization.get("key.manage.title"));
+            silentLaunchDialog.updateMessage(Localization.get("key.manage.start"));
         }
         if (progress.getMessage() != null) {
             silentLaunchDialog.updateMessage(progress.getMessage());
@@ -251,8 +257,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             }
 
             @Override
-            public void goHome(PostLoginDestination.Home home) {
-                HomeScreenBaseActivity.launchPostLoginHome(activity, home);
+            public void launchHome() {
+                ConnectAppUtils.INSTANCE.launchSeatedAppFromConnect(activity, appId);
             }
 
             @Override
@@ -306,9 +312,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             );
             silentLaunchDialog.addProgressBar();
         } else {
+            // Default to the seating text; the per-phase update sets the precise message. Seating is
+            // always the first phase, so the spinner never momentarily reads "Logging in".
             silentLaunchDialog = CustomProgressDialog.newInstance(
-                    Localization.get("key.manage.title"),
-                    Localization.get("key.manage.start"),
+                    Localization.get("seating.app"),
+                    Localization.get("seating.app"),
                     SILENT_LAUNCH_DIALOG_TASK_ID
             );
         }

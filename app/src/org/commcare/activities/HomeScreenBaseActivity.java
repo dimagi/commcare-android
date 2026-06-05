@@ -15,7 +15,6 @@ import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,7 +50,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.login.PostLoginDestination;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
@@ -1244,23 +1242,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);
         i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
         return i;
-    }
-
-    /**
-     * Launches Home for a headless caller (e.g. the silent Connect-launch path) that has already
-     * authenticated: starts the home activity as a fresh task and finishes the caller, bypassing the
-     * {@code HOME_SCREEN}-for-result contract that {@link DispatchActivity} uses for the screen path.
-     */
-    public static void launchPostLoginHome(Activity caller, PostLoginDestination.Home home) {
-        Intent i = buildHomeIntent(
-                caller,
-                home.getLoginMode(),
-                home.getStartFromLogin(),
-                home.getManualSwitchToPwMode(),
-                home.getPersonalIdManagedLogin());
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        caller.startActivity(i);
-        caller.finish();
     }
 
     protected static void addPendingDataExtra(Intent i, CommCareSession session) {

@@ -1,7 +1,5 @@
 package org.commcare.connect
 
-import org.commcare.login.PostLoginDestination
-
 /**
  * UI/navigation actions a caller performs in response to a [SilentLaunchOutcome]. Kept as a seam so
  * the outcome-to-action mapping is unit-testable without a hosting fragment.
@@ -9,7 +7,7 @@ import org.commcare.login.PostLoginDestination
 interface SilentLaunchActions {
     fun dismissProgress()
 
-    fun goHome(home: PostLoginDestination.Home)
+    fun launchHome()
 
     fun handleTokenDenied()
 
@@ -33,7 +31,7 @@ object SilentLaunchOutcomeRouter {
     ) {
         actions.dismissProgress()
         when (outcome) {
-            is SilentLaunchOutcome.Launched -> actions.goHome(outcome.home)
+            SilentLaunchOutcome.Launched -> actions.launchHome()
             SilentLaunchOutcome.TokenDenied -> actions.handleTokenDenied()
             SilentLaunchOutcome.AppSeatFailed -> actions.recoverFromSeatFailure()
             SilentLaunchOutcome.CredentialResolutionFailed -> {

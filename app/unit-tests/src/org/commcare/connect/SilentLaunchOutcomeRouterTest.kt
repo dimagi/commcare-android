@@ -3,9 +3,7 @@ package org.commcare.connect
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
-import org.commcare.activities.LoginMode
 import org.commcare.login.LoginError
-import org.commcare.login.PostLoginDestination
 import org.junit.Test
 
 /**
@@ -15,21 +13,13 @@ import org.junit.Test
 class SilentLaunchOutcomeRouterTest {
     private val actions = mockk<SilentLaunchActions>(relaxed = true)
 
-    private val home =
-        PostLoginDestination.Home(
-            loginMode = LoginMode.PASSWORD,
-            startFromLogin = true,
-            manualSwitchToPwMode = false,
-            personalIdManagedLogin = true,
-        )
-
     @Test
     fun `launched goes home after dismissing progress`() {
-        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.Launched(home), actions)
+        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.Launched, actions)
 
         verifyOrder {
             actions.dismissProgress()
-            actions.goHome(home)
+            actions.launchHome()
         }
     }
 

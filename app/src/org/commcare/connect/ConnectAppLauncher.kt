@@ -13,14 +13,11 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.AppSeater
 import org.commcare.login.AuthSource
-import org.commcare.login.LaunchContext
 import org.commcare.login.LoginController
 import org.commcare.login.LoginError
 import org.commcare.login.LoginProgressSink
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
-import org.commcare.login.PostLoginDestination
-import org.commcare.login.PostLoginRouter
 import org.commcare.login.SeatResult
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -33,9 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * password logins, so there is intentionally no SyncFailed or Demo-mode outcome on this path.
  */
 sealed class SilentLaunchOutcome {
-    data class Launched(
-        val home: PostLoginDestination.Home,
-    ) : SilentLaunchOutcome()
+    object Launched : SilentLaunchOutcome()
 
     object AlreadyLaunching : SilentLaunchOutcome()
 
@@ -129,7 +124,7 @@ class ConnectAppLauncher internal constructor(
                 )
 
             return when (val result = performLogin(context, request, sink)) {
-                is LoginResult.Success -> toLaunchedOutcome(result)
+                is LoginResult.Success -> SilentLaunchOutcome.Launched
                 is LoginResult.Failed ->
                     when (result.error) {
                         is LoginError.TokenDenied -> SilentLaunchOutcome.TokenDenied
@@ -140,18 +135,6 @@ class ConnectAppLauncher internal constructor(
             launching.set(false)
         }
     }
-
-    private fun toLaunchedOutcome(result: LoginResult.Success): SilentLaunchOutcome =
-        when (
-            val destination =
-                PostLoginRouter.route(
-                    result,
-                    LaunchContext(startFromLogin = true, manualSwitchToPwMode = false),
-                )
-        ) {
-            is PostLoginDestination.Home -> SilentLaunchOutcome.Launched(destination)
-            is PostLoginDestination.TerminalFailure -> SilentLaunchOutcome.Retryable(destination.error)
-        }
 
     private fun hasMultipleMatchingUsers(username: String): Boolean {
         var count = 0

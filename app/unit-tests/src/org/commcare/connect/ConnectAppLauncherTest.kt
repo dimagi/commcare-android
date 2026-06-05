@@ -85,16 +85,11 @@ class ConnectAppLauncherTest {
         )
 
     @Test
-    fun `happy path closes session, reports launch, seats, and routes to Home`() =
+    fun `happy path closes session, reports launch, seats, and reports Launched`() =
         runTest {
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            assertTrue(outcome is SilentLaunchOutcome.Launched)
-            assertEquals(
-                LoginMode.PASSWORD,
-                (outcome as SilentLaunchOutcome.Launched).home.loginMode,
-            )
-            assertTrue(outcome.home.startFromLogin)
+            assertEquals(SilentLaunchOutcome.Launched, outcome)
             verify(exactly = 1) { app.closeUserSession() }
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", "app-1") }
             assertEquals(listOf("app-1"), seatedApps)
