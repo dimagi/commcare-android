@@ -126,6 +126,9 @@ we would like to communicate to QA as part of the release testing
   - Open the Connect Delivery Progress page while online with a working network and let it sync. Verify the progress, payment list, payment-confirmation tile, and "Last updated" timestamp all populate as before, and that the green "Sync successful" bar flashes briefly at the top.
   - Background the app, turn on airplane mode, and reopen the Delivery Progress page. Verify cached delivery data (progress, deliveries, payments, "Last updated" timestamp) appears immediately without waiting for a network call, and that the orange "Offline" indicator with the previous sync time is shown at the top.
   - Confirm the full-screen blocking loading dialog that used to appear on refresh no longer appears — the inline small progress spinner is the only loading indicator.
+- **Connect app launch:**
+  - From the Connect opportunities list, launch an installed learn or delivery app: confirm it opens to the app home behind a single progress dialog (no login/app-setup screens flashing through), and that pressing back from the app home returns to the opportunities list.
+  - With networking off, launching an app from a Connect opportunity should fall back to the normal login screen showing the usual error — not hang on the dialog or crash.
 
 
 
