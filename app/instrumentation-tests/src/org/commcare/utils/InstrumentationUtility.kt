@@ -115,7 +115,7 @@ object InstrumentationUtility {
         clickListItem(R.id.apps_list_view, 0)
         onView(withText("Uninstall"))
             .perform(click())
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
             .inRoot(RootMatchers.isDialog())
             .perform(click())
         onView(withId(R.id.install_app_button))
@@ -171,7 +171,7 @@ object InstrumentationUtility {
             openOptionsMenu()
             onView(withText("About CommCare"))
                 .perform(click())
-            onView(withText("OK"))
+            onView(withText(R.string.ok))
                 .perform(click())
         }
     }
@@ -332,14 +332,25 @@ object InstrumentationUtility {
      */
     @JvmStatic
     fun changeWifi(enable: Boolean) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val context = InstrumentationRegistry.getInstrumentation().targetContext
-            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            wifiManager.isWifiEnabled = enable
-            sleep(10) // Sleep 5 seconds so that wifi is set up.
-        } else {
-            throw IllegalAccessException("changeWifi should only be called in pre-android Q devices")
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.executeShellCommand(if (enable) "svc wifi enable" else "svc wifi disable")
+        waitForWifiState(enable)
+    }
+
+    private fun waitForWifiState(
+        expectedEnabled: Boolean,
+        timeoutMs: Long = 10_000,
+    ) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            if (wifiManager.isWifiEnabled == expectedEnabled) return
+            sleep(2)
         }
+        throw IllegalStateException(
+            "changeWifi did not reach state=${expectedEnabled.let { if (it) "enabled" else "disabled" }} within ${timeoutMs}ms",
+        )
     }
 
     /**
@@ -575,6 +586,7 @@ object InstrumentationUtility {
      * A utility to wait until a certain view appears
      * usage: onView(isRoot()).perform(waitForView(withText("<text>")))
      */
+    @JvmStatic
     fun waitForView(
         viewMatcher: Matcher<View>,
         timeout: Long = 10000,
@@ -586,7 +598,8 @@ object InstrumentationUtility {
             override fun getDescription(): String {
                 val matcherDescription = StringDescription()
                 viewMatcher.describeTo(matcherDescription)
-                return "wait for a specific view <$matcherDescription> to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
+                return "wait for a specific view <$matcherDescription> " +
+                    "to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
             }
 
             override fun perform(

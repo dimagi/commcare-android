@@ -499,7 +499,7 @@ public class PersonalIdManager {
     }
 
     public boolean checkDeviceCompability() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
     }
 
     public int getFailureAttempt() {

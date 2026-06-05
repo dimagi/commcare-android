@@ -790,4 +790,5 @@
     <string name="form_attachment_limit_reached" cc:translatable="true">This form has reached the maximum of %s attachments. To add a new one, remove an existing attachment first.</string>
 
     <string name="cannot_navigate_during_form_save" cc:translatable="true">Can\'t leave page while saving form</string>
+    <string name="clear_search_button_description">Clear query</string>
 </resources>

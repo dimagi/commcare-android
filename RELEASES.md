@@ -12,6 +12,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- Deprecated PersonalID support for devices on Android OS less than Android 9.
 - [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
 - Reduced frequency of required biometric or pin unlocks for PersonalID and Connect  
 - [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
@@ -20,6 +21,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 #### Important Bug Fixes
 
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
+- Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
+- Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
 
 #### Internal Release Notes
 
