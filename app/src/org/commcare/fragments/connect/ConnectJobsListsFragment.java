@@ -204,8 +204,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void launchAppSilently(boolean isLearning, String appId) {
-        // Resolve the host on the main thread up front; the progress sink fires from a background
-        // thread, where requireActivity() would crash a detached fragment.
         FragmentActivity activity = requireActivity();
         showSilentLaunchDialog(false);
         new ConnectAppLauncher().start(
@@ -222,8 +220,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         if (!isAdded()) {
             return;
         }
-        // Mirror LoginActivity: an indeterminate (spinner) dialog while seating/keys are exchanged,
-        // swapped for a determinate (bar) dialog once the data pull starts.
+
         LoginPhase phase = progress.getPhase();
         boolean syncing = phase == LoginPhase.Syncing;
         if (silentLaunchDialog == null || syncing != silentLaunchShowingSyncDialog) {
@@ -259,7 +256,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
             @Override
             public void launchHome() {
-                HomeScreenBaseActivity.launchSilentConnectHome(activity);
+                HomeScreenBaseActivity.launchHome(activity);
             }
 
             @Override
@@ -298,8 +295,10 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void reportSilentLaunchFailure(String appId, String reason) {
-        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
-                "Connect silent launch failed for app " + appId + ": " + reason);
+        Logger.log(
+                LogTypes.TYPE_ERROR_WORKFLOW,
+                "Connect silent launch failed for app " + appId + ": " + reason
+        );
         FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(appId);
     }
 
@@ -313,8 +312,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             );
             silentLaunchDialog.addProgressBar();
         } else {
-            // Default to the seating text; the per-phase update sets the precise message. Seating is
-            // always the first phase, so the spinner never momentarily reads "Logging in".
             silentLaunchDialog = CustomProgressDialog.newInstance(
                     Localization.get("seating.app"),
                     Localization.get("seating.app"),

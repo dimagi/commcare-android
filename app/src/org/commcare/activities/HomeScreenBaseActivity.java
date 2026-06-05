@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
@@ -83,7 +82,6 @@ import org.commcare.util.DatumUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
-import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
@@ -1218,47 +1216,39 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    /**
-     * Builds the post-login Home intent: selects the root-menu vs standard home target, attaches the
-     * pending session data, and copies the login context extras. Shared by both the normal dispatch
-     * path and the silent Connect-launch path so the materialization of the routing decision lives in
-     * one place. {@code loginMode} may be null for non-login entry points (e.g. external launch).
-     */
     static Intent buildHomeIntent(
             Context context,
             LoginMode loginMode,
             boolean startFromLogin,
             boolean manualSwitchToPwMode,
-            boolean personalIdManagedLogin) {
-        Intent i;
+            boolean personalIdManagedLogin
+    ) {
+        Intent intent;
         if (DispatchActivity.useRootMenuHomeActivity()) {
-            i = new Intent(context, RootMenuHomeActivity.class);
-            addPendingDataExtra(i,
-                    CommCareApplication.instance().getCurrentSessionWrapper().getSession());
+            intent = new Intent(context, RootMenuHomeActivity.class);
+            addPendingDataExtra(
+                    intent,
+                    CommCareApplication.instance().getCurrentSessionWrapper().getSession()
+            );
         } else {
-            i = new Intent(context, StandardHomeActivity.class);
+            intent = new Intent(context, StandardHomeActivity.class);
         }
-        i.putExtra(DispatchActivity.START_FROM_LOGIN, startFromLogin);
-        i.putExtra(LoginActivity.LOGIN_MODE, loginMode);
-        i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);
-        i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
-        return i;
+        intent.putExtra(DispatchActivity.START_FROM_LOGIN, startFromLogin);
+        intent.putExtra(LoginActivity.LOGIN_MODE, loginMode);
+        intent.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);
+        intent.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
+        return intent;
     }
 
-    /**
-     * Launches Home for the silent Connect-launch path on top of the calling Connect screen (same
-     * task, caller not finished) so backing out of Home returns to the Connect list, without routing
-     * through DispatchActivity. The login context is fixed for this path: a PersonalID-managed
-     * password login arriving from login.
-     */
-    public static void launchSilentConnectHome(Activity caller) {
-        Intent i = buildHomeIntent(
-                caller,
+    public static void launchHome(Activity activity) {
+        Intent intent = buildHomeIntent(
+                activity,
                 LoginMode.PASSWORD,
-                /* startFromLogin= */ true,
-                /* manualSwitchToPwMode= */ false,
-                /* personalIdManagedLogin= */ true);
-        caller.startActivity(i);
+                true,
+                false,
+                true
+        );
+        activity.startActivity(intent);
     }
 
     protected static void addPendingDataExtra(Intent i, CommCareSession session) {

@@ -359,15 +359,16 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void launchHomeScreen() {
-        Intent i = HomeScreenBaseActivity.buildHomeIntent(
+        Intent intent = HomeScreenBaseActivity.buildHomeIntent(
                 this,
                 lastLoginMode,
                 startFromLogin,
                 userManuallyEnteredPasswordMode,
-                personalIdManagedLogin);
+                personalIdManagedLogin
+        );
         startFromLogin = false;
         clearSessionEndpointIntentExtras();
-        startActivityForResult(i, HOME_SCREEN);
+        startActivityForResult(intent, HOME_SCREEN);
     }
 
     public static boolean useRootMenuHomeActivity() {

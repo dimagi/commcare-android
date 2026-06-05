@@ -98,7 +98,10 @@ class ConnectAppLauncher internal constructor(
 
         try {
             CommCareApplication.instance().closeUserSession()
-            FirebaseAnalyticsUtil.reportCccAppLaunch(if (isLearning) "Learn" else "Deliver", appId)
+            FirebaseAnalyticsUtil.reportCccAppLaunch(
+                if (isLearning) "Learn" else "Deliver",
+                appId,
+            )
 
             if (seatApp(appId, sink) is SeatResult.Failed) {
                 return SilentLaunchOutcome.AppSeatFailed
