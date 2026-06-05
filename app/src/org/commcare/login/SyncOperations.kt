@@ -142,7 +142,7 @@ internal open class SyncOperations(
 
     internal fun resolvePullPlan(mode: DataPullMode): PullPlan =
         when (mode) {
-            DataPullMode.NORMAL ->
+            DataPullMode.NORMAL -> {
                 PullPlan(
                     server = ServerUrls.getDataServerKey(),
                     userId = null,
@@ -150,8 +150,9 @@ internal open class SyncOperations(
                     blockRemoteKeyManagement = false,
                     payloadReferences = emptyList(),
                 )
+            }
 
-            DataPullMode.CONSUMER_APP ->
+            DataPullMode.CONSUMER_APP -> {
                 PullPlan(
                     server = FAKE_SERVER,
                     userId = UNUSED_USER_ID,
@@ -159,6 +160,7 @@ internal open class SyncOperations(
                     blockRemoteKeyManagement = true,
                     payloadReferences = listOf(SingleAppInstallation.LOCAL_RESTORE_REFERENCE),
                 )
+            }
 
             DataPullMode.CCZ_DEMO -> {
                 val demoUserRestore =
