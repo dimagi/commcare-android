@@ -56,4 +56,9 @@ public class CCAnalyticsParam {
     public static final String OTP_METHOD = "method";
     public static final String EMAIL_OTP_FAILED_ATTEMPTS = "failed_attempts";
     public static final String EMAIL_OTP_WORKFLOW = "workflow";
+
+    // Param keys for user prompt analytics
+    static final String USER_PROMPT_TYPE = "type";
+    static final String USER_PROMPT_ACTION = "action";
+    static final String USER_PROMPT_INFO = "info";
 }

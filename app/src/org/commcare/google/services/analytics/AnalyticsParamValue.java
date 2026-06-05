@@ -223,4 +223,14 @@ public class AnalyticsParamValue {
     public static final String OTP_METHOD_EMAIL = "email";
     public static final String OTP_EVENT_TYPE_REQUEST_EMAIL = "request_email";
     public static final String OTP_EVENT_TYPE_VERIFY_EMAIL = "verify_email";
+
+    // Param values for user prompt analytics
+    public static final String USER_PROMPT_TYPE_EMAIL = "email";
+    public static final String USER_PROMPT_ACTION_ACCEPT = "accept";
+    public static final String USER_PROMPT_ACTION_SKIP = "skip";
+    public static final String USER_PROMPT_ACTION_RETRY = "retry";
+    public static final String USER_PROMPT_ACTION_PROCEED_WITHOUT_EMAIL = "proceed_without_email";
+    public static final String USER_PROMPT_INFO_EXISTING_USER_REMINDER = "existing_user_reminder";
+    public static final String USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY =
+            "email_verification_failure_retry";
 }

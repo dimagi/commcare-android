@@ -18,6 +18,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.views.dialogs.StandardAlertDialog
@@ -232,6 +233,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 getString(R.string.personalid_email_otp_failed_message),
             )
         dialog.setPositiveButton(getString(R.string.personalid_email_otp_failed_retry)) { _, _ ->
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_RETRY,
+                AnalyticsParamValue.USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY,
+            )
             commCareActivity.dismissAlertDialog()
             failedOtpAttempts = 0
             binding.otpCodeView.clearCode()
@@ -239,6 +245,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             enableVerifyButton(false)
         }
         dialog.setNegativeButton(getString(R.string.personalid_email_otp_failed_skip)) { _, _ ->
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_PROCEED_WITHOUT_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY,
+            )
             commCareActivity.dismissAlertDialog()
             proceedWithoutEmail()
         }
@@ -265,7 +276,6 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     }
 
     private fun proceedWithoutEmail() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "proceed_without_email")
         // No need to null out sessionData.email — only the OTP-verify success path writes it,
         // and that path was not taken on this branch.
         EmailHelper.routeAfterEmailDeclined(

@@ -57,4 +57,5 @@ public class CCAnalyticsEvent {
     static final String PERSONAL_ID_LINKING = "personal_id_linking";
     static final String OTP_REQUESTED = "otp_requested";
     static final String PERSONAL_ID_RELEASE_TOGGLES = "personal_id_release_toggles";
+    static final String USER_PROMPT = "user_prompt";
 }

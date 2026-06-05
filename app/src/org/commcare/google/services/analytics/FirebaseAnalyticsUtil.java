@@ -672,6 +672,16 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
     }
 
+    public static void reportUserPromptEvent(String type, String action, @Nullable String info) {
+        Bundle params = new Bundle();
+        params.putString(CCAnalyticsParam.USER_PROMPT_TYPE, type);
+        params.putString(CCAnalyticsParam.USER_PROMPT_ACTION, action);
+        if (info != null) {
+            params.putString(CCAnalyticsParam.USER_PROMPT_INFO, info);
+        }
+        reportEvent(CCAnalyticsEvent.USER_PROMPT, params);
+    }
+
     public static void reportPersonalIDMessageSent() {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_MESSAGE_SENT);
     }
