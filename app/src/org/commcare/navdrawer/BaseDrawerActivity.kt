@@ -168,7 +168,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         drawerController?.openDrawer()
     }
 
-    protected fun shouldShowDrawerAfterCheck(): Boolean {
+    protected fun shouldShowDrawerAfterCheck(requirePersonalIDLogin: Boolean): Boolean {
         if (drawerShownBefore()) {
             return true
         }
@@ -176,7 +176,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val personalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(this)
         val showDrawer =
-            personalIdManager.isloggedIn() &&
+            (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&
                 personalIdManager.checkDeviceCompability()
 
         if (showDrawer) {

@@ -314,7 +314,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     @Override
     protected boolean shouldShowDrawer() {
-        return shouldShowDrawerAfterCheck();
+        return shouldShowDrawerAfterCheck(false);
     }
 
     @Override
