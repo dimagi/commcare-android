@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -258,7 +259,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
             @Override
             public void launchHome() {
-                ConnectAppUtils.INSTANCE.launchSeatedAppFromConnect(activity, appId);
+                HomeScreenBaseActivity.launchSilentConnectHome(activity);
             }
 
             @Override

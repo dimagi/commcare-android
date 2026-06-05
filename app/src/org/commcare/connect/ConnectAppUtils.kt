@@ -100,21 +100,4 @@ object ConnectAppUtils {
             }.also { CommCareLauncher.launchCommCareForAppId(activity, appId, it) }
         activity.finish()
     }
-
-    /**
-     * Launches an already-seated, already-authenticated app from Connect without tearing down the
-     * active session, so DispatchActivity routes straight to Home (no LoginActivity) while still
-     * flagging the launch as Connect-managed for back-to-Connect handling. Used by the silent-launch
-     * success path.
-     */
-    fun launchSeatedAppFromConnect(
-        activity: Activity,
-        appId: String,
-    ) {
-        HashMap<String, Any>()
-            .apply {
-                put(IS_LAUNCH_FROM_CONNECT, true)
-            }.also { CommCareLauncher.launchCommCareForAppId(activity, appId, it) }
-        activity.finish()
-    }
 }

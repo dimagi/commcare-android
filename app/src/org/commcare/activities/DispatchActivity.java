@@ -242,11 +242,6 @@ public class DispatchActivity extends AppCompatActivity {
                     ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
                 } else {
-                    // A silent Connect launch reaches Home with an active session (no LoginActivity to
-                    // set this), so flag it here to keep the back-from-Home -> Connect behavior.
-                    if (getLaunchedFromConnect()) {
-                        connectManagedLogin = true;
-                    }
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {

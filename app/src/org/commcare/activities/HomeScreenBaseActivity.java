@@ -15,6 +15,7 @@ import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -1242,6 +1243,22 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);
         i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
         return i;
+    }
+
+    /**
+     * Launches Home for the silent Connect-launch path on top of the calling Connect screen (same
+     * task, caller not finished) so backing out of Home returns to the Connect list, without routing
+     * through DispatchActivity. The login context is fixed for this path: a PersonalID-managed
+     * password login arriving from login.
+     */
+    public static void launchSilentConnectHome(Activity caller) {
+        Intent i = buildHomeIntent(
+                caller,
+                LoginMode.PASSWORD,
+                /* startFromLogin= */ true,
+                /* manualSwitchToPwMode= */ false,
+                /* personalIdManagedLogin= */ true);
+        caller.startActivity(i);
     }
 
     protected static void addPendingDataExtra(Intent i, CommCareSession session) {
