@@ -27,7 +27,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController.DataPullMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -45,7 +44,7 @@ import org.commcare.login.LoginController;
 import org.commcare.login.LoginError;
 import org.commcare.login.LoginPhase;
 import org.commcare.login.LoginProgress;
-import org.commcare.login.LoginProgressSink;
+import org.commcare.login.LoginProgressListener;
 import org.commcare.login.LoginRequest;
 import org.commcare.login.LoginResult;
 import org.commcare.models.database.user.DemoUserBuilder;
@@ -316,10 +315,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         );
 
         LoginController controller = new LoginController(this);
-        controller.start(this, request, createLoginProgressSink(), this::handleLoginResult);
+        controller.start(this, request, createLoginProgressListener(), this::handleLoginResult);
     }
 
-    private LoginProgressSink createLoginProgressSink() {
+    private LoginProgressListener createLoginProgressListener() {
         return progress -> runOnUiThread(() -> updateLoginProgressUi(progress));
     }
 
