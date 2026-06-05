@@ -1067,6 +1067,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void onEvalLocationChanged() {
+        // Location callbacks are delivered on the main looper but can land after
+        // the session has been mutated (e.g. command popped on back-navigation).
+        // Skip if the activity is gone or the session no longer points here.
+        if (isFinishing() || session == null || session.getCommand() == null) {
+            return;
+        }
         boolean loaded = loadEntities();
         if (!loaded) {
             locationChangedWhileLoading = true;
