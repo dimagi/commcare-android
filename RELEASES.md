@@ -16,6 +16,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - Reduced frequency of required biometric or pin unlocks for PersonalID and Connect  
 - [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
+- Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 
 #### Important Bug Fixes
 
