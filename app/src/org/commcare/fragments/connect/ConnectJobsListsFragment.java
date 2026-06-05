@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -23,7 +24,9 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppLauncher;
+import org.commcare.connect.SilentLaunchActions;
 import org.commcare.connect.SilentLaunchOutcome;
+import org.commcare.connect.SilentLaunchOutcomeRouter;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.repository.ConnectRepository;
@@ -36,12 +39,9 @@ import org.commcare.fragments.RefreshableFragment;
 import org.commcare.fragments.base.BaseConnectFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.OnJobSelectionClick;
-import org.commcare.login.LaunchContext;
-import org.commcare.login.LoginError;
 import org.commcare.login.LoginPhase;
 import org.commcare.login.LoginProgress;
 import org.commcare.login.PostLoginDestination;
-import org.commcare.login.PostLoginRouter;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.commcare.util.LogTypes;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -77,7 +77,9 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     private ConnectJobsListViewModel viewModel;
 
     private static final String SILENT_LAUNCH_DIALOG_TAG = "connect_silent_launch_progress";
+    // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
     private static final int SILENT_LAUNCH_DIALOG_TASK_ID = -10;
+    private static final int PROGRESS_BAR_MAX = 100;
     private CustomProgressDialog silentLaunchDialog;
 
     public ConnectJobsListsFragment() {
@@ -202,19 +204,22 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void launchAppSilently(ConnectJobRecord job, boolean isLearning, String appId) {
+        // Resolve the host on the main thread up front; the progress sink fires from a background
+        // thread, where requireActivity() would crash a detached fragment.
+        FragmentActivity activity = requireActivity();
         showSilentLaunchDialog();
         new ConnectAppLauncher().start(
                 getViewLifecycleOwner(),
-                requireContext(),
+                activity,
                 appId,
                 isLearning,
-                progress -> requireActivity().runOnUiThread(() -> updateSilentLaunchProgress(progress)),
-                outcome -> handleSilentLaunchOutcome(outcome, job, isLearning, appId)
+                progress -> activity.runOnUiThread(() -> updateSilentLaunchProgress(progress)),
+                outcome -> handleSilentLaunchOutcome(outcome, activity, job, isLearning, appId)
         );
     }
 
     private void updateSilentLaunchProgress(LoginProgress progress) {
-        if (silentLaunchDialog == null) {
+        if (!isAdded() || silentLaunchDialog == null) {
             return;
         }
         if (progress.getPhase() == LoginPhase.Seating) {
@@ -225,62 +230,90 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             silentLaunchDialog.updateMessage(getString(R.string.connect_silent_launch_syncing));
             Integer percent = progress.getPercent();
             if (percent != null) {
-                silentLaunchDialog.updateProgressBar(percent, 100);
+                silentLaunchDialog.updateProgressBar(percent, PROGRESS_BAR_MAX);
             }
         }
     }
 
     private void handleSilentLaunchOutcome(
             SilentLaunchOutcome outcome,
+            FragmentActivity activity,
             ConnectJobRecord job,
             boolean isLearning,
             String appId
     ) {
-        dismissSilentLaunchDialog();
-        if (outcome instanceof SilentLaunchOutcome.Launched launched) {
-            PostLoginDestination destination = PostLoginRouter.route(
-                    launched.getSuccess(),
-                    new LaunchContext(true, false)
-            );
-            if (destination instanceof PostLoginDestination.Home home) {
-                HomeScreenBaseActivity.launchPostLoginHome(requireActivity(), home);
+        SilentLaunchOutcomeRouter.INSTANCE.dispatch(outcome, new SilentLaunchActions() {
+            @Override
+            public void dismissProgress() {
+                dismissSilentLaunchDialog();
             }
-        } else if (outcome instanceof SilentLaunchOutcome.TokenDenied) {
-            TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
-        } else if (outcome instanceof SilentLaunchOutcome.AppSeatFailed) {
-            startDispatchAfterSeatFailure();
-        } else if (outcome instanceof SilentLaunchOutcome.Retryable retryable) {
-            reportSilentLaunchFailure(appId, retryable.getError());
-            showSilentLaunchRetryDialog(job, isLearning, appId);
-        }
+
+            @Override
+            public void goHome(PostLoginDestination.Home home) {
+                HomeScreenBaseActivity.launchPostLoginHome(activity, home);
+            }
+
+            @Override
+            public void handleTokenDenied() {
+                TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
+            }
+
+            @Override
+            public void recoverFromSeatFailure() {
+                startDispatchAfterSeatFailure(activity);
+            }
+
+            @Override
+            public void showRetry() {
+                showSilentLaunchRetryDialog(activity, job, isLearning, appId);
+            }
+
+            @Override
+            public void reportFailure(String reason) {
+                reportSilentLaunchFailure(appId, reason);
+            }
+
+            @Override
+            public void ignoreAlreadyLaunching() {
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "Connect silent launch ignored for app " + appId + ": already launching");
+            }
+        });
     }
 
-    private void startDispatchAfterSeatFailure() {
-        Intent intent = new Intent(requireActivity(), DispatchActivity.class);
+    private void startDispatchAfterSeatFailure(FragmentActivity activity) {
+        Intent intent = new Intent(activity, DispatchActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        requireActivity().finish();
+        activity.finish();
     }
 
-    private void reportSilentLaunchFailure(String appId, LoginError error) {
+    private void reportSilentLaunchFailure(String appId, String reason) {
         Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
-                "Connect silent launch failed for app " + appId + ": "
-                        + error.getClass().getSimpleName());
+                "Connect silent launch failed for app " + appId + ": " + reason);
         FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(appId);
     }
 
-    private void showSilentLaunchRetryDialog(ConnectJobRecord job, boolean isLearning, String appId) {
-        CommCareActivity<?> activity = (CommCareActivity<?>)requireActivity();
+    private void showSilentLaunchRetryDialog(
+            FragmentActivity activity,
+            ConnectJobRecord job,
+            boolean isLearning,
+            String appId
+    ) {
+        if (!(activity instanceof CommCareActivity)) {
+            return;
+        }
+        CommCareActivity<?> commCareActivity = (CommCareActivity<?>) activity;
         StandardAlertDialog dialog = new StandardAlertDialog(
                 getString(R.string.connect_silent_launch_failed_title),
                 getString(R.string.connect_silent_launch_failed_message)
         );
         dialog.setPositiveButton(getString(R.string.retry_button_text), (d, which) -> {
-            activity.dismissAlertDialog();
+            commCareActivity.dismissAlertDialog();
             launchAppSilently(job, isLearning, appId);
         });
-        dialog.setNegativeButton(getString(R.string.cancel), (d, which) -> activity.dismissAlertDialog());
-        activity.showAlertDialog(dialog);
+        dialog.setNegativeButton(getString(R.string.cancel), (d, which) -> commCareActivity.dismissAlertDialog());
+        commCareActivity.showAlertDialog(dialog);
     }
 
     private void showSilentLaunchDialog() {

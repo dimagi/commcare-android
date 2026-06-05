@@ -359,19 +359,12 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void launchHomeScreen() {
-        Intent i;
-        if (useRootMenuHomeActivity()) {
-            i = new Intent(this, RootMenuHomeActivity.class);
-            // Since we are entering a menu list, the session state will expect this later
-            HomeScreenBaseActivity.addPendingDataExtra(i,
-                    CommCareApplication.instance().getCurrentSessionWrapper().getSession());
-        } else {
-            i = new Intent(this, StandardHomeActivity.class);
-        }
-        i.putExtra(START_FROM_LOGIN, startFromLogin);
-        i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
-        i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
-        i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
+        Intent i = HomeScreenBaseActivity.buildHomeIntent(
+                this,
+                lastLoginMode,
+                startFromLogin,
+                userManuallyEnteredPasswordMode,
+                personalIdManagedLogin);
         startFromLogin = false;
         clearSessionEndpointIntentExtras();
         startActivityForResult(i, HOME_SCREEN);

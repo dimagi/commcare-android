@@ -29,17 +29,18 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Verifies the silent-launch orchestration: phase ordering, credential normalization, outcome
- * mapping for each failure mode, and the re-entrancy guard.
+ * Verifies the silent-launch orchestration: phase ordering, credential resolution and
+ * normalization, outcome mapping for each termination path, and the single-flight guard's
+ * release after both success and failure.
  */
 class ConnectAppLauncherTest {
     private val context = mockk<Context>(relaxed = true)
     private val app = mockk<CommCareApplication>(relaxed = true)
-    private val personalIdManager = mockk<PersonalIdManager>(relaxed = true)
     private val sink = LoginProgressSink { }
 
     private var seatResult: SeatResult = SeatResult.Success
     private var loginAnswer: suspend () -> LoginResult = { success() }
+    private var username: String? = "Alice "
     private val seatedApps = mutableListOf<String>()
     private val capturedRequests = mutableListOf<LoginRequest>()
 
@@ -53,6 +54,7 @@ class ConnectAppLauncherTest {
                 capturedRequests += request
                 loginAnswer()
             },
+            connectUsername = { username },
         )
 
     @Before
@@ -60,10 +62,6 @@ class ConnectAppLauncherTest {
         mockkStatic(CommCareApplication::class)
         every { CommCareApplication.instance() } returns app
         every { app.getAppStorage(UserKeyRecord::class.java) } returns mockk(relaxed = true)
-
-        mockkStatic(PersonalIdManager::class)
-        every { PersonalIdManager.getInstance() } returns personalIdManager
-        every { personalIdManager.getConnectUsername(any()) } returns "Alice "
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportCccAppLaunch(any(), any()) } returns Unit
@@ -87,14 +85,16 @@ class ConnectAppLauncherTest {
         )
 
     @Test
-    fun `happy path closes session, reports launch, seats, and returns Launched`() =
+    fun `happy path closes session, reports launch, seats, and routes to Home`() =
         runTest {
-            val expected = success()
-            loginAnswer = { expected }
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            val outcome = launcher.launch(context, "app-1", isLearning = false, sink)
-
-            assertEquals(SilentLaunchOutcome.Launched(expected), outcome)
+            assertTrue(outcome is SilentLaunchOutcome.Launched)
+            assertEquals(
+                LoginMode.PASSWORD,
+                (outcome as SilentLaunchOutcome.Launched).home.loginMode,
+            )
+            assertTrue(outcome.home.startFromLogin)
             verify(exactly = 1) { app.closeUserSession() }
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", "app-1") }
             assertEquals(listOf("app-1"), seatedApps)
@@ -103,7 +103,7 @@ class ConnectAppLauncherTest {
     @Test
     fun `learning launch reports Learn app type`() =
         runTest {
-            launcher.launch(context, "app-1", isLearning = true, sink)
+            launcher.awaitOutcome(context, "app-1", isLearning = true, sink)
 
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Learn", "app-1") }
         }
@@ -111,7 +111,7 @@ class ConnectAppLauncherTest {
     @Test
     fun `request uses normalized PersonalId credentials`() =
         runTest {
-            launcher.launch(context, "app-1", isLearning = false, sink)
+            launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
             val request = capturedRequests.single()
             assertEquals("alice", request.username)
@@ -121,11 +121,33 @@ class ConnectAppLauncherTest {
         }
 
     @Test
+    fun `missing connect user short-circuits to CredentialResolutionFailed`() =
+        runTest {
+            username = null
+
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+
+            assertEquals(SilentLaunchOutcome.CredentialResolutionFailed, outcome)
+            assertTrue(capturedRequests.isEmpty())
+        }
+
+    @Test
+    fun `blank connect user short-circuits to CredentialResolutionFailed`() =
+        runTest {
+            username = "   "
+
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+
+            assertEquals(SilentLaunchOutcome.CredentialResolutionFailed, outcome)
+            assertTrue(capturedRequests.isEmpty())
+        }
+
+    @Test
     fun `seat failure short-circuits before login`() =
         runTest {
             seatResult = SeatResult.Failed(SeatFailure.CORRUPTED)
 
-            val outcome = launcher.launch(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
             assertEquals(SilentLaunchOutcome.AppSeatFailed, outcome)
             assertTrue(capturedRequests.isEmpty())
@@ -136,7 +158,7 @@ class ConnectAppLauncherTest {
         runTest {
             loginAnswer = { LoginResult.Failed(LoginError.TokenDenied) }
 
-            val outcome = launcher.launch(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
             assertEquals(SilentLaunchOutcome.TokenDenied, outcome)
         }
@@ -146,7 +168,7 @@ class ConnectAppLauncherTest {
         runTest {
             loginAnswer = { LoginResult.Failed(LoginError.BadCredentials) }
 
-            val outcome = launcher.launch(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
             assertEquals(SilentLaunchOutcome.Retryable(LoginError.BadCredentials), outcome)
         }
@@ -159,14 +181,45 @@ class ConnectAppLauncherTest {
 
             val first =
                 launch(start = CoroutineStart.UNDISPATCHED) {
-                    launcher.launch(context, "app-1", isLearning = false, sink)
+                    launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
                 }
 
-            val second = launcher.launch(context, "app-1", isLearning = false, sink)
+            val second = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
             assertEquals(SilentLaunchOutcome.AlreadyLaunching, second)
 
             gate.complete(success())
             first.join()
             assertTrue(first.isCompleted)
+        }
+
+    @Test
+    fun `guard is released after a successful launch`() =
+        runTest {
+            assertTrue(
+                launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+                    is SilentLaunchOutcome.Launched,
+            )
+
+            // A second sequential launch must not be rejected as already-launching.
+            assertTrue(
+                launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+                    is SilentLaunchOutcome.Launched,
+            )
+        }
+
+    @Test
+    fun `guard is released after a credential failure`() =
+        runTest {
+            username = null
+            assertEquals(
+                SilentLaunchOutcome.CredentialResolutionFailed,
+                launcher.awaitOutcome(context, "app-1", isLearning = false, sink),
+            )
+
+            username = "alice"
+            assertTrue(
+                launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+                    is SilentLaunchOutcome.Launched,
+            )
         }
 }

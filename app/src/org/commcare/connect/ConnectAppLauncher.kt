@@ -9,23 +9,32 @@ import org.commcare.CommCareApplication
 import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 import org.commcare.android.database.app.models.UserKeyRecord
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.AppSeater
 import org.commcare.login.AuthSource
+import org.commcare.login.LaunchContext
 import org.commcare.login.LoginController
 import org.commcare.login.LoginError
 import org.commcare.login.LoginProgressSink
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
+import org.commcare.login.PostLoginDestination
+import org.commcare.login.PostLoginRouter
 import org.commcare.login.SeatResult
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Terminal result of a silent Connect launch, for the caller to translate into navigation or UI.
+ * Terminal result of a silent Connect launch. Every exit from [ConnectAppLauncher.awaitOutcome]
+ * produces one of these so the caller can always dismiss its progress UI and act.
+ *
+ * Sync failures (including BAD_DATA variants) and any non-token, non-seat error fold into
+ * [Retryable] rather than distinct variants, and the launcher only issues PersonalID-managed
+ * password logins, so there is intentionally no SyncFailed or Demo-mode outcome on this path.
  */
 sealed class SilentLaunchOutcome {
     data class Launched(
-        val success: LoginResult.Success,
+        val home: PostLoginDestination.Home,
     ) : SilentLaunchOutcome()
 
     object AlreadyLaunching : SilentLaunchOutcome()
@@ -34,30 +43,42 @@ sealed class SilentLaunchOutcome {
 
     object AppSeatFailed : SilentLaunchOutcome()
 
+    object CredentialResolutionFailed : SilentLaunchOutcome()
+
     data class Retryable(
         val error: LoginError,
     ) : SilentLaunchOutcome()
 }
 
 /**
- * Drives the screen-less launch of a CommCare app from a Connect opportunity: seats the app and
- * authenticates with the worker's PersonalID-managed credentials behind a process-wide re-entrancy
- * guard, reporting a [SilentLaunchOutcome] without ever showing
+ * Drives the screen-less launch of a CommCare app from a Connect opportunity: seats the app,
+ * authenticates with the worker's PersonalID-managed credentials, and resolves the post-login
+ * destination, reporting a [SilentLaunchOutcome] without ever showing
  * [org.commcare.activities.LoginActivity].
+ *
+ * Construct one per launch via the no-arg constructor; single-flight is enforced process-wide by a
+ * shared static guard (see [launching]). Callers may either fire-and-forget with [start] (which
+ * binds to a [LifecycleOwner]) or await the outcome directly with [awaitOutcome].
  */
 class ConnectAppLauncher internal constructor(
     private val seatApp: suspend (String, LoginProgressSink) -> SeatResult,
     private val performLogin: suspend (Context, LoginRequest, LoginProgressSink) -> LoginResult,
+    private val connectUsername: (Context) -> String?,
 ) {
     constructor() : this(
         seatApp = { appId, sink -> AppSeater().seatIfNeeded(appId, sink) },
         performLogin = { context, request, sink -> LoginController(context).performLogin(request, sink) },
+        connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
     )
 
     fun interface OutcomeCallback {
         fun onOutcome(outcome: SilentLaunchOutcome)
     }
 
+    /**
+     * Fire-and-forget entry point for UI callers: runs [awaitOutcome] in [lifecycleOwner]'s scope so
+     * it cancels cleanly when the view is destroyed, then delivers the outcome on the main thread.
+     */
     fun start(
         lifecycleOwner: LifecycleOwner,
         context: Context,
@@ -67,10 +88,10 @@ class ConnectAppLauncher internal constructor(
         callback: OutcomeCallback,
     ): Job =
         lifecycleOwner.lifecycleScope.launch {
-            callback.onOutcome(launch(context, appId, isLearning, sink))
+            callback.onOutcome(awaitOutcome(context, appId, isLearning, sink))
         }
 
-    suspend fun launch(
+    suspend fun awaitOutcome(
         context: Context,
         appId: String,
         isLearning: Boolean,
@@ -89,11 +110,11 @@ class ConnectAppLauncher internal constructor(
             }
 
             val username =
-                PersonalIdManager
-                    .getInstance()
-                    .getConnectUsername(context)
-                    .lowercase()
-                    .trim()
+                connectUsername(context)?.trim()?.lowercase()
+            if (username.isNullOrEmpty()) {
+                return SilentLaunchOutcome.CredentialResolutionFailed
+            }
+
             val request =
                 LoginRequest(
                     appId = appId,
@@ -108,7 +129,7 @@ class ConnectAppLauncher internal constructor(
                 )
 
             return when (val result = performLogin(context, request, sink)) {
-                is LoginResult.Success -> SilentLaunchOutcome.Launched(result)
+                is LoginResult.Success -> toLaunchedOutcome(result)
                 is LoginResult.Failed ->
                     when (result.error) {
                         is LoginError.TokenDenied -> SilentLaunchOutcome.TokenDenied
@@ -119,6 +140,18 @@ class ConnectAppLauncher internal constructor(
             launching.set(false)
         }
     }
+
+    private fun toLaunchedOutcome(result: LoginResult.Success): SilentLaunchOutcome =
+        when (
+            val destination =
+                PostLoginRouter.route(
+                    result,
+                    LaunchContext(startFromLogin = true, manualSwitchToPwMode = false),
+                )
+        ) {
+            is PostLoginDestination.Home -> SilentLaunchOutcome.Launched(destination)
+            is PostLoginDestination.TerminalFailure -> SilentLaunchOutcome.Retryable(destination.error)
+        }
 
     private fun hasMultipleMatchingUsers(username: String): Boolean {
         var count = 0
@@ -131,6 +164,11 @@ class ConnectAppLauncher internal constructor(
     }
 
     companion object {
+        /**
+         * Single-flight guard shared across all launcher instances (the caller builds a new one per
+         * tap), so one silent launch in progress rejects any other until it finishes — including
+         * launches from other Connect surfaces wired up in later phases.
+         */
         private val launching = AtomicBoolean(false)
     }
 }

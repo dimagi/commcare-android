@@ -16,6 +16,7 @@ import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -1218,19 +1219,45 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    public static void launchPostLoginHome(Activity caller, PostLoginDestination.Home home) {
+    /**
+     * Builds the post-login Home intent: selects the root-menu vs standard home target, attaches the
+     * pending session data, and copies the login context extras. Shared by both the normal dispatch
+     * path and the silent Connect-launch path so the materialization of the routing decision lives in
+     * one place. {@code loginMode} may be null for non-login entry points (e.g. external launch).
+     */
+    static Intent buildHomeIntent(
+            Context context,
+            LoginMode loginMode,
+            boolean startFromLogin,
+            boolean manualSwitchToPwMode,
+            boolean personalIdManagedLogin) {
         Intent i;
         if (DispatchActivity.useRootMenuHomeActivity()) {
-            i = new Intent(caller, RootMenuHomeActivity.class);
+            i = new Intent(context, RootMenuHomeActivity.class);
             addPendingDataExtra(i,
                     CommCareApplication.instance().getCurrentSessionWrapper().getSession());
         } else {
-            i = new Intent(caller, StandardHomeActivity.class);
+            i = new Intent(context, StandardHomeActivity.class);
         }
-        i.putExtra(DispatchActivity.START_FROM_LOGIN, home.getStartFromLogin());
-        i.putExtra(LoginActivity.LOGIN_MODE, home.getLoginMode());
-        i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, home.getManualSwitchToPwMode());
-        i.putExtra(PERSONALID_MANAGED_LOGIN, home.getPersonalIdManagedLogin());
+        i.putExtra(DispatchActivity.START_FROM_LOGIN, startFromLogin);
+        i.putExtra(LoginActivity.LOGIN_MODE, loginMode);
+        i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);
+        i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
+        return i;
+    }
+
+    /**
+     * Launches Home for a headless caller (e.g. the silent Connect-launch path) that has already
+     * authenticated: starts the home activity as a fresh task and finishes the caller, bypassing the
+     * {@code HOME_SCREEN}-for-result contract that {@link DispatchActivity} uses for the screen path.
+     */
+    public static void launchPostLoginHome(Activity caller, PostLoginDestination.Home home) {
+        Intent i = buildHomeIntent(
+                caller,
+                home.getLoginMode(),
+                home.getStartFromLogin(),
+                home.getManualSwitchToPwMode(),
+                home.getPersonalIdManagedLogin());
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         caller.startActivity(i);
         caller.finish();
