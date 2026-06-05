@@ -6,9 +6,6 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.commcare.CommCareApplication
 import org.commcare.activities.LoginMode
@@ -161,55 +158,5 @@ class ConnectAppLauncherTest {
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
             assertEquals(LaunchOutcome.Retryable(LoginError.BadCredentials), outcome)
-        }
-
-    @Test
-    fun `concurrent launch is rejected as AlreadyLaunching`() =
-        runTest {
-            val gate = CompletableDeferred<LoginResult>()
-            loginAnswer = { gate.await() }
-
-            val first =
-                launch(start = CoroutineStart.UNDISPATCHED) {
-                    launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-                }
-
-            val second = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-            assertEquals(LaunchOutcome.AlreadyLaunching, second)
-
-            gate.complete(success())
-            first.join()
-            assertTrue(first.isCompleted)
-        }
-
-    @Test
-    fun `guard is released after a successful launch`() =
-        runTest {
-            assertTrue(
-                launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-                    is LaunchOutcome.Launched,
-            )
-
-            // A second sequential launch must not be rejected as already-launching.
-            assertTrue(
-                launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-                    is LaunchOutcome.Launched,
-            )
-        }
-
-    @Test
-    fun `guard is released after a credential failure`() =
-        runTest {
-            username = null
-            assertEquals(
-                LaunchOutcome.CredentialResolutionFailed,
-                launcher.awaitOutcome(context, "app-1", isLearning = false, sink),
-            )
-
-            username = "alice"
-            assertTrue(
-                launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-                    is LaunchOutcome.Launched,
-            )
         }
 }

@@ -13,8 +13,6 @@ interface LaunchActions {
     fun fallBackToLegacyLaunch()
 
     fun reportFailure(reason: String)
-
-    fun ignoreAlreadyLaunching()
 }
 
 /** Maps each [LaunchOutcome] to its [LaunchActions] calls, always dismissing progress first. */
@@ -36,7 +34,6 @@ object LaunchOutcomeRouter {
                 actions.reportFailure(outcome.error::class.java.simpleName)
                 actions.fallBackToLegacyLaunch()
             }
-            LaunchOutcome.AlreadyLaunching -> actions.ignoreAlreadyLaunching()
         }
     }
 }

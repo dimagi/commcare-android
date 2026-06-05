@@ -278,12 +278,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             public void reportFailure(String reason) {
                 reportLaunchFailure(appId, reason);
             }
-
-            @Override
-            public void ignoreAlreadyLaunching() {
-                Logger.log(LogTypes.TYPE_MAINTENANCE,
-                        "Connect launch ignored for app " + appId + ": already launching");
-            }
         });
     }
 

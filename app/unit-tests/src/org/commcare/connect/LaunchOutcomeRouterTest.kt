@@ -52,12 +52,4 @@ class LaunchOutcomeRouterTest {
         verify(exactly = 1) { actions.reportFailure("BadCredentials") }
         verify(exactly = 1) { actions.fallBackToLegacyLaunch() }
     }
-
-    @Test
-    fun `already launching is dismissed and ignored`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.AlreadyLaunching, actions)
-
-        verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.ignoreAlreadyLaunching() }
-    }
 }

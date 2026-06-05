@@ -19,7 +19,6 @@ import org.commcare.login.LoginProgressSink
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
 import org.commcare.login.SeatResult
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Terminal result of a Connect launch. All non-token, non-seat errors fold into [Retryable];
@@ -27,8 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 sealed class LaunchOutcome {
     object Launched : LaunchOutcome()
-
-    object AlreadyLaunching : LaunchOutcome()
 
     object TokenDenied : LaunchOutcome()
 
@@ -43,8 +40,7 @@ sealed class LaunchOutcome {
 
 /**
  * Seats and signs into a Connect app with the worker's PersonalID credentials without showing
- * [org.commcare.activities.LoginActivity]. Build one per launch; a process-wide guard ([launching])
- * rejects overlapping launches.
+ * [org.commcare.activities.LoginActivity].
  */
 class ConnectAppLauncher internal constructor(
     private val seatApp: suspend (String, LoginProgressSink) -> SeatResult,
@@ -80,50 +76,42 @@ class ConnectAppLauncher internal constructor(
         isLearning: Boolean,
         sink: LoginProgressSink,
     ): LaunchOutcome {
-        if (!launching.compareAndSet(false, true)) {
-            return LaunchOutcome.AlreadyLaunching
+        CommCareApplication.instance().closeUserSession()
+        FirebaseAnalyticsUtil.reportCccAppLaunch(
+            if (isLearning) "Learn" else "Deliver",
+            appId,
+        )
+
+        if (seatApp(appId, sink) is SeatResult.Failed) {
+            return LaunchOutcome.AppSeatFailed
         }
 
-        try {
-            CommCareApplication.instance().closeUserSession()
-            FirebaseAnalyticsUtil.reportCccAppLaunch(
-                if (isLearning) "Learn" else "Deliver",
-                appId,
+        val username =
+            connectUsername(context)?.trim()?.lowercase()
+        if (username.isNullOrEmpty()) {
+            return LaunchOutcome.CredentialResolutionFailed
+        }
+
+        val request =
+            LoginRequest(
+                appId = appId,
+                username = username,
+                passwordOrPin = "",
+                credentialType = LoginMode.PASSWORD,
+                authSource = AuthSource.PersonalId,
+                restoreSession = false,
+                triggerMultipleUsersWarning = hasMultipleMatchingUsers(username),
+                blockRemoteKeyManagement = false,
+                dataPullMode = DataPullMode.NORMAL,
             )
 
-            if (seatApp(appId, sink) is SeatResult.Failed) {
-                return LaunchOutcome.AppSeatFailed
-            }
-
-            val username =
-                connectUsername(context)?.trim()?.lowercase()
-            if (username.isNullOrEmpty()) {
-                return LaunchOutcome.CredentialResolutionFailed
-            }
-
-            val request =
-                LoginRequest(
-                    appId = appId,
-                    username = username,
-                    passwordOrPin = "",
-                    credentialType = LoginMode.PASSWORD,
-                    authSource = AuthSource.PersonalId,
-                    restoreSession = false,
-                    triggerMultipleUsersWarning = hasMultipleMatchingUsers(username),
-                    blockRemoteKeyManagement = false,
-                    dataPullMode = DataPullMode.NORMAL,
-                )
-
-            return when (val result = performLogin(context, request, sink)) {
-                is LoginResult.Success -> LaunchOutcome.Launched
-                is LoginResult.Failed ->
-                    when (result.error) {
-                        is LoginError.TokenDenied -> LaunchOutcome.TokenDenied
-                        else -> LaunchOutcome.Retryable(result.error)
-                    }
-            }
-        } finally {
-            launching.set(false)
+        return when (val result = performLogin(context, request, sink)) {
+            is LoginResult.Success -> LaunchOutcome.Launched
+            is LoginResult.Failed ->
+                when (result.error) {
+                    is LoginError.TokenDenied -> LaunchOutcome.TokenDenied
+                    else -> LaunchOutcome.Retryable(result.error)
+                }
         }
     }
 
@@ -135,10 +123,5 @@ class ConnectAppLauncher internal constructor(
             }
         }
         return false
-    }
-
-    companion object {
-        /** Process-wide single-flight guard; instances are per-tap, so it must be shared. */
-        private val launching = AtomicBoolean(false)
     }
 }
