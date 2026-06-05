@@ -24,9 +24,9 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppLauncher;
 import org.commcare.connect.ConnectAppUtils;
-import org.commcare.connect.SilentLaunchActions;
-import org.commcare.connect.SilentLaunchOutcome;
-import org.commcare.connect.SilentLaunchOutcomeRouter;
+import org.commcare.connect.LaunchActions;
+import org.commcare.connect.LaunchOutcome;
+import org.commcare.connect.LaunchOutcomeRouter;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.repository.ConnectRepository;
@@ -75,12 +75,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> finishedJobs;
     private ConnectJobsListViewModel viewModel;
 
-    private static final String SILENT_LAUNCH_DIALOG_TAG = "connect_silent_launch_progress";
+    private static final String LAUNCH_DIALOG_TAG = "connect_launch_progress";
     // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
-    private static final int SILENT_LAUNCH_DIALOG_TASK_ID = -10;
+    private static final int LAUNCH_DIALOG_TASK_ID = -10;
     private static final int PROGRESS_BAR_MAX = 100;
-    private CustomProgressDialog silentLaunchDialog;
-    private boolean silentLaunchShowingSyncDialog;
+    private CustomProgressDialog launchDialog;
+    private boolean showingSyncDialog;
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -188,7 +188,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else if (isLearning && job.passedAssessment()) {
             navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
-            launchAppSilently(isLearning, appId);
+            launchApp(isLearning, appId);
         } else {
             int textId = isLearning
                     ? R.string.connect_downloading_learn
@@ -203,55 +203,55 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         }
     }
 
-    private void launchAppSilently(boolean isLearning, String appId) {
+    private void launchApp(boolean isLearning, String appId) {
         FragmentActivity activity = requireActivity();
-        showSilentLaunchDialog(false);
+        showLaunchDialog(false);
         new ConnectAppLauncher().start(
                 getViewLifecycleOwner(),
                 activity,
                 appId,
                 isLearning,
-                progress -> activity.runOnUiThread(() -> updateSilentLaunchProgress(progress)),
-                outcome -> handleSilentLaunchOutcome(outcome, activity, isLearning, appId)
+                progress -> activity.runOnUiThread(() -> updateLaunchProgress(progress)),
+                outcome -> handleLaunchOutcome(outcome, activity, isLearning, appId)
         );
     }
 
-    private void updateSilentLaunchProgress(LoginProgress progress) {
+    private void updateLaunchProgress(LoginProgress progress) {
         if (!isAdded()) {
             return;
         }
 
         LoginPhase phase = progress.getPhase();
         boolean syncing = phase == LoginPhase.Syncing;
-        if (silentLaunchDialog == null || syncing != silentLaunchShowingSyncDialog) {
-            showSilentLaunchDialog(syncing);
+        if (launchDialog == null || syncing != showingSyncDialog) {
+            showLaunchDialog(syncing);
         }
         if (phase == LoginPhase.Seating) {
-            silentLaunchDialog.updateTitle(Localization.get("seating.app"));
-            silentLaunchDialog.updateMessage(Localization.get("seating.app"));
+            launchDialog.updateTitle(Localization.get("seating.app"));
+            launchDialog.updateMessage(Localization.get("seating.app"));
         } else if (phase == LoginPhase.SigningIn) {
-            silentLaunchDialog.updateTitle(Localization.get("key.manage.title"));
-            silentLaunchDialog.updateMessage(Localization.get("key.manage.start"));
+            launchDialog.updateTitle(Localization.get("key.manage.title"));
+            launchDialog.updateMessage(Localization.get("key.manage.start"));
         }
         if (progress.getMessage() != null) {
-            silentLaunchDialog.updateMessage(progress.getMessage());
+            launchDialog.updateMessage(progress.getMessage());
         }
         Integer percent = progress.getPercent();
         if (syncing && percent != null) {
-            silentLaunchDialog.updateProgressBar(percent, PROGRESS_BAR_MAX);
+            launchDialog.updateProgressBar(percent, PROGRESS_BAR_MAX);
         }
     }
 
-    private void handleSilentLaunchOutcome(
-            SilentLaunchOutcome outcome,
+    private void handleLaunchOutcome(
+            LaunchOutcome outcome,
             FragmentActivity activity,
             boolean isLearning,
             String appId
     ) {
-        SilentLaunchOutcomeRouter.INSTANCE.dispatch(outcome, new SilentLaunchActions() {
+        LaunchOutcomeRouter.INSTANCE.dispatch(outcome, new LaunchActions() {
             @Override
             public void dismissProgress() {
-                dismissSilentLaunchDialog();
+                dismissLaunchDialog();
             }
 
             @Override
@@ -276,13 +276,13 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
             @Override
             public void reportFailure(String reason) {
-                reportSilentLaunchFailure(appId, reason);
+                reportLaunchFailure(appId, reason);
             }
 
             @Override
             public void ignoreAlreadyLaunching() {
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
-                        "Connect silent launch ignored for app " + appId + ": already launching");
+                        "Connect launch ignored for app " + appId + ": already launching");
             }
         });
     }
@@ -294,46 +294,46 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         activity.finish();
     }
 
-    private void reportSilentLaunchFailure(String appId, String reason) {
+    private void reportLaunchFailure(String appId, String reason) {
         Logger.log(
                 LogTypes.TYPE_ERROR_WORKFLOW,
-                "Connect silent launch failed for app " + appId + ": " + reason
+                "Connect launch failed for app " + appId + ": " + reason
         );
         FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(appId);
     }
 
-    private void showSilentLaunchDialog(boolean syncing) {
-        dismissSilentLaunchDialog();
+    private void showLaunchDialog(boolean syncing) {
+        dismissLaunchDialog();
         if (syncing) {
-            silentLaunchDialog = CustomProgressDialog.newInstance(
+            launchDialog = CustomProgressDialog.newInstance(
                     Localization.get("sync.communicating.title"),
                     Localization.get("sync.progress.starting"),
-                    SILENT_LAUNCH_DIALOG_TASK_ID
+                    LAUNCH_DIALOG_TASK_ID
             );
-            silentLaunchDialog.addProgressBar();
+            launchDialog.addProgressBar();
         } else {
-            silentLaunchDialog = CustomProgressDialog.newInstance(
+            launchDialog = CustomProgressDialog.newInstance(
                     Localization.get("seating.app"),
                     Localization.get("seating.app"),
-                    SILENT_LAUNCH_DIALOG_TASK_ID
+                    LAUNCH_DIALOG_TASK_ID
             );
         }
-        silentLaunchShowingSyncDialog = syncing;
-        silentLaunchDialog.showNow(getChildFragmentManager(), SILENT_LAUNCH_DIALOG_TAG);
+        showingSyncDialog = syncing;
+        launchDialog.showNow(getChildFragmentManager(), LAUNCH_DIALOG_TAG);
     }
 
-    private void dismissSilentLaunchDialog() {
-        if (silentLaunchDialog != null) {
-            if (silentLaunchDialog.isAdded()) {
-                silentLaunchDialog.dismissAllowingStateLoss();
+    private void dismissLaunchDialog() {
+        if (launchDialog != null) {
+            if (launchDialog.isAdded()) {
+                launchDialog.dismissAllowingStateLoss();
             }
-            silentLaunchDialog = null;
+            launchDialog = null;
         }
     }
 
     @Override
     public void onDestroyView() {
-        dismissSilentLaunchDialog();
+        dismissLaunchDialog();
         super.onDestroyView();
     }
 

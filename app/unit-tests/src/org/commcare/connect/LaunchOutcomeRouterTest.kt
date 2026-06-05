@@ -6,12 +6,12 @@ import io.mockk.verifyOrder
 import org.commcare.login.LoginError
 import org.junit.Test
 
-class SilentLaunchOutcomeRouterTest {
-    private val actions = mockk<SilentLaunchActions>(relaxed = true)
+class LaunchOutcomeRouterTest {
+    private val actions = mockk<LaunchActions>(relaxed = true)
 
     @Test
     fun `launched goes home after dismissing progress`() {
-        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.Launched, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.Launched, actions)
 
         verifyOrder {
             actions.dismissProgress()
@@ -21,7 +21,7 @@ class SilentLaunchOutcomeRouterTest {
 
     @Test
     fun `token denied delegates to the token handler`() {
-        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.TokenDenied, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.TokenDenied, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.handleTokenDenied() }
@@ -29,7 +29,7 @@ class SilentLaunchOutcomeRouterTest {
 
     @Test
     fun `app seat failure routes to recovery`() {
-        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.AppSeatFailed, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.AppSeatFailed, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.recoverFromSeatFailure() }
@@ -37,7 +37,7 @@ class SilentLaunchOutcomeRouterTest {
 
     @Test
     fun `credential resolution failure reports and falls back to the legacy launch`() {
-        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.CredentialResolutionFailed, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.CredentialResolutionFailed, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("CredentialResolutionFailed") }
@@ -46,7 +46,7 @@ class SilentLaunchOutcomeRouterTest {
 
     @Test
     fun `retryable reports the error name and falls back to the legacy launch`() {
-        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.Retryable(LoginError.BadCredentials), actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.Retryable(LoginError.BadCredentials), actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("BadCredentials") }
@@ -55,7 +55,7 @@ class SilentLaunchOutcomeRouterTest {
 
     @Test
     fun `already launching is dismissed and ignored`() {
-        SilentLaunchOutcomeRouter.dispatch(SilentLaunchOutcome.AlreadyLaunching, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.AlreadyLaunching, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.ignoreAlreadyLaunching() }

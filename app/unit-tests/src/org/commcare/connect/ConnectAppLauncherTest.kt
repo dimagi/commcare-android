@@ -84,7 +84,7 @@ class ConnectAppLauncherTest {
         runTest {
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            assertEquals(SilentLaunchOutcome.Launched, outcome)
+            assertEquals(LaunchOutcome.Launched, outcome)
             verify(exactly = 1) { app.closeUserSession() }
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", "app-1") }
             assertEquals(listOf("app-1"), seatedApps)
@@ -117,7 +117,7 @@ class ConnectAppLauncherTest {
 
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            assertEquals(SilentLaunchOutcome.CredentialResolutionFailed, outcome)
+            assertEquals(LaunchOutcome.CredentialResolutionFailed, outcome)
             assertTrue(capturedRequests.isEmpty())
         }
 
@@ -128,7 +128,7 @@ class ConnectAppLauncherTest {
 
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            assertEquals(SilentLaunchOutcome.CredentialResolutionFailed, outcome)
+            assertEquals(LaunchOutcome.CredentialResolutionFailed, outcome)
             assertTrue(capturedRequests.isEmpty())
         }
 
@@ -139,7 +139,7 @@ class ConnectAppLauncherTest {
 
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            assertEquals(SilentLaunchOutcome.AppSeatFailed, outcome)
+            assertEquals(LaunchOutcome.AppSeatFailed, outcome)
             assertTrue(capturedRequests.isEmpty())
         }
 
@@ -150,7 +150,7 @@ class ConnectAppLauncherTest {
 
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            assertEquals(SilentLaunchOutcome.TokenDenied, outcome)
+            assertEquals(LaunchOutcome.TokenDenied, outcome)
         }
 
     @Test
@@ -160,7 +160,7 @@ class ConnectAppLauncherTest {
 
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
 
-            assertEquals(SilentLaunchOutcome.Retryable(LoginError.BadCredentials), outcome)
+            assertEquals(LaunchOutcome.Retryable(LoginError.BadCredentials), outcome)
         }
 
     @Test
@@ -175,7 +175,7 @@ class ConnectAppLauncherTest {
                 }
 
             val second = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-            assertEquals(SilentLaunchOutcome.AlreadyLaunching, second)
+            assertEquals(LaunchOutcome.AlreadyLaunching, second)
 
             gate.complete(success())
             first.join()
@@ -187,13 +187,13 @@ class ConnectAppLauncherTest {
         runTest {
             assertTrue(
                 launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-                    is SilentLaunchOutcome.Launched,
+                    is LaunchOutcome.Launched,
             )
 
             // A second sequential launch must not be rejected as already-launching.
             assertTrue(
                 launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-                    is SilentLaunchOutcome.Launched,
+                    is LaunchOutcome.Launched,
             )
         }
 
@@ -202,14 +202,14 @@ class ConnectAppLauncherTest {
         runTest {
             username = null
             assertEquals(
-                SilentLaunchOutcome.CredentialResolutionFailed,
+                LaunchOutcome.CredentialResolutionFailed,
                 launcher.awaitOutcome(context, "app-1", isLearning = false, sink),
             )
 
             username = "alice"
             assertTrue(
                 launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
-                    is SilentLaunchOutcome.Launched,
+                    is LaunchOutcome.Launched,
             )
         }
 }

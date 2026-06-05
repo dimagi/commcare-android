@@ -22,23 +22,23 @@ import org.commcare.login.SeatResult
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Terminal result of a silent Connect launch. All non-token, non-seat errors fold into [Retryable];
+ * Terminal result of a Connect launch. All non-token, non-seat errors fold into [Retryable];
  * since this path only does PersonalID password logins, there is no SyncFailed or Demo outcome.
  */
-sealed class SilentLaunchOutcome {
-    object Launched : SilentLaunchOutcome()
+sealed class LaunchOutcome {
+    object Launched : LaunchOutcome()
 
-    object AlreadyLaunching : SilentLaunchOutcome()
+    object AlreadyLaunching : LaunchOutcome()
 
-    object TokenDenied : SilentLaunchOutcome()
+    object TokenDenied : LaunchOutcome()
 
-    object AppSeatFailed : SilentLaunchOutcome()
+    object AppSeatFailed : LaunchOutcome()
 
-    object CredentialResolutionFailed : SilentLaunchOutcome()
+    object CredentialResolutionFailed : LaunchOutcome()
 
     data class Retryable(
         val error: LoginError,
-    ) : SilentLaunchOutcome()
+    ) : LaunchOutcome()
 }
 
 /**
@@ -58,7 +58,7 @@ class ConnectAppLauncher internal constructor(
     )
 
     fun interface OutcomeCallback {
-        fun onOutcome(outcome: SilentLaunchOutcome)
+        fun onOutcome(outcome: LaunchOutcome)
     }
 
     /** Fire-and-forget [awaitOutcome], scoped to [lifecycleOwner] so it cancels with the view. */
@@ -79,9 +79,9 @@ class ConnectAppLauncher internal constructor(
         appId: String,
         isLearning: Boolean,
         sink: LoginProgressSink,
-    ): SilentLaunchOutcome {
+    ): LaunchOutcome {
         if (!launching.compareAndSet(false, true)) {
-            return SilentLaunchOutcome.AlreadyLaunching
+            return LaunchOutcome.AlreadyLaunching
         }
 
         try {
@@ -92,13 +92,13 @@ class ConnectAppLauncher internal constructor(
             )
 
             if (seatApp(appId, sink) is SeatResult.Failed) {
-                return SilentLaunchOutcome.AppSeatFailed
+                return LaunchOutcome.AppSeatFailed
             }
 
             val username =
                 connectUsername(context)?.trim()?.lowercase()
             if (username.isNullOrEmpty()) {
-                return SilentLaunchOutcome.CredentialResolutionFailed
+                return LaunchOutcome.CredentialResolutionFailed
             }
 
             val request =
@@ -115,11 +115,11 @@ class ConnectAppLauncher internal constructor(
                 )
 
             return when (val result = performLogin(context, request, sink)) {
-                is LoginResult.Success -> SilentLaunchOutcome.Launched
+                is LoginResult.Success -> LaunchOutcome.Launched
                 is LoginResult.Failed ->
                     when (result.error) {
-                        is LoginError.TokenDenied -> SilentLaunchOutcome.TokenDenied
-                        else -> SilentLaunchOutcome.Retryable(result.error)
+                        is LoginError.TokenDenied -> LaunchOutcome.TokenDenied
+                        else -> LaunchOutcome.Retryable(result.error)
                     }
             }
         } finally {
