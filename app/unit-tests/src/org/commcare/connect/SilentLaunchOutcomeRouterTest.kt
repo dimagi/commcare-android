@@ -6,10 +6,6 @@ import io.mockk.verifyOrder
 import org.commcare.login.LoginError
 import org.junit.Test
 
-/**
- * Verifies the outcome-to-action dispatch: the progress UI is dismissed on every path and each
- * [SilentLaunchOutcome] maps to exactly the expected [SilentLaunchActions] calls.
- */
 class SilentLaunchOutcomeRouterTest {
     private val actions = mockk<SilentLaunchActions>(relaxed = true)
 

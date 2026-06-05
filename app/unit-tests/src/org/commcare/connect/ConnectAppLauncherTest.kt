@@ -28,11 +28,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Verifies the silent-launch orchestration: phase ordering, credential resolution and
- * normalization, outcome mapping for each termination path, and the single-flight guard's
- * release after both success and failure.
- */
 class ConnectAppLauncherTest {
     private val context = mockk<Context>(relaxed = true)
     private val app = mockk<CommCareApplication>(relaxed = true)

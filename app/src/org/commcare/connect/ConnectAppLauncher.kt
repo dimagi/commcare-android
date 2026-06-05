@@ -22,12 +22,8 @@ import org.commcare.login.SeatResult
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Terminal result of a silent Connect launch. Every exit from [ConnectAppLauncher.awaitOutcome]
- * produces one of these so the caller can always dismiss its progress UI and act.
- *
- * Sync failures (including BAD_DATA variants) and any non-token, non-seat error fold into
- * [Retryable] rather than distinct variants, and the launcher only issues PersonalID-managed
- * password logins, so there is intentionally no SyncFailed or Demo-mode outcome on this path.
+ * Terminal result of a silent Connect launch. All non-token, non-seat errors fold into [Retryable];
+ * since this path only does PersonalID password logins, there is no SyncFailed or Demo outcome.
  */
 sealed class SilentLaunchOutcome {
     object Launched : SilentLaunchOutcome()
@@ -46,14 +42,9 @@ sealed class SilentLaunchOutcome {
 }
 
 /**
- * Drives the screen-less launch of a CommCare app from a Connect opportunity: seats the app,
- * authenticates with the worker's PersonalID-managed credentials, and resolves the post-login
- * destination, reporting a [SilentLaunchOutcome] without ever showing
- * [org.commcare.activities.LoginActivity].
- *
- * Construct one per launch via the no-arg constructor; single-flight is enforced process-wide by a
- * shared static guard (see [launching]). Callers may either fire-and-forget with [start] (which
- * binds to a [LifecycleOwner]) or await the outcome directly with [awaitOutcome].
+ * Seats and signs into a Connect app with the worker's PersonalID credentials without showing
+ * [org.commcare.activities.LoginActivity]. Build one per launch; a process-wide guard ([launching])
+ * rejects overlapping launches.
  */
 class ConnectAppLauncher internal constructor(
     private val seatApp: suspend (String, LoginProgressSink) -> SeatResult,
@@ -70,10 +61,7 @@ class ConnectAppLauncher internal constructor(
         fun onOutcome(outcome: SilentLaunchOutcome)
     }
 
-    /**
-     * Fire-and-forget entry point for UI callers: runs [awaitOutcome] in [lifecycleOwner]'s scope so
-     * it cancels cleanly when the view is destroyed, then delivers the outcome on the main thread.
-     */
+    /** Fire-and-forget [awaitOutcome], scoped to [lifecycleOwner] so it cancels with the view. */
     fun start(
         lifecycleOwner: LifecycleOwner,
         context: Context,
@@ -150,11 +138,7 @@ class ConnectAppLauncher internal constructor(
     }
 
     companion object {
-        /**
-         * Single-flight guard shared across all launcher instances (the caller builds a new one per
-         * tap), so one silent launch in progress rejects any other until it finishes — including
-         * launches from other Connect surfaces wired up in later phases.
-         */
+        /** Process-wide single-flight guard; instances are per-tap, so it must be shared. */
         private val launching = AtomicBoolean(false)
     }
 }

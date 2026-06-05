@@ -1,9 +1,6 @@
 package org.commcare.connect
 
-/**
- * UI/navigation actions a caller performs in response to a [SilentLaunchOutcome]. Kept as a seam so
- * the outcome-to-action mapping is unit-testable without a hosting fragment.
- */
+/** Actions a caller runs for a [SilentLaunchOutcome]; a seam so the mapping is testable without a fragment. */
 interface SilentLaunchActions {
     fun dismissProgress()
 
@@ -20,10 +17,7 @@ interface SilentLaunchActions {
     fun ignoreAlreadyLaunching()
 }
 
-/**
- * Maps a [SilentLaunchOutcome] to the right [SilentLaunchActions] calls. The progress UI is always
- * dismissed first, and the exhaustive `when` guarantees every outcome has a defined terminal action.
- */
+/** Maps each [SilentLaunchOutcome] to its [SilentLaunchActions] calls, always dismissing progress first. */
 object SilentLaunchOutcomeRouter {
     fun dispatch(
         outcome: SilentLaunchOutcome,
