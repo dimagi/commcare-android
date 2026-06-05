@@ -24,6 +24,17 @@ These notes are only published internally in [CommCare Change log wiki](https://
 along with the public release notes above
 -->
 
+### QA Notes
+
+- **Combobox capitalization fix:**
+  - **Setup:** Use a form with a lookup-table-backed multiple-choice question configured with `appearance="combobox"`, followed by a Numeric ID or Phone Number question on the same screen.
+  - **Focus retention in following questions (the user-visible bug being fixed):**
+    - Open the form, select or type a valid choice in the combobox, then move to the Numeric ID / Phone Number question.
+    - Tap the field and type a multiple digit value in one go. Verify the field retains focus throughout — no need to re-tap after each digit.
+  - **Combobox case correction (existing behaviour, should still work):**
+    - Type a valid choice in **lowercase** (e.g. "apple" when the choice list contains "Apple") and tap away. Verify the field is rewritten to the canonical casing "Apple".
+    - Type the same choice in **mixed case** (e.g. "ApPlE") and lose focus. Verify it's rewritten to "Apple".
+    - Type a value that **doesn't match any choice** and lose focus. Verify the field is left unchanged.
 
 ## CommCare 2.63
 
