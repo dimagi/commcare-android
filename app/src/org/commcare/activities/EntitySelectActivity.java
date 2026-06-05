@@ -1068,6 +1068,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void onEvalLocationChanged() {
         if (isFinishing() || session == null || session.getCommand() == null) {
+            CrashUtil.log("EntitySelectActivity.onEvalLocationChanged with null session command" +
+                    "; isFinishing=" + isFinishing());
             return;
         }
         boolean loaded = loadEntities();
