@@ -57,7 +57,6 @@ class ConnectAppLauncherTest {
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportCccAppLaunch(any(), any()) } returns Unit
-        every { FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(any()) } returns Unit
     }
 
     @After

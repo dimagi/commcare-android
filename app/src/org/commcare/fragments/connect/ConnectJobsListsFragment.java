@@ -297,6 +297,9 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void showLaunchDialog(boolean syncing) {
+        if (getChildFragmentManager().isStateSaved()) {
+            return;
+        }
         dismissLaunchDialog();
         if (syncing) {
             launchDialog = CustomProgressDialog.newInstance(

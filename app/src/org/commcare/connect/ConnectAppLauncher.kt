@@ -19,6 +19,7 @@ import org.commcare.login.LoginProgressSink
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
 import org.commcare.login.SeatResult
+import java.util.Locale
 
 /**
  * Terminal result of a Connect launch. All non-token, non-seat errors fold into [Retryable];
@@ -87,7 +88,7 @@ class ConnectAppLauncher internal constructor(
         }
 
         val username =
-            connectUsername(context)?.trim()?.lowercase()
+            connectUsername(context)?.trim()?.lowercase(Locale.ROOT)
         if (username.isNullOrEmpty()) {
             return LaunchOutcome.CredentialResolutionFailed
         }
