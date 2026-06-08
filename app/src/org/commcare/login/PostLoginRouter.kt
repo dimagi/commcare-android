@@ -12,15 +12,17 @@ object PostLoginRouter {
         launchContext: LaunchContext,
     ): PostLoginDestination =
         when (result) {
-            is LoginResult.Success ->
+            is LoginResult.Success -> {
                 PostLoginDestination.Home(
                     loginMode = result.loginMode,
                     startFromLogin = launchContext.startFromLogin,
                     manualSwitchToPwMode = launchContext.manualSwitchToPwMode,
                     personalIdManagedLogin = result.personalIdManagedLogin,
                 )
+            }
 
-            is LoginResult.Failed ->
+            is LoginResult.Failed -> {
                 PostLoginDestination.TerminalFailure(result.error)
+            }
         }
 }
