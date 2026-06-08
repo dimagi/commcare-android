@@ -35,7 +35,7 @@ private class FakeKeyRecordOperations(
 
     override suspend fun manageKeyRecord(
         request: LoginRequest,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
     ): KeyRecordOutcome {
         capturedRequest = request
         capturedRequests += request
@@ -57,7 +57,7 @@ private class FakeSyncOperations(
         username: String,
         password: String,
         mode: DataPullMode,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
     ): SyncOutcome {
         capturedUsername = username
         capturedPassword = password
@@ -71,7 +71,7 @@ class LoginControllerTest {
     private val credentialResolver = mockk<ConnectCredentialResolver>(relaxed = true)
     private val postLoginSideEffects = mockk<PostLoginSideEffects>(relaxed = true)
     private val personalIdManager = mockk<PersonalIdManager>(relaxed = true)
-    private val sink = LoginProgressSink { }
+    private val listener = LoginProgressListener { }
 
     @Before
     fun setUp() {
@@ -117,7 +117,7 @@ class LoginControllerTest {
             val (controller, fakeKeyRecord, _) =
                 buildController(keyRecordOutcome = KeyRecordOutcome.LocalLoginComplete)
 
-            val result = controller.performLogin(manualRequest(), sink)
+            val result = controller.performLogin(manualRequest(), listener)
 
             assertTrue(result is LoginResult.Success)
             val success = result as LoginResult.Success
@@ -152,7 +152,7 @@ class LoginControllerTest {
                     authSource = AuthSource.PersonalId,
                     passwordOrPin = "user-entered-pw",
                 )
-            val result = controller.performLogin(request, sink)
+            val result = controller.performLogin(request, listener)
 
             assertTrue(result is LoginResult.Success)
             val success = result as LoginResult.Success
@@ -175,7 +175,7 @@ class LoginControllerTest {
                     keyRecordOutcome = KeyRecordOutcome.Failed(LoginError.BadCredentials),
                 )
 
-            val result = controller.performLogin(manualRequest(), sink)
+            val result = controller.performLogin(manualRequest(), listener)
 
             assertEquals(LoginResult.Failed(LoginError.BadCredentials), result)
             coVerify(exactly = 0) { postLoginSideEffects.runOnSuccess(any()) }
@@ -189,7 +189,7 @@ class LoginControllerTest {
                     keyRecordOutcome = KeyRecordOutcome.Failed(LoginError.NetworkUnavailable),
                 )
 
-            val result = controller.performLogin(manualRequest(), sink)
+            val result = controller.performLogin(manualRequest(), listener)
 
             assertEquals(LoginResult.Failed(LoginError.NetworkUnavailable), result)
             coVerify(exactly = 0) { postLoginSideEffects.runOnSuccess(any()) }
@@ -203,7 +203,7 @@ class LoginControllerTest {
                     keyRecordOutcome = KeyRecordOutcome.Failed(LoginError.TokenDenied),
                 )
 
-            val result = controller.performLogin(manualRequest(), sink)
+            val result = controller.performLogin(manualRequest(), listener)
 
             assertEquals(LoginResult.Failed(LoginError.TokenDenied), result)
             coVerify(exactly = 0) { postLoginSideEffects.runOnSuccess(any()) }
@@ -221,7 +221,7 @@ class LoginControllerTest {
                         ),
                 )
 
-            val result = controller.performLogin(manualRequest(), sink)
+            val result = controller.performLogin(manualRequest(), listener)
 
             assertEquals(
                 LoginResult.Failed(LoginError.UnknownFailure("something went wrong")),
@@ -238,7 +238,7 @@ class LoginControllerTest {
             coEvery { postLoginSideEffects.runOnSuccess(any()) } returns
                 PostLoginOutcome(redirectToConnectOpportunityInfo = true)
 
-            val result = controller.performLogin(manualRequest(), sink)
+            val result = controller.performLogin(manualRequest(), listener)
 
             assertTrue(result is LoginResult.Success)
             assertEquals(true, (result as LoginResult.Success).postLoginOutcome.redirectToConnectOpportunityInfo)
@@ -262,7 +262,7 @@ class LoginControllerTest {
 
             val parentJob =
                 launch(start = CoroutineStart.UNDISPATCHED) {
-                    controller.performLogin(manualRequest(), sink)
+                    controller.performLogin(manualRequest(), listener)
                 }
             sideEffectsStarted.await()
             parentJob.cancel()
@@ -289,7 +289,7 @@ class LoginControllerTest {
                 )
 
             val request = manualRequest().copy(dataPullMode = DataPullMode.CONSUMER_APP)
-            val result = controller.performLogin(request, sink)
+            val result = controller.performLogin(request, listener)
 
             assertTrue(result is LoginResult.Success)
             assertEquals(DataPullMode.CONSUMER_APP, fakeSync.capturedMode)
@@ -317,7 +317,7 @@ class LoginControllerTest {
                     dataPullMode = DataPullMode.CCZ_DEMO,
                     blockRemoteKeyManagement = true,
                 )
-            val result = controller.performLogin(request, sink)
+            val result = controller.performLogin(request, listener)
 
             assertTrue(result is LoginResult.Success)
             assertEquals(DataPullMode.CCZ_DEMO, fakeSync.capturedMode)
@@ -333,7 +333,7 @@ class LoginControllerTest {
                 buildController(keyRecordOutcome = KeyRecordOutcome.LocalLoginComplete)
 
             val request = manualRequest().copy(dataPullMode = DataPullMode.CONSUMER_APP)
-            val result = controller.performLogin(request, sink)
+            val result = controller.performLogin(request, listener)
 
             assertTrue(result is LoginResult.Success)
             assertEquals(0, fakeSync.callCount)

@@ -13,6 +13,6 @@ enum class LoginPhase {
 }
 
 /** Caller-provided callback the engine emits [LoginProgress] on so the UI can reflect login phases. */
-fun interface LoginProgressSink {
+fun interface LoginProgressListener {
     fun onProgress(progress: LoginProgress)
 }

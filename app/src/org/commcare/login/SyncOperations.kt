@@ -43,10 +43,10 @@ internal open class SyncOperations(
         username: String,
         password: String,
         mode: DataPullMode,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
     ): SyncOutcome =
         suspendCancellableCoroutine { continuation ->
-            sink.onProgress(LoginProgress(LoginPhase.Syncing))
+            listener.onProgress(LoginProgress(LoginPhase.Syncing))
 
             if (mode == DataPullMode.CONSUMER_APP && !localRestoreReferenceExists()) {
                 continuation.resumeOnce(
@@ -114,7 +114,7 @@ internal open class SyncOperations(
                             } else {
                                 null
                             }
-                        sink.onProgress(
+                        listener.onProgress(
                             LoginProgress(LoginPhase.Syncing, percent = percent),
                         )
                     }
@@ -142,7 +142,7 @@ internal open class SyncOperations(
 
     internal fun resolvePullPlan(mode: DataPullMode): PullPlan =
         when (mode) {
-            DataPullMode.NORMAL ->
+            DataPullMode.NORMAL -> {
                 PullPlan(
                     server = ServerUrls.getDataServerKey(),
                     userId = null,
@@ -150,8 +150,9 @@ internal open class SyncOperations(
                     blockRemoteKeyManagement = false,
                     payloadReferences = emptyList(),
                 )
+            }
 
-            DataPullMode.CONSUMER_APP ->
+            DataPullMode.CONSUMER_APP -> {
                 PullPlan(
                     server = FAKE_SERVER,
                     userId = UNUSED_USER_ID,
@@ -159,6 +160,7 @@ internal open class SyncOperations(
                     blockRemoteKeyManagement = true,
                     payloadReferences = listOf(SingleAppInstallation.LOCAL_RESTORE_REFERENCE),
                 )
+            }
 
             DataPullMode.CCZ_DEMO -> {
                 val demoUserRestore =

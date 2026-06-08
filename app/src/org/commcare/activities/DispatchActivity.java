@@ -14,6 +14,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -182,7 +183,17 @@ public class DispatchActivity extends AppCompatActivity {
                     pnIntent.getStringExtra(NOTIFICATION_ID)
             );
             startActivity(pnIntent);
-        }else if (currentApp == null) {
+            return;
+        }
+
+        Intent connectOppInviteIntent = DeepLinkHelper.INSTANCE.retrieveConnectOppInviteIntentIfPresent(
+                this, getIntent());
+        if(connectOppInviteIntent != null) {
+            startActivity(connectOppInviteIntent);
+            return;
+        }
+
+        if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
@@ -201,6 +212,7 @@ public class DispatchActivity extends AppCompatActivity {
             // Send this off at the earliest possible point where we know we have a seated app.
             // Result will be stored for later use
             RecoveryMeasuresHelper.requestRecoveryMeasures();
+
 
             // Note that the order in which these conditions are checked matters!!
             if (CommCareApplication.instance().isConsumerApp() && !alreadyCheckedForAppFilesChange) {

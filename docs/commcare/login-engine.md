@@ -1,10 +1,10 @@
 # Login Engine
 
-The `org.commcare.login` package implements the CommCare login pipeline without an Activity dependency. A caller supplies a `LoginRequest` plus a `LoginProgressSink`, awaits a `LoginResult`, and is responsible for any post-result navigation.
+The `org.commcare.login` package implements the CommCare login pipeline without an Activity dependency. A caller supplies a `LoginRequest` plus a `LoginProgressListener`, awaits a `LoginResult`, and is responsible for any post-result navigation.
 
 ## Entry point
 
-`LoginController.performLogin(request, sink)` is the single suspend entry point. Java callers should use `LoginController.start(lifecycleOwner, request, sink, callback)`, which launches the suspend call on the owner's `lifecycleScope` and delivers the result through a SAM callback.
+`LoginController.performLogin(request, listener)` is the single suspend entry point. Java callers should use `LoginController.start(lifecycleOwner, request, listener, callback)`, which launches the suspend call on the owner's `lifecycleScope` and delivers the result through a SAM callback.
 
 The controller composes:
 
@@ -18,13 +18,13 @@ The controller composes:
 
 ## Progress events
 
-`LoginProgress(phase, percent?, message?)` is emitted on the sink. Phases:
+`LoginProgress(phase, percent?, message?)` is emitted on the listener. Phases:
 
 - `Seating` — reserved; emitted starting in Phase 2 by `AppSeater`. Not produced by Phase 1.
 - `SigningIn` — `ManageKeyRecordTask` is running. `message` carries the localized status string from the underlying task.
 - `Syncing` — `DataPullTask` is running. `percent` is populated when the task reports `PROGRESS_PROCESSING` or `PROGRESS_SERVER_PROCESSING`.
 
-`LoginActivity` wires the sink to its existing `CustomProgressDialog`s (`TASK_KEY_EXCHANGE` for `SigningIn`, `DataPullTask.DATA_PULL_TASK_ID` for `Syncing`), transitioning between dialogs when the phase changes.
+`LoginActivity` wires the listener to its existing `CustomProgressDialog`s (`TASK_KEY_EXCHANGE` for `SigningIn`, `DataPullTask.DATA_PULL_TASK_ID` for `Syncing`), transitioning between dialogs when the phase changes.
 
 ## Error mapping
 
@@ -66,5 +66,5 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 
 1. Construct a `LoginController` with a `Context`.
 2. Build a `LoginRequest`. For PersonalID-managed login (launched from Connect or manual) set `authSource = PersonalId`; the controller replaces `passwordOrPin` with the resolver's value. App navigation (e.g. returning to Connect on back-out) is driven by launch context at the call site, not by `authSource`.
-3. Implement `LoginProgressSink` to render `LoginProgress(phase, percent?, message?)` events.
+3. Implement `LoginProgressListener` to render `LoginProgress(phase, percent?, message?)` events.
 4. Handle the returned `LoginResult`. `Success` carries the resolved `appId`/`username`, routing fields (`loginMode`, `restoreSession`, `personalIdManagedLogin`), the `linkPassword` for a PersonalID link check, and `postLoginOutcome` (`redirectToConnectOpportunityInfo`, `needsPersonalIdLinkCheck`). Failures: handle the variants you care about and funnel the rest in an `else`/default branch.
