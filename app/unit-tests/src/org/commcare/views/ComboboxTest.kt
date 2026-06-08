@@ -1,5 +1,6 @@
 package org.commcare.views
 
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
@@ -59,7 +60,7 @@ class ComboboxTest {
     }
 
     private fun newCombobox(vararg displayTexts: String): Combobox {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val items = displayTexts.mapIndexed { i, label -> ComboItem(label, label, i) }
         val choicesVector = Vector(items)
         val adapter = ComboboxAdapter(context, items.toTypedArray(), permissiveFilterRule())
