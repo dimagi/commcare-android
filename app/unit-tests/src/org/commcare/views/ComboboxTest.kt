@@ -17,7 +17,7 @@ import java.util.Vector
 @RunWith(AndroidJUnit4::class)
 class ComboboxTest {
     @Test
-    fun autoCorrectCapitalization_rewritesWrongCaseToCanonical() {
+    fun `autoCorrectCapitalization rewrites wrong case to expected casing`() {
         val combobox = newCombobox("Apple", "Banana", "Cherry")
         combobox.setText("apple")
 
@@ -27,7 +27,7 @@ class ComboboxTest {
     }
 
     @Test
-    fun autoCorrectCapitalization_leavesCanonicalCasingUntouched() {
+    fun `autoCorrectCapitalization leaves expected casing untouched`() {
         val combobox = newCombobox("Apple", "Banana")
         combobox.setText("Apple")
         val originalEditable = combobox.text
@@ -40,7 +40,7 @@ class ComboboxTest {
     }
 
     @Test
-    fun autoCorrectCapitalization_leavesUnknownTextUntouched() {
+    fun `autoCorrectCapitalization leaves unknown text untouched`() {
         val combobox = newCombobox("Apple", "Banana")
         combobox.setText("xyz")
 
@@ -50,7 +50,7 @@ class ComboboxTest {
     }
 
     @Test
-    fun autoCorrectCapitalization_leavesEmptyTextUntouched() {
+    fun `autoCorrectCapitalization leaves empty text untouched`() {
         val combobox = newCombobox("Apple", "Banana")
         combobox.setText("")
 
