@@ -1,12 +1,10 @@
 package org.commcare.fragments.connect;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -14,21 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.DispatchActivity;
-import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectAppLauncher;
-import org.commcare.connect.ConnectAppUtils;
-import org.commcare.connect.LaunchActions;
-import org.commcare.connect.LaunchOutcome;
-import org.commcare.connect.LaunchOutcomeRouter;
+import org.commcare.connect.ConnectAppLaunchUiController;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.network.TokenExceptionHandler;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -37,15 +28,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.fragments.base.BaseConnectFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.OnJobSelectionClick;
-import org.commcare.login.LoginPhase;
-import org.commcare.login.LoginProgress;
 import org.commcare.models.connect.ConnectLoginJobListModel;
-import org.commcare.util.LogTypes;
-import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -74,13 +58,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> newJobs;
     ArrayList<ConnectLoginJobListModel> finishedJobs;
     private ConnectJobsListViewModel viewModel;
-
-    private static final String LAUNCH_DIALOG_TAG = "connect_launch_progress";
-    // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
-    private static final int LAUNCH_DIALOG_TASK_ID = -10;
-    private static final int PROGRESS_BAR_MAX = 100;
-    private CustomProgressDialog launchDialog;
-    private boolean showingSyncDialog;
+    private ConnectAppLaunchUiController launchUiController;
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -95,6 +73,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_title);
         setWaitDialogEnabled(false);
+        launchUiController = new ConnectAppLaunchUiController(this);
         viewModel = new ViewModelProvider(this).get(ConnectJobsListViewModel.class);
         observeOpportunities();
         refresh(false);
@@ -204,133 +183,12 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void launchApp(boolean isLearning, String appId) {
-        FragmentActivity activity = requireActivity();
-        showLaunchDialog(false);
-        new ConnectAppLauncher().start(
-                getViewLifecycleOwner(),
-                activity,
-                appId,
-                isLearning,
-                progress -> activity.runOnUiThread(() -> updateLaunchProgress(progress)),
-                outcome -> handleLaunchOutcome(outcome, activity, isLearning, appId)
-        );
-    }
-
-    private void updateLaunchProgress(LoginProgress progress) {
-        if (!isAdded()) {
-            return;
-        }
-
-        LoginPhase phase = progress.getPhase();
-        boolean syncing = phase == LoginPhase.Syncing;
-        if (launchDialog == null || syncing != showingSyncDialog) {
-            showLaunchDialog(syncing);
-        }
-        if (phase == LoginPhase.Seating) {
-            launchDialog.updateTitle(Localization.get("seating.app"));
-            launchDialog.updateMessage(Localization.get("seating.app"));
-        } else if (phase == LoginPhase.SigningIn) {
-            launchDialog.updateTitle(Localization.get("key.manage.title"));
-            launchDialog.updateMessage(Localization.get("key.manage.start"));
-        }
-        if (progress.getMessage() != null) {
-            launchDialog.updateMessage(progress.getMessage());
-        }
-        Integer percent = progress.getPercent();
-        if (syncing && percent != null) {
-            launchDialog.updateProgressBar(percent, PROGRESS_BAR_MAX);
-        }
-    }
-
-    private void handleLaunchOutcome(
-            LaunchOutcome outcome,
-            FragmentActivity activity,
-            boolean isLearning,
-            String appId
-    ) {
-        LaunchOutcomeRouter.INSTANCE.dispatch(outcome, new LaunchActions() {
-            @Override
-            public void dismissProgress() {
-                dismissLaunchDialog();
-            }
-
-            @Override
-            public void launchHome() {
-                HomeScreenBaseActivity.launchHome(activity);
-            }
-
-            @Override
-            public void handleTokenDenied() {
-                TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
-            }
-
-            @Override
-            public void recoverFromSeatFailure() {
-                startDispatchAfterSeatFailure(activity);
-            }
-
-            @Override
-            public void fallBackToLegacyLaunch() {
-                ConnectAppUtils.INSTANCE.launchApp(activity, isLearning, appId);
-            }
-
-            @Override
-            public void reportFailure(String reason) {
-                reportLaunchFailure(appId, reason);
-            }
-        });
-    }
-
-    private void startDispatchAfterSeatFailure(FragmentActivity activity) {
-        Intent intent = new Intent(activity, DispatchActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        activity.finish();
-    }
-
-    private void reportLaunchFailure(String appId, String reason) {
-        Logger.log(
-                LogTypes.TYPE_ERROR_WORKFLOW,
-                "Connect launch failed for app " + appId + ": " + reason
-        );
-        FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(appId);
-    }
-
-    private void showLaunchDialog(boolean syncing) {
-        if (getChildFragmentManager().isStateSaved()) {
-            return;
-        }
-        dismissLaunchDialog();
-        if (syncing) {
-            launchDialog = CustomProgressDialog.newInstance(
-                    Localization.get("sync.communicating.title"),
-                    Localization.get("sync.progress.starting"),
-                    LAUNCH_DIALOG_TASK_ID
-            );
-            launchDialog.addProgressBar();
-        } else {
-            launchDialog = CustomProgressDialog.newInstance(
-                    Localization.get("seating.app"),
-                    Localization.get("seating.app"),
-                    LAUNCH_DIALOG_TASK_ID
-            );
-        }
-        showingSyncDialog = syncing;
-        launchDialog.showNow(getChildFragmentManager(), LAUNCH_DIALOG_TAG);
-    }
-
-    private void dismissLaunchDialog() {
-        if (launchDialog != null) {
-            if (launchDialog.isAdded()) {
-                launchDialog.dismissAllowingStateLoss();
-            }
-            launchDialog = null;
-        }
+        launchUiController.launch(isLearning, appId);
     }
 
     @Override
     public void onDestroyView() {
-        dismissLaunchDialog();
+        launchUiController.cleanup();
         super.onDestroyView();
     }
 

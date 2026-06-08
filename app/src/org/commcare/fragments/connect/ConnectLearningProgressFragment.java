@@ -12,10 +12,9 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
-import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectAppLaunchUiController;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.PersonalIdManager;
@@ -39,6 +38,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private boolean showAppLaunch = true;
     private ConnectLearningProgressViewModel viewModel;
+    private ConnectAppLaunchUiController launchUiController;
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -59,6 +59,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         requireActivity().setTitle(getString(R.string.connect_learn_title));
         setWaitDialogEnabled(false);
+        launchUiController = new ConnectAppLaunchUiController(this);
         viewModel = new ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
@@ -320,8 +321,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getLearnAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, appId);
+            launchUiController.launch(true, appId);
         } else {
             NavDirections navDirections = ConnectLearningProgressFragmentDirections
                     .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
@@ -330,6 +330,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                     );
             Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        launchUiController.cleanup();
+        super.onDestroyView();
     }
 
     @Override

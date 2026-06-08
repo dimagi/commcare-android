@@ -20,9 +20,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.AppUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectAppLaunchUiController;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -56,6 +55,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
     private ConnectDeliveryProgressViewModel viewModel;
+    private ConnectAppLaunchUiController launchUiController;
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -75,6 +75,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         setWaitDialogEnabled(false);
+        launchUiController = new ConnectAppLaunchUiController(this);
         viewModel = new ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
@@ -340,8 +341,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getDeliveryAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, appId);
+            launchUiController.launch(false, appId);
         } else {
             NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
                     .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
@@ -350,6 +350,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                     );
             Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        launchUiController.cleanup();
+        super.onDestroyView();
     }
 
     @Override

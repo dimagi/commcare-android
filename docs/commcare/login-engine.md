@@ -72,7 +72,9 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 
 `LaunchOutcomeRouter.dispatch(outcome, actions)` maps each outcome to a `LaunchActions` call — a seam so the mapping is unit-tested without a fragment. It always dismisses progress first, then: go Home; delegate `TokenDenied` to `TokenExceptionHandler`; route a seat failure through `DispatchActivity` (which reaches recovery for a corrupted app); or fall back to the legacy `ConnectAppUtils.launchApp` (which shows `LoginActivity`) for credential and retryable failures.
 
-`ConnectJobsListsFragment` is the first caller: it shows a modal `CustomProgressDialog` (mirroring `LoginActivity`'s spinner-then-bar), runs the launch on `viewLifecycleOwner.lifecycleScope`, and on success lands Home via `HomeScreenBaseActivity.launchHome` — started on top of the Connect screen rather than through `DispatchActivity`, so backing out of Home returns to the opportunities list.
+`ConnectAppLaunchUiController` is the fragment-side orchestration shared by every Connect launch surface: it shows a modal `CustomProgressDialog` (mirroring `LoginActivity`'s spinner-then-bar), runs `ConnectAppLauncher` on the fragment's `viewLifecycleOwner` scope, and dispatches the outcome through `LaunchOutcomeRouter`. On success it lands Home via `HomeScreenBaseActivity.launchHome` — started on top of the Connect screen rather than through `DispatchActivity`, so backing out of Home returns to the originating Connect screen. `ConnectJobsListsFragment` (opportunities list), `ConnectDeliveryProgressFragment` (delivery app), and `ConnectLearningProgressFragment` (learn app) all launch through it; each forwards `onDestroyView` to `cleanup()` so the dialog is dismissed.
+
+The two remaining `ConnectAppUtils.launchApp` callers (`ConnectJobIntroFragment`, `ConnectDownloadingFragment`) still take the legacy `LoginActivity` path; `ConnectAppUtils.launchApp` itself is unchanged and also serves as the silent path's fallback for credential and retryable failures.
 
 ## Adding a new caller
 
