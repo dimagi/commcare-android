@@ -55,7 +55,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
     private ConnectDeliveryProgressViewModel viewModel;
-    private ConnectAppLaunchUiController launchUiController;
+    private final ConnectAppLaunchUiController launchUiController = new ConnectAppLaunchUiController(this);
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -75,7 +75,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         setWaitDialogEnabled(false);
-        launchUiController = new ConnectAppLaunchUiController(this);
         viewModel = new ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())

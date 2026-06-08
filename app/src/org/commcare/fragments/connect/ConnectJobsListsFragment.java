@@ -58,7 +58,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> newJobs;
     ArrayList<ConnectLoginJobListModel> finishedJobs;
     private ConnectJobsListViewModel viewModel;
-    private ConnectAppLaunchUiController launchUiController;
+    private final ConnectAppLaunchUiController launchUiController = new ConnectAppLaunchUiController(this);
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -73,7 +73,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         View view = super.onCreateView(inflater, container, savedInstanceState);
         requireActivity().setTitle(R.string.connect_title);
         setWaitDialogEnabled(false);
-        launchUiController = new ConnectAppLaunchUiController(this);
         viewModel = new ViewModelProvider(this).get(ConnectJobsListViewModel.class);
         observeOpportunities();
         refresh(false);

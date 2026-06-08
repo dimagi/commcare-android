@@ -1241,14 +1241,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     public static void launchHome(Activity activity) {
-        Intent intent = buildHomeIntent(
-                activity,
-                LoginMode.PASSWORD,
-                true,
-                false,
-                true
-        );
-        activity.startActivity(intent);
+        activity.startActivity(buildHomeLaunchIntent(activity));
+    }
+
+    /**
+     * The Home intent used by silent (LoginActivity-less) launches. Exposed so callers that need the
+     * Home result (e.g. the "View Job Status" redirect) can start it via {@code startActivityForResult}.
+     */
+    public static Intent buildHomeLaunchIntent(Context context) {
+        return buildHomeIntent(context, LoginMode.PASSWORD, true, false, true);
     }
 
     protected static void addPendingDataExtra(Intent i, CommCareSession session) {

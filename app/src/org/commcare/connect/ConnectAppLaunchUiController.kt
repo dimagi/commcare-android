@@ -2,6 +2,9 @@ package org.commcare.connect
 
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -31,6 +34,12 @@ internal data class LaunchDialogState(
     val overrideMessage: String?,
     val percent: Int?,
 )
+
+/** "View Job Status" redirect applies only on a successful Home result carrying the redirect flag. */
+internal fun shouldRedirectToJobStatus(
+    resultCode: Int,
+    redirectExtra: Boolean,
+): Boolean = resultCode == Activity.RESULT_OK && redirectExtra
 
 internal object LaunchProgressMapper {
     fun map(progress: LoginProgress): LaunchDialogState {
@@ -80,6 +89,13 @@ class ConnectAppLaunchUiController
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
 
+        // Registered at construction (fragment init) so the launched app's "View Job Status" result
+        // is delivered back here, mirroring DispatchActivity's redirect handling for the legacy path.
+        private val homeResultLauncher: ActivityResultLauncher<Intent> =
+            fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                onHomeResult(result)
+            }
+
         fun launchLearningApp(appId: String) = launch(LaunchTarget(appId, isLearning = true))
 
         fun launchDeliveryApp(appId: String) = launch(LaunchTarget(appId, isLearning = false))
@@ -127,7 +143,7 @@ class ConnectAppLaunchUiController
                 object : LaunchActions {
                     override fun dismissProgress() = dismissLaunchDialog()
 
-                    override fun launchHome() = HomeScreenBaseActivity.launchHome(activity)
+                    override fun launchHome() = homeResultLauncher.launch(HomeScreenBaseActivity.buildHomeLaunchIntent(activity))
 
                     override fun handleTokenDenied() = TokenExceptionHandler.handleTokenDeniedException()
 
@@ -187,6 +203,20 @@ class ConnectAppLaunchUiController
                 }
             }
             launchDialog = null
+        }
+
+        private fun onHomeResult(result: ActivityResult) {
+            if (!fragment.isAdded) {
+                return
+            }
+            val redirectExtra =
+                result.data?.getBooleanExtra(DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false) ?: false
+            if (!shouldRedirectToJobStatus(result.resultCode, redirectExtra)) {
+                return
+            }
+            val activity = fragment.requireActivity()
+            val job = ConnectJobHelper.getJobForSeatedApp(activity) ?: return
+            ConnectNavHelper.goToActiveInfoForJob(activity, job, true)
         }
 
         private fun registerDialogCleanup(owner: LifecycleOwner) {

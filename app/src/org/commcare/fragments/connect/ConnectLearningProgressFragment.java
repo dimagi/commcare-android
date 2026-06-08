@@ -38,7 +38,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private boolean showAppLaunch = true;
     private ConnectLearningProgressViewModel viewModel;
-    private ConnectAppLaunchUiController launchUiController;
+    private final ConnectAppLaunchUiController launchUiController = new ConnectAppLaunchUiController(this);
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -59,7 +59,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         requireActivity().setTitle(getString(R.string.connect_learn_title));
         setWaitDialogEnabled(false);
-        launchUiController = new ConnectAppLaunchUiController(this);
         viewModel = new ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
