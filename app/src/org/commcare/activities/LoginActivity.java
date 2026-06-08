@@ -1013,7 +1013,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
-        return shouldShowDrawerAfterCheck();
+        return shouldShowDrawerAfterCheck(true);
     }
 
     @Override
