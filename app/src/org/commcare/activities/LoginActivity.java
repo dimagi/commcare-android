@@ -27,7 +27,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController.DataPullMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -45,7 +44,7 @@ import org.commcare.login.LoginController;
 import org.commcare.login.LoginError;
 import org.commcare.login.LoginPhase;
 import org.commcare.login.LoginProgress;
-import org.commcare.login.LoginProgressSink;
+import org.commcare.login.LoginProgressListener;
 import org.commcare.login.LoginRequest;
 import org.commcare.login.LoginResult;
 import org.commcare.models.database.user.DemoUserBuilder;
@@ -127,9 +126,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private boolean appLaunchedFromConnect = false;
 
     /**
-     *   This lets us launch CommCare in a single app mode from external applications
-     *   and should only be used internally when we don't want user to have the option to switch to other apps
-     *   for eg. for launch from Connect Opportunities
+     * This lets us launch CommCare in a single app mode from external applications
+     * and should only be used internally when we don't want user to have the option to switch to other apps
+     * (e.g. for launch from Connect Opportunities)
      */
     private String presetAppId;
     private PersonalIdManager personalIdManager;
@@ -165,13 +164,14 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
-
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
-            new UserfacingErrorHandling<>().createErrorDialog(this,
+            new UserfacingErrorHandling<>().createErrorDialog(
+                    this,
                     StringUtils.getStringRobust(this, R.string.root_detected_message),
                     StringUtils.getStringRobust(this, R.string.root_detected_title),
-                    true);
+                    true
+            );
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
@@ -190,14 +190,19 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     public void requestNeededPermissions(int requestCode) {
-        ActivityCompat.requestPermissions(this, Permissions.getAppPermissions(),
-                requestCode);
+        ActivityCompat.requestPermissions(
+                this,
+                Permissions.getAppPermissions(),
+                requestCode
+        );
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults
+    ) {
         String[] requiredPerms = Permissions.getRequiredPerms();
 
         if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
@@ -240,20 +245,24 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             doLogin(loginMode, restoreSession, "AUTO");
         } else if (loginManagedByPersonalId()) {
             //Unlock and then auto login
-            PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.ALWAYS, success -> {
-                if (success) {
-                    String username = uiController.getEnteredUsername();
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    String pass = personalIdManager.getStoredPasswordForApp(seatedAppId, username);
-                    doLogin(loginMode, restoreSession, pass);
-                }
-            });
+            PersonalIdUnlocker.INSTANCE.unlock(
+                    this, UnlockPolicy.ALWAYS, success -> {
+                        if (success) {
+                            String username = uiController.getEnteredUsername();
+                            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                            String pass = personalIdManager.getStoredPasswordForApp(
+                                    seatedAppId,
+                                    username
+                            );
+                            doLogin(loginMode, restoreSession, pass);
+                        }
+                    }
+            );
         } else {
             //Manual login
             String passwordOrPin = uiController.getEnteredPasswordOrPin();
             doLogin(loginMode, restoreSession, passwordOrPin);
         }
-
     }
 
     @Override
@@ -316,10 +325,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         );
 
         LoginController controller = new LoginController(this);
-        controller.start(this, request, createLoginProgressSink(), this::handleLoginResult);
+        controller.start(this, request, createLoginProgressListener(), this::handleLoginResult);
     }
 
-    private LoginProgressSink createLoginProgressSink() {
+    private LoginProgressListener createLoginProgressListener() {
         return progress -> runOnUiThread(() -> updateLoginProgressUi(progress));
     }
 
@@ -462,7 +471,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
-
     private void tryAutoLogin() {
         Pair<String, String> userAndPass =
                 DevSessionRestorer.getAutoLoginCreds(forceAutoLogin());
@@ -589,9 +597,17 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         } else if (error instanceof LoginError.RateLimitedServerError) {
             raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
         } else if (error instanceof LoginError.EncryptionFailure encryptionFailure) {
-            raiseLoginMessageWithInfo(StockMessages.Encryption_Error, encryptionFailure.getMessage(), true);
+            raiseLoginMessageWithInfo(
+                    StockMessages.Encryption_Error,
+                    encryptionFailure.getMessage(),
+                    true
+            );
         } else if (error instanceof LoginError.RecoveryFailure recoveryFailure) {
-            raiseLoginMessageWithInfo(StockMessages.Recovery_Error, recoveryFailure.getMessage(), true);
+            raiseLoginMessageWithInfo(
+                    StockMessages.Recovery_Error,
+                    recoveryFailure.getMessage(),
+                    true
+            );
         } else if (error instanceof LoginError.ActionableFailure actionableFailure) {
             raiseMessage(
                     new NotificationMessage(
@@ -613,7 +629,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
         } else if (error instanceof LoginError.UnknownFailure unknownFailure) {
             if (unknownFailure.getMessage() != null) {
-                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, unknownFailure.getMessage(), true);
+                raiseLoginMessageWithInfo(
+                        StockMessages.Restore_Unknown,
+                        unknownFailure.getMessage(),
+                        true
+                );
             } else {
                 raiseLoginMessage(StockMessages.Restore_Unknown, true);
             }
@@ -622,24 +642,28 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
-            setResult(RESULT_OK);
-            finish();
-        });
+        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(
+                this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
+                    setResult(RESULT_OK);
+                    finish();
+                }
+        );
     }
 
     private void handleFailedConnectSignIn() {
         if (loginManagedByPersonalId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-            PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(this,
-                    record.getUniqueId(), getUniformUsername());
+            PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(
+                    this,
+                    record.getUniqueId(),
+                    getUniformUsername()
+            );
             switch (appState) {
-                case Connect -> {
-                    FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
-                }
-                case PersonalId -> {
-                    uiController.setErrorMessageUI(getString(R.string.personalid_failed_to_login_with_connectid), false);
-                }
+                case Connect -> FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
+                case PersonalId -> uiController.setErrorMessageUI(
+                        getString(R.string.personalid_failed_to_login_with_connectid),
+                        false
+                );
             }
         }
     }
@@ -648,9 +672,24 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-        menu.add(0, MENU_PRACTICE_MODE, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_ABOUT_COMMCARE, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_ACQUIRE_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
+        menu.add(
+                0,
+                MENU_PRACTICE_MODE,
+                0,
+                Localization.get("login.menu.demo")
+        ).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(
+                0,
+                MENU_ABOUT_COMMCARE,
+                1,
+                Localization.get("home.menu.about")
+        ).setIcon(android.R.drawable.ic_menu_help);
+        menu.add(
+                0,
+                MENU_ACQUIRE_PERMISSIONS,
+                1,
+                Localization.get("permission.acquire.required")
+        ).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_FORGOT_PIN, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.personalid_signup));
@@ -671,8 +710,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
-                menuIdToAnalyticsParam.get(item.getItemId()));
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(
+                this.getClass(),
+                menuIdToAnalyticsParam.get(item.getItemId())
+        );
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
@@ -681,7 +722,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 DialogCreationHelpers.showAboutCommCareDialog(this);
                 return true;
             case MENU_ACQUIRE_PERMISSIONS:
-                Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
+                Permissions.acquireAllAppPermissions(
+                        this,
+                        this,
+                        Permissions.ALL_PERMISSIONS_REQUEST
+                );
                 return true;
             case MENU_FORGOT_PIN:
                 uiController.manualSwitchToPasswordMode();
@@ -746,11 +791,17 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
     }
 
-    public void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop) {
+    public void raiseLoginMessageWithInfo(
+            MessageTag messageTag,
+            String additionalInfo,
+            boolean showTop
+    ) {
         NotificationMessage message =
-                NotificationMessageFactory.message(messageTag,
+                NotificationMessageFactory.message(
+                        messageTag,
                         new String[]{null, null, additionalInfo},
-                        NOTIFICATION_MESSAGE_LOGIN);
+                        NOTIFICATION_MESSAGE_LOGIN
+                );
         raiseMessage(message, showTop);
     }
 
@@ -758,10 +809,16 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         raiseLoginMessage(messageTag, showTop, NotificationActionButtonInfo.ButtonAction.NONE);
     }
 
-    public void raiseLoginMessage(MessageTag messageTag, boolean showTop,
-                                  NotificationActionButtonInfo.ButtonAction buttonAction) {
-        NotificationMessage message = NotificationMessageFactory.message(messageTag,
-                NOTIFICATION_MESSAGE_LOGIN, buttonAction);
+    public void raiseLoginMessage(
+            MessageTag messageTag,
+            boolean showTop,
+            NotificationActionButtonInfo.ButtonAction buttonAction
+    ) {
+        NotificationMessage message = NotificationMessageFactory.message(
+                messageTag,
+                NOTIFICATION_MESSAGE_LOGIN,
+                buttonAction
+        );
         raiseMessage(message, showTop);
     }
 
@@ -772,7 +829,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
         uiController.setErrorMessageUI(toastText, showTop);
         handleFailedConnectSignIn();
-
     }
 
     /**
@@ -788,22 +844,33 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         CustomProgressDialog dialog;
         switch (taskId) {
             case TASK_KEY_EXCHANGE:
-                dialog = CustomProgressDialog.newInstance(Localization.get("key.manage.title"),
-                        Localization.get("key.manage.start"), taskId);
+                dialog = CustomProgressDialog.newInstance(
+                        Localization.get("key.manage.title"),
+                        Localization.get("key.manage.start"),
+                        taskId
+                );
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
-                dialog = CustomProgressDialog.newInstance(Localization.get("sync.communicating.title"),
-                        Localization.get("sync.progress.starting"), taskId);
+                dialog = CustomProgressDialog.newInstance(
+                        Localization.get("sync.communicating.title"),
+                        Localization.get("sync.progress.starting"),
+                        taskId
+                );
                 dialog.addCancelButton();
                 dialog.addProgressBar();
                 break;
             case TASK_UPGRADE_INSTALL:
-                dialog = CustomProgressDialog.newInstance(Localization.get("updates.installing.title"),
-                        Localization.get("updates.installing.message"), taskId);
+                dialog = CustomProgressDialog.newInstance(
+                        Localization.get("updates.installing.title"),
+                        Localization.get("updates.installing.message"),
+                        taskId
+                );
                 break;
             default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in LoginActivity");
+                Log.w(
+                        TAG, "taskId passed to generateProgressDialog does not match "
+                                + "any valid possibilities in LoginActivity"
+                );
                 return null;
         }
         return dialog;
@@ -863,36 +930,48 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
      */
     private void installPendingUpdate() {
         InstallStagedUpdateTask<LoginActivity> task =
-                new InstallStagedUpdateTask<LoginActivity>(TASK_UPGRADE_INSTALL) {
+                new InstallStagedUpdateTask<>(TASK_UPGRADE_INSTALL) {
                     @Override
-                    protected void deliverResult(LoginActivity receiver,
-                                                 AppInstallStatus result) {
+                    protected void deliverResult(
+                            LoginActivity receiver,
+                            AppInstallStatus result
+                    ) {
                         if (result == AppInstallStatus.Installed) {
-                            Toast.makeText(receiver,
+                            Toast.makeText(
+                                    receiver,
                                     Localization.get("login.update.install.success"),
-                                    Toast.LENGTH_LONG).show();
+                                    Toast.LENGTH_LONG
+                            ).show();
                             UpdateActivity.OnSuccessfulUpdate(false, false);
                         } else {
-                            CommCareApplication.notificationManager().reportNotificationMessage(
-                                    NotificationMessageFactory.message(result));
+                            CommCareApplication.notificationManager()
+                                    .reportNotificationMessage(
+                                            NotificationMessageFactory.message(result)
+                                    );
                         }
 
                         localLoginOrPullAndLogin(uiController.isRestoreSessionChecked());
                     }
 
                     @Override
-                    protected void deliverUpdate(LoginActivity receiver,
-                                                 int[]... update) {
+                    protected void deliverUpdate(
+                            LoginActivity receiver,
+                            int[]... update
+                    ) {
                     }
 
                     @Override
-                    protected void deliverError(LoginActivity receiver,
-                                                Exception e) {
+                    protected void deliverError(
+                            LoginActivity receiver,
+                            Exception e
+                    ) {
                         e.printStackTrace();
                         Logger.exception("Auto update on login failed", e);
-                        Toast.makeText(receiver,
+                        Toast.makeText(
+                                receiver,
                                 Localization.get("login.update.install.failure"),
-                                Toast.LENGTH_LONG).show();
+                                Toast.LENGTH_LONG
+                        ).show();
 
                         localLoginOrPullAndLogin(uiController.isRestoreSessionChecked());
                     }
@@ -960,7 +1039,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         personalIdManager.launchPersonalId(this, ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH);
     }
 
-    protected boolean seatAppIfNeeded(String appId) {
+    protected void seatAppIfNeeded(String appId) {
         boolean selectedNewApp = !isAppSeated(appId);
         if (selectedNewApp) {
             // Set the id of the last selected app
@@ -972,7 +1051,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
-        return selectedNewApp;
     }
 
     private boolean isAppSeated(String appId) {
@@ -982,8 +1060,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     protected void evaluateConnectAppState() {
         if (personalIdManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(this,
-                    seatedAppId, uiController.getEnteredUsername());
+            PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(
+                    this,
+                    seatedAppId,
+                    uiController.getEnteredUsername()
+            );
 
             if (appLaunchedFromConnect && presetAppId != null) {
                 appState = Connect;
@@ -991,7 +1072,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
             if (appState == PersonalId) {
                 int selectorIndex = uiController.getSelectedAppIndex();
-                String selectedAppId = !appIdDropdownList.isEmpty() ? appIdDropdownList.get(selectorIndex) : "";
+                String selectedAppId = !appIdDropdownList.isEmpty()
+                        ? appIdDropdownList.get(selectorIndex) : "";
                 if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
                     appState = Unmanaged;
                 }
@@ -1012,7 +1094,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
-        return shouldShowDrawerAfterCheck();
+        return shouldShowDrawerAfterCheck(true);
     }
 
     @Override
@@ -1025,7 +1107,10 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     @Override
-    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+    protected void handleDrawerItemClick(
+            @NonNull BaseDrawerController.NavItemType itemType,
+            String recordId
+    ) {
         if (itemType == BaseDrawerController.NavItemType.COMMCARE_APPS) {
             if (recordId != null) {
                 if (!appIdDropdownList.isEmpty()) {

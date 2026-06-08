@@ -314,7 +314,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     @Override
     protected boolean shouldShowDrawer() {
-        return PersonalIdManager.getInstance().checkDeviceCompability();
+        return shouldShowDrawerAfterCheck(false);
     }
 
     @Override

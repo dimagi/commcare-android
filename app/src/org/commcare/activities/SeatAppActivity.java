@@ -26,7 +26,13 @@ public class SeatAppActivity extends CommonBaseActivity {
         tv.setText(Localization.get("seating.app"));
 
         String appId = getIntent().getStringExtra(KEY_APP_TO_SEAT);
-        new AppSeater().start(this, appId, progress -> {}, this::finishWithResult);
+        new AppSeater().start(
+                this,
+                appId,
+                progress -> {
+                },
+                this::finishWithResult
+        );
     }
 
     private void finishWithResult(SeatResult result) {

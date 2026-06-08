@@ -15,7 +15,7 @@ import org.commcare.login.AppSeater
 import org.commcare.login.AuthSource
 import org.commcare.login.LoginController
 import org.commcare.login.LoginError
-import org.commcare.login.LoginProgressSink
+import org.commcare.login.LoginProgressListener
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
 import org.commcare.login.SeatResult
@@ -44,13 +44,13 @@ sealed class LaunchOutcome {
  * [org.commcare.activities.LoginActivity].
  */
 class ConnectAppLauncher internal constructor(
-    private val seatApp: suspend (String, LoginProgressSink) -> SeatResult,
-    private val performLogin: suspend (Context, LoginRequest, LoginProgressSink) -> LoginResult,
+    private val seatApp: suspend (String, LoginProgressListener) -> SeatResult,
+    private val performLogin: suspend (Context, LoginRequest, LoginProgressListener) -> LoginResult,
     private val connectUsername: (Context) -> String?,
 ) {
     constructor() : this(
-        seatApp = { appId, sink -> AppSeater().seatIfNeeded(appId, sink) },
-        performLogin = { context, request, sink -> LoginController(context).performLogin(request, sink) },
+        seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
+        performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
         connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
     )
 
@@ -64,18 +64,18 @@ class ConnectAppLauncher internal constructor(
         context: Context,
         appId: String,
         isLearning: Boolean,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
         callback: OutcomeCallback,
     ): Job =
         lifecycleOwner.lifecycleScope.launch {
-            callback.onOutcome(awaitOutcome(context, appId, isLearning, sink))
+            callback.onOutcome(awaitOutcome(context, appId, isLearning, listener))
         }
 
     suspend fun awaitOutcome(
         context: Context,
         appId: String,
         isLearning: Boolean,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
     ): LaunchOutcome {
         CommCareApplication.instance().closeUserSession()
         FirebaseAnalyticsUtil.reportCccAppLaunch(
@@ -83,7 +83,7 @@ class ConnectAppLauncher internal constructor(
             appId,
         )
 
-        if (seatApp(appId, sink) is SeatResult.Failed) {
+        if (seatApp(appId, listener) is SeatResult.Failed) {
             return LaunchOutcome.AppSeatFailed
         }
 
@@ -106,7 +106,7 @@ class ConnectAppLauncher internal constructor(
                 dataPullMode = DataPullMode.NORMAL,
             )
 
-        return when (val result = performLogin(context, request, sink)) {
+        return when (val result = performLogin(context, request, listener)) {
             is LoginResult.Success -> LaunchOutcome.Launched
             is LoginResult.Failed ->
                 when (result.error) {

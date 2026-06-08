@@ -13,7 +13,7 @@ import org.junit.Test
 private const val STATE_READY = 2
 
 class AppSeaterTest {
-    private val sink = LoginProgressSink { }
+    private val listener = LoginProgressListener { }
 
     @Test
     fun `missing record returns Failed APP_NOT_FOUND without seating`() =
@@ -29,7 +29,7 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            val result = seater.seatIfNeeded("missing-app", sink)
+            val result = seater.seatIfNeeded("missing-app", listener)
 
             assertEquals(SeatResult.Failed(SeatFailure.APP_NOT_FOUND), result)
             assertFalse(seatCalled)
@@ -46,7 +46,7 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            val result = seater.seatIfNeeded("app-1", sink)
+            val result = seater.seatIfNeeded("app-1", listener)
 
             assertEquals(SeatResult.Success, result)
         }
@@ -62,7 +62,7 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            val result = seater.seatIfNeeded("app-1", sink)
+            val result = seater.seatIfNeeded("app-1", listener)
 
             assertEquals(SeatResult.Failed(SeatFailure.CORRUPTED), result)
         }
@@ -78,7 +78,7 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            seater.seatIfNeeded("app-1", sink)
+            seater.seatIfNeeded("app-1", listener)
         }
 
     @Test(expected = RuntimeException::class)
@@ -91,7 +91,7 @@ class AppSeaterTest {
                     ioDispatcher = Dispatchers.Unconfined,
                 )
 
-            seater.seatIfNeeded("app-1", sink)
+            seater.seatIfNeeded("app-1", listener)
         }
 
     @Test

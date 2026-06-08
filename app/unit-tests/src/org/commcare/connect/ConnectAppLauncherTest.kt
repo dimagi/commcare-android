@@ -13,7 +13,7 @@ import org.commcare.android.database.app.models.UserKeyRecord
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.AuthSource
 import org.commcare.login.LoginError
-import org.commcare.login.LoginProgressSink
+import org.commcare.login.LoginProgressListener
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
 import org.commcare.login.PostLoginOutcome
@@ -28,7 +28,7 @@ import org.junit.Test
 class ConnectAppLauncherTest {
     private val context = mockk<Context>(relaxed = true)
     private val app = mockk<CommCareApplication>(relaxed = true)
-    private val sink = LoginProgressSink { }
+    private val listener = LoginProgressListener { }
 
     private var seatResult: SeatResult = SeatResult.Success
     private var loginAnswer: suspend () -> LoginResult = { success() }
@@ -78,7 +78,7 @@ class ConnectAppLauncherTest {
     @Test
     fun `happy path closes session, reports launch, seats, and reports Launched`() =
         runTest {
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
             assertEquals(LaunchOutcome.Launched, outcome)
             verify(exactly = 1) { app.closeUserSession() }
@@ -89,7 +89,7 @@ class ConnectAppLauncherTest {
     @Test
     fun `learning launch reports Learn app type`() =
         runTest {
-            launcher.awaitOutcome(context, "app-1", isLearning = true, sink)
+            launcher.awaitOutcome(context, "app-1", isLearning = true, listener)
 
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Learn", "app-1") }
         }
@@ -97,7 +97,7 @@ class ConnectAppLauncherTest {
     @Test
     fun `request uses normalized PersonalId credentials`() =
         runTest {
-            launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+            launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
             val request = capturedRequests.single()
             assertEquals("alice", request.username)
@@ -111,7 +111,7 @@ class ConnectAppLauncherTest {
         runTest {
             username = null
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
             assertEquals(LaunchOutcome.CredentialResolutionFailed, outcome)
             assertTrue(capturedRequests.isEmpty())
@@ -122,7 +122,7 @@ class ConnectAppLauncherTest {
         runTest {
             username = "   "
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
             assertEquals(LaunchOutcome.CredentialResolutionFailed, outcome)
             assertTrue(capturedRequests.isEmpty())
@@ -133,7 +133,7 @@ class ConnectAppLauncherTest {
         runTest {
             seatResult = SeatResult.Failed(SeatFailure.CORRUPTED)
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
             assertEquals(LaunchOutcome.AppSeatFailed, outcome)
             assertTrue(capturedRequests.isEmpty())
@@ -144,7 +144,7 @@ class ConnectAppLauncherTest {
         runTest {
             loginAnswer = { LoginResult.Failed(LoginError.TokenDenied) }
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
             assertEquals(LaunchOutcome.TokenDenied, outcome)
         }
@@ -154,7 +154,7 @@ class ConnectAppLauncherTest {
         runTest {
             loginAnswer = { LoginResult.Failed(LoginError.BadCredentials) }
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, sink)
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
             assertEquals(LaunchOutcome.Retryable(LoginError.BadCredentials), outcome)
         }

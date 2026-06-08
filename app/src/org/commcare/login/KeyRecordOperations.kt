@@ -7,7 +7,6 @@ import org.commcare.CommCareApp
 import org.commcare.CommCareApplication
 import org.commcare.activities.DataPullController
 import org.commcare.activities.DataPullController.DataPullMode
-import org.commcare.network.HttpCalloutTask.HttpCalloutOutcomes
 import org.commcare.tasks.ManageKeyRecordTask
 import org.commcare.views.notifications.MessageTag
 import org.commcare.views.notifications.NotificationActionButtonInfo
@@ -36,10 +35,10 @@ internal open class KeyRecordOperations(
 ) {
     open suspend fun manageKeyRecord(
         request: LoginRequest,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
     ): KeyRecordOutcome =
         suspendCancellableCoroutine { continuation ->
-            sink.onProgress(LoginProgress(LoginPhase.SigningIn))
+            listener.onProgress(LoginProgress(LoginPhase.SigningIn))
             val receiver =
                 object : DataPullController {
                     override fun startDataPull(
@@ -98,7 +97,7 @@ internal open class KeyRecordOperations(
                         receiver: DataPullController,
                         vararg update: String,
                     ) {
-                        sink.onProgress(
+                        listener.onProgress(
                             LoginProgress(
                                 LoginPhase.SigningIn,
                                 message = update.firstOrNull(),

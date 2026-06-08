@@ -33,17 +33,17 @@ class LoginController internal constructor(
     fun start(
         lifecycleOwner: LifecycleOwner,
         request: LoginRequest,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
         callback: ResultCallback,
     ): Job =
         lifecycleOwner.lifecycleScope.launch {
-            val result = performLogin(request, sink)
+            val result = performLogin(request, listener)
             callback.onResult(result)
         }
 
     suspend fun performLogin(
         request: LoginRequest,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
     ): LoginResult {
         val effectiveRequest =
             if (request.authSource == AuthSource.PersonalId) {
@@ -58,7 +58,7 @@ class LoginController internal constructor(
                 request
             }
 
-        return when (val keyOutcome = keyRecordOperations.manageKeyRecord(effectiveRequest, sink)) {
+        return when (val keyOutcome = keyRecordOperations.manageKeyRecord(effectiveRequest, listener)) {
             is KeyRecordOutcome.Failed -> {
                 LoginResult.Failed(keyOutcome.error)
             }
@@ -74,10 +74,10 @@ class LoginController internal constructor(
                             username = effectiveRequest.username,
                             password = keyOutcome.password,
                             mode = effectiveRequest.dataPullMode,
-                            sink = sink,
+                            listener = listener,
                         )
                 ) {
-                    is SyncOutcome.Success -> finalizeAfterSync(effectiveRequest, sink)
+                    is SyncOutcome.Success -> finalizeAfterSync(effectiveRequest, listener)
                     is SyncOutcome.Failed -> LoginResult.Failed(syncOutcome.error)
                 }
             }
@@ -90,10 +90,10 @@ class LoginController internal constructor(
      */
     private suspend fun finalizeAfterSync(
         request: LoginRequest,
-        sink: LoginProgressSink,
+        listener: LoginProgressListener,
     ): LoginResult {
         val rebindRequest = request.copy(blockRemoteKeyManagement = true)
-        return when (val keyOutcome = keyRecordOperations.manageKeyRecord(rebindRequest, sink)) {
+        return when (val keyOutcome = keyRecordOperations.manageKeyRecord(rebindRequest, listener)) {
             is KeyRecordOutcome.LocalLoginComplete -> finishSuccess(rebindRequest)
             is KeyRecordOutcome.Failed -> LoginResult.Failed(keyOutcome.error)
             is KeyRecordOutcome.ReadyForSync -> LoginResult.Failed(LoginError.BadCredentials)
