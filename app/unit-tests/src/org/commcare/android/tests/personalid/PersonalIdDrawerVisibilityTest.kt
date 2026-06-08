@@ -107,9 +107,9 @@ class PersonalIdDrawerVisibilityTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
-    fun `setup activity no drawer when not logged in`() {
+    fun `setup activity shows drawer on Android 9 and above even when not logged in`() {
         val activity = Robolectric.buildActivity(CommCareSetupActivity::class.java).create().get()
-        assertNull("Drawer should not be set up when PersonalId is not logged in", activity.drawerAdapter)
+        assertNotNull("Drawer should be set up on Android 9+ regardless of PersonalId login status", activity.drawerAdapter)
     }
 
     @Test
