@@ -43,7 +43,7 @@ class AppSeater
         fun start(
             lifecycleOwner: LifecycleOwner,
             appId: String,
-            sink: LoginProgressSink,
+            sink: LoginProgressListener,
             callback: SeatResultCallback,
         ): Job =
             lifecycleOwner.lifecycleScope.launch {
@@ -52,7 +52,7 @@ class AppSeater
 
         suspend fun seatIfNeeded(
             appId: String,
-            sink: LoginProgressSink,
+            sink: LoginProgressListener,
         ): SeatResult {
             sink.onProgress(LoginProgress(LoginPhase.Seating))
             val record = recordLookup(appId) ?: return SeatResult.Failed(SeatFailure.APP_NOT_FOUND)

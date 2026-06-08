@@ -13,7 +13,7 @@ import org.junit.Test
 private const val STATE_READY = 2
 
 class AppSeaterTest {
-    private val sink = LoginProgressSink { }
+    private val sink = LoginProgressListener { }
 
     @Test
     fun `missing record returns Failed APP_NOT_FOUND without seating`() =
