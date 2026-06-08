@@ -30,7 +30,6 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest() {
-
     // ========== Helpers ==========
 
     private fun successResponse(): MockResponse =
