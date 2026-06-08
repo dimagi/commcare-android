@@ -183,13 +183,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     }
 
     private void launchApp(boolean isLearning, String appId) {
-        launchUiController.launch(isLearning, appId);
-    }
-
-    @Override
-    public void onDestroyView() {
-        launchUiController.cleanup();
-        super.onDestroyView();
+        if (isLearning) {
+            launchUiController.launchLearningApp(appId);
+        } else {
+            launchUiController.launchDeliveryApp(appId);
+        }
     }
 
     private void navigateToDeliveryProgress() {

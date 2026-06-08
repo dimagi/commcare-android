@@ -341,7 +341,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getDeliveryAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            launchUiController.launch(false, appId);
+            launchUiController.launchDeliveryApp(appId);
         } else {
             NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
                     .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
@@ -350,12 +350,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                     );
             Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-        launchUiController.cleanup();
-        super.onDestroyView();
     }
 
     @Override
