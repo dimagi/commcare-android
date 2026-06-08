@@ -11,13 +11,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import okhttp3.mockwebserver.MockResponse
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.ApiPersonalId
-import org.commcare.connect.network.IApiCallback
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -25,7 +23,6 @@ import org.commcare.utils.MediaUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.MockedStatic
@@ -34,7 +31,7 @@ import org.mockito.MockitoAnnotations
 import org.robolectric.shadows.ShadowLooper
 
 /**
- * Base test class for PersonalIdPhotoCaptureFragment tests.
+ * Base test class for PersonalIdPhotoCaptureFragment tests
  */
 abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurationTest<TestablePersonalIdPhotoCaptureFragment>() {
     protected lateinit var mocksCloseable: AutoCloseable
@@ -44,8 +41,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
     protected lateinit var connectUserDatabaseUtilMock: MockedStatic<ConnectUserDatabaseUtil>
     protected lateinit var firebaseAnalyticsUtilMock: MockedStatic<FirebaseAnalyticsUtil>
     protected lateinit var mediaUtilMock: MockedStatic<MediaUtil>
-    protected lateinit var apiPersonalIdMock: MockedStatic<ApiPersonalId>
-    protected lateinit var errorHandlerMock: MockedStatic<PersonalIdOrConnectApiErrorHandler>
 
     @Mock
     protected lateinit var mockPersonalIdManager: PersonalIdManager
@@ -53,14 +48,13 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
     @Mock
     protected lateinit var mockBitmap: Bitmap
 
+    // personalId/dbKey/oauthPassword are deliberately absent
+    // The complete-profile response delivered by MockWebServer is the only source for them
     protected val testSessionData =
         PersonalIdSessionData(
             requiredLock = PersonalIdSessionData.PIN,
             demoUser = false,
             token = "test-token",
-            personalId = "test-personal-id",
-            dbKey = "test-db-key",
-            oauthPassword = "test-oauth-pwd",
             userName = "Test User",
             phoneNumber = "+11234567890",
             backupCode = "123456",
@@ -75,6 +69,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         MockAndroidKeyStoreProvider.registerProvider()
         Intents.init()
         openStaticMocks()
+        setupMockWebServer()
         setUpPhotoCaptureFragment()
     }
 
@@ -98,18 +93,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         mediaUtilMock
             .`when`<Bitmap> { MediaUtil.decodeBase64EncodedBitmap(any()) }
             .thenReturn(mockBitmap)
-
-        apiPersonalIdMock = Mockito.mockStatic(ApiPersonalId::class.java)
-
-        errorHandlerMock = Mockito.mockStatic(PersonalIdOrConnectApiErrorHandler::class.java)
-        errorHandlerMock
-            .`when`<String> {
-                PersonalIdOrConnectApiErrorHandler.handle(
-                    any(),
-                    any(),
-                    Mockito.nullable(Throwable::class.java),
-                )
-            }.thenReturn("Network error occurred")
     }
 
     protected fun setUpPhotoCaptureFragment(sessionData: PersonalIdSessionData = testSessionData) {
@@ -146,47 +129,35 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         ShadowLooper.idleMainLooper()
     }
 
-    private fun captureCompleteProfileApiCallback(): IApiCallback {
-        val captor = ArgumentCaptor.forClass(IApiCallback::class.java)
-        apiPersonalIdMock.verify {
-            ApiPersonalId.setPhotoAndCompleteProfile(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                captor.capture(),
-            )
-        }
-        return captor.value
+    protected fun enqueueCompleteProfileSuccess(
+        personalId: String = "test-personal-id",
+        dbKey: String = "test-db-key",
+        oauthPassword: String = "test-oauth-pwd",
+    ) {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody(
+                    """
+                    {
+                        "username": "$personalId",
+                        "db_key": "$dbKey",
+                        "password": "$oauthPassword"
+                    }
+                    """.trimIndent(),
+                ),
+        )
     }
 
-    protected fun deliverCompleteProfileSuccess() {
-        val responseJson =
-            """
-            {
-                "username": "${testSessionData.personalId}",
-                "db_key": "${testSessionData.dbKey}",
-                "password": "${testSessionData.oauthPassword}"
-            }
-            """.trimIndent()
-        val callback = captureCompleteProfileApiCallback()
-        activity.runOnUiThread {
-            callback.processSuccess(200, responseJson.byteInputStream())
-        }
-        ShadowLooper.idleMainLooper()
-    }
-
-    protected fun deliverCompleteProfileFailure(
+    protected fun enqueueCompleteProfileFailure(
         responseCode: Int,
         errorBody: String,
-        t: Throwable = RuntimeException("test failure"),
     ) {
-        val callback = captureCompleteProfileApiCallback()
-        activity.runOnUiThread {
-            callback.processFailure(responseCode, "test-url", errorBody, t)
-        }
-        ShadowLooper.idleMainLooper()
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(responseCode)
+                .setBody(errorBody),
+        )
     }
 
     @After
@@ -196,8 +167,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         listOf(
             { activityController.pause().stop().destroy() },
             { Intents.release() },
-            { errorHandlerMock.close() },
-            { apiPersonalIdMock.close() },
+            { tearDownMockWebServer() },
             { mediaUtilMock.close() },
             { firebaseAnalyticsUtilMock.close() },
             { connectUserDatabaseUtilMock.close() },

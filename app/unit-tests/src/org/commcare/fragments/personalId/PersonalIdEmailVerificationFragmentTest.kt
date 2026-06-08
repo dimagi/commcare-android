@@ -9,11 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.commcare.CommCareTestApplication
-import org.commcare.connect.network.ApiService
-import org.commcare.connect.network.base.BaseApiClient
-import org.commcare.connect.network.connectId.PersonalIdApiClient
 import org.commcare.dalvik.R
 import org.commcare.views.connect.NumericCodeView
 import org.json.JSONObject
@@ -42,25 +38,11 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.S_V2])
 @RunWith(AndroidJUnit4::class)
 class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
-    private lateinit var mockWebServer: MockWebServer
-
     @Before
     override fun setUp() {
         super.setUp()
         setupMockWebServer()
         attachTestNavController()
-    }
-
-    private fun setupMockWebServer() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-        val apiService =
-            BaseApiClient
-                .buildRetrofitClient(mockWebServer.url("/").toString(), PersonalIdApiClient.API_VERSION)
-                .create(ApiService::class.java)
-        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, apiService)
     }
 
     private fun attachTestNavController() {
@@ -77,10 +59,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
 
     @After
     override fun tearDown() {
-        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, null)
-        mockWebServer.shutdown()
+        tearDownMockWebServer()
         super.tearDown()
     }
 
@@ -153,8 +132,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         mockWebServer.enqueue(successResponse())
 
         enterCode("123456")
-        mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        drainHttp()
 
         assertEquals(
             "Should navigate to photo capture on successful verification",
@@ -168,8 +146,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         mockWebServer.enqueue(incorrectOtpResponse())
 
         enterCode("123456")
-        mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        drainHttp()
 
         val errorText =
             fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
@@ -198,8 +175,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
 
         repeat(3) {
             enterCode("123456")
-            mockWebServer.takeRequest()
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            drainHttp()
         }
 
         val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
@@ -218,8 +194,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
 
         repeat(3) {
             enterCode("123456")
-            mockWebServer.takeRequest()
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            drainHttp()
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -256,8 +231,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
 
         repeat(3) {
             enterCode("123456")
-            mockWebServer.takeRequest()
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            drainHttp()
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog

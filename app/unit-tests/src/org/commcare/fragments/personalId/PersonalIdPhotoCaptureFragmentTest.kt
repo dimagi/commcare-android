@@ -13,13 +13,13 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.ApiPersonalId
 import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.allOf
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -121,12 +121,13 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     }
 
     @Test
-    fun `tapping save uploads the photo and completes the profile`() {
+    fun `tapping save sends the complete-profile request and disables the buttons while in flight`() {
         val saveButton = fragment.view!!.findViewById<Button>(R.id.save_photo_button)
         val takeButton = fragment.view!!.findViewById<Button>(R.id.take_photo_button)
         val errorView = fragment.view!!.findViewById<TextView>(R.id.errorTextView)
 
-        // Setup
+        // Setup. No response is enqueued so the request stays in flight, making the
+        // disabled-while-saving assertions deterministic.
         takePhoto("fake-base64-photo")
         activity.runOnUiThread {
             errorView.visibility = View.VISIBLE
@@ -138,16 +139,21 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         clickSavePhoto()
 
         // Verify
-        apiPersonalIdMock.verify {
-            ApiPersonalId.setPhotoAndCompleteProfile(
-                Mockito.any(),
-                Mockito.eq("Test User"),
-                Mockito.eq("fake-base64-photo"),
-                Mockito.eq("123456"),
-                Mockito.eq("test-token"),
-                Mockito.any(),
-            )
-        }
+        val request = takeRequestOrFail()
+        assertEquals("/users/complete_profile", request.path)
+        assertEquals("POST", request.method)
+
+        val authHeader = request.headers["Authorization"]
+        assertNotNull("Authorization header should be present", authHeader)
+        assertTrue(
+            "Authorization header should be a token-auth using the session token",
+            authHeader!!.contains("test-token"),
+        )
+
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals("fake-base64-photo", body.getString("photo"))
+        assertEquals("Test User", body.getString("name"))
+        assertEquals("123456", body.getString("recovery_pin"))
 
         assertFalse("Save button disabled while save in flight", saveButton.isEnabled)
         assertFalse("Take photo button disabled while save in flight", takeButton.isEnabled)
@@ -160,10 +166,11 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     fun `completing the profile stores the user and navigates to the success screen`() {
         // Setup
         takePhoto("fake-base64-photo")
-        clickSavePhoto()
+        enqueueCompleteProfileSuccess()
 
         // Act
-        deliverCompleteProfileSuccess()
+        clickSavePhoto()
+        drainHttp()
 
         // Verify
         connectDatabaseHelperMock.verify {
@@ -205,10 +212,11 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
     fun `a locked account navigates to the failure screen`() {
         // Setup
         takePhoto("fake-base64-photo")
-        clickSavePhoto()
+        enqueueCompleteProfileFailure(400, """{"error_code":"LOCKED_ACCOUNT"}""")
 
         // Act
-        deliverCompleteProfileFailure(400, """{"error_code":"LOCKED_ACCOUNT"}""")
+        clickSavePhoto()
+        drainHttp()
 
         // Verify
         assertEquals(R.id.personalid_message_display, navController.currentDestination?.id)
@@ -216,6 +224,10 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         assertEquals(
             fragment.getString(R.string.personalid_configuration_process_failed_title),
             args?.getString("title"),
+        )
+        assertEquals(
+            fragment.getString(R.string.personalid_configuration_locked_account),
+            args?.getString("message"),
         )
         assertEquals(false, args?.getBoolean("isCancellable"))
     }
@@ -228,16 +240,20 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
         // Setup
         takePhoto("fake-base64-photo")
-        clickSavePhoto()
+        enqueueCompleteProfileFailure(500, "Internal Server Error")
 
         // Act
-        deliverCompleteProfileFailure(500, "{}", RuntimeException("boom"))
+        clickSavePhoto()
+        drainHttp()
 
         // Verify
         assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)
 
         assertEquals(View.VISIBLE, errorView.visibility)
-        assertEquals("Network error occurred", errorView.text.toString())
+        assertEquals(
+            fragment.getString(R.string.recovery_network_server_error),
+            errorView.text.toString(),
+        )
 
         assertTrue("Save button should re-enable on retryable failure", saveButton.isEnabled)
         assertTrue("Take photo button should re-enable on retryable failure", takeButton.isEnabled)
@@ -251,15 +267,19 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
         // Setup
         takePhoto("fake-base64-photo")
-        clickSavePhoto()
+        enqueueCompleteProfileFailure(403, """{"error_code":"PHONE_NOT_VALIDATED"}""")
 
         // Act
-        deliverCompleteProfileFailure(400, """{"error_code":"INVALID_TOKEN"}""")
+        clickSavePhoto()
+        drainHttp()
 
         // Verify
         assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)
         assertEquals(View.VISIBLE, errorView.visibility)
-        assertEquals("Network error occurred", errorView.text.toString())
+        assertEquals(
+            fragment.getString(R.string.network_forbidden_error),
+            errorView.text.toString(),
+        )
         assertFalse("Save button should stay disabled on non-retryable failure", saveButton.isEnabled)
         assertFalse("Take photo button should stay disabled on non-retryable failure", takeButton.isEnabled)
     }
