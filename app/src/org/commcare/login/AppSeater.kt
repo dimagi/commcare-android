@@ -15,14 +15,7 @@ import org.commcare.utils.MultipleAppsUtil
 sealed class SeatResult {
     object Success : SeatResult()
 
-    data class Failed(
-        val reason: SeatFailure,
-    ) : SeatResult()
-}
-
-enum class SeatFailure {
-    APP_NOT_FOUND,
-    CORRUPTED,
+    object Failed : SeatResult()
 }
 
 class AppSeater
@@ -36,18 +29,15 @@ class AppSeater
         },
         private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     ) {
-        fun interface SeatResultCallback {
-            fun onResult(result: SeatResult)
-        }
-
         fun start(
             lifecycleOwner: LifecycleOwner,
             appId: String,
             listener: LoginProgressListener,
-            callback: SeatResultCallback,
+            onComplete: Runnable,
         ): Job =
             lifecycleOwner.lifecycleScope.launch {
-                callback.onResult(seatIfNeeded(appId, listener))
+                seatIfNeeded(appId, listener)
+                onComplete.run()
             }
 
         suspend fun seatIfNeeded(
@@ -55,11 +45,11 @@ class AppSeater
             listener: LoginProgressListener,
         ): SeatResult {
             listener.onProgress(LoginProgress(LoginPhase.Seating))
-            val record = recordLookup(appId) ?: return SeatResult.Failed(SeatFailure.APP_NOT_FOUND)
+            val record = recordLookup(appId) ?: return SeatResult.Failed
             val resourceState = withContext(ioDispatcher) { seatApp(record) }
 
             return if (resourceState == CommCareApplication.STATE_CORRUPTED) {
-                SeatResult.Failed(SeatFailure.CORRUPTED)
+                SeatResult.Failed
             } else {
                 SeatResult.Success
             }

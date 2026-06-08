@@ -31,7 +31,7 @@ class AppSeaterTest {
 
             val result = seater.seatIfNeeded("missing-app", listener)
 
-            assertEquals(SeatResult.Failed(SeatFailure.APP_NOT_FOUND), result)
+            assertEquals(SeatResult.Failed, result)
             assertFalse(seatCalled)
         }
 
@@ -64,7 +64,7 @@ class AppSeaterTest {
 
             val result = seater.seatIfNeeded("app-1", listener)
 
-            assertEquals(SeatResult.Failed(SeatFailure.CORRUPTED), result)
+            assertEquals(SeatResult.Failed, result)
         }
 
     @Test(expected = IllegalStateException::class)

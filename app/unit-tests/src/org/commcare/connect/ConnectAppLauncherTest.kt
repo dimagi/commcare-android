@@ -17,7 +17,6 @@ import org.commcare.login.LoginProgressListener
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
 import org.commcare.login.PostLoginOutcome
-import org.commcare.login.SeatFailure
 import org.commcare.login.SeatResult
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -131,7 +130,7 @@ class ConnectAppLauncherTest {
     @Test
     fun `seat failure short-circuits before login`() =
         runTest {
-            seatResult = SeatResult.Failed(SeatFailure.CORRUPTED)
+            seatResult = SeatResult.Failed
 
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 

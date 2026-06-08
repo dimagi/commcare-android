@@ -6,7 +6,6 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.login.AppSeater;
-import org.commcare.login.SeatResult;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -35,7 +34,7 @@ public class SeatAppActivity extends CommonBaseActivity {
         );
     }
 
-    private void finishWithResult(SeatResult result) {
+    private void finishWithResult() {
         setResult(RESULT_OK, new Intent(getIntent()));
         finish();
     }

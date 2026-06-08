@@ -64,7 +64,7 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 
 ## App seating
 
-`AppSeater.seatIfNeeded(appId, listener)` seats an app into `CommCareApplication` off the UI thread, emitting the `Seating` phase, and returns a `SeatResult` (`Success`, or `Failed(SeatFailure.APP_NOT_FOUND | CORRUPTED)`). `SeatAppActivity` and the Connect launch path both seat through it rather than on the activity stack; Java callers use `start(lifecycleOwner, appId, listener, callback)`.
+`AppSeater.seatIfNeeded(appId, listener)` seats an app into `CommCareApplication` off the UI thread, emitting the `Seating` phase, and returns a `Success`/`Failed` `SeatResult`. `SeatAppActivity` and the Connect launch path both seat through it rather than on the activity stack. A seat failure is not propagated as a result code; instead a corrupted app is left at `STATE_CORRUPTED` for `DispatchActivity` to detect downstream and route to recovery.
 
 ## Launching from Connect
 
