@@ -101,6 +101,7 @@ class LoginTest: BaseTest() {
         InstrumentationUtility.logout()
 
         // login offline with bad password
+        InstrumentationUtility.changeWifi(false)
         InstrumentationUtility.login("user_with_no_data", "badpass")
         onView(withText("Either the password you entered was incorrect, or CommCare couldn't reach the server"))
                 .check(matches(isDisplayed()))
