@@ -497,6 +497,7 @@
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_fetch_learning_progress_error">Failed to fetch the learning progress</string>
+    <string name="connect_sms_invite_opportunity_not_found">Opportunity not found</string>
 
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
     <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.\nYour score: %d\nPassing score: %d</string>
