@@ -41,7 +41,6 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
     @Before
     override fun setUp() {
         super.setUp()
-        setupMockWebServer()
         attachTestNavController()
     }
 
@@ -55,12 +54,6 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
             installTestNavController(fragment.requireView(), R.id.personalid_email_verification, args)
         }
         ShadowLooper.idleMainLooper()
-    }
-
-    @After
-    override fun tearDown() {
-        tearDownMockWebServer()
-        super.tearDown()
     }
 
     // ========== Initial State Tests ==========

@@ -31,18 +31,6 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmentTest() {
-    @Before
-    override fun setUp() {
-        super.setUp()
-        setupMockWebServer()
-    }
-
-    @After
-    override fun tearDown() {
-        super.tearDown()
-        tearDownMockWebServer()
-    }
-
     // ========== Request Payload Tests ==========
 
     @Test

@@ -69,7 +69,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         MockAndroidKeyStoreProvider.registerProvider()
         Intents.init()
         openStaticMocks()
-        setupMockWebServer()
         setUpPhotoCaptureFragment()
     }
 
@@ -167,7 +166,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
         listOf(
             { activityController.pause().stop().destroy() },
             { Intents.release() },
-            { tearDownMockWebServer() },
             { mediaUtilMock.close() },
             { firebaseAnalyticsUtilMock.close() },
             { connectUserDatabaseUtilMock.close() },

@@ -75,6 +75,7 @@ abstract class BasePersonalIdConfigurationTest<T : BasePersonalIdFragment> {
     @CallSuper
     open fun setUp() {
         setupMockIntegrityTokenViewModel()
+        setupMockWebServer()
     }
 
     @After
@@ -83,6 +84,7 @@ abstract class BasePersonalIdConfigurationTest<T : BasePersonalIdFragment> {
         val viewModelField = CommCareViewModelProvider::class.java.getDeclaredField("integrityTokenViewModel")
         viewModelField.isAccessible = true
         viewModelField.set(null, null)
+        tearDownMockWebServer()
     }
 
     protected fun bootActivity() {
@@ -177,7 +179,7 @@ abstract class BasePersonalIdConfigurationTest<T : BasePersonalIdFragment> {
      * `callbackExecutor` restores production threading; [drainHttp] then runs the callback on the
      * test thread deterministically.
      */
-    protected fun setupMockWebServer() {
+    private fun setupMockWebServer() {
         dispatchHttpCallbacks = true
         mockWebServer = MockWebServer()
         mockWebServer.start()
@@ -195,7 +197,7 @@ abstract class BasePersonalIdConfigurationTest<T : BasePersonalIdFragment> {
         setPersonalIdApiService(retrofit.create(ApiService::class.java))
     }
 
-    protected fun tearDownMockWebServer() {
+    private fun tearDownMockWebServer() {
         dispatchHttpCallbacks = false
         setPersonalIdApiService(null)
         mockWebServer.shutdown()
