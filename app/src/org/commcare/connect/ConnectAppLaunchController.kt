@@ -27,35 +27,28 @@ internal data class LaunchTarget(
     val isLearning: Boolean,
 )
 
-/** Pure description of how the launch dialog should reflect a [LoginProgress], using localization keys. */
+/**
+ * How the launch dialog should render a [LoginProgress]: [titleKey]/[messageKey] are localization
+ * keys; [overrideMessage] is an already-localized runtime message that supersedes [messageKey].
+ */
 internal data class LaunchDialogState(
     val showSyncDialog: Boolean,
-    val titleKey: String?,
-    val messageKey: String?,
+    val titleKey: String,
+    val messageKey: String,
     val overrideMessage: String?,
     val percent: Int?,
 )
 
+/** Maps each [LoginProgress] phase to the [LaunchDialogState] the launch dialog should show for it. */
 internal object LaunchProgressMapper {
     fun map(progress: LoginProgress): LaunchDialogState {
         val syncing = progress.phase == LoginPhase.Syncing
-        val titleKey: String?
-        val messageKey: String?
-        when (progress.phase) {
-            LoginPhase.Seating -> {
-                titleKey = "seating.app"
-                messageKey = "seating.app"
+        val (titleKey, messageKey) =
+            when (progress.phase) {
+                LoginPhase.Seating -> "seating.app" to "seating.app"
+                LoginPhase.SigningIn -> "key.manage.title" to "key.manage.start"
+                LoginPhase.Syncing -> "sync.communicating.title" to "sync.progress.starting"
             }
-            LoginPhase.SigningIn -> {
-                titleKey = "key.manage.title"
-                messageKey = "key.manage.start"
-            }
-            // The sync dialog supplies its own title/message; only the percent is updated per progress.
-            LoginPhase.Syncing -> {
-                titleKey = null
-                messageKey = null
-            }
-        }
         return LaunchDialogState(
             showSyncDialog = syncing,
             titleKey = titleKey,
@@ -67,14 +60,14 @@ internal object LaunchProgressMapper {
 }
 
 /**
- * Drives a silent Connect app launch from a fragment: shows a [CustomProgressDialog], runs
- * [ConnectAppLauncher], and routes the [LaunchOutcome] through [LaunchOutcomeRouter]. Shared by the
- * Connect surfaces that launch a seated app without showing LoginActivity.
+ * Drives a Connect app launch from a fragment without showing LoginActivity: shows a
+ * [CustomProgressDialog], runs [ConnectAppLauncher], and routes the [LaunchOutcome] through
+ * [LaunchOutcomeRouter].
  *
  * The dialog is dismissed automatically when the fragment's view is destroyed, so callers don't
  * have to manage cleanup themselves.
  */
-class ConnectAppLaunchUiController
+class ConnectAppLaunchController
     @JvmOverloads
     constructor(
         private val fragment: Fragment,
@@ -99,7 +92,7 @@ class ConnectAppLaunchUiController
             val activity = fragment.requireActivity()
             val owner = fragment.viewLifecycleOwner
             registerDialogCleanup(owner)
-            showLaunchDialog(false)
+            showOrUpdateDialog(LaunchProgressMapper.map(LoginProgress(LoginPhase.Seating)))
             launcher.start(
                 owner,
                 activity,
@@ -114,15 +107,7 @@ class ConnectAppLaunchUiController
             if (!fragment.isAdded) {
                 return
             }
-
-            val state = LaunchProgressMapper.map(progress)
-            if (launchDialog == null || state.showSyncDialog != showingSyncDialog) {
-                showLaunchDialog(state.showSyncDialog)
-            }
-            state.titleKey?.let { launchDialog?.updateTitle(Localization.get(it)) }
-            state.messageKey?.let { launchDialog?.updateMessage(Localization.get(it)) }
-            state.overrideMessage?.let { launchDialog?.updateMessage(it) }
-            state.percent?.let { launchDialog?.updateProgressBar(it, PROGRESS_BAR_MAX) }
+            showOrUpdateDialog(LaunchProgressMapper.map(progress))
         }
 
         private fun handleLaunchOutcome(
@@ -165,30 +150,28 @@ class ConnectAppLaunchUiController
             )
         }
 
-        private fun showLaunchDialog(syncing: Boolean) {
-            if (fragment.childFragmentManager.isStateSaved) {
-                return
-            }
-            dismissLaunchDialog()
-            launchDialog =
-                if (syncing) {
-                    CustomProgressDialog
-                        .newInstance(
-                            Localization.get("sync.communicating.title"),
-                            Localization.get("sync.progress.starting"),
-                            LAUNCH_DIALOG_TASK_ID,
-                        ).apply { addProgressBar() }
-                } else {
-                    // Title and message intentionally share "seating.app" (carried over from LoginActivity);
-                    // distinct copy is an open UX question tracked on the PR, not changed here.
-                    CustomProgressDialog.newInstance(
-                        Localization.get("seating.app"),
-                        Localization.get("seating.app"),
-                        LAUNCH_DIALOG_TASK_ID,
-                    )
+        private fun showOrUpdateDialog(state: LaunchDialogState) {
+            val title = Localization.get(state.titleKey)
+            val message = state.overrideMessage ?: Localization.get(state.messageKey)
+
+            if (launchDialog == null || state.showSyncDialog != showingSyncDialog) {
+                if (fragment.childFragmentManager.isStateSaved) {
+                    return
                 }
-            showingSyncDialog = syncing
-            launchDialog?.showNow(fragment.childFragmentManager, LAUNCH_DIALOG_TAG)
+
+                dismissLaunchDialog()
+                launchDialog =
+                    CustomProgressDialog
+                        .newInstance(title, message, LAUNCH_DIALOG_TASK_ID)
+                        .apply { if (state.showSyncDialog) addProgressBar() }
+                showingSyncDialog = state.showSyncDialog
+                launchDialog?.showNow(fragment.childFragmentManager, LAUNCH_DIALOG_TAG)
+            } else {
+                launchDialog?.updateTitle(title)
+                launchDialog?.updateMessage(message)
+            }
+
+            state.percent?.let { launchDialog?.updateProgressBar(it, PROGRESS_BAR_MAX) }
         }
 
         private fun dismissLaunchDialog() {
@@ -201,12 +184,9 @@ class ConnectAppLaunchUiController
         }
 
         private fun onHomeResult(result: ActivityResult) {
-            if (!fragment.isAdded) {
-                return
-            }
-            // Backing out of the Connect-managed app Home (RESULT_CANCELED) ends the app session and
-            // returns to the opportunities list. RESULT_OK (logout / app switch) keeps today's behavior.
-            if (result.resultCode == Activity.RESULT_OK) {
+            // A backed-out app Home (RESULT_CANCELED) ends the app session and returns to the
+            // opportunities list; RESULT_OK (logout / app switch) keeps its existing handling.
+            if (!fragment.isAdded || result.resultCode == Activity.RESULT_OK) {
                 return
             }
             CommCareApplication.instance().closeUserSession()

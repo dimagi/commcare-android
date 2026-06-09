@@ -18,7 +18,7 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectAppLaunchUiController;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -58,7 +58,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> newJobs;
     ArrayList<ConnectLoginJobListModel> finishedJobs;
     private ConnectJobsListViewModel viewModel;
-    private final ConnectAppLaunchUiController launchUiController = new ConnectAppLaunchUiController(this);
+    private final ConnectAppLaunchController launchController = new ConnectAppLaunchController(this);
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -183,9 +183,9 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
     private void launchApp(boolean isLearning, String appId) {
         if (isLearning) {
-            launchUiController.launchLearningApp(appId);
+            launchController.launchLearningApp(appId);
         } else {
-            launchUiController.launchDeliveryApp(appId);
+            launchController.launchDeliveryApp(appId);
         }
     }
 

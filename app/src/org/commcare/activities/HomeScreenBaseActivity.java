@@ -13,7 +13,6 @@ import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -1244,13 +1243,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return intent;
     }
 
-    public static void launchHome(Activity activity) {
-        activity.startActivity(buildHomeLaunchIntent(activity));
-    }
-
     /**
-     * The Home intent used by silent (LoginActivity-less) launches. Exposed so callers that need the
-     * Home result (e.g. the "View Job Status" redirect) can start it via {@code startActivityForResult}.
+     * The Home intent used by Connect app launches that bypass LoginActivity. Exposed so callers can
+     * start it via {@code startActivityForResult} and react to the Home result (e.g. a back-out).
      */
     public static Intent buildHomeLaunchIntent(Context context) {
         return buildHomeIntent(context, LoginMode.PASSWORD, true, false, true);

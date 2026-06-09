@@ -14,7 +14,7 @@ import androidx.navigation.Navigation;
 import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
-import org.commcare.connect.ConnectAppLaunchUiController;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.PersonalIdManager;
@@ -38,7 +38,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private boolean showAppLaunch = true;
     private ConnectLearningProgressViewModel viewModel;
-    private final ConnectAppLaunchUiController launchUiController = new ConnectAppLaunchUiController(this);
+    private final ConnectAppLaunchController launchController = new ConnectAppLaunchController(this);
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -320,7 +320,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getLearnAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            launchUiController.launchLearningApp(appId);
+            launchController.launchLearningApp(appId);
         } else {
             NavDirections navDirections = ConnectLearningProgressFragmentDirections
                     .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(

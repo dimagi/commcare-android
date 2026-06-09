@@ -29,12 +29,12 @@ class LaunchProgressMapperTest {
     }
 
     @Test
-    fun `syncing selects the sync dialog and leaves title and message to it`() {
+    fun `syncing selects the sync dialog with its own title and message`() {
         val state = LaunchProgressMapper.map(LoginProgress(LoginPhase.Syncing, percent = 42))
 
         assertTrue(state.showSyncDialog)
-        assertNull(state.titleKey)
-        assertNull(state.messageKey)
+        assertEquals("sync.communicating.title", state.titleKey)
+        assertEquals("sync.progress.starting", state.messageKey)
         assertEquals(42, state.percent)
     }
 

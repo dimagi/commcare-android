@@ -21,7 +21,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.connect.ConnectAppLaunchUiController;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -55,7 +55,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
     private ConnectDeliveryProgressViewModel viewModel;
-    private final ConnectAppLaunchUiController launchUiController = new ConnectAppLaunchUiController(this);
+    private final ConnectAppLaunchController launchController = new ConnectAppLaunchController(this);
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -340,7 +340,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getDeliveryAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            launchUiController.launchDeliveryApp(appId);
+            launchController.launchDeliveryApp(appId);
         } else {
             NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
                     .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
