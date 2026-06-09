@@ -133,6 +133,9 @@ we would like to communicate to QA as part of the release testing
 - **Connect app launch:**
   - From the Connect opportunities list, launch an installed learn or delivery app: confirm it opens to the app home behind a single progress dialog (no login/app-setup screens flashing through), and that pressing back from the app home returns to the opportunities list.
   - With networking off, launching an app from a Connect opportunity should fall back to the normal login screen showing the usual error — not hang on the dialog or crash.
+  - Launching from the Delivery Progress or Learning Progress page (not just the opportunities list) also opens the app directly with the single progress dialog (no login/app-setup flash) and lands on the app home.
+  - On the app home, "View Job Status" opens the job's progress page; backing out of it returns to the app home, and backing out of the home returns to the opportunities list.
+  - Opening a job's progress page directly from the opportunities list (tapping an in-progress job) returns to the opportunities list on back.
 
 - **SMS opportunity-invite app link (Connect):** Tap an invite link of the form `https://connect.dimagi.com/users/invite_redirect/<uuid>` (and the `connect-staging.dimagi.com` equivalent) from an SMS app and verify each corner case:
   - CommCare not installed: navigates to a webpage on Connect (that should redirect user to Play Store) 
@@ -142,9 +145,6 @@ we would like to communicate to QA as part of the release testing
   - PersonalID logged in, offline / network failure: same "Opportunity not found" toast and jobs-list landing — no retry prompt, no stuck loading dialog.
   - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
-- **Connect app launch from progress pages:** Launching an app from the Connect Delivery Progress or Learning Progress page opens it directly (single loading dialog, no login/app-setup screen flash) and lands on the app home.
-- **Connect app back navigation:** From a Connect-launched app's home screen, the back button returns to the Connect opportunities list (and ends the app session). On the app home, "View Job Status" opens the job's progress page; backing out of that page returns to the app home.
-- **Direct-to-progress entry:** Opening a job's progress page directly from the opportunities list (tapping an in-progress job) — the back button returns to the opportunities list.
 
 
 
