@@ -590,9 +590,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         // Launch the seated app's job status page on top of this (still-live) Home so the app
         // session is preserved and backing out of the status page returns here.
         ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
-        if (job != null) {
-            ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+        if (job == null) {
+            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
+                    "View Job Status pressed but no Connect job was found for the seated app");
+            return;
         }
+        ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
     }
 
     @Override
