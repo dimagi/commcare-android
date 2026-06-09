@@ -16,6 +16,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 #### Important Bug Fixes
 
 - Fix bug causing form widgets to lose focus when a Combobox dropdown on the same screen is re-validated.
+- Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
 
 #### Internal Release Notes
 <!--
@@ -26,6 +27,12 @@ along with the public release notes above
 
 ### QA Notes
 
+
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
+
 - **Combobox capitalization fix:**
   - **Setup:** Use a form with a lookup-table-backed multiple-choice question configured with `appearance="combobox"`, followed by a Numeric ID or Phone Number question on the same screen.
   - **Focus retention in following questions (the user-visible bug being fixed):**
@@ -35,6 +42,10 @@ along with the public release notes above
     - Type a valid choice in **lowercase** (e.g. "apple" when the choice list contains "Apple") and tap away. Verify the field is rewritten to the canonical casing "Apple".
     - Type the same choice in **mixed case** (e.g. "ApPlE") and lose focus. Verify it's rewritten to "Apple".
     - Type a value that **doesn't match any choice** and lose focus. Verify the field is left unchanged.
+
+- **GPS `here()` crash regression:** Using an app configuration that has `here()` in a case list (e.g. a case list that shows distance to GPS coordinates), navigate to that case list and wait for it to fully load. Press Back. Verify the app returns to the previous screen without crashing.
+- **GPS `here()` case list refresh:** Using the same app configuration, navigate to the case list and allow GPS to acquire a location fix. Move to a different location (or simulate a location change) while the list is displayed. Verify the case list automatically refreshes and distance values update accordingly.
+
 
 ## CommCare 2.63
 
