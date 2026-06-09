@@ -70,9 +70,17 @@ object ConnectNavHelper {
         unlockAndGoTo(activity, policy, listener, ::goToConnectJobsList)
     }
 
-    fun goToConnectJobsList(context: Context) {
+    @JvmOverloads
+    fun goToConnectJobsList(
+        context: Context,
+        clearTop: Boolean = false,
+    ) {
         checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
+        if (clearTop) {
+            // Drop any Connect/app screens stacked above the opportunities list so back lands there cleanly.
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
         context.startActivity(i)
     }
 

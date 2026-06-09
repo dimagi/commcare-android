@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import org.commcare.CommCareApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
 import org.commcare.connect.network.TokenExceptionHandler
@@ -34,12 +35,6 @@ internal data class LaunchDialogState(
     val overrideMessage: String?,
     val percent: Int?,
 )
-
-/** "View Job Status" redirect applies only on a successful Home result carrying the redirect flag. */
-internal fun shouldRedirectToJobStatus(
-    resultCode: Int,
-    redirectExtra: Boolean,
-): Boolean = resultCode == Activity.RESULT_OK && redirectExtra
 
 internal object LaunchProgressMapper {
     fun map(progress: LoginProgress): LaunchDialogState {
@@ -89,8 +84,8 @@ class ConnectAppLaunchUiController
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
 
-        // Registered at construction (fragment init) so the launched app's "View Job Status" result
-        // is delivered back here, mirroring DispatchActivity's redirect handling for the legacy path.
+        // Registered at construction (fragment init, the only valid time) so a back-out of the launched
+        // app's Home is delivered back here and can return the worker to the opportunities list.
         private val homeResultLauncher: ActivityResultLauncher<Intent> =
             fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 onHomeResult(result)
@@ -209,14 +204,13 @@ class ConnectAppLaunchUiController
             if (!fragment.isAdded) {
                 return
             }
-            val redirectExtra =
-                result.data?.getBooleanExtra(DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false) ?: false
-            if (!shouldRedirectToJobStatus(result.resultCode, redirectExtra)) {
+            // Backing out of the Connect-managed app Home (RESULT_CANCELED) ends the app session and
+            // returns to the opportunities list. RESULT_OK (logout / app switch) keeps today's behavior.
+            if (result.resultCode == Activity.RESULT_OK) {
                 return
             }
-            val activity = fragment.requireActivity()
-            val job = ConnectJobHelper.getJobForSeatedApp(activity) ?: return
-            ConnectNavHelper.goToActiveInfoForJob(activity, job, true)
+            CommCareApplication.instance().closeUserSession()
+            ConnectNavHelper.goToConnectJobsList(fragment.requireActivity(), clearTop = true)
         }
 
         private fun registerDialogCleanup(owner: LifecycleOwner) {
