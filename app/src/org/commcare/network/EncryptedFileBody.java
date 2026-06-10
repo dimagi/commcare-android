@@ -4,6 +4,7 @@ import org.commcare.utils.FormUploadUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.io.StreamsUtil.OutputIOException;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,6 +69,14 @@ public class EncryptedFileBody extends RequestBody {
         try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
             StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());
         } catch (InputIOException iioe) {
+            // This is to investigate an issue causing 'pad block corrupted' errors when decrypting files.
+            Throwable cause = iioe.getWrapped() != null ? iioe.getWrapped().getCause() : null;
+            if (cause instanceof javax.crypto.BadPaddingException) {
+                Logger.exception(
+                        "Bad padding exception when decrypting file: " + file.getName() + " length=" + file.length(),
+                        iioe.getWrapped()
+                );
+            }
             //Here we want to retain the fundamental problem of the _input_ being responsible for the issue
             //so we can differentiate between bad reads and bad network
             throw iioe;
