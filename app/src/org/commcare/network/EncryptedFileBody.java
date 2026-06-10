@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.security.Key;
 
 import javax.annotation.Nullable;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 
@@ -71,7 +72,7 @@ public class EncryptedFileBody extends RequestBody {
         } catch (InputIOException iioe) {
             // This is to investigate an issue causing 'pad block corrupted' errors when decrypting files.
             Throwable cause = iioe.getWrapped() != null ? iioe.getWrapped().getCause() : null;
-            if (cause instanceof javax.crypto.BadPaddingException) {
+            if (cause instanceof BadPaddingException) {
                 Logger.exception(
                         "Bad padding exception when decrypting file: " + file.getName() + " length=" + file.length(),
                         iioe.getWrapped()
