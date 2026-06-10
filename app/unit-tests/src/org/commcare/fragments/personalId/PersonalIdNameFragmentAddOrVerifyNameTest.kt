@@ -8,13 +8,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
-import org.commcare.connect.network.ApiService
-import org.commcare.connect.network.base.BaseApiClient
-import org.commcare.connect.network.connectId.PersonalIdApiClient
 import org.commcare.dalvik.R
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -26,7 +21,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
-import java.util.concurrent.TimeUnit
 
 /**
  * Tests the `addOrVerifyName` API integration of [PersonalIdNameFragment]. Uses MockWebServer to
@@ -36,37 +30,6 @@ import java.util.concurrent.TimeUnit
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest() {
-    private lateinit var mockWebServer: MockWebServer
-
-    @Before
-    override fun setUp() {
-        super.setUp()
-        setupMockWebServer()
-    }
-
-    @After
-    override fun tearDown() {
-        super.tearDown()
-        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, null)
-        mockWebServer.shutdown()
-    }
-
-    private fun setupMockWebServer() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-
-        val apiService =
-            BaseApiClient
-                .buildRetrofitClient(mockWebServer.url("/").toString(), PersonalIdApiClient.API_VERSION)
-                .create(ApiService::class.java)
-
-        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, apiService)
-    }
-
     // ========== Helpers ==========
 
     private fun successResponse(): MockResponse =
@@ -97,19 +60,6 @@ class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest
         activity.runOnUiThread { continueButton().performClick() }
         ShadowLooper.idleMainLooper()
     }
-
-    /**
-     * Reads the next request with a bounded wait so a missing dispatch fails fast instead of
-     * hanging the suite, then drains delayed UI work so callbacks can run before assertions.
-     */
-    private fun drainHttp() {
-        takeRequestOrFail()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-    }
-
-    private fun takeRequestOrFail(timeoutSeconds: Long = 5): RecordedRequest =
-        mockWebServer.takeRequest(timeoutSeconds, TimeUnit.SECONDS)
-            ?: throw AssertionError("Expected an HTTP request within ${timeoutSeconds}s but none arrived")
 
     // ========== Request payload ==========
 
