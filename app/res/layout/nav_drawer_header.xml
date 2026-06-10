@@ -73,6 +73,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="@style/TextAppearance.NavDrawerItem"/>
+                    <TextView
+                        android:id="@+id/header_manage_profile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:text="@string/personalid_manage_profile"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
