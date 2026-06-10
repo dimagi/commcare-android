@@ -6,8 +6,8 @@ import android.graphics.Color
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -42,11 +42,11 @@ class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
     private val highlightSeatedApp: Boolean,
+    private val takePhotoLauncher: ActivityResultLauncher<Intent>,
     private val onItemClicked: (NavItemType, String?) -> Unit,
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
-    private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
     private var hasRefreshed = false
     private var showingError = false
     var lastPhotoUploadFailed: Boolean = false
@@ -63,7 +63,6 @@ class BaseDrawerController(
     fun setupDrawer() {
         setupActionBarDrawerToggle()
         initializeAdapter()
-        initTakePhotoLauncher()
         setupListeners()
         setupViews()
         refreshDrawerContent()
@@ -337,19 +336,14 @@ class BaseDrawerController(
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
 
-    private fun initTakePhotoLauncher() {
-        takePhotoLauncher =
-            activity.registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult(),
-            ) { result ->
-                if (result.resultCode == RESULT_OK) {
-                    result.data
-                        ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
-                        ?.let { photoBase64 ->
-                            uploadUserPhoto(photoBase64)
-                        }
+    fun handlePhotoResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            result.data
+                ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
+                ?.let { photoBase64 ->
+                    uploadUserPhoto(photoBase64)
                 }
-            }
+        }
     }
 
     private fun launchCameraForPhotoEdit() {
