@@ -15,6 +15,7 @@ import org.commcare.annotations.BrowserstackTests
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.views.DrawView
 import org.commcare.dalvik.R
+import org.commcare.utils.InstrumentationUtility.sleep
 import org.commcare.utils.doesNotExist
 import org.commcare.utils.isDisplayed
 import org.hamcrest.Matchers
@@ -127,6 +128,7 @@ class SignatureTests: BaseTest() {
         Espresso.pressBack()
         withText(R.string.keep_changes).doesNotExist()
         Espresso.pressBack()
+        sleep(1)
     }
 
     /**
