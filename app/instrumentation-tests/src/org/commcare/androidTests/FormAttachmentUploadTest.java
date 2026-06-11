@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertEquals;
@@ -57,6 +58,8 @@ public class FormAttachmentUploadTest extends BaseTest {
 
         onView(withText("Gather Signature"))
                 .perform(click());
+        onView(isRoot())
+                .perform(InstrumentationUtility.waitForView(instanceOf(DrawView.class), 5000, true));
         onView(instanceOf(DrawView.class))
                 .perform(new GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER_LEFT, GeneralLocation.TOP_RIGHT, Press.FINGER));
         onView(instanceOf(DrawView.class))
