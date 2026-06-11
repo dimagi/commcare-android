@@ -107,12 +107,16 @@ class ConnectAppLauncher internal constructor(
             )
 
         return when (val result = performLogin(context, request, listener)) {
-            is LoginResult.Success -> LaunchOutcome.Launched
-            is LoginResult.Failed ->
+            is LoginResult.Success -> {
+                LaunchOutcome.Launched
+            }
+
+            is LoginResult.Failed -> {
                 when (result.error) {
                     is LoginError.TokenDenied -> LaunchOutcome.TokenDenied
                     else -> LaunchOutcome.Retryable(result.error)
                 }
+            }
         }
     }
 

@@ -23,13 +23,23 @@ object LaunchOutcomeRouter {
     ) {
         actions.dismissProgress()
         when (outcome) {
-            LaunchOutcome.Launched -> actions.launchHome()
-            LaunchOutcome.TokenDenied -> actions.handleTokenDenied()
-            LaunchOutcome.AppSeatFailed -> actions.recoverFromSeatFailure()
+            LaunchOutcome.Launched -> {
+                actions.launchHome()
+            }
+
+            LaunchOutcome.TokenDenied -> {
+                actions.handleTokenDenied()
+            }
+
+            LaunchOutcome.AppSeatFailed -> {
+                actions.recoverFromSeatFailure()
+            }
+
             LaunchOutcome.CredentialResolutionFailed -> {
                 actions.reportFailure("CredentialResolutionFailed")
                 actions.fallBackToLegacyLaunch()
             }
+
             is LaunchOutcome.Retryable -> {
                 actions.reportFailure(outcome.error::class.java.simpleName)
                 actions.fallBackToLegacyLaunch()
