@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.63.1">
+          android:versionName="2.64">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -159,6 +159,22 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="connect.dimagi.com" />
+                <data android:pathPrefix="/users/invite_redirect/" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="connect-staging.dimagi.com" />
+                <data android:pathPrefix="/users/invite_redirect/" />
+            </intent-filter>
         </activity>
         <activity
             android:name="org.commcare.activities.AppManagerActivity"
@@ -239,15 +255,6 @@
         <activity
             android:name="org.commcare.activities.FullscreenVideoViewActivity"
             android:theme="@style/FullscreenTheme" />
-        <activity
-            android:name="org.commcare.activities.DotsEntryActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="org.commcare.dalvik.action.DotsEntry" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name="org.commcare.activities.CallOutActivity" />
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
@@ -395,6 +402,10 @@
             android:name="com.google.android.maps"
             android:required="false" />
         
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />

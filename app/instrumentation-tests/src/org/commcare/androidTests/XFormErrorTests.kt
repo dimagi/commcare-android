@@ -41,7 +41,7 @@ class XFormErrorTests : BaseTest() {
 
     fun testImmediateFail() {
         assertTrue(onView(withSubstring("Error in calculation for /data/immediate_fail")).isPresent())
-        onView(withText("OK")).perform(click())
+        onView(withText(R.string.ok)).perform(click())
         assertTrue(onView(withText("XForm Error Tests")).isPresent())
     }
 
@@ -49,21 +49,21 @@ class XFormErrorTests : BaseTest() {
         onView(withText("Delayed Fail")).perform(click())
         onView(withText("Item 1")).perform(click())
         assertTrue(onView(withSubstring("Error in calculation for /data/calculated_value")).isPresent())
-        onView(withText("OK")).perform(click())
+        onView(withText(R.string.ok)).perform(click())
         assertTrue(onView(withText("XForm Error Tests")).isPresent())
     }
 
     fun testRelevancyFail() {
         onView(withText("Relevancy Fail")).perform(click())
         assertTrue(onView(withSubstring("Error in calculation for /data/bad_relevancy")).isPresent())
-        onView(withText("OK")).perform(click())
+        onView(withText(R.string.ok)).perform(click())
         assertTrue(onView(withText("XForm Error Tests")).isPresent())
     }
 
     fun testRepeatError() {
         onView(withText("Repeat Error")).perform(click())
         assertTrue(onView(withSubstring("Error in calculation for /data/hidden_value")).isPresent())
-        onView(withText("OK")).perform(click())
+        onView(withText(R.string.ok)).perform(click())
         assertTrue(onView(withText("XForm Error Tests")).isPresent())
     }
 }

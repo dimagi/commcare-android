@@ -1,19 +1,11 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
-import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
-import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
-import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
-import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
-import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
-
 import android.content.Intent;
 import android.os.Bundle;
-
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -23,6 +15,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -38,9 +31,16 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import javax.annotation.Nullable;
+
+import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
+import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
 /**
  * Dispatches install, login, and home screen activities.
@@ -68,7 +68,6 @@ public class DispatchActivity extends AppCompatActivity {
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
     public static final int RECOVERY_MEASURES = 3;
-
 
     /**
      * Request code for automatically validating media.
@@ -108,14 +107,17 @@ public class DispatchActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
-            alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(KEY_APP_FILES_CHECK_OCCURRED);
-            waitingForActivityResultFromLogin = savedInstanceState.getBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT);
+            alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(
+                    KEY_APP_FILES_CHECK_OCCURRED
+            );
+            waitingForActivityResultFromLogin = savedInstanceState.getBoolean(
+                    KEY_WAITING_FOR_ACTIVITY_RESULT
+            );
         }
     }
 
-
-    private Intent checkIfAnyPNIntentPresent(){
-        return FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
+    private Intent checkIfAnyPNIntentPresent() {
+        return FirebaseMessagingUtil.getIntentForPNIfAny(this, getIntent());
     }
 
     /**
@@ -129,7 +131,8 @@ public class DispatchActivity extends AppCompatActivity {
         if (!isTaskRoot()) {
             Intent intent = getIntent();
             String action = intent.getAction();
-            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && action != null && action.equals(Intent.ACTION_MAIN)) {
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+                    && action != null && action.equals(Intent.ACTION_MAIN)) {
                 finish();
                 return true;
             }
@@ -178,7 +181,17 @@ public class DispatchActivity extends AppCompatActivity {
                     pnIntent.getStringExtra(NOTIFICATION_ID)
             );
             startActivity(pnIntent);
-        }else if (currentApp == null) {
+            return;
+        }
+
+        Intent connectOppInviteIntent = DeepLinkHelper.INSTANCE
+                .retrieveConnectOppInviteIntentIfPresent(this, getIntent());
+        if (connectOppInviteIntent != null) {
+            startActivity(connectOppInviteIntent);
+            return;
+        }
+
+        if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
@@ -229,11 +242,11 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                } else if(redirectToConnectHome) {
+                } else if (redirectToConnectHome) {
                     redirectToConnectHome = false;
                     CommCareApplication.instance().closeUserSession();
                     ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
-                } else if(redirectToConnectOpportunityInfo) {
+                } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
                     ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
@@ -266,19 +279,31 @@ public class DispatchActivity extends AppCompatActivity {
         int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_LEGACY_DETECTED) {
             // Starting from CommCare 2.44, we don't supoort upgrading from Legacy DB
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     getString(R.string.legacy_failure),
-                    getString(R.string.legacy_failure_title), false, false);
+                    getString(R.string.legacy_failure_title),
+                    false,
+                    false
+            );
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     getString(R.string.migration_definite_failure),
-                    getString(R.string.migration_failure_title), false, false);
+                    getString(R.string.migration_failure_title),
+                    false,
+                    false
+            );
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     getString(R.string.migration_possible_failure),
-                    getString(R.string.migration_failure_title), false, true);
+                    getString(R.string.migration_failure_title),
+                    false,
+                    true
+            );
             return true;
         } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
             handleDamagedApp();
@@ -307,13 +332,16 @@ public class DispatchActivity extends AppCompatActivity {
     private void startRecoveryExecutionActivity() {
         startActivityForResult(
                 new Intent(this, ExecuteRecoveryMeasuresActivity.class),
-                RECOVERY_MEASURES);
+                RECOVERY_MEASURES
+        );
     }
 
     private void createNoStorageDialog() {
-        CommCareLifecycleUtils.triggerHandledAppExit(this,
+        CommCareLifecycleUtils.triggerHandledAppExit(
+                this,
                 Localization.get("app.storage.missing.message"),
-                Localization.get("app.storage.missing.title"));
+                Localization.get("app.storage.missing.title")
+        );
     }
 
     private void launchLoginScreen() {
@@ -324,7 +352,7 @@ public class DispatchActivity extends AppCompatActivity {
             i.putExtra(IS_LAUNCH_FROM_CONNECT, getLaunchedFromConnect());
 
             String sessionEndpointAppID = getSessionEndpointAppId();
-            if(sessionEndpointAppID == null && redirectToLoginAppId != null) {
+            if (sessionEndpointAppID == null && redirectToLoginAppId != null) {
                 sessionEndpointAppID = redirectToLoginAppId;
                 redirectToLoginAppId = null;
             }
@@ -336,10 +364,12 @@ public class DispatchActivity extends AppCompatActivity {
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
-            Log.w(TAG,
+            Log.w(
+                    TAG,
                     "Login redirection bug occurred; DispatchActivity is attempting to launch " +
                             "a new LoginActivity while it is still waiting for a result from " +
-                            "another one.");
+                            "another one."
+            );
         }
     }
 
@@ -359,8 +389,10 @@ public class DispatchActivity extends AppCompatActivity {
         if (useRootMenuHomeActivity()) {
             i = new Intent(this, RootMenuHomeActivity.class);
             // Since we are entering a menu list, the session state will expect this later
-            HomeScreenBaseActivity.addPendingDataExtra(i,
-                    CommCareApplication.instance().getCurrentSessionWrapper().getSession());
+            HomeScreenBaseActivity.addPendingDataExtra(
+                    i,
+                    CommCareApplication.instance().getCurrentSessionWrapper().getSession()
+            );
         } else {
             i = new Intent(this, StandardHomeActivity.class);
         }
@@ -419,9 +451,11 @@ public class DispatchActivity extends AppCompatActivity {
         } else {
             // Means that there are no usable apps, but there are multiple apps who all don't have
             // MM verified -- show an error message and shut down
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     Localization.get("multiple.apps.unverified.message"),
-                    Localization.get("multiple.apps.unverified.title"));
+                    Localization.get("multiple.apps.unverified.title")
+            );
         }
     }
 
@@ -433,24 +467,35 @@ public class DispatchActivity extends AppCompatActivity {
                         String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
                         SessionStateDescriptor ssd = new SessionStateDescriptor();
                         ssd.fromBundle(sessionRequest);
-                        CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+                        CommCareApplication.instance()
+                                .getCurrentSessionWrapper()
+                                .loadFromStateDescription(ssd);
                         i = new Intent(this, StandardHomeActivity.class);
                     } else if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
                         String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
                         Bundle args = this.getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
-                        ArrayList<String> argsList = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
+                        ArrayList<String> argsList = this.getIntent().getStringArrayListExtra(
+                                SESSION_ENDPOINT_ARGUMENTS_LIST
+                        );
                         i = new Intent(this, StandardHomeActivity.class);
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
                         i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
-                        i.putExtra(CC_LAUNCH_REQUIRE_SYNC,
-                                getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false));
+                        i.putExtra(
+                                CC_LAUNCH_REQUIRE_SYNC,
+                                getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false)
+                        );
                     }
                     clearSessionEndpointIntentExtras();
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);
-                        i.putExtra(EXIT_AFTER_FORM_SUBMISSION,
-                                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION, EXIT_AFTER_FORM_SUBMISSION_DEFAULT));
+                        i.putExtra(
+                                EXIT_AFTER_FORM_SUBMISSION,
+                                getIntent().getBooleanExtra(
+                                        EXIT_AFTER_FORM_SUBMISSION,
+                                        EXIT_AFTER_FORM_SUBMISSION_DEFAULT
+                                )
+                        );
                         startActivityForResult(i, HOME_SCREEN);
                     }
                 }
@@ -487,8 +532,14 @@ public class DispatchActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (intent != null) {
-            needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
-            redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
+            needToExecuteRecoveryMeasures = intent.getBooleanExtra(
+                    EXECUTE_RECOVERY_MEASURES,
+                    false
+            );
+            redirectToConnectOpportunityInfo = intent.getBooleanExtra(
+                    REDIRECT_TO_CONNECT_OPPORTUNITY_INFO,
+                    false
+            );
             redirectToLoginAppId = intent.getStringExtra(EXTRA_APP_ID);
             forceSingleAppMode = intent.getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
         }
@@ -526,7 +577,7 @@ public class DispatchActivity extends AppCompatActivity {
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = !connectManagedLogin;
-                    if(connectManagedLogin) {
+                    if (connectManagedLogin) {
                         redirectToConnectHome = true;
                     }
                     return;

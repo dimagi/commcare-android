@@ -58,22 +58,11 @@ public interface ApiService {
                                                @HeaderMap Map<String, String> headers,
                                                @Body RequestBody connectStartLearningRequest);
 
-    @GET(ApiEndPoints.connectLearnProgressURL)
-    Call<ResponseBody> getConnectLearningAppProgress(@Header("Authorization") String token,
-                                                     @Path("id") String uuid,
-                                                     @HeaderMap Map<String, String> headers);
-
-
     @POST(ApiEndPoints.connectClaimJobURL)
     Call<ResponseBody> connectClaimJob(@Header("Authorization") String token,
                                        @Path("id") String uuid,
                                        @HeaderMap Map<String, String> headers,
                                        @Body RequestBody connectClaimJobRequest);
-
-    @GET(ApiEndPoints.connectDeliveriesURL)
-    Call<ResponseBody> getConnectDeliveries(@Header("Authorization") String token,
-                                            @Path("id") String uuid,
-                                            @HeaderMap Map<String, String> headers);
 
     @POST(ApiEndPoints.PAYMENT_CONFIRMAITONS)
     Call<ResponseBody> connectPaymentConfirmations(@Header("Authorization") String token,
@@ -86,6 +75,14 @@ public interface ApiService {
     @POST(ApiEndPoints.validateSessionOtp)
     Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
             @Body Map<String, String> body);
+
+    @POST(ApiEndPoints.sendEmailOtp)
+    Call<ResponseBody> sendEmailOtp(@Header("Authorization") String token,
+                                    @Body Map<String, String> emailRequest);
+
+    @POST(ApiEndPoints.verifyEmailOtp)
+    Call<ResponseBody> verifyEmailOtp(@Header("Authorization") String token,
+                                      @Body Map<String, String> otpRequest);
 
     @POST(ApiEndPoints.connectTokenURL)
     Call<ResponseBody> connectToken(@HeaderMap Map<String, String> headers, @Body RequestBody connectTokenRequest);

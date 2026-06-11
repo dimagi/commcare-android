@@ -127,7 +127,7 @@
     <color name="connect_border_color">#1A3A42C7</color>
     <color name="connect_dark_blue_color">#3942C7</color>
     <color name="connect_darker_blue_color">#353BA8</color>
-    <color name="connect_blue_color">#3A42C7</color>
+    <color name="connect_blue_color">@color/neon_blue</color>
     <color name="connect_blue_color_10">#1A3A42C7</color>
     <color name="connect_blackist_dark_blue_color">#141859</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>
@@ -143,6 +143,7 @@
     <color name="connect_grey">#9A9A9A</color>
     <color name="connect_divider_color">#E5E7EB</color>
     <color name="connect_background_color">#f7f9fa</color>
+    <color name="connect_sky_blue">#87BDDF</color>
     <color name="connect_aqua">#88BEE1</color>
     <color name="connect_green">#16A085</color>
     <color name="connect_light_green">#E6F5E5</color>
@@ -155,11 +156,11 @@
     <color name="connect_payment_status_transferred_bg">#16A085</color>
     <color name="connect_payment_status_transferred_fg">#E6F5E5</color>
     <color name="connect_message_unread">#94A3B8</color>
-    <color name="connect_delivery_check_circle">#3A42C7</color>
-    <color name="connect_arrow_forward">#3A42C7</color>
+    <color name="connect_delivery_check_circle">@color/neon_blue</color>
+    <color name="connect_arrow_forward">@color/neon_blue</color>
     <color name="connect_pager_indicator">#FF0000</color>
     <color name="connect_yellow_dot">#EABA13</color>
-    <color name="connect_message_read">#3A42C7</color>
+    <color name="connect_message_read">@color/neon_blue</color>
     <color name="connect_delivery_approved">#16A085</color>
     <color name="personal_id_work_history_earned_activity">#90A1B9</color>
     <color name="personal_id_work_history_earned_grey">#4DFFFFFF</color>
@@ -180,6 +181,7 @@
     <color name="sterling_ash">#959595</color>
     <color name="burnt_amber">#C67E13</color>
     <color name="rich_amber_gold">#BF9A17</color>
+    <color name="black_60">#99000000</color>
 
     <color name="ic_backup">#14006C</color>
     <color name="icon_tint_dark_gray">#333333</color>
@@ -194,4 +196,10 @@
     <color name="shimmer_grey_0">#00E6E7EB</color>
     <color name="shimmer_grey_20">#33E6E7EB</color>
     <color name="shimmer_grey_60">#99E6E7EB</color>
+    <color name="lavender_mist">#D8D9F4</color>
+    <color name="neon_blue">#3A42C7</color>
+
+    <!-- secondary CTA button colors -->
+    <color name="secondary_cta_btn_background">@color/lavender_mist</color>
+    <color name="secondary_cta_btn_text_color">@color/neon_blue</color>
 </resources>

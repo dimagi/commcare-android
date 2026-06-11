@@ -54,6 +54,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.WorkManager;
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -112,8 +114,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         } catch (IllegalStateException e) {
             Configuration config = new Configuration.Builder()
                     .setMinimumLoggingLevel(Log.DEBUG)
+                    .setExecutor(new SynchronousExecutor())
                     .build();
-            WorkManager.initialize(context, config);
+            WorkManagerTestInitHelper.initializeTestWorkManager(context, config);
         }
     }
 

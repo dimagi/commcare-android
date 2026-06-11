@@ -1,15 +1,12 @@
 package org.commcare.connect.network.connect
 
 import android.content.Context
-import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ApiConnect
 import org.commcare.connect.network.NoParsingResponseParser
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
-import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
-import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
 import org.commcare.interfaces.base.BaseConnectView
 
 /**
@@ -48,19 +45,6 @@ abstract class ConnectApiHandler<T>(
         )
     }
 
-    fun getLearningAppProgress(
-        context: Context,
-        user: ConnectUserRecord,
-        job: ConnectJobRecord,
-    ) {
-        ApiConnect.getLearningAppProgress(
-            context,
-            user,
-            job.jobUUID,
-            createCallback(LearningAppProgressResponseParser<T>(), job),
-        )
-    }
-
     fun claimJob(
         context: Context,
         user: ConnectUserRecord,
@@ -73,19 +57,6 @@ abstract class ConnectApiHandler<T>(
             createCallback(
                 NoParsingResponseParser<T>(),
             ),
-        )
-    }
-
-    fun getDeliveries(
-        context: Context,
-        user: ConnectUserRecord,
-        job: ConnectJobRecord,
-    ) {
-        ApiConnect.getDeliveries(
-            context,
-            user,
-            job.jobUUID,
-            createCallback(DeliveryAppProgressResponseParser<T>(), job),
         )
     }
 
