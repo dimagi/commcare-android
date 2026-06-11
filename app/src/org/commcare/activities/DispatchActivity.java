@@ -33,6 +33,8 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import androidx.annotation.NonNull;
+
 import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
@@ -113,6 +115,16 @@ public class DispatchActivity extends AppCompatActivity {
             waitingForActivityResultFromLogin = savedInstanceState.getBoolean(
                     KEY_WAITING_FOR_ACTIVITY_RESULT
             );
+        }
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        // Adopt the new intent so dispatch() routes a reused (CLEAR_TOP | SINGLE_TOP) launch.
+        setIntent(intent);
+        if (intent.getBooleanExtra(LoginActivity.USER_TRIGGERED_LOGOUT, false)) {
+            userTriggeredLogout = true;
         }
     }
 

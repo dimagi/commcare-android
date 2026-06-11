@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import org.commcare.CommCareApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
+import org.commcare.activities.LoginActivity
 import org.commcare.connect.network.TokenExceptionHandler
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.LoginPhase
@@ -184,13 +185,25 @@ class ConnectAppLaunchController
         }
 
         private fun onHomeResult(result: ActivityResult) {
-            // A backed-out app Home (RESULT_CANCELED) ends the app session and returns to the
-            // opportunities list; RESULT_OK (logout / app switch) keeps its existing handling.
-            if (!fragment.isAdded || result.resultCode == Activity.RESULT_OK) {
+            if (!fragment.isAdded) {
                 return
             }
+
+            val activity = fragment.requireActivity()
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Route to the login screen via DispatchActivity on the user logging-out.
+                val intent =
+                    Intent(activity, DispatchActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
+                        .putExtra(ConnectAppUtils.IS_LAUNCH_FROM_CONNECT, true)
+                activity.startActivity(intent)
+                return
+            }
+
+            // Back-out (RESULT_CANCELED): end the app session, return to the opportunities list.
             CommCareApplication.instance().closeUserSession()
-            ConnectNavHelper.goToConnectJobsList(fragment.requireActivity(), clearTop = true)
+            ConnectNavHelper.goToConnectJobsList(activity, clearTop = true)
         }
 
         private fun registerDialogCleanup(owner: LifecycleOwner) {
