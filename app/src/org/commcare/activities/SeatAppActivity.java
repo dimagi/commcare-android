@@ -30,11 +30,11 @@ public class SeatAppActivity extends CommonBaseActivity {
                 appId,
                 progress -> {
                 },
-                this::finishWithResult
+                this::setResultAndFinish
         );
     }
 
-    private void finishWithResult() {
+    private void setResultAndFinish() {
         setResult(RESULT_OK, new Intent(getIntent()));
         finish();
     }
