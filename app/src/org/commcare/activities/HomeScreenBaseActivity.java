@@ -111,6 +111,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -589,12 +590,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected void userPressedOpportunityStatus() {
         // Launch the seated app's job status page on top of this (still-live) Home so the app
         // session is preserved and backing out of the status page returns here.
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
-        if (job == null) {
-            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
-                    "View Job Status pressed but no Connect job was found for the seated app");
-            return;
-        }
+        ConnectJobRecord job = Objects.requireNonNull(
+                ConnectJobHelper.INSTANCE.getJobForSeatedApp(this),
+                "View Job Status pressed but no Connect job was found for the seated app"
+        );
         ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
     }
 
