@@ -537,7 +537,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
-    <string name="nav_drawer_manage_profile">ፕሮፋይል ኣስተዳደር</string>
     <string name="play_service_update_error">PersonalID ንኽትጥቀም፡ ናይ Google Play ኣገልግሎታት ከተሐድስ የድልየካ። ምዕዳጋት ንምርኣይ ናብ Google Play Store ንምኻድ ኣብዚ ጠውቕ።</string>
     <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>
     <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>

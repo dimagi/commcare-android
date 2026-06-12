@@ -756,8 +756,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
-    <string name="nav_drawer_manage_profile">Manage Profile</string>
-
 
     <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
     <string name="personalid_work_history_level_2_month_active">2 Months of\nActivity</string>

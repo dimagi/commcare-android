@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
-import org.commcare.activities.connect.PersonalIdProfileActivity
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
@@ -31,8 +31,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
-import org.commcare.personalId.PersonalIdUnlocker
-import org.commcare.personalId.UnlockPolicy
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
@@ -163,12 +161,20 @@ class BaseDrawerController(
             showUpdatePhotoConfirmationDialog()
         }
         binding.manageProfileLink.setOnClickListener {
-            closeDrawer()
-            PersonalIdUnlocker.unlock(activity, UnlockPolicy.ALWAYS) { success ->
-                if (success) {
-                    activity.startActivity(Intent(activity, PersonalIdProfileActivity::class.java))
-                }
-            }
+            ConnectNavHelper.unlockAndGoToProfile(
+                activity,
+                listener =
+                    object : ConnectActivityCompleteListener {
+                        override fun connectActivityComplete(
+                            success: Boolean,
+                            error: String?,
+                        ) {
+                            if (success) {
+                                closeDrawer()
+                            }
+                        }
+                    },
+            )
         }
     }
 
@@ -299,7 +305,7 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
-        binding.manageProfileLink.visibility = View.GONE
+        binding.manageProfileLink.visibility = if (shouldShowManageProfile()) View.VISIBLE else View.GONE
         binding.notificationView.visibility =
             if (shouldShowNotifications()) View.VISIBLE else View.GONE
     }
@@ -335,6 +341,8 @@ class BaseDrawerController(
     }
 
     private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+
+    private fun shouldShowManageProfile(): Boolean = false
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)

@@ -604,6 +604,7 @@
 
         <activity
             android:name="org.commcare.activities.connect.PersonalIdProfileActivity"
+            android:exported="false"
             android:theme="@style/CommonTheme.NoActionBar"/>
 
         <service

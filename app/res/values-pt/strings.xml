@@ -551,7 +551,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao PersonalID</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicativos CommCare</string>
-    <string name="nav_drawer_manage_profile">Gerenciar perfil</string>
     <string name="play_service_update_error">Para usar o PersonalID, você precisa atualizar o Google Play Services. Toque aqui para ir à Google Play Store para verificar se há atualizações.</string>
     <string name="nav_drawer_open">Abrir o menu de navegação</string>
     <string name="nav_drawer_close">Fechar o menu de navegação</string>

@@ -542,7 +542,6 @@ License.
     <string name="nav_drawer_not_signed_in_to_personal_id">आप PersonalID में साइन इन नहीं हैं</string>
     <string name="nav_drawer_opportunities">अवसर</string>
     <string name="nav_drawer_commcare_apps">कॉमकेयर ऐप्स</string>
-    <string name="nav_drawer_manage_profile">प्रोफ़ाइल प्रबंधित करें</string>
     <string name="play_service_update_error">PersonalID का उपयोग करने के लिए, आपको Google Play सेवाएं अपडेट करनी होंगी। अपडेट की जांच के लिए Google Play Store पर जाने के लिए यहां टैप करें।</string>
     <string name="nav_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
     <string name="nav_drawer_close">नेविगेशन ड्रॉअर बंद करें</string>

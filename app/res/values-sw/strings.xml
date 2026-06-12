@@ -550,7 +550,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye PersonalID</string>
     <string name="nav_drawer_opportunities">Fursa</string>
     <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
-    <string name="nav_drawer_manage_profile">Dhibiti Wasifu</string>
     <string name="play_service_update_error">Ili kutumia PersonalID, unahitaji kusasisha Huduma za Google Play. Gusa hapa ili uende kwenye Duka la Google Play uangalie masasisho.</string>
     <string name="nav_drawer_open">Fungua drawer ya uabiri</string>
     <string name="nav_drawer_close">Funga drawer ya uabiri</string>

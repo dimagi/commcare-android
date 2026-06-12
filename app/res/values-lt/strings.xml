@@ -105,7 +105,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
     <string name="nav_drawer_opportunities">Galimybės</string>
     <string name="nav_drawer_commcare_apps">„CommCare“ programėlės</string>
-    <string name="nav_drawer_manage_profile">Tvarkyti profilį</string>
     <string name="play_service_update_error">Norint naudoti „PersonalID“, reikia atnaujinti „Google Play“ paslaugas. Palieskite čia, kad pereitumėte į „Google Play“ parduotuvę ir patikrintumėte, ar yra naujinių</string>
     <string name="nav_drawer_open">Atidaryti navigacijos meniu</string>
     <string name="nav_drawer_close">Uždaryti navigacijos meniu</string>

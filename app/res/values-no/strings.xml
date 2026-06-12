@@ -105,7 +105,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Du er ikke logget inn med PersonalID</string>
     <string name="nav_drawer_opportunities">Muligheter</string>
     <string name="nav_drawer_commcare_apps">CommCare-apper</string>
-    <string name="nav_drawer_manage_profile">Administrer profil</string>
     <string name="play_service_update_error">For å bruke PersonalID må du oppdatere Google Play-tjenester. Trykk her for å gå til Google Play-butikken for å søke etter oppdateringer.</string>
     <string name="nav_drawer_open">Åpne navigasjonsmenyen</string>
     <string name="nav_drawer_close">Lukk navigasjonsmenyen</string>
