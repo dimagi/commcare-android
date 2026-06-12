@@ -85,9 +85,10 @@ class ConnectAppLaunchController
                 onHomeResult(result)
             }
 
-        fun launchLearningApp(appId: String) = launch(LaunchTarget(appId, isLearning = true))
-
-        fun launchDeliveryApp(appId: String) = launch(LaunchTarget(appId, isLearning = false))
+        fun launchApp(
+            appId: String,
+            isLearning: Boolean,
+        ) = launch(LaunchTarget(appId, isLearning))
 
         private fun launch(target: LaunchTarget) {
             val activity = fragment.requireActivity()

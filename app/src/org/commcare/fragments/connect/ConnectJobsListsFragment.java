@@ -166,7 +166,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else if (isLearning && job.passedAssessment()) {
             navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
-            launchApp(isLearning, appId);
+            launchController.launchApp(appId, isLearning);
         } else {
             int textId = isLearning
                     ? R.string.connect_downloading_learn
@@ -178,14 +178,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                                     isLearning
                             )
             );
-        }
-    }
-
-    private void launchApp(boolean isLearning, String appId) {
-        if (isLearning) {
-            launchController.launchLearningApp(appId);
-        } else {
-            launchController.launchDeliveryApp(appId);
         }
     }
 

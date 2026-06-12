@@ -320,7 +320,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getLearnAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            launchController.launchLearningApp(appId);
+            launchController.launchApp(appId, true);
         } else {
             NavDirections navDirections = ConnectLearningProgressFragmentDirections
                     .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
