@@ -1,12 +1,12 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
@@ -14,6 +14,8 @@ import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -80,7 +82,6 @@ import org.commcare.util.DatumUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
-import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
@@ -1213,6 +1214,41 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 startActivityForResult(detailIntent, GET_CASE);
             }
         }
+    }
+
+    static Intent buildHomeIntent(
+            Context context,
+            LoginMode loginMode,
+            boolean startFromLogin,
+            boolean manualSwitchToPwMode,
+            boolean personalIdManagedLogin
+    ) {
+        Intent intent;
+        if (DispatchActivity.useRootMenuHomeActivity()) {
+            intent = new Intent(context, RootMenuHomeActivity.class);
+            addPendingDataExtra(
+                    intent,
+                    CommCareApplication.instance().getCurrentSessionWrapper().getSession()
+            );
+        } else {
+            intent = new Intent(context, StandardHomeActivity.class);
+        }
+        intent.putExtra(DispatchActivity.START_FROM_LOGIN, startFromLogin);
+        intent.putExtra(LoginActivity.LOGIN_MODE, loginMode);
+        intent.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);
+        intent.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
+        return intent;
+    }
+
+    public static void launchHome(Activity activity) {
+        Intent intent = buildHomeIntent(
+                activity,
+                LoginMode.PASSWORD,
+                true,
+                false,
+                true
+        );
+        activity.startActivity(intent);
     }
 
     protected static void addPendingDataExtra(Intent i, CommCareSession session) {

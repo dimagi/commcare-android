@@ -18,6 +18,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
+- Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 
 #### Important Bug Fixes
 
@@ -129,6 +130,9 @@ we would like to communicate to QA as part of the release testing
   - Open the Connect Delivery Progress page while online with a working network and let it sync. Verify the progress, payment list, payment-confirmation tile, and "Last updated" timestamp all populate as before, and that the green "Sync successful" bar flashes briefly at the top.
   - Background the app, turn on airplane mode, and reopen the Delivery Progress page. Verify cached delivery data (progress, deliveries, payments, "Last updated" timestamp) appears immediately without waiting for a network call, and that the orange "Offline" indicator with the previous sync time is shown at the top.
   - Confirm the full-screen blocking loading dialog that used to appear on refresh no longer appears — the inline small progress spinner is the only loading indicator.
+- **Connect app launch:**
+  - From the Connect opportunities list, launch an installed learn or delivery app: confirm it opens to the app home behind a single progress dialog (no login/app-setup screens flashing through), and that pressing back from the app home returns to the opportunities list.
+  - With networking off, launching an app from a Connect opportunity should fall back to the normal login screen showing the usual error — not hang on the dialog or crash.
 
 - **SMS opportunity-invite app link (Connect):** Tap an invite link of the form `https://connect.dimagi.com/users/invite_redirect/<uuid>` (and the `connect-staging.dimagi.com` equivalent) from an SMS app and verify each corner case:
   - CommCare not installed: navigates to a webpage on Connect (that should redirect user to Play Store) 
