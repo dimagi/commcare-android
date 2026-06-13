@@ -20,7 +20,7 @@ The controller composes:
 
 `LoginProgress(phase, percent?, message?)` is emitted on the listener. Phases:
 
-- `Seating` — reserved; emitted starting in Phase 2 by `AppSeater`. Not produced by Phase 1.
+- `Seating` — emitted by `AppSeater` while the app is being seated (see [App seating](#app-seating)).
 - `SigningIn` — `ManageKeyRecordTask` is running. `message` carries the localized status string from the underlying task.
 - `Syncing` — `DataPullTask` is running. `percent` is populated when the task reports `PROGRESS_PROCESSING` or `PROGRESS_SERVER_PROCESSING`.
 
@@ -61,6 +61,18 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 - **`NORMAL`** — manual, Connect, and PersonalID logins; OTA restore against the data server.
 - **`CONSUMER_APP`** — consumer-app launches; bundled-CCZ local restore via `LocalReferencePullResponseFactory` with `SingleAppInstallation.LOCAL_RESTORE_REFERENCE` (`userId="unused"`).
 - **`CCZ_DEMO`** — demo/practice menu (`LoginActivity.loginDemoUser()`) when a bundled `OfflineUserRestore` is present; local restore from the demo reference (`userId="demo_id"`). The non-bundled demo sub-case calls `DemoUserBuilder.build(...)` and then logs in with `NORMAL` (no sync).
+
+## App seating
+
+`AppSeater.seatIfNeeded(appId, listener)` seats an app into `CommCareApplication` off the UI thread, emitting the `Seating` phase, and returns a `Success`/`Failed` `SeatResult`. `SeatAppActivity` and the Connect launch path both seat through it rather than on the activity stack. A seat failure is not propagated as a result code; instead a corrupted app is left at `STATE_CORRUPTED` for `DispatchActivity` to detect downstream and route to recovery.
+
+## Launching from Connect
+
+`ConnectAppLauncher` opens a Connect opportunity's app without showing `LoginActivity`: it closes any open session, seats the app, resolves the worker's PersonalID-managed credentials, and runs `LoginController.performLogin`, reporting a `LaunchOutcome` (`Launched`, `TokenDenied`, `AppSeatFailed`, `CredentialResolutionFailed`, `Retryable(error)`). Java callers use `start(lifecycleOwner, context, appId, isLearning, listener, callback)`.
+
+`LaunchOutcomeRouter.dispatch(outcome, actions)` maps each outcome to a `LaunchActions` call — a seam so the mapping is unit-tested without a fragment. It always dismisses progress first, then: go Home; delegate `TokenDenied` to `TokenExceptionHandler`; route a seat failure through `DispatchActivity` (which reaches recovery for a corrupted app); or fall back to the legacy `ConnectAppUtils.launchApp` (which shows `LoginActivity`) for credential and retryable failures.
+
+`ConnectJobsListsFragment` is the first caller: it shows a modal `CustomProgressDialog` (mirroring `LoginActivity`'s spinner-then-bar), runs the launch on `viewLifecycleOwner.lifecycleScope`, and on success lands Home via `HomeScreenBaseActivity.launchHome` — started on top of the Connect screen rather than through `DispatchActivity`, so backing out of Home returns to the opportunities list.
 
 ## Adding a new caller
 
