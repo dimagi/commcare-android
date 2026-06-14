@@ -9,5 +9,8 @@
 - Workaround: edit via Bash (sed/python) — Bash isn't matched by the hook. Validate with standalone ktlint at https://github.com/pinterest/ktlint/releases/download/1.5.0/ktlint (matches super-linter v8.3.1).
 - `gh` CLI is unauthenticated — use GitHub MCP tools and safeoutputs MCP tools.
 
+## Avoid duplicate summaries
+If all of a PR's feedback is already implemented at head AND a prior run already posted a "no action needed / already addressed" summary, call `noop` — do NOT re-post another identical summary. Only comment when there's a new change, a new clarification needed, or a genuinely new state to report.
+
 ## Push remote-branch convention
 safeoutputs push_to_pull_request_branch needs the local branch name to match the PR's head ref. Fetch via `git fetch origin refs/pull/N/head:pr-N`, then `git branch -m <head-ref>` before pushing.
