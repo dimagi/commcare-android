@@ -32,8 +32,6 @@ sealed class LaunchOutcome {
 
     object AppSeatFailed : LaunchOutcome()
 
-    object CredentialResolutionFailed : LaunchOutcome()
-
     data class Retryable(
         val error: LoginError,
     ) : LaunchOutcome()
@@ -89,8 +87,8 @@ class ConnectAppLauncher internal constructor(
 
         val username =
             connectUsername(context)?.trim()?.lowercase(Locale.ROOT)
-        if (username.isNullOrEmpty()) {
-            return LaunchOutcome.CredentialResolutionFailed
+        check(!username.isNullOrEmpty()) {
+            "Connect launch reached login with no Connect username; a Connect user must exist on this path"
         }
 
         val request =

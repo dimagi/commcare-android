@@ -35,11 +35,6 @@ object LaunchOutcomeRouter {
                 actions.recoverFromSeatFailure()
             }
 
-            LaunchOutcome.CredentialResolutionFailed -> {
-                actions.reportFailure("CredentialResolutionFailed")
-                actions.fallBackToLegacyLaunch()
-            }
-
             is LaunchOutcome.Retryable -> {
                 actions.reportFailure(outcome.error::class.java.simpleName)
                 actions.fallBackToLegacyLaunch()

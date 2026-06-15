@@ -36,15 +36,6 @@ class LaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `credential resolution failure reports and falls back to the legacy launch`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.CredentialResolutionFailed, actions)
-
-        verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.reportFailure("CredentialResolutionFailed") }
-        verify(exactly = 1) { actions.fallBackToLegacyLaunch() }
-    }
-
-    @Test
     fun `retryable reports the error name and falls back to the legacy launch`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.Retryable(LoginError.BadCredentials), actions)
 

@@ -106,24 +106,30 @@ class ConnectAppLauncherTest {
         }
 
     @Test
-    fun `missing connect user short-circuits to CredentialResolutionFailed`() =
+    fun `missing connect user crashes the launch`() =
         runTest {
             username = null
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
+            val error =
+                runCatching {
+                    launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
+                }.exceptionOrNull()
 
-            assertEquals(LaunchOutcome.CredentialResolutionFailed, outcome)
+            assertTrue(error is IllegalStateException)
             assertTrue(capturedRequests.isEmpty())
         }
 
     @Test
-    fun `blank connect user short-circuits to CredentialResolutionFailed`() =
+    fun `blank connect user crashes the launch`() =
         runTest {
             username = "   "
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
+            val error =
+                runCatching {
+                    launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
+                }.exceptionOrNull()
 
-            assertEquals(LaunchOutcome.CredentialResolutionFailed, outcome)
+            assertTrue(error is IllegalStateException)
             assertTrue(capturedRequests.isEmpty())
         }
 
