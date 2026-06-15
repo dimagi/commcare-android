@@ -26,6 +26,7 @@ object LaunchOutcomeRouter {
             }
 
             LaunchOutcome.AppSeatFailed -> {
+                actions.reportFailure(outcome::class.java.simpleName)
                 actions.recoverFromSeatFailure()
             }
 

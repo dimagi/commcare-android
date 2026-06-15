@@ -20,10 +20,11 @@ class LaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `app seat failure routes to recovery`() {
+    fun `app seat failure reports and routes to recovery`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.AppSeatFailed, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
+        verify(exactly = 1) { actions.reportFailure("AppSeatFailed") }
         verify(exactly = 1) { actions.recoverFromSeatFailure() }
     }
 
