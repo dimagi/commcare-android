@@ -154,6 +154,8 @@ class ConnectAppLaunchController
             val message = state.overrideMessage ?: Localization.get(state.messageKey)
 
             if (launchDialog == null || state.showSyncDialog != showingSyncDialog) {
+                // Showing the dialog after the host fragment has saved its state (e.g. backgrounded
+                // or being recreated) would throw an IllegalStateException, so skip it.
                 if (fragment.childFragmentManager.isStateSaved) {
                     return
                 }
