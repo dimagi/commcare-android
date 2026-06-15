@@ -22,6 +22,7 @@ import org.commcare.login.LoginResult
 import org.commcare.login.SeatResult
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.GlobalErrors
+import org.javarosa.core.services.Logger
 import java.util.Locale
 
 /**
@@ -124,6 +125,10 @@ class ConnectAppLauncher internal constructor(
         var count = 0
         for (record in CommCareApplication.instance().getAppStorage(UserKeyRecord::class.java)) {
             if (record.username == username && ++count > 1) {
+                Logger.exception(
+                    "Multiple UserKeyRecords matched a single Connect username during app launch",
+                    IllegalStateException("Duplicate Connect username in UserKeyRecord storage"),
+                )
                 return true
             }
         }
