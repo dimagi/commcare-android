@@ -88,6 +88,25 @@
                 android:background="@drawable/open_file"
                 android:elevation="10dp" />
         </LinearLayout>
+        <TextView
+            android:id="@+id/capture_button_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:text="@string/start_recording"
+            android:textSize="@dimen/font_size_40"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:visibility="visible"/>
+        <TextView
+            android:id="@+id/capture_button_instructions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:layout_marginStart="@dimen/standard_spacer_double"
+            android:layout_marginEnd="@dimen/standard_spacer_double"
+            android:text="@string/start_recording_instructions"
+            android:textAlignment="center" />
     </LinearLayout>
 
 
