@@ -6,8 +6,6 @@ interface LaunchActions {
 
     fun launchHome()
 
-    fun handleTokenDenied()
-
     fun recoverFromSeatFailure()
 
     fun fallBackToLegacyLaunch()
@@ -25,10 +23,6 @@ object LaunchOutcomeRouter {
         when (outcome) {
             LaunchOutcome.Launched -> {
                 actions.launchHome()
-            }
-
-            LaunchOutcome.TokenDenied -> {
-                actions.handleTokenDenied()
             }
 
             LaunchOutcome.AppSeatFailed -> {

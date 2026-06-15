@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.runTest
 import org.commcare.CommCareApplication
 import org.commcare.activities.LoginMode
 import org.commcare.android.database.app.models.UserKeyRecord
+import org.commcare.connect.network.LoginInvalidatedException
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.AuthSource
 import org.commcare.login.LoginError
@@ -145,13 +146,16 @@ class ConnectAppLauncherTest {
         }
 
     @Test
-    fun `token denied maps to TokenDenied`() =
+    fun `token denied propagates to the global error handler`() =
         runTest {
             loginAnswer = { LoginResult.Failed(LoginError.TokenDenied) }
 
-            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
+            val error =
+                runCatching {
+                    launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
+                }.exceptionOrNull()
 
-            assertEquals(LaunchOutcome.TokenDenied, outcome)
+            assertTrue(error is LoginInvalidatedException)
         }
 
     @Test

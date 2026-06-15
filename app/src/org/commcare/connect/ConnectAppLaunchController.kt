@@ -13,7 +13,6 @@ import org.commcare.CommCareApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
 import org.commcare.activities.LoginActivity
-import org.commcare.connect.network.TokenExceptionHandler
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.LoginPhase
 import org.commcare.login.LoginProgress
@@ -126,8 +125,6 @@ class ConnectAppLaunchController
                     override fun dismissProgress() = dismissLaunchDialog()
 
                     override fun launchHome() = homeResultLauncher.launch(HomeScreenBaseActivity.buildHomeLaunchIntent(activity))
-
-                    override fun handleTokenDenied() = TokenExceptionHandler.handleTokenDeniedException()
 
                     override fun recoverFromSeatFailure() {
                         val intent =

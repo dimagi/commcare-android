@@ -20,14 +20,6 @@ class LaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `token denied delegates to the token handler`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.TokenDenied, actions)
-
-        verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.handleTokenDenied() }
-    }
-
-    @Test
     fun `app seat failure routes to recovery`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.AppSeatFailed, actions)
 
