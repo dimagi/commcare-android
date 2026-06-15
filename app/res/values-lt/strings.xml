@@ -226,6 +226,10 @@
     <string name="connect_offline">Neprisijungęs</string>
     <string name="connect_back_online">Vėl prisijungta</string>
     <string name="connect_never">Niekada</string>
+    <string name="connect_app_launch_dialog_title">Paleidžiama programa</string>
+    <string name="connect_app_launch_dialog_seating_message">Įkeliama jūsų programa…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Prisijungiama…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Komunikuojama su serveriu…</string>
     <string name="cannot_navigate_during_form_save">Negalima palikti puslapio, kol išsaugoma forma</string>
 
     <string name="install_keep_trying">Toliau bandykite, jei ryšys nutrūksta</string>

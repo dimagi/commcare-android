@@ -216,6 +216,10 @@
     <string name="connect_offline">Frakoblet</string>
     <string name="connect_back_online">Tilbake på nett</string>
     <string name="connect_never">Aldri</string>
+    <string name="connect_app_launch_dialog_title">Starter appen</string>
+    <string name="connect_app_launch_dialog_seating_message">Laster inn appen din…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Logger inn…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Kommuniserer med serveren…</string>
     <string name="cannot_navigate_during_form_save">Kan ikke forlate siden mens skjemaet lagres</string>
 
     <string name="install_keep_trying">Fortsett å prøve hvis tilkoblingen blir avbrutt</string>

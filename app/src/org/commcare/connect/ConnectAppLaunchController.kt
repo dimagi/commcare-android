@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -13,13 +14,13 @@ import org.commcare.CommCareApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
 import org.commcare.activities.LoginActivity
+import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.LoginPhase
 import org.commcare.login.LoginProgress
 import org.commcare.util.LogTypes
 import org.commcare.views.dialogs.CustomProgressDialog
 import org.javarosa.core.services.Logger
-import org.javarosa.core.services.locale.Localization
 
 /** The app a Connect launch is targeting; [isLearning] selects the learn vs delivery app type. */
 internal data class LaunchTarget(
@@ -28,13 +29,13 @@ internal data class LaunchTarget(
 )
 
 /**
- * How the launch dialog should render a [LoginProgress]: [titleKey]/[messageKey] are localization
- * keys; [overrideMessage] is an already-localized runtime message that supersedes [messageKey].
+ * How the launch dialog should render a [LoginProgress]: [titleRes]/[messageRes] are string
+ * resources; [overrideMessage] is an already-localized runtime message that supersedes [messageRes].
  */
 internal data class LaunchDialogState(
     val showSyncDialog: Boolean,
-    val titleKey: String,
-    val messageKey: String,
+    @StringRes val titleRes: Int,
+    @StringRes val messageRes: Int,
     val overrideMessage: String?,
     val percent: Int?,
 )
@@ -43,16 +44,16 @@ internal data class LaunchDialogState(
 internal object LaunchProgressMapper {
     fun map(progress: LoginProgress): LaunchDialogState {
         val syncing = progress.phase == LoginPhase.Syncing
-        val (titleKey, messageKey) =
+        val messageRes =
             when (progress.phase) {
-                LoginPhase.Seating -> "seating.app" to "seating.app"
-                LoginPhase.SigningIn -> "key.manage.title" to "key.manage.start"
-                LoginPhase.Syncing -> "sync.communicating.title" to "sync.progress.starting"
+                LoginPhase.Seating -> R.string.connect_app_launch_dialog_seating_message
+                LoginPhase.SigningIn -> R.string.connect_app_launch_dialog_signing_in_message
+                LoginPhase.Syncing -> R.string.connect_app_launch_dialog_syncing_message
             }
         return LaunchDialogState(
             showSyncDialog = syncing,
-            titleKey = titleKey,
-            messageKey = messageKey,
+            titleRes = R.string.connect_app_launch_dialog_title,
+            messageRes = messageRes,
             overrideMessage = progress.message,
             percent = if (syncing) progress.percent else null,
         )
@@ -150,8 +151,8 @@ class ConnectAppLaunchController
         }
 
         private fun showOrUpdateDialog(state: LaunchDialogState) {
-            val title = Localization.get(state.titleKey)
-            val message = state.overrideMessage ?: Localization.get(state.messageKey)
+            val title = fragment.getString(state.titleRes)
+            val message = state.overrideMessage ?: fragment.getString(state.messageRes)
 
             if (launchDialog == null || state.showSyncDialog != showingSyncDialog) {
                 // Showing the dialog after the host fragment has saved its state (e.g. backgrounded
