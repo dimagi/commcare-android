@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.fragment.NavHostFragment
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
@@ -19,10 +20,16 @@ import org.commcare.views.dialogs.CustomProgressDialog
 import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 
-/** The app a Connect launch is targeting; [isLearning] selects the learn vs delivery app type. */
+/**
+ * The app a Connect launch is targeting; [isLearning] selects the learn vs delivery app type.
+ * [popLaunchingScreenOnSuccess] pops the launching fragment off the back stack once Home is started,
+ * so backing out of the launched app returns to the screen beneath it rather than a transient
+ * setup screen.
+ */
 internal data class LaunchTarget(
     val appId: String,
     val isLearning: Boolean,
+    val popLaunchingScreenOnSuccess: Boolean = false,
 )
 
 /**
@@ -75,10 +82,12 @@ class ConnectAppLaunchController
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
 
+        @JvmOverloads
         fun launchApp(
             appId: String,
             isLearning: Boolean,
-        ) = launch(LaunchTarget(appId, isLearning))
+            popLaunchingScreenOnSuccess: Boolean = false,
+        ) = launch(LaunchTarget(appId, isLearning, popLaunchingScreenOnSuccess))
 
         private fun launch(target: LaunchTarget) {
             if (fragment.view == null) {
@@ -118,12 +127,16 @@ class ConnectAppLaunchController
                 object : LaunchActions {
                     override fun dismissProgress() = dismissLaunchDialog()
 
-                    override fun launchHome() =
+                    override fun launchHome() {
                         activity.startActivity(
                             HomeScreenBaseActivity
                                 .buildHomeLaunchIntent(activity)
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
                         )
+                        if (target.popLaunchingScreenOnSuccess) {
+                            popLaunchingScreenOnceHidden()
+                        }
+                    }
 
                     override fun recoverFromSeatFailure() {
                         val intent =
@@ -198,6 +211,20 @@ class ConnectAppLaunchController
                 }
             }
             launchDialog = null
+        }
+
+        private fun popLaunchingScreenOnceHidden() {
+            val navController = NavHostFragment.findNavController(fragment)
+            fragment.lifecycle.addObserver(
+                object : DefaultLifecycleObserver {
+                    override fun onStop(owner: LifecycleOwner) {
+                        owner.lifecycle.removeObserver(this)
+                        if (!fragment.parentFragmentManager.isStateSaved) {
+                            navController.popBackStack()
+                        }
+                    }
+                },
+            )
         }
 
         private fun registerDialogCleanup(owner: LifecycleOwner) {
