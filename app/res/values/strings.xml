@@ -160,6 +160,7 @@
 
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="delete_audio_file" cc:translatable="true">Delete</string>
+    <string name="confirm_audio_file_deletion" cc:translatable="true">Yes, Delete</string>
 
 
     <!-- Start Collect Strings -->

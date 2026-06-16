@@ -80,7 +80,9 @@ public class RecordingFragment extends DialogFragment {
     private ImageButton toggleRecording;
     private ImageButton discardRecording;
     private TextView recordingAnimationText;
-    private Button actionButton;
+    private Button negativeActionButton;
+    private LinearLayout recordingActionContainer;
+    private Button positiveActionButton;
     private TextView instruction;
     private ProgressBar recordingProgress;
 
@@ -128,11 +130,15 @@ public class RecordingFragment extends DialogFragment {
 
     private void reloadSavedRecording() {
         savedRecordingExists = true;
-        actionButton.setVisibility(View.VISIBLE);
-        setActionText(CANCEL_TEXT_KEY);
-        actionButton.setOnClickListener(v -> dismiss());
+        negativeActionButton.setVisibility(View.VISIBLE);
+        setActionText(negativeActionButton, CANCEL_TEXT_KEY);
+        negativeActionButton.setOnClickListener(v -> dismiss());
         recordingDuration.setVisibility(GONE);
         recordingContainer.setVisibility(GONE);
+        recordingActionContainer.setVisibility(View.VISIBLE);
+        positiveActionButton.setVisibility(View.VISIBLE);
+        setActionText(positiveActionButton, R.string.confirm_audio_file_deletion);
+        positiveActionButton.setOnClickListener(v -> resetRecordingView());
 
         instruction.setText(Localization.get("delete.recording"));
     }
@@ -157,13 +163,19 @@ public class RecordingFragment extends DialogFragment {
         discardRecording.setOnClickListener(v -> dismiss());
         toggleRecording = layout.findViewById(R.id.startrecording);
         toggleRecording.setOnClickListener(v -> startRecording());
-        actionButton = layout.findViewById(R.id.action_button);
+        negativeActionButton = layout.findViewById(R.id.negative_action_button);
+        recordingActionContainer = layout.findViewById(R.id.recording_action_container);
+        positiveActionButton = layout.findViewById(R.id.positive_action_button);
         recordingProgress = layout.findViewById(R.id.demo_mpc);
         recordingAnimationText = layout.findViewById(R.id.recording_animation_text);
     }
 
-    private void setActionText(String textKey) {
+    private void setActionText(Button actionButton, String textKey) {
         actionButton.setText(Localization.get(textKey));
+    }
+
+    private void setActionText(Button actionButton, int stringResourceId) {
+        actionButton.setText(getString(stringResourceId));
     }
 
     private void resetRecordingView() {
@@ -178,8 +190,9 @@ public class RecordingFragment extends DialogFragment {
         toggleRecording.setOnClickListener(v -> startRecording());
         instruction.setText(Localization.get("before.overwrite.recording"));
         recordingDuration.setVisibility(GONE);
+        negativeActionButton.setVisibility(GONE);
         enableSave();
-        setActionText(CLEAR_TEXT_KEY);
+        setActionText(negativeActionButton, CLEAR_TEXT_KEY);
     }
 
     private void startRecording() {
@@ -246,10 +259,11 @@ public class RecordingFragment extends DialogFragment {
         }
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(View.VISIBLE);
+        recordingActionContainer.setVisibility(GONE);
         recordingAnimationText.setVisibility(View.VISIBLE);
         recordingAnimationText.startAnimation(recordingAnimation);
         recordingDuration.setVisibility(View.VISIBLE);
-        actionButton.setVisibility(View.INVISIBLE);
+        negativeActionButton.setVisibility(GONE);
         discardRecording.setVisibility(View.INVISIBLE);
     }
 
@@ -258,6 +272,7 @@ public class RecordingFragment extends DialogFragment {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
         recordingDuration.stop();
         recordingProgress.setVisibility(View.INVISIBLE);
+        recordingActionContainer.setVisibility(View.VISIBLE);
         recordingAnimationText.clearAnimation();
         recordingAnimationText.setVisibility(View.GONE);
 
@@ -283,6 +298,7 @@ public class RecordingFragment extends DialogFragment {
 
         audioRecordingService.pauseRecording();
         recordingProgress.setVisibility(View.INVISIBLE);
+        recordingActionContainer.setVisibility(View.VISIBLE);
         recordingAnimationText.clearAnimation();
         recordingAnimationText.setVisibility(View.GONE);
         enableSave();
@@ -295,9 +311,9 @@ public class RecordingFragment extends DialogFragment {
 
     private void enableSave() {
         discardRecording.setVisibility(savedRecordingExists ? View.VISIBLE : View.INVISIBLE);
-        actionButton.setVisibility(View.VISIBLE);
-        setActionText(SAVE_TEXT_KEY);
-        actionButton.setOnClickListener(v -> saveRecording());
+        positiveActionButton.setVisibility(View.VISIBLE);
+        setActionText(positiveActionButton, SAVE_TEXT_KEY);
+        positiveActionButton.setOnClickListener(v -> saveRecording());
     }
 
     @SuppressLint("NewApi")
