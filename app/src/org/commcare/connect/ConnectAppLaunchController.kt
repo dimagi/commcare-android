@@ -81,6 +81,9 @@ class ConnectAppLaunchController
         ) = launch(LaunchTarget(appId, isLearning))
 
         private fun launch(target: LaunchTarget) {
+            if (fragment.view == null) {
+                return
+            }
             val activity = fragment.requireActivity()
             val owner = fragment.viewLifecycleOwner
             registerDialogCleanup(owner)
