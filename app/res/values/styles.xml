@@ -241,6 +241,9 @@
     
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="shapeAppearanceOverlay">@style/NegativeButtonShapeAppearanceStyle</item>
+        <item name="strokeColor">@color/cc_brand_color</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="textColor">@color/red</item>
     </style>
 
     <style name="NegativeButtonShapeAppearanceStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
@@ -250,9 +253,6 @@
         <item name="cornerFamilyTopRight">rounded</item>
         <item name="cornerFamilyBottomRight">rounded</item>
         <item name="cornerSize">@dimen/rounded_button_corner_radius</item>
-        <item name="strokeColor">@color/cc_brand_color</item>
-        <item name="strokeWidth">2dp</item>
-        <item name="textColor">@color/cc_brand_color</item>
     </style>
 
     <style name="DetailViewTabStyle">
