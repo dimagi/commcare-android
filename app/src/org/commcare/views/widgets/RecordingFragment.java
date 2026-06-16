@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -48,6 +49,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static android.view.View.GONE;
 import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
 import static org.commcare.views.widgets.AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY;
 
@@ -72,8 +74,10 @@ public class RecordingFragment extends DialogFragment {
     private static final String FILE_EXT = ".mp3";
 
     private LinearLayout layout;
+    private FrameLayout recordingContainer;
     private ImageButton toggleRecording;
     private ImageButton discardRecording;
+    private TextView recordingAnimationText;
     private Button actionButton;
     private TextView instruction;
     private ProgressBar recordingProgress;
@@ -124,9 +128,9 @@ public class RecordingFragment extends DialogFragment {
         actionButton.setVisibility(View.VISIBLE);
         setActionText(CANCEL_TEXT_KEY);
         actionButton.setOnClickListener(v -> dismiss());
-        recordingDuration.setVisibility(View.INVISIBLE);
-        toggleRecording.setBackgroundResource(R.drawable.recording_trash);
-        toggleRecording.setOnClickListener(v -> resetRecordingView());
+        recordingDuration.setVisibility(GONE);
+        recordingContainer.setVisibility(GONE);
+
         instruction.setText(Localization.get("delete.recording"));
     }
 
@@ -146,11 +150,13 @@ public class RecordingFragment extends DialogFragment {
 
     private void prepareButtons() {
         discardRecording = layout.findViewById(R.id.discardrecording);
+        recordingContainer = layout.findViewById(R.id.recording_layout);
         discardRecording.setOnClickListener(v -> dismiss());
         toggleRecording = layout.findViewById(R.id.startrecording);
+        toggleRecording.setOnClickListener(v -> startRecording());
         actionButton = layout.findViewById(R.id.action_button);
         recordingProgress = layout.findViewById(R.id.demo_mpc);
-        toggleRecording.setOnClickListener(v -> startRecording());
+        recordingAnimationText = layout.findViewById(R.id.recording_animation_text);
     }
 
     private void setActionText(String textKey) {
@@ -164,11 +170,11 @@ public class RecordingFragment extends DialogFragment {
 
         // reset the file path
         initAudioFile();
-
+        recordingContainer.setVisibility(View.VISIBLE);
         toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(v -> startRecording());
         instruction.setText(Localization.get("before.overwrite.recording"));
-        recordingDuration.setVisibility(View.INVISIBLE);
+        recordingDuration.setVisibility(GONE);
         enableSave();
         setActionText(CLEAR_TEXT_KEY);
     }
@@ -237,6 +243,7 @@ public class RecordingFragment extends DialogFragment {
         }
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(View.VISIBLE);
+        recordingAnimationText.setVisibility(View.VISIBLE);
         recordingDuration.setVisibility(View.VISIBLE);
         actionButton.setVisibility(View.INVISIBLE);
         discardRecording.setVisibility(View.INVISIBLE);
@@ -247,6 +254,7 @@ public class RecordingFragment extends DialogFragment {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
         recordingDuration.stop();
         recordingProgress.setVisibility(View.INVISIBLE);
+        recordingAnimationText.setVisibility(View.GONE);
 
         // resume first just in case we were paused
         if (inPausedState) {
@@ -270,6 +278,7 @@ public class RecordingFragment extends DialogFragment {
 
         audioRecordingService.pauseRecording();
         recordingProgress.setVisibility(View.INVISIBLE);
+        recordingAnimationText.setVisibility(View.GONE);
         enableSave();
         toggleRecording.setBackgroundResource(R.drawable.record_add);
         toggleRecording.setOnClickListener(v -> resumeRecording());

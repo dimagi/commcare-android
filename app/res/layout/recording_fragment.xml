@@ -46,15 +46,15 @@
 
         <ImageButton
             android:id="@+id/startrecording"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:layout_gravity="center"
             android:background="@drawable/record_start" />
 
         <ProgressBar
             android:id="@+id/demo_mpc"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
+            android:layout_width="290dp"
+            android:layout_height="290dp"
             android:layout_gravity="center"
             android:indeterminateDrawable="@drawable/progress_bar"
             android:indeterminateDuration="2000"
@@ -66,7 +66,20 @@
         android:id="@+id/recording_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible" />
+        android:textSize="@dimen/font_size_xxxxlarge"
+        android:visibility="gone" />
+    <TextView
+        android:id="@+id/recording_animation_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_spacer_double"
+        android:layout_marginBottom="@dimen/standard_spacer_double"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:textColor="@color/red_incomplete"
+        android:text="@string/recording_in_progress"
+        android:textSize="@dimen/text_large"
+        android:visibility="invisible"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/action_button"
