@@ -15,6 +15,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
@@ -58,6 +60,7 @@ public class CommCareAudioWidget extends AudioWidget
     private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
     private ImageButton captureButton;
     private LinearLayout recordingContainer;
+    private MaterialButton deleteAudio;
 
     public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
                                PendingCalloutInterface pic) {
@@ -80,8 +83,10 @@ public class CommCareAudioWidget extends AudioWidget
         playbackDuration = layout.findViewById(R.id.playback_duration);
         playbackTime = layout.findViewById(R.id.playback_time);
         playbackSeekBar = layout.findViewById(R.id.seekBar);
+        deleteAudio = layout.findViewById(R.id.delete_audio);
 
         captureButton.setOnClickListener(v -> captureAudio(mPrompt));
+        deleteAudio.setOnClickListener(v -> captureAudio(mPrompt));
 
         // launch audio filechooser intent on click
         chooseButton.setOnClickListener(v -> {

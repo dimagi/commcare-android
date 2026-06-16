@@ -159,6 +159,7 @@
     <string name="attachment_above_size_limit" formatted="false" cc:translatable="true">Media attachment too large (%1$s mb). Max allowed size is %2$s mb.</string>
 
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
+    <string name="delete_audio_file" cc:translatable="true">Delete</string>
 
 
     <!-- Start Collect Strings -->
