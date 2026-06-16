@@ -12,7 +12,6 @@ public class ConnectConstants {
     public static final int NETWORK_ACTIVITY_ID = 7000;
     public static final int NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID = 8000;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
-    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
 
     public static final String PIN = "PIN";
     public static final String CONNECT_KEY_TOKEN = "access_token";

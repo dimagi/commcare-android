@@ -37,8 +37,6 @@ import javax.annotation.Nullable;
 import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
-import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
@@ -80,7 +78,6 @@ public class DispatchActivity extends AppCompatActivity {
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
     private boolean personalIdManagedLogin;
-    private boolean connectManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
@@ -94,7 +91,6 @@ public class DispatchActivity extends AppCompatActivity {
 
     boolean alreadyCheckedForAppFilesChange;
     static final String REBUILD_SESSION = "rebuild_session";
-    private boolean redirectToConnectHome = false;
     private boolean redirectToConnectOpportunityInfo = false;
     private String redirectToLoginAppId = null;
     private boolean forceSingleAppMode = true;
@@ -243,10 +239,6 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                } else if (redirectToConnectHome) {
-                    redirectToConnectHome = false;
-                    CommCareApplication.instance().closeUserSession();
-                    ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
                     ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
@@ -350,7 +342,6 @@ public class DispatchActivity extends AppCompatActivity {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
-            i.putExtra(IS_LAUNCH_FROM_CONNECT, getLaunchedFromConnect());
 
             String sessionEndpointAppID = getSessionEndpointAppId();
             if (sessionEndpointAppID == null && redirectToLoginAppId != null) {
@@ -377,12 +368,6 @@ public class DispatchActivity extends AppCompatActivity {
     @Nullable
     private String getSessionEndpointAppId() {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
-    }
-
-    private boolean getLaunchedFromConnect() {
-        boolean launchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
-        getIntent().removeExtra(IS_LAUNCH_FROM_CONNECT);
-        return launchedFromConnect;
     }
 
     private void launchHomeScreen() {
@@ -563,16 +548,12 @@ public class DispatchActivity extends AppCompatActivity {
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
                     personalIdManagedLogin = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
-                    connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
                 return;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
-                    shouldFinish = !connectManagedLogin;
-                    if (connectManagedLogin) {
-                        redirectToConnectHome = true;
-                    }
+                    shouldFinish = true;
                     return;
                 } else {
                     userTriggeredLogout = true;
