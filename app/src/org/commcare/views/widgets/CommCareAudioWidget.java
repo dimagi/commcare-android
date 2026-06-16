@@ -45,6 +45,7 @@ public class CommCareAudioWidget extends AudioWidget
         implements RecordingFragment.RecordingCompletionListener {
 
     private LinearLayout layout;
+    private LinearLayout playbackContainer;
     private ImageButton mPlayButton;
     private TextView playbackDuration;
     private TextView playbackTime;
@@ -54,6 +55,7 @@ public class CommCareAudioWidget extends AudioWidget
     private boolean showFileChooser;
     private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
     private ImageButton captureButton;
+    private LinearLayout recordingContainer;
 
     public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
                                PendingCalloutInterface pic) {
@@ -66,6 +68,7 @@ public class CommCareAudioWidget extends AudioWidget
         LayoutInflater vi = LayoutInflater.from(getContext());
         layout = (LinearLayout)vi.inflate(R.layout.audio_prototype, null);
 
+        playbackContainer = layout.findViewById(R.id.playback_container);
         mPlayButton = layout.findViewById(R.id.play_audio);
         captureButton = layout.findViewById(R.id.capture_button);
         recordingContainer = layout.findViewById(R.id.recording_container);
@@ -237,14 +240,11 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     private void hidePlaybackIndicators() {
-        mPlayButton.setVisibility(INVISIBLE);
-        playbackSeekBar.setVisibility(INVISIBLE);
-        playbackDuration.setVisibility(INVISIBLE);
-        playbackTime.setVisibility(INVISIBLE);
+        playbackContainer.setVisibility(GONE);
     }
 
     private void initAudioPlayer() {
-        mPlayButton.setVisibility(VISIBLE);
+        playbackContainer.setVisibility(VISIBLE);
         mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
 
@@ -253,14 +253,11 @@ public class CommCareAudioWidget extends AudioWidget
         player = MediaPlayer.create(getContext(), filePath);
         player.setOnCompletionListener(mp -> onCompletePlayback());
 
-        playbackDuration.setVisibility(VISIBLE);
         playbackDuration.setText(String.format(Locale.getDefault(),
                 "/%s", getTimeString(player.getDuration())));
 
-        playbackTime.setVisibility(VISIBLE);
         playbackTime.setText(R.string.playback_start_time);
 
-        playbackSeekBar.setVisibility(VISIBLE);
         playbackSeekBar.setMax(player.getDuration() / 1000);
         playbackSeekBar.setProgress(0);
         playbackSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
