@@ -48,11 +48,16 @@ class ConnectAppLauncher internal constructor(
     private val seatApp: suspend (String, LoginProgressListener) -> SeatResult,
     private val performLogin: suspend (Context, LoginRequest, LoginProgressListener) -> LoginResult,
     private val connectUsername: (Context) -> String?,
+    private val isLoggedIntoApp: (String) -> Boolean,
 ) {
     constructor() : this(
         seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
         performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
         connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
+        isLoggedIntoApp = { appId ->
+            CommCareApplication.isSessionActive() &&
+                CommCareApplication.instance().currentApp?.uniqueId == appId
+        },
     )
 
     fun interface OutcomeCallback {
@@ -78,11 +83,16 @@ class ConnectAppLauncher internal constructor(
         isLearning: Boolean,
         listener: LoginProgressListener,
     ): LaunchOutcome {
-        CommCareApplication.instance().closeUserSession()
         FirebaseAnalyticsUtil.reportCccAppLaunch(
             if (isLearning) "Learn" else "Deliver",
             appId,
         )
+
+        if (isLoggedIntoApp(appId)) {
+            return LaunchOutcome.Launched
+        }
+
+        CommCareApplication.instance().closeUserSession()
 
         if (seatApp(appId, listener) is SeatResult.Failed) {
             return LaunchOutcome.AppSeatFailed

@@ -33,6 +33,7 @@ class ConnectAppLauncherTest {
     private var seatResult: SeatResult = SeatResult.Success
     private var loginAnswer: suspend () -> LoginResult = { success() }
     private var username: String? = "Alice "
+    private var loggedIntoApp = false
     private val seatedApps = mutableListOf<String>()
     private val capturedRequests = mutableListOf<LoginRequest>()
 
@@ -47,6 +48,7 @@ class ConnectAppLauncherTest {
                 loginAnswer()
             },
             connectUsername = { username },
+            isLoggedIntoApp = { loggedIntoApp },
         )
 
     @Before
@@ -84,6 +86,20 @@ class ConnectAppLauncherTest {
             verify(exactly = 1) { app.closeUserSession() }
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", "app-1") }
             assertEquals(listOf("app-1"), seatedApps)
+        }
+
+    @Test
+    fun `already logged into the app skips session close, seating, and login`() =
+        runTest {
+            loggedIntoApp = true
+
+            val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
+
+            assertEquals(LaunchOutcome.Launched, outcome)
+            verify(exactly = 0) { app.closeUserSession() }
+            verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", "app-1") }
+            assertTrue(seatedApps.isEmpty())
+            assertTrue(capturedRequests.isEmpty())
         }
 
     @Test

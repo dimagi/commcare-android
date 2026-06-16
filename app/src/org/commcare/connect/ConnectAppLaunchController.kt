@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import org.commcare.CommCareApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
 import org.commcare.activities.LoginActivity
@@ -78,8 +77,8 @@ class ConnectAppLaunchController
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
 
-        // Registered at construction (fragment init, the only valid time) so a back-out of the launched
-        // app's Home is delivered back here and can return the worker to the opportunities list.
+        // Registered at construction (fragment init, the only valid time) so the launched app's Home
+        // result is delivered back here.
         private val homeResultLauncher: ActivityResultLauncher<Intent> =
             fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 onHomeResult(result)
@@ -125,7 +124,12 @@ class ConnectAppLaunchController
                 object : LaunchActions {
                     override fun dismissProgress() = dismissLaunchDialog()
 
-                    override fun launchHome() = homeResultLauncher.launch(HomeScreenBaseActivity.buildHomeLaunchIntent(activity))
+                    override fun launchHome() =
+                        homeResultLauncher.launch(
+                            HomeScreenBaseActivity
+                                .buildHomeLaunchIntent(activity)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                        )
 
                     override fun recoverFromSeatFailure() {
                         val intent =
@@ -190,21 +194,20 @@ class ConnectAppLaunchController
                 return
             }
 
-            val activity = fragment.requireActivity()
-            if (result.resultCode == Activity.RESULT_OK) {
-                // Route to the login screen via DispatchActivity on the user logging-out.
-                val intent =
-                    Intent(activity, DispatchActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                        .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
-                        .putExtra(ConnectAppUtils.IS_LAUNCH_FROM_CONNECT, true)
-                activity.startActivity(intent)
+            // Back-out (RESULT_CANCELED) is a no-op: the app session stays alive and the back stack
+            // returns the worker to the launching screen.
+            if (result.resultCode != Activity.RESULT_OK) {
                 return
             }
 
-            // Back-out (RESULT_CANCELED): end the app session, return to the opportunities list.
-            CommCareApplication.instance().closeUserSession()
-            ConnectNavHelper.goToConnectJobsList(activity, clearTop = true)
+            // Logout (RESULT_OK): route to the login screen via DispatchActivity.
+            val activity = fragment.requireActivity()
+            val intent =
+                Intent(activity, DispatchActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
+                    .putExtra(ConnectAppUtils.IS_LAUNCH_FROM_CONNECT, true)
+            activity.startActivity(intent)
         }
 
         private fun registerDialogCleanup(owner: LifecycleOwner) {
