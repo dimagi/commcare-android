@@ -21,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
@@ -93,6 +95,7 @@ public class RecordingFragment extends DialogFragment {
     private boolean audioRecordingServiceBounded = false;
     private AudioRecordingService audioRecordingService;
     private ServiceConnection audioRecordingServiceConnection;
+    private Animation recordingAnimation;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,7 +118,7 @@ public class RecordingFragment extends DialogFragment {
         if (f.exists()) {
             reloadSavedRecording();
         }
-
+        recordingAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.blink);
         return layout;
     }
 
@@ -244,6 +247,7 @@ public class RecordingFragment extends DialogFragment {
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(View.VISIBLE);
         recordingAnimationText.setVisibility(View.VISIBLE);
+        recordingAnimationText.startAnimation(recordingAnimation);
         recordingDuration.setVisibility(View.VISIBLE);
         actionButton.setVisibility(View.INVISIBLE);
         discardRecording.setVisibility(View.INVISIBLE);
@@ -254,6 +258,7 @@ public class RecordingFragment extends DialogFragment {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
         recordingDuration.stop();
         recordingProgress.setVisibility(View.INVISIBLE);
+        recordingAnimationText.clearAnimation();
         recordingAnimationText.setVisibility(View.GONE);
 
         // resume first just in case we were paused
@@ -278,6 +283,7 @@ public class RecordingFragment extends DialogFragment {
 
         audioRecordingService.pauseRecording();
         recordingProgress.setVisibility(View.INVISIBLE);
+        recordingAnimationText.clearAnimation();
         recordingAnimationText.setVisibility(View.GONE);
         enableSave();
         toggleRecording.setBackgroundResource(R.drawable.record_add);
