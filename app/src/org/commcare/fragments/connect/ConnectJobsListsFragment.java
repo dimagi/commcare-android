@@ -58,7 +58,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     ArrayList<ConnectLoginJobListModel> newJobs;
     ArrayList<ConnectLoginJobListModel> finishedJobs;
     private ConnectJobsListViewModel viewModel;
-    private final ConnectAppLaunchController launchController = new ConnectAppLaunchController(this);
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -166,7 +165,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else if (isLearning && job.passedAssessment()) {
             navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
-            launchController.launchApp(appId, isLearning);
+            new ConnectAppLaunchController(this).launchApp(appId, isLearning);
         } else {
             int textId = isLearning
                     ? R.string.connect_downloading_learn

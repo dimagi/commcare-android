@@ -38,7 +38,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
     private boolean showAppLaunch = true;
     private ConnectLearningProgressViewModel viewModel;
-    private final ConnectAppLaunchController launchController = new ConnectAppLaunchController(this);
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -320,7 +319,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getLearnAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            launchController.launchApp(appId, true);
+            new ConnectAppLaunchController(this).launchApp(appId, true);
         } else {
             NavDirections navDirections = ConnectLearningProgressFragmentDirections
                     .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(

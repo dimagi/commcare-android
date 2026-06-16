@@ -55,7 +55,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
     private ConnectDeliveryProgressViewModel viewModel;
-    private final ConnectAppLaunchController launchController = new ConnectAppLaunchController(this);
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -340,7 +339,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getDeliveryAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            launchController.launchApp(appId, false);
+            new ConnectAppLaunchController(this).launchApp(appId, false);
         } else {
             NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
                     .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
