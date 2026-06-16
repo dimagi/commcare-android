@@ -8,7 +8,7 @@ interface LaunchActions {
 
     fun recoverFromSeatFailure()
 
-    fun fallBackToLegacyLaunch()
+    fun promptRetry()
 
     fun reportFailure(reason: String)
 }
@@ -32,7 +32,7 @@ object LaunchOutcomeRouter {
 
             is LaunchOutcome.Retryable -> {
                 actions.reportFailure(outcome.error::class.java.simpleName)
-                actions.fallBackToLegacyLaunch()
+                actions.promptRetry()
             }
         }
     }

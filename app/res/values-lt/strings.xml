@@ -230,6 +230,10 @@
     <string name="connect_app_launch_dialog_seating_message">Įkeliama jūsų programa…</string>
     <string name="connect_app_launch_dialog_signing_in_message">Prisijungiama…</string>
     <string name="connect_app_launch_dialog_syncing_message">Komunikuojama su serveriu…</string>
+    <string name="connect_app_launch_failed_dialog_title">Nepavyko atidaryti programos</string>
+    <string name="connect_app_launch_failed_dialog_message">Atidarant programą įvyko klaida. Ar norite bandyti dar kartą?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Bandyti dar kartą</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Atšaukti</string>
     <string name="cannot_navigate_during_form_save">Negalima palikti puslapio, kol išsaugoma forma</string>
 
     <string name="install_keep_trying">Toliau bandykite, jei ryšys nutrūksta</string>

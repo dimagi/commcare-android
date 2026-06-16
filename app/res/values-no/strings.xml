@@ -220,6 +220,10 @@
     <string name="connect_app_launch_dialog_seating_message">Laster inn appen din…</string>
     <string name="connect_app_launch_dialog_signing_in_message">Logger inn…</string>
     <string name="connect_app_launch_dialog_syncing_message">Kommuniserer med serveren…</string>
+    <string name="connect_app_launch_failed_dialog_title">Kunne ikke åpne appen</string>
+    <string name="connect_app_launch_failed_dialog_message">Noe gikk galt under åpning av appen. Vil du prøve igjen?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Prøv igjen</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Avbryt</string>
     <string name="cannot_navigate_during_form_save">Kan ikke forlate siden mens skjemaet lagres</string>
 
     <string name="install_keep_trying">Fortsett å prøve hvis tilkoblingen blir avbrutt</string>

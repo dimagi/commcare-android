@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import org.commcare.activities.CommCareActivity
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
 import org.commcare.dalvik.R
@@ -15,6 +16,7 @@ import org.commcare.login.LoginPhase
 import org.commcare.login.LoginProgress
 import org.commcare.util.LogTypes
 import org.commcare.views.dialogs.CustomProgressDialog
+import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 
 /** The app a Connect launch is targeting; [isLearning] selects the learn vs delivery app type. */
@@ -128,8 +130,25 @@ class ConnectAppLaunchController
                         activity.finish()
                     }
 
-                    override fun fallBackToLegacyLaunch() {
-                        ConnectAppUtils.launchApp(activity, target.isLearning, target.appId)
+                    override fun promptRetry() {
+                        val host = activity as CommCareActivity<*>
+                        val dialog =
+                            StandardAlertDialog(
+                                activity.getString(R.string.connect_app_launch_failed_dialog_title),
+                                activity.getString(R.string.connect_app_launch_failed_dialog_message),
+                            )
+                        dialog.setPositiveButton(
+                            activity.getString(R.string.connect_app_launch_failed_dialog_retry),
+                        ) { _, _ ->
+                            host.dismissAlertDialog()
+                            launch(target)
+                        }
+                        dialog.setNegativeButton(
+                            activity.getString(R.string.connect_app_launch_failed_dialog_cancel),
+                        ) { _, _ ->
+                            host.dismissAlertDialog()
+                        }
+                        host.showAlertDialog(dialog)
                     }
 
                     override fun reportFailure(reason: String) {

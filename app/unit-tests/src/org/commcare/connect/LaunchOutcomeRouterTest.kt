@@ -29,11 +29,11 @@ class LaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `retryable reports the error name and falls back to the legacy launch`() {
+    fun `retryable reports the error name and prompts retry`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.Retryable(LoginError.BadCredentials), actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("BadCredentials") }
-        verify(exactly = 1) { actions.fallBackToLegacyLaunch() }
+        verify(exactly = 1) { actions.promptRetry() }
     }
 }
