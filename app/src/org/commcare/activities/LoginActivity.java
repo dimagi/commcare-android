@@ -383,10 +383,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         uiController.refreshView();
 
         // if the app is already seated, we can login immediately
-        if (isAppSeated(presetAppId)) {
-            if (loginManagedByPersonalId()) {
-                initiateLoginAttempt(uiController.isRestoreSessionChecked());
-            }
+        if (isAppSeated(presetAppId) && loginManagedByPersonalId()) {
+            initiateLoginAttempt(uiController.isRestoreSessionChecked());
         }
     }
 

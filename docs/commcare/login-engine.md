@@ -78,8 +78,6 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 
 The in-app "View Job Status" button (`HomeScreenBaseActivity.userPressedOpportunityStatus`) launches the seated app's job-status page (`ConnectNavHelper.goToActiveInfoForJob`) on top of the still-live Home rather than finishing Home, so the app session is preserved and backing out of the job-status page returns to Home. Combined with the back-out handling above, this yields: app Home back → the Connect screen the app was launched from; a job-status page reached from Home → back to Home; a job-status page reached directly from the opportunities list (in-`ConnectActivity` fragment navigation) → back to the opportunities list.
 
-No Connect launch surface reaches `LoginActivity` any longer. `ConnectAppUtils.launchApp` has been removed, and with its removal nothing sets the old `IS_LAUNCH_FROM_CONNECT` intent flag — so the flag and its now-unreachable consumers have been deleted: `LoginActivity`'s `appLaunchedFromConnect` auto-login branch and the `DispatchActivity` `CONNECT_MANAGED_LOGIN` / `redirectToConnectHome` back-out path. Backing out of a Connect-launched app now returns to the originating Connect screen via the activity back stack (see above), not via a `DispatchActivity` redirect.
-
 ## Adding a new caller
 
 1. Construct a `LoginController` with a `Context`.
