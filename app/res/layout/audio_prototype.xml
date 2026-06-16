@@ -20,7 +20,33 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:orientation="vertical"
-        android:padding="@dimen/standard_spacer">
+        android:padding="@dimen/standard_spacer"
+        android:background="@drawable/rectangle">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/recording_filename"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_large"
+                android:layout_marginStart="@dimen/standard_spacer"
+                tools:text="filename"
+                android:layout_weight="3"/>
+            <TextView
+                android:id="@+id/playback_duration_main"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="textEnd"
+                android:layout_marginEnd="@dimen/standard_spacer"
+                android:layout_weight="1"
+                tools:text="00:20" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,32 +63,42 @@
                 android:background="@drawable/play_disabled"
                 android:elevation="10dp" />
 
-            <SeekBar
-                android:id="@+id/seekBar"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="65dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/playback_time"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="00:20" />
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/playback_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="/00:30" />
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:paddingVertical="8dp"
+                    android:progressDrawable="@drawable/recording_seekbar_track"/>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/standard_spacer_double"
+                    android:layout_marginEnd="@dimen/standard_spacer_double"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/playback_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        tools:text="00:00" />
+                    <TextView
+                        android:id="@+id/playback_duration"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        tools:text="00:30" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 

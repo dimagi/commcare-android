@@ -46,6 +46,8 @@ public class CommCareAudioWidget extends AudioWidget
 
     private LinearLayout layout;
     private LinearLayout playbackContainer;
+    private TextView recordingFilename;
+    private TextView playbackDurationMain;
     private ImageButton mPlayButton;
     private TextView playbackDuration;
     private TextView playbackTime;
@@ -69,6 +71,8 @@ public class CommCareAudioWidget extends AudioWidget
         layout = (LinearLayout)vi.inflate(R.layout.audio_prototype, null);
 
         playbackContainer = layout.findViewById(R.id.playback_container);
+        playbackDurationMain = layout.findViewById(R.id.playback_duration_main);
+        recordingFilename = layout.findViewById(R.id.recording_filename);
         mPlayButton = layout.findViewById(R.id.play_audio);
         captureButton = layout.findViewById(R.id.capture_button);
         recordingContainer = layout.findViewById(R.id.recording_container);
@@ -252,9 +256,11 @@ public class CommCareAudioWidget extends AudioWidget
         Uri filePath = Uri.parse(sourceFilePath);
         player = MediaPlayer.create(getContext(), filePath);
         player.setOnCompletionListener(mp -> onCompletePlayback());
+        recordingFilename.setText(new File(sourceFilePath).getName());
 
         playbackDuration.setText(String.format(Locale.getDefault(),
-                "/%s", getTimeString(player.getDuration())));
+                "%s", getTimeString(player.getDuration())));
+        playbackDurationMain.setText(playbackDuration.getText());
 
         playbackTime.setText(R.string.playback_start_time);
 
