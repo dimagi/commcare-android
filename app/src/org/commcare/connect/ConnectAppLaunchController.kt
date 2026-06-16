@@ -2,9 +2,6 @@ package org.commcare.connect
 
 import android.app.Activity
 import android.content.Intent
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -12,7 +9,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
-import org.commcare.activities.LoginActivity
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.LoginPhase
@@ -77,13 +73,6 @@ class ConnectAppLaunchController
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
 
-        // Registered at construction (fragment init, the only valid time) so the launched app's Home
-        // result is delivered back here.
-        private val homeResultLauncher: ActivityResultLauncher<Intent> =
-            fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                onHomeResult(result)
-            }
-
         fun launchApp(
             appId: String,
             isLearning: Boolean,
@@ -125,7 +114,7 @@ class ConnectAppLaunchController
                     override fun dismissProgress() = dismissLaunchDialog()
 
                     override fun launchHome() =
-                        homeResultLauncher.launch(
+                        activity.startActivity(
                             HomeScreenBaseActivity
                                 .buildHomeLaunchIntent(activity)
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
@@ -187,27 +176,6 @@ class ConnectAppLaunchController
                 }
             }
             launchDialog = null
-        }
-
-        private fun onHomeResult(result: ActivityResult) {
-            if (!fragment.isAdded) {
-                return
-            }
-
-            // Back-out (RESULT_CANCELED) is a no-op: the app session stays alive and the back stack
-            // returns the worker to the launching screen.
-            if (result.resultCode != Activity.RESULT_OK) {
-                return
-            }
-
-            // Logout (RESULT_OK): route to the login screen via DispatchActivity.
-            val activity = fragment.requireActivity()
-            val intent =
-                Intent(activity, DispatchActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
-                    .putExtra(ConnectAppUtils.IS_LAUNCH_FROM_CONNECT, true)
-            activity.startActivity(intent)
         }
 
         private fun registerDialogCleanup(owner: LifecycleOwner) {
