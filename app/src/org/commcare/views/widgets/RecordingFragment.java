@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
 import static org.commcare.views.widgets.AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY;
 
@@ -189,7 +190,7 @@ public class RecordingFragment extends DialogFragment {
         toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(v -> startRecording());
         instruction.setText(Localization.get("before.overwrite.recording"));
-        recordingDuration.setVisibility(GONE);
+        recordingDuration.setVisibility(INVISIBLE);
         negativeActionButton.setVisibility(GONE);
         enableSave();
         setActionText(negativeActionButton, CLEAR_TEXT_KEY);
