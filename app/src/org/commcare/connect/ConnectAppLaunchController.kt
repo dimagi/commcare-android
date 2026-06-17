@@ -81,6 +81,7 @@ class ConnectAppLaunchController
         private var launchDialog: CustomProgressDialog? = null
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
+        private var failedAttempts = 0
 
         @JvmOverloads
         fun launchApp(
@@ -122,8 +123,12 @@ class ConnectAppLaunchController
             if (!fragment.isAdded) {
                 return
             }
+            if (outcome is LaunchOutcome.Retryable) {
+                failedAttempts++
+            }
             LaunchOutcomeRouter.dispatch(
                 outcome,
+                failedAttempts,
                 object : LaunchActions {
                     override fun dismissProgress() = dismissLaunchDialog()
 
@@ -161,6 +166,21 @@ class ConnectAppLaunchController
                         }
                         dialog.setNegativeButton(
                             activity.getString(R.string.connect_app_launch_failed_dialog_cancel),
+                        ) { _, _ ->
+                            host.dismissAlertDialog()
+                        }
+                        host.showAlertDialog(dialog)
+                    }
+
+                    override fun showPersistentError() {
+                        val host = activity as CommCareActivity<*>
+                        val dialog =
+                            StandardAlertDialog(
+                                activity.getString(R.string.connect_app_launch_failed_dialog_title),
+                                activity.getString(R.string.connect_app_launch_failed_dialog_persistent_error_message),
+                            )
+                        dialog.setPositiveButton(
+                            activity.getString(R.string.connect_app_launch_failed_dialog_ok),
                         ) { _, _ ->
                             host.dismissAlertDialog()
                         }

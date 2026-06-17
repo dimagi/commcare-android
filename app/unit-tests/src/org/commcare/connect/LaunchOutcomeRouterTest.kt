@@ -11,7 +11,7 @@ class LaunchOutcomeRouterTest {
 
     @Test
     fun `launched goes home after dismissing progress`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.Launched, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.Launched, 0, actions)
 
         verifyOrder {
             actions.dismissProgress()
@@ -21,7 +21,7 @@ class LaunchOutcomeRouterTest {
 
     @Test
     fun `app seat failure reports and routes to recovery`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.AppSeatFailed, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.AppSeatFailed, 0, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("AppSeatFailed") }
@@ -29,11 +29,30 @@ class LaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `retryable reports the error name and prompts retry`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.Retryable(LoginError.BadCredentials), actions)
+    fun `retryable below the attempt limit reports the error name and prompts retry`() {
+        LaunchOutcomeRouter.dispatch(
+            LaunchOutcome.Retryable(LoginError.BadCredentials),
+            LaunchOutcomeRouter.MAX_LAUNCH_ATTEMPTS - 1,
+            actions,
+        )
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("BadCredentials") }
         verify(exactly = 1) { actions.promptRetry() }
+        verify(exactly = 0) { actions.showPersistentError() }
+    }
+
+    @Test
+    fun `retryable at the attempt limit shows the persistent error instead of retry`() {
+        LaunchOutcomeRouter.dispatch(
+            LaunchOutcome.Retryable(LoginError.NetworkUnavailable),
+            LaunchOutcomeRouter.MAX_LAUNCH_ATTEMPTS,
+            actions,
+        )
+
+        verify(exactly = 1) { actions.dismissProgress() }
+        verify(exactly = 1) { actions.reportFailure("NetworkUnavailable") }
+        verify(exactly = 1) { actions.showPersistentError() }
+        verify(exactly = 0) { actions.promptRetry() }
     }
 }

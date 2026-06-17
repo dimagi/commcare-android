@@ -481,6 +481,8 @@
     <string name="connect_app_launch_failed_dialog_message">Something went wrong while opening the app. Would you like to try again?</string>
     <string name="connect_app_launch_failed_dialog_retry">Retry</string>
     <string name="connect_app_launch_failed_dialog_cancel">Cancel</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">We couldn\'t open the app after several tries. Please check your connection and try again later.</string>
+    <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>

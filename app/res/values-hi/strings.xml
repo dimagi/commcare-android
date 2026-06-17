@@ -626,5 +626,7 @@ License.
     <string name="connect_app_launch_failed_dialog_message">ऐप खोलते समय कुछ गलत हो गया। क्या आप पुनः प्रयास करना चाहेंगे?</string>
     <string name="connect_app_launch_failed_dialog_retry">पुनः प्रयास करें</string>
     <string name="connect_app_launch_failed_dialog_cancel">रद्द करें</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">कई बार प्रयास करने के बाद भी हम ऐप नहीं खोल सके। कृपया अपना कनेक्शन जांचें और बाद में पुनः प्रयास करें।</string>
+    <string name="connect_app_launch_failed_dialog_ok">ठीक है</string>
     <string name="cannot_navigate_during_form_save">फ़ॉर्म सहेजते समय पृष्ठ नहीं छोड़ सकते</string>
 </resources>
