@@ -33,7 +33,6 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
-
 import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
@@ -562,7 +561,10 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                    personalIdManagedLogin = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+                    personalIdManagedLogin = intent.getBooleanExtra(
+                            PERSONALID_MANAGED_LOGIN,
+                            false
+                    );
                     connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
