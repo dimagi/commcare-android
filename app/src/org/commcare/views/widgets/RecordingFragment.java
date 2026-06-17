@@ -53,6 +53,7 @@ import java.util.Optional;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
 import static org.commcare.views.widgets.AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY;
 
@@ -131,13 +132,13 @@ public class RecordingFragment extends DialogFragment {
 
     private void reloadSavedRecording() {
         savedRecordingExists = true;
-        negativeActionButton.setVisibility(View.VISIBLE);
+        negativeActionButton.setVisibility(VISIBLE);
         setActionText(negativeActionButton, CANCEL_TEXT_KEY);
         negativeActionButton.setOnClickListener(v -> dismiss());
         recordingDuration.setVisibility(GONE);
         recordingContainer.setVisibility(GONE);
-        recordingActionContainer.setVisibility(View.VISIBLE);
-        positiveActionButton.setVisibility(View.VISIBLE);
+        recordingActionContainer.setVisibility(VISIBLE);
+        positiveActionButton.setVisibility(VISIBLE);
         setActionText(positiveActionButton, R.string.confirm_audio_file_deletion);
         positiveActionButton.setOnClickListener(v -> resetRecordingView());
 
@@ -186,7 +187,7 @@ public class RecordingFragment extends DialogFragment {
 
         // reset the file path
         initAudioFile();
-        recordingContainer.setVisibility(View.VISIBLE);
+        recordingContainer.setVisibility(VISIBLE);
         toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(v -> startRecording());
         instruction.setText(Localization.get("before.overwrite.recording"));
@@ -259,23 +260,23 @@ public class RecordingFragment extends DialogFragment {
             toggleRecording.setOnClickListener(v -> stopRecording());
         }
         instruction.setText(Localization.get("during.recording"));
-        recordingProgress.setVisibility(View.VISIBLE);
+        recordingProgress.setVisibility(VISIBLE);
         recordingActionContainer.setVisibility(GONE);
-        recordingAnimationText.setVisibility(View.VISIBLE);
+        recordingAnimationText.setVisibility(VISIBLE);
         recordingAnimationText.startAnimation(recordingAnimation);
-        recordingDuration.setVisibility(View.VISIBLE);
+        recordingDuration.setVisibility(VISIBLE);
         negativeActionButton.setVisibility(GONE);
-        discardRecording.setVisibility(View.INVISIBLE);
+        discardRecording.setVisibility(INVISIBLE);
     }
 
     @SuppressLint("NewApi")
     private void stopRecording() {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
         recordingDuration.stop();
-        recordingProgress.setVisibility(View.INVISIBLE);
-        recordingActionContainer.setVisibility(View.VISIBLE);
+        recordingProgress.setVisibility(INVISIBLE);
+        recordingActionContainer.setVisibility(VISIBLE);
         recordingAnimationText.clearAnimation();
-        recordingAnimationText.setVisibility(View.GONE);
+        recordingAnimationText.setVisibility(GONE);
 
         // resume first just in case we were paused
         if (inPausedState) {
@@ -298,10 +299,10 @@ public class RecordingFragment extends DialogFragment {
         chronoPause();
 
         audioRecordingService.pauseRecording();
-        recordingProgress.setVisibility(View.INVISIBLE);
-        recordingActionContainer.setVisibility(View.VISIBLE);
+        recordingProgress.setVisibility(INVISIBLE);
+        recordingActionContainer.setVisibility(VISIBLE);
         recordingAnimationText.clearAnimation();
-        recordingAnimationText.setVisibility(View.GONE);
+        recordingAnimationText.setVisibility(GONE);
         enableSave();
         toggleRecording.setBackgroundResource(R.drawable.record_add);
         toggleRecording.setOnClickListener(v -> resumeRecording());
@@ -311,8 +312,9 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void enableSave() {
-        discardRecording.setVisibility(savedRecordingExists ? View.VISIBLE : View.INVISIBLE);
-        positiveActionButton.setVisibility(View.VISIBLE);
+        discardRecording.setVisibility(savedRecordingExists ? VISIBLE : INVISIBLE);
+        recordingAnimationText.setVisibility(GONE);
+        positiveActionButton.setVisibility(VISIBLE);
         setActionText(positiveActionButton, SAVE_TEXT_KEY);
         positiveActionButton.setOnClickListener(v -> saveRecording());
     }

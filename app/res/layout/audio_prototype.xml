@@ -113,7 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/delete_audio_file"
-                app:style="@style/NegativeButtonStyle"
+                style="@style/NegativeButtonStyle"
                 app:icon="@drawable/trashcan"
                 app:iconSize="20dp"
                 app:strokeColor="@color/cc_brand_color"/>
