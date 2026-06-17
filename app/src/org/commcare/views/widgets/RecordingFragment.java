@@ -8,7 +8,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RotateDrawable;
 import android.media.AudioManager;
 import android.media.AudioRecordingConfiguration;
 import android.media.MediaPlayer;
@@ -87,6 +90,7 @@ public class RecordingFragment extends DialogFragment {
     private Button positiveActionButton;
     private TextView instruction;
     private ProgressBar recordingProgress;
+    private GradientDrawable recordingProgressDrawable;
 
     private Chronometer recordingDuration;
 
@@ -169,6 +173,8 @@ public class RecordingFragment extends DialogFragment {
         recordingActionContainer = layout.findViewById(R.id.recording_action_container);
         positiveActionButton = layout.findViewById(R.id.positive_action_button);
         recordingProgress = layout.findViewById(R.id.demo_mpc);
+        recordingProgressDrawable = (GradientDrawable)((RotateDrawable) recordingProgress.getIndeterminateDrawable())
+                .getDrawable();
         recordingAnimationText = layout.findViewById(R.id.recording_animation_text);
     }
 
@@ -193,7 +199,7 @@ public class RecordingFragment extends DialogFragment {
         instruction.setText(Localization.get("before.overwrite.recording"));
         recordingDuration.setVisibility(INVISIBLE);
         negativeActionButton.setVisibility(GONE);
-        enableSave();
+        enableSave(false);
         setActionText(negativeActionButton, CLEAR_TEXT_KEY);
     }
 
@@ -261,8 +267,11 @@ public class RecordingFragment extends DialogFragment {
         }
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(VISIBLE);
+        resumeProgressBar();
         recordingActionContainer.setVisibility(GONE);
         recordingAnimationText.setVisibility(VISIBLE);
+        recordingAnimationText.setText(R.string.recording_in_progress);
+        recordingAnimationText.setTextColor(getContext().getColor(R.color.red_incomplete));
         recordingAnimationText.startAnimation(recordingAnimation);
         recordingDuration.setVisibility(VISIBLE);
         negativeActionButton.setVisibility(GONE);
@@ -287,7 +296,7 @@ public class RecordingFragment extends DialogFragment {
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
         instruction.setText(Localization.get("after.recording"));
-        enableSave();
+        enableSave(false);
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopped");
     }
 
@@ -299,21 +308,37 @@ public class RecordingFragment extends DialogFragment {
         chronoPause();
 
         audioRecordingService.pauseRecording();
-        recordingProgress.setVisibility(INVISIBLE);
+        pauseProgressBar();
+
         recordingActionContainer.setVisibility(VISIBLE);
         recordingAnimationText.clearAnimation();
-        recordingAnimationText.setVisibility(GONE);
-        enableSave();
-        toggleRecording.setBackgroundResource(R.drawable.record_add);
+        recordingAnimationText.setText(R.string.recording_paused);
+        recordingAnimationText.setTextColor(getContext().getColor(R.color.grey_light));
+        enableSave(true);
+        toggleRecording.setBackgroundResource(R.drawable.record);
         toggleRecording.setOnClickListener(v -> resumeRecording());
         instruction.setText(Localization.get(pausedByUser ? "pause.recording"
                 : "pause.recording.because.no.sound.captured"));
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording paused");
     }
 
-    private void enableSave() {
+    private void pauseProgressBar() {
+        if (recordingProgressDrawable != null) {
+            recordingProgressDrawable.setColors(new int[]{Color.LTGRAY, Color.LTGRAY});
+        }
+    }
+
+    private void resumeProgressBar() {
+        if (recordingProgressDrawable != null) {
+            recordingProgressDrawable.setColors(new int[]{getContext().getColor(R.color.red_incomplete), Color.WHITE});
+        }
+    }
+
+    private void enableSave(boolean isPaused) {
         discardRecording.setVisibility(savedRecordingExists ? VISIBLE : INVISIBLE);
-        recordingAnimationText.setVisibility(GONE);
+        if (!isPaused) {
+            recordingAnimationText.setVisibility(GONE);
+        }
         positiveActionButton.setVisibility(VISIBLE);
         setActionText(positiveActionButton, SAVE_TEXT_KEY);
         positiveActionButton.setOnClickListener(v -> saveRecording());
