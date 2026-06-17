@@ -29,6 +29,7 @@ import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.MANAGE_PROFILE
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.ConnectivityStatus
@@ -342,7 +343,7 @@ class BaseDrawerController(
 
     private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
-    private fun shouldShowManageProfile(): Boolean = false
+    private fun shouldShowManageProfile(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(MANAGE_PROFILE)
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
