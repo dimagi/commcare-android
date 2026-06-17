@@ -138,6 +138,9 @@ we would like to communicate to QA as part of the release testing
   - Logging out from inside the launched app returns to the screen it was launched from (not the login screen).
   - On the app home, "View Job Status" opens the job's progress page; backing out of it returns to the app home, and backing out of the home returns to the screen the app was launched from.
   - Opening a job's progress page directly from the opportunities list (tapping an in-progress job) returns to the opportunities list on back.
+  - Launching via a job's **Start** button (opportunity intro screen) and right after an **app download/install** finishes both open directly behind the single progress dialog (no login/app-setup flash); backing out of the app home returns to the opportunities list, not the intro/download screen.
+  - Launch several **not-yet-installed** apps back-to-back (open one, back out, open the next, repeat) and confirm none crash.
+  - After repeated launch failures, on the **third consecutive failure** (i.e. after retrying twice) the dialog shows a single **OK** "couldn't open the app after several tries — check your connection and try again later" message instead of another Retry prompt.
 
 - **SMS opportunity-invite app link (Connect):** Tap an invite link of the form `https://connect.dimagi.com/users/invite_redirect/<uuid>` (and the `connect-staging.dimagi.com` equivalent) from an SMS app and verify each corner case:
   - CommCare not installed: navigates to a webpage on Connect (that should redirect user to Play Store) 
