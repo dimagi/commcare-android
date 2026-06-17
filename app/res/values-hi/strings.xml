@@ -638,5 +638,13 @@ License.
     <string name="connect_offline">ऑफ़लाइन</string>
     <string name="connect_back_online">वापस ऑनलाइन</string>
     <string name="connect_never">कभी नहीं</string>
+    <string name="connect_app_launch_dialog_title">ऐप लॉन्च हो रहा है</string>
+    <string name="connect_app_launch_dialog_seating_message">आपका ऐप लोड हो रहा है…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">लॉग इन हो रहा है…</string>
+    <string name="connect_app_launch_dialog_syncing_message">सर्वर से संचार हो रहा है…</string>
+    <string name="connect_app_launch_failed_dialog_title">ऐप नहीं खुल सका</string>
+    <string name="connect_app_launch_failed_dialog_message">ऐप खोलते समय कुछ गलत हो गया। क्या आप पुनः प्रयास करना चाहेंगे?</string>
+    <string name="connect_app_launch_failed_dialog_retry">पुनः प्रयास करें</string>
+    <string name="connect_app_launch_failed_dialog_cancel">रद्द करें</string>
     <string name="cannot_navigate_during_form_save">फ़ॉर्म सहेजते समय पृष्ठ नहीं छोड़ सकते</string>
 </resources>

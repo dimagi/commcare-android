@@ -641,5 +641,13 @@ License.
     <string name="connect_offline">Hors ligne</string>
     <string name="connect_back_online">De retour en ligne</string>
     <string name="connect_never">Jamais</string>
+    <string name="connect_app_launch_dialog_title">Lancement de l\'application</string>
+    <string name="connect_app_launch_dialog_seating_message">Chargement de votre application…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Connexion en cours…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Communication avec le serveur…</string>
+    <string name="connect_app_launch_failed_dialog_title">Impossible d\'ouvrir l\'application</string>
+    <string name="connect_app_launch_failed_dialog_message">Une erreur s\'est produite lors de l\'ouverture de l\'application. Voulez-vous réessayer ?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Réessayer</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Annuler</string>
     <string name="cannot_navigate_during_form_save">Impossible de quitter la page pendant l\'enregistrement du formulaire</string>
 </resources>

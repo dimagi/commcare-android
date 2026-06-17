@@ -7,7 +7,6 @@ import org.commcare.commcaresupportlibrary.CommCareLauncher
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.login.ConnectCredentialResolver
 import org.commcare.tasks.ResourceEngineListener
 import org.commcare.tasks.templates.CommCareTask
 import org.commcare.tasks.templates.CommCareTaskConnector
@@ -60,18 +59,6 @@ object ConnectAppUtils {
                 installUrl,
             )
         }
-    }
-
-    fun shouldOverridePassword(personalIdManagedLogin: Boolean): Boolean =
-        PersonalIdManager.getInstance().isloggedIn() && personalIdManagedLogin
-
-    fun getPasswordOverride(
-        context: Context,
-        username: String,
-        createIfNeeded: Boolean,
-    ): String {
-        val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
-        return ConnectCredentialResolver(context).resolve(seatedAppId, username, createIfNeeded).password
     }
 
     fun updateLastAccessed(
