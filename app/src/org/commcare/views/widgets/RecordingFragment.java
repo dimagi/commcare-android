@@ -200,7 +200,7 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.setVisibility(INVISIBLE);
         negativeActionButton.setVisibility(GONE);
         enableSave(false);
-        setActionText(negativeActionButton, CLEAR_TEXT_KEY);
+        setActionText(positiveActionButton, CLEAR_TEXT_KEY);
     }
 
     private void startRecording() {
