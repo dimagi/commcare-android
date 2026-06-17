@@ -146,6 +146,8 @@
     <color name="connect_sky_blue">#87BDDF</color>
     <color name="connect_aqua">#88BEE1</color>
     <color name="connect_green">#16A085</color>
+    <color name="connect_sync_green">#16A34A</color>
+    <color name="connect_sync_green_light">#D0EDDB</color>
     <color name="connect_light_green">#E6F5E5</color>
     <color name="connect_red">#EA6944</color>
     <color name="connect_light_grey_transparent">#1AD9D9D9</color>

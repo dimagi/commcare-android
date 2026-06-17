@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/connect_info_card_min_height"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/info_card_top_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/connect_grey"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@id/info_card_arrow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Small top text" />
+
+    <ImageView
+        android:id="@+id/info_card_arrow"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_connect_arrow_diagonal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/info_card_center_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textColor="@color/connect_dark_blue_color"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@id/info_card_bottom_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Strong center" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/info_card_sync_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="6dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/connect_sync_green_light"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toTopOf="@id/info_card_bottom_text"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_connect_sync" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/info_card_bottom_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/connect_text_color"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Medium bottom text" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
