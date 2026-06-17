@@ -3,8 +3,6 @@
     android:height="40dp"
     android:viewportWidth="40"
     android:viewportHeight="40">
-    <!-- Glyph only; the circular background + shadow are provided by the enclosing CardView.
-         Recentred to (20,20) within the 40x40 frame. -->
     <group
         android:pivotX="20"
         android:pivotY="16"
