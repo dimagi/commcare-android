@@ -15,9 +15,10 @@ import org.commcare.dalvik.databinding.ViewConnectInfoCardBinding
  * Reusable half-width Connect info card used in Connect pages
  *
  * The card stacks small [topText], a strong [centerText], and medium [bottomText]. The center
- * slot also holds a sync icon ([showSyncIcon]) that shares the same space as [centerText], so a
- * caller chooses whether to show the icon and may pass a blank [centerText] to hide it. Setting
- * [navigable] shows a diagonal arrow in the top-right corner and makes the card clickable.
+ * slot also holds a sync icon ([showSyncIcon]); when both the icon and [centerText] are shown the
+ * text sits to the right of the icon, and either may be hidden independently (pass a blank
+ * [centerText] to hide the text). Setting [navigable] shows a diagonal arrow in the top-right
+ * corner and makes the card clickable.
  */
 class ConnectInfoCard
     @JvmOverloads
