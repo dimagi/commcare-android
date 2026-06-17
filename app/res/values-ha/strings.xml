@@ -616,5 +616,13 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_back_online">An Sake Haɗawa</string>
     <string name="connect_never">Ba taɓa</string>
+    <string name="connect_app_launch_dialog_title">Ana ƙaddamar da manhaja</string>
+    <string name="connect_app_launch_dialog_seating_message">Ana loda manhajarka…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Ana shiga…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Ana sadarwa da sabar…</string>
+    <string name="connect_app_launch_failed_dialog_title">An kasa buɗe manhajar</string>
+    <string name="connect_app_launch_failed_dialog_message">Wani abu ya ɓaci yayin buɗe manhajar. Kana son sake gwadawa?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Sake gwadawa</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Soke</string>
     <string name="cannot_navigate_during_form_save">Ba za a iya barin shafin yayin ajiye fom ba</string>
 </resources>

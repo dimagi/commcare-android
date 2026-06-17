@@ -20,36 +20,20 @@ class LaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `token denied delegates to the token handler`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.TokenDenied, actions)
-
-        verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.handleTokenDenied() }
-    }
-
-    @Test
-    fun `app seat failure routes to recovery`() {
+    fun `app seat failure reports and routes to recovery`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.AppSeatFailed, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
+        verify(exactly = 1) { actions.reportFailure("AppSeatFailed") }
         verify(exactly = 1) { actions.recoverFromSeatFailure() }
     }
 
     @Test
-    fun `credential resolution failure reports and falls back to the legacy launch`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.CredentialResolutionFailed, actions)
-
-        verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.reportFailure("CredentialResolutionFailed") }
-        verify(exactly = 1) { actions.fallBackToLegacyLaunch() }
-    }
-
-    @Test
-    fun `retryable reports the error name and falls back to the legacy launch`() {
+    fun `retryable reports the error name and prompts retry`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.Retryable(LoginError.BadCredentials), actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
         verify(exactly = 1) { actions.reportFailure("BadCredentials") }
-        verify(exactly = 1) { actions.fallBackToLegacyLaunch() }
+        verify(exactly = 1) { actions.promptRetry() }
     }
 }

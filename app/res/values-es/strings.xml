@@ -622,5 +622,13 @@
     <string name="connect_offline">Sin conexión</string>
     <string name="connect_back_online">De vuelta en línea</string>
     <string name="connect_never">Nunca</string>
+    <string name="connect_app_launch_dialog_title">Iniciando la aplicación</string>
+    <string name="connect_app_launch_dialog_seating_message">Cargando tu aplicación…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Iniciando sesión…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Comunicando con el servidor…</string>
+    <string name="connect_app_launch_failed_dialog_title">No se pudo abrir la aplicación</string>
+    <string name="connect_app_launch_failed_dialog_message">Algo salió mal al abrir la aplicación. ¿Quieres volver a intentarlo?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Reintentar</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Cancelar</string>
     <string name="cannot_navigate_during_form_save">No se puede salir de la página mientras se guarda el formulario</string>
 </resources>

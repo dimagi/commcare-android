@@ -473,6 +473,14 @@
     <string name="connect_last_synced">Last synced: %s</string>
     <string name="connect_sync_successful">Last synced: Just Now</string>
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
+    <string name="connect_app_launch_dialog_title">Launching App</string>
+    <string name="connect_app_launch_dialog_seating_message">Loading your app…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Logging in…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Communicating with server…</string>
+    <string name="connect_app_launch_failed_dialog_title">Couldn\'t open the app</string>
+    <string name="connect_app_launch_failed_dialog_message">Something went wrong while opening the app. Would you like to try again?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Retry</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Cancel</string>
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>
