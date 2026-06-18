@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RotateDrawable;
@@ -104,6 +103,9 @@ public class RecordingFragment extends DialogFragment {
     private AudioRecordingService audioRecordingService;
     private ServiceConnection audioRecordingServiceConnection;
     private Animation recordingAnimation;
+    private int redColor;
+    private int lightGrayColor;
+    private int whiteColor;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -127,6 +129,10 @@ public class RecordingFragment extends DialogFragment {
             reloadSavedRecording();
         }
         recordingAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.blink);
+        redColor = getContext().getColor(R.color.red_incomplete);
+        lightGrayColor = getContext().getColor(R.color.grey_light);
+        whiteColor = getContext().getColor(R.color.white);
+
         return layout;
     }
 
@@ -318,22 +324,22 @@ public class RecordingFragment extends DialogFragment {
 
     private void pauseRecordingIndicators() {
         if (recordingProgressDrawable != null) {
-            recordingProgressDrawable.setColors(new int[]{Color.LTGRAY, Color.LTGRAY});
+            recordingProgressDrawable.setColors(new int[]{lightGrayColor, lightGrayColor});
         }
 
         recordingAnimationText.clearAnimation();
         recordingAnimationText.setText(R.string.recording_paused);
-        recordingAnimationText.setTextColor(getContext().getColor(R.color.grey_light));
+        recordingAnimationText.setTextColor(lightGrayColor);
     }
 
     private void resumeRecordingIndicators() {
         if (recordingProgressDrawable != null) {
-            recordingProgressDrawable.setColors(new int[]{getContext().getColor(R.color.red_incomplete), Color.WHITE});
+            recordingProgressDrawable.setColors(new int[]{redColor, whiteColor});
         }
 
         recordingAnimationText.setVisibility(VISIBLE);
         recordingAnimationText.setText(R.string.recording_in_progress);
-        recordingAnimationText.setTextColor(getContext().getColor(R.color.red_incomplete));
+        recordingAnimationText.setTextColor(redColor);
         recordingAnimationText.startAnimation(recordingAnimation);
     }
 
