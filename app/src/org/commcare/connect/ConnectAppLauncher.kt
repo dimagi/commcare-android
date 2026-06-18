@@ -41,8 +41,9 @@ sealed class LaunchOutcome {
 }
 
 /**
- * Whether the active session is genuinely logged into [appId] — i.e. the app is seated and the
- * session's key record belongs to it, not a stale session left over from a previously launched app.
+ * Whether the active session is genuinely the current user logged into [appId] — i.e. the app is
+ * seated and the session's key record belongs to that user, not a stale session left over from a
+ * previously launched app or a different user.
  */
 private fun isSessionLoggedIntoApp(appId: String): Boolean {
     if (!CommCareApplication.isSessionActive()) {
@@ -53,10 +54,16 @@ private fun isSessionLoggedIntoApp(appId: String): Boolean {
         return false
     }
     val sessionUuid = instance.session.userKeyRecordUUID ?: return false
+    val currentUsername =
+        ConnectUserDatabaseUtil
+            .getUser(instance)
+            ?.userId
+            ?.trim()
+            ?.lowercase(Locale.ROOT) ?: return false
     return instance
         .getAppStorage(UserKeyRecord::class.java)
         .getRecordsForValue(UserKeyRecord.META_SANDBOX_ID, sessionUuid)
-        .isNotEmpty()
+        .any { it.username == currentUsername }
 }
 
 /**
