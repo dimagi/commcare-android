@@ -12,8 +12,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.AudioRecordingConfiguration;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -94,7 +92,6 @@ public class RecordingFragment extends DialogFragment {
     private Chronometer recordingDuration;
 
     private RecordingCompletionListener listener;
-    private MediaPlayer player;
     private long mLastStopTime;
     private boolean inPausedState = false;
     private boolean savedRecordingExists = false;
@@ -208,10 +205,6 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void resetRecordingView() {
-        if (player != null) {
-            resetAudioPlayer();
-        }
-
         // reset the file path
         initAudioFile();
         recordingContainer.setVisibility(VISIBLE);
@@ -413,14 +406,6 @@ public class RecordingFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         enableScreenRotation((AppCompatActivity) getContext());
-
-        if (player != null) {
-            try {
-                player.release();
-            } catch (IllegalStateException e) {
-                // Do nothing because player wasn't recording
-            }
-        }
     }
 
     private static void disableScreenRotation(AppCompatActivity context) {
@@ -435,38 +420,6 @@ public class RecordingFragment extends DialogFragment {
 
     private static void enableScreenRotation(AppCompatActivity context) {
         context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
-
-    private void playAudio() {
-        Uri myPath = Uri.parse(fileName);
-        player = MediaPlayer.create(getContext(), myPath);
-        player.setOnCompletionListener(mp -> resetAudioPlayer());
-        recordingDuration.setBase(SystemClock.elapsedRealtime());
-        recordingDuration.start();
-        player.start();
-        toggleRecording.setBackgroundResource(R.drawable.pause);
-        toggleRecording.setOnClickListener(v -> pauseAudioPlayer());
-    }
-
-    private void pauseAudioPlayer() {
-        player.pause();
-        chronoPause();
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> resumeAudioPlayer());
-    }
-
-    private void resumeAudioPlayer() {
-        chronoResume();
-        player.start();
-        toggleRecording.setBackgroundResource(R.drawable.pause);
-        toggleRecording.setOnClickListener(v -> pauseAudioPlayer());
-    }
-
-    private void resetAudioPlayer() {
-        player.release();
-        recordingDuration.stop();
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> playAudio());
     }
 
     private void chronoPause() {
