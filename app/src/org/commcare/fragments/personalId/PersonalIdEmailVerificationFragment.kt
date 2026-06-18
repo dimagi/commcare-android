@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailVerificationBinding
     private lateinit var activity: Activity
-    private lateinit var emailOtpTracker: EmailOtpAttemptTracker
+    private lateinit var emailOtpTracker: AttemptTracker
 
     /**
      * Activity-scoped session data populated by upstream PersonalID fragments
@@ -81,7 +81,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         enteredEmail = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).email
         workflow = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).workflow
         emailOtpTracker =
-            EmailOtpAttemptTracker(
+            AttemptTracker(
                 initialRequestCount =
                     PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).emailOtpRequestCount,
             )

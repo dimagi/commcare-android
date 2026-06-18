@@ -1,12 +1,12 @@
 package org.commcare.fragments.personalId
 
 /**
- * Counters for a email-OTP collection session
+ * Counters for an OTP collection session
  *
- *  - [requestCount]: total email OTP send/request calls this session.
- *  - [failedAttempts]: absolute number of failed email OTP verifications this session.
+ *  - [requestCount]: total OTP send/request calls this session.
+ *  - [failedAttempts]: absolute number of failed OTP verifications this session.
  */
-class EmailOtpAttemptTracker(
+class AttemptTracker(
     initialRequestCount: Int = 0,
     initialFailedAttempts: Int = 0,
 ) {
@@ -15,12 +15,12 @@ class EmailOtpAttemptTracker(
     var failedAttempts: Int = initialFailedAttempts
         private set
 
-    /** Records one email OTP send/request, regardless of outcome. */
+    /** Records one OTP send/request, regardless of outcome. */
     fun recordRequest() {
         requestCount++
     }
 
-    /** Records one failed email OTP verification. */
+    /** Records one failed OTP verification. */
     fun recordFailedVerification() {
         failedAttempts++
     }

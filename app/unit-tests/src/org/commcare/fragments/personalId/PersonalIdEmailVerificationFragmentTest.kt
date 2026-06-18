@@ -73,6 +73,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
             Bundle().apply {
                 putString("email", TEST_EMAIL)
                 putSerializable("workflow", EmailWorkFlow.REGISTRATION)
+                putInt("emailOtpRequestCount", 0)
             }
         activity.runOnUiThread {
             navController.setGraph(R.navigation.nav_graph_personalid)

@@ -46,7 +46,6 @@ import org.joda.time.DateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.commcare.utils.OtpAnalyticsMapper.getEventType;
 import static org.commcare.utils.OtpManager.SMS_METHOD_FIREBASE;
 import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
 
@@ -124,6 +123,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
+                recordFailedVerificationAttempt();
                 reportOtpAnalytics(
                         AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                         OtpAnalyticsMapper.reasonFrom(errorType));
@@ -157,6 +157,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             ) {
                 if (otpCallback == null) return;
 
+                recordFailedVerificationAttempt();
                 reportOtpAnalytics(
                         AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                         OtpAnalyticsMapper.reasonFrom(failureCode));
@@ -350,16 +351,23 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         }
     }
 
+    private void recordFailedVerificationAttempt() {
+        if (currentOtpOp == OtpAnalyticsMapper.OtpOp.VERIFY_PHONE) {
+            personalIdSessionData.setOtpVerificationFailedAttempts(
+                    personalIdSessionData.getOtpVerificationFailedAttempts() + 1);
+        }
+    }
+
     private void reportOtpAnalytics(String outcome, @Nullable String reason) {
-      String eventType = getEventType(currentOtpOp);
-        if (eventType == null) return;
         String method = OtpAnalyticsMapper.methodFromSmsMethod(lastOtpMethod);
-        FirebaseAnalyticsUtil.reportPhoneOtpEvent(
-                eventType,
+        FirebaseAnalyticsUtil.reportOtpEvent(
+                currentOtpOp,
                 outcome,
                 method,
                 reason,
-                personalIdSessionData.getOtpAttempts());
+                personalIdSessionData.getOtpAttempts(),
+                personalIdSessionData.getOtpVerificationFailedAttempts(),
+                OtpAnalyticsMapper.workflowParam(EmailWorkFlow.REGISTRATION));
     }
 
     private void requestOtp() {
