@@ -30,6 +30,7 @@ public class ConnectConstants {
     public static final String SHOW_LAUNCH_BUTTON = "show_launch_button";
     public static final String OPPORTUNITY_ID = "opportunity_id";
     public static final String OPPORTUNITY_UUID = "opportunity_uuid";
+    public static final String FROM_SMS_INVITE_LINK = "from_sms_invite_link";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_UUID = "payment_uuid";
     public static final String NOTIFICATION_KEY = "key";

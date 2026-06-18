@@ -338,6 +338,7 @@
     <string name="connect_learn_not_started">Você não completou nenhuma lição.\nComece a aprender para ganhar seu certificado.</string>
     <string name="connect_learn_finished">Você ganhou um certificado para este trabalho e está qualificado para reivindicar o emprego e começar a prestar cuidados.\nSua pontuação: %d\nPontuação de aprovação: %d</string>
     <string name="connect_fetch_learning_progress_error">Falha ao procurar o progresso da aprendizagem</string>
+    <string name="connect_sms_invite_opportunity_not_found">Oportunidade não encontrada</string>
     <string name="connect_learn_need_assessment">Conclua a avaliação para terminar o treinamento.</string>
     <string name="connect_learn_failed">Desculpe, você não ganhou uma pontuação de aprovação em sua avaliação. Tente novamente.\nSua pontuação: %d\nPontuação de aprovação: %d</string>
     <string name="connect_learn_complete">Concluída</string>
@@ -626,5 +627,13 @@
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">De volta online</string>
     <string name="connect_never">Nunca</string>
+    <string name="connect_app_launch_dialog_title">Iniciando o aplicativo</string>
+    <string name="connect_app_launch_dialog_seating_message">Carregando seu aplicativo…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Entrando…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Comunicando com o servidor…</string>
+    <string name="connect_app_launch_failed_dialog_title">Não foi possível abrir o aplicativo</string>
+    <string name="connect_app_launch_failed_dialog_message">Ocorreu um erro ao abrir o aplicativo. Deseja tentar novamente?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Tentar novamente</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Cancelar</string>
     <string name="cannot_navigate_during_form_save">Não é possível sair da página enquanto o formulário é salvo</string>
 </resources>

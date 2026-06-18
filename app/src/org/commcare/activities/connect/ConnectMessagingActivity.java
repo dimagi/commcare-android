@@ -149,6 +149,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     } else {
                         handleChannelForValidity(channelId);
                     }
+                } else {
+                    finish();
                 }
             });
         }

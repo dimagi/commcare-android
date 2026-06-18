@@ -326,6 +326,7 @@
     <string name="connect_learn_not_started">ዝኾነ ትምህርቲ ኣይወዳእካን።\nሰርቲፊኬትካ ንምርካብ ክትመሃር ጀምር።</string>
     <string name="connect_learn_finished">ነዚ ስራሕ ምስክር ወረቐት ረኺብካ ነቲ ስራሕ ክትሓትትን ክንክን ከተቕርብ ክትጅምርን ብቑዕ ኢኻ።\nነጥብኻ: %d\nናይ ምሕላፍ ነጥቢ: %d</string>
     <string name="connect_fetch_learning_progress_error">ነቲ ናይ ትምህርቲ ምዕባለ ከምጽእ ኣይከኣለን</string>
+    <string name="connect_sms_invite_opportunity_not_found">ዕድል ኣይተረኽበን</string>
     <string name="connect_learn_need_assessment">ስልጠና ንምውዳእ ነቲ ገምጋም ወድእ።</string>
     <string name="connect_learn_failed">ይቕሬታ ኣብ ገምጋምካ ናይ ምሕላፍ ነጥቢ ኣይረኸብካን። በጃኻ ደጊምካ ፈትን።\nነጥብኻ: %d\nነጥቢ ምሕላፍ: %d</string>
     <string name="connect_learn_complete">ውዱእ</string>
@@ -609,5 +610,13 @@
     <string name="connect_offline">ኦፍላይን</string>
     <string name="connect_back_online">ናብ ኦንላይን ተመሊሱ</string>
     <string name="connect_never">ፈጺሙ</string>
+    <string name="connect_app_launch_dialog_title">መተግበሪ ይኽፈት ኣሎ</string>
+    <string name="connect_app_launch_dialog_seating_message">መተግበሪኹም ይጽዕን ኣሎ…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">ይኣቱ ኣሎ…</string>
+    <string name="connect_app_launch_dialog_syncing_message">ምስ ሰርቨር ይራኸብ ኣሎ…</string>
+    <string name="connect_app_launch_failed_dialog_title">መተግበሪ ክኽፈት ኣይከኣለን</string>
+    <string name="connect_app_launch_failed_dialog_message">መተግበሪ ኣብ ምኽፋት ጌጋ ኣጋጢሙ። ብኽብረትኩም እንደገና ክትፍትኑ ትደልዩ ዶ?</string>
+    <string name="connect_app_launch_failed_dialog_retry">እንደገና ፈትን</string>
+    <string name="connect_app_launch_failed_dialog_cancel">ሰርዝ</string>
     <string name="cannot_navigate_during_form_save">ቅጥዒ እንዳተዓቀበ ካብ ገጽ ክትወጽእ ኣይትኽእልን</string>
 </resources>

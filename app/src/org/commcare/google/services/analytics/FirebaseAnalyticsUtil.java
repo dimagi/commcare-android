@@ -604,6 +604,17 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_JOBS, b);
     }
 
+    public static void reportExternalAppLaunchEvent(String launchType, boolean success, String error) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.TYPE, launchType);
+        bundle.putBoolean(CCAnalyticsParam.SUCCESS, success);
+        if(!TextUtils.isEmpty(error)) {
+            bundle.putString(CCAnalyticsParam.ERROR, error);
+        }
+
+        reportEvent(CCAnalyticsEvent.EXTERNAL_APP_LAUNCH, bundle);
+    }
+
     public static void reportCccApiStartLearning(boolean success) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
