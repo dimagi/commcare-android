@@ -263,9 +263,9 @@ public class CommCareAudioWidget extends AudioWidget
         player.setOnCompletionListener(mp -> onCompletePlayback());
         recordingFilename.setText(new File(sourceFilePath).getName());
 
-        playbackDuration.setText(String.format(Locale.getDefault(),
-                "%s", getTimeString(player.getDuration())));
-        playbackDurationMain.setText(playbackDuration.getText());
+        String duration = getTimeString(player.getDuration());
+        playbackDuration.setText(duration);
+        playbackDurationMain.setText(duration);
 
         playbackTime.setText(R.string.playback_start_time);
 
