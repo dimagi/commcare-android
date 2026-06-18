@@ -44,6 +44,7 @@ import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -190,7 +191,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void setActionText(Button actionButton, int stringResourceId) {
-        actionButton.setText(getString(stringResourceId));
+        actionButton.setText(StringUtils.getStringRobust(getContext(), stringResourceId));
     }
 
     private void resetRecordingView() {
