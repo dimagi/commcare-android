@@ -10,8 +10,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.RotateDrawable;
 import android.media.AudioManager;
 import android.media.AudioRecordingConfiguration;
 import android.media.MediaPlayer;
@@ -90,8 +88,6 @@ public class RecordingFragment extends DialogFragment {
     private Button positiveActionButton;
     private TextView instruction;
     private ProgressBar recordingProgress;
-    private GradientDrawable recordingProgressDrawable;
-
     private Chronometer recordingDuration;
 
     private RecordingCompletionListener listener;
@@ -106,9 +102,10 @@ public class RecordingFragment extends DialogFragment {
     private Animation recordingAnimation;
     private int redColor;
     private int lightGrayColor;
-    private int whiteColor;
     private Drawable recordingDrawable;
     private Drawable pausedDrawable;
+    private Drawable progressBarDrawable;
+    private Drawable progressBarPausedDrawable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -134,7 +131,9 @@ public class RecordingFragment extends DialogFragment {
         recordingAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.blink);
         redColor = getContext().getColor(R.color.red_incomplete);
         lightGrayColor = getContext().getColor(R.color.grey_light);
-        whiteColor = getContext().getColor(R.color.white);
+
+        progressBarDrawable = getContext().getDrawable(R.drawable.progress_bar);
+        progressBarPausedDrawable = getContext().getDrawable(R.drawable.progress_bar_paused);
         pausedDrawable = getContext().getDrawable(R.drawable.recording_paused);
         recordingDrawable = getContext().getDrawable(R.drawable.recording_dot);
         return layout;
@@ -183,8 +182,6 @@ public class RecordingFragment extends DialogFragment {
         recordingActionContainer = layout.findViewById(R.id.recording_action_container);
         positiveActionButton = layout.findViewById(R.id.positive_action_button);
         recordingProgress = layout.findViewById(R.id.demo_mpc);
-        recordingProgressDrawable = (GradientDrawable)((RotateDrawable) recordingProgress.getIndeterminateDrawable())
-                .getDrawable();
         recordingAnimationText = layout.findViewById(R.id.recording_animation_text);
     }
 
@@ -327,9 +324,8 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void pauseRecordingIndicators() {
-        if (recordingProgressDrawable != null) {
-            recordingProgressDrawable.setColors(new int[]{lightGrayColor, lightGrayColor});
-        }
+        progressBarPausedDrawable.setBounds(0,0, recordingProgress.getWidth(), recordingProgress.getHeight());
+        recordingProgress.setIndeterminateDrawable(progressBarPausedDrawable);
 
         recordingAnimationText.clearAnimation();
         recordingAnimationText.setText(R.string.recording_paused);
@@ -338,9 +334,8 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void resumeRecordingIndicators() {
-        if (recordingProgressDrawable != null) {
-            recordingProgressDrawable.setColors(new int[]{redColor, whiteColor});
-        }
+        progressBarDrawable.setBounds(0,0, recordingProgress.getWidth(), recordingProgress.getHeight());
+        recordingProgress.setIndeterminateDrawable(progressBarDrawable);
 
         recordingAnimationText.setVisibility(VISIBLE);
         recordingAnimationText.setText(R.string.recording_in_progress);
