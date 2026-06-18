@@ -329,6 +329,7 @@ License.
     <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
     <string name="connect_learn_finished">Vous avez obtenu un certificat pour cet emploi et êtes éligible pour postuler à l\'emploi et commencer à prodiguer des soins.\nVotre score: %d\nScore de réussite: %d</string>
     <string name="connect_fetch_learning_progress_error">Échec de la récupération de la progression de l\'apprentissage</string>
+    <string name="connect_sms_invite_opportunity_not_found">Opportunité introuvable</string>
     <string name="connect_learn_need_assessment">Complétez l\'évaluation pour terminer la formation.</string>
     <string name="connect_learn_failed">Désolé, vous n\'avez pas obtenu la note de passage à votre évaluation. Veuillez réessayer.\nVotre note: %d\nNote de passage: %d</string>
     <string name="connect_learn_complete">Complet</string>
@@ -620,5 +621,13 @@ License.
     <string name="connect_offline">Hors ligne</string>
     <string name="connect_back_online">De retour en ligne</string>
     <string name="connect_never">Jamais</string>
+    <string name="connect_app_launch_dialog_title">Lancement de l\'application</string>
+    <string name="connect_app_launch_dialog_seating_message">Chargement de votre application…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Connexion en cours…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Communication avec le serveur…</string>
+    <string name="connect_app_launch_failed_dialog_title">Impossible d\'ouvrir l\'application</string>
+    <string name="connect_app_launch_failed_dialog_message">Une erreur s\'est produite lors de l\'ouverture de l\'application. Voulez-vous réessayer ?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Réessayer</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Annuler</string>
     <string name="cannot_navigate_during_form_save">Impossible de quitter la page pendant l\'enregistrement du formulaire</string>
 </resources>

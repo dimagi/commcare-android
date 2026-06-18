@@ -1,8 +1,11 @@
 package org.commcare.navdrawer
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
@@ -17,9 +20,14 @@ import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private var drawerController: BaseDrawerController? = null
+    private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        takePhotoLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                drawerController?.handlePhotoResult(result)
+            }
         checkForDrawerSetUp()
         if (drawerController != null) {
             NotificationBroadcastHelper.registerForNotifications(this, this) {
@@ -58,6 +66,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 this,
                 drawerRefs,
                 shouldHighlightSeatedApp(),
+                takePhotoLauncher,
             ) { navItemType: NavItemType, recordId: String? ->
                 handleDrawerItemClick(navItemType, recordId)
             }
@@ -168,7 +177,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         drawerController?.openDrawer()
     }
 
-    protected fun shouldShowDrawerAfterCheck(): Boolean {
+    protected fun shouldShowDrawerAfterCheck(requirePersonalIDLogin: Boolean): Boolean {
         if (drawerShownBefore()) {
             return true
         }
@@ -176,7 +185,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val personalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(this)
         val showDrawer =
-            personalIdManager.isloggedIn() &&
+            (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&
                 personalIdManager.checkDeviceCompability()
 
         if (showDrawer) {

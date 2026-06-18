@@ -167,6 +167,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_learn_not_started">Ba ka kammala wani darussa ba.\nKa fara koyo don samun takardar shaidarka.</string>
     <string name="connect_learn_finished">Kun sami takardar shaidar wannan aikin kuma kun cancanci neman aikin kuma ku fara bayar da kulawa.\nMaki: %d\nMaki na wucewa: %d</string>
     <string name="connect_fetch_learning_progress_error">An kasa samun ci gaban koyo</string>
+    <string name="connect_sms_invite_opportunity_not_found">Ba a sami damar ba</string>
     <string name="connect_learn_need_assessment">Kammala kimantawa har zuwa kammala horo.</string>
     <string name="connect_learn_failed">Yi haƙuri, ba ka sami maki mai yawa a kimantawarka ba. Da fatan za a sake gwadawa.\nMaki naka: %d\nMaki mai yawa: %d</string>
     <string name="connect_learn_complete">Kammalawa</string>
@@ -615,5 +616,13 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_back_online">An Sake Haɗawa</string>
     <string name="connect_never">Ba taɓa</string>
+    <string name="connect_app_launch_dialog_title">Ana ƙaddamar da manhaja</string>
+    <string name="connect_app_launch_dialog_seating_message">Ana loda manhajarka…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Ana shiga…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Ana sadarwa da sabar…</string>
+    <string name="connect_app_launch_failed_dialog_title">An kasa buɗe manhajar</string>
+    <string name="connect_app_launch_failed_dialog_message">Wani abu ya ɓaci yayin buɗe manhajar. Kana son sake gwadawa?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Sake gwadawa</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Soke</string>
     <string name="cannot_navigate_during_form_save">Ba za a iya barin shafin yayin ajiye fom ba</string>
 </resources>

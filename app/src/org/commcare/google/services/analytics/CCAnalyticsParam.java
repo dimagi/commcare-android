@@ -23,6 +23,9 @@ public class CCAnalyticsParam {
     static final String MODE = "mode";
     public static final String REASON = "reason";
     static final String RESULT = "result";
+    static final String TYPE = "type";
+    static final String SUCCESS = "success";
+    static final String ERROR = "error";
     static final String UI_STATE = "uite_state";
     public static final String USERNAME = "username";
     static final String FORM_ID = "form_id";

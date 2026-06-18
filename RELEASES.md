@@ -12,14 +12,19 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- Deprecated PersonalID support for devices on Android OS less than Android 9.
 - [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
 - Reduced frequency of required biometric or pin unlocks for PersonalID and Connect  
 - [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
+- [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
+- Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 
 #### Important Bug Fixes
 
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
+- Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
+- Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
 
 #### Internal Release Notes
 
@@ -125,6 +130,23 @@ we would like to communicate to QA as part of the release testing
   - Open the Connect Delivery Progress page while online with a working network and let it sync. Verify the progress, payment list, payment-confirmation tile, and "Last updated" timestamp all populate as before, and that the green "Sync successful" bar flashes briefly at the top.
   - Background the app, turn on airplane mode, and reopen the Delivery Progress page. Verify cached delivery data (progress, deliveries, payments, "Last updated" timestamp) appears immediately without waiting for a network call, and that the orange "Offline" indicator with the previous sync time is shown at the top.
   - Confirm the full-screen blocking loading dialog that used to appear on refresh no longer appears — the inline small progress spinner is the only loading indicator.
+- **Connect app launch:**
+  - From the Connect opportunities list, launch an installed learn or delivery app: confirm it opens to the app home behind a single progress dialog (no login/app-setup screens flashing through), and that pressing back from the app home returns to the screen it was launched from (here, the opportunities list).
+  - Launching from the Delivery Progress or Learning Progress page (not just the opportunities list) also opens the app directly with the single progress dialog (no login/app-setup flash) and lands on the app home; pressing back from the app home returns to that same page.
+  - The app session stays alive on back-out: immediately relaunching the same app reopens it to the home without re-running the login/sync (no progress dialog flash).
+  - With networking off (or any retryable failure), launching shows a "Couldn't open the app" Retry/Cancel dialog — Retry re-attempts the launch, Cancel dismisses and leaves you on the launching screen. It should not flash the login screen, hang on the dialog, or crash.
+  - Logging out from inside the launched app returns to the screen it was launched from (not the login screen).
+  - On the app home, "View Job Status" opens the job's progress page; backing out of it returns to the app home, and backing out of the home returns to the screen the app was launched from.
+  - Opening a job's progress page directly from the opportunities list (tapping an in-progress job) returns to the opportunities list on back.
+
+- **SMS opportunity-invite app link (Connect):** Tap an invite link of the form `https://connect.dimagi.com/users/invite_redirect/<uuid>` (and the `connect-staging.dimagi.com` equivalent) from an SMS app and verify each corner case:
+  - CommCare not installed: navigates to a webpage on Connect (that should redirect user to Play Store) 
+  - PersonalID not yet set up: app opens normally to the standard CommCare flow, the link is dropped silently, and re-launching the app does not replay it.
+  - PersonalID logged in, valid UUID, online: lands on the opportunity summary page for that opportunity after the unlock/biometric prompt.
+  - PersonalID logged in, unknown/expired UUID: "Opportunity not found" toast shows and the user lands on the Connect jobs list (no stuck loading dialog).
+  - PersonalID logged in, offline / network failure: same "Opportunity not found" toast and jobs-list landing — no retry prompt, no stuck loading dialog.
+  - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
+  - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
 
 
 
