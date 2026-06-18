@@ -33,6 +33,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
@@ -135,6 +137,8 @@ public class RecordingFragment extends DialogFragment {
         File f = new File(fileName);
         if (f.exists()) {
             reloadSavedRecording();
+        } else if (savedInstanceState == null) {
+            startRecording();
         }
     }
 
