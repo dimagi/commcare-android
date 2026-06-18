@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RotateDrawable;
 import android.media.AudioManager;
@@ -106,6 +107,8 @@ public class RecordingFragment extends DialogFragment {
     private int redColor;
     private int lightGrayColor;
     private int whiteColor;
+    private Drawable recordingDrawable;
+    private Drawable pausedDrawable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -132,7 +135,8 @@ public class RecordingFragment extends DialogFragment {
         redColor = getContext().getColor(R.color.red_incomplete);
         lightGrayColor = getContext().getColor(R.color.grey_light);
         whiteColor = getContext().getColor(R.color.white);
-
+        pausedDrawable = getContext().getDrawable(R.drawable.recording_paused);
+        recordingDrawable = getContext().getDrawable(R.drawable.recording_dot);
         return layout;
     }
 
@@ -330,6 +334,7 @@ public class RecordingFragment extends DialogFragment {
         recordingAnimationText.clearAnimation();
         recordingAnimationText.setText(R.string.recording_paused);
         recordingAnimationText.setTextColor(lightGrayColor);
+        recordingAnimationText.setCompoundDrawablesRelativeWithIntrinsicBounds(pausedDrawable, null, null, null);
     }
 
     private void resumeRecordingIndicators() {
@@ -341,6 +346,7 @@ public class RecordingFragment extends DialogFragment {
         recordingAnimationText.setText(R.string.recording_in_progress);
         recordingAnimationText.setTextColor(redColor);
         recordingAnimationText.startAnimation(recordingAnimation);
+        recordingAnimationText.setCompoundDrawablesRelativeWithIntrinsicBounds(recordingDrawable, null, null, null);
     }
 
     private void enableSave(boolean isPaused) {
