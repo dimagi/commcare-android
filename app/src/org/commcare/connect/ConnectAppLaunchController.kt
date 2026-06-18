@@ -131,12 +131,12 @@ class ConnectAppLaunchController
                     override fun dismissProgress() = dismissLaunchDialog()
 
                     override fun launchHome() {
+                        onLaunched?.run()
                         activity.startActivity(
                             HomeScreenBaseActivity
                                 .buildHomeLaunchIntent(activity)
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
                         )
-                        onLaunched?.run()
                     }
 
                     override fun recoverFromSeatFailure() {
