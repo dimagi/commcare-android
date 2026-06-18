@@ -121,7 +121,7 @@ public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConne
 
             //Launch the learn/deliver app
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-            new ConnectAppLaunchController(this).launchApp(appToLaunch.getAppId(), getLearnApp, true);
+            new ConnectAppLaunchController(this).launchApp(appToLaunch.getAppId(), getLearnApp, this::popSelfOnceHidden);
         }
     }
 

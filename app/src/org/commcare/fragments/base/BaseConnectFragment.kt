@@ -13,7 +13,10 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.navigation.fragment.NavHostFragment
 import androidx.viewbinding.ViewBinding
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.connect.network.TokenExceptionHandler.handleTokenDeniedException
@@ -275,5 +278,23 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         if (activity is ConnectActivity) {
             activity.setWaitDialogEnabled(enabled)
         }
+    }
+
+    /**
+     * Pops this fragment off the navigation back stack the next time it is hidden (its [onStop]).
+     * A fragment that has launched another screen on top calls this so the user does not return to
+     * it on back; deferring to onStop keeps the pop from briefly flashing the destination beneath.
+     */
+    protected fun popSelfOnceHidden() {
+        lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onStop(owner: LifecycleOwner) {
+                    owner.lifecycle.removeObserver(this)
+                    if (!parentFragmentManager.isStateSaved) {
+                        NavHostFragment.findNavController(this@BaseConnectFragment).popBackStack()
+                    }
+                }
+            },
+        )
     }
 }

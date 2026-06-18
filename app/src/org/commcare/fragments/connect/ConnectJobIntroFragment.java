@@ -149,7 +149,8 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                 String appId = job.getLearnAppInfo().getAppId();
                 boolean appInstalled = AppUtils.isAppInstalled(appId);
                 if (appInstalled) {
-                    new ConnectAppLaunchController(ConnectJobIntroFragment.this).launchApp(appId, true, true);
+                    new ConnectAppLaunchController(ConnectJobIntroFragment.this)
+                            .launchApp(appId, true, ConnectJobIntroFragment.this::popSelfOnceHidden);
                 } else {
                     String title = getString(R.string.connect_downloading_learn);
                     NavHostFragment.findNavController(ConnectJobIntroFragment.this).navigate(
