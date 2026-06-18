@@ -284,7 +284,7 @@ public class RecordingFragment extends DialogFragment {
             toggleRecording.setOnClickListener(v -> pauseRecording(true));
         } else {
             toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
-            toggleRecording.setOnClickListener(v -> stopRecording());
+            toggleRecording.setOnClickListener(v -> stopRecording(true));
         }
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(VISIBLE);
@@ -297,7 +297,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     @SuppressLint("NewApi")
-    private void stopRecording() {
+    private void stopRecording(boolean shouldSave) {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
         recordingDuration.stop();
         recordingProgress.setVisibility(INVISIBLE);
@@ -311,11 +311,10 @@ public class RecordingFragment extends DialogFragment {
         }
 
         audioRecordingService.stopRecording();
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> playAudio());
-        instruction.setText(Localization.get("after.recording"));
-        enableSave(false);
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopped");
+        if (shouldSave) {
+            saveRecording();
+        }
     }
 
     @SuppressLint("NewApi")
@@ -391,7 +390,7 @@ public class RecordingFragment extends DialogFragment {
 
     private void saveRecording() {
         if (inPausedState) {
-            stopRecording();
+            stopRecording(false);
         }
         if (listener != null) {
             listener.onRecordingCompletion(fileName);
