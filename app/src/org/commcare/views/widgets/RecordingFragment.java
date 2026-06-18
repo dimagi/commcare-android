@@ -267,12 +267,9 @@ public class RecordingFragment extends DialogFragment {
         }
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(VISIBLE);
-        resumeProgressBar();
+        resumeRecordingIndicators();
         recordingActionContainer.setVisibility(GONE);
-        recordingAnimationText.setVisibility(VISIBLE);
-        recordingAnimationText.setText(R.string.recording_in_progress);
-        recordingAnimationText.setTextColor(getContext().getColor(R.color.red_incomplete));
-        recordingAnimationText.startAnimation(recordingAnimation);
+
         recordingDuration.setVisibility(VISIBLE);
         negativeActionButton.setVisibility(GONE);
         discardRecording.setVisibility(INVISIBLE);
@@ -308,12 +305,9 @@ public class RecordingFragment extends DialogFragment {
         chronoPause();
 
         audioRecordingService.pauseRecording();
-        pauseProgressBar();
+        pauseRecordingIndicators();
 
         recordingActionContainer.setVisibility(VISIBLE);
-        recordingAnimationText.clearAnimation();
-        recordingAnimationText.setText(R.string.recording_paused);
-        recordingAnimationText.setTextColor(getContext().getColor(R.color.grey_light));
         enableSave(true);
         toggleRecording.setBackgroundResource(R.drawable.record);
         toggleRecording.setOnClickListener(v -> resumeRecording());
@@ -322,16 +316,25 @@ public class RecordingFragment extends DialogFragment {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording paused");
     }
 
-    private void pauseProgressBar() {
+    private void pauseRecordingIndicators() {
         if (recordingProgressDrawable != null) {
             recordingProgressDrawable.setColors(new int[]{Color.LTGRAY, Color.LTGRAY});
         }
+
+        recordingAnimationText.clearAnimation();
+        recordingAnimationText.setText(R.string.recording_paused);
+        recordingAnimationText.setTextColor(getContext().getColor(R.color.grey_light));
     }
 
-    private void resumeProgressBar() {
+    private void resumeRecordingIndicators() {
         if (recordingProgressDrawable != null) {
             recordingProgressDrawable.setColors(new int[]{getContext().getColor(R.color.red_incomplete), Color.WHITE});
         }
+
+        recordingAnimationText.setVisibility(VISIBLE);
+        recordingAnimationText.setText(R.string.recording_in_progress);
+        recordingAnimationText.setTextColor(getContext().getColor(R.color.red_incomplete));
+        recordingAnimationText.startAnimation(recordingAnimation);
     }
 
     private void enableSave(boolean isPaused) {
