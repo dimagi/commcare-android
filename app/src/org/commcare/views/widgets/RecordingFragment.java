@@ -114,8 +114,15 @@ public class RecordingFragment extends DialogFragment {
         disableScreenRotation((AppCompatActivity) getContext());
         prepareButtons();
         prepareText();
+        initMediaResources();
         setWindowSize();
 
+        return layout;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         Bundle args = getArguments();
         if (args != null) {
             fileName = args.getString(AUDIO_FILE_PATH_ARG_KEY);
@@ -129,6 +136,9 @@ public class RecordingFragment extends DialogFragment {
         if (f.exists()) {
             reloadSavedRecording();
         }
+    }
+
+    private void initMediaResources() {
         recordingAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.blink);
         redColor = getContext().getColor(R.color.red_incomplete);
         lightGrayColor = getContext().getColor(R.color.grey_light);
@@ -137,7 +147,6 @@ public class RecordingFragment extends DialogFragment {
         progressBarPausedDrawable = getContext().getDrawable(R.drawable.progress_bar_paused);
         pausedDrawable = getContext().getDrawable(R.drawable.recording_paused);
         recordingDrawable = getContext().getDrawable(R.drawable.recording_dot);
-        return layout;
     }
 
     private void initAudioFile() {
