@@ -10,6 +10,7 @@ import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 import org.commcare.android.database.app.models.UserKeyRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.LoginInvalidatedException
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.AppSeater
 import org.commcare.login.AuthSource
@@ -19,20 +20,20 @@ import org.commcare.login.LoginProgressListener
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
 import org.commcare.login.SeatResult
+import org.commcare.utils.GlobalErrorUtil
+import org.commcare.utils.GlobalErrors
+import org.javarosa.core.services.Logger
 import java.util.Locale
 
 /**
- * Terminal result of a Connect launch. All non-token, non-seat errors fold into [Retryable];
- * since this path only does PersonalID password logins, there is no SyncFailed or Demo outcome.
+ * Terminal result of a Connect launch. Token denials propagate as [LoginInvalidatedException] to the
+ * global [org.commcare.utils.CommCareExceptionHandler]; every other non-seat error folds into
+ * [Retryable]. This path only does PersonalID password logins, so there is no SyncFailed or Demo outcome.
  */
 sealed class LaunchOutcome {
     object Launched : LaunchOutcome()
 
-    object TokenDenied : LaunchOutcome()
-
     object AppSeatFailed : LaunchOutcome()
-
-    object CredentialResolutionFailed : LaunchOutcome()
 
     data class Retryable(
         val error: LoginError,
@@ -47,11 +48,16 @@ class ConnectAppLauncher internal constructor(
     private val seatApp: suspend (String, LoginProgressListener) -> SeatResult,
     private val performLogin: suspend (Context, LoginRequest, LoginProgressListener) -> LoginResult,
     private val connectUsername: (Context) -> String?,
+    private val isLoggedIntoApp: (String) -> Boolean,
 ) {
     constructor() : this(
         seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
         performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
         connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
+        isLoggedIntoApp = { appId ->
+            CommCareApplication.isSessionActive() &&
+                CommCareApplication.instance().currentApp?.uniqueId == appId
+        },
     )
 
     fun interface OutcomeCallback {
@@ -77,11 +83,16 @@ class ConnectAppLauncher internal constructor(
         isLearning: Boolean,
         listener: LoginProgressListener,
     ): LaunchOutcome {
-        CommCareApplication.instance().closeUserSession()
         FirebaseAnalyticsUtil.reportCccAppLaunch(
             if (isLearning) "Learn" else "Deliver",
             appId,
         )
+
+        if (isLoggedIntoApp(appId)) {
+            return LaunchOutcome.Launched
+        }
+
+        CommCareApplication.instance().closeUserSession()
 
         if (seatApp(appId, listener) is SeatResult.Failed) {
             return LaunchOutcome.AppSeatFailed
@@ -89,8 +100,8 @@ class ConnectAppLauncher internal constructor(
 
         val username =
             connectUsername(context)?.trim()?.lowercase(Locale.ROOT)
-        if (username.isNullOrEmpty()) {
-            return LaunchOutcome.CredentialResolutionFailed
+        check(!username.isNullOrEmpty()) {
+            "Connect launch reached login with no Connect username; a Connect user must exist on this path"
         }
 
         val request =
@@ -112,10 +123,10 @@ class ConnectAppLauncher internal constructor(
             }
 
             is LoginResult.Failed -> {
-                when (result.error) {
-                    is LoginError.TokenDenied -> LaunchOutcome.TokenDenied
-                    else -> LaunchOutcome.Retryable(result.error)
+                if (result.error is LoginError.TokenDenied) {
+                    GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR)
                 }
+                LaunchOutcome.Retryable(result.error)
             }
         }
     }
@@ -124,6 +135,10 @@ class ConnectAppLauncher internal constructor(
         var count = 0
         for (record in CommCareApplication.instance().getAppStorage(UserKeyRecord::class.java)) {
             if (record.username == username && ++count > 1) {
+                Logger.exception(
+                    "Multiple UserKeyRecords matched a single Connect username during app launch",
+                    IllegalStateException("Duplicate Connect username in UserKeyRecord storage"),
+                )
                 return true
             }
         }

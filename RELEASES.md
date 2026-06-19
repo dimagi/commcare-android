@@ -169,8 +169,13 @@ we would like to communicate to QA as part of the release testing
   - Background the app, turn on airplane mode, and reopen the Delivery Progress page. Verify cached delivery data (progress, deliveries, payments, "Last updated" timestamp) appears immediately without waiting for a network call, and that the orange "Offline" indicator with the previous sync time is shown at the top.
   - Confirm the full-screen blocking loading dialog that used to appear on refresh no longer appears — the inline small progress spinner is the only loading indicator.
 - **Connect app launch:**
-  - From the Connect opportunities list, launch an installed learn or delivery app: confirm it opens to the app home behind a single progress dialog (no login/app-setup screens flashing through), and that pressing back from the app home returns to the opportunities list.
-  - With networking off, launching an app from a Connect opportunity should fall back to the normal login screen showing the usual error — not hang on the dialog or crash.
+  - From the Connect opportunities list, launch an installed learn or delivery app: confirm it opens to the app home behind a single progress dialog (no login/app-setup screens flashing through), and that pressing back from the app home returns to the screen it was launched from (here, the opportunities list).
+  - Launching from the Delivery Progress or Learning Progress page (not just the opportunities list) also opens the app directly with the single progress dialog (no login/app-setup flash) and lands on the app home; pressing back from the app home returns to that same page.
+  - The app session stays alive on back-out: immediately relaunching the same app reopens it to the home without re-running the login/sync (no progress dialog flash).
+  - With networking off (or any retryable failure), launching shows a "Couldn't open the app" Retry/Cancel dialog — Retry re-attempts the launch, Cancel dismisses and leaves you on the launching screen. It should not flash the login screen, hang on the dialog, or crash.
+  - Logging out from inside the launched app returns to the screen it was launched from (not the login screen).
+  - On the app home, "View Job Status" opens the job's progress page; backing out of it returns to the app home, and backing out of the home returns to the screen the app was launched from.
+  - Opening a job's progress page directly from the opportunities list (tapping an in-progress job) returns to the opportunities list on back.
 
 - **SMS opportunity-invite app link (Connect):** Tap an invite link of the form `https://connect.dimagi.com/users/invite_redirect/<uuid>` (and the `connect-staging.dimagi.com` equivalent) from an SMS app and verify each corner case:
   - CommCare not installed: navigates to a webpage on Connect (that should redirect user to Play Store) 

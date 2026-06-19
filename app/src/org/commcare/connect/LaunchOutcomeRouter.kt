@@ -6,11 +6,9 @@ interface LaunchActions {
 
     fun launchHome()
 
-    fun handleTokenDenied()
-
     fun recoverFromSeatFailure()
 
-    fun fallBackToLegacyLaunch()
+    fun promptRetry()
 
     fun reportFailure(reason: String)
 }
@@ -27,22 +25,14 @@ object LaunchOutcomeRouter {
                 actions.launchHome()
             }
 
-            LaunchOutcome.TokenDenied -> {
-                actions.handleTokenDenied()
-            }
-
             LaunchOutcome.AppSeatFailed -> {
+                actions.reportFailure(outcome::class.java.simpleName)
                 actions.recoverFromSeatFailure()
-            }
-
-            LaunchOutcome.CredentialResolutionFailed -> {
-                actions.reportFailure("CredentialResolutionFailed")
-                actions.fallBackToLegacyLaunch()
             }
 
             is LaunchOutcome.Retryable -> {
                 actions.reportFailure(outcome.error::class.java.simpleName)
-                actions.fallBackToLegacyLaunch()
+                actions.promptRetry()
             }
         }
     }
