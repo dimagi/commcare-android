@@ -6,6 +6,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.utils.InstrumentationUtility
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,6 +26,11 @@ class DemoUserOfflineTest: DemoUserTest() {
     fun setup() {
         InstrumentationUtility.changeWifi(false)
         installApp(APP_NAME, CCZ_NAME, true)
+    }
+
+    @After
+    fun teardown() {
+        InstrumentationUtility.changeWifi(true)
     }
 
     @Test
