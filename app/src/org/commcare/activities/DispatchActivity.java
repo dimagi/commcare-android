@@ -242,6 +242,10 @@ public class DispatchActivity extends AppCompatActivity {
                     redirectToConnectOpportunityInfo = false;
                     ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+                } else if (CommCareApplication.instance().sessionLaunchedFromConnect) {
+                    // The active session was opened from Connect; anchor back to LoginActivity
+                    // (the user's base screen) instead of the launched app's Home. Session stays alive.
+                    launchLoginScreen();
                 } else {
                     launchHomeScreen();
                 }

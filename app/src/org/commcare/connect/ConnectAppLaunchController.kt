@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
@@ -63,7 +64,7 @@ internal object LaunchProgressMapper {
  * [LaunchOutcomeRouter].
  *
  * The dialog is dismissed automatically when the fragment's view is destroyed, so callers don't
- * have to manage cleanup themselves. [onLaunched] is invoked once Home has been started so the
+ * have to manage cleanup themselves. [onLaunchSucceeded] is invoked once Home has been started so the
  * caller can manage its own fragment lifecycle (e.g. remove itself from the back stack).
  */
 class ConnectAppLaunchController
@@ -76,15 +77,15 @@ class ConnectAppLaunchController
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
         private var failedAttempts = 0
-        private var onLaunched: Runnable? = null
+        private var onLaunchSucceeded: Runnable? = null
 
         @JvmOverloads
         fun launchApp(
             appId: String,
             isLearning: Boolean,
-            onLaunched: Runnable? = null,
+            onLaunchSucceeded: Runnable? = null,
         ) {
-            this.onLaunched = onLaunched
+            this.onLaunchSucceeded = onLaunchSucceeded
             launch(LaunchTarget(appId, isLearning))
         }
 
@@ -131,7 +132,9 @@ class ConnectAppLaunchController
                     override fun dismissProgress() = dismissLaunchDialog()
 
                     override fun launchHome() {
-                        onLaunched?.run()
+                        // Mark the session so DispatchActivity anchors back to LoginActivity, not Home.
+                        CommCareApplication.instance().sessionLaunchedFromConnect = true
+                        onLaunchSucceeded?.run()
                         activity.startActivity(
                             HomeScreenBaseActivity
                                 .buildHomeLaunchIntent(activity)

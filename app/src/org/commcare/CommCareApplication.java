@@ -207,6 +207,13 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
 
+    /**
+     * Whether the active session was opened from a Connect surface. When true, DispatchActivity
+     * routes back to LoginActivity (the user's base screen) instead of the launched app's Home.
+     * Session-scoped: cleared on {@link #closeUserSession()} and lost on process death.
+     */
+    public boolean sessionLaunchedFromConnect = false;
+
     // Indicates that a build refresh action has been triggered, but not yet completed
     private boolean latestBuildRefreshPending;
 
@@ -387,6 +394,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
      */
     public void closeUserSession() {
         synchronized (serviceLock) {
+            sessionLaunchedFromConnect = false;
+
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
