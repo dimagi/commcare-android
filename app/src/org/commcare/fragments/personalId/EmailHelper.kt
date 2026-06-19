@@ -125,7 +125,7 @@ object EmailHelper {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                tracker.recordFailedVerification()
+                tracker.recordFailedAttempt()
                 FirebaseAnalyticsUtil.reportOtpEvent(
                     OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,

@@ -21,9 +21,9 @@ class AttemptTrackerTest {
     }
 
     @Test
-    fun `recordFailedVerification increments only the failed count`() {
+    fun `recordFailedAttempt increments only the failed count`() {
         val tracker = AttemptTracker()
-        tracker.recordFailedVerification()
+        tracker.recordFailedAttempt()
         assertEquals(0, tracker.requestCount)
         assertEquals(1, tracker.failedAttempts)
     }
@@ -34,7 +34,7 @@ class AttemptTrackerTest {
         assertEquals(3, tracker.requestCount)
         assertEquals(2, tracker.failedAttempts)
         tracker.recordRequest()
-        tracker.recordFailedVerification()
+        tracker.recordFailedAttempt()
         assertEquals(4, tracker.requestCount)
         assertEquals(3, tracker.failedAttempts)
     }

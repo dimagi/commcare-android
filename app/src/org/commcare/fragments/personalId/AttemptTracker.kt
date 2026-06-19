@@ -1,10 +1,10 @@
 package org.commcare.fragments.personalId
 
 /**
- * Counters for an OTP collection session
+ * Counters for request/failure attempts during a session
  *
- *  - [requestCount]: total OTP send/request calls this session.
- *  - [failedAttempts]: absolute number of failed OTP verifications this session.
+ *  - [requestCount]: total request calls made this session.
+ *  - [failedAttempts]: number of failed attempts this session.
  */
 class AttemptTracker(
     initialRequestCount: Int = 0,
@@ -15,16 +15,17 @@ class AttemptTracker(
     var failedAttempts: Int = initialFailedAttempts
         private set
 
-    /** Records one OTP send/request, regardless of outcome. */
+    /** Records one request, regardless of outcome. */
     fun recordRequest() {
         requestCount++
     }
 
-    /** Records one failed OTP verification. */
-    fun recordFailedVerification() {
+    /** Records one failed attempt. */
+    fun recordFailedAttempt() {
         failedAttempts++
     }
 
+    /** Resets both counters to zero. */
     fun reset() {
         requestCount = 0
         failedAttempts = 0
