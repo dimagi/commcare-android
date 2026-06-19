@@ -34,14 +34,16 @@ Fields:
 | `dateModified` | Date | Default to now |
 
 ### `ConnectJobUtils`
-- `storeTasks(context, List<ConnectTaskRecord>, jobUUID): Boolean` — fetches the existing tasks for the job from the DB, diffs them against the incoming list (comparing `taskId`, `taskType`, `status`, and `slug` per task). If anything changed (new task, removed task, or field change), replaces the stored list and returns `true`. Returns `false` if the lists are identical.
-- `getPendingTask(context, jobUUID): ConnectTaskRecord?` — returns the first task with `status = "assigned"` for the job, regardless of type. Callers that need a specific type (e.g. the messaging button) inspect `task.getType()` after the call.
+- `storeTasks(context, List<ConnectTaskRecord>, jobUUID): Boolean` — fetches the existing tasks for the job from the DB, diffs them against the incoming list (comparing `taskId`, `type`, `status`, and `slug` per task). If anything changed (new task, removed task, or field change), replaces the stored list and returns `true`. Returns `false` if the lists are identical.
+- `hasPendingTask(context, jobUUID): Boolean` — returns `true` if any task for the job has `status = "assigned"`, regardless of type. Used for `isTaskPending()` and `shouldShowTasksCompletedMessage()` step 1 in `ConnectJobRecord`.
+- `hasPendingTaskOfType(context, jobUUID, type): Boolean` — returns `true` if a task of the given `type` has `status = "assigned"`. Used for the messaging button visibility check. Avoids the problem of a relearn task hiding the messaging CTA when both are pending.
+- `getPendingTaskOfType(context, jobUUID, type): ConnectTaskRecord?` — returns the pending task of the given `type`, or `null`. Used when the actual record is needed (e.g. messaging button needs the `slug` for navigation). `hasPendingTaskOfType` may delegate to this internally.
 - `getMostRecentlyCompletedTask(context, jobUUID): ConnectTaskRecord?` — returns the task with `status = "completed"` having the latest `dateModified`, regardless of type.
 
 ### `DeliveryAppProgressResponseModel` / Parser
-- Replace `parsedTasks: List<ParsedConnectTask>` with `tasks: List<ConnectTaskRecord>`.
-- Parser calls `ConnectTaskRecord.fromJson(obj, job)` for each item in the array, matching how deliveries and payments are parsed.
-- `applyToJob()` calls `ConnectJobUtils.storeTasks()` directly with the `ConnectTaskRecord` list — no conversion step needed.
+- Replace `parsedTasks: List<ParsedConnectTask>` with `tasks: List<ConnectTaskRecord>` (empty list when `assigned_tasks` is absent or empty). Remove the `hasTasks: Boolean` flag.
+- Parser calls `ConnectTaskRecord.fromJson(obj, job)` for each item in `assigned_tasks`, matching how deliveries and payments are parsed.
+- `applyToJob()` always calls `ConnectJobUtils.storeTasks()` unconditionally, even when the list is empty — this ensures stale records are deleted when the server stops returning tasks. The `tasksChanged` return value gates the timestamp update only.
 
 ### DB Migration: V.26 → V.27
 - `DatabaseConnectOpenHelper`: bump `CONNECT_DB_VERSION` to 27; register `ConnectTaskRecord` table in `onCreate`.
@@ -53,15 +55,15 @@ The relearn task state moves fully from `ConnectJobPreferences` to the DB, so th
 
 **`ConnectJobRecord` method changes** — both methods gain a `Context` parameter since they now query the DB:
 
-- `isTaskPending(context)` replaces the preference read with `ConnectJobUtils.getPendingTask(context, jobUUID) != null && status == STATUS_DELIVERING`.
+- `isTaskPending(context)` replaces the preference read with `ConnectJobUtils.hasPendingTask(context, jobUUID) && status == STATUS_DELIVERING`.
 - `shouldShowTasksCompletedMessage(context)` replaces the `KEY_RELEARN_TASKS_COMPLETED_TIME_MS` preference with a DB query:
-  1. Return `false` if any task is still assigned (`getPendingTask(context, jobUUID)` non-null).
+  1. Return `false` if any task is still assigned (`hasPendingTask(context, jobUUID)` is true).
   2. Fetch `getMostRecentlyCompletedTask(context, jobUUID)`.
   3. Return `true` if that task's `dateModified` is within `RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS` of now.
 
 **`ConnectJobRecord.syncRelearnTasksPrefs` is removed** — task persistence is now handled entirely by `applyToJob()` calling `storeTasks()`. The `applyToJob()` call to `job.syncRelearnTasksPrefs(parsedTasks)` is deleted. No `ParsedConnectTask` list exists anywhere in the new flow.
 
-**`ConnectJobPreferences`** — remove `KEY_RELEARN_TASK_PENDING` and `KEY_RELEARN_TASKS_COMPLETED_TIME_MS` along with their accessor methods. `TIMESTAMP_NOT_SET`, `getLastTaskUpdateTimeMs`, and the payment-confirmation preference methods are unaffected.
+**`ConnectJobPreferences`** — do **not** remove `KEY_RELEARN_TASK_PENDING`, `KEY_RELEARN_TASKS_COMPLETED_TIME_MS`, or their accessor methods yet. Mark them `@Deprecated` with a note: *"Remove after 2.63 release. Retained for backward compatibility during the transition period before tasks are guaranteed to be present in the DB."* `TIMESTAMP_NOT_SET`, `getLastTaskUpdateTimeMs`, and the payment-confirmation preference methods are unaffected.
 
 **Call sites** — all callers of the now-renamed `isTaskPending()` and `shouldShowTasksCompletedMessage()` (in `StandardHomeActivityUIController`, `ConnectJobRecord.getCardMessageText`, etc.) must be updated to pass a `Context`.
 
@@ -81,9 +83,9 @@ New string resource in `strings.xml`: `personalid_open_conversation`.
 ### `StandardHomeActivityUIController`
 - Add field: `AppCompatButton btnOpenConversation`, found in `setupConnectJobTile()` via `viewJobCard.findViewById(R.id.acb_open_conversation)`.
 - In `syncJobCardVisibility(job)`:
-  - If `job.getStatus() == STATUS_DELIVERING`: call `ConnectJobUtils.getPendingTask(activity, job.getJobUUID())` and check `"messaging".equals(task.getType())`.
-  - Show button when result is a non-null messaging task with non-empty `slug`; hide otherwise.
-  - Set click listener: call `ConnectNavHelper.unlockAndGoToMessagingWithChannel(activity, task.getSlug(), listener)`.
+  - If `job.getStatus() == STATUS_DELIVERING`: call `ConnectJobUtils.hasPendingTaskOfType(activity, job.getJobUUID(), "messaging")` to determine visibility.
+  - When visible and the button is tapped: call `ConnectJobUtils.getPendingTaskOfType(activity, job.getJobUUID(), "messaging")` to retrieve the task and pass its `slug` to `ConnectNavHelper.unlockAndGoToMessagingWithChannel(activity, task.getSlug(), listener)`.
+  - Button is hidden when no pending messaging task exists or the task's `slug` is empty.
 - Button is hidden in all non-`STATUS_DELIVERING` states.
 
 ## Navigation
@@ -140,13 +142,11 @@ In `ConnectJobPreferences`, add:
 - `getLastTaskUpdateTimeMs(): Long` (default `TIMESTAMP_NOT_SET`)
 - `setLastTaskUpdateTimeMs(timeMs: Long)`
 
-In `DeliveryAppProgressResponseModel.applyToJob()`, only record the timestamp when `storeTasks()` reports an actual change:
+In `DeliveryAppProgressResponseModel.applyToJob()`, always call `storeTasks()` — the outer `hasTasks` guard is removed. Only the inner check gates the timestamp:
 ```kotlin
-if (hasTasks) {
-    val tasksChanged = ConnectJobUtils.storeTasks(context, taskRecords, job.jobUUID)
-    if (tasksChanged) {
-        ConnectJobUtils.getJobPreferences(job.jobUUID).setLastTaskUpdateTimeMs(System.currentTimeMillis())
-    }
+val tasksChanged = ConnectJobUtils.storeTasks(context, tasks, job.jobUUID)
+if (tasksChanged) {
+    ConnectJobUtils.getJobPreferences(job.jobUUID).setLastTaskUpdateTimeMs(System.currentTimeMillis())
 }
 ```
 
@@ -215,5 +215,6 @@ The check only fires when no earlier health action already kicked off a sync. It
 
 ## Constraints & Edge Cases
 - Button is hidden when the job is not in `STATUS_DELIVERING`, even if a messaging task exists in the DB.
-- If the pending task is not of type `"messaging"` or has a null/empty `slug`, the button is hidden (defensive guard in `syncJobCardVisibility`).
+- A pending relearn task does not suppress the messaging button — `hasPendingTaskOfType` checks the type independently, so both task types can be pending simultaneously without interference.
+- If `getPendingTaskOfType` returns a task with a null/empty `slug`, the button is hidden (defensive guard before navigation).
 - `ConnectMessagingActivity` already handles the case where a channel is not yet in the local DB (`handleNoChannel` fetches it from the server before navigating).
