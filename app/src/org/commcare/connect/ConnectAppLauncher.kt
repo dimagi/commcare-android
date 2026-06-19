@@ -41,32 +41,6 @@ sealed class LaunchOutcome {
 }
 
 /**
- * Whether the active session is genuinely the current user logged into [appId] — i.e. the app is
- * seated and the session's key record belongs to that user, not a stale session left over from a
- * previously launched app or a different user.
- */
-private fun isSessionLoggedIntoApp(appId: String): Boolean {
-    if (!CommCareApplication.isSessionActive()) {
-        return false
-    }
-    val instance = CommCareApplication.instance()
-    if (instance.currentApp?.uniqueId != appId) {
-        return false
-    }
-    val sessionUuid = instance.session.userKeyRecordUUID ?: return false
-    val currentUsername =
-        ConnectUserDatabaseUtil
-            .getUser(instance)
-            ?.userId
-            ?.trim()
-            ?.lowercase(Locale.ROOT) ?: return false
-    return instance
-        .getAppStorage(UserKeyRecord::class.java)
-        .getRecordsForValue(UserKeyRecord.META_SANDBOX_ID, sessionUuid)
-        .any { it.username == currentUsername }
-}
-
-/**
  * Seats and signs into a Connect app with the worker's PersonalID credentials without showing
  * [org.commcare.activities.LoginActivity].
  */
@@ -80,7 +54,7 @@ class ConnectAppLauncher internal constructor(
         seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
         performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
         connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
-        isLoggedIntoApp = ::isSessionLoggedIntoApp,
+        isLoggedIntoApp = { appId -> PersonalIdManager.getInstance().isSessionLoggedIntoApp(appId) },
     )
 
     fun interface OutcomeCallback {

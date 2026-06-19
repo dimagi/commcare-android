@@ -15,9 +15,11 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -47,6 +49,8 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
+import java.util.Locale;
+import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
@@ -534,6 +538,46 @@ public class PersonalIdManager {
 
     public boolean isLoggedInWithConnectApp(Context context, String appId) {
         return isloggedIn() && isConnectApp(context, appId);
+    }
+
+    /**
+     * Whether the active session is genuinely the current user logged into an app — i.e. the app is
+     * seated and the session's key record belongs to that user, not a stale session left over from a
+     * previously launched app or a different user.
+     */
+    public boolean isSessionLoggedIntoApp(String appId) {
+        if (!CommCareApplication.isSessionActive()) {
+            return false;
+        }
+
+        CommCareApplication instance = CommCareApplication.instance();
+        CommCareApp currentApp = instance.getCurrentApp();
+        if (currentApp == null || !appId.equals(currentApp.getUniqueId())) {
+            return false;
+        }
+
+        String sessionUuid = instance.getSession().getUserKeyRecordUUID();
+        if (sessionUuid == null) {
+            return false;
+        }
+
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(instance);
+        if (user == null || user.getUserId() == null) {
+            return false;
+        }
+
+        String currentUsername = user.getUserId().trim().toLowerCase(Locale.ROOT);
+        Vector<UserKeyRecord> userKeyRecords = instance
+                .getAppStorage(UserKeyRecord.class)
+                .getRecordsForValue(UserKeyRecord.META_SANDBOX_ID, sessionUuid);
+
+        for (UserKeyRecord record : userKeyRecords) {
+            if (currentUsername.equals(record.getUsername())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isPersonalIdLinkedApp(String appId, String username) {
