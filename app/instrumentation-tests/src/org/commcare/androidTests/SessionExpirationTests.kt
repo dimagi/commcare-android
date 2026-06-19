@@ -10,7 +10,6 @@ import org.commcare.AppUtils
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.test.BuildConfig
 import org.commcare.utils.InstrumentationUtility
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
