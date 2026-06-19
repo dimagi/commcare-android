@@ -35,10 +35,10 @@ Fields:
 
 ### `ConnectJobUtils`
 - `storeTasks(context, List<ConnectTaskRecord>, jobUUID): Boolean` — fetches the existing tasks for the job from the DB, diffs them against the incoming list (comparing `taskId`, `type`, `status`, and `slug` per task). If anything changed (new task, removed task, or field change), replaces the stored list and returns `true`. Returns `false` if the lists are identical.
-- `hasPendingTask(context, jobUUID): Boolean` — returns `true` if any task for the job has `status = "assigned"`, regardless of type. Used for `isTaskPending()` and `shouldShowTasksCompletedMessage()` step 1 in `ConnectJobRecord`.
-- `hasPendingTaskOfType(context, jobUUID, type): Boolean` — returns `true` if a task of the given `type` has `status = "assigned"`. Used for the messaging button visibility check. Avoids the problem of a relearn task hiding the messaging CTA when both are pending.
-- `getPendingTaskOfType(context, jobUUID, type): ConnectTaskRecord?` — returns the pending task of the given `type`, or `null`. Used when the actual record is needed (e.g. messaging button needs the `slug` for navigation). `hasPendingTaskOfType` may delegate to this internally.
-- `getMostRecentlyCompletedTask(context, jobUUID): ConnectTaskRecord?` — returns the task with `status = "completed"` having the latest `dateModified`, regardless of type.
+- `hasPendingTask(context, jobUUID): Boolean` — returns `true` if any task for the job has `status = "assigned"`, regardless of type. Used for `isTaskPending()` and `shouldShowTasksCompletedMessage()` step 1 in `ConnectJobRecord`. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASK_PENDING` from `ConnectJobPreferences`; if that pref is `true`, return `true` and immediately clear the pref so the fallback fires only once.
+- `hasPendingTaskOfType(context, jobUUID, type): Boolean` — returns `true` if a task of the given `type` has `status = "assigned"`. Used for the messaging button visibility check. Avoids the problem of a relearn task hiding the messaging CTA when both are pending. No preference fallback — messaging tasks have no prior pref equivalent.
+- `getPendingTaskOfType(context, jobUUID, type): ConnectTaskRecord?` — returns the pending task of the given `type`, or `null`. Used when the actual record is needed (e.g. messaging button needs the `slug` for navigation). `hasPendingTaskOfType` may delegate to this internally. No preference fallback.
+- `getMostRecentlyCompletedTask(context, jobUUID): ConnectTaskRecord?` — returns the task with `status = "completed"` having the latest `dateModified`, regardless of type. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASKS_COMPLETED_TIME_MS` from `ConnectJobPreferences`; if set, synthesise a minimal `ConnectTaskRecord` with `dateModified` equal to that timestamp, return it, and clear the pref.
 
 ### `DeliveryAppProgressResponseModel` / Parser
 - Replace `parsedTasks: List<ParsedConnectTask>` with `tasks: List<ConnectTaskRecord>` (empty list when `assigned_tasks` is absent or empty). Remove the `hasTasks: Boolean` flag.
@@ -63,7 +63,7 @@ The relearn task state moves fully from `ConnectJobPreferences` to the DB, so th
 
 **`ConnectJobRecord.syncRelearnTasksPrefs` is removed** — task persistence is now handled entirely by `applyToJob()` calling `storeTasks()`. The `applyToJob()` call to `job.syncRelearnTasksPrefs(parsedTasks)` is deleted. No `ParsedConnectTask` list exists anywhere in the new flow.
 
-**`ConnectJobPreferences`** — do **not** remove `KEY_RELEARN_TASK_PENDING`, `KEY_RELEARN_TASKS_COMPLETED_TIME_MS`, or their accessor methods yet. Mark them `@Deprecated` with a note: *"Remove after 2.63 release. Retained for backward compatibility during the transition period before tasks are guaranteed to be present in the DB."* `TIMESTAMP_NOT_SET`, `getLastTaskUpdateTimeMs`, and the payment-confirmation preference methods are unaffected.
+**`ConnectJobPreferences`** — do **not** remove `KEY_RELEARN_TASK_PENDING`, `KEY_RELEARN_TASKS_COMPLETED_TIME_MS`, or their accessor methods yet. Mark them `@Deprecated` with a note: *"Remove after 2.63 release. 
 
 **Call sites** — all callers of the now-renamed `isTaskPending()` and `shouldShowTasksCompletedMessage()` (in `StandardHomeActivityUIController`, `ConnectJobRecord.getCardMessageText`, etc.) must be updated to pass a `Context`.
 
