@@ -18,6 +18,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.views.dialogs.StandardAlertDialog
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit
 class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailVerificationBinding
     private lateinit var activity: Activity
+    private lateinit var emailOtpTracker: AttemptTracker
 
     /**
      * Activity-scoped session data populated by upstream PersonalID fragments
@@ -78,6 +80,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 .personalIdSessionData
         enteredEmail = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).email
         workflow = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).workflow
+        emailOtpTracker =
+            AttemptTracker(
+                initialRequestCount =
+                    PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).emailOtpRequestCount,
+            )
     }
 
     override fun onCreateView(
@@ -139,6 +146,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             email = enteredEmail,
             workflow = workflow,
             sessionData = personalIdSessionData,
+            tracker = emailOtpTracker,
             onSuccess = { startResendTimer() },
             onFailure = { failureCode, t ->
                 showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
@@ -162,6 +170,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             otp = otp,
             workflow = workflow,
             sessionData = personalIdSessionData,
+            tracker = emailOtpTracker,
             onSuccess = { onEmailVerified() },
             onFailure = { failureCode, t ->
                 if (!handleCommonSignupFailures(failureCode)) {
@@ -224,6 +233,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 getString(R.string.personalid_email_otp_failed_message),
             )
         dialog.setPositiveButton(getString(R.string.personalid_email_otp_failed_retry)) { _, _ ->
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_RETRY,
+                AnalyticsParamValue.USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY,
+            )
             commCareActivity.dismissAlertDialog()
             failedOtpAttempts = 0
             binding.otpCodeView.clearCode()
@@ -231,6 +245,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             enableVerifyButton(false)
         }
         dialog.setNegativeButton(getString(R.string.personalid_email_otp_failed_skip)) { _, _ ->
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_PROCEED_WITHOUT_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY,
+            )
             commCareActivity.dismissAlertDialog()
             proceedWithoutEmail()
         }

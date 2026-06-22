@@ -43,6 +43,7 @@ class EmailHelperTest {
                 email = "user@example.com",
                 workflow = EmailWorkFlow.REGISTRATION,
                 sessionData = sessionData,
+                tracker = AttemptTracker(),
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -70,6 +71,7 @@ class EmailHelperTest {
                 email = "user@example.com",
                 workflow = EmailWorkFlow.RECOVERY,
                 sessionData = sessionData,
+                tracker = AttemptTracker(),
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -102,6 +104,7 @@ class EmailHelperTest {
                     email = "user@example.com",
                     workflow = EmailWorkFlow.EXISTING_USER,
                     sessionData = null,
+                    tracker = AttemptTracker(),
                     onSuccess = {},
                     onFailure = { _, _ -> },
                 )
@@ -133,6 +136,7 @@ class EmailHelperTest {
                 otp = "123456",
                 workflow = EmailWorkFlow.REGISTRATION,
                 sessionData = sessionData,
+                tracker = AttemptTracker(),
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -162,6 +166,7 @@ class EmailHelperTest {
                 otp = "654321",
                 workflow = EmailWorkFlow.RECOVERY,
                 sessionData = sessionData,
+                tracker = AttemptTracker(),
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -196,6 +201,7 @@ class EmailHelperTest {
                     otp = "111111",
                     workflow = EmailWorkFlow.EXISTING_USER,
                     sessionData = null,
+                    tracker = AttemptTracker(),
                     onSuccess = {},
                     onFailure = { _, _ -> },
                 )

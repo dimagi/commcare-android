@@ -7,6 +7,8 @@ import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.dialogs.StandardAlertDialog
 import java.util.Date
@@ -62,10 +64,20 @@ object EmailOfferHelper {
                 activity.getString(R.string.personalid_email_offer_message),
             )
         dialog.setPositiveButton(activity.getString(R.string.personalid_email_offer_yes)) { _, _ ->
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT,
+                AnalyticsParamValue.USER_PROMPT_INFO_EXISTING_USER_REMINDER,
+            )
             activity.dismissAlertDialog()
             launchPersonalIdForEmailCollection(activity)
         }
         dialog.setNegativeButton(activity.getString(R.string.personalid_email_offer_no)) { _, _ ->
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_SKIP,
+                AnalyticsParamValue.USER_PROMPT_INFO_EXISTING_USER_REMINDER,
+            )
             activity.dismissAlertDialog()
         }
         activity.showAlertDialog(dialog)
