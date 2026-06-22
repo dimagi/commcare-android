@@ -67,7 +67,7 @@ class ConnectCredentialResolverTest {
         every { ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, "app-1", "alice") } returns null
         val created = recordWith(password = "generated", localPassphrase = true)
         every {
-            ConnectAppDatabaseUtil.storeApp(context, "app-1", "alice", true, any(), true, false)
+            ConnectAppDatabaseUtil.storeApp(context, "app-1", "alice", true, any(), true)
         } returns created
 
         val result = resolver.resolve("app-1", "alice", createIfNeeded = true)
@@ -92,7 +92,7 @@ class ConnectCredentialResolverTest {
         } returns null
         val created = recordWith(password = "ignored", localPassphrase = true)
         every {
-            ConnectAppDatabaseUtil.storeApp(context, "app-1", "alice", true, capture(passwordSlot), true, false)
+            ConnectAppDatabaseUtil.storeApp(context, "app-1", "alice", true, capture(passwordSlot), true)
         } returns created
 
         resolver.resolve("app-1", "alice", createIfNeeded = true)
