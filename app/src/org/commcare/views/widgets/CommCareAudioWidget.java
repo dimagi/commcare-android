@@ -163,7 +163,7 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     protected void playAudio() {
-        mPlayButton.setBackgroundResource(R.drawable.pause);
+        mPlayButton.setImageResource(R.drawable.pause);
         mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
         startPlaybackTimer();
         player.start();
@@ -222,14 +222,14 @@ public class CommCareAudioWidget extends AudioWidget
 
     private void pauseAudioPlayer() {
         player.pause();
-        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setImageResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> resumeAudioPlayer());
         stopPlaybackTimer();
     }
 
     private void resumeAudioPlayer() {
         player.start();
-        mPlayButton.setBackgroundResource(R.drawable.pause);
+        mPlayButton.setImageResource(R.drawable.pause);
         mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
         startPlaybackTimer();
     }
@@ -259,7 +259,7 @@ public class CommCareAudioWidget extends AudioWidget
 
     private void initAudioPlayer() {
         playbackContainer.setVisibility(VISIBLE);
-        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setImageResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
 
         String sourceFilePath = getSourceFilePathToDisplay();
@@ -300,7 +300,7 @@ public class CommCareAudioWidget extends AudioWidget
         playbackSeekBar.setProgress(100);
         stopPlaybackTimer();
         playbackTime.setText(R.string.playback_start_time);
-        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setImageResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
         playbackSeekBar.setVisibility(VISIBLE);
     }

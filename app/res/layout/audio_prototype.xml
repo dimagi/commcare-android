@@ -53,8 +53,9 @@
             android:layout_height="65dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/play_disabled"
-            android:elevation="10dp"
+            android:src="@drawable/play_disabled"
+            android:scaleType="fitCenter"
+            android:background="@android:color/transparent"
             app:layout_constraintTop_toBottomOf="@id/recording_filename"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -128,15 +129,17 @@
                 android:layout_width="160dp"
                 android:layout_marginEnd="30dp"
                 android:layout_marginStart="30dp"
-                android:background="@drawable/record"
-                android:elevation="10dp"/>
+                android:src="@drawable/record"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent"/>
 
             <ImageButton
                 android:id="@+id/choose_file"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:background="@drawable/open_file"
-                android:elevation="10dp" />
+                android:src="@drawable/open_file"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent" />
         </LinearLayout>
         <TextView
             android:id="@+id/capture_button_label"
