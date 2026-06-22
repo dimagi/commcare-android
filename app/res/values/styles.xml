@@ -243,7 +243,7 @@
         <item name="shapeAppearanceOverlay">@style/NegativeButtonShapeAppearanceStyle</item>
         <item name="strokeColor">@color/cc_brand_color</item>
         <item name="strokeWidth">2dp</item>
-        <item name="textColor">@color/red</item>
+        <item name="android:textColor">@color/cc_brand_color</item>
     </style>
 
     <style name="NegativeButtonShapeAppearanceStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
