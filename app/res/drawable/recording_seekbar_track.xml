@@ -9,7 +9,7 @@
             <size android:height="2dp" />
             <corners
                 android:radius="2dp" />
-            <solid android:color="#CCCCCC" />
+            <solid android:color="@color/grey_light" />
         </shape>
     </item>
 
