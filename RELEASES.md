@@ -2,6 +2,50 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+
+## CommCare 2.63.1
+
+### Release Notes
+<!--
+These are published publicly on Playstore, Github Releases and CommCare Forums
+-->
+
+#### What's New
+
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for specific projects.
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+#### Important Bug Fixes
+
+- Fix bug causing form widgets to lose focus when a Combobox dropdown on the same screen is re-validated.
+- Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
+
+### QA Notes
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
+
+- **Combobox capitalization fix:**
+  - **Setup:** Use a form with a lookup-table-backed multiple-choice question configured with `appearance="combobox"`, followed by a Numeric ID or Phone Number question on the same screen.
+  - **Focus retention in following questions (the user-visible bug being fixed):**
+    - Open the form, select or type a valid choice in the combobox, then move to the Numeric ID / Phone Number question.
+    - Tap the field and type a multiple digit value in one go. Verify the field retains focus throughout — no need to re-tap after each digit.
+  - **Combobox case correction (existing behaviour, should still work):**
+    - Type a valid choice in **lowercase** (e.g. "apple" when the choice list contains "Apple") and tap away. Verify the field is rewritten to the canonical casing "Apple".
+    - Type the same choice in **mixed case** (e.g. "ApPlE") and lose focus. Verify it's rewritten to "Apple".
+    - Type a value that **doesn't match any choice** and lose focus. Verify the field is left unchanged.
+
+- **GPS `here()` crash regression:** Using an app configuration that has `here()` in a case list (e.g. a case list that shows distance to GPS coordinates), navigate to that case list and wait for it to fully load. Press Back. Verify the app returns to the previous screen without crashing.
+- **GPS `here()` case list refresh:** Using the same app configuration, navigate to the case list and allow GPS to acquire a location fix. Move to a different location (or simulate a location change) while the list is displayed. Verify the case list automatically refreshes and distance values update accordingly.
+
+
 ## CommCare 2.64
 
 ### Release Notes
@@ -12,6 +56,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+
+#### Internal Release Notes
 - Deprecated PersonalID support for devices on Android OS less than Android 9.
 - [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
 - Reduced frequency of required biometric or pin unlocks for PersonalID and Connect  
@@ -26,16 +72,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
 - Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
 
-#### Internal Release Notes
-
-<!--
-Release notes that are not applicable for wider CommCare users but only for specific projects.
-These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
-along with the public release notes above
--->
 
 ### QA Notes
-
 <!--
 These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
@@ -147,7 +185,6 @@ we would like to communicate to QA as part of the release testing
   - PersonalID logged in, offline / network failure: same "Opportunity not found" toast and jobs-list landing — no retry prompt, no stuck loading dialog.
   - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
-
 
 
 ## CommCare 2.63
