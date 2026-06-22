@@ -117,6 +117,9 @@
     <!-- Progress bar colors -->
     <color name="progress_bar_bg">#66000000</color>
 
+    <!-- Widget colors -->
+    <color name="audio_recording_primary_color">#E44434</color>
+
     <!-- New Connect colors -->
     <color name="connect_message_receiver_bg">#5C6FD0</color>
     <color name="connect_message_sender_bg">#F1F5F9</color>

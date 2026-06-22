@@ -101,7 +101,7 @@ public class RecordingFragment extends DialogFragment {
     private AudioRecordingService audioRecordingService;
     private ServiceConnection audioRecordingServiceConnection;
     private Animation recordingAnimation;
-    private int redColor;
+    private int primaryColor;
     private int lightGrayColor;
     private Drawable recordingDrawable;
     private Drawable pausedDrawable;
@@ -130,7 +130,7 @@ public class RecordingFragment extends DialogFragment {
             reloadSavedRecording();
         }
         recordingAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.blink);
-        redColor = getContext().getColor(R.color.red_incomplete);
+        primaryColor = getContext().getColor(R.color.audio_recording_primary_color);
         lightGrayColor = getContext().getColor(R.color.grey_light);
 
         progressBarDrawable = getContext().getDrawable(R.drawable.progress_bar);
@@ -340,7 +340,7 @@ public class RecordingFragment extends DialogFragment {
 
         recordingAnimationText.setVisibility(VISIBLE);
         recordingAnimationText.setText(R.string.recording_in_progress);
-        recordingAnimationText.setTextColor(redColor);
+        recordingAnimationText.setTextColor(primaryColor);
         recordingAnimationText.startAnimation(recordingAnimation);
         recordingAnimationText.setCompoundDrawablesRelativeWithIntrinsicBounds(recordingDrawable, null, null, null);
     }
