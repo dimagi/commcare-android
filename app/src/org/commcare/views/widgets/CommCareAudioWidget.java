@@ -32,6 +32,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 
 import static org.commcare.views.widgets.RecordingFragment.APPEARANCE_ATTR_ARG_KEY;
@@ -47,7 +48,7 @@ public class CommCareAudioWidget extends AudioWidget
         implements RecordingFragment.RecordingCompletionListener {
 
     private LinearLayout layout;
-    private LinearLayout playbackContainer;
+    private ConstraintLayout playbackContainer;
     private TextView recordingFilename;
     private TextView playbackDurationMain;
     private ImageButton mPlayButton;
