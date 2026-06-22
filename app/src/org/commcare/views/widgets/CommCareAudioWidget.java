@@ -86,7 +86,7 @@ public class CommCareAudioWidget extends AudioWidget
         deleteAudio = layout.findViewById(R.id.delete_audio);
 
         captureButton.setOnClickListener(v -> captureAudio(mPrompt));
-        deleteAudio.setOnClickListener(v -> captureAudio(mPrompt));
+        deleteAudio.setOnClickListener(v -> launchAudioRecorder(mPrompt));
 
         // launch audio filechooser intent on click
         chooseButton.setOnClickListener(v -> {
@@ -133,6 +133,10 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     protected void captureAudio(FormEntryPrompt prompt) {
+        launchAudioRecorder(prompt);
+    }
+
+    private void launchAudioRecorder(FormEntryPrompt prompt) {
         RecordingFragment recorder = new RecordingFragment();
         recorder.setListener(this);
         Bundle args = new Bundle();
