@@ -83,7 +83,8 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
     }
 
     private void verifyOrAddName() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null,
+                PersonalIdWorkflow.CONFIGURATION);
         clearError();
         enableContinueButton(false);
         new PersonalIdApiHandler<PersonalIdSessionData>() {

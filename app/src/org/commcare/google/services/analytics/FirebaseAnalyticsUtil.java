@@ -17,6 +17,7 @@ import org.commcare.DiskUtils;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.fragments.personalId.PersonalIdWorkflow;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -674,12 +675,14 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
-    public static void reportPersonalIDContinueClicked(String screenName, @Nullable String info) {
+    public static void reportPersonalIDContinueClicked(String screenName, @Nullable String info,
+            PersonalIdWorkflow workflow) {
         Bundle params = new Bundle();
         params.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
         if (info != null) {
             params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO, info);
         }
+        params.putString(CCAnalyticsParam.PERSONAL_ID_WORKFLOW, workflow.getAnalyticsValue());
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
     }
 

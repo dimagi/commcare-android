@@ -129,7 +129,11 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             showError(getString(R.string.personalid_email_invalid_format))
             return
         }
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, null)
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
+            javaClass.simpleName,
+            null,
+            PersonalIdWorkflow.fromEmailWorkFlow(workflow),
+        )
         clearError()
         enableContinueButton(false)
 
@@ -150,7 +154,11 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     private fun skipEmail() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "skip")
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
+            javaClass.simpleName,
+            "skip",
+            PersonalIdWorkflow.fromEmailWorkFlow(workflow),
+        )
         EmailHelper.routeAfterEmailDeclined(
             fragment = this,
             workflow = workflow,
