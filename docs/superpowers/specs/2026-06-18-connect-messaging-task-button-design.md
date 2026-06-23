@@ -35,12 +35,12 @@ Fields:
 
 ### `ConnectTaskUtils` (new class)
 Lives in `org.commcare.connect.database`, alongside `ConnectJobUtils`. Owns all task-specific DB operations so that `ConnectJobUtils` is not further enlarged.
-
+  
 - `storeTasks(context, List<ConnectTaskRecord>, jobUUID): Boolean` — fetches the existing tasks for the job from the DB, diffs them against the incoming list (comparing `taskId`, `type`, `status`, and `slug` per task). If anything changed (new task, removed task, or field change), replaces the stored list and returns `true`. Returns `false` if the lists are identical.
-- `hasPendingTask(context, jobUUID): Boolean` — returns `true` if any task for the job has `status = "assigned"`, regardless of type. Used by `ConnectJobRecord.isTaskPending(context)` and `ConnectJobRecord.shouldShowTasksCompletedMessage(context)`. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASK_PENDING` from `ConnectJobPreferences`; if that pref is `true`, return `true` and immediately clear the pref so the fallback fires only once.
+- `hasPendingTask(context, jobUUID): Boolean` — returns `true` if any task for the job has `status = "assigned"`, regardless of type. Used by `ConnectJobRecord.isTaskPending(context)` and `ConnectJobRecord.shouldShowTasksCompletedMessage(context)`. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASK_PENDING` from `ConnectJobPreferences`; if that pref is `true`, return `true`. 
 - `hasPendingTaskOfType(context, jobUUID, type): Boolean` — returns `true` if a task of the given `type` has `status = "assigned"`. Used for the messaging button visibility check. Avoids the problem of a relearn task hiding the messaging CTA when both are pending. No preference fallback — messaging tasks have no prior pref equivalent.
 - `getPendingTaskOfType(context, jobUUID, type): ConnectTaskRecord?` — returns the first pending task of the given `type`, or `null`. Used when the actual record is needed (e.g. messaging button needs the `slug` for navigation). `hasPendingTaskOfType` may delegate to this internally. No preference fallback.
-- `getMostRecentlyCompletedTask(context, jobUUID): ConnectTaskRecord?` — returns the task with `status = "completed"` having the latest `dateModified`, regardless of type. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASKS_COMPLETED_TIME_MS` from `ConnectJobPreferences`; if set, synthesise a minimal `ConnectTaskRecord` with `dateModified` equal to that timestamp, return it, and clear the pref.
+- `getMostRecentlyCompletedTask(context, jobUUID): ConnectTaskRecord?` — returns the task with `status = "completed"` having the latest `dateModified`, regardless of type. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASKS_COMPLETED_TIME_MS` from `ConnectJobPreferences`; if set, synthesise a minimal `ConnectTaskRecord` with `dateModified` equal to that timestamp, return it. 
 
 ### `DeliveryAppProgressResponseModel` / Parser
 - Replace `parsedTasks: List<ParsedConnectTask>` with `tasks: List<ConnectTaskRecord>` (empty list when `assigned_tasks` is absent or empty)
