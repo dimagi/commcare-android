@@ -379,6 +379,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void verifyOtp() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null,
+                PersonalIdWorkflow.CONFIGURATION);
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
         String otpCode = binding.customOtpView.getCodeValue();
