@@ -32,6 +32,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 
 import static org.commcare.views.widgets.RecordingFragment.APPEARANCE_ATTR_ARG_KEY;
@@ -47,7 +48,7 @@ public class CommCareAudioWidget extends AudioWidget
         implements RecordingFragment.RecordingCompletionListener {
 
     private LinearLayout layout;
-    private LinearLayout playbackContainer;
+    private ConstraintLayout playbackContainer;
     private TextView recordingFilename;
     private TextView playbackDurationMain;
     private ImageButton mPlayButton;
@@ -86,7 +87,7 @@ public class CommCareAudioWidget extends AudioWidget
         deleteAudio = layout.findViewById(R.id.delete_audio);
 
         captureButton.setOnClickListener(v -> captureAudio(mPrompt));
-        deleteAudio.setOnClickListener(v -> captureAudio(mPrompt));
+        deleteAudio.setOnClickListener(v -> launchAudioRecorder(mPrompt));
 
         // launch audio filechooser intent on click
         chooseButton.setOnClickListener(v -> {
@@ -133,6 +134,10 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     protected void captureAudio(FormEntryPrompt prompt) {
+        launchAudioRecorder(prompt);
+    }
+
+    private void launchAudioRecorder(FormEntryPrompt prompt) {
         RecordingFragment recorder = new RecordingFragment();
         recorder.setListener(this);
         Bundle args = new Bundle();
@@ -158,7 +163,7 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     protected void playAudio() {
-        mPlayButton.setBackgroundResource(R.drawable.pause);
+        mPlayButton.setImageResource(R.drawable.pause);
         mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
         startPlaybackTimer();
         player.start();
@@ -217,14 +222,14 @@ public class CommCareAudioWidget extends AudioWidget
 
     private void pauseAudioPlayer() {
         player.pause();
-        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setImageResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> resumeAudioPlayer());
         stopPlaybackTimer();
     }
 
     private void resumeAudioPlayer() {
         player.start();
-        mPlayButton.setBackgroundResource(R.drawable.pause);
+        mPlayButton.setImageResource(R.drawable.pause);
         mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
         startPlaybackTimer();
     }
@@ -254,7 +259,7 @@ public class CommCareAudioWidget extends AudioWidget
 
     private void initAudioPlayer() {
         playbackContainer.setVisibility(VISIBLE);
-        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setImageResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
 
         String sourceFilePath = getSourceFilePathToDisplay();
@@ -295,7 +300,7 @@ public class CommCareAudioWidget extends AudioWidget
         playbackSeekBar.setProgress(100);
         stopPlaybackTimer();
         playbackTime.setText(R.string.playback_start_time);
-        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setImageResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
         playbackSeekBar.setVisibility(VISIBLE);
     }
