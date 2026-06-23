@@ -20,18 +20,18 @@ New table `connect_tasks` in the Connect encrypted DB, following the `@Table` / 
 
 Fields:
 
-| Field | Type | Notes |
-|---|---|---|
-| `opportunity_id` | String | Binds the task to Opp |
-| `taskId` | String | Unique task identifier from server |
-| `name` | String | Required |
-| `description` | String | Optional |
-| `status` | String | `"assigned"` or `"completed"` |
-| `slug` | String | Channel ID or task-specific ID; unique |
-| `type` | String | `"messaging"` or `"relearn"` |
-| `dueDate` | Date | Nullable |
-| `dateCreated` | Date | Default to now |
-| `dateModified` | Date | Default to now |
+| Field              | Type | Notes |
+|--------------------|---|---|
+| `opportunity_uuid` | String | Binds the task to Opp |
+| `task_id`          | String | Unique task identifier from server |
+| `name`             | String | Required |
+| `description`      | String | Optional |
+| `status`           | String | `"assigned"` or `"completed"` |
+| `slug`             | String | Channel ID or task-specific ID; unique |
+| `type`             | String | `"messaging"` or `"relearn"` |
+| `due_date`         | Date | Nullable |
+| `date_created`     | Date | Default to now |
+| `date_modified`    | Date | Default to now |
 
 ### `ConnectJobUtils`
 - `storeTasks(context, List<ConnectTaskRecord>, jobUUID): Boolean` — fetches the existing tasks for the job from the DB, diffs them against the incoming list (comparing `taskId`, `type`, `status`, and `slug` per task). If anything changed (new task, removed task, or field change), replaces the stored list and returns `true`. Returns `false` if the lists are identical.
@@ -41,7 +41,7 @@ Fields:
 - `getMostRecentlyCompletedTask(context, jobUUID): ConnectTaskRecord?` — returns the task with `status = "completed"` having the latest `dateModified`, regardless of type. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASKS_COMPLETED_TIME_MS` from `ConnectJobPreferences`; if set, synthesise a minimal `ConnectTaskRecord` with `dateModified` equal to that timestamp, return it, and clear the pref.
 
 ### `DeliveryAppProgressResponseModel` / Parser
-- Replace `parsedTasks: List<ParsedConnectTask>` with `tasks: List<ConnectTaskRecord>` (empty list when `assigned_tasks` is absent or empty). Remove the `hasTasks: Boolean` flag.
+- Replace `parsedTasks: List<ParsedConnectTask>` with `tasks: List<ConnectTaskRecord>` (empty list when `assigned_tasks` is absent or empty)
 - Parser calls `ConnectTaskRecord.fromJson(obj, job)` for each item in `assigned_tasks`, matching how deliveries and payments are parsed.
 - `applyToJob()` always calls `ConnectJobUtils.storeTasks()` unconditionally, even when the list is empty — this ensures stale records are deleted when the server stops returning tasks. The `tasksChanged` return value gates the timestamp update only.
 
@@ -71,17 +71,15 @@ The relearn task state moves fully from `ConnectJobPreferences` to the DB, so th
 
 ### `view_progress_job_card.xml`
 Add a new `AppCompatButton`:
-- `id`: `open_conversation`
-- `text`: `@string/connect_open_conversation` ("Open Conversation")
+- `id`: `acb_open_conversation`
+- `text`: `@string/connect_open_conversation_button_text` ("Open Conversation")
 - `drawableStart`: `@drawable/ic_connect_message_large` (existing icon)
 - `visibility`: `gone` by default
 - Style: matches `acb_resume` (rounded lavender background, `connect_blue_color` text, no elevation/state animator, `textAllCaps="false"`)
 - Constrained below `@id/cv_relearn_tasks_pending`, start-aligned to parent
 
-New string resource in `strings.xml`: `personalid_open_conversation`.
-
 ### `StandardHomeActivityUIController`
-- Add field: `AppCompatButton btnOpenConversation`, found in `setupConnectJobTile()` via `viewJobCard.findViewById(R.id.acb_open_conversation)`.
+- Add field: `AppCompatButton acbOpenConversation`, found in `setupConnectJobTile()` via `viewJobCard.findViewById(R.id.acb_open_conversation)`.
 - In `syncJobCardVisibility(job)`:
   - If `job.getStatus() == STATUS_DELIVERING`: call `ConnectJobUtils.hasPendingTaskOfType(activity, job.getJobUUID(), "messaging")` to determine visibility.
   - When visible and the button is tapped: call `ConnectJobUtils.getPendingTaskOfType(activity, job.getJobUUID(), "messaging")` to retrieve the task and pass its `slug` to `ConnectNavHelper.unlockAndGoToMessagingWithChannel(activity, task.getSlug(), listener)`.
@@ -94,8 +92,8 @@ New string resource in `strings.xml`: `personalid_open_conversation`.
 Add:
 ```kotlin
 fun goToMessagingWithChannel(context: Context, channelId: String) {
-    val i = Intent(context, ConnectMessagingActivity::class.java)
-    i.putExtra(ConnectMessagingActivity.CHANNEL_ID, channelId)
+    val intent = Intent(context, ConnectMessagingActivity::class.java)
+    intent.putExtra(ConnectMessagingActivity.CHANNEL_ID, channelId)
     context.startActivity(i)
 }
 
