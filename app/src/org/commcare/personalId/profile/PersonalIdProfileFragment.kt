@@ -61,7 +61,10 @@ class PersonalIdProfileFragment : Fragment() {
                             findNavController().navigate(R.id.action_profile_to_profile_edit)
                             true
                         }
-                        else -> false
+
+                        else -> {
+                            false
+                        }
                     }
             },
             viewLifecycleOwner,
