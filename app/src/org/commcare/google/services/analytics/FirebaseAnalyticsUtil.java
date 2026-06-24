@@ -217,7 +217,7 @@ public class FirebaseAnalyticsUtil {
                 : AnalyticsParamValue.SAVED;
         reportEvent(
                 CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
-                FirebaseAnalytics.Param.ITEM_LIST,
+                FirebaseAnalytics.Param.ITEM_LIST_NAME,
                 formType
         );
     }
