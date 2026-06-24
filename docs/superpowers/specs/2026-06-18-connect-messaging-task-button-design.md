@@ -20,26 +20,26 @@ New table `connect_tasks` in the Connect encrypted DB, following the `@Table` / 
 
 Fields:
 
-| Field              | Type | Notes |
-|--------------------|---|---|
-| `opportunity_uuid` | String | Binds the task to Opp |
+| Field              | Type | Notes                              |
+|--------------------|---|------------------------------------|
+| `opportunity_uuid` | String | Binds the task to Opp              |
 | `task_id`          | String | Unique task identifier from server |
-| `name`             | String | Required |
-| `description`      | String | Optional |
-| `status`           | String | `"assigned"` or `"completed"` |
-| `slug`             | String | Channel ID or task-specific ID; unique |
-| `type`             | String | `"messaging"` or `"relearn"` |
-| `due_date`         | Date | Nullable |
-| `date_created`     | Date | Default to now |
-| `date_modified`    | Date | Default to now |
+| `name`             | String | Required                           |
+| `description`      | String | Optional                           |
+| `status`           | String | `"assigned"` or `"completed"`      |
+| `connect_channel_id`             | String | Channel UUID                       |
+| `type`             | String | `"messaging"` or `"relearn"`       |
+| `due_date`         | Date | Nullable                           |
+| `date_created`     | Date | Default to now                     |
+| `date_modified`    | Date | Default to now                     |
 
 ### `ConnectTaskUtils` (new class)
 Lives in `org.commcare.connect.database`, alongside `ConnectJobUtils`. Owns all task-specific DB operations so that `ConnectJobUtils` is not further enlarged.
   
-- `storeTasks(context, List<ConnectTaskRecord>, jobUUID): Boolean` — fetches the existing tasks for the job from the DB and diffs them against the incoming list. For each task matched by `task_id`: compares all mutable fields (`name`, `description`, `status`, `slug`, `type`, `due_date`); if any field differs, updates the stored record and stamps its `date_modified` to now. New tasks are inserted with `date_modified` set to now. Tasks no longer present in the incoming list are deleted. Returns `true` if any insert, update, or delete occurred; `false` if the stored set was identical.
+- `storeTasks(context, List<ConnectTaskRecord>, jobUUID): Boolean` — fetches the existing tasks for the job from the DB and diffs them against the incoming list. For each task matched by `task_id`: compares all mutable fields (`name`, `description`, `status`, `connect_channel_id`, `type`, `due_date`); if any field differs, updates the stored record and stamps its `date_modified` to now. New tasks are inserted with `date_modified` set to now. Tasks no longer present in the incoming list are deleted. Returns `true` if any insert, update, or delete occurred; `false` if the stored set was identical.
 - `hasPendingTask(context, jobUUID): Boolean` — returns `true` if any task for the job has `status = "assigned"`, regardless of type. Used by `ConnectJobRecord.isTaskPending(context)` and `ConnectJobRecord.shouldShowTasksCompletedMessage(context)`. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASK_PENDING` from `ConnectJobPreferences`; if that pref is `true`, return `true`. 
 - `hasPendingTaskOfType(context, jobUUID, type): Boolean` — returns `true` if a task of the given `type` has `status = "assigned"`. Used for the messaging button visibility check. Avoids the problem of a relearn task hiding the messaging CTA when both are pending. No preference fallback — messaging tasks have no prior pref equivalent.
-- `getPendingTaskOfType(context, jobUUID, type): ConnectTaskRecord?` — returns the first pending task of the given `type`, or `null`. Used when the actual record is needed (e.g. messaging button needs the `slug` for navigation). `hasPendingTaskOfType` may delegate to this internally. No preference fallback.
+- `getPendingTaskOfType(context, jobUUID, type): ConnectTaskRecord?` — returns the first pending task of the given `type`, or `null`. Used when the actual record is needed (e.g. messaging button needs the `connect_channel_id` for navigation). `hasPendingTaskOfType` may delegate to this internally. No preference fallback.
 - `getMostRecentlyCompletedTask(context, jobUUID): ConnectTaskRecord?` — returns the task with `status = "completed"` having the latest `dateModified`, regardless of type. **Fallback:** if the DB has no task rows for the job, read `KEY_RELEARN_TASKS_COMPLETED_TIME_MS` from `ConnectJobPreferences`; if set, synthesise a minimal `ConnectTaskRecord` with `dateModified` equal to that timestamp, return it.
 
 ### `DeliveryAppProgressResponseModel` / Parser
@@ -99,8 +99,8 @@ Add a new `AppCompatButton`:
 - Add field: `AppCompatButton acbOpenConversation`, found in `setupConnectJobTile()` via `viewJobCard.findViewById(R.id.acb_open_conversation)`.
 - In `syncJobCardVisibility(job)`:
   - If `job.getStatus() == STATUS_DELIVERING`: call `ConnectTaskUtils.hasPendingTaskOfType(activity, job.getJobUUID(), "messaging")` to determine visibility.
-  - When visible and the button is tapped: call `ConnectTaskUtils.getPendingTaskOfType(activity, job.getJobUUID(), "messaging")` to retrieve the task and pass its `slug` to `ConnectNavHelper.unlockAndGoToMessagingWithChannel(activity, task.getSlug(), listener)`.
-  - Button is hidden when no pending messaging task exists or the task's `slug` is empty.
+  - When visible and the button is tapped: call `ConnectTaskUtils.getPendingTaskOfType(activity, job.getJobUUID(), "messaging")` to retrieve the task and pass its `connect_channel_id` to `ConnectNavHelper.unlockAndGoToMessagingWithChannel(activity, task.getConnectChannelId(), listener)`.
+  - Button is hidden when no pending messaging task exists or the task's `connect_channel_id` is empty.
 - Button is hidden in all non-`STATUS_DELIVERING` states.
 
 ## Navigation
@@ -231,5 +231,5 @@ The check only fires when no earlier health action already kicked off a sync. It
 ## Constraints & Edge Cases
 - Button is hidden when the job is not in `STATUS_DELIVERING`, even if a messaging task exists in the DB.
 - A pending relearn task does not suppress the messaging button — `hasPendingTaskOfType` checks the type independently, so both task types can be pending simultaneously without interference.
-- If `getPendingTaskOfType` returns a task with a null/empty `slug`, the button is hidden (defensive guard before navigation).
+- If `getPendingTaskOfType` returns a task with a null/empty `connect_channel_id`, the button is hidden (defensive guard before navigation).
 - `ConnectMessagingActivity` already handles the case where a channel is not yet in the local DB (`handleNoChannel` fetches it from the server before navigating).
