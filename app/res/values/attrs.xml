@@ -144,11 +144,11 @@
         <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="ConnectInfoCard">
-        <attr name="topText" format="string" />
-        <attr name="centerText" format="string" />
-        <attr name="bottomText" format="string" />
-        <attr name="showSyncIcon" format="boolean" />
+    <declare-styleable name="ConnectInfoHalfCard">
+        <attr name="valueText" format="string" />
+        <attr name="titleText" format="string" />
+        <attr name="subtitleText" format="string" />
+        <attr name="icon" format="reference" />
         <attr name="navigable" format="boolean" />
     </declare-styleable>
 </resources>
