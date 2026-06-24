@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_edit_profile"
+        android:id="@+id/action_profile_edit"
         android:icon="@drawable/ic_edit_square"
-        android:title="@string/personalid_edit_profile_title"
+        android:title="@string/personalid_profile_edit_title"
         app:showAsAction="always" />
 </menu>

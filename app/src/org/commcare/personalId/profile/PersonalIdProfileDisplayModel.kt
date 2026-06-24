@@ -1,4 +1,4 @@
-package org.commcare.activities.connect.viewmodel
+package org.commcare.personalId.profile
 
 data class PersonalIdProfileDisplayModel(
     val name: String,

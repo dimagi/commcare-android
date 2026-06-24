@@ -1,4 +1,4 @@
-package org.commcare.activities.connect.viewmodel
+package org.commcare.personalId.profile
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareApplication

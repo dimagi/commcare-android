@@ -1,4 +1,4 @@
-package org.commcare.fragments.personalId
+package org.commcare.personalId.profile
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,8 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import org.commcare.activities.connect.viewmodel.PersonalIdProfileDisplayModel
-import org.commcare.activities.connect.viewmodel.PersonalIdProfileViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileScreenBinding
 
@@ -59,8 +57,8 @@ class PersonalIdProfileFragment : Fragment() {
 
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
                     when (menuItem.itemId) {
-                        R.id.action_edit_profile -> {
-                            findNavController().navigate(R.id.action_profile_to_edit_profile)
+                        R.id.action_profile_edit -> {
+                            findNavController().navigate(R.id.action_profile_to_profile_edit)
                             true
                         }
                         else -> false

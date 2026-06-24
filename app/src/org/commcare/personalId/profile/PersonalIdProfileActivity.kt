@@ -1,4 +1,4 @@
-package org.commcare.activities.connect
+package org.commcare.personalId.profile
 
 import android.os.Bundle
 import androidx.navigation.fragment.NavHostFragment

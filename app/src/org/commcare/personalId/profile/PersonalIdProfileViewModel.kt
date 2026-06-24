@@ -1,4 +1,4 @@
-package org.commcare.activities.connect.viewmodel
+package org.commcare.personalId.profile
 
 import android.app.Application
 import android.content.Context

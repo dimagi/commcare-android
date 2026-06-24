@@ -607,7 +607,7 @@
             android:theme="@style/CommonTheme.NoActionBar"/>
 
         <activity
-            android:name="org.commcare.activities.connect.PersonalIdProfileActivity"
+            android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
             android:theme="@style/CommonTheme.NoActionBar"/>
 
