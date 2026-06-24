@@ -19,12 +19,4 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         val appBarConfiguration = AppBarConfiguration(emptySet())
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
     }
-
-    override fun onSupportNavigateUp(): Boolean {
-        if (navController.navigateUp()) {
-            return true
-        }
-        finish()
-        return true
-    }
 }
