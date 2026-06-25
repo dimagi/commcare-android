@@ -443,6 +443,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             rebuildHeaders();
 
             if (adapter == null) {
+                CrashUtil.log("EntitySelectActivity.loadEntities called from refreshView() " +
+                        "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
+                        "; isFinishing=" + isFinishing());
                 loadEntities();
             } else {
                 refreshTimer.start(this);
@@ -472,6 +475,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    // temporary for troubleshooting purposes
+    public String getSessionCommand(){
+        return (session == null || session.getCommand() == null) ? "null" : session.getCommand();
+    }
+
+    // temporary for troubleshooting purposes
+    public String getSelectDatum() {
+        return selectDatum == null ? "null" : selectDatum.getDataId() + " " + selectDatum.getValue();
+    }
+
     public boolean loadEntities() {
         if (adapter != null) {
             // Store extra data to be reloaded upon load task completion
@@ -481,7 +494,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             if (session.getCommand() == null) {
                 CrashUtil.log("EntitySelectActivity.loadEntities with null session command" +
-                        "; selectDatum=" + (selectDatum == null ? "null" : selectDatum.getDataId()) +
+                        "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
                         "; isFinishing=" + isFinishing());
             }
             setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_initializing));
@@ -520,7 +533,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onPause() {
         super.onPause();
-
+        CrashUtil.log("onPause called started");
         if (refreshTimer != null) {
             refreshTimer.stop();
         }
@@ -531,20 +544,24 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         hereFunctionHandler.forbidGpsUse();
         hereFunctionHandler.unregisterListener();
+        CrashUtil.log("onPause called finished");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        CrashUtil.log("onStop called started");
         if (refreshTimer != null) {
             refreshTimer.stop();
         }
         saveLastQueryString();
+        CrashUtil.log("onStop called finished");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        CrashUtil.log("onDestroy called started");
         if (loader != null) {
             if (isFinishing()) {
                 loader.cancel(true);
@@ -556,6 +573,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null) {
             adapter.signalKilled();
         }
+        CrashUtil.log("onDestroy called finished");
     }
 
     public void onEntitySelected(int itemPosition) {
@@ -918,6 +936,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (locationChangedWhileLoading) {
             Log.i("HereFunctionHandler", "location changed while reloading");
             locationChangedWhileLoading = false;
+            CrashUtil.log("EntitySelectActivity.loadEntities called from deliverLoadResult() " +
+                    "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
+                    "; isFinishing=" + isFinishing());
             loadEntities();
         }
     }
@@ -1067,6 +1088,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void onEvalLocationChanged() {
+        CrashUtil.log("EntitySelectActivity.loadEntities called from onEvalLocationChanged() " +
+                "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
+                "; isFinishing=" + isFinishing());
         if (isFinishing() || session == null || session.getCommand() == null) {
             CrashUtil.log("EntitySelectActivity.onEvalLocationChanged with null session command" +
                     "; isFinishing=" + isFinishing());

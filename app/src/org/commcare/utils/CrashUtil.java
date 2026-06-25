@@ -56,4 +56,28 @@ public class CrashUtil {
             FirebaseCrashlytics.getInstance().log(message);
         }
     }
+
+    // temporary for troubleshooting purposes only
+    public static String getTopCallerChain() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        StringBuilder sb = new StringBuilder();
+        int FRAMES_TO_SKIP = 3;
+        int MAX_CHAIN_LENGTH = 5;
+        int limit = Math.min(FRAMES_TO_SKIP + MAX_CHAIN_LENGTH, stackTrace.length);
+        for (int i = FRAMES_TO_SKIP; i < limit; i++) {
+            sb.append(getSimpleClassName(stackTrace[i].getClassName()))
+                    .append(".")
+                    .append(stackTrace[i].getMethodName())
+                    .append(":")
+                    .append(stackTrace[i].getLineNumber());
+            if (i < limit - 1) {
+                sb.append(" <- ");
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String getSimpleClassName(String fullyqualifiedClassName) {
+        return fullyqualifiedClassName.substring(fullyqualifiedClassName.lastIndexOf('.') + 1);
+    }
 }
