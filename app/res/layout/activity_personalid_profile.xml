@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="org.commcare.activities.connect.PersonalIdProfileActivity">
+    tools:context="org.commcare.personalId.profile.PersonalIdProfileActivity">
 
     <include
         android:id="@+id/include_tool_bar"

@@ -1,7 +1,8 @@
-package org.commcare.activities.connect
+package org.commcare.personalId.profile
 
 import android.os.Bundle
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import org.commcare.activities.NavigationHostCommCareActivity
 import org.commcare.dalvik.R
@@ -13,8 +14,9 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        NavigationUI.setupActionBarWithNavController(this, navController)
-    }
 
-    override fun onSupportNavigateUp(): Boolean = navController.navigateUp() || super.onSupportNavigateUp()
+        // No top-level destinations, so a back arrow shows on every screen, including the start.
+        val appBarConfiguration = AppBarConfiguration(emptySet())
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+    }
 }
