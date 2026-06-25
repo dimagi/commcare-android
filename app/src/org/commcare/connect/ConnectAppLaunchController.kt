@@ -7,10 +7,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
+import org.commcare.activities.connect.ConnectActivity
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.LoginPhase
@@ -131,15 +131,15 @@ class ConnectAppLaunchController
                 object : LaunchActions {
                     override fun dismissProgress() = dismissLaunchDialog()
 
-                    override fun launchHome() {
-                        // Mark the session so DispatchActivity anchors back to LoginActivity, not Home.
-                        CommCareApplication.instance().sessionLaunchedFromConnect = true
+                    override fun launchHome(alreadyLoggedIn: Boolean) {
+                        (activity as ConnectActivity).markAppLaunchedFromConnect()
                         onLaunchSucceeded?.run()
-                        activity.startActivity(
-                            HomeScreenBaseActivity
-                                .buildHomeLaunchIntent(activity)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                        )
+
+                        val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(activity)
+                        if (alreadyLoggedIn) {
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        }
+                        activity.startActivity(intent)
                     }
 
                     override fun recoverFromSeatFailure() {

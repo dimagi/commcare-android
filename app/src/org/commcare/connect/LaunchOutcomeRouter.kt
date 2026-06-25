@@ -4,7 +4,7 @@ package org.commcare.connect
 interface LaunchActions {
     fun dismissProgress()
 
-    fun launchHome()
+    fun launchHome(alreadyLoggedIn: Boolean)
 
     fun recoverFromSeatFailure()
 
@@ -27,8 +27,8 @@ object LaunchOutcomeRouter {
     ) {
         actions.dismissProgress()
         when (outcome) {
-            LaunchOutcome.Launched -> {
-                actions.launchHome()
+            is LaunchOutcome.Launched -> {
+                actions.launchHome(outcome.alreadyLoggedIn)
             }
 
             LaunchOutcome.AppSeatFailed -> {

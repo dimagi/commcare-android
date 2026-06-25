@@ -291,7 +291,11 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 override fun onStop(owner: LifecycleOwner) {
                     owner.lifecycle.removeObserver(this)
                     if (!parentFragmentManager.isStateSaved) {
-                        NavHostFragment.findNavController(this@BaseConnectFragment).popBackStack()
+                        val popped =
+                            NavHostFragment.findNavController(this@BaseConnectFragment).popBackStack()
+                        if (!popped) {
+                            activity!!.finish()
+                        }
                     }
                 }
             },

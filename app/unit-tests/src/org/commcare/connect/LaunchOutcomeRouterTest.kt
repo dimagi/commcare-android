@@ -11,12 +11,19 @@ class LaunchOutcomeRouterTest {
 
     @Test
     fun `launched goes home after dismissing progress`() {
-        LaunchOutcomeRouter.dispatch(LaunchOutcome.Launched, 0, actions)
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.Launched(alreadyLoggedIn = false), 0, actions)
 
         verifyOrder {
             actions.dismissProgress()
-            actions.launchHome()
+            actions.launchHome(false)
         }
+    }
+
+    @Test
+    fun `launched forwards the already-logged-in flag to launchHome`() {
+        LaunchOutcomeRouter.dispatch(LaunchOutcome.Launched(alreadyLoggedIn = true), 0, actions)
+
+        verify(exactly = 1) { actions.launchHome(true) }
     }
 
     @Test
