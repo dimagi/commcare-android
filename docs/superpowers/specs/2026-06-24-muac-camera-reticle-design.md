@@ -22,9 +22,13 @@ Unlike the PersonalID photo flow, this overlay is a **visual alignment guide onl
 - Its size is **not** form-configurable — a single centered rectangle whose dimensions
   scale with the camera view.
 
-The work reuses the existing PersonalID capture stack (`MicroImageActivity` +
-`FaceCaptureView`, CameraX) by adding a second capture mode, rather than building a new
-camera screen.
+The work reuses the existing PersonalID camera plumbing (CameraX, permission handling,
+preview setup) by **extracting it into an abstract `BaseCameraActivity`**, then implementing
+the two distinct flows as separate subclasses: `MicroImageActivity` (existing face-detection
+capture) and a new `CameraOverlayActivity` (rectangle reticle, manual capture). Each activity
+stays small and single-purpose, with no capture-mode state management inside one class — the
+class identity *is* the mode, so no runtime mode flag or intent extra is needed to select
+behavior.
 
 ## Requirements (from the requirement doc)
 
@@ -48,13 +52,15 @@ camera screen.
 
 | Component | Path | Change |
 | --- | --- | --- |
-| `ImageWidget` | `app/src/org/commcare/views/widgets/ImageWidget.java` | New `rectangle-overlay` constant; parse appearance value; route Take Picture to `MicroImageActivity` |
-| `MicroImageActivity` | `app/src/org/commcare/fragments/MicroImageActivity.java` | New activity-level `CaptureMode`; select overlay view + camera + capture path; back camera; full-res file output |
+| `ImageWidget` | `app/src/org/commcare/views/widgets/ImageWidget.java` | New `rectangle-overlay` constant; parse appearance value; route Take Picture to `CameraOverlayActivity` |
+| `BaseCameraActivity` (new) | `app/src/org/commcare/fragments/BaseCameraActivity.java` | New abstract activity: shared CameraX plumbing (permission flow, provider acquisition, preview, action bar, error exit) + abstract hooks |
+| `MicroImageActivity` | `app/src/org/commcare/fragments/MicroImageActivity.java` | Refactor to extend `BaseCameraActivity`; keep face-detection behavior identical (front camera, oval, ML Kit, base64) |
+| `CameraOverlayActivity` (new) | `app/src/org/commcare/fragments/CameraOverlayActivity.java` | New subclass: back camera, manual shutter, `RectangleOverlayView`, full-res file output |
 | `RectangleOverlayView` (new) | `app/src/org/commcare/views/RectangleOverlayView.java` | New view: draws a centered rectangle reticle (scrim + clear center), sized from view dimensions |
 | `FaceCaptureView` | `app/src/org/commcare/views/FaceCaptureView.java` | **Unchanged** — remains the face-capture overlay |
-| `micro_image_widget.xml` | `app/res/layout/micro_image_widget.xml` | Add `RectangleOverlayView` over the preview; toggle visibility by mode |
-| `PersonalIdPhotoCaptureFragment` | `app/src/org/commcare/fragments/personalId/PersonalIdPhotoCaptureFragment.java` | Pass explicit `FaceDetection` mode (no behavior change) |
-| `strings.xml` | `app/res/values/strings.xml` | New action-bar title for rectangle mode (existing `micro_image_activity_title` is "Take Profile Photo", PersonalID-specific) |
+| `camera_overlay_activity.xml` (new) | `app/res/layout/camera_overlay_activity.xml` | New layout: `PreviewView` + `RectangleOverlayView` + shutter button |
+| `AndroidManifest.xml` | `app/AndroidManifest.xml` | Register `CameraOverlayActivity` (portrait, like `MicroImageActivity`) |
+| `strings.xml` | `app/res/values/strings.xml` | New action-bar title for `CameraOverlayActivity` (existing `micro_image_activity_title` is "Take Profile Photo", PersonalID-specific) |
 
 ## Form-Level Configuration (HQ)
 
@@ -161,18 +167,15 @@ Changes:
 ```java
 private void takePicture() {
     if (useRectangleOverlay) {
-        takePictureWithReticle();
+        takePictureWithOverlay();
         return;
     }
     // ... existing ACTION_IMAGE_CAPTURE path, unchanged ...
 }
 
-private void takePictureWithReticle() {
+private void takePictureWithOverlay() {
     Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
-    Intent i = new Intent(getContext(), MicroImageActivity.class);
-    i.putExtra(MicroImageActivity.MICRO_IMAGE_CAPTURE_MODE_EXTRA,
-            MicroImageActivity.CaptureMode.RectangleOverlay.name());
-    i.putExtra(MicroImageActivity.MICRO_IMAGE_OUTPUT_FILE_URI_EXTRA, uri);
+    Intent i = CameraOverlayActivity.newIntent(getContext(), uri);
     try {
         ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.IMAGE_CAPTURE);
         pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
@@ -182,97 +185,116 @@ private void takePictureWithReticle() {
 }
 ```
 
+The reticle flow targets the dedicated `CameraOverlayActivity` — no capture-mode extra is
+needed because the class itself is the mode. The intent is built via a static factory
+(`CameraOverlayActivity.newIntent(context, outputFileUri)`) that takes the output file URI as
+a required parameter, so a caller cannot construct the intent without it.
+
 Rationale for reusing the existing temp file + `FormEntryConstants.IMAGE_CAPTURE` request
 code: the form's existing `onActivityResult` pipeline reads the captured image from the
-temp file path that `getTempFileForImageCapture()` returns. By having `MicroImageActivity`
+temp file path that `getTempFileForImageCapture()` returns. By having `CameraOverlayActivity`
 write the full-resolution image to **that same URI**, the result-handling path
 (`FormEntryActivity` / `ImageWidget.setBinaryData`) requires **no changes**.
 
-### 2. `MicroImageActivity` — two caller-selected modes
+### 2. `BaseCameraActivity` (new, abstract) — shared camera plumbing
 
-`MicroImageActivity` (`app/src/org/commcare/fragments/MicroImageActivity.java`) selects
-between two modes via a new **activity-level** enum, then wires up the matching overlay view,
-camera, capture use case, and result path. The PersonalID base64 path is preserved unchanged.
+Extract the camera scaffolding currently inside `MicroImageActivity` into an abstract base so
+both capture flows share it without duplication. `BaseCameraActivity extends CommonBaseActivity
+implements RuntimePermissionRequester` and owns only what is genuinely common:
 
-```java
-public enum CaptureMode { FaceDetection, RectangleOverlay }
-```
+- The CAMERA permission flow: the permission `ActivityResultLauncher`,
+  `checkForCameraPermission()`, `requestNeededPermissions()`, and the rationale dialog.
+- `ProcessCameraProvider` acquisition (`startCamera()`), and binding the `Preview` use case +
+  surface provider to the `PreviewView`.
+- Action-bar setup (`setDisplayHomeAsUpEnabled`, home/back via `onOptionsItemSelected`).
+- `logErrorAndExit(...)` (log + toast + `setResult(RESULT_CANCELED)` + finish).
 
-This is deliberately separate from `FaceCaptureView.CaptureMode`
-(`FaceDetectionMode` / `ManualMode`), which stays an internal detail of the face path
-(`ManualMode` = the Play-Services-missing shutter fallback for face capture). The two enums
-describe different things — *which overlay/feature* (activity) vs. *which capture trigger
-within face capture* (view) — and must not be conflated.
-
-New intent extras:
+Everything mode-specific is an abstract hook the subclass implements, e.g.:
 
 ```java
-public static final String MICRO_IMAGE_CAPTURE_MODE_EXTRA = "micro_image_capture_mode_extra";
-public static final String MICRO_IMAGE_OUTPUT_FILE_URI_EXTRA = "micro_image_output_file_uri_extra";
+@LayoutRes protected abstract int getContentLayout();      // which layout to inflate
+@StringRes protected abstract int getTitleRes();           // action-bar title
+protected abstract CameraSelector getCameraSelector();     // front vs back
+protected abstract UseCase buildCaptureUseCase(Size targetResolution, int targetRotation);
 ```
 
-Mode resolution in `onCreate()`:
+The base calls `getCameraSelector()` and `buildCaptureUseCase(...)` when binding use cases; it
+does **not** know about ML Kit, face detection, overlays, or output format — those live in the
+subclasses. The base must remain a **behavior-preserving** extraction: the PersonalID flow
+through `MicroImageActivity` must be byte-for-byte equivalent after the refactor.
 
-- Read `MICRO_IMAGE_CAPTURE_MODE_EXTRA`; default to `CaptureMode.FaceDetection` when absent
-  (preserves all current PersonalID callers).
-- **`FaceDetection`** (PersonalID): existing behavior — `FaceCaptureView` visible, ML Kit /
-  Google Play Services check, `ImageAnalysis.Analyzer` wiring, auto-capture with the
-  `ManualMode` shutter fallback. `RectangleOverlayView` is `GONE`.
-- **`RectangleOverlay`** (forms): `RectangleOverlayView` visible, `FaceCaptureView` `GONE`;
-  make `cameraShutterButton` visible (manual capture; reuse the existing shutter view); skip
-  the ML Kit / Google Play Services checks and the `ImageAnalysis.Analyzer` wiring entirely.
+### 3. `MicroImageActivity` (refactor) — face-detection capture
 
-Action-bar title is set by mode: `FaceDetection` keeps `R.string.micro_image_activity_title`
-("Take Profile Photo"); `RectangleOverlay` uses a new neutral string (e.g.
-`R.string.image_capture_activity_title` = "Take Photo"), since the existing title is
-PersonalID-specific.
+`MicroImageActivity` becomes a `BaseCameraActivity` subclass holding everything face-specific,
+with **no behavior change** to the PersonalID flow:
 
-Camera selection in `bindUseCases()` (`MicroImageActivity.java:157-181`):
+- Implements the analyzer / `FaceCaptureView.ImageStabilizedListener`, ML Kit / Google Play
+  Services check, oval `FaceCaptureView`, the `ManualMode` shutter fallback, and the base64
+  result via `MICRO_IMAGE_BASE_64_RESULT_KEY` (with the existing `maxDimension`/`maxSize`
+  extras and crop-to-face in `finalizeImageCapture(Rect)`).
+- Hook implementations: `getCameraSelector()` → `DEFAULT_FRONT_CAMERA`; `getTitleRes()` →
+  `R.string.micro_image_activity_title` ("Take Profile Photo"); `buildCaptureUseCase(...)` →
+  the existing `ImageAnalysis` use case (its `ManualMode` fallback still builds an
+  `ImageCapture`); `getContentLayout()` → `R.layout.micro_image_widget`.
 
-- `FaceDetection`: keep `CameraSelector.DEFAULT_FRONT_CAMERA`.
-- `RectangleOverlay`: `CameraSelector.DEFAULT_BACK_CAMERA` — the FLW photographs the child's
-  arm.
+### 4. `CameraOverlayActivity` (new) — rectangle reticle capture
 
-Use-case selection in `bindUseCases()`:
+A new `BaseCameraActivity` subclass for the form/MUAC flow. No ML Kit, no face detection, no
+mode flag — its existence *is* the rectangle mode.
 
-- `FaceDetection` → `buildImageAnalysisUseCase(...)` (auto) with the existing `ManualMode`
-  shutter fallback (`MicroImageActivity.java:104-107, 283-288`) — unchanged.
-- `RectangleOverlay` → image-capture use case, built for **high quality**:
-  - `ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)`.
-  - **Do not** drive target resolution from `faceCaptureView.getImageWidth()/getImageHeight()`
-    (that 480×640 sizing is face/micro-image specific). Let CameraX pick a high/native
-    resolution so the tape reading is legible.
+**Launch contract.** The output file URI is passed via a single extra, and the intent is
+built through a static factory that takes the URI as a **required parameter**, so callers
+cannot construct it without one:
 
-### 3. `MicroImageActivity` — output handling
+```java
+public static final String OUTPUT_FILE_URI_EXTRA = "camera_overlay_output_file_uri_extra";
 
-Today `finalizeImageCapture(Rect)` (`MicroImageActivity.java:295-321`) crops to the passed
-area, scales to `maxDimension`, compresses to `maxSize`, and returns base64. This is kept
-for the PersonalID `FaceDetection` path. A separate path is used when an output file URI is
-present:
+public static Intent newIntent(Context context, Uri outputFileUri) {
+    return new Intent(context, CameraOverlayActivity.class)
+            .putExtra(OUTPUT_FILE_URI_EXTRA, outputFileUri);
+}
+```
 
-- If `MICRO_IMAGE_OUTPUT_FILE_URI_EXTRA` is present (forms / `RectangleOverlay`):
-  - **No crop** — save the full captured frame. The reticle is a guide, not a crop region;
-    the photo must include enough of the child to confirm it is an arm and read the tape.
-  - The manual-capture callback (`onCaptureSuccess` in `buildImageCaptureUseCase`) must
-    **not** call `calcPreviewCaptureArea()` in this mode — that helper reads
-    `faceCaptureView`'s dimensions, and `faceCaptureView` is `GONE` here. Branch on the mode
-    (or on the presence of the output URI) and write the full bitmap directly.
-  - Write the full-resolution JPEG to the provided file URI via a content-resolver
-    `OutputStream` (the URI is the form's temp image file from `getTempFileForImageCapture()`).
-  - `setResult(RESULT_OK)` with no data extra needed; the form reads the file. `finish()`.
-- If the URI extra is absent (PersonalID): existing base64 behavior via
-  `finalizeImageCapture(Rect)`, unchanged.
+The activity has no intent-filter and is not exported, so the only possible launchers are
+in-app (today, just `ImageWidget`).
+
+**Missing-URI guard (fail fast).** Even with the factory, `onCreate()` validates the extra at
+this entry boundary and bails out before starting the camera if it is absent, rather than
+capturing a photo with nowhere to write it:
+
+```java
+Uri outputUri = getIntent().getParcelableExtra(OUTPUT_FILE_URI_EXTRA);
+if (outputUri == null) {
+    logErrorAndExit("CameraOverlayActivity launched without output file URI",
+            "camera.overlay.missing.output.uri", null);
+    return; // do not start the camera
+}
+```
+
+`logErrorAndExit(...)` (the `BaseCameraActivity` helper) logs, toasts, sets
+`RESULT_CANCELED`, and finishes — which the form's existing `onActivityResult` already
+handles. With the factory in place this is a fail-fast on a programming error, not runtime
+branching.
+
+- Hook implementations: `getCameraSelector()` → `DEFAULT_BACK_CAMERA` (the FLW photographs the
+  child's arm); `getTitleRes()` → a new neutral string `R.string.image_capture_activity_title`
+  ("Take Photo"); `getContentLayout()` → `R.layout.camera_overlay_activity`;
+  `buildCaptureUseCase(...)` → an `ImageCapture` use case built for **high quality**
+  (`ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)`), with
+  target resolution left to CameraX (high/native) rather than the 480×640 micro-image sizing,
+  so the tape reading is legible.
+- Capture is **manual**: the shutter button (always visible) triggers `imageCapture.takePicture(...)`.
+- **Output (no crop):** on `onCaptureSuccess`, write the full-resolution JPEG of the captured
+  frame to the `OUTPUT_FILE_URI_EXTRA` URI via a content-resolver `OutputStream`, then
+  `setResult(RESULT_OK)` (no data extra needed — the form reads the file) and `finish()`. The
+  full frame is saved deliberately: the reticle is a framing guide, not a crop region; the
+  photo must include enough of the child to confirm it is an arm and read the tape.
 
 Because the reticle is rendered by `RectangleOverlayView` (a sibling overlay `View` over the
 `PreviewView`) and the saved image comes from the CameraX `ImageCapture` sensor frame, the
 reticle is **inherently absent** from the saved photo. No masking/removal step is required.
 
-The `maxDimension` / `maxSize` extras (`MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA`,
-`MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA`) remain supported. Forms either omit them (full
-resolution) or pass generous values; PersonalID continues to pass its small values. This is
-the "configurable size, same activity serves both" approach.
-
-### 4. `RectangleOverlayView` (new) — responsive rectangle reticle
+### 5. `RectangleOverlayView` (new) — responsive rectangle reticle
 
 A new, self-contained view at `app/src/org/commcare/views/RectangleOverlayView.java`,
 independent of `FaceCaptureView`. `FaceCaptureView` is **not modified** — the rectangle path
@@ -309,25 +331,22 @@ so the edge reads on both light and dark backgrounds.
 Because there is **no crop**, this view does not need to expose its rect to the activity; it
 is purely a visual guide.
 
-### 5. Layout (`micro_image_widget.xml`)
+### 6. Layouts
 
-The layout (`app/res/layout/micro_image_widget.xml`) currently overlays `FaceCaptureView`
-(`@id/face_overlay`) and the shutter button on the `PreviewView` (`@id/view_finder`). Add a
-`RectangleOverlayView` (`@id/rectangle_overlay`) over the same `PreviewView`, initially
-`GONE`. `MicroImageActivity` shows exactly one overlay per mode (the other `GONE`):
+Each activity has its own layout (no shared visibility-toggling):
 
-- `FaceDetection` → `face_overlay` visible, `rectangle_overlay` gone.
-- `RectangleOverlay` → `rectangle_overlay` visible, `face_overlay` gone.
+- `micro_image_widget.xml` — **unchanged**, used by `MicroImageActivity` (`FaceCaptureView`
+  `@id/face_overlay` + shutter over `PreviewView` `@id/view_finder`).
+- `camera_overlay_activity.xml` — **new**, used by `CameraOverlayActivity`: a `PreviewView`,
+  a `RectangleOverlayView` over it, and an always-visible shutter button. (The shared
+  view ids the base references — preview, shutter — should be named consistently across both
+  layouts so `BaseCameraActivity` can look them up.)
 
-This keeps a single activity and one camera/permission setup; only the overlay view and the
-capture wiring differ by mode.
+`CameraOverlayActivity` is registered in `AndroidManifest.xml` with `portrait` orientation,
+matching `MicroImageActivity`.
 
-### 6. `PersonalIdPhotoCaptureFragment`
-
-`executeTakePhoto()` (`PersonalIdPhotoCaptureFragment.java:160-166`) should pass
-`MICRO_IMAGE_CAPTURE_MODE_EXTRA = MicroImageActivity.CaptureMode.FaceDetection.name()`
-explicitly for clarity. No behavior change — `FaceDetection` is also the default when the
-extra is absent.
+`PersonalIdPhotoCaptureFragment` is unchanged — it still launches `MicroImageActivity`
+directly, and no intent extra is needed to select the face flow.
 
 ## Data Flow
 
@@ -335,14 +354,13 @@ extra is absent.
 Form image question (appearance="rectangle-overlay")
         │
         ▼
-ImageWidget.takePicture()  ── useRectangleOverlay? ──► takePictureWithReticle()
+ImageWidget.takePicture()  ── useRectangleOverlay? ──► takePictureWithOverlay()
         │                                                     │
-        │ (no)                                                │ Intent extras:
-        ▼                                                     │  - CAPTURE_MODE = RectangleOverlay
-ACTION_IMAGE_CAPTURE (system camera, unchanged)              │  - OUTPUT_FILE_URI = temp image file
-                                                              ▼
-                                            MicroImageActivity (CaptureMode.RectangleOverlay)
-                                              - RectangleOverlayView visible (FaceCaptureView gone)
+        │ (no)                                                │ Intent extra:
+        ▼                                                     │  - OUTPUT_FILE_URI = temp image file
+ACTION_IMAGE_CAPTURE (system camera, unchanged)              ▼
+                                            CameraOverlayActivity  (extends BaseCameraActivity)
+                                              - RectangleOverlayView over PreviewView
                                               - back camera, CameraX ImageCapture (max quality)
                                               - reticle drawn statically (no ML Kit)
                                               - user taps shutter
@@ -354,5 +372,7 @@ ACTION_IMAGE_CAPTURE (system camera, unchanged)              │  - OUTPUT_FILE_
                                             (IMAGE_CAPTURE) — existing pipeline reads temp file
 ```
 
-PersonalID flow is unchanged: `CaptureMode.FaceDetection`, `FaceCaptureView`, front camera,
-oval reticle, auto-capture, base64 result via `MICRO_IMAGE_BASE_64_RESULT_KEY`.
+The two activities share `BaseCameraActivity` (permission flow, provider acquisition, preview,
+action bar, error exit); each implements its own camera selector, use case, overlay, and
+result handling. The PersonalID flow is unchanged: `MicroImageActivity`, front camera, oval
+`FaceCaptureView`, auto-capture, base64 result via `MICRO_IMAGE_BASE_64_RESULT_KEY`.
