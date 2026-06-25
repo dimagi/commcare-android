@@ -65,7 +65,9 @@ internal object LaunchProgressMapper {
  *
  * The dialog is dismissed automatically when the fragment's view is destroyed, so callers don't
  * have to manage cleanup themselves. [onLaunchSucceeded] is invoked once Home has been started so the
- * caller can manage its own fragment lifecycle (e.g. remove itself from the back stack).
+ * caller can manage its own fragment lifecycle (e.g. remove itself from the back stack);
+ * [onLaunchFailed] is invoked when the launch terminally fails (retries exhausted, or a seat failure)
+ * so the caller can update its own UI. The controller still owns the failure dialogs/recovery.
  */
 class ConnectAppLaunchController
     @JvmOverloads
@@ -78,14 +80,17 @@ class ConnectAppLaunchController
         private var observedLifecycle: Lifecycle? = null
         private var failedAttempts = 0
         private var onLaunchSucceeded: Runnable? = null
+        private var onLaunchFailed: Runnable? = null
 
         @JvmOverloads
         fun launchApp(
             appId: String,
             isLearning: Boolean,
             onLaunchSucceeded: Runnable? = null,
+            onLaunchFailed: Runnable? = null,
         ) {
             this.onLaunchSucceeded = onLaunchSucceeded
+            this.onLaunchFailed = onLaunchFailed
             launch(LaunchTarget(appId, isLearning))
         }
 
@@ -143,6 +148,7 @@ class ConnectAppLaunchController
                     }
 
                     override fun recoverFromSeatFailure() {
+                        onLaunchFailed?.run()
                         val intent =
                             Intent(activity, DispatchActivity::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -167,11 +173,13 @@ class ConnectAppLaunchController
                             activity.getString(R.string.connect_app_launch_failed_dialog_cancel),
                         ) { _, _ ->
                             host.dismissAlertDialog()
+                            onLaunchFailed?.run()
                         }
                         host.showAlertDialog(dialog)
                     }
 
                     override fun showPersistentError() {
+                        onLaunchFailed?.run()
                         val host = activity as CommCareActivity<*>
                         val dialog =
                             StandardAlertDialog(
