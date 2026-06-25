@@ -29,6 +29,7 @@ abstract class BasePersonalIdEmailVerificationFragmentTest : BasePersonalIdConfi
             Bundle().apply {
                 putString(ARG_EMAIL, email)
                 putSerializable(ARG_WORKFLOW, workflow)
+                putInt(ARG_EMAIL_OTP_REQUEST_COUNT, 0)
             }
 
         navigateToFragment(PersonalIdSessionData(token = "test-token"), R.id.personalid_email_verification, args)
@@ -46,5 +47,6 @@ abstract class BasePersonalIdEmailVerificationFragmentTest : BasePersonalIdConfi
         // Safe Args reads these keys from the bundle; names match `android:name` in nav_graph_personalid.xml.
         private const val ARG_EMAIL = "email"
         private const val ARG_WORKFLOW = "workflow"
+        private const val ARG_EMAIL_OTP_REQUEST_COUNT = "emailOtpRequestCount"
     }
 }

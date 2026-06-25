@@ -641,25 +641,25 @@
 
     <string name="personalid_manage_profile"><u>Manage Profile</u></string>
     <string name="personalid_profile_title">Profile</string>
-    <string name="personalid_edit_profile_title">Edit Profile</string>
+    <string name="personalid_profile_edit_title">Edit Profile</string>
     <string name="personalid_profile_section_personal_information">Personal Information</string>
     <string name="personalid_profile_field_name">Name</string>
     <string name="personalid_profile_field_phone">Phone Number</string>
     <string name="personalid_profile_field_email">Email Address</string>
     <string name="personalid_profile_forget_account">Forget PersonalID Account</string>
-    <string name="personalid_edit_profile_error_email_invalid">Enter a valid email address.</string>
-    <string name="personalid_edit_profile_error_email_required">Email is required.</string>
-    <string name="personalid_edit_profile_email_otp_notice">Updating your email address will require an OTP verification.</string>
+    <string name="personalid_profile_edit_error_email_invalid">Enter a valid email address.</string>
+    <string name="personalid_profile_edit_error_email_required">Email is required.</string>
+    <string name="personalid_profile_edit_email_otp_notice">Updating your email address will require an OTP verification.</string>
     <string name="personalid_profile_forget_confirm_title">Forget PersonalID?</string>
     <string name="personalid_profile_forget_confirm_message">This will remove your PersonalID account, and you\'ll need to sign back in again before using Connect.</string>
-    <string name="personalid_edit_profile_discard_title">Discard your changes?</string>
-    <string name="personalid_edit_profile_discard_message">Your unsaved changes will be lost.</string>
-    <string name="personalid_edit_profile_discard_positive">Discard</string>
-    <string name="personalid_edit_profile_discard_negative">Keep editing</string>
-    <string name="personalid_edit_profile_otp_confirm_title">Verify your new email</string>
-    <string name="personalid_edit_profile_otp_confirm_message">We\'ll send a 6-digit code to %1$s. Enter it on the next screen to verify.</string>
-    <string name="personalid_edit_profile_otp_confirm_positive">Send Code</string>
-    <string name="personalid_edit_profile_otp_confirm_negative">Cancel</string>
+    <string name="personalid_profile_edit_discard_title">Discard your changes?</string>
+    <string name="personalid_profile_edit_discard_message">Your unsaved changes will be lost.</string>
+    <string name="personalid_profile_edit_discard_positive">Discard</string>
+    <string name="personalid_profile_edit_discard_negative">Keep editing</string>
+    <string name="personalid_profile_edit_otp_confirm_title">Verify your new email</string>
+    <string name="personalid_profile_edit_otp_confirm_message">We\'ll send a 6-digit code to %1$s. Enter it on the next screen to verify.</string>
+    <string name="personalid_profile_edit_otp_confirm_positive">Send Code</string>
+    <string name="personalid_profile_edit_otp_confirm_negative">Cancel</string>
 
     <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>

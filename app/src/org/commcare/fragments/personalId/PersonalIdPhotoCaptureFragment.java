@@ -83,6 +83,8 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
     }
 
     private void uploadImageAndCompleteProfile() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null,
+                PersonalIdWorkflow.CONFIGURATION);
         clearError();
         disableSaveButton();
         disableTakePhotoButton();

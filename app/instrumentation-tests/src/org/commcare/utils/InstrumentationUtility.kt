@@ -169,6 +169,7 @@ object InstrumentationUtility {
         // Click on About CommCare 4 times to become developer.
         for (i in 0..3) {
             openOptionsMenu()
+            onView(isRoot()).perform(waitForView(withText("About CommCare")))
             onView(withText("About CommCare"))
                 .perform(click())
             onView(withText(R.string.ok))
