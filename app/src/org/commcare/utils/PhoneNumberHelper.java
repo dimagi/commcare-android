@@ -59,6 +59,22 @@ public class PhoneNumberHelper {
     }
 
     /**
+     * Formats a phone number for display in international form.
+     * Returns the original input unchanged if it cannot be parsed.
+     */
+    public String formatForDisplay(String phone) {
+        if (isEmpty(phone)) {
+            return "";
+        }
+        try {
+            Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
+            return phoneNumberUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+        } catch (NumberParseException e) {
+            return phone;
+        }
+    }
+
+    /**
      * Validates whether the given phone number is valid.
      */
     public boolean isValidPhoneNumber(String phone) {

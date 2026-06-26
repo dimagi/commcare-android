@@ -6,7 +6,6 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.PushNotificationActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
-import org.commcare.activities.connect.PersonalIdProfileActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
@@ -15,6 +14,7 @@ import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.UnlockPolicy
+import org.commcare.personalId.profile.PersonalIdProfileActivity
 
 object ConnectNavHelper {
     private fun unlockAndGoTo(

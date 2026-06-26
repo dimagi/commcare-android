@@ -25,6 +25,7 @@ import org.commcare.views.dialogs.StandardAlertDialog
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
     private var personalIdSessionData: PersonalIdSessionData? = null
+    private val emailOtpTracker = AttemptTracker()
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,
@@ -128,7 +129,11 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             showError(getString(R.string.personalid_email_invalid_format))
             return
         }
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, null)
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
+            javaClass.simpleName,
+            null,
+            PersonalIdWorkflow.fromEmailWorkFlow(workflow),
+        )
         clearError()
         enableContinueButton(false)
 
@@ -137,6 +142,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             email = email,
             workflow = workflow,
             sessionData = personalIdSessionData,
+            tracker = emailOtpTracker,
             onSuccess = { navigateToEmailVerification(email) },
             onFailure = { failureCode, t ->
                 showError(
@@ -148,7 +154,11 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     }
 
     private fun skipEmail() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, "skip")
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
+            javaClass.simpleName,
+            "skip",
+            PersonalIdWorkflow.fromEmailWorkFlow(workflow),
+        )
         EmailHelper.routeAfterEmailDeclined(
             fragment = this,
             workflow = workflow,
@@ -173,7 +183,11 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private fun navigateToEmailVerification(email: String) {
         val action =
             PersonalIdEmailFragmentDirections
-                .actionPersonalidEmailToPersonalidEmailVerification(email, workflow)
+                .actionPersonalidEmailToPersonalidEmailVerification(
+                    email,
+                    workflow,
+                    emailOtpTracker.requestCount,
+                )
         binding.root.findNavController().navigate(action)
     }
 
