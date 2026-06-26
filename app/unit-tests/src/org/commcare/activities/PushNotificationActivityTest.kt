@@ -1,8 +1,8 @@
 package org.commcare.activities
 
-import android.content.Intent
 import android.view.MenuItem
 import android.view.View
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -17,9 +17,15 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.commcare.CommCareTestApplication
-import org.commcare.adapters.PushNotificationAdapter
+import org.commcare.activities.connect.ConnectActivity
+import org.commcare.activities.connect.ConnectMessagingActivity
+import org.commcare.activities.connect.viewmodel.PushNotificationViewModel
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.connect.ConnectConstants
+import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
@@ -27,13 +33,11 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager
 import org.commcare.preferences.NotificationPrefs
-import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.PushNotificationApiHelper
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +50,7 @@ import org.robolectric.shadows.ShadowToast
 import java.util.Date
 import java.util.concurrent.atomic.AtomicInteger
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PushNotificationActivityTest {
@@ -56,6 +61,7 @@ class PushNotificationActivityTest {
     private val apiCallCount = AtomicInteger(0)
     private var dbNotifications: List<PushNotificationRecord> = emptyList()
     private var apiResult: suspend () -> Result<List<PushNotificationRecord>> = { Result.success(emptyList()) }
+    private lateinit var savedPersonalIdStatus: PersonalIdManager.PersonalIdStatus
 
     private val recyclerView: RecyclerView
         get() = activity.findViewById(R.id.rvNotifications)
@@ -64,11 +70,20 @@ class PushNotificationActivityTest {
 
     @Before
     fun setUp() {
+        // Run the ViewModel's coroutine on a deterministic test dispatcher instead of
+        // the real Dispatchers.IO thread pool, so notification loading is synchronous.
+        PushNotificationViewModel.dispatcherOverride = UnconfinedTestDispatcher()
+
+        // getIntentForPNClick is exercised for real, so cccCheckPassed() must see a logged-in
+        // user. init() is a no-op unless status == NotIntroduced, so setting LoggedIn is enough.
+        val personalIdManager = PersonalIdManager.getInstance()
+        savedPersonalIdStatus = personalIdManager.status
+        personalIdManager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
+
         mockkObject(NotificationRecordDatabaseHelper)
         mockkObject(PushNotificationApiHelper)
         mockkConstructor(NotificationsSyncWorkerManager::class)
         mockkStatic(FirebaseAnalyticsUtil::class)
-        mockkStatic(FirebaseMessagingUtil::class)
 
         every { NotificationRecordDatabaseHelper.getAllNotifications(any()) } answers {
             dbReadCount.incrementAndGet()
@@ -93,6 +108,8 @@ class PushNotificationActivityTest {
             }
         }
         unmockkAll()
+        PushNotificationViewModel.dispatcherOverride = null
+        PersonalIdManager.getInstance().status = savedPersonalIdStatus
     }
 
     private fun launchActivity() {
@@ -106,38 +123,21 @@ class PushNotificationActivityTest {
                 .get()
     }
 
-    private fun waitFor(
-        description: String,
-        condition: () -> Boolean,
-    ) {
-        val deadline = System.currentTimeMillis() + 5000
-        while (!condition()) {
-            if (System.currentTimeMillis() > deadline) {
-                fail("Timed out waiting for $description")
-            }
-            ShadowLooper.idleMainLooper()
-            Thread.sleep(10)
-        }
-    }
-
-    private fun layoutRecyclerView() {
-        recyclerView.measure(
-            View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY),
-        )
-        recyclerView.layout(0, 0, 1080, 1920)
-    }
-
     private fun buildRecord(
         id: String,
         date: Date = Date(0L),
+        action: String = ConnectConstants.CCC_DEST_PAYMENTS,
+        opportunityUuid: String = "",
+        paymentUuid: String = "",
     ): PushNotificationRecord =
         PushNotificationRecord().apply {
             notificationId = id
-            action = "ccc_payment_page"
+            this.action = action
             title = "Title $id"
             body = "Body $id"
             createdDate = date
+            opportunityUUID = opportunityUuid
+            paymentUUID = paymentUuid
         }
 
     private fun menuItemWithId(id: Int): MenuItem = mockk { every { itemId } returns id }
@@ -151,23 +151,24 @@ class PushNotificationActivityTest {
 
         launchActivity()
 
-        waitFor("notification list to become visible") { recyclerView.visibility == View.VISIBLE }
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.VISIBLE, recyclerView.visibility)
         assertEquals(View.GONE, emptyView.visibility)
         assertEquals(2, recyclerView.adapter!!.itemCount)
 
         pendingApiCall.complete(Result.success(emptyList()))
 
-        waitFor("list to stay populated after api returns nothing new") {
-            ShadowLooper.idleMainLooper()
-            recyclerView.visibility == View.VISIBLE && recyclerView.adapter!!.itemCount == 2
-        }
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.VISIBLE, recyclerView.visibility)
+        assertEquals(2, recyclerView.adapter!!.itemCount)
     }
 
     @Test
     fun `empty state is shown when there are no notifications`() {
         launchActivity()
 
-        waitFor("empty state to become visible") { emptyView.visibility == View.VISIBLE }
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.VISIBLE, emptyView.visibility)
         assertEquals(View.GONE, recyclerView.visibility)
     }
 
@@ -178,34 +179,37 @@ class PushNotificationActivityTest {
 
         launchActivity()
 
-        waitFor("list to be hidden during load") { recyclerView.visibility == View.GONE }
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.GONE, recyclerView.visibility)
         assertEquals(View.GONE, emptyView.visibility)
 
         pendingApiCall.complete(Result.success(listOf(buildRecord("a"))))
 
-        waitFor("list to become visible") { recyclerView.visibility == View.VISIBLE }
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.VISIBLE, recyclerView.visibility)
         assertEquals(View.GONE, emptyView.visibility)
         assertEquals(1, recyclerView.adapter!!.itemCount)
     }
 
     @Test
-    fun `api notifications are merged with cached ones and sorted newest first`() {
+    fun `new api notifications are merged with cached ones and sorted newest first`() {
+        // The API returns only new notifications; the cached one comes from local storage.
         dbNotifications = listOf(buildRecord("cached", Date(1000L)))
-        apiResult = {
-            Result.success(
-                listOf(
-                    buildRecord("api", Date(2000L)),
-                    buildRecord("cached", Date(1000L)),
-                ),
-            )
-        }
+        val pendingApiCall = CompletableDeferred<Result<List<PushNotificationRecord>>>()
+        apiResult = { pendingApiCall.await() }
 
         launchActivity()
 
-        waitFor("merged list to be shown") { recyclerView.adapter?.itemCount == 2 }
-        val adapter = recyclerView.adapter as PushNotificationAdapter
-        assertEquals("api", adapter.currentList[0].notificationId)
-        assertEquals("cached", adapter.currentList[1].notificationId)
+        // Let the cached list from local storage publish before the api responds.
+        ShadowLooper.idleMainLooper()
+        pendingApiCall.complete(Result.success(listOf(buildRecord("api", Date(2000L)))))
+        ShadowLooper.idleMainLooper()
+
+        // Assert the merge on the ViewModel's output: a second non-empty submitList would diff
+        // on a background thread that idleMainLooper does not flush, so the adapter is unreliable.
+        val viewModel = ViewModelProvider(activity)[PushNotificationViewModel::class.java]
+        val merged = viewModel.allNotifications.value!!
+        assertEquals(listOf("api", "cached"), merged.map { it.notificationId })
 
         verify { anyConstructed<NotificationsSyncWorkerManager>().startSyncWorkers(any()) }
     }
@@ -216,7 +220,7 @@ class PushNotificationActivityTest {
 
         launchActivity()
 
-        waitFor("notification read status to update") { NotificationPrefs.getNotificationReadStatus(activity) }
+        ShadowLooper.idleMainLooper()
         assertTrue(NotificationPrefs.getNotificationReadStatus(activity))
     }
 
@@ -226,17 +230,20 @@ class PushNotificationActivityTest {
 
         launchActivity()
 
-        waitFor("error toast to be shown") { ShadowToast.getTextOfLatestToast() == "Network error" }
+        ShadowLooper.idleMainLooper()
+        assertEquals("Network error", ShadowToast.getTextOfLatestToast())
     }
 
     @Test
     fun `cloud sync menu item refreshes from the server without re-reading local storage`() {
         launchActivity()
-        waitFor("initial load to complete") { apiCallCount.get() == 1 }
+        ShadowLooper.idleMainLooper()
+        assertEquals(1, apiCallCount.get())
 
         assertTrue(activity.onOptionsItemSelected(menuItemWithId(R.id.notification_cloud_sync)))
 
-        waitFor("refresh api call") { apiCallCount.get() == 2 }
+        ShadowLooper.idleMainLooper()
+        assertEquals(2, apiCallCount.get())
         assertEquals(1, dbReadCount.get())
     }
 
@@ -252,50 +259,112 @@ class PushNotificationActivityTest {
     @Test
     fun `a new notification broadcast reloads notifications from local storage`() {
         launchActivity()
-        waitFor("initial load to complete") { dbReadCount.get() == 1 && apiCallCount.get() == 1 }
+        ShadowLooper.idleMainLooper()
+        assertEquals(1, dbReadCount.get())
+        assertEquals(1, apiCallCount.get())
 
         NotificationBroadcastHelper.sendNewNotificationBroadcast(activity)
 
-        waitFor("reload triggered by broadcast") { dbReadCount.get() == 2 }
+        ShadowLooper.idleMainLooper()
+        assertEquals(2, dbReadCount.get())
+    }
+
+    private fun launchAndClickFirstNotification(record: PushNotificationRecord) {
+        apiResult = { Result.success(listOf(record)) }
+        launchActivity()
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.VISIBLE, recyclerView.visibility)
+        recyclerView.findViewHolderForAdapterPosition(0)!!.itemView.performClick()
     }
 
     @Test
-    fun `clicking a notification reports analytics and opens the target screen`() {
-        val record = buildRecord("a")
-        apiResult = { Result.success(listOf(record)) }
+    fun `clicking a payment notification reports analytics, marks it read, and opens ConnectActivity`() {
+        val record = buildRecord("a", action = ConnectConstants.CCC_DEST_PAYMENTS, paymentUuid = "pay-1")
 
-        launchActivity()
-        waitFor("notification list to become visible") { recyclerView.visibility == View.VISIBLE }
-        layoutRecyclerView()
-
-        val targetIntent = Intent(activity, DispatchActivity::class.java)
-        every { FirebaseMessagingUtil.getIntentForPNClick(any(), any()) } returns targetIntent
-
-        recyclerView.findViewHolderForAdapterPosition(0)!!.itemView.performClick()
+        launchAndClickFirstNotification(record)
 
         verify {
             FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                 AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_HISTORY,
-                record.action,
+                record.getNotificationActionFromRecord(),
                 record.notificationId,
             )
         }
         verify { NotificationRecordDatabaseHelper.updateReadStatus(any(), "a", true) }
-        assertEquals(targetIntent.component, shadowOf(activity).nextStartedActivity.component)
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(ConnectActivity::class.java.name, started.component!!.className)
+        assertEquals(ConnectConstants.CCC_DEST_PAYMENTS, started.getStringExtra(ConnectConstants.REDIRECT_ACTION))
+        assertEquals("pay-1", started.getStringExtra(ConnectConstants.PAYMENT_UUID))
     }
 
     @Test
-    fun `clicking a notification without a target intent does not open a screen`() {
-        apiResult = { Result.success(listOf(buildRecord("a"))) }
+    fun `clicking a learn-progress notification opens ConnectActivity for the opportunity`() {
+        val record =
+            buildRecord("a", action = ConnectConstants.CCC_DEST_LEARN_PROGRESS, opportunityUuid = "opp-learn")
 
-        launchActivity()
-        waitFor("notification list to become visible") { recyclerView.visibility == View.VISIBLE }
-        layoutRecyclerView()
+        launchAndClickFirstNotification(record)
 
-        every { FirebaseMessagingUtil.getIntentForPNClick(any(), any()) } returns null
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(ConnectActivity::class.java.name, started.component!!.className)
+        assertEquals(ConnectConstants.CCC_DEST_LEARN_PROGRESS, started.getStringExtra(ConnectConstants.REDIRECT_ACTION))
+        assertEquals("opp-learn", started.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+    }
 
-        recyclerView.findViewHolderForAdapterPosition(0)!!.itemView.performClick()
+    @Test
+    fun `clicking a delivery-progress notification opens ConnectActivity for the opportunity`() {
+        val record =
+            buildRecord("a", action = ConnectConstants.CCC_DEST_DELIVERY_PROGRESS, opportunityUuid = "opp-deliver")
+
+        launchAndClickFirstNotification(record)
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(ConnectActivity::class.java.name, started.component!!.className)
+        assertEquals(
+            ConnectConstants.CCC_DEST_DELIVERY_PROGRESS,
+            started.getStringExtra(ConnectConstants.REDIRECT_ACTION),
+        )
+        assertEquals("opp-deliver", started.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+    }
+
+    @Test
+    fun `clicking an opportunity-summary notification opens ConnectActivity for the opportunity`() {
+        val record =
+            buildRecord(
+                "a",
+                action = ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
+                opportunityUuid = "opp-summary",
+            )
+
+        launchAndClickFirstNotification(record)
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(ConnectActivity::class.java.name, started.component!!.className)
+        assertEquals(
+            ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
+            started.getStringExtra(ConnectConstants.REDIRECT_ACTION),
+        )
+        assertEquals("opp-summary", started.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+    }
+
+    @Test
+    fun `clicking a message notification opens ConnectMessagingActivity`() {
+        val record = buildRecord("a", action = ConnectConstants.CCC_MESSAGE)
+
+        launchAndClickFirstNotification(record)
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(ConnectMessagingActivity::class.java.name, started.component!!.className)
+        assertEquals(ConnectConstants.CCC_MESSAGE, started.getStringExtra(ConnectConstants.REDIRECT_ACTION))
+    }
+
+    @Test
+    fun `clicking a notification does not navigate when the user is not logged in`() {
+        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.Registering
+        val record = buildRecord("a", action = ConnectConstants.CCC_DEST_PAYMENTS)
+
+        launchAndClickFirstNotification(record)
 
         assertNull(shadowOf(activity).nextStartedActivity)
     }
