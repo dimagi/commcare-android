@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -14,73 +15,151 @@
     android:paddingRight="10dp"
     tools:viewBindingIgnore="true">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/playback_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+        android:padding="@dimen/standard_spacer"
+        android:background="@drawable/rectangle">
 
+        <!-- Header row: filename + total duration -->
+        <TextView
+            android:id="@+id/recording_filename"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/standard_spacer"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_large"
+            tools:text="filename"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/playback_duration_main" />
+
+        <TextView
+            android:id="@+id/playback_duration_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/standard_spacer"
+            tools:text="00:20"
+            app:layout_constraintTop_toTopOf="@id/recording_filename"
+            app:layout_constraintBottom_toBottomOf="@id/recording_filename"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Playback row: play button + seekbar with time labels -->
         <ImageButton
             android:id="@+id/play_audio"
             android:layout_width="65dp"
             android:layout_height="65dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/play_disabled"
-            android:elevation="10dp" />
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/play_disabled"
+            android:scaleType="fitCenter"
+            android:background="@android:color/transparent"
+            app:layout_constraintTop_toBottomOf="@id/recording_filename"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <SeekBar
             android:id="@+id/seekBar"
-            android:layout_width="match_parent"
-            android:layout_height="65dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:paddingVertical="8dp"
+            android:progressDrawable="@drawable/recording_seekbar_track"
+            app:layout_constraintTop_toTopOf="@id/play_audio"
+            app:layout_constraintBottom_toBottomOf="@id/play_audio"
+            app:layout_constraintStart_toEndOf="@id/play_audio"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
             android:id="@+id/playback_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="00:20" />
+            tools:text="00:00"
+            android:paddingStart="@dimen/standard_spacer"
+            app:layout_constraintTop_toBottomOf="@id/seekBar"
+            app:layout_constraintStart_toStartOf="@id/seekBar" />
 
         <TextView
             android:id="@+id/playback_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="/00:30" />
+            tools:text="00:30"
+            android:paddingEnd="@dimen/standard_spacer"
+            app:layout_constraintTop_toTopOf="@id/playback_time"
+            app:layout_constraintEnd_toEndOf="@id/seekBar" />
 
-    </LinearLayout>
+        <!-- Delete action -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/delete_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="@dimen/standard_spacer"
+            android:layout_marginBottom="@dimen/standard_spacer"
+            android:text="@string/delete_audio_file"
+            style="@style/NegativeButtonStyle"
+            app:icon="@drawable/trashcan"
+            app:iconSize="20dp"
+            app:strokeColor="@color/cc_brand_color"
+            app:layout_constraintTop_toBottomOf="@id/playback_time"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
+        android:id="@+id/recording_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="100dp"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/capture_button"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginRight="30dp"
-            android:background="@drawable/record"
-            android:elevation="10dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/choose_file"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:background="@drawable/open_file"
-            android:elevation="10dp" />
+            <ImageButton
+                android:id="@+id/capture_button"
+                android:layout_height="160dp"
+                android:layout_width="160dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:src="@drawable/record"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent"/>
 
+            <ImageButton
+                android:id="@+id/choose_file"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/open_file"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/capture_button_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:text="@string/start_recording"
+            android:textSize="@dimen/font_size_40"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:visibility="visible"/>
+        <TextView
+            android:id="@+id/capture_button_instructions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:layout_marginStart="@dimen/standard_spacer_double"
+            android:layout_marginEnd="@dimen/standard_spacer_double"
+            android:text="@string/start_recording_instructions"
+            android:textAlignment="center" />
     </LinearLayout>
 
 

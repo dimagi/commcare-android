@@ -159,12 +159,17 @@
     <string name="attachment_above_size_limit" formatted="false" cc:translatable="true">Media attachment too large (%1$s mb). Max allowed size is %2$s mb.</string>
 
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
+    <string name="delete_audio_file" cc:translatable="true">Delete</string>
+    <string name="confirm_audio_file_deletion" cc:translatable="true">Yes, Delete</string>
 
 
     <!-- Start Collect Strings -->
 
     <string name="cancel" cc:translatable="true">CANCEL</string>
     <string name="cancel_location" cc:translatable="true">Cancel</string>
+    <string name="start_recording" cc:translatable="true">Start recording</string>
+    <string name="start_recording_instructions" cc:translatable="true">Tap the microphone to begin. Recording saves automatically when you stop.</string>
+
     <string name="capture_audio" cc:translatable="true">Record Sound</string>
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
@@ -819,5 +824,10 @@
     <string name="form_attachment_limit_reached" cc:translatable="true">This form has reached the maximum of %s attachments. To add a new one, remove an existing attachment first.</string>
 
     <string name="cannot_navigate_during_form_save" cc:translatable="true">Can\'t leave page while saving form</string>
+
+    <string name="recording_in_progress" cc:translatable="true">RECORDING</string>
+    <string name="recording_paused" cc:translatable="true">PAUSED</string>
+
     <string name="clear_search_button_description">Clear query</string>
+
 </resources>
