@@ -40,6 +40,8 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.UseCase;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import static androidx.camera.core.CameraSelector.LENS_FACING_BACK;
+import static androidx.camera.core.CameraSelector.LENS_FACING_FRONT;
 
 public class MicroImageActivity extends BaseCameraActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener {
     public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key";
@@ -48,6 +50,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     private static final int DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX = 72;
     private static final int DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
     public static final String BASE_64_IMAGE_PREFIX = "data:image/webp;base64,";
+    public static final String CAMERA_LENS_FACING_EXTRA = "camera-lens-facing-extra";
+    private static final int DEFAULT_CAMERA_LENS_FACING = LENS_FACING_FRONT;
 
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
@@ -68,11 +72,6 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     @Override
     protected PreviewView getCameraView() {
         return findViewById(R.id.view_finder);
-    }
-
-    @Override
-    protected CameraSelector getCameraSelector() {
-        return CameraSelector.DEFAULT_FRONT_CAMERA;
     }
 
     @NonNull
@@ -101,6 +100,18 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         } else {
             return buildImageCaptureUseCase(targetResolution, targetRotation);
         }
+    }
+
+    @Override
+    protected CameraSelector getCameraSelector() {
+        return switch (getCameraLensFacing()) {
+            case LENS_FACING_BACK -> CameraSelector.DEFAULT_BACK_CAMERA;
+            default -> CameraSelector.DEFAULT_FRONT_CAMERA;
+        };
+    }
+
+    private int getCameraLensFacing() {
+        return getIntent().getIntExtra(CAMERA_LENS_FACING_EXTRA, DEFAULT_CAMERA_LENS_FACING);
     }
 
     private UseCase buildImageAnalysisUseCase(Size targetResolution, int targetRotation) {
