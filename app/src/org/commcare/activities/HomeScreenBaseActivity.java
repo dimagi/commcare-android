@@ -13,6 +13,7 @@ import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
 import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
+import static org.commcare.utils.CrashUtil.getTopCallerChain;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -810,6 +811,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         AndroidSessionWrapper currentState =
                 CommCareApplication.instance().getCurrentSessionWrapper();
         String currentCommand = currentState.getSession().getCommand();
+        CrashUtil.log("Leading stack trace frames: " + getTopCallerChain() +
+                "; currentCommand: " + currentCommand);
         if (currentCommand == null || currentCommand.equals(Menu.TRAINING_MENU_ROOT)) {
             // We're stepping back from either the root module menu or the training root menu, so
             // go home

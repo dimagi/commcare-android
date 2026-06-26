@@ -19,6 +19,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ public class EntityLoaderTask
     private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
     private boolean provideDetailProgressUpdates;
+    private String availableInstances;
 
     /**
      * Creates a new instance
@@ -53,6 +55,8 @@ public class EntityLoaderTask
         entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum, evalCtx, false, null);
         // we only want to provide progress updates for the new caching config
         provideDetailProgressUpdates = detail.shouldOptimize();
+        availableInstances = Arrays.toString(evalCtx.getInstanceIds().toArray())
+                + "; mainInstance=" + (evalCtx.getMainInstance() == null ? "null" : "present");
     }
 
     @Override
@@ -84,7 +88,8 @@ public class EntityLoaderTask
             return null;
         } catch (RuntimeException e) {
             Logger.log(LogTypes.SOFT_ASSERT, "Loading entities failed for " + getSessionShortDetail() +
-                    "; session expiring at: " + getSessionExpirationTime());
+                    "; session expiring at: " + getSessionExpirationTime() +
+                    "; available instances: " + availableInstances);
             throw e;
         }
     }
