@@ -24,12 +24,16 @@ import org.commcare.dalvik.R;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.ImageSizeTooLargeException;
+import org.commcare.utils.ImageType;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
+
+import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +46,8 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import static androidx.camera.core.CameraSelector.LENS_FACING_BACK;
 import static androidx.camera.core.CameraSelector.LENS_FACING_FRONT;
+import static org.commcare.activities.camera.MicroImageActivity.CaptureOutputMode.BASE64_EXTRA;
+import static org.commcare.utils.GlobalConstants.TEMP_FILE_STEM_IMAGE_HOLDER;
 
 public class MicroImageActivity extends BaseCameraActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener {
     public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key";
@@ -57,6 +63,9 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     private Bitmap inputImage;
     private ImageView cameraShutterButton;
     private boolean isGooglePlayServicesAvailable = false;
+    public enum CaptureOutputMode { TEMP_FILE, BASE64_EXTRA }
+    public static final String CAPTURE_OUTPUT_MODE_EXTRA = "capture-output-mode-extra";
+    public static final String DEFAULT_CAPTURE_OUTPUT_MODE = BASE64_EXTRA.name();
 
     @Override
     protected int getContentLayout() {
@@ -220,7 +229,6 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     private void finalizeImageCapture(Rect faceArea) {
         Bitmap croppedBitmap = null;
-        Bitmap scaledBitmap = null;
         try {
             int paddingXPx = 10;
             int paddingYPy = 50;
@@ -231,18 +239,49 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
                     Math.min(inputImage.getHeight(), faceArea.bottom + paddingYPy)
             );
             croppedBitmap = MediaUtil.cropImage(inputImage, safeFaceArea);
+            deliverResult(croppedBitmap);
+        } catch (IllegalArgumentException e) {
+            logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
+        } finally {
+            recycleBitmap(croppedBitmap);
+        }
+    }
+
+    private void deliverResult(Bitmap croppedBitmap) {
+        switch (getCaptureOutputMode()) {
+            case TEMP_FILE -> deliverViaTempFile(croppedBitmap);
+            case BASE64_EXTRA -> deliverViaBase64(croppedBitmap);
+        }
+    }
+
+    private void deliverViaBase64(Bitmap croppedBitmap) {
+        Bitmap scaledBitmap = null;
+        try {
             scaledBitmap = FileUtil.getBitmapScaledByMaxDimen(croppedBitmap, getMaxDimensionSize());
             if (scaledBitmap == null) {
                 scaledBitmap = croppedBitmap;
             }
             byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap, getMaxImageSize());
             String finalImageAsBase64 = BASE_64_IMAGE_PREFIX + Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
-            finishWithResul(finalImageAsBase64);
-        } catch (IOException | ImageSizeTooLargeException e) {
-            logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
+            finishWithResult(finalImageAsBase64);
+        } catch (ImageSizeTooLargeException | IOException e) {
+            logErrorAndExit(e.getMessage(), "microimage.scalingdown.compression.error", e.getCause());
         } finally {
-            recycleBitmap(croppedBitmap);
             recycleBitmap(scaledBitmap);
+        }
+    }
+
+    private void deliverViaTempFile(Bitmap croppedBitmap) {
+        try {
+            FileUtil.writeBitmapToDiskAndCleanupHandles(
+                    croppedBitmap,
+                    ImageType.fromExtension(FileUtil.getExtension(TEMP_FILE_STEM_IMAGE_HOLDER)),
+                    ImageWidget.getTempFileForImageCapture()
+            );
+            setResult(AppCompatActivity.RESULT_OK);
+            finish();
+        } catch (IOException e) {
+            logErrorAndExit(e.getMessage(), "microimage.saving.failed", e.getCause());
         }
     }
 
@@ -254,7 +293,11 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         return getIntent().getIntExtra(MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX);
     }
 
-    private void finishWithResul(String finalImageAsBase64) {
+    private CaptureOutputMode getCaptureOutputMode() {
+        return CaptureOutputMode.valueOf(Objects.requireNonNullElse(getIntent().getStringExtra(CAPTURE_OUTPUT_MODE_EXTRA), DEFAULT_CAPTURE_OUTPUT_MODE));
+    }
+
+    private void finishWithResult(String finalImageAsBase64) {
         Intent result = new Intent();
         result.putExtra(MICRO_IMAGE_BASE_64_RESULT_KEY, finalImageAsBase64);
         setResult(AppCompatActivity.RESULT_OK, result);
