@@ -10,6 +10,7 @@ import android.util.Base64;
 import android.util.Size;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.mlkit.common.MlKitException;
@@ -44,6 +45,7 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.UseCase;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import static android.view.View.VISIBLE;
 import static androidx.camera.core.CameraSelector.LENS_FACING_BACK;
 import static androidx.camera.core.CameraSelector.LENS_FACING_FRONT;
 import static org.commcare.activities.camera.MicroImageActivity.CaptureOutputMode.BASE64_EXTRA;
@@ -62,6 +64,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
     private ImageView cameraShutterButton;
+    private LinearLayout cameraControlsContainer;
     private boolean isGooglePlayServicesAvailable = false;
     public enum CaptureOutputMode { TEMP_FILE, BASE64_EXTRA }
     public static final String CAPTURE_OUTPUT_MODE_EXTRA = "capture-output-mode-extra";
@@ -92,13 +95,16 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     @Override
     protected void onCameraViewReady() {
         faceCaptureView = findViewById(R.id.face_overlay);
+        cameraView = findViewById(R.id.view_finder);
+        cameraControlsContainer = findViewById(R.id.camera_controls_container);
         cameraShutterButton = findViewById(R.id.camera_shutter_button);
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
         if (isGooglePlayServicesAvailable) {
             faceCaptureView.setImageStabilizedListener(this);
         } else {
             faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
-            cameraShutterButton.setVisibility(View.VISIBLE);
+            cameraControlsContainer.setVisibility(VISIBLE);
+            cameraShutterButton.setVisibility(VISIBLE);
         }
     }
 
@@ -216,7 +222,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     }
 
     private void switchToManualCaptureMode() {
-        cameraShutterButton.setVisibility(View.VISIBLE);
+        cameraControlsContainer.setVisibility(VISIBLE);
+        cameraShutterButton.setVisibility(VISIBLE);
         isGooglePlayServicesAvailable = false;
         faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
         startCamera();
