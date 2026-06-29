@@ -179,8 +179,13 @@ public class SingleAppManagerActivity extends CommCareActivity {
         FirebaseAnalyticsUtil.reportAppManagerAction(AnalyticsParamValue.UNINSTALL_APP);
         CommCareApplication.instance().expireUserSession();
         AppLifecycleUtils.uninstall(appRecord);
-        CommCareLifecycleUtils.restartCommCare(
-                SingleAppManagerActivity.this, AppManagerActivity.class, false);
+
+        if (MultipleAppsUtil.appRecordArray().length == 0) {
+            CommCareLifecycleUtils.restartCommCare(this, false);
+        } else {
+            CommCareLifecycleUtils.restartCommCare(
+                    SingleAppManagerActivity.this, AppManagerActivity.class, false);
+        }
     }
 
     /**
