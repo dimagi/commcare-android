@@ -78,10 +78,12 @@ class RetrieveChannelEncryptionKeyResponseParserTest {
 
         // Assert — storeMessagingChannel must not be called when response is empty
         messagingDatabaseMock.verify(
-            { ConnectMessagingDatabaseHelper.storeMessagingChannel(
-                org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.any(),
-            ) },
+            {
+                ConnectMessagingDatabaseHelper.storeMessagingChannel(
+                    org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.any(),
+                )
+            },
             never(),
         )
     }
