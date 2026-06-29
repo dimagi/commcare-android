@@ -64,11 +64,6 @@ public interface ApiService {
                                        @HeaderMap Map<String, String> headers,
                                        @Body RequestBody connectClaimJobRequest);
 
-    @GET(ApiEndPoints.connectDeliveriesURL)
-    Call<ResponseBody> getConnectDeliveries(@Header("Authorization") String token,
-                                            @Path("id") String uuid,
-                                            @HeaderMap Map<String, String> headers);
-
     @POST(ApiEndPoints.PAYMENT_CONFIRMAITONS)
     Call<ResponseBody> connectPaymentConfirmations(@Header("Authorization") String token,
                                        @HeaderMap Map<String, String> headers,

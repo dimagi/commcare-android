@@ -4,6 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
@@ -12,13 +13,11 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
-import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
 import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.interfaces.base.BaseConnectView
 
 object ConnectJobHelper {
     fun getJobForSeatedApp(context: Context): ConnectJobRecord? {
@@ -42,8 +41,6 @@ object ConnectJobHelper {
     fun updateJobProgress(
         context: Context,
         job: ConnectJobRecord,
-        showLoading: Boolean? = null,
-        baseConnectView: BaseConnectView? = null,
         listener: ConnectActivityCompleteListener,
     ) {
         when (job.status) {
@@ -52,7 +49,7 @@ object ConnectJobHelper {
             }
 
             ConnectJobRecord.STATUS_DELIVERING -> {
-                updateDeliveryProgress(context, job, showLoading, baseConnectView, listener)
+                updateDeliveryProgress(context, job, listener)
             }
 
             else -> {
@@ -75,11 +72,15 @@ object ConnectJobHelper {
                     if (job.passedAssessment()) {
                         FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
                     }
-                    listener.connectActivityComplete(true)
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(true)
+                    }
                 },
                 onFailure = {
                     FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
-                    listener.connectActivityComplete(false)
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(false)
+                    }
                 },
             )
         }
@@ -88,70 +89,41 @@ object ConnectJobHelper {
     fun updateDeliveryProgress(
         context: Context,
         job: ConnectJobRecord,
-        showLoading: Boolean? = null,
-        baseConnectView: BaseConnectView? = null,
         listener: ConnectActivityCompleteListener,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<DeliveryAppProgressResponseModel>(
-            showLoading,
-            baseConnectView,
-        ) {
-            override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
-                val events = mutableSetOf<String?>()
-
-                if (deliveryAppProgressResponseModel.updatedJob) {
-                    events.add(START_DELIVERY)
-                    ConnectJobUtils.upsertJob(context, job)
-                }
-
-                if (deliveryAppProgressResponseModel.hasDeliveries) {
-                    if (job.getDeliveryProgressPercentage() == 100) {
+        val user = ConnectUserDatabaseUtil.getUser(context)!!
+        CoroutineScope(Dispatchers.IO).launch {
+            val result = ConnectNetworkClient.getInstance().getDeliveryProgress(user, job)
+            result.fold(
+                onSuccess = { model ->
+                    val events = mutableSetOf<String?>()
+                    if (model.updatedJob) {
+                        events.add(START_DELIVERY)
+                    }
+                    if (model.hasDeliveries && job.getDeliveryProgressPercentage() == 100) {
                         events.add(FINISH_DELIVERY)
                     }
-                    ConnectJobUtils.storeDeliveries(
-                        context,
-                        job.deliveries,
-                        job.jobUUID,
-                        true,
-                    )
-                }
-
-                if (deliveryAppProgressResponseModel.hasPayment) {
-                    if (job.payments.isNotEmpty()) {
+                    if (model.hasPayment && job.payments.isNotEmpty()) {
                         events.add(PAID_DELIVERY)
                     }
-                    ConnectJobUtils.storePayments(
-                        context,
-                        job.payments,
-                        job.jobUUID,
-                        true,
-                    )
-                }
 
-                job.syncRelearnTasksPrefs(deliveryAppProgressResponseModel.parsedTasks)
+                    model.applyToJob(job, context)
 
-                events.forEach { event ->
-                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(
-                        true,
-                        event,
-                    )
-                }
-
-                listener.connectActivityComplete(true)
-            }
-
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(
-                    false,
-                    null,
-                )
-                listener.connectActivityComplete(false)
-            }
-        }.getDeliveries(context, user, job)
+                    events.forEach { event ->
+                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event)
+                    }
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(true)
+                    }
+                },
+                onFailure = {
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false, null)
+                    withContext(Dispatchers.Main) {
+                        listener.connectActivityComplete(false)
+                    }
+                },
+            )
+        }
     }
 
     fun updatePaymentsConfirmed(
@@ -200,5 +172,38 @@ object ConnectJobHelper {
                 listener.connectActivityComplete(true)
             }
         }.getConnectOpportunities(context, user!!)
+    }
+
+    fun resolveGenericOpportunityDestination(
+        currentAction: String?,
+        job: ConnectJobRecord?,
+        paymentUuid: String?,
+    ): String? {
+        if (ConnectConstants.CCC_GENERIC_OPPORTUNITY != currentAction || job == null) {
+            return currentAction
+        }
+        return when (job.status) {
+            ConnectJobRecord.STATUS_DELIVERING -> {
+                if (!paymentUuid.isNullOrEmpty()) {
+                    ConnectConstants.CCC_DEST_PAYMENTS
+                } else {
+                    ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
+                }
+            }
+
+            ConnectJobRecord.STATUS_LEARNING -> {
+                ConnectConstants.CCC_DEST_LEARN_PROGRESS
+            }
+
+            ConnectJobRecord.STATUS_AVAILABLE,
+            ConnectJobRecord.STATUS_AVAILABLE_NEW,
+            -> {
+                ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
+            }
+
+            else -> {
+                currentAction
+            }
+        }
     }
 }

@@ -84,14 +84,18 @@ class NotificationsSyncWorker(
 
     private fun logResult(syncResult: PNApiResponseStatus) {
         val actionStr = syncAction?.toString()
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Sync Action: $actionStr completed with success: ${syncResult?.success}")
+        Logger.log(
+            LogTypes.TYPE_MAINTENANCE,
+            "Sync Action: $actionStr completed with success: ${syncResult?.success}",
+        )
     }
 
     private fun initStateFromInputData() {
         val notificationPayloadJson = inputData.getString(NOTIFICATION_PAYLOAD)
         if (notificationPayloadJson != null) {
             val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
-            notificationPayload = Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
+            notificationPayload =
+                Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
         }
 
         val syncActionStr = inputData.getString(ACTION)
@@ -149,8 +153,6 @@ class NotificationsSyncWorker(
                 ConnectJobHelper.updateJobProgress(
                     appContext,
                     job!!,
-                    false,
-                    null,
                     object : ConnectActivityCompleteListener {
                         override fun connectActivityComplete(
                             success: Boolean,
@@ -164,20 +166,28 @@ class NotificationsSyncWorker(
         }
     }
 
-    private fun checkForOpportunityStatus(): Boolean =
-        if (notificationPayload?.contains(OPPORTUNITY_STATUS) == true && job != null) {
-            val opportunityStatus = notificationPayload?.get(OPPORTUNITY_STATUS)
-            (job?.status == STATUS_LEARNING || job?.status == STATUS_AVAILABLE || job?.status == STATUS_AVAILABLE_NEW) &&
-                OPPORTUNITY_STATUS_LEARN.equals(
-                    opportunityStatus,
-                ) ||
-                job?.status == STATUS_DELIVERING &&
-                OPPORTUNITY_STATUS_DELIVERY.equals(
-                    opportunityStatus,
-                )
-        } else {
-            true
+    private fun checkForOpportunityStatus(): Boolean {
+        val payload = notificationPayload ?: return true
+        val currentJob = job ?: return true
+
+        if (!payload.containsKey(OPPORTUNITY_STATUS)) return true
+
+        val opportunityStatus = payload[OPPORTUNITY_STATUS]
+
+        return when (opportunityStatus) {
+            OPPORTUNITY_STATUS_LEARN -> {
+                currentJob.status in setOf(STATUS_LEARNING, STATUS_AVAILABLE, STATUS_AVAILABLE_NEW)
+            }
+
+            OPPORTUNITY_STATUS_DELIVERY -> {
+                currentJob.status == STATUS_DELIVERING
+            }
+
+            else -> {
+                false
+            }
         }
+    }
 
     private fun getConnectJob(): ConnectJobRecord? {
         val opportunityUUID = notificationPayload?.get(OPPORTUNITY_UUID)

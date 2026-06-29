@@ -6,8 +6,8 @@ import android.graphics.Color
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
@@ -28,6 +29,7 @@ import org.commcare.dalvik.R
 import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.MANAGE_PROFILE
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.utils.ConnectivityStatus
@@ -42,11 +44,11 @@ class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
     private val highlightSeatedApp: Boolean,
+    private val takePhotoLauncher: ActivityResultLauncher<Intent>,
     private val onItemClicked: (NavItemType, String?) -> Unit,
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
-    private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
     private var hasRefreshed = false
     private var showingError = false
     var lastPhotoUploadFailed: Boolean = false
@@ -63,7 +65,6 @@ class BaseDrawerController(
     fun setupDrawer() {
         setupActionBarDrawerToggle()
         initializeAdapter()
-        initTakePhotoLauncher()
         setupListeners()
         setupViews()
         refreshDrawerContent()
@@ -159,6 +160,22 @@ class BaseDrawerController(
         binding.helpView.setOnClickListener { /* Future Help Action */ }
         binding.userImage.setOnClickListener {
             showUpdatePhotoConfirmationDialog()
+        }
+        binding.manageProfileLink.setOnClickListener {
+            ConnectNavHelper.unlockAndGoToProfile(
+                activity,
+                listener =
+                    object : ConnectActivityCompleteListener {
+                        override fun connectActivityComplete(
+                            success: Boolean,
+                            error: String?,
+                        ) {
+                            if (success) {
+                                closeDrawer()
+                            }
+                        }
+                    },
+            )
         }
     }
 
@@ -289,6 +306,7 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+        binding.manageProfileLink.visibility = if (shouldShowManageProfile()) View.VISIBLE else View.GONE
         binding.notificationView.visibility =
             if (shouldShowNotifications()) View.VISIBLE else View.GONE
     }
@@ -325,6 +343,8 @@ class BaseDrawerController(
 
     private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
 
+    private fun shouldShowManageProfile(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(MANAGE_PROFILE)
+
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
     }
@@ -337,19 +357,14 @@ class BaseDrawerController(
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
 
-    private fun initTakePhotoLauncher() {
-        takePhotoLauncher =
-            activity.registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult(),
-            ) { result ->
-                if (result.resultCode == RESULT_OK) {
-                    result.data
-                        ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
-                        ?.let { photoBase64 ->
-                            uploadUserPhoto(photoBase64)
-                        }
+    fun handlePhotoResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            result.data
+                ?.getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY)
+                ?.let { photoBase64 ->
+                    uploadUserPhoto(photoBase64)
                 }
-            }
+        }
     }
 
     private fun launchCameraForPhotoEdit() {

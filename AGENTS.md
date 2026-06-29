@@ -7,6 +7,12 @@
 - CommCare Android is an open-source Android application for data collection and service delivery in low-resource settings
 - CommCare Core is a shared Java library that provides core functionalities for CommCare's Android and Web Client
 
+## Concision (applies to all writing)
+Commits, PR descriptions, code comments, and documentation default to concise and high-level, and never restate what is already clear from reading the code.
+- Commit and PR bodies: convey the *why* and the shape of the change, not a walkthrough of the diff.
+- Code comments: reserve for non-obvious *why*; never narrate what the code plainly does.
+- Documentation: prefer one high-level sentence over a paragraph; touch only the lines a change affects.
+
 ## Project Documentation
 Tech documentation for this repo is organized by Gradle submodule and, within the main `app` module, by product area:
 - `/docs/commcare/` — CommCare-specific subsystems (e.g., translations)
@@ -25,7 +31,7 @@ Tech documentation for this repo is organized by Gradle submodule and, within th
 - Any new classes should be written in Kotlin
 - Old classes can remain in Java unless it affects new code architecture significantly
 - Use standard Android APIs where applicable
-- Use comments sparingly only to explain complex logic
+- Do not add any in-code comments unless explicitly requested.
 
 ## Testing
 - Use unit tests for logic verification
@@ -60,7 +66,7 @@ This task auto-formats the file and then verifies it is clean. If any violations
 - Connect and PersonalID share `org.commcare.connect` package
 - PersonalID Fragments are in `org.commcare.fragments.personalId` package
 - This is a multi-module Android project. When asked to find a file or class, search across all modules (commcare-android, commcare-core, commcare-support-library) rather than assuming the default module.
-  
+
 ## Git Usage Guidelines
 - Logical Commits: Break work into logical chunks and commit after completing each coherent piece of functionality
 - Commit Messages: Write concise commit messages that describe the change's purpose, not an exhaustive list of modifications

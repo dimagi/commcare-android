@@ -117,6 +117,9 @@
     <!-- Progress bar colors -->
     <color name="progress_bar_bg">#66000000</color>
 
+    <!-- Widget colors -->
+    <color name="audio_recording_primary_color">#E44434</color>
+
     <!-- New Connect colors -->
     <color name="connect_message_receiver_bg">#5C6FD0</color>
     <color name="connect_message_sender_bg">#F1F5F9</color>
@@ -127,7 +130,7 @@
     <color name="connect_border_color">#1A3A42C7</color>
     <color name="connect_dark_blue_color">#3942C7</color>
     <color name="connect_darker_blue_color">#353BA8</color>
-    <color name="connect_blue_color">#3A42C7</color>
+    <color name="connect_blue_color">@color/neon_blue</color>
     <color name="connect_blue_color_10">#1A3A42C7</color>
     <color name="connect_blackist_dark_blue_color">#141859</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>
@@ -156,11 +159,11 @@
     <color name="connect_payment_status_transferred_bg">#16A085</color>
     <color name="connect_payment_status_transferred_fg">#E6F5E5</color>
     <color name="connect_message_unread">#94A3B8</color>
-    <color name="connect_delivery_check_circle">#3A42C7</color>
-    <color name="connect_arrow_forward">#3A42C7</color>
+    <color name="connect_delivery_check_circle">@color/neon_blue</color>
+    <color name="connect_arrow_forward">@color/neon_blue</color>
     <color name="connect_pager_indicator">#FF0000</color>
     <color name="connect_yellow_dot">#EABA13</color>
-    <color name="connect_message_read">#3A42C7</color>
+    <color name="connect_message_read">@color/neon_blue</color>
     <color name="connect_delivery_approved">#16A085</color>
     <color name="personal_id_work_history_earned_activity">#90A1B9</color>
     <color name="personal_id_work_history_earned_grey">#4DFFFFFF</color>
@@ -196,4 +199,10 @@
     <color name="shimmer_grey_0">#00E6E7EB</color>
     <color name="shimmer_grey_20">#33E6E7EB</color>
     <color name="shimmer_grey_60">#99E6E7EB</color>
+    <color name="lavender_mist">#D8D9F4</color>
+    <color name="neon_blue">#3A42C7</color>
+
+    <!-- secondary CTA button colors -->
+    <color name="secondary_cta_btn_background">@color/lavender_mist</color>
+    <color name="secondary_cta_btn_text_color">@color/neon_blue</color>
 </resources>

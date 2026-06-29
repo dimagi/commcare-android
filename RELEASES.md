@@ -2,6 +2,50 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+
+## CommCare 2.63.1
+
+### Release Notes
+<!--
+These are published publicly on Playstore, Github Releases and CommCare Forums
+-->
+
+#### What's New
+
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for specific projects.
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+#### Important Bug Fixes
+
+- Fix bug causing form widgets to lose focus when a Combobox dropdown on the same screen is re-validated.
+- Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
+
+### QA Notes
+<!--
+These are for internal use and for us to keep track of important notes that
+we would like to communicate to QA as part of the release testing
+-->
+
+- **Combobox capitalization fix:**
+  - **Setup:** Use a form with a lookup-table-backed multiple-choice question configured with `appearance="combobox"`, followed by a Numeric ID or Phone Number question on the same screen.
+  - **Focus retention in following questions (the user-visible bug being fixed):**
+    - Open the form, select or type a valid choice in the combobox, then move to the Numeric ID / Phone Number question.
+    - Tap the field and type a multiple digit value in one go. Verify the field retains focus throughout — no need to re-tap after each digit.
+  - **Combobox case correction (existing behaviour, should still work):**
+    - Type a valid choice in **lowercase** (e.g. "apple" when the choice list contains "Apple") and tap away. Verify the field is rewritten to the canonical casing "Apple".
+    - Type the same choice in **mixed case** (e.g. "ApPlE") and lose focus. Verify it's rewritten to "Apple".
+    - Type a value that **doesn't match any choice** and lose focus. Verify the field is left unchanged.
+
+- **GPS `here()` crash regression:** Using an app configuration that has `here()` in a case list (e.g. a case list that shows distance to GPS coordinates), navigate to that case list and wait for it to fully load. Press Back. Verify the app returns to the previous screen without crashing.
+- **GPS `here()` case list refresh:** Using the same app configuration, navigate to the case list and allow GPS to acquire a location fix. Move to a different location (or simulate a location change) while the list is displayed. Verify the case list automatically refreshes and distance values update accordingly.
+
+
 ## CommCare 2.64
 
 ### Release Notes
@@ -12,24 +56,24 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+
+#### Internal Release Notes
+- Deprecated PersonalID support for devices on Android OS less than Android 9.
 - [Profile Photo Update] PersonalID users can now update their profile photo directly from the side navigation drawer
 - Reduced frequency of required biometric or pin unlocks for PersonalID and Connect  
 - [Back Online Indicator] Refreshable Connect pages now show a green "Back Online" indicator at the top of the page when a sync succeeds after a previous offline failure
+- [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
+- [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
+- Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 
 #### Important Bug Fixes
 
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
+- Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
+- Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
 
-#### Internal Release Notes
-
-<!--
-Release notes that are not applicable for wider CommCare users but only for specific projects.
-These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
-along with the public release notes above
--->
 
 ### QA Notes
-
 <!--
 These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
@@ -62,9 +106,41 @@ we would like to communicate to QA as part of the release testing
     - Signup: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered) → Photo
     - Recovery, no verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code → Email (optional) → Email OTP (only if email entered)
     - Recovery, verified email available for the user: Phone → Biometrics → Phone OTP → Name → Backup Code
-  - **Email entry screen:** (will be added here)
-  - **Email OTP screen:** (will be added here)
-  - **Legacy logged-in users prompt:** (will be added here)
+  - **Email entry screen:**
+    - Open the email entry screen (currently reachable only once the upstream PR wires it from the Backup Code step). Verify the CommCare-by-Dimagi banner is shown at the top, the action bar title reads "Email", and the screen shows an envelope icon next to the email input, with "Add your email (optional)" and a short description below the divider.
+    - With the input empty or containing whitespace only, verify the Continue button is disabled and Skip for now is enabled.
+    - Type a malformed email (e.g. `abc`, `user@`, `@nodomain.com`) and verify Continue stays disabled. With a malformed value in the field, press the keyboard Done key and verify nothing submits — the keyboard simply hides.
+    - Type a well-formed email (e.g. `user@example.com`) and verify Continue becomes enabled.
+    - Tap Skip for now. Verify a confirmation dialog appears with the title "Skip email?", the message "Are you sure you want to skip?", and Yes / No buttons.
+        - Tap No: the dialog dismisses and the email screen stays put with any typed value preserved.
+        - Tap Yes: the dialog dismisses and the flow advances to the next step (Photo Capture during signup).
+    - Switch the device language to a supported locale (e.g. French, Spanish, Hindi, Swahili) and re-walk the screen. Verify the screen title, banner area, header copy, description, input hint, both button labels, and the skip-confirm dialog all render in the selected language.
+  - **Email OTP screen:**
+      - Reach the screen by entering a valid email on the previous step and tapping Continue. Verify the CommCare-by-Dimagi banner is shown at the top, the action bar title reads "Verify Email", a lock icon sits to the left of the 6-digit OTP field, and the description below the divider reads "Enter the 6-digit code sent to <email>" with the address the user typed.
+      - On open, verify the Verify button is disabled, the OTP field is empty, the resend area shows a "Didn't receive your code? Resend in 120 s" countdown that decrements every second, and the Resend Code button itself is hidden.
+      - Wait for (or fast-forward by changing device time) the cooldown to expire. Verify the countdown disappears and the Resend Code button becomes visible. Tap Resend Code — verify a fresh OTP arrives and the 2-minute countdown restarts.
+      - Type 5 digits — verify the Verify button stays disabled. Type the 6th digit — verification fires automatically. With a correct code:
+          - **Signup**: the flow advances to Photo Capture.
+          - **Recovery**: the recovery-success screen is shown.
+          - **Existing user**: a non-cancellable confirmation dialog appears with the title "Email Added" and message "Your email has been added successfully."; tapping OK closes the screen and the new email is visible on the user's HQ admin profile.
+      - With an incorrect code, verify an error message appears under the OTP field and the OTP cells switch to a red error state. Enter a wrong code 3 times in a row — verify a dialog appears titled "Verification unsuccessful" with the message about 3 incorrect attempts, and two buttons: "Try again" (dismisses dialog, clears the OTP field, lets the user retry) and "Proceed without email" (advances to the next step without saving an email).
+      - Press the device Back button on the verification screen — verify the user returns to the Email entry screen with the email address still populated.
+      - Switch the device language to a supported locale (e.g. French, Spanish, Hindi, Swahili) and re-walk the screen. Verify the action-bar title, in-screen title, description (with email substitution), Verify button label, resend button + countdown text, error messages, and both failure-dialog buttons all render in the selected language.
+  - **Existing logged-in users prompt:**
+    - Precondition: signed in to PersonalID as an existing user with **no email** on file, and the `email_otp_verification` server toggle **ON**.
+    - Return to the CommCare home screen. Verify a dialog titled "Add your email address" appears, with a message explaining an email helps recover the account if phone access is lost, and **Add email** / **Not now** buttons.
+    - Tap **Not now**: the dialog dismisses and you land on the home screen normally.
+    - Tap **Add email**: verify the Email entry screen opens (the same screen used during signup, now reached as an existing user).
+    - With the toggle **OFF**, or for a user who **already has an email** on file, return to the home screen and verify the prompt does **not** appear.
+    - The prompt is shown at most twice, and will not appear again thereafter.
+    - Switch the device language to a supported locale and verify the dialog title, message, and both button labels render in the selected language.
+  - **Backup Code → Email entry routing (signup + recovery):**
+    - **Signup with `email_otp_verification` server toggle ON:** Walk a fresh PersonalID signup. After entering and confirming the backup code, verify the Email entry screen appears next (not Photo Capture).
+    - **Signup with `email_otp_verification` server toggle OFF:** Walk a fresh PersonalID signup. After confirming the backup code, verify the flow skips Email and goes directly to Photo Capture.
+    - **Recovery with the server already returning a verified email for the user:** Walk PersonalID account recovery (validate backup code on a new device). Verify the flow skips the Email screen entirely and goes directly to the "Account Recovered" success screen.
+    - **Recovery with no server email, `email_otp_verification` toggle ON:** Recover an account that has no email on file. After backup code validation, verify the Email entry screen appears (so the user can add an email during recovery).
+    - **Recovery with `email_otp_verification` toggle OFF:** Recover any account with the toggle disabled. Verify the flow goes directly from backup code to the "Account Recovered" success screen without the Email screen.
+    - **Email persisted on the user record:** After completing a signup that included entering and verifying an email, verify the HQ admin view of the PersonalID user shows the email address that was entered. Repeat the same check after a recovery that included the Email screen.
   - In order to achieve this functionality, DB migrations are done to accommodate the new email address field. QA should start testing with the previous version of the app, having PersonalID login already, and then upgrade to this new version. The app should work without crashing.
   - QA should also test with a fresh installation of this new version, going through PersonalID signup/recovery.
 
@@ -87,6 +163,29 @@ we would like to communicate to QA as part of the release testing
   - During PersonalID signup for a new phone number, get to the photo capture step and tap **Take Photo** to open the camera. Tap the back arrow in the top toolbar. Verify that the camera closes and you are returned to the photo capture screen.
   - From a signed-in PersonalID session, open the side navigation drawer and tap the user image, then Continue. Tap the back arrow in the camera screen's top toolbar. Verify that the camera closes and you are returned to the previous screen with no photo change.
   - In both flows, verify the device's system back button continues to work the same way.
+
+- **Delivery Progress offline-first (Connect):**
+  - Open the Connect Delivery Progress page while online with a working network and let it sync. Verify the progress, payment list, payment-confirmation tile, and "Last updated" timestamp all populate as before, and that the green "Sync successful" bar flashes briefly at the top.
+  - Background the app, turn on airplane mode, and reopen the Delivery Progress page. Verify cached delivery data (progress, deliveries, payments, "Last updated" timestamp) appears immediately without waiting for a network call, and that the orange "Offline" indicator with the previous sync time is shown at the top.
+  - Confirm the full-screen blocking loading dialog that used to appear on refresh no longer appears — the inline small progress spinner is the only loading indicator.
+- **Connect app launch:**
+  - From the Connect opportunities list, launch an installed learn or delivery app: confirm it opens to the app home behind a single progress dialog (no login/app-setup screens flashing through), and that pressing back from the app home returns to the screen it was launched from (here, the opportunities list).
+  - Launching from the Delivery Progress or Learning Progress page (not just the opportunities list) also opens the app directly with the single progress dialog (no login/app-setup flash) and lands on the app home; pressing back from the app home returns to that same page.
+  - The app session stays alive on back-out: immediately relaunching the same app reopens it to the home without re-running the login/sync (no progress dialog flash).
+  - With networking off (or any retryable failure), launching shows a "Couldn't open the app" Retry/Cancel dialog — Retry re-attempts the launch, Cancel dismisses and leaves you on the launching screen. It should not flash the login screen, hang on the dialog, or crash.
+  - Logging out from inside the launched app returns to the screen it was launched from (not the login screen).
+  - On the app home, "View Job Status" opens the job's progress page; backing out of it returns to the app home, and backing out of the home returns to the screen the app was launched from.
+  - Opening a job's progress page directly from the opportunities list (tapping an in-progress job) returns to the opportunities list on back.
+
+- **SMS opportunity-invite app link (Connect):** Tap an invite link of the form `https://connect.dimagi.com/users/invite_redirect/<uuid>` (and the `connect-staging.dimagi.com` equivalent) from an SMS app and verify each corner case:
+  - CommCare not installed: navigates to a webpage on Connect (that should redirect user to Play Store) 
+  - PersonalID not yet set up: app opens normally to the standard CommCare flow, the link is dropped silently, and re-launching the app does not replay it.
+  - PersonalID logged in, valid UUID, online: lands on the opportunity summary page for that opportunity after the unlock/biometric prompt.
+  - PersonalID logged in, unknown/expired UUID: "Opportunity not found" toast shows and the user lands on the Connect jobs list (no stuck loading dialog).
+  - PersonalID logged in, offline / network failure: same "Opportunity not found" toast and jobs-list landing — no retry prompt, no stuck loading dialog.
+  - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
+  - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
+
 
 ## CommCare 2.63
 

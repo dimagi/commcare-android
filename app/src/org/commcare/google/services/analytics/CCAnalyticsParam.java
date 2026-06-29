@@ -23,6 +23,9 @@ public class CCAnalyticsParam {
     static final String MODE = "mode";
     public static final String REASON = "reason";
     static final String RESULT = "result";
+    static final String TYPE = "type";
+    static final String SUCCESS = "success";
+    static final String ERROR = "error";
     static final String UI_STATE = "uite_state";
     public static final String USERNAME = "username";
     static final String FORM_ID = "form_id";
@@ -40,6 +43,7 @@ public class CCAnalyticsParam {
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
     public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO =
             "personal_id_continue_button_clicked_info";
+    public static final String PERSONAL_ID_WORKFLOW = "personalid_flow";
     static final String NOTIFICATION_EVENT_TYPE = "event_type";
     static final String NOTIFICATION_ACTION = "action";
     static final String NOTIFICATION_ID = "notification_id";
@@ -54,4 +58,11 @@ public class CCAnalyticsParam {
     public static final String OTP_OUTCOME = "outcome";
     public static final String OTP_EVENT_TYPE = "event_type";
     public static final String OTP_METHOD = "method";
+    public static final String OTP_FAILED_ATTEMPTS = "failed_attempts";
+    public static final String OTP_WORKFLOW = "workflow";
+
+    // Param keys for user prompt analytics
+    static final String USER_PROMPT_TYPE = "event_type";
+    static final String USER_PROMPT_ACTION = "action";
+    static final String USER_PROMPT_INFO = "info";
 }
