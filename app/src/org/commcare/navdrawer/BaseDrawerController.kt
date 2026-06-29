@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
+import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
@@ -26,7 +27,6 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
-import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.MANAGE_PROFILE
