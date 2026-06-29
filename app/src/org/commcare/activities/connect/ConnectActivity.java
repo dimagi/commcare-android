@@ -237,7 +237,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if (!backButtonAndActionBarEnabled) {
             return;
         }
-        if (appLaunchedFromConnect && isAtJobsList()) {
+        if (appLaunchedFromConnect && isAtStartDestination()) {
             finishAffinity();
             return;
         }
@@ -248,9 +248,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         appLaunchedFromConnect = true;
     }
 
-    private boolean isAtJobsList() {
+    private boolean isAtStartDestination() {
         return navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.connect_jobs_list_fragment;
+                && navController.getCurrentDestination().getId() == navController.getGraph().getStartDestinationId();
     }
 
     @Override
