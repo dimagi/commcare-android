@@ -63,7 +63,7 @@ class InstallFromListTest: BaseTest() {
 
     @After
     fun tearDown() {
-        if (onView(withText("Install An App")).isPresent()) {
+        if (onView(withText(equalToIgnoringCase("Install An App"))).isPresent()) {
             Espresso.pressBack()
         }
         // uninstall current app.
