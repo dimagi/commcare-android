@@ -14,7 +14,7 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
-import org.commcare.fragments.MicroImageActivity
+import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
 import org.hamcrest.MatcherAssert.assertThat

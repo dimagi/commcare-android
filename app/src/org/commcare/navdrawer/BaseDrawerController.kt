@@ -26,7 +26,7 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
-import org.commcare.fragments.MicroImageActivity
+import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.MANAGE_PROFILE
