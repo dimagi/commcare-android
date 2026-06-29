@@ -60,6 +60,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     public static final String BASE_64_IMAGE_PREFIX = "data:image/webp;base64,";
     public static final String CAMERA_LENS_FACING_EXTRA = "camera-lens-facing-extra";
     private static final int DEFAULT_CAMERA_LENS_FACING = LENS_FACING_FRONT;
+    public static final String ALLOW_CAMERA_LENS_SWITCH_EXTRA = "allow-camera-lens-switch-extra";
 
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
@@ -69,6 +70,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     public enum CaptureOutputMode { TEMP_FILE, BASE64_EXTRA }
     public static final String CAPTURE_OUTPUT_MODE_EXTRA = "capture-output-mode-extra";
     public static final String DEFAULT_CAPTURE_OUTPUT_MODE = BASE64_EXTRA.name();
+    private ImageView switchCameraLensButton;
+    private int currentLensFacing;
 
     @Override
     protected int getContentLayout() {
@@ -98,6 +101,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         cameraView = findViewById(R.id.view_finder);
         cameraControlsContainer = findViewById(R.id.camera_controls_container);
         cameraShutterButton = findViewById(R.id.camera_shutter_button);
+        switchCameraLensButton = findViewById(R.id.switch_camera_lens_button);
+
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
         if (isGooglePlayServicesAvailable) {
             faceCaptureView.setImageStabilizedListener(this);
@@ -106,6 +111,17 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             cameraControlsContainer.setVisibility(VISIBLE);
             cameraShutterButton.setVisibility(VISIBLE);
         }
+        if (getAllowCameraLensSwitch()) {
+            cameraControlsContainer.setVisibility(VISIBLE);
+            switchCameraLensButton.setVisibility(VISIBLE);
+            switchCameraLensButton.setOnClickListener(v -> switchCameraLensFacing());
+        }
+        currentLensFacing = getCameraLensFacing();
+    }
+
+    private void switchCameraLensFacing() {
+        currentLensFacing = currentLensFacing == LENS_FACING_BACK ? LENS_FACING_FRONT : LENS_FACING_BACK;
+        startCamera();
     }
 
     @Override
@@ -119,7 +135,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     @Override
     protected CameraSelector getCameraSelector() {
-        return switch (getCameraLensFacing()) {
+        return switch (currentLensFacing) {
             case LENS_FACING_BACK -> CameraSelector.DEFAULT_BACK_CAMERA;
             default -> CameraSelector.DEFAULT_FRONT_CAMERA;
         };
@@ -127,6 +143,10 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     private int getCameraLensFacing() {
         return getIntent().getIntExtra(CAMERA_LENS_FACING_EXTRA, DEFAULT_CAMERA_LENS_FACING);
+    }
+
+    private boolean getAllowCameraLensSwitch() {
+        return getIntent().getBooleanExtra(ALLOW_CAMERA_LENS_SWITCH_EXTRA, false);
     }
 
     private UseCase buildImageAnalysisUseCase(Size targetResolution, int targetRotation) {
