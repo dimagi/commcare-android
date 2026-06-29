@@ -11,6 +11,7 @@ import android.util.Size;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.mlkit.common.MlKitException;
@@ -72,6 +73,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     public static final String DEFAULT_CAPTURE_OUTPUT_MODE = BASE64_EXTRA.name();
     private ImageView switchCameraLensButton;
     private int currentLensFacing;
+    private TextView cameraCaptureInstructions;
 
     @Override
     protected int getContentLayout() {
@@ -102,6 +104,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         cameraControlsContainer = findViewById(R.id.camera_controls_container);
         cameraShutterButton = findViewById(R.id.camera_shutter_button);
         switchCameraLensButton = findViewById(R.id.switch_camera_lens_button);
+        cameraCaptureInstructions = findViewById(R.id.camera_capture_instructions);
 
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
         if (isGooglePlayServicesAvailable) {
@@ -110,6 +113,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
             cameraControlsContainer.setVisibility(VISIBLE);
             cameraShutterButton.setVisibility(VISIBLE);
+            cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
         }
         if (getAllowCameraLensSwitch()) {
             cameraControlsContainer.setVisibility(VISIBLE);
@@ -244,6 +248,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     private void switchToManualCaptureMode() {
         cameraControlsContainer.setVisibility(VISIBLE);
         cameraShutterButton.setVisibility(VISIBLE);
+        cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
         isGooglePlayServicesAvailable = false;
         faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
         startCamera();

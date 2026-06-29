@@ -26,7 +26,18 @@
             app:face_marker_color="@color/cc_attention_positive_color"
             app:countdown_text_size="@dimen/font_size_large"
             android:layout_weight="1"/>
-
+        <TextView
+            android:id="@+id/camera_capture_instructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/face_capture_auto_instructions"
+            android:background="@color/cc_neutral_bg_tr"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textAlignment="textStart"
+            android:textSize="@dimen/text_medium"
+            android:drawablePadding="10dp"
+            app:drawableStartCompat="@drawable/instruction_hand" />
         <LinearLayout
             android:id="@+id/camera_controls_container"
             android:layout_width="match_parent"
