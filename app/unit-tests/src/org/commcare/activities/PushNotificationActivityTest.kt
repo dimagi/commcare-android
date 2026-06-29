@@ -34,6 +34,7 @@ import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.PushNotificationApiHelper
+import org.commcare.utils.coroutines.DispatcherProvider
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -72,7 +73,8 @@ class PushNotificationActivityTest {
     fun setUp() {
         // Run the ViewModel's coroutine on a deterministic test dispatcher instead of
         // the real Dispatchers.IO thread pool, so notification loading is synchronous.
-        PushNotificationViewModel.dispatcherOverride = UnconfinedTestDispatcher()
+        mockkObject(DispatcherProvider)
+        every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
 
         // getIntentForPNClick is exercised for real, so cccCheckPassed() must see a logged-in
         // user. init() is a no-op unless status == NotIntroduced, so setting LoggedIn is enough.
@@ -108,7 +110,6 @@ class PushNotificationActivityTest {
             }
         }
         unmockkAll()
-        PushNotificationViewModel.dispatcherOverride = null
         PersonalIdManager.getInstance().status = savedPersonalIdStatus
     }
 
