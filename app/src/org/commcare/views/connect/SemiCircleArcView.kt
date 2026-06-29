@@ -75,10 +75,15 @@ class SemiCircleArcView
             widthMeasureSpec: Int,
             heightMeasureSpec: Int,
         ) {
+            val defaultWidth = resources.getDimension(R.dimen.semi_circle_progress_default_width).toInt()
             val width =
                 when (MeasureSpec.getMode(widthMeasureSpec)) {
-                    MeasureSpec.EXACTLY, MeasureSpec.AT_MOST -> MeasureSpec.getSize(widthMeasureSpec)
-                    else -> resources.getDimension(R.dimen.semi_circle_progress_default_width).toInt()
+                    MeasureSpec.EXACTLY -> MeasureSpec.getSize(widthMeasureSpec)
+
+                    // wrap_content: use the intrinsic default, but never exceed the offered space.
+                    MeasureSpec.AT_MOST -> minOf(defaultWidth, MeasureSpec.getSize(widthMeasureSpec))
+
+                    else -> defaultWidth
                 }
             val radius = (width - paddingLeft - paddingRight - strokeWidth) / 2f
             // Top half of the circle plus the rounded caps and padding.
