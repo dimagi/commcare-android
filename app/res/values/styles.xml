@@ -294,4 +294,11 @@
         <item name="android:track">@drawable/switch_track</item>
     </style>
 
+    <style name="Widget.CommCare.SemiCircleProgressBar" parent="">
+        <item name="progressColor">@color/connect_dark_blue_color</item>
+        <item name="trackColor">@color/connect_light_grey</item>
+        <item name="valueTextColor">@color/connect_dark_blue_color</item>
+        <item name="descriptionTextColor">@color/connect_text_color</item>
+    </style>
+
 </resources>

@@ -141,4 +141,9 @@
     <dimen name="connect_info_card_corner_radius">15dp</dimen>
     <dimen name="connect_info_card_elevation">4dp</dimen>
     <dimen name="connect_info_card_min_height">130dp</dimen>
+
+    <dimen name="semi_circle_progress_default_width">240dp</dimen>
+    <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
+    <dimen name="semi_circle_progress_value_text_size">28sp</dimen>
+    <dimen name="semi_circle_progress_description_text_size">16sp</dimen>
 </resources>

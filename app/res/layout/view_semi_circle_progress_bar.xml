@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <org.commcare.views.connect.SemiCircleArcView
+        android:id="@+id/semi_circle_arc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Centred horizontally and biased toward the bottom so the text sits in the lower dome. -->
+    <LinearLayout
+        android:id="@+id/semi_circle_text_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/semi_circle_arc"
+        app:layout_constraintEnd_toEndOf="@id/semi_circle_arc"
+        app:layout_constraintStart_toStartOf="@id/semi_circle_arc"
+        app:layout_constraintTop_toTopOf="@id/semi_circle_arc"
+        app:layout_constraintVertical_bias="0.78">
+
+        <TextView
+            android:id="@+id/semi_circle_value_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/semi_circle_progress_value_text_size"
+            android:textStyle="bold"
+            tools:text="25 of 40" />
+
+        <TextView
+            android:id="@+id/semi_circle_description_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/semi_circle_progress_description_text_size"
+            tools:text="total visits completed" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
