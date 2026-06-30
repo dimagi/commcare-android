@@ -38,6 +38,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.UseCase;
+import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 public class MicroImageActivity extends BaseCameraActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener {
@@ -63,11 +64,18 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         return R.string.micro_image_activity_title;
     }
 
+    @NonNull
+    @Override
+    protected PreviewView getCameraView() {
+        return findViewById(R.id.view_finder);
+    }
+
     @Override
     protected CameraSelector getCameraSelector() {
         return CameraSelector.DEFAULT_FRONT_CAMERA;
     }
 
+    @NonNull
     @Override
     protected Size getTargetResolution() {
         return new Size(faceCaptureView.getImageWidth(), faceCaptureView.getImageHeight());
@@ -91,14 +99,14 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         if (faceCaptureView.getCaptureMode() == FaceCaptureView.CaptureMode.FaceDetectionMode) {
             return buildImageAnalysisUseCase(targetResolution, targetRotation);
         } else {
-            return buildImageCaptureUseCase(targetResolution);
+            return buildImageCaptureUseCase(targetResolution, targetRotation);
         }
     }
 
     private UseCase buildImageAnalysisUseCase(Size targetResolution, int targetRotation) {
         ImageAnalysis imageAnalyzer = new ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .setTargetResolution(targetResolution)
+                .setResolutionSelector(buildResolutionSelector(targetResolution))
                 .setTargetRotation(targetRotation)
                 .build();
 
@@ -107,8 +115,11 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     }
 
     // Set up image capture use case, for when Google Services is not available
-    private UseCase buildImageCaptureUseCase(Size targetResolution) {
-        ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(targetResolution).build();
+    private UseCase buildImageCaptureUseCase(Size targetResolution, int targetRotation) {
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setResolutionSelector(buildResolutionSelector(targetResolution))
+                .setTargetRotation(targetRotation)
+                .build();
 
         cameraShutterButton.setOnClickListener(new View.OnClickListener() {
             @Override
