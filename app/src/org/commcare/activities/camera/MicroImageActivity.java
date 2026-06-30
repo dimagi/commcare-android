@@ -74,6 +74,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     private ImageView switchCameraLensButton;
     private int currentLensFacing;
     private TextView cameraCaptureInstructions;
+    private TextView cameraCaptureModeIndicator;
 
     @Override
     protected int getContentLayout() {
@@ -105,6 +106,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         cameraShutterButton = findViewById(R.id.camera_shutter_button);
         switchCameraLensButton = findViewById(R.id.switch_camera_lens_button);
         cameraCaptureInstructions = findViewById(R.id.camera_capture_instructions);
+        cameraCaptureModeIndicator = findViewById(R.id.camera_capture_mode_indicator);
 
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
         if (isGooglePlayServicesAvailable) {
@@ -114,6 +116,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             cameraControlsContainer.setVisibility(VISIBLE);
             cameraShutterButton.setVisibility(VISIBLE);
             cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
+            cameraCaptureModeIndicator.setText(R.string.face_capture_manual_mode);
+            cameraCaptureModeIndicator.setSelected(true);
         }
         if (getAllowCameraLensSwitch()) {
             cameraControlsContainer.setVisibility(VISIBLE);
@@ -249,6 +253,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         cameraControlsContainer.setVisibility(VISIBLE);
         cameraShutterButton.setVisibility(VISIBLE);
         cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
+        cameraCaptureModeIndicator.setText(R.string.face_capture_manual_mode);
+        cameraCaptureModeIndicator.setSelected(true);
         isGooglePlayServicesAvailable = false;
         faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
         startCamera();

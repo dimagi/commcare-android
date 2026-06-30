@@ -833,4 +833,6 @@
     <string name="clear_search_button_description">Clear query</string>
     <string name="face_capture_manual_instructions" cc:translatable="true">Center the face inside the frame, then tap the white button to take the picture</string>
     <string name="face_capture_auto_instructions" cc:translatable="true">Center the face inside the frame, hold still to trigger auto capture process</string>
+    <string name="face_capture_auto_mode" cc:translatable="true">Auto capture</string>
+    <string name="face_capture_manual_mode" cc:translatable="true">Manual capture</string>
 </resources>
