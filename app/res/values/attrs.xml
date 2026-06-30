@@ -143,4 +143,12 @@
         <attr name="progressBackgroundColor" format="color" />
         <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="ConnectInfoHalfCard">
+        <attr name="valueText" format="string" />
+        <attr name="titleText" format="string" />
+        <attr name="subtitleText" format="string" />
+        <attr name="icon" format="reference" />
+        <attr name="navigable" format="boolean" />
+    </declare-styleable>
 </resources>

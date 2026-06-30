@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+  <path
+      android:pathData="M240,120C240,186.27 186.27,240 120,240C53.73,240 0,186.27 0,120C0,53.73 53.73,0 120,0C186.27,0 240,53.73 240,120Z"
+      android:fillColor="@color/audio_recording_primary_color"/>
+  <path
+      android:pathData="M70,82C70,75.37 75.37,70 82,70H158C164.63,70 170,75.37 170,82V158C170,164.63 164.63,170 158,170H82C75.37,170 70,164.63 70,158V82Z"
+      android:fillColor="@color/white"/>
+</vector>

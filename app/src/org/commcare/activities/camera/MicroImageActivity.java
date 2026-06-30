@@ -1,21 +1,17 @@
-package org.commcare.fragments;
+package org.commcare.activities.camera;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.Image;
-import android.os.Bundle;
 import android.util.Base64;
 import android.util.Size;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.common.internal.ImageConvertUtils;
@@ -24,42 +20,28 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
-import org.commcare.activities.CommonBaseActivity;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.RuntimePermissionRequester;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.ImageSizeTooLargeException;
 import org.commcare.utils.MediaUtil;
-import org.commcare.utils.Permissions;
 import org.commcare.views.FaceCaptureView;
-import org.commcare.views.dialogs.CommCareAlertDialog;
-import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
-import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
-public class MicroImageActivity extends CommonBaseActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener, RuntimePermissionRequester {
+public class MicroImageActivity extends BaseCameraActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener {
     public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key";
     public static final String MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA = "micro_image_max_dimension_px_extra";
     public static final String MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA = "micro_image_max_size_bytes_extra";
@@ -67,37 +49,42 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
     private static final int DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
     public static final String BASE_64_IMAGE_PREFIX = "data:image/webp;base64,";
 
-    private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
     private ImageView cameraShutterButton;
     private boolean isGooglePlayServicesAvailable = false;
 
-    ActivityResultLauncher<String> cameraPermissionRequestLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            isGranted -> {
-                if (isGranted) {
-                    startCamera();
-                } else {
-                    logErrorAndExit("Error acquiring camera permission", "microimage.camera.permission.denied", null);
-                }
-            }
-    );
+    @Override
+    protected int getContentLayout() {
+        return R.layout.micro_image_widget;
+    }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.micro_image_widget);
+    protected int getTitleRes() {
+        return R.string.micro_image_activity_title;
+    }
 
+    @NonNull
+    @Override
+    protected PreviewView getCameraView() {
+        return findViewById(R.id.view_finder);
+    }
+
+    @Override
+    protected CameraSelector getCameraSelector() {
+        return CameraSelector.DEFAULT_FRONT_CAMERA;
+    }
+
+    @NonNull
+    @Override
+    protected Size getTargetResolution() {
+        return new Size(faceCaptureView.getImageWidth(), faceCaptureView.getImageHeight());
+    }
+
+    @Override
+    protected void onCameraViewReady() {
         faceCaptureView = findViewById(R.id.face_overlay);
-        cameraView = findViewById(R.id.view_finder);
         cameraShutterButton = findViewById(R.id.camera_shutter_button);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.micro_image_activity_title);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
         if (isGooglePlayServicesAvailable) {
             faceCaptureView.setImageStabilizedListener(this);
@@ -105,85 +92,21 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
             faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
             cameraShutterButton.setVisibility(View.VISIBLE);
         }
-        checkForCameraPermission();
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            getOnBackPressedDispatcher().onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void checkForCameraPermission() {
-        if (Permissions.missingAppPermission(this, Manifest.permission.CAMERA)) {
-            if (Permissions.shouldShowPermissionRationale(this, Manifest.permission.CAMERA)) {
-                CommCareAlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                -1, // actually not required due to launcher activity
-                                getString(R.string.personalid_camera_permission_title),
-                                getString(R.string.personalid_camera_permission_msg));
-                dialog.showNonPersistentDialog(this);
-            } else {
-                requestNeededPermissions(-1);
-            }
-        } else {
-            startCamera();
-        }
-    }
-
-    @Override
-    public void requestNeededPermissions(int requestCode) {
-        cameraPermissionRequestLauncher.launch(Manifest.permission.CAMERA);
-    }
-
-    private void startCamera() {
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
-
-        cameraProviderFuture.addListener(() -> {
-            ProcessCameraProvider cameraProvider;
-            try {
-                cameraProvider = cameraProviderFuture.get();
-            } catch (ExecutionException | InterruptedException e) {
-                logErrorAndExit("Error acquiring camera provider", "microimage.camera.start.failed", e);
-                return;
-            }
-            bindUseCases(cameraProvider);
-        }, ContextCompat.getMainExecutor(this));
-    }
-
-    private void bindUseCases(ProcessCameraProvider cameraProvider) {
-        int targetRotation = getWindowManager().getDefaultDisplay().getRotation();
-        Size targetResolution = new Size(faceCaptureView.getImageWidth(), faceCaptureView.getImageHeight());
-
-        // Preview use case
-        Preview preview = new Preview.Builder()
-                .setTargetResolution(targetResolution)
-                .setTargetRotation(targetRotation)
-                .build();
-        preview.setSurfaceProvider(cameraView.getSurfaceProvider());
-
-        UseCase imageAnalyzerOrCapture;
+    protected UseCase buildCaptureUseCase(Size targetResolution, int targetRotation) {
         if (faceCaptureView.getCaptureMode() == FaceCaptureView.CaptureMode.FaceDetectionMode) {
-            imageAnalyzerOrCapture = buildImageAnalysisUseCase(targetResolution, targetRotation);
+            return buildImageAnalysisUseCase(targetResolution, targetRotation);
         } else {
-            imageAnalyzerOrCapture = buildImageCaptureUseCase(targetResolution);
+            return buildImageCaptureUseCase(targetResolution, targetRotation);
         }
-        CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
-
-        // Unbind any previous use cases before binding new ones
-        cameraProvider.unbindAll();
-
-        // Bind the use cases to the camera
-        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzerOrCapture);
     }
 
     private UseCase buildImageAnalysisUseCase(Size targetResolution, int targetRotation) {
         ImageAnalysis imageAnalyzer = new ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .setTargetResolution(targetResolution)
+                .setResolutionSelector(buildResolutionSelector(targetResolution))
                 .setTargetRotation(targetRotation)
                 .build();
 
@@ -191,20 +114,12 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         return imageAnalyzer;
     }
 
-    private void logErrorAndExit(String logMessage, String userMessageKey, Throwable e) {
-        if (e == null) {
-            Logger.log(LogTypes.TYPE_EXCEPTION, logMessage);
-        } else {
-            Logger.exception(logMessage, e);
-        }
-        Toast.makeText(this, Localization.get(userMessageKey), Toast.LENGTH_LONG).show();
-        setResult(AppCompatActivity.RESULT_CANCELED);
-        finish();
-    }
-
     // Set up image capture use case, for when Google Services is not available
-    private UseCase buildImageCaptureUseCase(Size targetResolution) {
-        ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(targetResolution).build();
+    private UseCase buildImageCaptureUseCase(Size targetResolution, int targetRotation) {
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setResolutionSelector(buildResolutionSelector(targetResolution))
+                .setTargetRotation(targetRotation)
+                .build();
 
         cameraShutterButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -511,8 +511,8 @@
     <string name="personalid_second_device_login_title">ኣብ ካልኣይ መሳርሒ እቶ</string>
     <string name="personalid_second_device_login_message">ካብ %s ወጺኡ፣ ንመወዳእታ ግዜ ዝተጠቕመሉ %s። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
     <string name="personalid_second_device_login_message_no_date">ካብ %s ወጺኡ። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
-    <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
-    <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
+    <string name="camera_permission_title">ፍቓድ ንካሜራ</string>
+    <string name="camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
     <string name="personalid_work_history_title">ታሪኽ ስራሐይ</string>
     <string name="personalid_work_history">ታሪኽ ስራሕ</string>

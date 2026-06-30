@@ -525,8 +525,8 @@
     <string name="personalid_second_device_login_title">Ingia kwenye Kifaa cha Pili</string>
     <string name="personalid_second_device_login_message">Imetoka kwenye %s, imetumika mara ya mwisho %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
     <string name="personalid_second_device_login_message_no_date">Umetoka kwenye %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
-    <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
-    <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
+    <string name="camera_permission_title">Ruhusa ya kamera</string>
+    <string name="camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
     <string name="personalid_work_history_title">Historia Yangu ya Kazi</string>
     <string name="personalid_work_history">Historia ya Kazi</string>

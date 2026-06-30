@@ -42,19 +42,19 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:layout_weight=".5">
+        android:layout_weight=".7">
 
         <ImageButton
             android:id="@+id/startrecording"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:layout_gravity="center"
             android:background="@drawable/record_start" />
 
         <ProgressBar
             android:id="@+id/demo_mpc"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
+            android:layout_width="290dp"
+            android:layout_height="290dp"
             android:layout_gravity="center"
             android:indeterminateDrawable="@drawable/progress_bar"
             android:indeterminateDuration="2000"
@@ -66,21 +66,56 @@
         android:id="@+id/recording_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/action_button"
+        android:textSize="@dimen/font_size_xxxxlarge"
+        android:visibility="gone"
+        android:layout_weight=".1"/>
+    <TextView
+        android:id="@+id/recording_animation_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="15dp"
-        android:gravity="center"
-        tools:text="Finish"
-        android:visibility="invisible" />
+        android:layout_marginBottom="@dimen/standard_spacer_double"
+        android:textStyle="bold"
+        android:textColor="@color/audio_recording_primary_color"
+        android:text="@string/recording_in_progress"
+        android:drawableStart="@drawable/recording_dot"
+        android:textSize="@dimen/text_large"
+        android:drawablePadding="8dp"
+        android:visibility="invisible"/>
 
+    <LinearLayout
+        android:id="@+id/recording_action_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/negative_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            tools:text="Finish"
+            style="@style/NegativeButtonStyle"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/positive_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text="@string/confirm_audio_file_deletion"
+            android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>
