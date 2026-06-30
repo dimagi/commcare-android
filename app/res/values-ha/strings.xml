@@ -359,8 +359,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_second_device_login_title">Shiga a Na\'ura ta Biyu</string>
     <string name="personalid_second_device_login_message">An fita daga %s, an yi amfani da %s na ƙarshe. PersonalID za a iya shiga kawai akan na\'ura ɗaya a lokaci guda.</string>
     <string name="personalid_second_device_login_message_no_date">An fita daga %s. Ana iya shiga PersonalID akan na\'ura ɗaya kawai a lokaci guda.</string>
-    <string name="personalid_camera_permission_title">Izini don kyamara</string>
-    <string name="personalid_camera_permission_msg">Domin ɗaukar hoto, CommCare yana buƙatar izinin amfani da kyamarar na\'urarka.</string>
+    <string name="camera_permission_title">Izini don kyamara</string>
+    <string name="camera_permission_msg">Domin ɗaukar hoto, CommCare yana buƙatar izinin amfani da kyamarar na\'urarka.</string>
     <string name="personalid_capture_photo">Ɗauki Hoto</string>
     <string name="personalid_work_history_title">Tarihin Aikina</string>
     <string name="personalid_work_history">Tarihin Aiki</string>
