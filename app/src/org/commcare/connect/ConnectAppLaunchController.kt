@@ -142,6 +142,8 @@ class ConnectAppLaunchController
 
                         val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(activity)
                         if (alreadyLoggedIn) {
+                            // Already signed in, so reuse this app's existing Home. Home is shared across
+                            // apps, so an unconditional reorder could surface a different app's instance.
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         }
                         activity.startActivity(intent)
