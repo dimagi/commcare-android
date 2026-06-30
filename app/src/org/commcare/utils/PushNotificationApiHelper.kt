@@ -7,7 +7,6 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.PushNotificationRecord
@@ -37,6 +36,7 @@ import org.commcare.connect.network.connectId.parser.NotificationParseResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
+import org.commcare.utils.coroutines.DispatcherProvider
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -49,15 +49,15 @@ object PushNotificationApiHelper {
         context: Context,
         listener: ConnectActivityCompleteListener,
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(DispatcherProvider.io()).launch {
             retrieveLatestPushNotifications(context)
                 .onSuccess {
-                    withContext(Dispatchers.Main) {
+                    withContext(DispatcherProvider.main()) {
                         //  switching to main to touch views
                         listener.connectActivityComplete(true)
                     }
                 }.onFailure {
-                    withContext(Dispatchers.Main) {
+                    withContext(DispatcherProvider.main()) {
                         //  switching to main to touch views
                         listener.connectActivityComplete(false)
                     }
@@ -77,7 +77,7 @@ object PushNotificationApiHelper {
             object : PersonalIdApiHandler<NotificationParseResult>() {
                 override fun onSuccess(parseResult: NotificationParseResult) {
                     scheduleMessagingChannelsKeySync(context)
-                    CoroutineScope(Dispatchers.IO).launch {
+                    CoroutineScope(DispatcherProvider.io()).launch {
                         val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
 
                         // Update notification preferences and send broadcasts
