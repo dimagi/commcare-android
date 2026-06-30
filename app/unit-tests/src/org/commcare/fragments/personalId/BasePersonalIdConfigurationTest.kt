@@ -1,16 +1,35 @@
 package org.commcare.fragments.personalId
 
+import android.os.Bundle
+import android.view.View
 import androidx.annotation.CallSuper
+import androidx.annotation.IdRes
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import com.google.android.play.core.integrity.StandardIntegrityManager
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
+import org.commcare.activities.connect.PersonalIdActivity
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.CommCareViewModelProvider
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.integrity.IntegrityTokenViewModel
+import org.commcare.connect.network.PersonalIdMockApiServer
+import org.commcare.dalvik.R
 import org.junit.After
 import org.junit.Before
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
+import org.robolectric.Robolectric
+import org.robolectric.android.controller.ActivityController
+import org.robolectric.shadows.ShadowLooper
 
 const val TEST_INTEGRITY_TOKEN: String = "test_integrity_token_12345"
 
@@ -29,11 +48,23 @@ const val TEST_INTEGRITY_TOKEN: String = "test_integrity_token_12345"
  * calling `super.setUp()` and `super.tearDown()` so the integrity mock is in place at the
  * moment `PersonalIdActivity` boots.
  */
-abstract class BasePersonalIdConfigurationTest {
+abstract class BasePersonalIdConfigurationTest<T : BasePersonalIdFragment> {
+    protected lateinit var activityController: ActivityController<PersonalIdActivity>
+    protected lateinit var navHostFragment: NavHostFragment
+    protected lateinit var activity: PersonalIdActivity
+    protected lateinit var fragment: T
+    protected lateinit var navController: TestNavHostController
+
+    // Points PersonalIdApiClient at a local mock server reproducing production main-looper threading.
+    private val mockApiServer = PersonalIdMockApiServer(PersonalIdMockApiServer.CallbackMode.MAIN_LOOPER)
+    protected val mockWebServer: MockWebServer
+        get() = mockApiServer.server
+
     @Before
     @CallSuper
     open fun setUp() {
         setupMockIntegrityTokenViewModel()
+        mockApiServer.start()
     }
 
     @After
@@ -42,7 +73,93 @@ abstract class BasePersonalIdConfigurationTest {
         val viewModelField = CommCareViewModelProvider::class.java.getDeclaredField("integrityTokenViewModel")
         viewModelField.isAccessible = true
         viewModelField.set(null, null)
+        mockApiServer.shutdown()
     }
+
+    protected fun bootActivity() {
+        activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
+        activity =
+            activityController
+                .create()
+                .start()
+                .resume()
+                .get()
+
+        navHostFragment =
+            activity.supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
+    }
+
+    protected fun bootActivityAndSeedSession(sessionData: PersonalIdSessionData) {
+        bootActivity()
+        activity.runOnUiThread {
+            ViewModelProvider(activity)[PersonalIdSessionDataViewModel::class.java]
+                .personalIdSessionData = sessionData
+        }
+        ShadowLooper.idleMainLooper()
+    }
+
+    protected fun launchFragmentForTest(
+        sessionData: PersonalIdSessionData,
+        @IdRes destinationId: Int,
+        createFragment: (NavController) -> T,
+    ) {
+        bootActivityAndSeedSession(sessionData)
+
+        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+        navController.setGraph(R.navigation.nav_graph_personalid)
+        navController.setCurrentDestination(destinationId)
+
+        activity.runOnUiThread {
+            Navigation.setViewNavController(navHostFragment.requireView(), navController)
+            fragment = createFragment(navController)
+            navHostFragment.childFragmentManager
+                .beginTransaction()
+                .replace(R.id.nav_host_fragment_connectid, fragment)
+                .commitNow()
+        }
+        ShadowLooper.idleMainLooper()
+    }
+
+    protected fun navigateToFragment(
+        sessionData: PersonalIdSessionData,
+        @IdRes destinationId: Int,
+        args: Bundle? = null,
+    ) {
+        bootActivityAndSeedSession(sessionData)
+        activity.runOnUiThread {
+            navHostFragment.navController.navigate(destinationId, args)
+        }
+        ShadowLooper.idleMainLooper()
+        captureNavFragment()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    protected fun captureNavFragment() {
+        fragment =
+            navHostFragment.childFragmentManager
+                .primaryNavigationFragment as T
+    }
+
+    /**
+     * Builds a [TestNavHostController] parked at [destinationId] (with optional [args]) and attaches
+     * it to [view] so navigation can be driven and observed in tests. Stores it in [navController].
+     * Must be called on the UI thread, after the hosting view exists.
+     */
+    protected fun installTestNavController(
+        view: View,
+        @IdRes destinationId: Int,
+        args: Bundle? = null,
+    ) {
+        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+        navController.setGraph(R.navigation.nav_graph_personalid)
+        navController.setCurrentDestination(destinationId, args ?: Bundle())
+        Navigation.setViewNavController(view, navController)
+    }
+
+    protected fun takeRequestOrFail(timeoutSeconds: Long = 5): RecordedRequest = mockApiServer.takeRequestOrFail(timeoutSeconds)
+
+    protected fun drainHttp() = mockApiServer.drainHttp()
 
     private fun setupMockIntegrityTokenViewModel() {
         val mockToken = mock(StandardIntegrityManager.StandardIntegrityToken::class.java)

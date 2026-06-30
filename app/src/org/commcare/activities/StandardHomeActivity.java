@@ -332,7 +332,7 @@ public class StandardHomeActivity
     protected boolean shouldShowDrawer() {
         if (!rootContainerReadyToShowDrawer)
             return false;   // wait for root content to get load through xml
-        return shouldShowDrawerAfterCheck();
+        return shouldShowDrawerAfterCheck(true);
     }
 
     @Override

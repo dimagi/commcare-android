@@ -18,7 +18,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVER
 import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
 import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.interfaces.base.BaseConnectView
 
 object ConnectJobHelper {
     fun getJobForSeatedApp(context: Context): ConnectJobRecord? {
@@ -173,5 +172,38 @@ object ConnectJobHelper {
                 listener.connectActivityComplete(true)
             }
         }.getConnectOpportunities(context, user!!)
+    }
+
+    fun resolveGenericOpportunityDestination(
+        currentAction: String?,
+        job: ConnectJobRecord?,
+        paymentUuid: String?,
+    ): String? {
+        if (ConnectConstants.CCC_GENERIC_OPPORTUNITY != currentAction || job == null) {
+            return currentAction
+        }
+        return when (job.status) {
+            ConnectJobRecord.STATUS_DELIVERING -> {
+                if (!paymentUuid.isNullOrEmpty()) {
+                    ConnectConstants.CCC_DEST_PAYMENTS
+                } else {
+                    ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
+                }
+            }
+
+            ConnectJobRecord.STATUS_LEARNING -> {
+                ConnectConstants.CCC_DEST_LEARN_PROGRESS
+            }
+
+            ConnectJobRecord.STATUS_AVAILABLE,
+            ConnectJobRecord.STATUS_AVAILABLE_NEW,
+            -> {
+                ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
+            }
+
+            else -> {
+                currentAction
+            }
+        }
     }
 }

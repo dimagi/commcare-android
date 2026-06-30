@@ -159,12 +159,17 @@
     <string name="attachment_above_size_limit" formatted="false" cc:translatable="true">Media attachment too large (%1$s mb). Max allowed size is %2$s mb.</string>
 
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
+    <string name="delete_audio_file" cc:translatable="true">Delete</string>
+    <string name="confirm_audio_file_deletion" cc:translatable="true">Yes, Delete</string>
 
 
     <!-- Start Collect Strings -->
 
     <string name="cancel" cc:translatable="true">CANCEL</string>
     <string name="cancel_location" cc:translatable="true">Cancel</string>
+    <string name="start_recording" cc:translatable="true">Start recording</string>
+    <string name="start_recording_instructions" cc:translatable="true">Tap the microphone to begin. Recording saves automatically when you stop.</string>
+
     <string name="capture_audio" cc:translatable="true">Record Sound</string>
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
@@ -473,6 +478,14 @@
     <string name="connect_last_synced">Last synced: %s</string>
     <string name="connect_sync_successful">Last synced: Just Now</string>
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
+    <string name="connect_app_launch_dialog_title">Launching App</string>
+    <string name="connect_app_launch_dialog_seating_message">Loading your app…</string>
+    <string name="connect_app_launch_dialog_signing_in_message">Logging in…</string>
+    <string name="connect_app_launch_dialog_syncing_message">Communicating with server…</string>
+    <string name="connect_app_launch_failed_dialog_title">Couldn\'t open the app</string>
+    <string name="connect_app_launch_failed_dialog_message">Something went wrong while opening the app. Would you like to try again?</string>
+    <string name="connect_app_launch_failed_dialog_retry">Retry</string>
+    <string name="connect_app_launch_failed_dialog_cancel">Cancel</string>
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>
@@ -497,6 +510,7 @@
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_fetch_learning_progress_error">Failed to fetch the learning progress</string>
+    <string name="connect_sms_invite_opportunity_not_found">Opportunity not found</string>
 
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
     <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.\nYour score: %d\nPassing score: %d</string>
@@ -628,6 +642,28 @@
     <string name="personalid_user_photo_update_dialog_cancel">Cancel</string>
     <string name="personalid_user_photo_update_success">Your profile photo has been updated successfully.</string>
 
+    <string name="personalid_manage_profile"><u>Manage Profile</u></string>
+    <string name="personalid_profile_title">Profile</string>
+    <string name="personalid_profile_edit_title">Edit Profile</string>
+    <string name="personalid_profile_section_personal_information">Personal Information</string>
+    <string name="personalid_profile_field_name">Name</string>
+    <string name="personalid_profile_field_phone">Phone Number</string>
+    <string name="personalid_profile_field_email">Email Address</string>
+    <string name="personalid_profile_forget_account">Forget PersonalID Account</string>
+    <string name="personalid_profile_edit_error_email_invalid">Enter a valid email address.</string>
+    <string name="personalid_profile_edit_error_email_required">Email is required.</string>
+    <string name="personalid_profile_edit_email_otp_notice">Updating your email address will require an OTP verification.</string>
+    <string name="personalid_profile_forget_confirm_title">Forget PersonalID?</string>
+    <string name="personalid_profile_forget_confirm_message">This will remove your PersonalID account, and you\'ll need to sign back in again before using Connect.</string>
+    <string name="personalid_profile_edit_discard_title">Discard your changes?</string>
+    <string name="personalid_profile_edit_discard_message">Your unsaved changes will be lost.</string>
+    <string name="personalid_profile_edit_discard_positive">Discard</string>
+    <string name="personalid_profile_edit_discard_negative">Keep editing</string>
+    <string name="personalid_profile_edit_otp_confirm_title">Verify your new email</string>
+    <string name="personalid_profile_edit_otp_confirm_message">We\'ll send a 6-digit code to %1$s. Enter it on the next screen to verify.</string>
+    <string name="personalid_profile_edit_otp_confirm_positive">Send Code</string>
+    <string name="personalid_profile_edit_otp_confirm_negative">Cancel</string>
+
     <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>
     <string name="connect_job_info_review_delivery">Review the delivery details</string>
@@ -708,8 +744,8 @@
     <string name="personalid_error_message_login_different_device">Please continue on the new device, or configure your account again.</string>
     <string name="personalid_reconfigure">Reconfigure</string>
     <string name="personalid_dismiss">Dismiss</string>
-    <string name="personalid_camera_permission_title">Permission for camera</string>
-    <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="camera_permission_title" cc:translatable="true">Permission for camera</string>
+    <string name="camera_permission_msg" cc:translatable="true">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
     <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
     <string name="personalid_too_many_otp_attempts">You have made too many attempts to send OTP. Please wait and try again whenever the resend button is visible.</string>
@@ -733,8 +769,6 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
-    <string name="nav_drawer_manage_profile">Manage Profile</string>
-
 
     <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
     <string name="personalid_work_history_level_2_month_active">2 Months of\nActivity</string>
@@ -790,5 +824,10 @@
     <string name="form_attachment_limit_reached" cc:translatable="true">This form has reached the maximum of %s attachments. To add a new one, remove an existing attachment first.</string>
 
     <string name="cannot_navigate_during_form_save" cc:translatable="true">Can\'t leave page while saving form</string>
+
+    <string name="recording_in_progress" cc:translatable="true">RECORDING</string>
+    <string name="recording_paused" cc:translatable="true">PAUSED</string>
+
     <string name="clear_search_button_description">Clear query</string>
+
 </resources>

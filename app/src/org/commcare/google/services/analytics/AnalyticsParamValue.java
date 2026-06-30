@@ -220,4 +220,24 @@ public class AnalyticsParamValue {
     public static final String OTP_OUTCOME_FAILURE = "failure";
     public static final String OTP_EVENT_TYPE_REQUEST = "request";
     public static final String OTP_EVENT_TYPE_VERIFY = "verify";
+    public static final String OTP_METHOD_EMAIL = "email";
+    public static final String OTP_EVENT_TYPE_REQUEST_EMAIL = "request_email";
+    public static final String OTP_EVENT_TYPE_VERIFY_EMAIL = "verify_email";
+
+    // Param values for user prompt analytics
+    public static final String USER_PROMPT_TYPE_EMAIL = "email";
+    public static final String USER_PROMPT_ACTION_ACCEPT = "accept";
+    public static final String USER_PROMPT_ACTION_SKIP = "skip";
+    public static final String USER_PROMPT_ACTION_RETRY = "retry";
+    public static final String USER_PROMPT_ACTION_PROCEED_WITHOUT_EMAIL = "proceed_without_email";
+    public static final String USER_PROMPT_INFO_EXISTING_USER_REMINDER = "existing_user_reminder";
+    public static final String USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY =
+            "email_verification_failure_retry";
+
+    // Param values for SMS invite link analytics
+    public static final String OPP_INVITE_LINK = "opp_invite_link";
+    public static final String OPP_INVITE_PUSH_NOTIFICATION = "opp_invite_push_notification";
+    public static final String OPP_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED = "personalid_not_configured";
+    public static final String OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND = "opportunity_not_found";
+    public static final String OPP_INVITE_LINK_NETWORK_FAILURE = "network_failure";
 }

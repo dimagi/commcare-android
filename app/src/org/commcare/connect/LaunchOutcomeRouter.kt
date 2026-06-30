@@ -1,0 +1,39 @@
+package org.commcare.connect
+
+/** Actions a caller runs for a [LaunchOutcome]; a seam so the mapping is testable without a fragment. */
+interface LaunchActions {
+    fun dismissProgress()
+
+    fun launchHome()
+
+    fun recoverFromSeatFailure()
+
+    fun promptRetry()
+
+    fun reportFailure(reason: String)
+}
+
+/** Maps each [LaunchOutcome] to its [LaunchActions] calls, always dismissing progress first. */
+object LaunchOutcomeRouter {
+    fun dispatch(
+        outcome: LaunchOutcome,
+        actions: LaunchActions,
+    ) {
+        actions.dismissProgress()
+        when (outcome) {
+            LaunchOutcome.Launched -> {
+                actions.launchHome()
+            }
+
+            LaunchOutcome.AppSeatFailed -> {
+                actions.reportFailure(outcome::class.java.simpleName)
+                actions.recoverFromSeatFailure()
+            }
+
+            is LaunchOutcome.Retryable -> {
+                actions.reportFailure(outcome.error::class.java.simpleName)
+                actions.promptRetry()
+            }
+        }
+    }
+}

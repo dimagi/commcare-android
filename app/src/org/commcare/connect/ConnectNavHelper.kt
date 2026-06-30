@@ -14,6 +14,7 @@ import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.UnlockPolicy
+import org.commcare.personalId.profile.PersonalIdProfileActivity
 
 object ConnectNavHelper {
     private fun unlockAndGoTo(
@@ -62,6 +63,19 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
+    fun unlockAndGoToProfile(
+        activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.ALWAYS,
+        listener: ConnectActivityCompleteListener,
+    ) {
+        unlockAndGoTo(activity, policy, listener, ::goToProfile)
+    }
+
+    private fun goToProfile(context: Context) {
+        val i = Intent(context, PersonalIdProfileActivity::class.java)
+        context.startActivity(i)
+    }
+
     fun unlockAndGoToConnectJobsList(
         activity: CommCareActivity<*>,
         policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
@@ -70,9 +84,17 @@ object ConnectNavHelper {
         unlockAndGoTo(activity, policy, listener, ::goToConnectJobsList)
     }
 
-    fun goToConnectJobsList(context: Context) {
+    @JvmOverloads
+    fun goToConnectJobsList(
+        context: Context,
+        clearTop: Boolean = false,
+    ) {
         checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
+        if (clearTop) {
+            // Drop any Connect/app screens stacked above the opportunities list so back lands there cleanly.
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
         context.startActivity(i)
     }
 

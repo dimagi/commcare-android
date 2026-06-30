@@ -9,7 +9,10 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
+import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.StringUtils
 
 /**
@@ -46,12 +49,23 @@ object EmailHelper {
         email: String,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
+        tracker: AttemptTracker = AttemptTracker(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
+        tracker.recordRequest()
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(status: Boolean) {
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    null,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
                 Toast
                     .makeText(
                         activity,
@@ -65,6 +79,15 @@ object EmailHelper {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    OtpAnalyticsMapper.reasonFrom(failureCode),
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
                 onFailure(failureCode, t)
             }
         }.sendEmailOtp(activity, email, token, user)
@@ -79,12 +102,22 @@ object EmailHelper {
         otp: String,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
+        tracker: AttemptTracker = AttemptTracker(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(status: Boolean) {
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    null,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
                 onSuccess()
             }
 
@@ -92,6 +125,16 @@ object EmailHelper {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                tracker.recordFailedAttempt()
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    OtpAnalyticsMapper.reasonFrom(failureCode),
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
                 onFailure(failureCode, t)
             }
         }.verifyEmailOtp(activity, email, otp, token, user)
