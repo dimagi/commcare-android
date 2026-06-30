@@ -2,7 +2,7 @@
 
 A planning checklist for new features. **Before finalizing a plan or spec, walk this list and
 note how the design handles each category that applies.** Most categories below come from real
-defects and review churn on CommCare Android (the Connect login/launch refactor in particular) —
+defects and review churn on CommCare Android —
 considering them up front is cheaper than discovering them in review or QA.
 
 This is a living document. When a feature surfaces an edge case that isn't here yet and is likely
@@ -23,8 +23,6 @@ behavior for the listed scenarios — not leave them implicit.
 - If you pop a fragment / back-stack entry, **when** does it happen relative to the host's
   visibility? Popping while the host is still foregrounded can cause a visible flash; deferring to a
   lifecycle callback (e.g. `onStop`) avoids it.
-- Don't hardcode a destination id where you mean "the start of this nav path" — compare against the
-  nav graph's **start destination** so the behavior survives graph changes.
 
 ## Activity / task stack & launch flags
 
