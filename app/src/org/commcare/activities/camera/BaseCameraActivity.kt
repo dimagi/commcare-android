@@ -103,14 +103,20 @@ abstract class BaseCameraActivity :
             try {
                 val cameraProvider = cameraProviderFuture.get()
                 bindUseCases(cameraProvider)
-            } catch (e: ExecutionException) {
-                logErrorAndExit("Error acquiring camera provider", "microimage.camera.start.failed", e)
-            } catch (e: InterruptedException) {
-                logErrorAndExit("Error acquiring camera provider", "microimage.camera.start.failed", e)
-            } catch (e: IllegalStateException) {
-                logErrorAndExit("Error binding camera use cases", "microimage.camera.start.failed", e)
-            } catch (e: IllegalArgumentException) {
-                logErrorAndExit("Error binding camera use cases", "microimage.camera.start.failed", e)
+            } catch (e: Exception) {
+                when (e) {
+                    is ExecutionException, is InterruptedException -> {
+                        logErrorAndExit("Error acquiring camera provider", "microimage.camera.start.failed", e)
+                    }
+
+                    is IllegalStateException, is IllegalArgumentException -> {
+                        logErrorAndExit("Error binding camera use cases", "microimage.camera.start.failed", e)
+                    }
+
+                    else -> {
+                        logErrorAndExit("Unknown error occurred while starting camera", "microimage.camera.start.failed", e)
+                    }
+                }
             }
         }, ContextCompat.getMainExecutor(this))
     }
