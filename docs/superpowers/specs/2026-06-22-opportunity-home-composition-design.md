@@ -45,8 +45,8 @@ Five behaviors are extracted from the existing inheritance chain into delegates 
 | `SessionExpirationDelegate` | `SessionAwareHelper.onResumeHelper`, `onActivityResultHelper` | On resume / activity-result, check session expiration. Exposes a listener interface that the host activity registers; reports session-lost events via that listener rather than redirecting to login. |
 | `SyncDelegate` | `SyncCapableCommCareActivity` | Owns `FormAndDataSyncer`, sync state, and the `PullTaskResultReceiver` implementation. Exposes `sendFormsOrSync()` and related entry points. The host activity remains the `CommCareTaskConnector` (see below). |
 | `AppUpdateDelegate` | `HomeScreenBaseActivity` (`AppUpdateController` and drift checks) | App update prompts and drift warnings. **Session-independent** (see below): constructed once and registered on the host lifecycle like `CrashRecoveryDelegate`; only the surfacing of prompts is gated on a session existing. |
-| `SessionLaunchDelegate` | `HomeScreenBaseActivity.doLoginLaunchChecksInOrder`, `SessionNavigator` usage | Form restoration, "Start" → form entry navigation, post-login launch checks, and form-result handling. Must preserve the ordering and early-return semantics of `doLoginLaunchChecksInOrder` (see risks). |
-| `CrashRecoveryDelegate` | `HomeScreenBaseActivity` instance-state and crash-data registration | Persists instance state across recreation. Active regardless of session. |
+| `SessionLaunchDelegate` | `HomeScreenBaseActivity.doLoginLaunchChecksInOrder`, `SessionNavigator` usage, `onSaveInstanceState`/`loadInstanceState` | Form restoration, "Start" → form entry navigation, post-login launch checks, and form-result handling. Must preserve the ordering and early-return semantics of `doLoginLaunchChecksInOrder` (see risks). Also owns the launch/nav instance-state keys — `WAS_EXTERNAL_KEY` (`wasExternal`), `EXTRA_CONSUMED_KEY` (`loginExtraWasConsumed`), and `KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC` (`pendingEndpointNavigationAfterSync`) — persisting them across recreation (see note below on save/restore vs. attach). |
+| `CrashRecoveryDelegate` | `HomeScreenBaseActivity` crash-data registration | Registers app/crash data (`CrashUtil.registerAppData()`) on the host lifecycle. Active regardless of session. |
 
 Each delegate is a Kotlin class implementing `DefaultLifecycleObserver`, registered on the host's `lifecycle` so it receives `onResume` / `onPause` / `onDestroy` directly. The host activity forwards `onActivityResult` and intent handling to the delegates that need them.
 
@@ -60,6 +60,8 @@ detachSession()
 When attached, the delegate has a live session and operates as the existing chain does today. When not attached, every public entry point is a clean no-op (callers receive a documented "no session" result; nothing throws `SessionUnavailableException`).
 
 This requires the delegates to take their session as a parameter rather than reading `CommCareApplication.instance().getCurrentSession()` ambiently. Today's code reads the ambient global; the refactor threads it through `attachSession` so "no session" is a representable, safe state rather than an exception.
+
+**Instance-state save/restore is not gated on attach.** `SessionLaunchDelegate` is session-dependent for its *behavioral* entry points (the no-op-when-detached rule above), but the three launch/nav keys it owns (`wasExternal`, `loginExtraWasConsumed`, `pendingEndpointNavigationAfterSync`) describe how the activity was launched and what navigation is pending — state that exists *before* a session is attached and must survive recreation that happens while detached. The host therefore forwards `onSaveInstanceState(outState)` and the restore in `onCreate`/`loadInstanceState` to `SessionLaunchDelegate` unconditionally, independent of attach state. These two paths (save/restore vs. the session-gated entry points) are deliberately separate within the delegate; only the latter no-ops when detached.
 
 `CrashRecoveryDelegate` and `AppUpdateDelegate` do not implement `attachSession`/`detachSession`. `CrashRecoveryDelegate` is session-independent by nature. `AppUpdateDelegate` is treated as session-independent because the underlying `AppUpdateController` cannot be safely reconstructed per session: `AppUpdateControllerFactory.create(...)` needs only a `Context` and a callback (not a session), and `register()` attaches an `InstallStateUpdatedListener` to the Google Play Core `AppUpdateManager` and kicks off an async info fetch. Reconstructing on each `attachSession` would leak listeners (duplicate callbacks), orphan any in-progress download from the Play Store state machine, and re-fetch update info needlessly. App-binary updates are not opportunity- or seated-app-scoped, so the delegate is constructed once on the host lifecycle (register on `onResume`, unregister on `onDestroy`); only the *surfacing* of an update prompt is gated on a session existing, re-evaluating `shouldShowInAppUpdate()` at prompt time rather than at construction.
 
@@ -87,6 +89,12 @@ class OpportunityHomeActivity : BaseDrawerActivity<OpportunityHomeActivity>() {
         lifecycle.addObserver(sessionLaunchDelegate)
         lifecycle.addObserver(crashRecoveryDelegate)
         // No session lookup here.
+        sessionLaunchDelegate.loadInstanceState(savedInstanceState)  // unconditional; not gated on attach
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        sessionLaunchDelegate.onSaveInstanceState(outState)          // unconditional; not gated on attach
     }
 
     fun onSessionAvailable(session: SeatedAppSession) {
