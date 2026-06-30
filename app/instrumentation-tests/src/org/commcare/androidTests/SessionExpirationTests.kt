@@ -46,6 +46,6 @@ class SessionExpirationTests : BaseTest() {
         uiDevice.wait(Until.hasObject(By.textEndsWith("Login Expire")), 1000)
 
         // Dismiss the notification drawer by going back
-        uiDevice.pressBack();
+        uiDevice.pressBack()
     }
 }

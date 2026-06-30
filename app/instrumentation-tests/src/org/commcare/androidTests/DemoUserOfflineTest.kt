@@ -15,8 +15,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
 @BrowserstackTests
-class DemoUserOfflineTest: DemoUserTest() {
-
+class DemoUserOfflineTest : DemoUserTest() {
     companion object {
         const val CCZ_NAME = "demo_user_test_1.ccz"
         const val APP_NAME = "Demo User Restore Test"
@@ -47,5 +46,4 @@ class DemoUserOfflineTest: DemoUserTest() {
         InstrumentationUtility.changeWifi(false)
         testPracticeMode_withUpdatedApp()
     }
-
 }
