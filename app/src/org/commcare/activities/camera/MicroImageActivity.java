@@ -101,7 +101,6 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     @Override
     protected void onCameraViewReady() {
         faceCaptureView = findViewById(R.id.face_overlay);
-        cameraView = findViewById(R.id.view_finder);
         cameraControlsContainer = findViewById(R.id.camera_controls_container);
         cameraShutterButton = findViewById(R.id.camera_shutter_button);
         switchCameraLensButton = findViewById(R.id.switch_camera_lens_button);
@@ -132,6 +131,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         startCamera();
     }
 
+    @NonNull
     @Override
     protected UseCase buildCaptureUseCase(Size targetResolution, int targetRotation) {
         if (faceCaptureView.getCaptureMode() == FaceCaptureView.CaptureMode.FaceDetectionMode) {
@@ -141,6 +141,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         }
     }
 
+    @NonNull
     @Override
     protected CameraSelector getCameraSelector() {
         return switch (currentLensFacing) {
