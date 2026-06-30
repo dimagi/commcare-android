@@ -38,7 +38,7 @@ The fix is to move the session-dependent behavior out of inheritance and into a 
 
 `OpportunityHomeActivity` extends `BaseDrawerActivity` — the layer immediately below the session gate that still provides the drawer and the underlying `CommCareActivity` capabilities.
 
-Five behaviors are extracted from the existing inheritance chain into delegates that the activity composes:
+Five behaviors are extracted from the existing inheritance chain into delegates, and a single `HomeActivityCoordinator` owns those delegates and exposes the home screen's capabilities as host-agnostic actions (see [`HomeActivityCoordinator`](#homeactivitycoordinator) below). A host activity holds one coordinator rather than five delegates directly. The five extracted delegates are:
 
 | Delegate | Source today | Responsibilities |
 |---|---|---|
@@ -65,61 +65,58 @@ This requires the delegates to take their session as a parameter rather than rea
 
 `CrashRecoveryDelegate` and `AppUpdateDelegate` do not implement `attachSession`/`detachSession`. `CrashRecoveryDelegate` is session-independent by nature. `AppUpdateDelegate` is treated as session-independent because the underlying `AppUpdateController` cannot be safely reconstructed per session: `AppUpdateControllerFactory.create(...)` needs only a `Context` and a callback (not a session), and `register()` attaches an `InstallStateUpdatedListener` to the Google Play Core `AppUpdateManager` and kicks off an async info fetch. Reconstructing on each `attachSession` would leak listeners (duplicate callbacks), orphan any in-progress download from the Play Store state machine, and re-fetch update info needlessly. App-binary updates are not opportunity- or seated-app-scoped, so the delegate is constructed once on the host lifecycle (register on `onResume`, unregister on `onDestroy`); only the *surfacing* of an update prompt is gated on a session existing, re-evaluating `shouldShowInAppUpdate()` at prompt time rather than at construction.
 
+### `HomeActivityCoordinator`
+
+The delegates hold the session-dependent *behavior*, but two further concerns are shared across every home activity and would otherwise be duplicated in each host: wiring the delegates to the lifecycle, and deciding what a given home capability *does* independently of how it is surfaced. `HomeActivityCoordinator` owns both.
+
+**Role 1 — composition root and lifecycle/session coordinator.** The coordinator constructs the five delegates, registers them as lifecycle observers, and fans out the cross-cutting host callbacks to them: `onActivityResult`, `onSaveInstanceState`/instance-state restore, and the session transitions. It exposes `attachSession(session)` / `detachSession()` that fan out to the session-dependent delegates (`SessionExpirationDelegate`, `SyncDelegate`, `SessionLaunchDelegate`); `CrashRecoveryDelegate` and `AppUpdateDelegate` are session-independent and simply ride the lifecycle. This replaces the per-host `onSessionAvailable`/`onSessionLost`/`onActivityResult` forwarding that each home activity would otherwise hand-write.
+
+**Role 2 — action facade.** The coordinator exposes the home screen's capabilities as host-agnostic **actions** — `sync()`, `viewSavedForms()`, `changeLanguage()`, `openSettings()`, `openAdvanced()`, `showAbout()`, `setPin()`, `updateApp()`, `updateCommCare()` — each either delegating to a delegate (`sync()` → `SyncDelegate`, `updateApp()`/`updateCommCare()` → `AppUpdateDelegate`) or performing a simple launch/dialog. Alongside each action it exposes an **availability query** (`canViewSavedForms()`, etc.). Crucially, the coordinator does **not** know whether an action is surfaced as an overflow-menu item, an on-screen button, or a drawer entry — that binding is the host's job. This is what lets one home screen route a capability through the menu while another promotes it to the main UI, with no duplicated action logic. See [Capabilities](#capabilities-the-activity-exposes-when-attached) below for the full action list and gating.
+
+**Host interface, not concrete activity.** The coordinator and its delegates need a handful of host capabilities — `Context`, `lifecycle`, `startActivityForResult`, `showAlertDialog`, `rebuildOptionsMenu`, and an optional UI-refresh hook (used by `changeLanguage()`; `OpportunityHomeActivity` has no `WithUIController`). These are exposed through a small `HomeActivityHost` interface that both `OpportunityHomeActivity` and the rebased base classes implement, keeping the coordinator unit-testable and free of any concrete-activity coupling.
+
+**Facade, not god object.** The real behavior stays in the delegates and in small per-action launches; the coordinator wires and exposes. It has a natural internal seam — the lifecycle/session-coordination half and the action half — and if either accumulates real logic beyond wiring, that is the signal to split it. The action list is intentionally a set of typed methods plus availability queries rather than a first-class `HomeAction` registry; a registry (a list both the menu and the UI iterate to render generically) is only worth introducing if a host needs to render a dynamic, enumerated set, which neither known host requires today.
+
 ### Refactor of existing base classes
 
-To avoid two implementations of the same behaviors, `SyncCapableCommCareActivity` and `HomeScreenBaseActivity` are rebased onto the new delegates. Their public API stays the same; internally they instantiate the delegates, register them with the activity's lifecycle, and forward calls. Because those base classes still extend `SessionAwareCommCareActivity`, they call `attachSession(...)` once in `onCreateSessionSafe` and never detach (they cannot reach a session-less state). `StandardHomeActivity` is unchanged externally.
+To avoid two implementations of the same behaviors, `SyncCapableCommCareActivity` and `HomeScreenBaseActivity` are rebased onto the same `HomeActivityCoordinator` the new activity composes — one source of truth. Their public API stays the same; internally they hold a coordinator, implement `HomeActivityHost`, and forward calls. Because those base classes still extend `SessionAwareCommCareActivity`, they call `attachSession(...)` once in `onCreateSessionSafe` and never detach (they cannot reach a session-less state). `StandardHomeActivity` is unchanged externally — its `onOptionsItemSelected` becomes a thin dispatch to coordinator actions (`coordinator.viewSavedForms()`, etc.) and its `onPrepareOptionsMenu` gating becomes per-action availability queries (`coordinator.canViewSavedForms()`, etc.), but the menu it presents is the same.
 
 `SessionAwareCommCareActivity` itself is not modified. The "redirect to login on missing session" behavior continues to apply to every other activity that extends it.
 
 ### `OpportunityHomeActivity`
 
 ```
-class OpportunityHomeActivity : BaseDrawerActivity<OpportunityHomeActivity>() {
-    private val sessionExpirationDelegate = SessionExpirationDelegate(...)
-    private val syncDelegate              = SyncDelegate(...)
-    private val appUpdateDelegate         = AppUpdateDelegate(...)
-    private val sessionLaunchDelegate     = SessionLaunchDelegate(...)
-    private val crashRecoveryDelegate     = CrashRecoveryDelegate(...)
+class OpportunityHomeActivity : BaseDrawerActivity<OpportunityHomeActivity>(), HomeActivityHost {
+    // One coordinator owns and wires the five delegates; the activity holds no delegate directly.
+    private val coordinator = HomeActivityCoordinator(host = this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycle.addObserver(sessionExpirationDelegate)
-        lifecycle.addObserver(syncDelegate)
-        lifecycle.addObserver(appUpdateDelegate)
-        lifecycle.addObserver(sessionLaunchDelegate)
-        lifecycle.addObserver(crashRecoveryDelegate)
+        coordinator.onCreate(savedInstanceState)  // registers delegates as observers; restores instance state
         // No session lookup here.
-        sessionLaunchDelegate.loadInstanceState(savedInstanceState)  // unconditional; not gated on attach
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        sessionLaunchDelegate.onSaveInstanceState(outState)          // unconditional; not gated on attach
+        coordinator.onSaveInstanceState(outState)  // unconditional; not gated on attach
     }
 
     fun onSessionAvailable(session: SeatedAppSession) {
-        sessionExpirationDelegate.attachSession(session)
-        syncDelegate.attachSession(session)
-        sessionLaunchDelegate.attachSession(session)
-        // appUpdateDelegate is session-independent; it self-gates prompt surfacing.
+        coordinator.attachSession(session)  // fans out to the session-dependent delegates
     }
 
     fun onSessionLost() {
-        sessionExpirationDelegate.detachSession()
-        syncDelegate.detachSession()
-        sessionLaunchDelegate.detachSession()
+        coordinator.detachSession()
     }
 
     override fun onActivityResult(...) {
-        sessionExpirationDelegate.onActivityResult(...)
-        syncDelegate.onActivityResult(...)
-        sessionLaunchDelegate.onActivityResult(...)
+        coordinator.onActivityResult(...)  // fans out to delegates that need it
         super.onActivityResult(...)
     }
 }
 ```
 
-`onSessionAvailable(...)` is invoked from two places inside the activity: the completion path for inline silent login (driving the situation 2 → 3 and 4 → 5 transitions), and an `onResume` check that calls it whenever a session exists but no delegate is currently attached. `onSessionLost()` is invoked from two distinct mechanisms, which today reach the chain through different paths:
+The coordinator's `onCreate(...)` is what registers the five delegates as lifecycle observers and unconditionally restores `SessionLaunchDelegate`'s instance state; the activity no longer enumerates delegates itself. `onSessionAvailable(...)` is invoked from two places inside the activity: the completion path for inline silent login (driving the situation 2 → 3 and 4 → 5 transitions), and an `onResume` check that calls it whenever a session exists but no session is currently attached. `onSessionLost()` is invoked from two distinct mechanisms, which today reach the chain through different paths:
 
 - **Manual logout** — `userTriggeredLogout()` → `CommCareApplication.closeUserSession()` (no broadcast).
 - **Automatic expiration** — `CommCareApplication.expireUserSession()`, which fires the `USER_SESSION_EXPIRED` broadcast; today `SessionRegistrationHelper`'s receiver responds by calling `redirectToLogin()` + `finish()`, and `SessionAwareHelper` does the same on a caught `SessionUnavailableException`.
@@ -128,18 +125,32 @@ class OpportunityHomeActivity : BaseDrawerActivity<OpportunityHomeActivity>() {
 
 The activity does not implement `WithUIController`. UI is delegated to fragments under the drawer host.
 
-### Capabilities the activity gains when attached
+### Capabilities the activity exposes when attached
 
-All except app updates are routed through delegates and gated on `attachSession(...)` having been called:
+The coordinator exposes these capabilities as host-agnostic **actions**, each paired with an **availability query** that the host consults to decide whether (and where) to surface it. All require a seated session; the host supplies the gating predicate (`StandardHomeActivity` passes `!isDemoUser()`, which itself requires a session; `OpportunityHomeActivity` passes "session attached"), so the coordinator does not hard-code `isDemoUser()`. **How** each action is surfaced — overflow menu, on-screen button, drawer entry — is the host's decision and is not encoded here; this is precisely the seam that lets different home screens place the same capability differently.
 
-- **Sync** — `SyncDelegate.sendFormsOrSync()`. `SyncDelegate` *is* the `PullTaskResultReceiver`; the host activity stays the `CommCareTaskConnector` passed to `DataPullTask.connect(...)` and its `getReceiver()` returns the delegate (see risks). This keeps the in-activity blocking/spinner UI while moving the result-handling implementation into the delegate.
-- **Form entry** — `SessionLaunchDelegate.startForm(...)`; result handling fans out to `SyncDelegate` (post-form sync prompt) and `SessionExpirationDelegate` (mid-form expiration check), matching the current `HomeScreenBaseActivity` pipeline.
-- **App updates** — `AppUpdateDelegate` is always registered; it self-gates whether to surface a prompt based on whether a session currently exists (re-evaluating `shouldShowInAppUpdate()`), rather than being attached/detached.
-- **Language switching** — app-based, therefore session-gated. The activity exposes language switching only while attached; routed through whichever existing component owns the change (verified during implementation).
+A few actions are richer than a launch and route into a delegate:
+
+- **`sync()`** → `SyncDelegate.sendFormsOrSync()`. `SyncDelegate` *is* the `PullTaskResultReceiver`; the host activity stays the `CommCareTaskConnector` passed to `DataPullTask.connect(...)` and its `getReceiver()` returns the delegate (see risks). This keeps the in-activity blocking/spinner UI while moving the result-handling implementation into the delegate.
+- **Form entry** → `SessionLaunchDelegate.startForm(...)`; result handling fans out to `SyncDelegate` (post-form sync prompt) and `SessionExpirationDelegate` (mid-form expiration check), matching the current `HomeScreenBaseActivity` pipeline. (Not a menu action — triggered by the "Start" surface, but it is a coordinator-routed capability.)
+- **`updateApp()` / `updateCommCare()`** → the app-update flow owned by `AppUpdateDelegate`, which is always registered and self-gates prompt *surfacing* on whether a session currently exists (re-evaluating `shouldShowInAppUpdate()`), rather than being attached/detached.
+
+The remaining actions are plain launches or dialogs; the coordinator owns the body (moved out of `HomeScreenBaseActivity`) and any small state they carry (e.g. the developer-mode click counter behind `showAbout()`). Their availability mirrors `StandardHomeActivity`'s current `menu_app_home` gating:
+
+| Action | Today's handler | Availability |
+|---|---|---|
+| `viewSavedForms()` | `goToFormArchive(...)` | menus enabled |
+| `openSettings()` | `createPreferencesMenu(...)` | menus enabled |
+| `openAdvanced()` | `showAdvancedActionsPreferences()` | menus enabled |
+| `showAbout()` | `showAboutCommCareDialog()` | menus enabled |
+| `updateApp()` | `launchUpdateActivity(...)` | menus enabled |
+| `setPin()` | `launchPinAuthentication()` | menus enabled **and** `DeveloperPreferences.shouldOfferPinForLogin()` |
+| `updateCommCare()` | `startCommCareUpdate()` | menus enabled **and** `showCommCareUpdateMenu` |
+| `changeLanguage()` | `showLocaleChangeMenu(...)` | acts on a seated app (session-gated), but currently always *visible* in the menu; routed through the host's optional UI-refresh hook since `OpportunityHomeActivity` has no `WithUIController` (verified during implementation) |
 
 ## Risks and mitigations
 
-- **Behavior drift between the chain and the new activity.** Mitigated by making the rebased base classes use the same delegates the new activity composes — one source of truth. Forwarding-only changes in the base classes minimize the chance of semantic divergence.
+- **Behavior drift between the chain and the new activity.** Mitigated by making the rebased base classes hold the same `HomeActivityCoordinator` (and therefore the same delegates and action bodies) the new activity composes — one source of truth. Forwarding-only changes in the base classes minimize the chance of semantic divergence.
 - **Delegates currently read `CommCareApplication.instance().getCurrentSession()` ambiently.** Required change: thread the session explicitly through `attachSession(...)`. Audit each migrated callsite for ambient reads and replace.
 - **`PullTaskResultReceiver` and similar Java interfaces are implemented by the current base classes.** Resolved: the task framework (`DataPullTask<R>` → `CommCareTask<…, R>` → `CommCareTaskConnector<R>`) places no `Activity` bound on the receiver type — it calls `receiver.handlePullTaskResult(...)` with no cast, and `SyncOperations.kt` already runs sync with a non-Activity receiver via `HeadlessTaskConnector`. The only `Activity` coupling is `FormAndDataSyncer.syncData(<I extends CommCareActivity & PullTaskResultReceiver>)`, where the bound exists because the argument doubles as the **connector** passed to `.connect(...)`. So the delegate owns the `PullTaskResultReceiver` implementation while the **host activity remains the `CommCareTaskConnector`** (its `getReceiver()` returns the delegate). This preserves the activity's task-transition/blocking UI hooks, which a `HeadlessTaskConnector` would no-op away.
 - **Existing Robolectric tests may assert against the base classes' internal state.** Verify during implementation that tests against `HomeScreenBaseActivity` / `SyncCapableCommCareActivity` still pass with the internal forwarding.
@@ -153,4 +164,4 @@ All except app updates are routed through delegates and gated on `attachSession(
 Remaining verify-during-implementation items:
 
 4. **Preserve `doLoginLaunchChecksInOrder` semantics.** This method is a strict 9-step ordered pipeline (demo-mode early return → update-info form → form restoration → session restoration → post-update sync → pending FCM sync → update prompt → PIN check → drift check). When `SessionLaunchDelegate` and `AppUpdateDelegate` absorb pieces of it, the ordering and early-return behavior must be preserved, or demo users could start receiving prompts they currently skip.
-5. **Demo mode and other StandardHome-specific concerns** are non-goals here, but they sit on the same chain. Demo handling is just inline `isDemoUser()` checks (the `doLoginLaunchChecksInOrder` early return and `StandardHomeActivity.onPrepareOptionsMenu` menu gating), not a separate subsystem. Verify the rebase doesn't subtly change those semantics in `StandardHomeActivity`. `WithUIController` is implemented only on `StandardHomeActivity`, so the rebase does not touch it.
+5. **Demo mode and other StandardHome-specific concerns** are non-goals here, but they sit on the same chain. Demo handling is just inline `isDemoUser()` checks (the `doLoginLaunchChecksInOrder` early return and `StandardHomeActivity.onPrepareOptionsMenu` menu gating), not a separate subsystem. Verify the rebase doesn't subtly change those semantics in `StandardHomeActivity`. Note that the menu-gating half of this relocates: the per-item `!isDemoUser()` visibility checks become the host-supplied gating predicate feeding the coordinator's per-action availability queries (`StandardHomeActivity` passes `!isDemoUser()`; see [`HomeActivityCoordinator`](#homeactivitycoordinator)). Preserve the demo semantics there rather than in a hand-written `onPrepareOptionsMenu`. The `doLoginLaunchChecksInOrder` early return is unaffected by this relocation. `WithUIController` is implemented only on `StandardHomeActivity`, so the rebase does not touch it.
