@@ -1,39 +1,44 @@
 package org.commcare.activities
 
+import android.content.Intent
 import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.Runs
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.activities.connect.viewmodel.PushNotificationViewModel
+import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
+import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager
 import org.commcare.preferences.NotificationPrefs
-import org.commcare.utils.PushNotificationApiHelper
 import org.commcare.utils.coroutines.DispatcherProvider
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -58,10 +63,13 @@ class PushNotificationActivityTest {
     private lateinit var activityController: ActivityController<PushNotificationActivity>
     private lateinit var activity: PushNotificationActivity
 
+    // MAIN_LOOPER mode reproduces production threading; this test touches views, so callbacks must
+    // run on the main looper (driven deterministically via drainHttp).
+    private val mockApi = PersonalIdMockApiServer(PersonalIdMockApiServer.CallbackMode.MAIN_LOOPER)
+    private val mockWebServer get() = mockApi.server
+
     private val dbReadCount = AtomicInteger(0)
-    private val apiCallCount = AtomicInteger(0)
     private var dbNotifications: List<PushNotificationRecord> = emptyList()
-    private var apiResult: suspend () -> Result<List<PushNotificationRecord>> = { Result.success(emptyList()) }
     private lateinit var savedPersonalIdStatus: PersonalIdManager.PersonalIdStatus
 
     private val recyclerView: RecyclerView
@@ -71,8 +79,11 @@ class PushNotificationActivityTest {
 
     @Before
     fun setUp() {
-        // Run the ViewModel's coroutine on a deterministic test dispatcher instead of
-        // the real Dispatchers.IO thread pool, so notification loading is synchronous.
+        // scheduleMessagingChannelsKeySync enqueues a real WorkManager job during a successful load.
+        (CommCareTestApplication.instance() as CommCareTestApplication).initWorkManager()
+        mockApi.start()
+
+        // The helper's internal scope runs inline so a load completes within drainHttp.
         mockkObject(DispatcherProvider)
         every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
 
@@ -82,21 +93,37 @@ class PushNotificationActivityTest {
         savedPersonalIdStatus = personalIdManager.status
         personalIdManager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
 
-        mockkObject(NotificationRecordDatabaseHelper)
-        mockkObject(PushNotificationApiHelper)
-        mockkConstructor(NotificationsSyncWorkerManager::class)
-        mockkStatic(FirebaseAnalyticsUtil::class)
+        // A real (non-mock) user so the helper gets credentials and the click path's connect-access
+        // logic runs for real; hasConnectAccess = true keeps turnOnConnectAccess a no-op.
+        val user =
+            ConnectUserRecord("", "test_user", "test_password", "", "", Date(), "", false, "", true)
+        mockkStatic(ConnectUserDatabaseUtil::class)
+        every { ConnectUserDatabaseUtil.getUser(any()) } returns user
 
+        mockkStatic(ConnectMessagingDatabaseHelper::class)
+        every { ConnectMessagingDatabaseHelper.getMessagingChannels(any()) } returns emptyList()
+
+        mockkObject(NotificationRecordDatabaseHelper)
         every { NotificationRecordDatabaseHelper.getAllNotifications(any()) } answers {
             dbReadCount.incrementAndGet()
             dbNotifications
         }
         every { NotificationRecordDatabaseHelper.updateReadStatus(any(), any(), any()) } just Runs
-        coEvery { PushNotificationApiHelper.retrieveLatestPushNotifications(any()) } coAnswers {
-            apiCallCount.incrementAndGet()
-            apiResult()
+        every { NotificationRecordDatabaseHelper.updateColumnForNotifications(any(), any(), any()) } returns Unit
+        val storedSlot = slot<List<PushNotificationRecord>>()
+        every { NotificationRecordDatabaseHelper.storeNotifications(any(), capture(storedSlot)) } answers {
+            storedSlot.captured.map { it.notificationId }
         }
+
+        // Suppress the helper's success broadcast so it does not re-trigger the activity's reload
+        // receiver into an endless load loop; registerForNotifications stays real for the reload test.
+        mockkObject(NotificationBroadcastHelper)
+        every { NotificationBroadcastHelper.sendNewNotificationBroadcast(any()) } just Runs
+
+        mockkConstructor(NotificationsSyncWorkerManager::class)
         every { anyConstructed<NotificationsSyncWorkerManager>().startSyncWorkers(any()) } just Runs
+
+        mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportNotificationEvent(any(), any(), any(), any()) } just Runs
     }
 
@@ -109,6 +136,7 @@ class PushNotificationActivityTest {
                 // Ignore teardown errors for already-finished activities
             }
         }
+        mockApi.shutdown()
         unmockkAll()
         PersonalIdManager.getInstance().status = savedPersonalIdStatus
     }
@@ -123,6 +151,25 @@ class PushNotificationActivityTest {
                 .visible()
                 .get()
     }
+
+    private fun notificationJson(record: PushNotificationRecord): String =
+        buildString {
+            append("{")
+            append(""""notification_id":"${record.notificationId}",""")
+            append(""""title":"${record.title}",""")
+            append(""""body":"${record.body}",""")
+            append(""""notification_type":"PUSH",""")
+            append(""""timestamp":"2023-01-01T12:00:00Z",""")
+            append(""""action":"${record.action}",""")
+            append(""""opportunity_uuid":"${record.opportunityUUID}",""")
+            append(""""payment_uuid":"${record.paymentUUID}"""")
+            append("}")
+        }
+
+    private fun responseBody(records: List<PushNotificationRecord>): String =
+        """{"notifications":[${records.joinToString(",") { notificationJson(it) }}]}"""
+
+    private fun completeLoad(records: List<PushNotificationRecord>) = mockApi.completeLoad(records, ::responseBody)
 
     private fun buildRecord(
         id: String,
@@ -146,20 +193,17 @@ class PushNotificationActivityTest {
     @Test
     fun `notifications from local storage are shown in the list`() {
         dbNotifications = listOf(buildRecord("a"), buildRecord("b"))
-        // Keep the api call pending so the list is populated from local storage alone
-        val pendingApiCall = CompletableDeferred<Result<List<PushNotificationRecord>>>()
-        apiResult = { pendingApiCall.await() }
 
         launchActivity()
 
+        // The api request is left pending so the list is populated from local storage alone.
         ShadowLooper.idleMainLooper()
         assertEquals(View.VISIBLE, recyclerView.visibility)
         assertEquals(View.GONE, emptyView.visibility)
         assertEquals(2, recyclerView.adapter!!.itemCount)
 
-        pendingApiCall.complete(Result.success(emptyList()))
+        completeLoad(emptyList())
 
-        ShadowLooper.idleMainLooper()
         assertEquals(View.VISIBLE, recyclerView.visibility)
         assertEquals(2, recyclerView.adapter!!.itemCount)
     }
@@ -168,25 +212,23 @@ class PushNotificationActivityTest {
     fun `empty state is shown when there are no notifications`() {
         launchActivity()
 
-        ShadowLooper.idleMainLooper()
+        completeLoad(emptyList())
+
         assertEquals(View.VISIBLE, emptyView.visibility)
         assertEquals(View.GONE, recyclerView.visibility)
     }
 
     @Test
     fun `list and empty state stay hidden while notifications are loading`() {
-        val pendingApiCall = CompletableDeferred<Result<List<PushNotificationRecord>>>()
-        apiResult = { pendingApiCall.await() }
-
         launchActivity()
 
+        // The api request is left pending to observe the loading state.
         ShadowLooper.idleMainLooper()
         assertEquals(View.GONE, recyclerView.visibility)
         assertEquals(View.GONE, emptyView.visibility)
 
-        pendingApiCall.complete(Result.success(listOf(buildRecord("a"))))
+        completeLoad(listOf(buildRecord("a")))
 
-        ShadowLooper.idleMainLooper()
         assertEquals(View.VISIBLE, recyclerView.visibility)
         assertEquals(View.GONE, emptyView.visibility)
         assertEquals(1, recyclerView.adapter!!.itemCount)
@@ -196,15 +238,12 @@ class PushNotificationActivityTest {
     fun `new api notifications are merged with cached ones and sorted newest first`() {
         // The API returns only new notifications; the cached one comes from local storage.
         dbNotifications = listOf(buildRecord("cached", Date(1000L)))
-        val pendingApiCall = CompletableDeferred<Result<List<PushNotificationRecord>>>()
-        apiResult = { pendingApiCall.await() }
 
         launchActivity()
 
         // Let the cached list from local storage publish before the api responds.
         ShadowLooper.idleMainLooper()
-        pendingApiCall.complete(Result.success(listOf(buildRecord("api", Date(2000L)))))
-        ShadowLooper.idleMainLooper()
+        completeLoad(listOf(buildRecord("api", Date(2000L))))
 
         // Assert the merge on the ViewModel's output: a second non-empty submitList would diff
         // on a background thread that idleMainLooper does not flush, so the adapter is unreliable.
@@ -227,24 +266,26 @@ class PushNotificationActivityTest {
 
     @Test
     fun `a toast is shown when fetching notifications fails`() {
-        apiResult = { Result.failure(Exception("Network error")) }
-
         launchActivity()
 
+        mockWebServer.enqueue(MockResponse().setResponseCode(500).setBody("error"))
+        mockApi.drainHttp()
         ShadowLooper.idleMainLooper()
-        assertEquals("Network error", ShadowToast.getTextOfLatestToast())
+
+        assertTrue(ShadowToast.getTextOfLatestToast().orEmpty().isNotEmpty())
     }
 
     @Test
     fun `cloud sync menu item refreshes from the server without re-reading local storage`() {
         launchActivity()
-        ShadowLooper.idleMainLooper()
-        assertEquals(1, apiCallCount.get())
+        completeLoad(emptyList())
+        assertEquals(1, mockWebServer.requestCount)
+        assertEquals(1, dbReadCount.get())
 
         assertTrue(activity.onOptionsItemSelected(menuItemWithId(R.id.notification_cloud_sync)))
+        completeLoad(emptyList())
 
-        ShadowLooper.idleMainLooper()
-        assertEquals(2, apiCallCount.get())
+        assertEquals(2, mockWebServer.requestCount)
         assertEquals(1, dbReadCount.get())
     }
 
@@ -260,20 +301,23 @@ class PushNotificationActivityTest {
     @Test
     fun `a new notification broadcast reloads notifications from local storage`() {
         launchActivity()
-        ShadowLooper.idleMainLooper()
+        completeLoad(emptyList())
         assertEquals(1, dbReadCount.get())
-        assertEquals(1, apiCallCount.get())
+        assertEquals(1, mockWebServer.requestCount)
 
-        NotificationBroadcastHelper.sendNewNotificationBroadcast(activity)
+        // Deliver the broadcast directly so the activity's real receiver reloads; the helper's own
+        // broadcast is stubbed out.
+        LocalBroadcastManager
+            .getInstance(activity)
+            .sendBroadcast(Intent(NotificationBroadcastHelper.ACTION_NEW_NOTIFICATIONS))
 
         ShadowLooper.idleMainLooper()
         assertEquals(2, dbReadCount.get())
     }
 
     private fun launchAndClickFirstNotification(record: PushNotificationRecord) {
-        apiResult = { Result.success(listOf(record)) }
         launchActivity()
-        ShadowLooper.idleMainLooper()
+        completeLoad(listOf(record))
         assertEquals(View.VISIBLE, recyclerView.visibility)
         recyclerView.findViewHolderForAdapterPosition(0)!!.itemView.performClick()
     }
