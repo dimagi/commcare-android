@@ -28,6 +28,8 @@ public class WidgetFactory {
 
     private final FormDef formDef;
     private final PendingCalloutInterface pendingCalloutInterface;
+    private static final String SIGNATURE_APPEARANCE_ATTR = "signature";
+    private static final String FACE_CAPTURE_APPEARANCE_ATTR = "face";
 
     public WidgetFactory(FormDef formDef, PendingCalloutInterface pendingCalloutInterface) {
         this.formDef = formDef;
@@ -51,12 +53,11 @@ public class WidgetFactory {
             case Constants.CONTROL_SECRET:
                 questionWidget = buildBasicWidget(appearance, fep, context, inCompactGroup);
                 break;
-            case Constants.CONTROL_FACE_CAPTURE:
-                questionWidget = new FaceCaptureWidget(context, fep, pendingCalloutInterface);
-                break;
             case Constants.CONTROL_IMAGE_CHOOSE:
-                if (appearance != null && appearance.equals("signature")) {
+                if (SIGNATURE_APPEARANCE_ATTR.equals(appearance)) {
                     questionWidget = new SignatureWidget(context, fep, pendingCalloutInterface);
+                } else if (FACE_CAPTURE_APPEARANCE_ATTR.equals(appearance)) {
+                    questionWidget = new FaceCaptureWidget(context, fep, pendingCalloutInterface);
                 } else {
                     questionWidget = new ImageWidget(context, fep, pendingCalloutInterface);
                 }
