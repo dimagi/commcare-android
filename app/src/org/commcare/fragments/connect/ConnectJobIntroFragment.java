@@ -19,7 +19,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -149,7 +149,8 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                 String appId = job.getLearnAppInfo().getAppId();
                 boolean appInstalled = AppUtils.isAppInstalled(appId);
                 if (appInstalled) {
-                    ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, appId);
+                    new ConnectAppLaunchController(ConnectJobIntroFragment.this)
+                            .launchApp(appId, true, ConnectJobIntroFragment.this::popSelfOnceHidden);
                 } else {
                     String title = getString(R.string.connect_downloading_learn);
                     NavHostFragment.findNavController(ConnectJobIntroFragment.this).navigate(

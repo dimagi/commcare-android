@@ -655,5 +655,7 @@
     <string name="connect_app_launch_failed_dialog_message">Ocorreu um erro ao abrir o aplicativo. Deseja tentar novamente?</string>
     <string name="connect_app_launch_failed_dialog_retry">Tentar novamente</string>
     <string name="connect_app_launch_failed_dialog_cancel">Cancelar</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">Não foi possível abrir o aplicativo após várias tentativas. Verifique sua conexão e tente novamente mais tarde.</string>
+    <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="cannot_navigate_during_form_save">Não é possível sair da página enquanto o formulário é salvo</string>
 </resources>

@@ -339,7 +339,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getDeliveryAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            new ConnectAppLaunchController(this).launchApp(appId, false);
+            new ConnectAppLaunchController(this).launchApp(appId, false, this::popSelfOnceHidden);
         } else {
             NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
                     .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(

@@ -244,6 +244,8 @@
     <string name="connect_app_launch_failed_dialog_message">Noe gikk galt under åpning av appen. Vil du prøve igjen?</string>
     <string name="connect_app_launch_failed_dialog_retry">Prøv igjen</string>
     <string name="connect_app_launch_failed_dialog_cancel">Avbryt</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">Vi kunne ikke åpne appen etter flere forsøk. Sjekk tilkoblingen din og prøv igjen senere.</string>
+    <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="cannot_navigate_during_form_save">Kan ikke forlate siden mens skjemaet lagres</string>
 
     <string name="install_keep_trying">Fortsett å prøve hvis tilkoblingen blir avbrutt</string>
