@@ -117,15 +117,28 @@ public class AudioRecordingService extends Service {
         Intent saveIntent = new Intent(this, AudioRecordingService.class).setAction(ACTION_SAVE_RECORDING);
         PendingIntent savePendingIntent = PendingIntent.getService(this, 1, saveIntent, pendingIntentFlags);
 
-        return new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
-                .setContentTitle(Localization.get("recording.notification.title"))
-                .setContentText(recordingRunning ? Localization.get("recording.notification.in.progress") :
-                        Localization.get("recording.notification.paused"))
-                .setSmallIcon(R.drawable.commcare_actionbar_logo)
-                .setContentIntent(pendingIntent)
-                .addAction(0, Localization.get("recording.notification.save.action"), savePendingIntent)
-                .setOngoing(true)
-                .build();
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
+                        .setContentTitle(Localization.get("recording.notification.title"))
+                        .setContentText(recordingRunning ? Localization.get("recording.notification.in.progress") :
+                                Localization.get("recording.notification.paused"))
+                        .setSmallIcon(R.drawable.commcare_actionbar_logo)
+                        .setContentIntent(pendingIntent)
+                        .setOngoing(true);
+
+        // A single toggling action: shows Pause while running and Resume while paused. The
+        // service re-posts the notification on pause/resume, so the label/action flip themselves.
+        if (pauseSupported) {
+            String toggleAction = recordingRunning ? ACTION_PAUSE_RECORDING : ACTION_RESUME_RECORDING;
+            String toggleLabelKey = recordingRunning ? "recording.notification.pause.action"
+                    : "recording.notification.resume.action";
+            Intent toggleIntent = new Intent(this, AudioRecordingService.class).setAction(toggleAction);
+            PendingIntent togglePendingIntent = PendingIntent.getService(this, 2, toggleIntent, pendingIntentFlags);
+            builder.addAction(0, Localization.get(toggleLabelKey), togglePendingIntent);
+        }
+
+        builder.addAction(0, Localization.get("recording.notification.save.action"), savePendingIntent);
+        return builder.build();
     }
 
     @Nullable
