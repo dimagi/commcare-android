@@ -51,6 +51,7 @@ public class AudioRecordingService extends Service {
         this.actionListener = actionListener;
     }
 
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -94,12 +95,16 @@ public class AudioRecordingService extends Service {
         int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, activityToLaunch, pendingIntentFlags);
 
+        Intent saveIntent = new Intent(this, AudioRecordingService.class).setAction(ACTION_SAVE_RECORDING);
+        PendingIntent savePendingIntent = PendingIntent.getService(this, 1, saveIntent, pendingIntentFlags);
+
         return new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
                 .setContentTitle(Localization.get("recording.notification.title"))
                 .setContentText(recordingRunning ? Localization.get("recording.notification.in.progress") :
                         Localization.get("recording.notification.paused"))
                 .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setContentIntent(pendingIntent)
+                .addAction(0, Localization.get("recording.notification.save.action"), savePendingIntent)
                 .setOngoing(true)
                 .build();
     }
