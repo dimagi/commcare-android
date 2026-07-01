@@ -334,6 +334,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun changeWifi(enable: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.executeShellCommand("settings put global wifi_wakeup " + if (enable) "1" else "0")
         uiDevice.executeShellCommand(if (enable) "svc wifi enable" else "svc wifi disable")
         waitForWifiState(enable)
     }
