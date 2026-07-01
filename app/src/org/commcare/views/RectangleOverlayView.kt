@@ -6,7 +6,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
-import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import org.commcare.dalvik.R
 
 /**
@@ -23,28 +23,34 @@ class RectangleOverlayView
     ) : View(context, attrs, defStyleAttr) {
         private var reticleRect: RectF? = null
 
-        private val scrimPaint =
-            Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.FILL
-                color = ContextCompat.getColor(context, R.color.black_60)
-            }
+        private var reticleMarginRatio = DEFAULT_RETICLE_MARGIN_RATIO
 
-        private val strokeWidthPx = resources.getDimension(R.dimen.reticle_stroke_width)
-        private val outlineWidthPx = resources.getDimension(R.dimen.reticle_outline_width)
+        private val scrimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+        private val outlinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+        private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
 
-        private val outlinePaint =
-            Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.STROKE
-                color = ContextCompat.getColor(context, R.color.black_80)
-                strokeWidth = strokeWidthPx + 2 * outlineWidthPx
-            }
+        init {
+            context.withStyledAttributes(
+                attrs,
+                R.styleable.RectangleOverlayView,
+                defStyleAttr,
+                R.style.Widget_CommCare_RectangleOverlayView,
+            ) {
+                reticleMarginRatio =
+                    getFloat(
+                        R.styleable.RectangleOverlayView_reticleMarginRatio,
+                        DEFAULT_RETICLE_MARGIN_RATIO,
+                    )
+                val strokeWidthPx = getDimension(R.styleable.RectangleOverlayView_reticleStrokeWidth, 0f)
+                val outlineWidthPx = getDimension(R.styleable.RectangleOverlayView_reticleOutlineWidth, 0f)
 
-        private val strokePaint =
-            Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.STROKE
-                color = ContextCompat.getColor(context, R.color.white)
-                strokeWidth = strokeWidthPx
+                scrimPaint.color = getColor(R.styleable.RectangleOverlayView_reticleScrimColor, 0)
+                outlinePaint.color = getColor(R.styleable.RectangleOverlayView_reticleOutlineColor, 0)
+                outlinePaint.strokeWidth = strokeWidthPx + 2 * outlineWidthPx
+                strokePaint.color = getColor(R.styleable.RectangleOverlayView_reticleStrokeColor, 0)
+                strokePaint.strokeWidth = strokeWidthPx
             }
+        }
 
         override fun onSizeChanged(
             w: Int,
@@ -54,7 +60,7 @@ class RectangleOverlayView
         ) {
             super.onSizeChanged(w, h, oldw, oldh)
             if (w > 0 && h > 0) {
-                val margin = RETICLE_MARGIN_RATIO * w
+                val margin = reticleMarginRatio * minOf(w, h)
                 reticleRect = RectF(margin, margin, w - margin, h - margin)
             }
         }
@@ -75,6 +81,6 @@ class RectangleOverlayView
         }
 
         companion object {
-            const val RETICLE_MARGIN_RATIO = 0.08f
+            const val DEFAULT_RETICLE_MARGIN_RATIO = 0.08f
         }
     }
