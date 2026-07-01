@@ -473,6 +473,8 @@ recording.notification.title=Audio recording
 recording.notification.in.progress=Recording in progress...
 recording.notification.paused=Recording paused
 recording.notification.save.action=Save
+recording.notification.pause.action=Pause
+recording.notification.resume.action=Resume
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
