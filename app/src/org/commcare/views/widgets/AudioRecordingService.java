@@ -35,9 +35,12 @@ public class AudioRecordingService extends Service {
     private final IBinder binder = new AudioRecorderBinder();
     public static final String RECORDING_FILENAME_EXTRA_KEY = "recording-filename-extra-key";
     public static final String ACTION_SAVE_RECORDING = "action-save-recording";
+    public static final String ACTION_PAUSE_RECORDING = "action-pause-recording";
+    public static final String ACTION_RESUME_RECORDING = "action-resume-recording";
     private NotificationManager notificationManager;
     private AudioRecordingHelper audioRecordingHelper = new AudioRecordingHelper();
     private RecordingActionListener actionListener;
+    private boolean pauseSupported;
 
     /**
      * Callback used to relay notification action button presses back to the bound
@@ -45,6 +48,8 @@ public class AudioRecordingService extends Service {
      */
     public interface RecordingActionListener {
         void onSaveRequested();
+        void onPauseRequested();
+        void onResumeRequested();
     }
 
     public void setRecordingActionListener(RecordingActionListener actionListener) {
