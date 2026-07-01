@@ -1,6 +1,5 @@
 package org.commcare.personalId.profile
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -14,8 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import org.commcare.activities.DispatchActivity
-import org.commcare.connect.PersonalIdManager
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileScreenBinding
 import org.commcare.views.dialogs.StandardAlertDialog
@@ -51,6 +48,7 @@ class PersonalIdProfileFragment : Fragment() {
     }
 
     private fun showForgetConfirmationDialog() {
+        val hostActivity = requireActivity() as PersonalIdProfileActivity
         val dialog =
             StandardAlertDialog(
                 getString(R.string.personalid_profile_forget_confirm_title),
@@ -58,23 +56,15 @@ class PersonalIdProfileFragment : Fragment() {
             )
         dialog.setPositiveButton(getString(R.string.ok)) { dialogInterface, _ ->
             dialogInterface.dismiss()
-            forgetPersonalId()
+            if (isAdded) {
+                hostActivity.forgetAccountAndRestart()
+            }
         }
         dialog.setNegativeButton(getString(R.string.cancel)) { dialogInterface, _ ->
             dialogInterface.dismiss()
         }
         dialog.makeCancelable()
-        dialog.showNonPersistentDialog(requireActivity())
-    }
-
-    private fun forgetPersonalId() {
-        PersonalIdManager.getInstance().forgetUser()
-        val intent =
-            Intent(requireActivity(), DispatchActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        startActivity(intent)
-        requireActivity().finish()
+        dialog.showNonPersistentDialog(hostActivity)
     }
 
     private fun setupMenu() {
