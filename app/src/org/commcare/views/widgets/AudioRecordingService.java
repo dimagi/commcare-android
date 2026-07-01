@@ -66,6 +66,15 @@ public class AudioRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // The Save notification action re-delivers this intent without the recording extras;
+        // relay it to the bound fragment instead of (re)starting the recorder.
+        if (ACTION_SAVE_RECORDING.equals(intent.getAction())) {
+            if (actionListener != null) {
+                actionListener.onSaveRequested();
+            }
+            return START_NOT_STICKY;
+        }
+
         String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         if (recorder == null) {
             recorder = audioRecordingHelper.setupRecorder(fileName);
