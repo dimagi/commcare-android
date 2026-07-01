@@ -232,6 +232,7 @@ public class RecordingFragment extends DialogFragment {
 
         Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
         serviceIntent.putExtra(RECORDING_FILENAME_EXTRA_KEY, fileName);
+        serviceIntent.putExtra(AudioRecordingService.PAUSE_SUPPORTED_EXTRA_KEY, isPauseSupported());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             requireActivity().startForegroundService(serviceIntent);
         } else {
@@ -246,6 +247,31 @@ public class RecordingFragment extends DialogFragment {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 audioRecordingService = ((AudioRecordingService.AudioRecorderBinder) service).getService();
+
+                // Relay notification action presses back to the recording UI. Invoked on the
+                // main thread from the service; guarded in case the dialog is no longer attached.
+                audioRecordingService.setRecordingActionListener(new AudioRecordingService.RecordingActionListener() {
+                    @Override
+                    public void onSaveRequested() {
+                        if (isAdded() && getView() != null) {
+                            stopRecording(true);
+                        }
+                    }
+
+                    @Override
+                    public void onPauseRequested() {
+                        if (isAdded() && getView() != null && !inPausedState) {
+                            pauseRecording(true);
+                        }
+                    }
+
+                    @Override
+                    public void onResumeRequested() {
+                        if (isAdded() && getView() != null && inPausedState) {
+                            resumeRecording();
+                        }
+                    }
+                });
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     registerAudioRecordingConfigurationChangeCallback();
@@ -512,6 +538,9 @@ public class RecordingFragment extends DialogFragment {
 
     private void unbindAudioRecordingService() {
         if (audioRecordingServiceBounded) {
+            if (audioRecordingService != null) {
+                audioRecordingService.setRecordingActionListener(null);
+            }
             requireActivity().unbindService(audioRecordingServiceConnection);
             requireActivity()
                     .stopService(new Intent(requireActivity(), AudioRecordingService.class));
