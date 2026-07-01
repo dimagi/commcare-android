@@ -34,6 +34,7 @@ public class AudioRecordingService extends Service {
     private MediaRecorder recorder;
     private final IBinder binder = new AudioRecorderBinder();
     public static final String RECORDING_FILENAME_EXTRA_KEY = "recording-filename-extra-key";
+    public static final String PAUSE_SUPPORTED_EXTRA_KEY = "pause-supported-extra-key";
     public static final String ACTION_SAVE_RECORDING = "action-save-recording";
     public static final String ACTION_PAUSE_RECORDING = "action-pause-recording";
     public static final String ACTION_RESUME_RECORDING = "action-resume-recording";
@@ -81,10 +82,14 @@ public class AudioRecordingService extends Service {
         }
 
         String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
+        pauseSupported = intent.getBooleanExtra(PAUSE_SUPPORTED_EXTRA_KEY, false);
         if (recorder == null) {
             recorder = audioRecordingHelper.setupRecorder(fileName);
         }
         recorder.start();
+        // Re-post so the notification reflects pauseSupported, which is only known here (the
+        // initial notification is built in onCreate, before this intent is delivered).
+        notificationManager.notify(RECORDING_NOTIFICATION_ID, createNotification(true));
         return START_NOT_STICKY;
     }
 

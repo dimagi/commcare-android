@@ -232,6 +232,7 @@ public class RecordingFragment extends DialogFragment {
 
         Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
         serviceIntent.putExtra(RECORDING_FILENAME_EXTRA_KEY, fileName);
+        serviceIntent.putExtra(AudioRecordingService.PAUSE_SUPPORTED_EXTRA_KEY, isPauseSupported());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             requireActivity().startForegroundService(serviceIntent);
         } else {
