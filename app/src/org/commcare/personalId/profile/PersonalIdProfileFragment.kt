@@ -44,27 +44,25 @@ class PersonalIdProfileFragment : Fragment() {
         setupMenu()
         viewModel = ViewModelProvider(this)[PersonalIdProfileViewModel::class.java]
         viewModel.profileDisplayModel.observe(viewLifecycleOwner) { displayProfileDetails(it) }
-        binding.profileBtnForgetPersonalid.setOnClickListener { showForgetConfirmationDialog() }
+        binding.profileBtnForgetPersonalid.setOnClickListener { showForgetPersonalIdDialog() }
     }
 
-    private fun showForgetConfirmationDialog() {
-        val hostActivity = requireActivity() as PersonalIdProfileActivity
+    private fun showForgetPersonalIdDialog() {
+        val activity = requireActivity() as PersonalIdProfileActivity
         val dialog =
             StandardAlertDialog(
                 getString(R.string.personalid_profile_forget_confirm_title),
                 getString(R.string.personalid_profile_forget_confirm_message),
             )
-        dialog.setPositiveButton(getString(R.string.ok)) { dialogInterface, _ ->
-            dialogInterface.dismiss()
-            if (isAdded) {
-                hostActivity.forgetAccountAndRestart()
-            }
+        dialog.setPositiveButton(getString(R.string.ok)) { _, _ ->
+            activity.dismissAlertDialog()
+            activity.forgetPersonalIdAccount()
         }
-        dialog.setNegativeButton(getString(R.string.cancel)) { dialogInterface, _ ->
-            dialogInterface.dismiss()
+        dialog.setNegativeButton(getString(R.string.cancel)) { _, _ ->
+            activity.dismissAlertDialog()
         }
         dialog.makeCancelable()
-        dialog.showNonPersistentDialog(hostActivity)
+        activity.showAlertDialog(dialog)
     }
 
     private fun setupMenu() {

@@ -9,7 +9,6 @@ import org.commcare.activities.DispatchActivity
 import org.commcare.activities.NavigationHostCommCareActivity
 import org.commcare.connect.PersonalIdManager
 import org.commcare.dalvik.R
-import org.javarosa.core.services.Logger
 
 class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfileActivity>() {
     override fun getLayoutResource(): Int = R.layout.activity_personalid_profile
@@ -24,17 +23,12 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
     }
 
-    fun forgetAccountAndRestart() {
-        try {
-            PersonalIdManager.getInstance().forgetUser()
-            val intent =
-                Intent(this, DispatchActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            startActivity(intent)
-            finish()
-        } catch (e: Exception) {
-            Logger.exception("Failed to forget PersonalID account from profile screen", e)
-        }
+    fun forgetPersonalIdAccount() {
+        PersonalIdManager.getInstance().forgetUser()
+        val intent =
+            Intent(this, DispatchActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        finish()
     }
 }
