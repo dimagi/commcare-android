@@ -247,6 +247,14 @@ public class RecordingFragment extends DialogFragment {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 audioRecordingService = ((AudioRecordingService.AudioRecorderBinder) service).getService();
 
+                // Relay the notification Save action back to the recording UI. Invoked on the
+                // main thread from the service; guarded in case the dialog is no longer attached.
+                audioRecordingService.setRecordingActionListener(() -> {
+                    if (isAdded() && getView() != null) {
+                        stopRecording(true);
+                    }
+                });
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     registerAudioRecordingConfigurationChangeCallback();
                 }
@@ -512,6 +520,9 @@ public class RecordingFragment extends DialogFragment {
 
     private void unbindAudioRecordingService() {
         if (audioRecordingServiceBounded) {
+            if (audioRecordingService != null) {
+                audioRecordingService.setRecordingActionListener(null);
+            }
             requireActivity().unbindService(audioRecordingServiceConnection);
             requireActivity()
                     .stopService(new Intent(requireActivity(), AudioRecordingService.class));
