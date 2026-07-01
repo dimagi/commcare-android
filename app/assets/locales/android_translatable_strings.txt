@@ -472,6 +472,7 @@ recording.paused.due.another.app.recording.message=Recording paused as another a
 recording.notification.title=Audio recording
 recording.notification.in.progress=Recording in progress...
 recording.notification.paused=Recording paused
+recording.notification.save.action=Save
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
