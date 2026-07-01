@@ -34,8 +34,22 @@ public class AudioRecordingService extends Service {
     private MediaRecorder recorder;
     private final IBinder binder = new AudioRecorderBinder();
     public static final String RECORDING_FILENAME_EXTRA_KEY = "recording-filename-extra-key";
+    public static final String ACTION_SAVE_RECORDING = "action-save-recording";
     private NotificationManager notificationManager;
     private AudioRecordingHelper audioRecordingHelper = new AudioRecordingHelper();
+    private RecordingActionListener actionListener;
+
+    /**
+     * Callback used to relay notification action button presses back to the bound
+     * {@link RecordingFragment}, which owns the recording UI and lifecycle.
+     */
+    public interface RecordingActionListener {
+        void onSaveRequested();
+    }
+
+    public void setRecordingActionListener(RecordingActionListener actionListener) {
+        this.actionListener = actionListener;
+    }
 
     @Override
     public void onCreate() {
