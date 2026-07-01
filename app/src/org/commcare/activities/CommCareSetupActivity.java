@@ -642,7 +642,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
             case MENU_PERSONAL_ID_FORGET:
-                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
+                PersonalIdManager.getInstance().forgetUser();
                 updateConnectButton();
                 break;
             case MENU_REFRESH_OPPORTUNITIES:
