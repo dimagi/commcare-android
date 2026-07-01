@@ -108,22 +108,31 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         cameraCaptureModeIndicator = findViewById(R.id.camera_capture_mode_indicator);
 
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
-        if (isGooglePlayServicesAvailable) {
+        if (isAutoCaptureModeSupported()) {
             faceCaptureView.setImageStabilizedListener(this);
         } else {
             faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
-            cameraControlsContainer.setVisibility(VISIBLE);
-            cameraShutterButton.setVisibility(VISIBLE);
-            cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
-            cameraCaptureModeIndicator.setText(R.string.face_capture_manual_mode);
-            cameraCaptureModeIndicator.setSelected(true);
+            showManualModeUI();
         }
         if (getAllowCameraLensSwitch()) {
-            cameraControlsContainer.setVisibility(VISIBLE);
             switchCameraLensButton.setVisibility(VISIBLE);
             switchCameraLensButton.setOnClickListener(v -> switchCameraLensFacing());
         }
+        if (!isAutoCaptureModeSupported() || getAllowCameraLensSwitch()) {
+            cameraControlsContainer.setVisibility(VISIBLE);
+        }
         currentLensFacing = getCameraLensFacing();
+    }
+
+    private boolean isAutoCaptureModeSupported() {
+        return isGooglePlayServicesAvailable;
+    }
+
+    private void showManualModeUI() {
+        cameraShutterButton.setVisibility(VISIBLE);
+        cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
+        cameraCaptureModeIndicator.setText(R.string.face_capture_manual_mode);
+        cameraCaptureModeIndicator.setSelected(true);
     }
 
     private void switchCameraLensFacing() {
@@ -251,11 +260,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     }
 
     private void switchToManualCaptureMode() {
-        cameraControlsContainer.setVisibility(VISIBLE);
-        cameraShutterButton.setVisibility(VISIBLE);
-        cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
-        cameraCaptureModeIndicator.setText(R.string.face_capture_manual_mode);
-        cameraCaptureModeIndicator.setSelected(true);
+        showManualModeUI();
         isGooglePlayServicesAvailable = false;
         faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
         startCamera();
