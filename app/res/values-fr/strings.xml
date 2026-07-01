@@ -649,5 +649,7 @@ License.
     <string name="connect_app_launch_failed_dialog_message">Une erreur s\'est produite lors de l\'ouverture de l\'application. Voulez-vous réessayer ?</string>
     <string name="connect_app_launch_failed_dialog_retry">Réessayer</string>
     <string name="connect_app_launch_failed_dialog_cancel">Annuler</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">Nous n\'avons pas pu ouvrir l\'application après plusieurs tentatives. Veuillez vérifier votre connexion et réessayer plus tard.</string>
+    <string name="connect_app_launch_failed_dialog_ok">D\'ACCORD</string>
     <string name="cannot_navigate_during_form_save">Impossible de quitter la page pendant l\'enregistrement du formulaire</string>
 </resources>
