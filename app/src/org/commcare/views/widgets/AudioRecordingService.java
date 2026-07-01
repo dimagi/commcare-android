@@ -72,11 +72,16 @@ public class AudioRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // The Save notification action re-delivers this intent without the recording extras;
-        // relay it to the bound fragment instead of (re)starting the recorder.
-        if (ACTION_SAVE_RECORDING.equals(intent.getAction())) {
+        // Notification action buttons re-deliver this intent without the recording extras;
+        // relay them to the bound fragment instead of (re)starting the recorder.
+        String action = intent.getAction();
+        if (action != null) {
             if (actionListener != null) {
-                actionListener.onSaveRequested();
+                switch (action) {
+                    case ACTION_SAVE_RECORDING -> actionListener.onSaveRequested();
+                    case ACTION_PAUSE_RECORDING -> actionListener.onPauseRequested();
+                    case ACTION_RESUME_RECORDING -> actionListener.onResumeRequested();
+                }
             }
             return START_NOT_STICKY;
         }
