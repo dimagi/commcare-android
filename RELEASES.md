@@ -21,6 +21,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 - [Audio Recording Revamp] Refreshed the in-app audio recording UI across the capture, recording, playback, and delete screens
 - [Audio Recording Revamp] Recording now starts immediately when you tap the microphone and saves as soon as you stop, removing the previous intermediate tap-to-record and playback-confirm steps
+- [Audio Recording Revamp] The recording notification now has a Save button, and a Pause/Resume button for long recordings, so you can control the recording without returning to the form
 
 #### Important Bug Fixes
 
@@ -159,6 +160,10 @@ we would like to communicate to QA as part of the release testing
   - **File chooser:** Confirm the choose-from-file button appears only for questions using the `acquire-or-upload` appearance and is hidden otherwise.
   - **Persistence:** Record and save, navigate forward and back to the question, and verify the saved recording still loads and plays. Submit the form and verify the audio attachment is present on HQ.
   - **Icon rendering:** Verify the play, pause, record, and trash icons render crisply and are correctly sized/centered on their buttons (icons were moved to vector drawables and to `src`/`scaleType`).
+  - **Notification – Save:** While recording, pull down the notification shade and verify the persistent recording notification shows a **Save** action. Tap it and verify the recording is finalized and saved (same result as tapping Save in the dialog), the dialog returns to the playback panel, and the notification is dismissed. Confirm the audio attachment is present on HQ after submitting.
+  - **Notification – Pause/Resume (long-recording questions only):** For a question with the `long` appearance on Android 7+ (API 24+), verify the notification shows a **Pause** action alongside Save. Tap **Pause** and verify the recording pauses, the in-dialog UI reflects the paused state (frozen timer, "PAUSED"), and the notification button relabels to **Resume**. Tap **Resume** and verify recording continues and the button flips back to **Pause**.
+  - **Notification – action visibility:** For a standard (non-pausable) question, verify only the **Save** action is shown (no Pause/Resume). Confirm the Pause/Resume action never appears on pre-Android 7 devices or non-`long` questions.
+  - **Notification – cross-control consistency:** Pause from the notification, then resume using the in-dialog mic (and vice-versa); verify the notification label and dialog state stay in sync in both directions. Background/rotate the host activity, then use the notification Save/Pause/Resume and verify no crash.
 
 ## CommCare 2.63
 
