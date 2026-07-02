@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileScreenBinding
+import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdProfileFragment : Fragment() {
     private var _binding: PersonalidProfileScreenBinding? = null
@@ -43,6 +44,25 @@ class PersonalIdProfileFragment : Fragment() {
         setupMenu()
         viewModel = ViewModelProvider(this)[PersonalIdProfileViewModel::class.java]
         viewModel.profileDisplayModel.observe(viewLifecycleOwner) { displayProfileDetails(it) }
+        binding.profileBtnForgetPersonalid.setOnClickListener { showForgetPersonalIdDialog() }
+    }
+
+    private fun showForgetPersonalIdDialog() {
+        val activity = requireActivity() as PersonalIdProfileActivity
+        val dialog =
+            StandardAlertDialog(
+                getString(R.string.personalid_profile_forget_confirm_title),
+                getString(R.string.personalid_profile_forget_confirm_message),
+            )
+        dialog.setPositiveButton(getString(R.string.ok)) { _, _ ->
+            activity.dismissAlertDialog()
+            activity.forgetPersonalIdAccount()
+        }
+        dialog.setNegativeButton(getString(R.string.cancel)) { _, _ ->
+            activity.dismissAlertDialog()
+        }
+        dialog.makeCancelable()
+        activity.showAlertDialog(dialog)
     }
 
     private fun setupMenu() {

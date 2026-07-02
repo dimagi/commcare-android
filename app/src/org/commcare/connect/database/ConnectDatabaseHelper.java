@@ -7,7 +7,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.SsoToken;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.IDatabase;
@@ -83,7 +82,7 @@ public class ConnectDatabaseHelper {
 
     public static void handleGlobalError(GlobalErrors error) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
-        PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
+        PersonalIdManager.getInstance().forgetUser();
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {

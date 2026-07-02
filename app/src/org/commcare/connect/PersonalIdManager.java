@@ -172,9 +172,9 @@ public class PersonalIdManager {
         }
     }
 
-    public void forgetUser(String reason) {
+    public void forgetUser() {
         if (ConnectDatabaseHelper.dbExists()) {
-            FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
+            FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten();
         }
         ConnectUserDatabaseUtil.forgetUser();
         personalIdSatus = PersonalIdStatus.NotIntroduced;

@@ -718,7 +718,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 registerPersonalIdUser();
                 return true;
             case MENU_PERSONAL_ID_FORGET:
-                personalIdManager.forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_LOGIN_PAGE);
+                personalIdManager.forgetUser();
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
                 uiController.refreshView();
