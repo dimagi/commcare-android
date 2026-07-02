@@ -25,6 +25,8 @@ along with the public release notes above
 
 - Fix bug causing form widgets to lose focus when a Combobox dropdown on the same screen is re-validated.
 - Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
+- Fixed a crash caused by tapping a payment unit row more than once on the Connect delivery progress screen
+- Fixed a crash that could occur when leaving a Connect opportunity's intro screen before its Start Learning request finished
 
 ### QA Notes
 <!--
