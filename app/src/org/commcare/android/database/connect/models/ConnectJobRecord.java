@@ -6,13 +6,11 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.connect.network.connect.models.ParsedConnectTask;
+import org.commcare.connect.database.ConnectTaskUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
-import org.commcare.preferences.ConnectJobPreferences;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
@@ -89,7 +87,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static final String META_JOB_UUID = "opportunity_id";
 
-    private static final long RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS = DateUtils.HOUR_IN_MS * 6;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -660,7 +657,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
-        } else if (shouldShowRelearnTasksCompletedMessage()) {
+        } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(context, this)) {
             return context.getString(R.string.connect_progress_relearn_tasks_completed);
         } else if (isMultiPayment()) {
             return getMultiVisitWarnings(context);
@@ -873,57 +870,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.claimed = claimed;
     }
 
-    public boolean isRelearnTaskPending() {
-        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
-        return jobPrefs.isRelearnTaskPending() && status == STATUS_DELIVERING;
-    }
 
-    public boolean shouldShowRelearnTasksCompletedMessage() {
-        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
-        long relearnTasksCompletedTimeMs = jobPrefs.getRelearnTasksCompletedTimeMs();
-        long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
-
-        return !jobPrefs.relearnTasksCompletedTimeNotSet()
-                && timeElapsedSinceTasksCompleted < RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS
-                && status == STATUS_DELIVERING;
-    }
-
-    public void syncRelearnTasksPrefs(List<ParsedConnectTask> tasks) {
-        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
-
-        if (tasks == null || tasks.isEmpty()) {
-            jobPrefs.setRelearnTaskPending(false);
-            return;
-        }
-
-        boolean anyAssigned = false;
-        Date latestModified = null;
-        for (ParsedConnectTask task : tasks) {
-            if (task.getAssigned()) {
-                anyAssigned = true;
-            }
-
-            Date modified = task.getDateModified();
-            if (modified != null && (latestModified == null || modified.after(latestModified))) {
-                latestModified = modified;
-            }
-        }
-
-        jobPrefs.setRelearnTaskPending(anyAssigned);
-
-        // If at least one task is currently assigned, then we know that not all of them were completed.
-        if (anyAssigned) {
-            jobPrefs.resetRelearnTasksCompletedTime();
-            return;
-        }
-
-        if (jobPrefs.relearnTasksCompletedTimeNotSet()) {
-            // Set the completion time for all tasks to the latest date any task was modified, or
-            // fallback to the current date if there is no latest modified date.
-            long newTasksCompletedTime = latestModified != null
-                    ? latestModified.getTime()
-                    : new Date().getTime();
-            jobPrefs.setRelearnTasksCompletedTime(newTasksCompletedTime);
-        }
-    }
 }
+

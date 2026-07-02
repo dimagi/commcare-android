@@ -6,6 +6,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils.formatDate
+import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewJobCardBinding
 import org.commcare.views.ViewUtil
@@ -32,7 +33,7 @@ object ConnectViewUtils {
             )
 
         val workingHours = job.getWorkingHours()
-        if (job.isRelearnTaskPending) {
+        if (ConnectTaskUtils.hasPendingTask(jobCard.root.context, job.jobUUID)) {
             jobCard.cvRelearnTasksPending.visibility = View.VISIBLE
             jobCard.tvJobTime.visibility = View.INVISIBLE
             jobCard.tvDailyVisitTitle.visibility = View.INVISIBLE

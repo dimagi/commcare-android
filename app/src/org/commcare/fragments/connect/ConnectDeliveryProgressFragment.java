@@ -32,6 +32,7 @@ import org.commcare.connect.viewmodel.ConnectDeliveryProgressViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
+import org.commcare.connect.database.ConnectTaskUtils;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.ConnectJobPreferences;
@@ -261,7 +262,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 textColorRes = R.color.rich_amber_gold;
                 backgroundColorRes = R.color.pale_buttery_cream;
                 getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
-            } else if (job.shouldShowRelearnTasksCompletedMessage()) {
+            } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(requireContext(), job)) {
                 textColorRes = R.color.connect_green;
                 backgroundColorRes = R.color.connect_light_green;
                 getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
