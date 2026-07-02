@@ -46,6 +46,8 @@ we would like to communicate to QA as part of the release testing
 
 - **GPS `here()` crash regression:** Using an app configuration that has `here()` in a case list (e.g. a case list that shows distance to GPS coordinates), navigate to that case list and wait for it to fully load. Press Back. Verify the app returns to the previous screen without crashing.
 - **GPS `here()` case list refresh:** Using the same app configuration, navigate to the case list and allow GPS to acquire a location fix. Move to a different location (or simulate a location change) while the list is displayed. Verify the case list automatically refreshes and distance values update accordingly.
+- Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
+- Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
 
 
 ## CommCare 2.64
