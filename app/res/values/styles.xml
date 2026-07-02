@@ -294,6 +294,14 @@
         <item name="android:track">@drawable/switch_track</item>
     </style>
 
+    <style name="Widget.CommCare.RectangleOverlayView" parent="">
+        <item name="reticleScrimColor">@color/black_60</item>
+        <item name="reticleOutlineColor">@color/black_80</item>
+        <item name="reticleStrokeColor">@color/white</item>
+        <item name="reticleStrokeWidth">@dimen/reticle_stroke_width</item>
+        <item name="reticleOutlineWidth">@dimen/reticle_outline_width</item>
+    </style>
+
     <style name="Widget.CommCare.SemiCircleProgressBar" parent="">
         <item name="progressColor">@color/connect_dark_blue_color</item>
         <item name="trackColor">@color/connect_light_grey</item>

@@ -486,6 +486,8 @@
     <string name="connect_app_launch_failed_dialog_message">Something went wrong while opening the app. Would you like to try again?</string>
     <string name="connect_app_launch_failed_dialog_retry">Retry</string>
     <string name="connect_app_launch_failed_dialog_cancel">Cancel</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">We couldn\'t open the app after several tries. Please check your connection and try again later.</string>
+    <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>
@@ -745,8 +747,8 @@
     <string name="personalid_error_message_login_different_device">Please continue on the new device, or configure your account again.</string>
     <string name="personalid_reconfigure">Reconfigure</string>
     <string name="personalid_dismiss">Dismiss</string>
-    <string name="personalid_camera_permission_title">Permission for camera</string>
-    <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="camera_permission_title" cc:translatable="true">Permission for camera</string>
+    <string name="camera_permission_msg" cc:translatable="true">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
     <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
     <string name="personalid_too_many_otp_attempts">You have made too many attempts to send OTP. Please wait and try again whenever the resend button is visible.</string>

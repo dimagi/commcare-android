@@ -130,6 +130,8 @@
 
     <dimen name="connect_message_input_corner_radius">50dp</dimen>
     <dimen name="connect_message_input_stroke_width">0.5dp</dimen>
+    <dimen name="reticle_stroke_width">3dp</dimen>
+    <dimen name="reticle_outline_width">1dp</dimen>
     <dimen name="connect_message_corner_radius">16dp</dimen>
 
     <dimen name="corner_radius_small_5dp">5dp</dimen>

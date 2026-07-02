@@ -512,8 +512,8 @@
     <string name="personalid_second_device_login_title">ኣብ ካልኣይ መሳርሒ እቶ</string>
     <string name="personalid_second_device_login_message">ካብ %s ወጺኡ፣ ንመወዳእታ ግዜ ዝተጠቕመሉ %s። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
     <string name="personalid_second_device_login_message_no_date">ካብ %s ወጺኡ። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
-    <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
-    <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
+    <string name="camera_permission_title">ፍቓድ ንካሜራ</string>
+    <string name="camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
     <string name="personalid_work_history_title">ታሪኽ ስራሐይ</string>
     <string name="personalid_work_history">ታሪኽ ስራሕ</string>
@@ -639,5 +639,7 @@
     <string name="connect_app_launch_failed_dialog_message">መተግበሪ ኣብ ምኽፋት ጌጋ ኣጋጢሙ። ብኽብረትኩም እንደገና ክትፍትኑ ትደልዩ ዶ?</string>
     <string name="connect_app_launch_failed_dialog_retry">እንደገና ፈትን</string>
     <string name="connect_app_launch_failed_dialog_cancel">ሰርዝ</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">ብዙሕ ግዜ ድሕሪ ምፍታን፡ ነቲ መተግበሪ ክንከፍቶ ኣይከኣልናን። ብኽብረትኩም ርክብኩም ኣረጋግጹ፡ ጸኒሕኩም ድማ እንደገና ፈትኑ።</string>
+    <string name="connect_app_launch_failed_dialog_ok">እሺ</string>
     <string name="cannot_navigate_during_form_save">ቅጥዒ እንዳተዓቀበ ካብ ገጽ ክትወጽእ ኣይትኽእልን</string>
 </resources>

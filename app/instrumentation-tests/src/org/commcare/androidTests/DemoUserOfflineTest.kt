@@ -6,6 +6,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.utils.InstrumentationUtility
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,8 +15,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
 @BrowserstackTests
-class DemoUserOfflineTest: DemoUserTest() {
-
+class DemoUserOfflineTest : DemoUserTest() {
     companion object {
         const val CCZ_NAME = "demo_user_test_1.ccz"
         const val APP_NAME = "Demo User Restore Test"
@@ -25,6 +25,11 @@ class DemoUserOfflineTest: DemoUserTest() {
     fun setup() {
         InstrumentationUtility.changeWifi(false)
         installApp(APP_NAME, CCZ_NAME, true)
+    }
+
+    @After
+    fun teardown() {
+        InstrumentationUtility.changeWifi(true)
     }
 
     @Test
@@ -41,5 +46,4 @@ class DemoUserOfflineTest: DemoUserTest() {
         InstrumentationUtility.changeWifi(false)
         testPracticeMode_withUpdatedApp()
     }
-
 }

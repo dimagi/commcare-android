@@ -520,8 +520,8 @@ License.
     <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
     <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
     <string name="personalid_second_device_login_message_no_date">Vous avez été déconnecté(e) de %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
-    <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
-    <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
+    <string name="camera_permission_title">Autorisation pour la caméra</string>
+    <string name="camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
     <string name="personalid_work_history_title">Mon Historique de Travail</string>
     <string name="personalid_work_history">Historique de Travail</string>
@@ -650,5 +650,7 @@ License.
     <string name="connect_app_launch_failed_dialog_message">Une erreur s\'est produite lors de l\'ouverture de l\'application. Voulez-vous réessayer ?</string>
     <string name="connect_app_launch_failed_dialog_retry">Réessayer</string>
     <string name="connect_app_launch_failed_dialog_cancel">Annuler</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">Nous n\'avons pas pu ouvrir l\'application après plusieurs tentatives. Veuillez vérifier votre connexion et réessayer plus tard.</string>
+    <string name="connect_app_launch_failed_dialog_ok">D\'ACCORD</string>
     <string name="cannot_navigate_during_form_save">Impossible de quitter la page pendant l\'enregistrement du formulaire</string>
 </resources>

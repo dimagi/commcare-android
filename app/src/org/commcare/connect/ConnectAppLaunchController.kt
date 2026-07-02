@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
+import org.commcare.activities.connect.ConnectActivity
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.LoginPhase
@@ -63,7 +64,10 @@ internal object LaunchProgressMapper {
  * [LaunchOutcomeRouter].
  *
  * The dialog is dismissed automatically when the fragment's view is destroyed, so callers don't
- * have to manage cleanup themselves.
+ * have to manage cleanup themselves. [onLaunchSucceeded] is invoked once Home has been started so the
+ * caller can manage its own fragment lifecycle (e.g. remove itself from the back stack);
+ * [onLaunchFailed] is invoked when the launch terminally fails (retries exhausted, or a seat failure)
+ * so the caller can update its own UI. The controller still owns the failure dialogs/recovery.
  */
 class ConnectAppLaunchController
     @JvmOverloads
@@ -74,13 +78,26 @@ class ConnectAppLaunchController
         private var launchDialog: CustomProgressDialog? = null
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
+        private var failedAttempts = 0
+        private var onLaunchSucceeded: Runnable? = null
+        private var onLaunchFailed: Runnable? = null
 
+        @JvmOverloads
         fun launchApp(
             appId: String,
             isLearning: Boolean,
-        ) = launch(LaunchTarget(appId, isLearning))
+            onLaunchSucceeded: Runnable? = null,
+            onLaunchFailed: Runnable? = null,
+        ) {
+            this.onLaunchSucceeded = onLaunchSucceeded
+            this.onLaunchFailed = onLaunchFailed
+            launch(LaunchTarget(appId, isLearning))
+        }
 
         private fun launch(target: LaunchTarget) {
+            if (fragment.view == null) {
+                return
+            }
             val activity = fragment.requireActivity()
             val owner = fragment.viewLifecycleOwner
             registerDialogCleanup(owner)
@@ -110,19 +127,30 @@ class ConnectAppLaunchController
             if (!fragment.isAdded) {
                 return
             }
+            if (outcome is LaunchOutcome.Retryable) {
+                failedAttempts++
+            }
             LaunchOutcomeRouter.dispatch(
                 outcome,
+                failedAttempts,
                 object : LaunchActions {
                     override fun dismissProgress() = dismissLaunchDialog()
 
-                    override fun launchHome() =
-                        activity.startActivity(
-                            HomeScreenBaseActivity
-                                .buildHomeLaunchIntent(activity)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                        )
+                    override fun launchHome(alreadyLoggedIn: Boolean) {
+                        (activity as ConnectActivity).markAppLaunchedFromConnect()
+                        onLaunchSucceeded?.run()
+
+                        val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(activity)
+                        if (alreadyLoggedIn) {
+                            // Already signed in, so reuse this app's existing Home. Home is shared across
+                            // apps, so an unconditional reorder could surface a different app's instance.
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        }
+                        activity.startActivity(intent)
+                    }
 
                     override fun recoverFromSeatFailure() {
+                        onLaunchFailed?.run()
                         val intent =
                             Intent(activity, DispatchActivity::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -145,6 +173,23 @@ class ConnectAppLaunchController
                         }
                         dialog.setNegativeButton(
                             activity.getString(R.string.connect_app_launch_failed_dialog_cancel),
+                        ) { _, _ ->
+                            host.dismissAlertDialog()
+                            onLaunchFailed?.run()
+                        }
+                        host.showAlertDialog(dialog)
+                    }
+
+                    override fun showPersistentError() {
+                        onLaunchFailed?.run()
+                        val host = activity as CommCareActivity<*>
+                        val dialog =
+                            StandardAlertDialog(
+                                activity.getString(R.string.connect_app_launch_failed_dialog_title),
+                                activity.getString(R.string.connect_app_launch_failed_dialog_persistent_error_message),
+                            )
+                        dialog.setPositiveButton(
+                            activity.getString(R.string.connect_app_launch_failed_dialog_ok),
                         ) { _, _ ->
                             host.dismissAlertDialog()
                         }

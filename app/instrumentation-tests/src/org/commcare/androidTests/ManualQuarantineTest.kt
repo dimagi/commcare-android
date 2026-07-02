@@ -45,6 +45,7 @@ class ManualQuarantineTest : BaseTest() {
     @After
     fun tearDown() {
         InstrumentationUtility.logout()
+        InstrumentationUtility.changeWifi(true)
     }
 
     private fun enableFormQuarantine() {

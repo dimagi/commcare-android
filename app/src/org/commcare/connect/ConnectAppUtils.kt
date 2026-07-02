@@ -1,12 +1,8 @@
 package org.commcare.connect
 
-import android.app.Activity
 import android.content.Context
-import org.commcare.CommCareApplication
-import org.commcare.commcaresupportlibrary.CommCareLauncher
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.engine.resource.ResourceInstallUtils
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.tasks.ResourceEngineListener
 import org.commcare.tasks.templates.CommCareTask
 import org.commcare.tasks.templates.CommCareTaskConnector
@@ -14,7 +10,6 @@ import java.util.Date
 
 object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
-    const val IS_LAUNCH_FROM_CONNECT = "is_launch_from_connect"
 
     @Volatile
     private var isAppDownloading = false
@@ -71,20 +66,5 @@ object ConnectAppUtils {
             record.lastAccessed = Date()
             ConnectAppDatabaseUtil.storeApp(context, record)
         }
-    }
-
-    fun launchApp(
-        activity: Activity,
-        isLearning: Boolean,
-        appId: String,
-    ) {
-        CommCareApplication.instance().closeUserSession()
-        val appType = if (isLearning) "Learn" else "Deliver"
-        FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId)
-        HashMap<String, Any>()
-            .apply {
-                put(IS_LAUNCH_FROM_CONNECT, true)
-            }.also { CommCareLauncher.launchCommCareForAppId(activity, appId, it) }
-        activity.finish()
     }
 }

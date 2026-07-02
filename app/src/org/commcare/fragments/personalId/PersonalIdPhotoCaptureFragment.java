@@ -1,7 +1,7 @@
 package org.commcare.fragments.personalId;
 
-import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA;
-import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA;
+import static org.commcare.activities.camera.MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA;
+import static org.commcare.activities.camera.MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,7 +28,7 @@ import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
-import org.commcare.fragments.MicroImageActivity;
+import org.commcare.activities.camera.MicroImageActivity;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MediaUtil;
 import org.jetbrains.annotations.NotNull;

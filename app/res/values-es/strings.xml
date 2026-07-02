@@ -520,8 +520,8 @@
     <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
     <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
     <string name="personalid_second_device_login_message_no_date">Se ha cerrado la sesión en %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
-    <string name="personalid_camera_permission_title">Permiso de cámara</string>
-    <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
+    <string name="camera_permission_title">Permiso de cámara</string>
+    <string name="camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
     <string name="personalid_work_history_title">Mi Historial Laboral</string>
@@ -651,5 +651,7 @@
     <string name="connect_app_launch_failed_dialog_message">Algo salió mal al abrir la aplicación. ¿Quieres volver a intentarlo?</string>
     <string name="connect_app_launch_failed_dialog_retry">Reintentar</string>
     <string name="connect_app_launch_failed_dialog_cancel">Cancelar</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">No pudimos abrir la aplicación después de varios intentos. Comprueba tu conexión y vuelve a intentarlo más tarde.</string>
+    <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="cannot_navigate_during_form_save">No se puede salir de la página mientras se guarda el formulario</string>
 </resources>
