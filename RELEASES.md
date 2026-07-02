@@ -25,8 +25,6 @@ along with the public release notes above
 
 - Fix bug causing form widgets to lose focus when a Combobox dropdown on the same screen is re-validated.
 - Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
-- Fixed a crash caused by tapping a payment unit row more than once on the Connect delivery progress screen
-- Fixed a crash that could occur when leaving a Connect opportunity's intro screen before its Start Learning request finished
 
 ### QA Notes
 <!--
@@ -46,8 +44,6 @@ we would like to communicate to QA as part of the release testing
 
 - **GPS `here()` crash regression:** Using an app configuration that has `here()` in a case list (e.g. a case list that shows distance to GPS coordinates), navigate to that case list and wait for it to fully load. Press Back. Verify the app returns to the previous screen without crashing.
 - **GPS `here()` case list refresh:** Using the same app configuration, navigate to the case list and allow GPS to acquire a location fix. Move to a different location (or simulate a location change) while the list is displayed. Verify the case list automatically refreshes and distance values update accordingly.
-- Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
-- Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
 
 
 ## CommCare 2.64
@@ -75,6 +71,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
 - Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
 - Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
+- Fixed a crash caused by tapping a payment unit row more than once on the Connect delivery progress screen
+- Fixed a crash that could occur when leaving a Connect opportunity's intro screen before its Start Learning request finished
 
 
 ### QA Notes
@@ -194,6 +192,9 @@ we would like to communicate to QA as part of the release testing
   - PersonalID logged in, offline / network failure: same "Opportunity not found" toast and jobs-list landing — no retry prompt, no stuck loading dialog.
   - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
+
+- Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
+- Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
 
 
 ## CommCare 2.63
