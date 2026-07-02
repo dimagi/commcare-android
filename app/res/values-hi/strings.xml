@@ -345,6 +345,7 @@ License.
     <string name="connect_progress_delivery">वितरण</string>
     <string name="connect_progress_title">वितरण प्रगति</string>
     <string name="connect_progress_status">आपने %d में से %d विज़िट पूरी कर ली हैं।</string>
+    <string name="semi_circle_progress_value_format">%2$d में से %1$d</string>
     <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_progress_warning_not_started">नौकरी अभी शुरू नहीं हुई है। आपको कोई प्रगति नहीं मिलेगी।</string>
     <string name="connect_progress_warning_max_reached_single">आपने अधिकतम विज़िट पूरी कर ली हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>

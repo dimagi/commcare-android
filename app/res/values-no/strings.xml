@@ -298,4 +298,5 @@
     <string name="get_app_list_unknown_error">Det oppstod en feil under forsøket på å hente listen over apper. Prøv igjen, eller kontakt støtte hvis problemet vedvarer.</string>
     <string name="no_apps_available">Ingen apper er tilgjengelige for nedlasting for denne brukeren.</string>
     <string name="could_not_refresh_apps">Beklager, det oppstod en feil ved oppdatering av applisten din. Vennligst skriv inn en bruker på nytt.</string>
+    <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
 </resources>
