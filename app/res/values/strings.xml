@@ -527,6 +527,16 @@
         <item>Unsent</item>
         <item>Saved</item>
     </string-array>
+    <string-array name="pref_audio_quality_profile_vals">
+        <item>smallest</item>
+        <item>balanced</item>
+        <item>default</item>
+    </string-array>
+    <string-array name="pref_audio_quality_profile_labels">
+        <item>Smallest</item>
+        <item>Balanced</item>
+        <item>System Default</item>
+    </string-array>
     <string-array name="pref_password_show_options">
         <item>always_hidden</item>
         <item>default_show</item>
