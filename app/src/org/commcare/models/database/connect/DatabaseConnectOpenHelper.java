@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
+import org.commcare.android.database.connect.models.ConnectTaskRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
@@ -68,8 +69,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.24 - Added key (kind of action for ccc_generic_opportunity) and opportunityStatus (values will be learn/delivery)) in PushNotificationRecord record
      * V.25 - Added sessionEndpointId and requireAppSync in PushNotificationRecord
      * V.26 - Added email column to ConnectUserRecord
+     * V.27 - Added connect_tasks table (ConnectTaskRecord) for DB-persisted task tracking
      */
-    private static final int CONNECT_DB_VERSION = 26;
+    private static final int CONNECT_DB_VERSION = 27;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -146,6 +148,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
 
             builder = new TableBuilder(ConnectReleaseToggleRecord.class);
             builder.setUnique(ConnectReleaseToggleRecord.META_SLUG);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectTaskRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
