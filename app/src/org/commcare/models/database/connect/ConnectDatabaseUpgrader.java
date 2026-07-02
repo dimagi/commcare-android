@@ -33,6 +33,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecordV21;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
+import org.commcare.android.database.connect.models.ConnectTaskRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
@@ -182,6 +183,12 @@ public class ConnectDatabaseUpgrader {
 
         if (oldVersion == 25) {
             upgradeTwentyFiveTwentySix(db);
+            oldVersion = 26;
+        }
+
+        if (oldVersion == 26) {
+            upgradeTwentySixTwentySeven(db);
+            oldVersion = 27;
         }
     }
 
@@ -1101,6 +1108,10 @@ public class ConnectDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void upgradeTwentySixTwentySeven(IDatabase db) {
+        addTableForNewModel(db, ConnectTaskRecord.STORAGE_KEY, new ConnectTaskRecord());
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
