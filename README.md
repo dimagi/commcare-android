@@ -21,15 +21,16 @@ Go ahead and open Android Studio if this is your first time using it;
 it may take you through some sort of setup wizard, and it's nice to get that out of the way. If it's not the first time, ensure that there are no references to [removed Java options](https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html#removed-java-options) in your environment, most commonly found are *MaxPermSize* and *PermSize*
 
 Android Studio's default project space is `~/AndroidStudioProjects` so I'm going to use that in the example.
-CommCare Android depends on CommCare Core, and CommCare Android expects the core directory to live side by side
-in your directory structure. You can acheive this with the following commands (in Bash):
+CommCare Android includes CommCare Core as a git submodule. Clone with:
 
 ```bash
 cd ~/AndroidStudioProjects
-mkdir CommCare
-cd CommCare
-git clone https://github.com/dimagi/commcare-android.git
-git clone https://github.com/dimagi/commcare-core.git
+git clone --recurse-submodules https://github.com/dimagi/commcare-android.git
+```
+
+If you already cloned without `--recurse-submodules`, run:
+```bash
+git submodule update --init
 ```
 
 - Open Android Studio
