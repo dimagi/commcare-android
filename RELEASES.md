@@ -71,6 +71,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
 - Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
 - Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
+- Fixed a crash caused by tapping a payment unit row more than once on the Connect delivery progress screen
+- Fixed a crash that could occur when leaving a Connect opportunity's intro screen before its Start Learning request finished
 
 
 ### QA Notes
@@ -190,6 +192,9 @@ we would like to communicate to QA as part of the release testing
   - PersonalID logged in, offline / network failure: same "Opportunity not found" toast and jobs-list landing — no retry prompt, no stuck loading dialog.
   - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
+
+- Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
+- Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
 
 
 ## CommCare 2.63

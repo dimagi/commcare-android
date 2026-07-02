@@ -121,6 +121,11 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
         new ConnectApiHandler<Boolean>() {
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                reportApiCall(false);
+                if (!isAdded() || getView() == null) {
+                    return;
+                }
+
                 String error = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t);
                 if (PersonalIdOrConnectApiErrorHandler.isNetworkError(errorCode)) {
                     showError(getString(R.string.failed_to_start_learning));
@@ -131,7 +136,6 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                             false,
                             R.string.ok);
                 }
-                reportApiCall(false);
             }
 
             @Override
@@ -142,7 +146,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                 ConnectJobUtils.upsertJob(getContext(), job);
 
-                if (!isAdded()) {
+                if (!isAdded() || getView() == null) {
                     return;
                 }
 
