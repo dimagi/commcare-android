@@ -93,6 +93,14 @@ jobs:
       - name: Run Tests
         run: ./gradlew testCommcareDebug
         working-directory: commcare-android
+      - name: Upload unit test report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-test-report
+          path: commcare-android/app/build/reports/tests/testCommcareDebugUnitTest
+          if-no-files-found: warn
+          retention-days: 14
       - name: Generate JaCoCo Report
         continue-on-error: true
         run: ./gradlew jacocoTestReport

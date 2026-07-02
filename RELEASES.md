@@ -65,6 +65,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
+- [Audio Recording Revamp] Refreshed the in-app audio recording UI across the capture, recording, playback, and delete screens
+- [Audio Recording Revamp] Recording now starts immediately when you tap the microphone and saves as soon as you stop, removing the previous intermediate tap-to-record and playback-confirm steps
 
 #### Important Bug Fixes
 
@@ -190,6 +192,16 @@ we would like to communicate to QA as part of the release testing
   - PersonalID logged in, offline / network failure: same "Opportunity not found" toast and jobs-list landing — no retry prompt, no stuck loading dialog.
   - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
+
+- **Audio Recording Revamp:** Test on a form question that has two Audio Capture questions, one of which with the _long_ appearance attribute. Scope covers the capture, recording, pause, playback, and delete states.
+  - **Start (direct):** Open the question. Verify the capture screen shows the large microphone button with the "Start recording" label and instructions. Tap the microphone and verify recording starts immediately with no intermediate "tap to record" dialog — the blinking "RECORDING" indicator, the animated red progress ring, and a live timer counting up are shown.
+  - **Stop & save (direct):** For a standard (non-pausable) question, tap stop and verify the recording is finalized and saved straight away — the playback panel appears with no separate playback/confirm step in between.
+  - **Pause / resume (long-recording questions only):** In the question configured with the `long` appearance on Android 7+ (API 24+). While recording, verify the control shows a pause icon. Tap it and verify the paused state: static gray ring, a "PAUSED" indicator, the timer frozen, a Save button, and the "Recording is paused. Tap on the mic to unpause, or tap Save to proceed" instruction. Tap the mic to resume (timer continues) and tap Save from paused to finalize.
+  - **Playback panel:** After saving, verify the panel shows the recording's file name, total duration, a play button, and a seek bar. Play the audio and verify the play/pause toggle works, the current time updates, and dragging the seek bar scrubs playback.
+  - **Delete (two-step):** Tap Delete and verify the confirmation prompt ("Delete this recording?") with "Yes, Delete" / "No, Go back". Confirm "No, Go back" keeps the recording and "Yes, Delete" clears it (the capture screen returns).
+  - **File chooser:** Confirm the choose-from-file button appears only for questions using the `acquire-or-upload` appearance and is hidden otherwise.
+  - **Persistence:** Record and save, navigate forward and back to the question, and verify the saved recording still loads and plays. Submit the form and verify the audio attachment is present on HQ.
+  - **Icon rendering:** Verify the play, pause, record, and trash icons render crisply and are correctly sized/centered on their buttons (icons were moved to vector drawables and to `src`/`scaleType`).
 
 
 ## CommCare 2.63
