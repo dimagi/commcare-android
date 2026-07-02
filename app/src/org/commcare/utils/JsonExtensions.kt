@@ -4,6 +4,8 @@ package org.commcare.utils
 
 import org.json.JSONObject
 
+fun JSONObject.hasNonNull(key: String): Boolean = has(key) && !isNull(key)
+
 fun JSONObject.optStringSafe(
     key: String,
     fallback: String? = null,
