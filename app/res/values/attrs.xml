@@ -151,4 +151,13 @@
         <attr name="icon" format="reference" />
         <attr name="navigable" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="RectangleOverlayView">
+        <attr name="reticleScrimColor" format="color" />
+        <attr name="reticleStrokeColor" format="color" />
+        <attr name="reticleOutlineColor" format="color" />
+        <attr name="reticleStrokeWidth" format="dimension" />
+        <attr name="reticleOutlineWidth" format="dimension" />
+        <attr name="reticleMarginRatio" format="float" />
+    </declare-styleable>
 </resources>
