@@ -23,7 +23,6 @@ import org.commcare.util.LogTypes
 import org.commcare.utils.Permissions
 import org.commcare.views.dialogs.DialogCreationHelpers
 import org.javarosa.core.services.Logger
-import org.javarosa.core.services.locale.Localization
 import java.util.concurrent.ExecutionException
 
 /**
@@ -46,7 +45,7 @@ abstract class BaseCameraActivity :
             if (isGranted) {
                 startCamera()
             } else {
-                logErrorAndExit("Error acquiring camera permission", "microimage.camera.permission.denied", null)
+                logErrorAndExit("Error acquiring camera permission", getString(R.string.camera_permission_denied), null)
             }
         }
 
@@ -106,15 +105,15 @@ abstract class BaseCameraActivity :
             } catch (e: Exception) {
                 when (e) {
                     is ExecutionException, is InterruptedException -> {
-                        logErrorAndExit("Error acquiring camera provider", "microimage.camera.start.failed", e)
+                        logErrorAndExit("Error acquiring camera provider", getString(R.string.camera_start_failed), e)
                     }
 
                     is IllegalStateException, is IllegalArgumentException -> {
-                        logErrorAndExit("Error binding camera use cases", "microimage.camera.start.failed", e)
+                        logErrorAndExit("Error binding camera use cases", getString(R.string.camera_start_failed), e)
                     }
 
                     else -> {
-                        logErrorAndExit("Unknown error occurred while starting camera", "microimage.camera.start.failed", e)
+                        logErrorAndExit("Unknown error occurred while starting camera", getString(R.string.camera_start_failed), e)
                     }
                 }
             }
@@ -158,7 +157,7 @@ abstract class BaseCameraActivity :
 
     protected fun logErrorAndExit(
         logMessage: String,
-        userMessageKey: String,
+        userMessage: String,
         e: Throwable?,
     ) {
         if (e == null) {
@@ -166,7 +165,7 @@ abstract class BaseCameraActivity :
         } else {
             Logger.exception(logMessage, e)
         }
-        Toast.makeText(this, Localization.get(userMessageKey), Toast.LENGTH_LONG).show()
+        Toast.makeText(this, userMessage, Toast.LENGTH_LONG).show()
         setResult(RESULT_CANCELED)
         finish()
     }

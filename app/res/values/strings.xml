@@ -637,6 +637,12 @@
     </string-array>
 
     <string name="micro_image_activity_title">Take Profile Photo</string>
+    <string name="image_capture_activity_title" cc:translatable="true">Take Photo</string>
+    <string name="image_capture_failed" cc:translatable="true">Failed to save photo, please try again</string>
+    <string name="camera_start_failed" cc:translatable="true">Camera failed to start</string>
+    <string name="camera_permission_denied" cc:translatable="true">Go to settings and enable camera permission to use this feature</string>
+    <string name="microimage_face_detection_mode_failed" cc:translatable="true">Face detection mode failed, switching to manual mode</string>
+    <string name="microimage_cropping_failed" cc:translatable="true">Image cropping failed, make sure the target is inside the capture area</string>
 
     <string name="personalid_user_photo_update_dialog_title">Update Profile Photo</string>
     <string name="personalid_user_photo_update_dialog_message">Would you like to take a new profile photo?</string>
