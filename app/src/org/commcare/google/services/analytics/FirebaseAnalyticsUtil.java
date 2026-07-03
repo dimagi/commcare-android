@@ -665,8 +665,10 @@ public class FirebaseAnalyticsUtil {
     }
 
 
-    public static void reportPersonalIdAccountForgotten() {
-        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_FORGOTTEN);
+    public static void reportPersonalIdAccountForgotten(String reason) {
+        Bundle b = new Bundle();
+        b.putString(CCAnalyticsParam.REASON, reason);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_FORGOTTEN, b);
     }
 
     public static void reportLoginClicks() {
