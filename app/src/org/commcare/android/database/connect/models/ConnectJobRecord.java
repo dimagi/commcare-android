@@ -225,7 +225,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.assessments = new ArrayList<>();
         job.completedVisits = json.getInt(META_DELIVERY_PROGRESS);
 
-        job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
+        job.claimed = JsonExtensions.hasNonNull(json, META_CLAIM);
 
         job.isActive = json.optBoolean(META_IS_ACTIVE, true);
 
@@ -233,7 +233,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         //verification_flags -> {"form_submission_start":"07:30:00","form_submission_end":"18:45:00"}
         String flagsKey = "verification_flags";
-        JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey)
+        JSONObject flags = JsonExtensions.hasNonNull(json, flagsKey)
                 ? json.getJSONObject(flagsKey) : null;
         if (flags != null) {
             job.dailyStartTime = JsonExtensions.optStringSafe(flags, META_DAILY_START_TIME, "");
