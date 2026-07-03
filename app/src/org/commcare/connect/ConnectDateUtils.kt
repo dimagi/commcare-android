@@ -89,6 +89,21 @@ object ConnectDateUtils {
         }
     }
 
+    fun parseServerTimestamp(dateStr: String): Date? {
+        if (dateStr.isEmpty()) return null
+        return try {
+            val cleaned =
+                dateStr
+                    .replace(Regex("\\.\\d+"), "")
+                    .replace("+00:00", "Z")
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+                .apply { timeZone = TimeZone.getTimeZone("UTC") }
+                .parse(cleaned)
+        } catch (_: ParseException) {
+            null
+        }
+    }
+
     fun formatNotificationTime(
         context: Context,
         date: Date,
@@ -102,13 +117,23 @@ object ConnectDateUtils {
         val days = diffMillis / (1000 * 60 * 60 * 24)
 
         return when {
-            minutes < 1 -> context.getString(R.string.just_now)
-            minutes < 60 -> context.getString(R.string.minutes_ago, minutes.toInt())
-            hours < 24 -> context.getString(R.string.hours_ago, hours.toInt())
+            minutes < 1 -> {
+                context.getString(R.string.just_now)
+            }
+
+            minutes < 60 -> {
+                context.getString(R.string.minutes_ago, minutes.toInt())
+            }
+
+            hours < 24 -> {
+                context.getString(R.string.hours_ago, hours.toInt())
+            }
+
             days < 2 -> {
                 val timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault())
                 context.getString(R.string.yesterday, timeFormat.format(date))
             }
+
             days <= 7 -> {
                 DateFormat
                     .getDateTimeInstance(
@@ -117,6 +142,7 @@ object ConnectDateUtils {
                         Locale.getDefault(),
                     ).format(date)
             }
+
             else -> {
                 DateFormat
                     .getDateTimeInstance(
