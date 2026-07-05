@@ -165,6 +165,13 @@
         <attr name="navigable" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="ConnectInfoCard">
+        <attr name="valueText" />
+        <attr name="titleText" />
+        <attr name="subtitleText" />
+        <attr name="navigable" />
+    </declare-styleable>
+
     <declare-styleable name="RectangleOverlayView">
         <attr name="reticleScrimColor" format="color" />
         <attr name="reticleStrokeColor" format="color" />
