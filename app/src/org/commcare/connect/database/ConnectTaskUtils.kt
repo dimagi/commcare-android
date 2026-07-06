@@ -3,8 +3,10 @@ package org.commcare.connect.database
 import android.content.Context
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
+import org.commcare.connect.ConnectJobHelper.getJobForSeatedApp
 import org.commcare.models.database.SqlStorage
 import org.commcare.preferences.ConnectJobPreferences
+import org.commcare.utils.SyncDetailCalculations
 import org.javarosa.core.model.utils.DateUtils
 import java.util.Date
 
@@ -99,6 +101,19 @@ object ConnectTaskUtils {
     }
 
     @JvmStatic
+    fun isLastTaskUpdateLaterThanLastSync(context: Context): Boolean {
+        val job = getJobForSeatedApp(context)
+        if (job == null || job.status != ConnectJobRecord.STATUS_DELIVERING) {
+            return false
+        }
+        val prefs = ConnectJobUtils.getJobPreferences(job.jobUUID)
+        val lastTaskUpdate = prefs.getTaskModifiedTime()
+        if (lastTaskUpdate == ConnectJobPreferences.TIMESTAMP_NOT_SET) {
+            return false
+        }
+        return lastTaskUpdate > SyncDetailCalculations.getLastSyncTime()
+    }
+
     private fun getMostRecentlyCompletedTask(
         context: Context,
         jobUUID: String,
