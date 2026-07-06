@@ -31,8 +31,17 @@ The fix is to move the session-dependent behavior out of inheritance and into a 
 - Replacing `StandardHomeActivity` for non-Connect users.
 - Designing the state model that picks which UI to show inside Opportunity Home (handled separately).
 - Designing entry points, routing through `DispatchActivity`, or persistence of "last accessed opportunity".
-- Designing the inline silent app-login flow (in-flight work). This spec assumes that capability is available and exposes a session to the activity when it completes.
+- Designing the inline silent app-login flow (in-flight work). This spec assumes that capability is available and exposes a session to the activity when it completes. See the dependency note below for the two pieces of new logic that flow owes this activity.
 - Implementing `WithUIController` on the new activity.
+
+## Dependency: what the inline silent-login flow owes this activity
+
+The seat → sign-in → sync mechanics already exist in the `ConnectAppLaunchController` → `ConnectAppLauncher` chain (`AppSeater.seatIfNeeded`, `LoginController.performLogin`, and the `LoginPhase.Syncing` progress phase). This activity's coordinator and delegates never invoke that chain — they only react to a completed session via `onSessionAvailable(session)`. Two pieces of new logic are therefore owed by the parallel inline-login/state-design work, not by anything in this spec:
+
+1. **Download/install of a not-yet-installed app.** `AppSeater.seatIfNeeded` only seats an app that already has a local `ApplicationRecord` (it returns `SeatResult.Failed` when `MultipleAppsUtil.getAppById` finds none). Situations 2 and 4 above ("app not installed / seated / logged in") require an install step *before* the seat+login runs. That step lives in the launch/state layer, ahead of `ConnectAppLauncher`.
+2. **A completion hand-off into the running activity.** Today a successful launch routes through `LaunchOutcomeRouter.launchHome()`, which fires a fresh `HomeScreenBaseActivity` intent. `OpportunityHomeActivity` must instead gain the session without leaving the activity, so the `LaunchOutcome.Launched` path needs a branch that calls `onSessionAvailable(session)` on the running activity rather than launching a new home. This is the "exposes a session to the activity when it completes" contract this spec assumes.
+
+Both belong to the inline-login flow; the coordinator and delegates require no new launch logic.
 
 ## Approach
 
