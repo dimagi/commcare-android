@@ -7,32 +7,17 @@ import net.zetetic.database.sqlcipher.SQLiteDatabase;
 import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
-import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
-import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
-import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
-import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
-import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
-import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.EncryptedDatabaseAdapter;
-import org.commcare.models.database.IDatabase;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;
+
+import static org.commcare.models.database.connect.ConnectDatabaseSchemaManager.DB_NAME;
+import static org.commcare.models.database.connect.ConnectDatabaseSchemaManager.DB_VERSION_CONNECT;
 
 /**
  * The helper for opening/updating the Connect (encrypted) db space for CommCare.
@@ -40,50 +25,18 @@ import java.io.File;
  * @author dviggiano
  */
 public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
-    /**
-     * V.2 - Added ConnectJobRecord, ConnectAppInfo, and ConnectLearningModuleInfo tables
-     * V.3 - Added date_claimed column to ConnectJobRecord,
-     *          and reason column to ConnectJobDeliveryRecord
-     * V.4 - Added confirmed and confirmedDate fields to ConnectJobPaymentRecord
-     *          Added link offer info to ConnectLinkedAppRecord
-     * V.5 - Added projectStartDate and isActive to ConnectJobRecord
-     * V.6 - Added pin,secondaryPhoneVerified, and registrationDate fields to ConnectUserRecord
-     * V.7 - Added ConnectPaymentUnitRecord table
-     * V.8 - Added is_user_suspended to ConnectJobRecord
-     * V.9 - Added using_local_passphrase to ConnectLinkedAppRecord
-     * V.10 - Added last_accessed column to ConnectLinkedAppRecord
-     * V.11 - Added daily start and finish times to ConnectJobRecord
-     * V.12 - Added ConnectMessagingChannelRecord table and ConnectMessagingMessageRecord table
-     * V.13 - Added ConnectJobDeliveryFlagRecord table
-     * V.14 - Added a photo and isDemo field to ConnectUserRecord
-     * V.16 - Added  personal_id_credential table
-     * V.17 - Added a new column has_connect_access to ConnectUserRecord
-     * V.18 - Added new columns to personal_id_credential table (previously the table was unused)
-     * V.19 - Added push_notification_history
-     * V.20 - Added acknowledged column in push_notification_history
-     * V.21 - Added ConnectReleaseToggleRecord table
-     * V.22 - Added a new field UUID for ConnectAppRecord, ConnectLearnModuleSummaryRecord, ConnectJobLearningRecord, ConnectJobDeliveryRecord
-     *          ConnectJobAssessmentRecord, ConnectPaymentUnitRecord, ConnectJobRecord, ConnectJobPaymentRecord and PushNotificationRecord
-     * V.23 - Added a field slugUUID (reference to payment unit uuid) in ConnectJobDeliveryRecord
-     * V.24 - Added key (kind of action for ccc_generic_opportunity) and opportunityStatus (values will be learn/delivery)) in PushNotificationRecord record
-     * V.25 - Added sessionEndpointId and requireAppSync in PushNotificationRecord
-     * V.26 - Added email column to ConnectUserRecord
-     */
-    private static final int CONNECT_DB_VERSION = 26;
-
-    private static final String CONNECT_DB_LOCATOR = "database_connect";
 
     private final Context mContext;
     private final String key;
 
     public DatabaseConnectOpenHelper(Context context, String key) {
-        super(context, CONNECT_DB_LOCATOR, key, null, CONNECT_DB_VERSION, 0, null, null, false);
+        super(context, DB_NAME, key, null, DB_VERSION_CONNECT, 0, null, null, false);
         this.mContext = context;
         this.key = key;
     }
 
     private static File getDbFile() {
-        return CommCareApplication.instance().getDatabasePath(CONNECT_DB_LOCATOR);
+        return CommCareApplication.instance().getDatabasePath(DB_NAME);
     }
 
     public static boolean dbExists() {
@@ -96,66 +49,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        IDatabase database = new EncryptedDatabaseAdapter(db);
-        database.beginTransaction();
-        try {
-            TableBuilder builder = new TableBuilder(ConnectUserRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectLinkedAppRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectJobRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectAppRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectLearnModuleSummaryRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectJobLearningRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectJobAssessmentRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectJobDeliveryRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectJobPaymentRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectPaymentUnitRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectMessagingChannelRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectMessagingMessageRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(PersonalIdWorkHistory.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(PushNotificationRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectReleaseToggleRecord.class);
-            builder.setUnique(ConnectReleaseToggleRecord.META_SLUG);
-            database.execSQL(builder.getTableCreateString());
-
-            DbUtil.createNumbersTable(database);
-
-            database.setVersion(CONNECT_DB_VERSION);
-
-            database.setTransactionSuccessful();
-        } finally {
-            database.endTransaction();
-        }
+        ConnectDatabaseSchemaManager.initializeSchema(new EncryptedDatabaseAdapter(db));
     }
 
     @Override
@@ -164,11 +58,10 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
             Logger.exception("Opening database failed", sqle);
-            DbUtil.trySqlCipherDbUpdate(key, mContext, CONNECT_DB_LOCATOR);
+            DbUtil.trySqlCipherDbUpdate(key, mContext, DB_NAME);
             try {
                 return super.getWritableDatabase();
             } catch (SQLiteException e) {
-                // Handle the exception, log the error, or inform the user
                 CrashUtil.log(e.getMessage());
                 throw e;
             }
