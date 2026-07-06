@@ -143,15 +143,24 @@ class OpportunityHomeActivity : BaseDrawerActivity<OpportunityHomeActivity>(), H
     // ON_CREATE is dispatched, so it receives onCreate through the observer mechanism.
     private val coordinator = HomeActivityCoordinator(host = this)
 
+    // Opportunity-aware state resolver + fragment router; owned by the activity and distinct from
+    // the coordinator (see State resolution and session management). Decides which status fragment
+    // shows and when to trigger auto silent-login. Reads "session attached?" from the coordinator.
+    private val controller = OpportunityHomeStateController(host = this, coordinator = coordinator)
+
     // No onCreate/onSaveInstanceState overrides for the coordinator: it observes the lifecycle
     // directly and owns its instance state via the host's SavedStateRegistry. No session lookup here.
 
+    // Fan-out, not chaining: both session hooks notify the coordinator (attach/detach capabilities)
+    // AND the controller (re-resolve the UI). See State resolution and session management.
     fun onSessionAvailable(session: SeatedAppSession) {
         coordinator.attachSession(session)  // fans out to the session-dependent delegates
+        controller.reResolveState()         // now attached → resolves to the phase's "ready" surface
     }
 
     fun onSessionLost() {
         coordinator.detachSession()
+        controller.reResolveState()         // now detached → resolves to loading/CTA for the phase
     }
 
     override fun onActivityResult(...) {
@@ -231,7 +240,7 @@ A new component owned by `OpportunityHomeActivity`, distinct from `HomeActivityC
 
 It holds no session-capability logic — sync, launch checks, app updates, and the rest stay in the coordinator's delegates. It is a state resolver and fragment router, nothing more.
 
-**Fan-out, not chaining.** The activity's existing `onSessionAvailable(session)` / `onSessionLost()` hooks (see [`OpportunityHomeActivity`](#opportunityhomeactivity)) fan out to *both* the coordinator (attach/detach capabilities — unchanged) and the controller (re-resolve the UI). The coordinator stays session-agnostic and the controller never touches delegates; they meet only at these two hooks.
+**Fan-out, not chaining.** The activity's existing `onSessionAvailable(session)` / `onSessionLost()` hooks (see [`OpportunityHomeActivity`](#opportunityhomeactivity)) fan out to *both* the coordinator (`attachSession` / `detachSession` — attach/detach capabilities, unchanged) and the controller (`reResolveState()` — recompute which status fragment to show). The coordinator stays session-agnostic and the controller never touches delegates; they meet only at these two hooks.
 
 ### Auto-login trigger — every resume, unconditional
 
