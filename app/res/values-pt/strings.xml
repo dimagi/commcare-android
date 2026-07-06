@@ -426,6 +426,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">Enviaremos um código de 6 dígitos para %1$s. Digite-o na próxima tela para verificar.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Enviar código</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Cancelar</string>
+    <string name="personalid_profile_edit_save">Salvar</string>
+    <string name="personalid_profile_edit_cancel">Cancelar</string>
+    <string name="personalid_profile_edit_save_success">Seu perfil foi atualizado com sucesso.</string>
     <string name="connect_job_info_title">Detalhes de oportunidade</string>
     <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
     <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>

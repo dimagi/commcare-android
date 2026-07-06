@@ -11,11 +11,11 @@ import org.robolectric.annotation.Config
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class PersonalIdProfileViewModelTest {
+class PersonalIdProfileDisplayModelTest {
     private val context = CommCareApplication.instance()
 
     @Test
-    fun `getProfileDisplayModelForUser maps all fields from the record`() {
+    fun `fromUserRecord maps all fields from the record`() {
         val user =
             ConnectUserRecord().apply {
                 name = "Ada Lovelace"
@@ -24,7 +24,7 @@ class PersonalIdProfileViewModelTest {
                 primaryPhone = "+919876543210"
             }
 
-        val profileDetails = PersonalIdProfileViewModel.getProfileDisplayModelForUser(context, user)
+        val profileDetails = PersonalIdProfileDisplayModel.fromUserRecord(context, user)
 
         assertEquals("Ada Lovelace", profileDetails.name)
         assertEquals("+91 98765 43210", profileDetails.displayPhone)
@@ -33,14 +33,14 @@ class PersonalIdProfileViewModelTest {
     }
 
     @Test
-    fun `getProfileDisplayModelForUser falls back to empty string for a null email`() {
+    fun `fromUserRecord falls back to empty string for a null email`() {
         val user =
             ConnectUserRecord().apply {
                 name = "Ada Lovelace"
                 email = null
             }
 
-        val profileDetails = PersonalIdProfileViewModel.getProfileDisplayModelForUser(context, user)
+        val profileDetails = PersonalIdProfileDisplayModel.fromUserRecord(context, user)
 
         assertEquals("", profileDetails.email)
     }

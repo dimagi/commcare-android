@@ -100,6 +100,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">Išsiųsime 6 skaitmenų kodą adresu %1$s. Įveskite jį kitame ekrane, kad patvirtintumėte.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Siųsti kodą</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Atšaukti</string>
+    <string name="personalid_profile_edit_save">Išsaugoti</string>
+    <string name="personalid_profile_edit_cancel">Atšaukti</string>
+    <string name="personalid_profile_edit_save_success">Jūsų profilis sėkmingai atnaujintas.</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
