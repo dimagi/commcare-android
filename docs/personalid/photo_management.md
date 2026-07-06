@@ -41,7 +41,7 @@ endpoint, stored locally, and reflected in the drawer header.
     it, so it always reflects the currently signed-in user.
 
 * **`BaseDrawerController`** (`navdrawer/BaseDrawerController.kt`)
-  * Wires the drawer's user image tap to the updater's `show()`.
+  * Wires the drawer's user image tap to the updater's `showUpdatePhotoConfirmationDialog()`.
   * Holds an in-memory `lastPhotoUploadFailed: Boolean` flag that is read on every drawer
     refresh to swap `user_image_overlay_icon` between the camera and warning drawables.
 

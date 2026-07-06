@@ -178,7 +178,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
                 viewModel.commitNameToRecord()
-                if (!isAdded) return
+                _binding ?: return
                 onSaved()
             }
 
@@ -186,7 +186,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                if (!isAdded) return
+                _binding ?: return
                 onSaveFailed(errorCode, t)
             }
         }.updateProfile(requireActivity(), user.userId, user.password, viewModel.currentName, null, null)
@@ -217,7 +217,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             sessionData = null,
             tracker = emailOtpTracker,
             onSuccess = {
-                if (!isAdded) return@sendEmailOtp
+                _binding ?: return@sendEmailOtp
                 findNavController().navigate(
                     PersonalIdProfileEditFragmentDirections.actionProfileEditToEmailVerification(
                         newEmail,
@@ -227,7 +227,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 )
             },
             onFailure = { errorCode, t ->
-                if (!isAdded) return@sendEmailOtp
+                _binding ?: return@sendEmailOtp
                 onSaveFailed(errorCode, t)
             },
         )

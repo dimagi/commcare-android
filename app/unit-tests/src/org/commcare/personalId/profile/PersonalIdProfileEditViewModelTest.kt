@@ -10,6 +10,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -211,18 +212,30 @@ class PersonalIdProfileEditViewModelTest {
     }
 
     @Test
-    fun `commitNameToRecord stores the current name on a freshly-read record`() {
+    fun `commitNameToRecord updates only the name on a freshly-read record and preserves its other fields`() {
         val viewModel = buildViewModel()
         viewModel.onNameChanged("Grace Hopper")
 
+        val storedUser =
+            ConnectUserRecord().apply {
+                name = "Ada Lovelace"
+                email = "ada@example.com"
+                photo = "stored-photo"
+            }
+        connectUserDatabaseUtilMock
+            .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(any()) }
+            .thenReturn(storedUser)
+
         viewModel.commitNameToRecord()
 
-        assertEquals("Grace Hopper", viewModel.user.name)
         assertFalse(viewModel.isNameModified())
         val storedRecordCaptor = argumentCaptor<ConnectUserRecord>()
         connectUserDatabaseUtilMock.verify {
             ConnectUserDatabaseUtil.storeUser(any(), storedRecordCaptor.capture())
         }
-        assertEquals("Grace Hopper", storedRecordCaptor.firstValue.name)
+        val persisted = storedRecordCaptor.firstValue
+        assertSame(storedUser, persisted)
+        assertEquals("Grace Hopper", persisted.name)
+        assertEquals("stored-photo", persisted.photo)
     }
 }
