@@ -96,7 +96,7 @@ It exposes `attachSession(session)` / `detachSession()` that fan out to the sess
 
 ```kotlin
 fun runLaunchChecks(session: SeatedAppSession): Boolean {
-    if (gating.isDemo()) { showDemoModeWarning(); return false }   // step 1: halt, unclaimed
+    if (gating.isDemoUser()) { showDemoModeWarning(); return false }  // step 1: halt, unclaimed
     if (sessionLaunch.showUpdateInfoForm(session)) return true     // step 2
     if (sessionLaunch.tryRestoringFormFromExpiration(session)) return true  // step 3
     if (sessionLaunch.tryRestoringSession(session)) return true    // step 4
@@ -117,7 +117,14 @@ Step 8 reads launch-intent state the coordinator already owns (`LoginActivity.LO
 
 Step 9 needs even less: `DriftHelper` already holds all the logic as stateless static methods, so the check is a small dialog trigger (`shouldShowDriftWarning()` + `getCurrentDrift() != 0` → `showAlertDialog(getDriftDialog(...))` + `updateLastDriftWarningTime()`) needing only the host's `Context` and `showAlertDialog` — no session at all, which is why it alone takes no session parameter above. This also keeps drift out of `AppUpdateDelegate`, which is bundled only by shared origin in `HomeScreenBaseActivity` and otherwise shares nothing with the stateful, Play-Core-lifecycle-bound `AppUpdateController`.
 
-**Host interface, not concrete activity.** The coordinator and its delegates need a handful of host capabilities — `Context`, `lifecycle`, `savedStateRegistry`, `startActivityForResult`, `showAlertDialog`, `rebuildOptionsMenu`, and an optional UI-refresh hook (used by `changeLanguage()`; `OpportunityHomeActivity` has no `WithUIController`). These are exposed through a small `HomeActivityHost` interface that both `OpportunityHomeActivity` and the rebased base classes implement, keeping the coordinator unit-testable and free of any concrete-activity coupling.
+**Host interface, not concrete activity.** The coordinator and its delegates need a handful of host capabilities — `Context`, `lifecycle`, `savedStateRegistry`, `startActivityForResult`, `showAlertDialog`, `rebuildOptionsMenu`, an optional UI-refresh hook (used by `changeLanguage()`; `OpportunityHomeActivity` has no `WithUIController`), and the `gating` abstraction described next. These are exposed through a small `HomeActivityHost` interface that both `OpportunityHomeActivity` and the rebased base classes implement, keeping the coordinator unit-testable and free of any concrete-activity coupling.
+
+**`gating` is two distinct host-supplied queries, not one.** The `gating` collaborator the coordinator holds (referenced as `gating.isDemoUser()` in `runLaunchChecks` step 1 and consumed by the availability queries below) exposes two queries that must not be conflated:
+
+- `isDemoUser()` — consumed only by launch step 1's demo halt. `StandardHomeActivity` delegates to the existing `isDemoUser()`; `OpportunityHomeActivity` returns `false`, since Connect/Opportunity users are never demo users. This is what keeps the demo early-return out of the coordinator's own code.
+- `areActionsAvailable()` — the per-action availability predicate the `canViewSavedForms()`-style queries consult (see [Capabilities](#capabilities-the-activity-exposes-when-attached)). `StandardHomeActivity` returns `!isDemoUser()`; `OpportunityHomeActivity` returns "session attached."
+
+For `StandardHomeActivity` the two coincide (`areActionsAvailable() == !isDemoUser()`), which is why today's single `isDemoUser()` check serves both the launch halt and menu gating. For `OpportunityHomeActivity` they are independent — `isDemoUser()` is always `false` while `areActionsAvailable()` tracks session attach/detach — so modeling them as two separate queries rather than one is required.
 
 **Facade, not god object.** The real behavior stays in the delegates and in small per-action launches; the coordinator wires and exposes. It has a natural internal seam — the lifecycle/session-coordination half and the action half — and if either accumulates real logic beyond wiring, that is the signal to split it. The action list is intentionally a set of typed methods plus availability queries rather than a first-class `HomeAction` registry; a registry (a list both the menu and the UI iterate to render generically) is only worth introducing if a host needs to render a dynamic, enumerated set, which neither known host requires today.
 
@@ -165,7 +172,7 @@ The activity does not implement `WithUIController`. UI is delegated to fragments
 
 ### Capabilities the activity exposes when attached
 
-The coordinator exposes these capabilities as host-agnostic **actions**, each paired with an **availability query** that the host consults to decide whether (and where) to surface it. All require a seated session; the host supplies the gating predicate (`StandardHomeActivity` passes `!isDemoUser()`, which itself requires a session; `OpportunityHomeActivity` passes "session attached"), so the coordinator does not hard-code `isDemoUser()`. **How** each action is surfaced — overflow menu, on-screen button, drawer entry — is the host's decision and is not encoded here; this is precisely the seam that lets different home screens place the same capability differently.
+The coordinator exposes these capabilities as host-agnostic **actions**, each paired with an **availability query** that the host consults to decide whether (and where) to surface it. All require a seated session; each action's availability query consults the host-supplied `gating.areActionsAvailable()` predicate (`StandardHomeActivity` → `!isDemoUser()`, which itself requires a session; `OpportunityHomeActivity` → "session attached"), so the coordinator does not hard-code `isDemoUser()`. That predicate is distinct from `gating.isDemoUser()`, which only launch step 1 consumes (see [`HomeActivityCoordinator`](#homeactivitycoordinator)). **How** each action is surfaced — overflow menu, on-screen button, drawer entry — is the host's decision and is not encoded here; this is precisely the seam that lets different home screens place the same capability differently.
 
 A few actions are richer than a launch and route into a delegate:
 
