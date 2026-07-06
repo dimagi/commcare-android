@@ -4,6 +4,7 @@ import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import androidx.camera.core.ImageCapture
+import androidx.core.content.IntentCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
@@ -41,7 +42,10 @@ class CameraOverlayActivityTest {
             CameraOverlayActivity.getIntent(ApplicationProvider.getApplicationContext(), uri)
 
         assertEquals(CameraOverlayActivity::class.java.name, intent.component?.className)
-        assertEquals(uri, intent.getParcelableExtra<Uri>(CameraOverlayActivity.OUTPUT_FILE_URI_EXTRA))
+        assertEquals(
+            uri,
+            IntentCompat.getParcelableExtra(intent, CameraOverlayActivity.OUTPUT_FILE_URI_EXTRA, Uri::class.java),
+        )
     }
 
     @Test

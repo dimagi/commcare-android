@@ -14,6 +14,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.UseCase
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import org.commcare.dalvik.R
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
@@ -127,13 +128,7 @@ class CameraOverlayActivity : BaseCameraActivity() {
         }
     }
 
-    private fun intentOutputUri(): Uri? =
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(OUTPUT_FILE_URI_EXTRA, Uri::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra(OUTPUT_FILE_URI_EXTRA)
-        }
+    private fun intentOutputUri(): Uri? = IntentCompat.getParcelableExtra(intent, OUTPUT_FILE_URI_EXTRA, Uri::class.java)
 
     companion object {
         const val OUTPUT_FILE_URI_EXTRA = "camera_overlay_output_file_uri_extra"

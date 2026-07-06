@@ -652,4 +652,10 @@ License.
     <string name="connect_app_launch_failed_dialog_persistent_error_message">Nous n\'avons pas pu ouvrir l\'application après plusieurs tentatives. Veuillez vérifier votre connexion et réessayer plus tard.</string>
     <string name="connect_app_launch_failed_dialog_ok">D\'ACCORD</string>
     <string name="cannot_navigate_during_form_save">Impossible de quitter la page pendant l\'enregistrement du formulaire</string>
+    <string name="image_capture_activity_title">Prendre une photo</string>
+    <string name="image_capture_failed">Échec de l\'enregistrement de la photo, veuillez réessayer</string>
+    <string name="camera_start_failed">Échec du démarrage de la caméra</string>
+    <string name="camera_permission_denied">Accédez aux paramètres et activez l\'autorisation de la caméra pour utiliser cette fonctionnalité</string>
+    <string name="microimage_face_detection_mode_failed">Échec du mode de détection des visages, passage au mode manuel</string>
+    <string name="microimage_cropping_failed">Échec du recadrage de l\'image, assurez-vous que la cible est dans la zone de capture</string>
 </resources>

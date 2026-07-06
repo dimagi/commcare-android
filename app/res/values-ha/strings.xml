@@ -647,4 +647,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_app_launch_failed_dialog_persistent_error_message">Ba mu iya buɗe manhajar ba bayan an gwada sau da yawa. Da fatan a duba haɗin Intanet ɗinku, sannan a sake gwadawa daga baya.</string>
     <string name="connect_app_launch_failed_dialog_ok">TAMAM</string>
     <string name="cannot_navigate_during_form_save">Ba za a iya barin shafin yayin ajiye fom ba</string>
+    <string name="image_capture_activity_title">Ɗauki hoto</string>
+    <string name="image_capture_failed">An kasa ajiye hoton, da fatan a sake gwadawa</string>
+    <string name="camera_start_failed">Kyamara ta kasa farawa</string>
+    <string name="camera_permission_denied">Je zuwa saituna ka kunna izinin kyamara don amfani da wannan fasalin</string>
+    <string name="microimage_face_detection_mode_failed">Yanayin gano fuska ya kasa, ana canzawa zuwa yanayin hannu</string>
+    <string name="microimage_cropping_failed">Yanke hoton ya kasa, ka tabbatar cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
 </resources>

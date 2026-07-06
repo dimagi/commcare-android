@@ -298,4 +298,10 @@
     <string name="get_app_list_unknown_error">Det oppstod en feil under forsøket på å hente listen over apper. Prøv igjen, eller kontakt støtte hvis problemet vedvarer.</string>
     <string name="no_apps_available">Ingen apper er tilgjengelige for nedlasting for denne brukeren.</string>
     <string name="could_not_refresh_apps">Beklager, det oppstod en feil ved oppdatering av applisten din. Vennligst skriv inn en bruker på nytt.</string>
+    <string name="image_capture_activity_title">Ta bilde</string>
+    <string name="image_capture_failed">Kunne ikke lagre bildet, prøv igjen</string>
+    <string name="camera_start_failed">Kunne ikke starte kameraet</string>
+    <string name="camera_permission_denied">Gå til innstillinger og aktiver kameratillatelse for å bruke denne funksjonen</string>
+    <string name="microimage_face_detection_mode_failed">Ansiktsgjenkjenningsmodus mislyktes, bytter til manuell modus</string>
+    <string name="microimage_cropping_failed">Kunne ikke beskjære bildet, kontroller at målet er innenfor opptaksområdet</string>
 </resources>

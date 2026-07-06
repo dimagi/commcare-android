@@ -658,4 +658,10 @@
     <string name="connect_app_launch_failed_dialog_persistent_error_message">Não foi possível abrir o aplicativo após várias tentativas. Verifique sua conexão e tente novamente mais tarde.</string>
     <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="cannot_navigate_during_form_save">Não é possível sair da página enquanto o formulário é salvo</string>
+    <string name="image_capture_activity_title">Tirar foto</string>
+    <string name="image_capture_failed">Falha ao salvar a foto, tente novamente</string>
+    <string name="camera_start_failed">Falha ao iniciar a câmera</string>
+    <string name="camera_permission_denied">Vá às configurações e ative a permissão da câmera para usar este recurso</string>
+    <string name="microimage_face_detection_mode_failed">Falha no modo de detecção de rosto, alternando para o modo manual</string>
+    <string name="microimage_cropping_failed">Falha ao recortar a imagem, verifique se o alvo está dentro da área de captura</string>
 </resources>
