@@ -12,7 +12,7 @@ endpoint, stored locally, and reflected in the drawer header.
 1. User opens the side drawer.
 2. User taps their image in the drawer header.
 3. A confirmation dialog appears (Cancel / Continue, dismissible by tapping outside).
-4. On Continue, the controller checks network connectivity. If the device is offline, a
+4. On Continue, the updater checks network connectivity. If the device is offline, a
    "no network" toast is shown and the flow ends without launching the camera.
 5. Otherwise, `MicroImageActivity` launches with face detection (front camera, max 160px /
    100KB), identical to the signup photo capture.
@@ -30,13 +30,20 @@ endpoint, stored locally, and reflected in the drawer header.
 
 ## Components
 
+* **`PersonalIdPhotoUpdater`** (`personalId/photo/PersonalIdPhotoUpdater.kt`)
+  * Owns the reusable update flow: confirmation dialog → network check → camera launch →
+    upload → persistence to `ConnectUserRecord.photo` → generic success/failure toasts.
+    Consumers construct it in `onCreate` (its constructor registers the activity-result
+    launcher, so results survive recreation) and call `showUpdatePhotoConfirmationDialog()`
+    to begin; the `onSuccess`/`onFailure` callbacks only handle consumer-specific UI state
+    (e.g. the drawer's warning icon).
+  * Re-reads the `ConnectUserRecord` from the database at upload time rather than caching
+    it, so it always reflects the currently signed-in user.
+
 * **`BaseDrawerController`** (`navdrawer/BaseDrawerController.kt`)
-  * Wires the user image tap → confirmation dialog → network check → camera launch.
+  * Wires the drawer's user image tap to the updater's `show()`.
   * Holds an in-memory `lastPhotoUploadFailed: Boolean` flag that is read on every drawer
     refresh to swap `user_image_overlay_icon` between the camera and warning drawables.
-  * Re-reads the `ConnectUserRecord` from the database in `refreshDrawerContent()` and
-    `uploadUserPhoto()` rather than caching it at setup time, so the drawer always reflects
-    the currently signed-in user.
 
 * **API Layer** (unchanged, reused from signup-completion):
   * `ApiPersonalId.updateUserProfile()` — `POST /users/update_profile` with HTTP Basic Auth.
