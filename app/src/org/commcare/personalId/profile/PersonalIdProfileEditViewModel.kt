@@ -59,10 +59,10 @@ class PersonalIdProfileEditViewModel(
     fun canSave(): Boolean = isModified() && isNameValid() && isEmailValid()
 
     /**
-     * Applies the saved name to a freshly-read record so fields committed by other flows
-     * since this ViewModel was created (e.g. a photo update) are not clobbered.
+     * Applies the edited profile details to a freshly-read record so fields committed by other
+     * flows since this ViewModel was created (e.g. a photo update) are not clobbered.
      */
-    fun commitNameToRecord() {
+    fun commitProfileDetails() {
         user.name = currentName
         val storedUser = ConnectUserDatabaseUtil.getUser(getApplication())
         storedUser.name = currentName

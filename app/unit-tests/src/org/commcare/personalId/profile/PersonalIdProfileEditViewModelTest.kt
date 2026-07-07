@@ -212,7 +212,7 @@ class PersonalIdProfileEditViewModelTest {
     }
 
     @Test
-    fun `commitNameToRecord updates only the name on a freshly-read record and preserves its other fields`() {
+    fun `commitProfileDetails updates only the name on a freshly-read record and preserves its other fields`() {
         val viewModel = buildViewModel()
         viewModel.onNameChanged("Grace Hopper")
 
@@ -226,7 +226,7 @@ class PersonalIdProfileEditViewModelTest {
             .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(any()) }
             .thenReturn(storedUser)
 
-        viewModel.commitNameToRecord()
+        viewModel.commitProfileDetails()
 
         assertFalse(viewModel.isNameModified())
         val storedRecordCaptor = argumentCaptor<ConnectUserRecord>()

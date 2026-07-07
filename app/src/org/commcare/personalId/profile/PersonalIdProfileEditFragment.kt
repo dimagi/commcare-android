@@ -158,7 +158,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         if (viewModel.isEmailModified()) {
             showEmailOtpConfirmationDialog()
         } else {
-            saveNameChange {
+            saveProfileDetails {
                 Toast
                     .makeText(
                         requireActivity(),
@@ -170,12 +170,12 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         }
     }
 
-    private fun saveNameChange(onSaved: () -> Unit) {
+    private fun saveProfileDetails(onSaved: () -> Unit) {
         binding.btnSave.isEnabled = false
         val user = viewModel.user
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
-                viewModel.commitNameToRecord()
+                viewModel.commitProfileDetails()
                 _binding ?: return
                 onSaved()
             }
@@ -200,7 +200,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         ) {
             binding.btnSave.isEnabled = false
             if (viewModel.isNameModified()) {
-                saveNameChange { sendEmailOtpAndNavigate(newEmail) }
+                saveProfileDetails { sendEmailOtpAndNavigate(newEmail) }
             } else {
                 sendEmailOtpAndNavigate(newEmail)
             }
