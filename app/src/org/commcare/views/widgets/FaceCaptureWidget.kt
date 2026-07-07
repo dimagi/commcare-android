@@ -24,7 +24,7 @@ class FaceCaptureWidget(
     override fun takePicture() {
         val i =
             Intent(getContext(), MicroImageActivity::class.java)
-                .putExtra(CAMERA_LENS_FACING_EXTRA, CameraSelector.LENS_FACING_FRONT)
+                .putExtra(CAMERA_LENS_FACING_EXTRA, CameraSelector.LENS_FACING_BACK)
                 .putExtra(CAPTURE_OUTPUT_MODE_EXTRA, MicroImageActivity.CaptureOutputMode.TEMP_FILE.name)
                 .putExtra(ALLOW_CAMERA_LENS_SWITCH_EXTRA, true)
 
