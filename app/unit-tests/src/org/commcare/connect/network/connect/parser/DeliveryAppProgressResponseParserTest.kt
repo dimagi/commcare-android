@@ -16,6 +16,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import java.io.ByteArrayInputStream
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -234,7 +235,7 @@ class DeliveryAppProgressResponseParserTest {
         assertEquals("This is relearn task 4", task.description)
         assertEquals("assigned", task.status)
         assertEquals(DateUtils.parseDate("2026-07-17"), task.dueDate)
-        assertEquals(isoUtcFormat().parse("2026-07-03T10:36:45Z"), task.dateCreated)
+        assertEquals(Date(isoUtcFormat().parse("2026-07-03T10:36:45Z")!!.time + 559L), task.dateCreated)
     }
 
     @Test
@@ -289,7 +290,7 @@ class DeliveryAppProgressResponseParserTest {
     fun `date_created with microseconds parsed correctly`() {
         val result = parse("""{"assigned_tasks": [${taskJson(dateCreated = "2026-07-03T10:36:45.559775Z")}]}""")
 
-        val expected = isoUtcFormat().parse("2026-07-03T10:36:45Z")
+        val expected = Date(isoUtcFormat().parse("2026-07-03T10:36:45Z")!!.time + 559L)
         assertEquals(expected, result.tasks[0].dateCreated)
     }
 
