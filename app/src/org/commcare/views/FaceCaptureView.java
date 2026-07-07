@@ -22,6 +22,8 @@ import org.commcare.dalvik.R;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
+import static java.lang.Math.max;
+
 public class FaceCaptureView extends AppCompatImageView {
 
     public interface ImageStabilizedListener {
@@ -182,19 +184,9 @@ public class FaceCaptureView extends AppCompatImageView {
     }
 
     private void calcScaleFactors(int viewWidth, int viewHeight) {
-        float viewAspectRatio = (float) viewWidth / viewHeight;
-        float imageAspectRatio = (float) imageWidth / imageHeight;
-        postScaleWidthOffset = 0;
-        postScaleHeightOffset = 0;
-        if (viewAspectRatio > imageAspectRatio) {
-            // The image needs to be vertically cropped to be displayed in this view.
-            scaleFactor = (float) viewWidth / imageWidth;
-            postScaleHeightOffset = ((float) viewWidth / imageAspectRatio - viewHeight) / 2;
-        } else {
-            // The image needs to be horizontally cropped to be displayed in this view.
-            scaleFactor = (float) viewHeight / imageHeight;
-            postScaleWidthOffset = ((float) viewHeight * imageAspectRatio - viewWidth) / 2;
-        }
+        scaleFactor = max((float) viewWidth / imageWidth, (float) viewHeight / imageHeight);
+        postScaleWidthOffset = (imageWidth * scaleFactor - viewWidth) / 2;
+        postScaleHeightOffset = (imageHeight * scaleFactor - viewHeight) / 2;
     }
 
     /**
