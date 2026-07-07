@@ -1,12 +1,9 @@
 package org.commcare.personalId.profile
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +17,7 @@ import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
 import org.commcare.fragments.personalId.EmailHelper
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
+import org.commcare.utils.onTextChanged
 
 class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     private var _binding: PersonalidProfileEditScreenBinding? = null
@@ -73,11 +71,11 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         binding.profileHeader.profileUserImageCard.setOnClickListener {
             photoUpdater.initiatePhotoUpdate()
         }
-        afterTextChanged(binding.profileNameEditText) {
+        binding.profileNameEditText.onTextChanged {
             viewModel.onNameChanged(it)
             refreshFormState()
         }
-        afterTextChanged(binding.profileEmailEditText) {
+        binding.profileEmailEditText.onTextChanged {
             viewModel.onEmailChanged(it)
             refreshFormState()
         }
@@ -113,33 +111,6 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         ) {
             findNavController().popBackStack()
         }
-    }
-
-    private fun afterTextChanged(
-        editText: EditText,
-        onChanged: (String) -> Unit,
-    ) {
-        editText.addTextChangedListener(
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int,
-                ) {}
-
-                override fun onTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    before: Int,
-                    count: Int,
-                ) {}
-
-                override fun afterTextChanged(s: Editable?) {
-                    onChanged(s?.toString().orEmpty())
-                }
-            },
-        )
     }
 
     private fun refreshFormState() {
