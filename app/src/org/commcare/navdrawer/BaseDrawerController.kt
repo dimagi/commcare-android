@@ -20,10 +20,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.MANAGE_PROFILE
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
@@ -309,14 +305,11 @@ class BaseDrawerController(
         }
     }
 
-    private fun shouldShowWorkHistory(): Boolean {
-        // we are keeping this off for now until we have go ahead to release this feature
-        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
-    }
+    private fun shouldShowWorkHistory(): Boolean = PersonalIdManager.getInstance().isloggedIn()
 
-    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn()
 
-    private fun shouldShowManageProfile(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(MANAGE_PROFILE)
+    private fun shouldShowManageProfile(): Boolean = PersonalIdManager.getInstance().isloggedIn()
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
