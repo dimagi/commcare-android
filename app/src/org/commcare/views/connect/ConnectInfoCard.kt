@@ -15,7 +15,9 @@ import org.commcare.dalvik.databinding.ViewConnectInfoCardBinding
  *
  * Lays out a large [valueText] on the left, a [titleText] with an optional [subtitleText] in the
  * middle, and a trailing arrow on the right. Setting [navigable] makes the card clickable with a
- * ripple foreground and reveals the arrow to signal that the card can be tapped.
+ * ripple foreground and reveals the arrow to signal that the card can be tapped. Registering an
+ * [onCardClick] callback turns on that navigable appearance automatically and runs the callback
+ * when the card is tapped.
  */
 class ConnectInfoCard
     @JvmOverloads
@@ -46,6 +48,13 @@ class ConnectInfoCard
                 isClickable = value
                 isFocusable = value
                 binding.infoCardArrow.visibility = if (value) VISIBLE else GONE
+            }
+
+        var onCardClick: (() -> Unit)? = null
+            set(value) {
+                field = value
+                navigable = value != null
+                setOnClickListener(value?.let { callback -> OnClickListener { callback() } })
             }
 
         init {
