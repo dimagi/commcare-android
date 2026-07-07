@@ -197,6 +197,12 @@ we would like to communicate to QA as part of the release testing
 - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
 - Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
 
+- **Manage Profile (PersonalID):**
+  - **Access:** Signed in to PersonalID, open the side navigation drawer and verify a "Manage Profile" link appears and opens a screen showing name, phone, email, and photo. Verify the link is absent when signed out.
+  - **Edit name/photo:** From Manage Profile, open Edit (pencil icon), change the name and/or tap the photo to capture a new one, and save. Verify the changes persist on the Profile screen and in the drawer header.
+  - **Edit email (one-time code):** Change the email and save; verify the new address must be confirmed with a one-time code before it updates. If you change both name and email but abandon the code entry, verify the new name is kept while the email stays unchanged.
+  - **Forget PersonalID relocation:** Verify "Forget PersonalID" is no longer in the Login or app-setup menus, and that forgetting the account is available from the Manage Profile screen behind a confirmation prompt.
+
 
 ## CommCare 2.63
 
