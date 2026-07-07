@@ -1,19 +1,5 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
-import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
-import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
-import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
-import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
-import static org.commcare.activities.DriftHelper.getCurrentDrift;
-import static org.commcare.activities.DriftHelper.getDriftDialog;
-import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
-import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
-import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
-import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
-import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -115,6 +101,20 @@ import java.util.Hashtable;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
+import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.activities.DriftHelper.getCurrentDrift;
+import static org.commcare.activities.DriftHelper.getDriftDialog;
+import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
+import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
+import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
+import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync;
 
 /**
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen: activity
