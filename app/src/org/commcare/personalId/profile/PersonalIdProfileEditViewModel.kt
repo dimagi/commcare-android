@@ -17,7 +17,8 @@ class PersonalIdProfileEditViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
-    val user: ConnectUserRecord = ConnectUserDatabaseUtil.getUser(application)
+    var user: ConnectUserRecord = ConnectUserDatabaseUtil.getUser(application)
+        private set
     val emailOtpTracker = AttemptTracker()
 
     val currentName: String
@@ -63,10 +64,10 @@ class PersonalIdProfileEditViewModel(
      * flows since this ViewModel was created (e.g. a photo update) are not clobbered.
      */
     fun commitProfileDetails() {
-        user.name = currentName
         val storedUser = ConnectUserDatabaseUtil.getUser(getApplication())
         storedUser.name = currentName
         ConnectUserDatabaseUtil.storeUser(getApplication(), storedUser)
+        user = storedUser
     }
 
     companion object {
