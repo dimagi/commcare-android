@@ -130,12 +130,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             showEmailOtpConfirmationDialog()
         } else {
             saveProfileDetails {
-                Toast
-                    .makeText(
-                        requireActivity(),
-                        getString(R.string.personalid_profile_edit_save_success),
-                        Toast.LENGTH_LONG,
-                    ).show()
+                showSuccess()
                 findNavController().popBackStack()
             }
         }
@@ -195,23 +190,31 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                     ),
                 )
             },
-            onFailure = { errorCode, t ->
+            onFailure = { errorCode, throwable ->
                 _binding ?: return@sendEmailOtp
-                onSaveFailed(errorCode, t)
+                onSaveFailed(errorCode, throwable)
             },
         )
     }
 
     private fun onSaveFailed(
         errorCode: PersonalIdOrConnectApiErrorCodes,
-        t: Throwable?,
+        throwable: Throwable?,
     ) {
         binding.btnSave.isEnabled = viewModel.canSave()
-        Toast
-            .makeText(
-                requireActivity(),
-                PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t),
-                Toast.LENGTH_LONG,
-            ).show()
+        showError(errorCode, throwable)
+    }
+
+    private fun showSuccess() {
+        val message = getString(R.string.personalid_profile_edit_save_success)
+        Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showError(
+        errorCode: PersonalIdOrConnectApiErrorCodes,
+        throwable: Throwable?,
+    ) {
+        val message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, throwable)
+        Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG).show()
     }
 }
