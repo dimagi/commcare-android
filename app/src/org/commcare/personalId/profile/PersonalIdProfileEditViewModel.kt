@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.fragments.personalId.AttemptTracker
 import org.commcare.fragments.personalId.EmailHelper
 
 /**
@@ -17,6 +18,7 @@ class PersonalIdProfileEditViewModel(
     private val savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
     val user: ConnectUserRecord = ConnectUserDatabaseUtil.getUser(application)
+    val emailOtpTracker = AttemptTracker()
 
     val currentName: String
         get() = savedStateHandle[KEY_CURRENT_NAME] ?: user.name

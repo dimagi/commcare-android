@@ -17,7 +17,6 @@ import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiEr
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
-import org.commcare.fragments.personalId.AttemptTracker
 import org.commcare.fragments.personalId.EmailHelper
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
@@ -27,7 +26,6 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     val binding get() = _binding!!
     private lateinit var viewModel: PersonalIdProfileEditViewModel
     private lateinit var photoUpdater: PersonalIdPhotoUpdater
-    private val emailOtpTracker = AttemptTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -215,14 +213,14 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             email = newEmail,
             workflow = EmailWorkFlow.EXISTING_USER,
             sessionData = null,
-            tracker = emailOtpTracker,
+            tracker = viewModel.emailOtpTracker,
             onSuccess = {
                 _binding ?: return@sendEmailOtp
                 findNavController().navigate(
                     PersonalIdProfileEditFragmentDirections.actionProfileEditToEmailVerification(
                         newEmail,
                         EmailWorkFlow.EXISTING_USER,
-                        emailOtpTracker.requestCount,
+                        viewModel.emailOtpTracker.requestCount,
                     ),
                 )
             },
