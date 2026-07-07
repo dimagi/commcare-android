@@ -14,6 +14,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.mlkit.vision.face.Face;
 
@@ -184,10 +186,40 @@ public class FaceCaptureView extends AppCompatImageView {
     }
 
     private void calcScaleFactors(int viewWidth, int viewHeight) {
-        scaleFactor = max((float) viewWidth / imageWidth, (float) viewHeight / imageHeight);
-        postScaleWidthOffset = (imageWidth * scaleFactor - viewWidth) / 2;
-        postScaleHeightOffset = (imageHeight * scaleFactor - viewHeight) / 2;
+        float contentWidth = getFullContentWidth();
+        float contentHeight = getFullContentHeight();
+        if (contentWidth == 0) {
+            contentWidth = viewWidth;
+        }
+        if (contentHeight == 0) {
+            contentHeight = viewHeight;
+        }
+        scaleFactor = max((float) contentWidth / imageWidth, (float) contentHeight / imageHeight);
+        postScaleWidthOffset = (imageWidth * scaleFactor - contentWidth) / 2;
+        postScaleHeightOffset = (imageHeight * scaleFactor - contentHeight) / 2;
     }
+
+    private View getContentView() {
+        View rootView = this.getRootView();
+        return rootView.<ViewGroup>findViewById(android.R.id.content);
+    }
+
+    private float getFullContentHeight() {
+        View contentView = getContentView();
+        if (contentView == null) {
+            return 0;
+        }
+        return contentView.getHeight() - contentView.getPaddingTop() - contentView.getPaddingBottom();
+    }
+
+    private float getFullContentWidth() {
+        View contentView = getContentView();
+        if (contentView == null) {
+            return 0;
+        }
+        return contentView.getWidth() - contentView.getPaddingStart() - contentView.getPaddingEnd();
+    }
+
 
     /**
      * Translate coordinates from the preview's system to the view system.
