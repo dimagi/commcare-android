@@ -7,7 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.RequiresApi;
-import androidx.navigation.Navigation;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -105,14 +106,24 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         if (adapter == null) {
             adapter = new ConnectDeliveryProgressReportAdapter(
-                    getContext(), deliveryProgressList, unitName -> Navigation.findNavController(recyclerView)
-                    .navigate(ConnectDeliveryProgressFragmentDirections
-                            .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName))
+                    getContext(), deliveryProgressList, this::navigateToDeliveries
             );
             recyclerView.setAdapter(adapter);
         } else {
             recyclerView.setAdapter(adapter);
             adapter.updateData(deliveryProgressList);
+        }
+    }
+
+    private void navigateToDeliveries(String unitName) {
+        NavController navController = NavHostFragment.findNavController(this);
+
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.connect_job_delivery_progress_fragment) {
+            navController.navigate(
+                    ConnectDeliveryProgressFragmentDirections
+                            .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName)
+            );
         }
     }
 
