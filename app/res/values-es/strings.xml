@@ -373,7 +373,6 @@
     <string name="personalid_link_app_yes">Sí</string>
     <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Registrarse en PersonalId</string>
-    <string name="personalid_forget_user">Olvidar usuario de PersonalId</string>
     <string name="connect_refresh_opportunities">Actualizar Oportunidades</string>
     <string name="connect_app_install_unknown_error">La instalación de la aplicación falló debido a un error desconocido</string>
     <string name="connect_app_installed">Aplicación instalada</string>

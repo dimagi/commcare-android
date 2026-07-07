@@ -372,7 +372,6 @@
     <string name="personalid_link_app_yes">Ndiyo</string>
     <string name="personalid_link_app_no">Hapana</string>
     <string name="personalid_signup">Jisajili kwa PersonalId</string>
-    <string name="personalid_forget_user">Sahau mtumiaji wa PersonalId</string>
     <string name="connect_refresh_opportunities">Onyesha Fursa</string>
     <string name="connect_app_install_unknown_error">Usakinishaji wa programu haukufaulu kwa sababu ya hitilafu isiyojulikana</string>
     <string name="connect_app_installed">Programu imesakinishwa</string>
