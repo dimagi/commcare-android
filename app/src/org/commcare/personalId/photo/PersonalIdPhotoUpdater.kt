@@ -34,7 +34,8 @@ class PersonalIdPhotoUpdater(
             handlePhotoResult(result)
         }
 
-    fun showUpdatePhotoConfirmationDialog() {
+    /** Starts the photo update flow by showing the update-photo confirmation dialog. */
+    fun initiatePhotoUpdate() {
         val dialog =
             StandardAlertDialog(
                 activity.getString(R.string.personalid_user_photo_update_dialog_title),

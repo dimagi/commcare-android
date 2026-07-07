@@ -71,7 +71,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         binding.profileEmailEditText.setText(viewModel.currentEmail)
 
         binding.profileHeader.profileUserImageCard.setOnClickListener {
-            photoUpdater.showUpdatePhotoConfirmationDialog()
+            photoUpdater.initiatePhotoUpdate()
         }
         afterTextChanged(binding.profileNameEditText) {
             viewModel.onNameChanged(it)

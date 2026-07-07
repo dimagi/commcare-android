@@ -150,7 +150,7 @@ class BaseDrawerController(
         }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
         binding.userImage.setOnClickListener {
-            photoUpdater.showUpdatePhotoConfirmationDialog()
+            photoUpdater.initiatePhotoUpdate()
         }
         binding.manageProfileLink.setOnClickListener {
             ConnectNavHelper.unlockAndGoToProfile(

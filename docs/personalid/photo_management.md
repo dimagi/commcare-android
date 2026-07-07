@@ -34,14 +34,14 @@ endpoint, stored locally, and reflected in the drawer header.
   * Owns the reusable update flow: confirmation dialog → network check → camera launch →
     upload → persistence to `ConnectUserRecord.photo` → generic success/failure toasts.
     Consumers construct it in `onCreate` (its constructor registers the activity-result
-    launcher, so results survive recreation) and call `showUpdatePhotoConfirmationDialog()`
+    launcher, so results survive recreation) and call `initiatePhotoUpdate()`
     to begin; the `onSuccess`/`onFailure` callbacks only handle consumer-specific UI state
     (e.g. the drawer's warning icon).
   * Re-reads the `ConnectUserRecord` from the database at upload time rather than caching
     it, so it always reflects the currently signed-in user.
 
 * **`BaseDrawerController`** (`navdrawer/BaseDrawerController.kt`)
-  * Wires the drawer's user image tap to the updater's `showUpdatePhotoConfirmationDialog()`.
+  * Wires the drawer's user image tap to the updater's `initiatePhotoUpdate()`.
   * Holds an in-memory `lastPhotoUploadFailed: Boolean` flag that is read on every drawer
     refresh to swap `user_image_overlay_icon` between the camera and warning drawables.
 
