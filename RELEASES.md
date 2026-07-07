@@ -56,6 +56,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- [Manage Profile] PersonalID users can now view and edit their profile details from the new Manage Profile screen.
 
 #### Internal Release Notes
 - Deprecated PersonalID support for devices on Android OS less than Android 9.
