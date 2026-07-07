@@ -1,0 +1,290 @@
+package org.commcare.personalId.profile
+
+import android.widget.Button
+import androidx.appcompat.app.AlertDialog
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import okhttp3.mockwebserver.MockResponse
+import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdMockApiServer
+import org.commcare.dalvik.R
+import org.commcare.utils.PhoneNumberHelper
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.MockedStatic
+import org.mockito.Mockito
+import org.mockito.kotlin.any
+import org.robolectric.Robolectric
+import org.robolectric.android.controller.ActivityController
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
+import org.robolectric.shadows.ShadowLooper
+
+@Config(application = CommCareTestApplication::class)
+@RunWith(AndroidJUnit4::class)
+class PersonalIdProfileEditFragmentTest {
+    private lateinit var activityController: ActivityController<PersonalIdProfileActivity>
+    private lateinit var activity: PersonalIdProfileActivity
+    private lateinit var navHostFragment: NavHostFragment
+    private lateinit var fragment: PersonalIdProfileEditFragment
+    private lateinit var navController: NavController
+
+    private lateinit var connectUserDatabaseUtilMock: MockedStatic<ConnectUserDatabaseUtil>
+
+    private val mockApiServer = PersonalIdMockApiServer(PersonalIdMockApiServer.CallbackMode.MAIN_LOOPER)
+    private val mockWebServer get() = mockApiServer.server
+
+    private lateinit var user: ConnectUserRecord
+
+    @Before
+    fun setUp() {
+        connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
+        user =
+            ConnectUserRecord(
+                "+11234567890",
+                "test-user-id",
+                "test-password",
+                "Ada Lovelace",
+                "",
+                null,
+                null,
+                false,
+                "",
+                false,
+            ).apply {
+                email = "ada@example.com"
+            }
+        connectUserDatabaseUtilMock
+            .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(any()) }
+            .thenReturn(user)
+        mockApiServer.start()
+        launchEditFragment()
+    }
+
+    @After
+    fun tearDown() {
+        val errors = mutableListOf<Throwable>()
+        listOf(
+            { activityController.pause().stop().destroy() },
+            { connectUserDatabaseUtilMock.close() },
+            { mockApiServer.shutdown() },
+        ).forEach { step ->
+            try {
+                step()
+            } catch (throwable: Throwable) {
+                errors.add(throwable)
+            }
+        }
+        if (errors.isNotEmpty()) {
+            val first = errors.first()
+            errors.drop(1).forEach { first.addSuppressed(it) }
+            throw first
+        }
+    }
+
+    private fun launchEditFragment() {
+        activityController = Robolectric.buildActivity(PersonalIdProfileActivity::class.java)
+        activity =
+            activityController
+                .create()
+                .start()
+                .resume()
+                .get()
+
+        navHostFragment =
+            activity.supportFragmentManager
+                .findFragmentById(R.id.profile_nav_host) as NavHostFragment
+        navController = navHostFragment.navController
+
+        activity.runOnUiThread {
+            navController.navigate(R.id.action_profile_to_profile_edit)
+        }
+        ShadowLooper.idleMainLooper()
+
+        fragment =
+            navHostFragment.childFragmentManager
+                .primaryNavigationFragment as PersonalIdProfileEditFragment
+    }
+
+    private fun nameField() = fragment.requireView().findViewById<TextInputEditText>(R.id.profile_name_edit_text)
+
+    private fun emailField() = fragment.requireView().findViewById<TextInputEditText>(R.id.profile_email_edit_text)
+
+    private fun phoneField() = fragment.requireView().findViewById<TextInputEditText>(R.id.profile_phone_edit_text)
+
+    private fun emailInputLayout() = fragment.requireView().findViewById<TextInputLayout>(R.id.profile_input_email)
+
+    private fun phoneInputLayout() = fragment.requireView().findViewById<TextInputLayout>(R.id.profile_input_phone)
+
+    private fun saveButton() = fragment.requireView().findViewById<MaterialButton>(R.id.btn_save)
+
+    private fun setText(
+        field: TextInputEditText,
+        value: String,
+    ) {
+        activity.runOnUiThread { field.setText(value) }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun clickSave() {
+        activity.runOnUiThread { saveButton().performClick() }
+        ShadowLooper.idleMainLooper()
+    }
+
+    // ========== Prefill / initial state ==========
+
+    @Test
+    fun `fields prefill from the user record`() {
+        val expectedPhone =
+            PhoneNumberHelper
+                .getInstance(fragment.requireContext())
+                .formatForDisplay(user.primaryPhone)
+
+        assertEquals("Ada Lovelace", nameField().text.toString())
+        assertEquals("ada@example.com", emailField().text.toString())
+        assertEquals(expectedPhone, phoneField().text.toString())
+        assertFalse("Phone field should be disabled", phoneInputLayout().isEnabled)
+    }
+
+    @Test
+    fun `save button is disabled on initial state`() {
+        assertFalse("Save button should be disabled before any change", saveButton().isEnabled)
+    }
+
+    @Test
+    fun `no email error is shown on initial state`() {
+        assertNull("Email error should be absent initially", emailInputLayout().error)
+    }
+
+    // ========== Save button enable/disable contract ==========
+
+    @Test
+    fun `a valid name change enables the save button`() {
+        setText(nameField(), "Grace Hopper")
+
+        assertTrue("Save button should enable after a valid name change", saveButton().isEnabled)
+    }
+
+    @Test
+    fun `a blank name keeps the save button disabled`() {
+        setText(nameField(), "   ")
+
+        assertFalse("Save button should stay disabled with a blank name", saveButton().isEnabled)
+    }
+
+    @Test
+    fun `a malformed email keeps the save button disabled and shows the invalid error`() {
+        setText(emailField(), "not-an-email")
+
+        assertFalse("Save button should stay disabled with a malformed email", saveButton().isEnabled)
+        assertEquals(
+            fragment.getString(R.string.personalid_profile_edit_error_email_invalid),
+            emailInputLayout().error,
+        )
+    }
+
+    @Test
+    fun `clearing an existing email keeps the save button disabled and shows the required error`() {
+        setText(emailField(), "")
+
+        assertFalse("Save button should stay disabled when clearing an existing email", saveButton().isEnabled)
+        assertEquals(
+            fragment.getString(R.string.personalid_profile_edit_error_email_required),
+            emailInputLayout().error,
+        )
+    }
+
+    @Test
+    fun `a valid email change enables the save button and clears the error`() {
+        setText(emailField(), "not-an-email")
+        assertNotNull("Precondition: an invalid email shows an error", emailInputLayout().error)
+
+        setText(emailField(), "grace@example.com")
+
+        assertTrue("Save button should enable after a valid email change", saveButton().isEnabled)
+        assertNull("Email error should clear once the email is valid", emailInputLayout().error)
+    }
+
+    // ========== Save flow ==========
+
+    @Test
+    fun `saving a name change sends the update-profile request and disables the save button in flight`() {
+        setText(nameField(), "Grace Hopper")
+
+        // No response is enqueued so the call stays in flight, keeping the disabled assertion deterministic.
+        clickSave()
+
+        val request = mockApiServer.takeRequestOrFail()
+        assertEquals("/users/update_profile", request.path)
+        assertEquals("POST", request.method)
+        assertTrue(
+            "Update-profile body should carry the new name",
+            request.body.readUtf8().contains("Grace"),
+        )
+        assertFalse("Save button should disable while the update is in flight", saveButton().isEnabled)
+    }
+
+    @Test
+    fun `a successful profile update persists the user and pops back`() {
+        setText(nameField(), "Grace Hopper")
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+
+        clickSave()
+        mockApiServer.drainHttp()
+
+        connectUserDatabaseUtilMock.verify {
+            ConnectUserDatabaseUtil.storeUser(any(), any())
+        }
+        assertEquals(
+            "Should pop back to the profile screen after a successful save",
+            R.id.personalid_profile_fragment,
+            navController.currentDestination!!.id,
+        )
+    }
+
+    @Test
+    fun `editing the email and saving shows the otp confirmation dialog`() {
+        setText(emailField(), "grace@example.com")
+
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
+        assertNotNull("An OTP confirmation dialog should be shown when the email changed", dialog)
+        assertTrue("OTP confirmation dialog should be visible", dialog!!.isShowing)
+        assertEquals(
+            "No profile-update request should fire before the OTP dialog is confirmed",
+            0,
+            mockWebServer.requestCount,
+        )
+    }
+
+    @Test
+    fun `confirming the otp dialog sends the email otp`() {
+        setText(emailField(), "grace@example.com")
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        // No response is enqueued so the OTP request is dispatched but its success callback (which
+        // would navigate to the separately-tested email-verification screen) never runs, keeping
+        // the assertion on the send boundary.
+        activity.runOnUiThread { confirmButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        val request = mockApiServer.takeRequestOrFail()
+        assertEquals("/users/send_email_otp", request.path)
+    }
+}
