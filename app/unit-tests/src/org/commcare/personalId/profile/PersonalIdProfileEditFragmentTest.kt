@@ -273,4 +273,30 @@ class PersonalIdProfileEditFragmentTest {
         val request = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", request.path)
     }
+
+    @Test
+    fun `saving a simultaneous name and email change commits the name before sending the email otp`() {
+        setText(nameField(), "Grace Hopper")
+        setText(emailField(), "grace@example.com")
+
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        // The name commit must succeed so the flow proceeds to the OTP send; no OTP response is
+        // enqueued so the success callback (which navigates away) never runs.
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread { confirmButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        val nameRequest = mockApiServer.takeRequestOrFail()
+        assertEquals("/users/update_profile", nameRequest.path)
+        assertTrue(
+            "Name should be committed first",
+            nameRequest.body.readUtf8().contains("Grace"),
+        )
+
+        val otpRequest = mockApiServer.takeRequestOrFail()
+        assertEquals("/users/send_email_otp", otpRequest.path)
+    }
 }
