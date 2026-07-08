@@ -11,6 +11,8 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.PhoneNumberHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -21,6 +23,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.never
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 
@@ -157,6 +160,11 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
         connectUserDatabaseUtilMock.verify {
             ConnectUserDatabaseUtil.storeUser(any(), any())
         }
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+            )
+        }
         assertEquals(
             "Should pop back to the profile screen after a successful save",
             R.id.personalid_profile_fragment,
@@ -202,6 +210,10 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
         val request = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", request.path)
+        firebaseAnalyticsUtilMock.verify(
+            { FirebaseAnalyticsUtil.reportPersonalIdProfileAction(AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED) },
+            never(),
+        )
     }
 
     @Test
@@ -227,5 +239,37 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
         val otpRequest = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", otpRequest.path)
+    }
+
+    // ========== Discard flow ==========
+
+    @Test
+    fun `confirming the discard dialog reports the discard action and pops back`() {
+        setText(nameField(), "Grace Hopper")
+
+        onUiThread { fragment.requireView().findViewById<Button>(R.id.btn_cancel).performClick() }
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        onUiThread { confirmButton.performClick() }
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_CHANGES_DISCARDED,
+            )
+        }
+        assertEquals(
+            "Should pop back to the profile screen after discarding changes",
+            R.id.personalid_profile_fragment,
+            currentDestinationId(),
+        )
+
+        val profileFragment = navHostFragment.childFragmentManager.primaryNavigationFragment!!
+        val displayedName = profileFragment.requireView().findViewById<TextView>(R.id.profile_value_name)
+        assertEquals(
+            "The profile screen should still show the original name after discarding",
+            "Ada Lovelace",
+            displayedName.text.toString(),
+        )
     }
 }

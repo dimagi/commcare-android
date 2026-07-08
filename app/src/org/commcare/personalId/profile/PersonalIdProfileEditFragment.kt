@@ -16,6 +16,8 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
 import org.commcare.fragments.personalId.EmailHelper
 import org.commcare.fragments.personalId.EmailWorkFlow
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.views.extensions.onTextChanged
 
@@ -35,6 +37,9 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 onSuccess = { photoBase64 ->
                     viewModel.onPhotoUpdated(photoBase64)
                     _binding?.let { loadUserPhoto(it.profileHeader.profileUserImage, photoBase64) }
+                    FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                        AnalyticsParamValue.MANAGE_PROFILE_ACTION_PHOTO_UPDATED,
+                    )
                 },
                 onFailure = { _, _ ->
                     // No-op for the Profile screen. The app sidebar shows a warning icon in the other flow.
@@ -109,6 +114,9 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             positiveText = getString(R.string.personalid_profile_edit_discard_positive),
             negativeText = getString(R.string.personalid_profile_edit_discard_negative),
         ) {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_CHANGES_DISCARDED,
+            )
             findNavController().popBackStack()
         }
     }
@@ -141,6 +149,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         val user = viewModel.user
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
+                reportSavedProfileDetails()
                 viewModel.commitProfileDetails()
                 _binding ?: return
                 onSaved()
@@ -154,6 +163,14 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 onSaveFailed(errorCode, t)
             }
         }.updateProfile(requireActivity(), user.userId, user.password, viewModel.currentName, null, null)
+    }
+
+    private fun reportSavedProfileDetails() {
+        if (viewModel.isNameModified()) {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+            )
+        }
     }
 
     private fun showEmailOtpConfirmationDialog() {

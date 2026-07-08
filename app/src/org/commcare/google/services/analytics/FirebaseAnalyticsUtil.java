@@ -671,6 +671,14 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_FORGOTTEN, b);
     }
 
+    public static void reportPersonalIdProfileAction(String action) {
+        reportEvent(
+                CCAnalyticsEvent.PERSONAL_ID_MANAGE_PROFILE_ACTION,
+                CCAnalyticsParam.MANAGE_PROFILE_ACTION,
+                action
+        );
+    }
+
     public static void reportLoginClicks() {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }

@@ -171,6 +171,11 @@ public class AnalyticsParamValue {
             "user_initiated_from_profile_page";
     public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
 
+    // Param values for Manage Profile actions
+    public static final String MANAGE_PROFILE_ACTION_PHOTO_UPDATED = "photo_updated";
+    public static final String MANAGE_PROFILE_ACTION_NAME_UPDATED = "name_updated";
+    public static final String MANAGE_PROFILE_ACTION_CHANGES_DISCARDED = "changes_discarded";
+
     // Param values for PersonalID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE =
             "start_configuration_integrity_check_failure";
