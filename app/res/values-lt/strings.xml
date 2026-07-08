@@ -308,4 +308,5 @@
     <string name="get_app_list_unknown_error">Bandant gauti programų sąrašą įvyko klaida. Bandykite dar kartą arba susisiekite su pagalba, jei problema kartojasi.</string>
     <string name="no_apps_available">Šiam vartotojui atsisiųsti programų nėra.</string>
     <string name="could_not_refresh_apps">Atsiprašome, atnaujinant programų sąrašą įvyko klaida. Bandykite dar kartą įvesti vartotoją.</string>
+    <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
 </resources>

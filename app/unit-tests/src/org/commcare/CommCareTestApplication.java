@@ -27,6 +27,7 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.database.UnencryptedDatabaseAdapter;
 import org.commcare.models.database.app.DatabaseAppOpenHelperMock;
+import org.commcare.models.database.connect.DatabaseConnectOpenHelperMock;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelperMock;
 import org.commcare.models.database.user.DatabaseUserOpenHelperMock;
 import org.commcare.models.encryption.ByteEncrypter;
@@ -338,6 +339,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     public void setSkipWorkManager() {
         skipWorkManager = true;
+    }
+
+    @Override
+    public IDatabase getConnectDbOpenHelper(Context context) {
+        return new UnencryptedDatabaseAdapter(new DatabaseConnectOpenHelperMock(this));
     }
 
     @Override
