@@ -114,6 +114,7 @@ import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync;
 
 /**
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen: activity
@@ -1538,7 +1539,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             triggerSync(true);
             kickedOff = true;
-        } else if (CommCareApplication.instance().isSyncPending()) {
+        } else if (CommCareApplication.instance().isSyncPending()
+                || isLastTaskUpdateLaterThanLastSync(this)) {
             triggerSync(true);
             kickedOff = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this, true)) {
