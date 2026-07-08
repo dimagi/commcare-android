@@ -13,6 +13,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord
+import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.android.database.connect.models.PushNotificationRecord
@@ -50,8 +51,9 @@ object ConnectDatabaseSchemaManager {
      * V.24 - Added key and opportunityStatus to PushNotificationRecord
      * V.25 - Added sessionEndpointId and requireAppSync to PushNotificationRecord
      * V.26 - Added email to ConnectUserRecord
+     * V.27 - Added connect_tasks table (ConnectTaskRecord) for DB-persisted task tracking
      */
-    const val DB_VERSION_CONNECT = 26
+    const val DB_VERSION_CONNECT = 27
 
     @JvmStatic
     fun initializeSchema(database: IDatabase) {
@@ -77,6 +79,7 @@ object ConnectDatabaseSchemaManager {
                     .apply { setUnique(ConnectReleaseToggleRecord.META_SLUG) }
                     .tableCreateString,
             )
+            database.execSQL(TableBuilder(ConnectTaskRecord::class.java).tableCreateString)
             DbUtil.createNumbersTable(database)
             database.setTransactionSuccessful()
         } finally {
