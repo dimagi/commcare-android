@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoCardBinding
 
@@ -63,12 +64,11 @@ class ConnectInfoCard
             useCompatPadding = true
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
-            context.obtainStyledAttributes(attrs, R.styleable.ConnectInfoCard).apply {
+            context.withStyledAttributes(attrs, R.styleable.ConnectInfoCard) {
                 valueText = getString(R.styleable.ConnectInfoCard_valueText)
                 titleText = getString(R.styleable.ConnectInfoCard_titleText)
                 subtitleText = getString(R.styleable.ConnectInfoCard_subtitleText)
                 navigable = getBoolean(R.styleable.ConnectInfoCard_navigable, false)
-                recycle()
             }
         }
 
