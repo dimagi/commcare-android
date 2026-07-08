@@ -7,7 +7,6 @@ import android.util.Size
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.annotation.VisibleForTesting
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -29,7 +28,6 @@ import org.javarosa.core.services.Logger
 class CameraOverlayActivity : BaseCameraActivity() {
     private val outputUri: Uri by lazy { intentOutputUri()!! }
 
-    @VisibleForTesting
     internal var imageCapture: ImageCapture? = null
     private var isCapturing = false
 
@@ -61,8 +59,7 @@ class CameraOverlayActivity : BaseCameraActivity() {
         return capture
     }
 
-    @VisibleForTesting
-    internal fun captureImage() {
+    private fun captureImage() {
         if (isCapturing) {
             return
         }
@@ -96,8 +93,7 @@ class CameraOverlayActivity : BaseCameraActivity() {
      * Reports a non-fatal capture failure: logs it, toasts the user, and re-enables the shutter so
      * the capture can be retried without leaving the screen.
      */
-    @VisibleForTesting
-    internal fun handleCaptureError(
+    private fun handleCaptureError(
         logMessage: String,
         e: Throwable?,
     ) {
@@ -106,8 +102,7 @@ class CameraOverlayActivity : BaseCameraActivity() {
         handleCapturingState(false)
     }
 
-    @VisibleForTesting
-    internal fun handleCapturingState(capturing: Boolean) {
+    private fun handleCapturingState(capturing: Boolean) {
         isCapturing = capturing
         findViewById<ImageView>(R.id.camera_shutter_button).apply {
             isEnabled = !capturing

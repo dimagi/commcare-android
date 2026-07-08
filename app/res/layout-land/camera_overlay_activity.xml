@@ -13,8 +13,8 @@
 
     <org.commcare.views.RectangleOverlayView
         android:id="@+id/rectangle_overlay"
-        app:reticleWidthFractionPortrait="0.85"
-        app:reticleHeightFractionPortrait="0.30"
+        app:reticleWidthFractionLandscape="0.70"
+        app:reticleHeightFractionLandscape="0.55"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -22,8 +22,8 @@
         android:id="@+id/camera_shutter_button"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="32dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="32dp"
         android:background="@drawable/bg_camera_shutter_button"
         android:clickable="true"
         android:contentDescription="@string/image_capture_activity_title"
