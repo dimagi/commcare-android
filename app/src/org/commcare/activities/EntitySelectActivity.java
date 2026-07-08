@@ -533,7 +533,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onPause() {
         super.onPause();
-        CrashUtil.log("onPause called started");
         if (refreshTimer != null) {
             refreshTimer.stop();
         }
@@ -544,24 +543,20 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         hereFunctionHandler.forbidGpsUse();
         hereFunctionHandler.unregisterListener();
-        CrashUtil.log("onPause called finished");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        CrashUtil.log("onStop called started");
         if (refreshTimer != null) {
             refreshTimer.stop();
         }
         saveLastQueryString();
-        CrashUtil.log("onStop called finished");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        CrashUtil.log("onDestroy called started");
         if (loader != null) {
             if (isFinishing()) {
                 loader.cancel(true);
@@ -573,7 +568,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null) {
             adapter.signalKilled();
         }
-        CrashUtil.log("onDestroy called finished");
     }
 
     public void onEntitySelected(int itemPosition) {
