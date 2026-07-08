@@ -158,6 +158,9 @@
         <attr name="reticleOutlineColor" format="color" />
         <attr name="reticleStrokeWidth" format="dimension" />
         <attr name="reticleOutlineWidth" format="dimension" />
-        <attr name="reticleMarginRatio" format="float" />
+        <attr name="reticleWidthFractionPortrait" format="float" />
+        <attr name="reticleHeightFractionPortrait" format="float" />
+        <attr name="reticleWidthFractionLandscape" format="float" />
+        <attr name="reticleHeightFractionLandscape" format="float" />
     </declare-styleable>
 </resources>

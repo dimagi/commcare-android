@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:viewBindingIgnore="true">
@@ -13,7 +13,10 @@
 
     <org.commcare.views.RectangleOverlayView
         android:id="@+id/rectangle_overlay"
-        app:reticleMarginRatio="0.2"
+        app:reticleWidthFractionPortrait="0.90"
+        app:reticleHeightFractionPortrait="0.25"
+        app:reticleWidthFractionLandscape="0.70"
+        app:reticleHeightFractionLandscape="0.50"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -25,6 +25,7 @@ import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.ImageSizeTooLargeException;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.FaceCaptureView;
 import org.javarosa.core.services.Logger;
 
@@ -135,7 +136,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
                             imageProxy.close();
                             finalizeImageCapture(calcPreviewCaptureArea());
                         } else {
-                            logErrorAndExit("No image found, manual capture failed!", getString(R.string.camera_start_failed), null);
+                            logErrorAndExit("No image found, manual capture failed!", StringUtils.getStringRobust(MicroImageActivity.this, R.string.camera_start_failed), null);
                         }
                     }
                 });
@@ -174,7 +175,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     private void handleErrorDuringDetection(Exception e) {
         Logger.exception("Error during face detection ", e);
-        Toast.makeText(this, getString(R.string.microimage_face_detection_mode_failed), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, StringUtils.getStringRobust(this, R.string.microimage_face_detection_mode_failed), Toast.LENGTH_LONG).show();
         switchToManualCaptureMode();
     }
 
@@ -228,7 +229,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             String finalImageAsBase64 = BASE_64_IMAGE_PREFIX + Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
             finishWithResul(finalImageAsBase64);
         } catch (IOException | ImageSizeTooLargeException e) {
-            logErrorAndExit(e.getMessage(), getString(R.string.microimage_cropping_failed), e.getCause());
+            logErrorAndExit(e.getMessage(), StringUtils.getStringRobust(this, R.string.microimage_cropping_failed), e.getCause());
         } finally {
             recycleBitmap(croppedBitmap);
             recycleBitmap(scaledBitmap);

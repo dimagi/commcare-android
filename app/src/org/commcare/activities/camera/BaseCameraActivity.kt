@@ -19,8 +19,8 @@ import androidx.core.content.ContextCompat
 import org.commcare.activities.CommonBaseActivity
 import org.commcare.dalvik.R
 import org.commcare.interfaces.RuntimePermissionRequester
-import org.commcare.util.LogTypes
 import org.commcare.utils.Permissions
+import org.commcare.utils.StringUtils
 import org.commcare.views.dialogs.DialogCreationHelpers
 import org.javarosa.core.services.Logger
 import java.util.concurrent.ExecutionException
@@ -45,7 +45,11 @@ abstract class BaseCameraActivity :
             if (isGranted) {
                 startCamera()
             } else {
-                logErrorAndExit("Error acquiring camera permission", getString(R.string.camera_permission_denied), null)
+                logErrorAndExit(
+                    "Error acquiring camera permission",
+                    StringUtils.getStringRobust(this, R.string.camera_permission_denied),
+                    null,
+                )
             }
         }
 
@@ -54,7 +58,7 @@ abstract class BaseCameraActivity :
         setContentView(getContentLayout())
         cameraView = getCameraView()
         supportActionBar?.apply {
-            setTitle(getTitleRes())
+            title = StringUtils.getStringRobust(this@BaseCameraActivity, getTitleRes())
             setDisplayHomeAsUpEnabled(true)
         }
         onCameraViewReady()
@@ -77,8 +81,8 @@ abstract class BaseCameraActivity :
                         this,
                         this,
                         -1, // actually not required due to launcher activity
-                        getString(R.string.camera_permission_title),
-                        getString(R.string.camera_permission_msg),
+                        StringUtils.getStringRobust(this, R.string.camera_permission_title),
+                        StringUtils.getStringRobust(this, R.string.camera_permission_msg),
                     )
                 dialog.showNonPersistentDialog(this)
             } else {
@@ -105,15 +109,27 @@ abstract class BaseCameraActivity :
             } catch (e: Exception) {
                 when (e) {
                     is ExecutionException, is InterruptedException -> {
-                        logErrorAndExit("Error acquiring camera provider", getString(R.string.camera_start_failed), e)
+                        logErrorAndExit(
+                            "Error acquiring camera provider",
+                            StringUtils.getStringRobust(this, R.string.camera_start_failed),
+                            e,
+                        )
                     }
 
                     is IllegalStateException, is IllegalArgumentException -> {
-                        logErrorAndExit("Error binding camera use cases", getString(R.string.camera_start_failed), e)
+                        logErrorAndExit(
+                            "Error binding camera use cases",
+                            StringUtils.getStringRobust(this, R.string.camera_start_failed),
+                            e,
+                        )
                     }
 
                     else -> {
-                        logErrorAndExit("Unknown error occurred while starting camera", getString(R.string.camera_start_failed), e)
+                        logErrorAndExit(
+                            "Unknown error occurred while starting camera",
+                            StringUtils.getStringRobust(this, R.string.camera_start_failed),
+                            e,
+                        )
                     }
                 }
             }
@@ -125,7 +141,7 @@ abstract class BaseCameraActivity :
         val targetResolution = getTargetResolution()
 
         val previewBuilder = Preview.Builder().setTargetRotation(targetRotation)
-        targetResolution.let { previewBuilder.setResolutionSelector(buildResolutionSelector(it)) }
+        targetResolution?.let { previewBuilder.setResolutionSelector(buildResolutionSelector(it)) }
         val preview = previewBuilder.build()
         preview.surfaceProvider = cameraView!!.surfaceProvider
 
@@ -160,11 +176,7 @@ abstract class BaseCameraActivity :
         userMessage: String,
         e: Throwable?,
     ) {
-        if (e == null) {
-            Logger.log(LogTypes.TYPE_EXCEPTION, logMessage)
-        } else {
-            Logger.exception(logMessage, e)
-        }
+        Logger.exception(logMessage, e ?: Exception(logMessage))
         Toast.makeText(this, userMessage, Toast.LENGTH_LONG).show()
         setResult(RESULT_CANCELED)
         finish()
@@ -180,7 +192,7 @@ abstract class BaseCameraActivity :
 
     protected abstract fun getCameraSelector(): CameraSelector
 
-    protected abstract fun getTargetResolution(): Size
+    protected abstract fun getTargetResolution(): Size?
 
     protected abstract fun buildCaptureUseCase(
         targetResolution: Size?,

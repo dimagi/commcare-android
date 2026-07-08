@@ -16,10 +16,9 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
 import org.commcare.dalvik.R
-import org.commcare.util.LogTypes
+import org.commcare.utils.StringUtils
+import org.commcare.utils.closeQuietly
 import org.javarosa.core.services.Logger
-import java.io.IOException
-import java.io.OutputStream
 
 /**
  * Back-camera capture screen that draws a static [org.commcare.views.RectangleOverlayView] reticle
@@ -42,7 +41,11 @@ class CameraOverlayActivity : BaseCameraActivity() {
 
     override fun getCameraSelector(): CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-    override fun getTargetResolution(): Size = PREVIEW_TARGET_RESOLUTION
+    override fun getTargetResolution(): Size? = null
+
+    override fun onCameraViewReady() {
+        findViewById<ImageView>(R.id.camera_shutter_button).setOnClickListener { captureImage() }
+    }
 
     override fun buildCaptureUseCase(
         targetResolution: Size?,
@@ -55,8 +58,6 @@ class CameraOverlayActivity : BaseCameraActivity() {
                 .setTargetRotation(targetRotation)
                 .build()
         imageCapture = capture
-
-        findViewById<ImageView>(R.id.camera_shutter_button).setOnClickListener { captureImage() }
         return capture
     }
 
@@ -100,12 +101,8 @@ class CameraOverlayActivity : BaseCameraActivity() {
         logMessage: String,
         e: Throwable?,
     ) {
-        if (e == null) {
-            Logger.log(LogTypes.TYPE_EXCEPTION, logMessage)
-        } else {
-            Logger.exception(logMessage, e)
-        }
-        Toast.makeText(this, getString(R.string.image_capture_failed), Toast.LENGTH_LONG).show()
+        Logger.exception(logMessage, e ?: Exception(logMessage))
+        Toast.makeText(this, StringUtils.getStringRobust(this, R.string.image_capture_failed), Toast.LENGTH_LONG).show()
         handleCapturingState(false)
     }
 
@@ -120,22 +117,12 @@ class CameraOverlayActivity : BaseCameraActivity() {
             if (capturing) View.VISIBLE else View.GONE
     }
 
-    private fun OutputStream.closeQuietly() {
-        try {
-            close()
-        } catch (e: IOException) {
-            Logger.exception("Failed to close output stream after image capture", e)
-        }
-    }
-
     private fun intentOutputUri(): Uri? = IntentCompat.getParcelableExtra(intent, OUTPUT_FILE_URI_EXTRA, Uri::class.java)
 
     companion object {
         const val OUTPUT_FILE_URI_EXTRA = "camera_overlay_output_file_uri_extra"
 
         private const val DISABLED_SHUTTER_ALPHA = 0.5f
-
-        private val PREVIEW_TARGET_RESOLUTION = Size(1080, 1920)
 
         @JvmStatic
         fun getIntent(
