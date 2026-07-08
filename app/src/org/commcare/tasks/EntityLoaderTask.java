@@ -126,7 +126,7 @@ public class EntityLoaderTask
                         return;
                     }
 
-                    if (result == null) {
+                    if (result == null || listener.shouldAbortDelivery()) {
                         return;
                     }
 
