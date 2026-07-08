@@ -55,7 +55,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 -->
 
 #### What's New
-
+- Added a face-capture image widget: image questions with `appearance="face"` now open a dedicated camera that automatically detects and captures the respondent's face, with front/back camera switching and a manual-capture fallback.
 
 #### Internal Release Notes
 - Deprecated PersonalID support for devices on Android OS less than Android 9.
@@ -195,6 +195,17 @@ we would like to communicate to QA as part of the release testing
 
 - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
 - Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
+
+- **Face capture image widget:**
+  - **Setup:** Use a form with an image-capture question configured with `appearance="face"`.
+  - **Launch & default camera:** Open the question and tap the capture button. Verify a full-screen camera opens using the **rear (back) camera** by default, showing a face-capture oval overlay and capture instructions. Verify the "Choose Image" button is **not** shown for this question.
+  - **Automatic capture (devices with Google Play Services):** Position a face within the oval. Verify the app detects the face, the green oval tracks and **fully covers** the face, and once the image stabilizes the photo is captured automatically and then appears in the form question with a REMOVE IMAGE button.
+  - **Oval alignment with controls visible:** With the bottom camera controls (lens-switch and/or manual shutter) visible, verify the green oval still fully covers the detected face and is not rendered too small or vertically offset.
+  - **Lens switching:** Tap the switch-camera button. Verify the preview toggles between the front and back cameras on each tap, and that the button icon turns gray while pressed and returns to white on release.
+  - **Manual mode (devices without Google Play Services):** Verify the shutter button is shown, the instructions and mode indicator switch to the manual-capture text, and tapping the shutter captures the current frame.
+  - **Discard & retake:** After a capture, tap REMOVE IMAGE and verify the image is cleared and it's possible to re-capture.
+  - **Back navigation:** From the camera screen, tap the toolbar back arrow and the device back button. In both cases verify the camera closes and returns to the form without capturing or crashing.
+  - **Result persistence & submission:** Complete a capture, navigate away from and back to the question, and verify the captured face image persists. Submit the form and verify the image is saved and uploaded to HQ.
 
 
 ## CommCare 2.63
