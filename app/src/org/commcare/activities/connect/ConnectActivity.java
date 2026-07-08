@@ -169,7 +169,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         notificationsMenuItem = menu.findItem(R.id.action_bell);
-        notificationsMenuItem.setVisible(true);
         updateNotificationIcon();
 
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
