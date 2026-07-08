@@ -1,6 +1,7 @@
 package org.commcare.personalId.profile
 
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -238,6 +239,14 @@ class PersonalIdProfileEditFragmentTest {
             "Should pop back to the profile screen after a successful save",
             R.id.personalid_profile_fragment,
             navController.currentDestination!!.id,
+        )
+
+        val profileFragment = navHostFragment.childFragmentManager.primaryNavigationFragment!!
+        val displayedName = profileFragment.requireView().findViewById<TextView>(R.id.profile_value_name)
+        assertEquals(
+            "The profile screen should show the updated name after saving",
+            "Grace Hopper",
+            displayedName.text.toString(),
         )
     }
 
