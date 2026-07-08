@@ -332,11 +332,11 @@ object InstrumentationUtility {
      * to be changed before returning.
      */
     @JvmStatic
-    fun changeWifi(enable: Boolean) {
+    fun setNetworkEnabled(enabled: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        uiDevice.executeShellCommand(if (enable) "svc wifi enable" else "svc wifi disable")
-        uiDevice.executeShellCommand(if (enable) "svc data enable" else "svc data disable")
-        waitForWifiState(enable)
+        uiDevice.executeShellCommand(if (enabled) "svc wifi enable" else "svc wifi disable")
+        uiDevice.executeShellCommand(if (enabled) "svc data enable" else "svc data disable")
+        waitForWifiState(enabled)
     }
 
     private fun waitForWifiState(

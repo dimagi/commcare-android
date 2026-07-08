@@ -166,7 +166,7 @@ class FormEntryTest: BaseTest() {
         InstrumentationUtility.login("user_with_no_data", "123")
         InstrumentationUtility.logout()
         // Disable wifi
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         // We can still login.
         InstrumentationUtility.login("user_with_no_data", "123")
         // Submit a form.
@@ -187,7 +187,7 @@ class FormEntryTest: BaseTest() {
                 .check(matches(isDisplayed()))
 
         // Enabled wifi.
-        InstrumentationUtility.changeWifi(true)
+        InstrumentationUtility.setNetworkEnabled(true)
 
         // Confirm form is sent on sync.
         onView(withText("Sync with Server"))
