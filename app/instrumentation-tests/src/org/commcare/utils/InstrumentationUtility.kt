@@ -328,13 +328,14 @@ object InstrumentationUtility {
     }
 
     /**
-     * This method will toggle the wifi state in mobile.
-     * Starting with Android Q, applications are not allowed to enable/disable Wi-Fi.
+     * This method will toggle the network state in mobile, both Wi-Fi and data. It will wait for the Wi-Fi state
+     * to be changed before returning.
      */
     @JvmStatic
     fun changeWifi(enable: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.executeShellCommand(if (enable) "svc wifi enable" else "svc wifi disable")
+        uiDevice.executeShellCommand(if (enable) "svc data enable" else "svc data disable")
         waitForWifiState(enable)
     }
 
