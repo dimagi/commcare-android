@@ -7,12 +7,18 @@ import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseMo
 import org.javarosa.core.model.utils.DateUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import java.io.ByteArrayInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -24,6 +30,7 @@ class DeliveryAppProgressResponseParserTest {
     fun setup() {
         parser = DeliveryAppProgressResponseParser()
         job = ConnectJobRecord()
+        job.jobUUID = ""
     }
 
     private fun parse(json: String): DeliveryAppProgressResponseModel = parser.parse(200, ByteArrayInputStream(json.toByteArray()), job)
@@ -176,5 +183,139 @@ class DeliveryAppProgressResponseParserTest {
     @Test(expected = RuntimeException::class)
     fun `invalid JSON throws RuntimeException`() {
         parse("{ invalid json }")
+    }
+
+    private fun taskJson(
+        taskId: String = "cabcc77c-6610-485d-b147-97f28e7aca8f",
+        name: String = "relarn_task_4",
+        description: String = "This is relearn task 4",
+        status: String = "assigned",
+        dueDate: String? = "2026-07-17",
+        dateCreated: String = "2026-07-03T10:36:45.559775Z",
+    ): String {
+        val dueDateField = if (dueDate != null) """"due_date": "$dueDate",""" else ""
+        return """
+            {
+                "assigned_task_id": "$taskId",
+                "task_name": "$name",
+                "task_description": "$description",
+                "status": "$status",
+                $dueDateField
+                "date_created": "$dateCreated"
+            }
+            """.trimIndent()
+    }
+
+    private fun isoUtcFormat() =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+            .apply { timeZone = TimeZone.getTimeZone("UTC") }
+
+    @Test
+    fun `assigned_tasks absent returns empty task list`() {
+        val result = parse("{}")
+
+        assertEquals(0, result.tasks.size)
+    }
+
+    @Test
+    fun `assigned_tasks empty array returns empty task list`() {
+        val result = parse("""{"assigned_tasks": []}""")
+
+        assertEquals(0, result.tasks.size)
+    }
+
+    @Test
+    fun `single task parsed with all fields`() {
+        val result = parse("""{"assigned_tasks": [${taskJson()}]}""")
+
+        assertEquals(1, result.tasks.size)
+        val task = result.tasks[0]
+        assertEquals("cabcc77c-6610-485d-b147-97f28e7aca8f", task.taskId)
+        assertEquals("relarn_task_4", task.name)
+        assertEquals("This is relearn task 4", task.description)
+        assertEquals("assigned", task.status)
+        assertEquals(DateUtils.parseDate("2026-07-17"), task.dueDate)
+        assertEquals(Date(isoUtcFormat().parse("2026-07-03T10:36:45Z")!!.time + 559L), task.dateCreated)
+    }
+
+    @Test
+    fun `task jobUUID is set from parent job`() {
+        job.jobUUID = "test-job-uuid"
+        val result = parse("""{"assigned_tasks": [${taskJson()}]}""")
+
+        assertEquals("test-job-uuid", result.tasks[0].jobUUID)
+    }
+
+    @Test
+    fun `multiple tasks all parsed`() {
+        val result =
+            parse(
+                """{"assigned_tasks": [${taskJson(taskId = "id-1")}, ${taskJson(taskId = "id-2")}, ${taskJson(taskId = "id-3")}]}""",
+            )
+
+        assertEquals(3, result.tasks.size)
+        assertEquals("id-1", result.tasks[0].taskId)
+        assertEquals("id-2", result.tasks[1].taskId)
+        assertEquals("id-3", result.tasks[2].taskId)
+    }
+
+    @Test
+    fun `task with no due_date leaves dueDate null`() {
+        val result = parse("""{"assigned_tasks": [${taskJson(dueDate = null)}]}""")
+
+        assertNull(result.tasks[0].dueDate)
+    }
+
+    @Test
+    fun `task with missing optional fields uses defaults`() {
+        val minimalTask =
+            """
+            {
+                "assigned_task_id": "some-id",
+                "task_name": "minimal",
+                "status": "pending",
+                "date_created": "2026-07-01T08:00:00Z"
+            }
+            """.trimIndent()
+        val result = parse("""{"assigned_tasks": [$minimalTask]}""")
+
+        val task = result.tasks[0]
+        assertEquals("", task.description)
+        assertEquals("", task.connectChannelId)
+        assertEquals("", task.type)
+        assertNull(task.dueDate)
+    }
+
+    @Test
+    fun `date_created with microseconds parsed correctly`() {
+        val result = parse("""{"assigned_tasks": [${taskJson(dateCreated = "2026-07-03T10:36:45.559775Z")}]}""")
+
+        val expected = Date(isoUtcFormat().parse("2026-07-03T10:36:45Z")!!.time + 559L)
+        assertEquals(expected, result.tasks[0].dateCreated)
+    }
+
+    @Test
+    fun `date_created with timezone offset parsed correctly`() {
+        val result = parse("""{"assigned_tasks": [${taskJson(dateCreated = "2026-07-03T10:36:45+00:00")}]}""")
+
+        val expected = isoUtcFormat().parse("2026-07-03T10:36:45Z")
+        assertEquals(expected, result.tasks[0].dateCreated)
+    }
+
+    @Test
+    fun `tasks parsed alongside other fields without interfering`() {
+        val json =
+            """
+            {
+                "max_payments": 5,
+                "assigned_tasks": [${taskJson()}]
+            }
+            """.trimIndent()
+
+        val result = parse(json)
+
+        assertTrue(result.updatedJob)
+        assertEquals(5, job.maxVisits)
+        assertEquals(1, result.tasks.size)
     }
 }

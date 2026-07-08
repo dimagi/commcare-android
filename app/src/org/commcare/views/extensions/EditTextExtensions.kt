@@ -1,4 +1,4 @@
-package org.commcare.utils
+package org.commcare.views.extensions
 
 import android.text.Editable
 import android.text.TextWatcher

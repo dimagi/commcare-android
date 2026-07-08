@@ -1,21 +1,17 @@
 package org.commcare.personalId.profile
 
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
-import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.dalvik.R
 import org.commcare.utils.PhoneNumberHelper
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -24,96 +20,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.MockedStatic
-import org.mockito.Mockito
 import org.mockito.kotlin.any
-import org.robolectric.Robolectric
-import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
-import org.robolectric.shadows.ShadowLooper
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class PersonalIdProfileEditFragmentTest {
-    private lateinit var activityController: ActivityController<PersonalIdProfileActivity>
-    private lateinit var activity: PersonalIdProfileActivity
-    private lateinit var navHostFragment: NavHostFragment
+class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
     private lateinit var fragment: PersonalIdProfileEditFragment
-    private lateinit var navController: NavController
-
-    private lateinit var connectUserDatabaseUtilMock: MockedStatic<ConnectUserDatabaseUtil>
-
-    private val mockApiServer = PersonalIdMockApiServer(PersonalIdMockApiServer.CallbackMode.MAIN_LOOPER)
-    private val mockWebServer get() = mockApiServer.server
-
-    private lateinit var user: ConnectUserRecord
 
     @Before
-    fun setUp() {
-        connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
-        user =
-            ConnectUserRecord(
-                "+11234567890",
-                "test-user-id",
-                "test-password",
-                "Ada Lovelace",
-                "",
-                null,
-                null,
-                false,
-                "",
-                false,
-            ).apply {
-                email = "ada@example.com"
-            }
-        connectUserDatabaseUtilMock
-            .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(any()) }
-            .thenReturn(user)
-        mockApiServer.start()
-        launchEditFragment()
-    }
-
-    @After
-    fun tearDown() {
-        val errors = mutableListOf<Throwable>()
-        listOf(
-            { activityController.pause().stop().destroy() },
-            { connectUserDatabaseUtilMock.close() },
-            { mockApiServer.shutdown() },
-        ).forEach { step ->
-            try {
-                step()
-            } catch (throwable: Throwable) {
-                errors.add(throwable)
-            }
-        }
-        if (errors.isNotEmpty()) {
-            val first = errors.first()
-            errors.drop(1).forEach { first.addSuppressed(it) }
-            throw first
-        }
-    }
-
-    private fun launchEditFragment() {
-        activityController = Robolectric.buildActivity(PersonalIdProfileActivity::class.java)
-        activity =
-            activityController
-                .create()
-                .start()
-                .resume()
-                .get()
-
-        navHostFragment =
-            activity.supportFragmentManager
-                .findFragmentById(R.id.profile_nav_host) as NavHostFragment
-        navController = navHostFragment.navController
-
-        activity.runOnUiThread {
-            navController.navigate(R.id.action_profile_to_profile_edit)
-        }
-        ShadowLooper.idleMainLooper()
-
+    fun navigateToEditFragment() {
+        onUiThread { navController.navigate(R.id.action_profile_to_profile_edit) }
         fragment =
             navHostFragment.childFragmentManager
                 .primaryNavigationFragment as PersonalIdProfileEditFragment
@@ -131,17 +49,8 @@ class PersonalIdProfileEditFragmentTest {
 
     private fun saveButton() = fragment.requireView().findViewById<MaterialButton>(R.id.btn_save)
 
-    private fun setText(
-        field: TextInputEditText,
-        value: String,
-    ) {
-        activity.runOnUiThread { field.setText(value) }
-        ShadowLooper.idleMainLooper()
-    }
-
     private fun clickSave() {
-        activity.runOnUiThread { saveButton().performClick() }
-        ShadowLooper.idleMainLooper()
+        onUiThread { saveButton().performClick() }
     }
 
     // ========== Prefill / initial state ==========
@@ -251,7 +160,15 @@ class PersonalIdProfileEditFragmentTest {
         assertEquals(
             "Should pop back to the profile screen after a successful save",
             R.id.personalid_profile_fragment,
-            navController.currentDestination!!.id,
+            currentDestinationId(),
+        )
+
+        val profileFragment = navHostFragment.childFragmentManager.primaryNavigationFragment!!
+        val displayedName = profileFragment.requireView().findViewById<TextView>(R.id.profile_value_name)
+        assertEquals(
+            "The profile screen should show the updated name after saving",
+            "Grace Hopper",
+            displayedName.text.toString(),
         )
     }
 
@@ -281,10 +198,34 @@ class PersonalIdProfileEditFragmentTest {
         // No response is enqueued so the OTP request is dispatched but its success callback (which
         // would navigate to the separately-tested email-verification screen) never runs, keeping
         // the assertion on the send boundary.
-        activity.runOnUiThread { confirmButton.performClick() }
-        ShadowLooper.idleMainLooper()
+        onUiThread { confirmButton.performClick() }
 
         val request = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", request.path)
+    }
+
+    @Test
+    fun `saving a simultaneous name and email change commits the name before sending the email otp`() {
+        setText(nameField(), "Grace Hopper")
+        setText(emailField(), "grace@example.com")
+
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        // The name commit must succeed so the flow proceeds to the OTP send; no OTP response is
+        // enqueued so the success callback (which navigates away) never runs.
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        onUiThread { confirmButton.performClick() }
+
+        val nameRequest = mockApiServer.takeRequestOrFail()
+        assertEquals("/users/update_profile", nameRequest.path)
+        assertTrue(
+            "Name should be committed first",
+            nameRequest.body.readUtf8().contains("Grace"),
+        )
+
+        val otpRequest = mockApiServer.takeRequestOrFail()
+        assertEquals("/users/send_email_otp", otpRequest.path)
     }
 }
