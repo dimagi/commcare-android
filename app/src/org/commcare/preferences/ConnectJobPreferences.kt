@@ -1,6 +1,5 @@
 package org.commcare.preferences
 
-
 import android.content.Context
 import androidx.core.content.edit
 import org.commcare.CommCareApplication
