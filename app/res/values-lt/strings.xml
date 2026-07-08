@@ -308,10 +308,14 @@
     <string name="get_app_list_unknown_error">Bandant gauti programų sąrašą įvyko klaida. Bandykite dar kartą arba susisiekite su pagalba, jei problema kartojasi.</string>
     <string name="no_apps_available">Šiam vartotojui atsisiųsti programų nėra.</string>
     <string name="could_not_refresh_apps">Atsiprašome, atnaujinant programų sąrašą įvyko klaida. Bandykite dar kartą įvesti vartotoją.</string>
+
     <string name="image_capture_activity_title">Fotografuoti</string>
     <string name="image_capture_failed">Nepavyko išsaugoti nuotraukos, bandykite dar kartą</string>
     <string name="camera_start_failed">Nepavyko paleisti kameros</string>
     <string name="camera_permission_denied">Eikite į nustatymus ir įjunkite kameros leidimą, kad galėtumėte naudoti šią funkciją</string>
     <string name="microimage_face_detection_mode_failed">Nepavyko veido aptikimo režimas, perjungiama į rankinį režimą</string>
     <string name="microimage_cropping_failed">Nepavyko apkarpyti vaizdo, įsitikinkite, kad objektas yra fiksavimo srityje</string>
+
+    <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
+
 </resources>

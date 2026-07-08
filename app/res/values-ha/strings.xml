@@ -183,6 +183,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_delivery">Isarwa</string>
     <string name="connect_progress_title">Ci gaban Isarwa</string>
     <string name="connect_progress_status">Ka kammala %d na ziyara %d.</string>
+    <string name="semi_circle_progress_value_format">%1$d daga %2$d</string>
     <string name="connect_progress_warning_ended">Aikin ya ƙare. Ba za ku sami wani ci gaba ba don ƙarin aiki.</string>
     <string name="connect_progress_warning_not_started">Aikin bai fara ba tukuna. Ba za ka sami wani ci gaba ba don aiki.</string>
     <string name="connect_progress_warning_max_reached_single">Ka kammala matsakaicin adadin ziyara. Ba za ka sami wani ci gaba ba don ƙarin aiki.</string>
