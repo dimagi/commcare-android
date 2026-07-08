@@ -35,10 +35,9 @@ object ConnectTaskUtils {
             if (match == null) {
                 storage.write(incomingTask)
                 changed = true
-            } else if (match.mutableFieldsDiffer(incomingTask)) {
-                match.copyMutableFieldsFrom(incomingTask)
-                match.dateModified = Date()
-                storage.write(match)
+            } else if (incomingTask.dateModified.after(match.dateModified)) {
+                incomingTask.id = match.id
+                storage.write(incomingTask)
                 changed = true
             }
         }
