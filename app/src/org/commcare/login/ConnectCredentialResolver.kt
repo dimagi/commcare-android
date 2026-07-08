@@ -44,7 +44,6 @@ class ConnectCredentialResolver(
             true,
             generateAppPassword(),
             true,
-            false,
         )
 
     private fun generateAppPassword(): String {

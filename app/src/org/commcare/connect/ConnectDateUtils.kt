@@ -89,21 +89,6 @@ object ConnectDateUtils {
         }
     }
 
-    fun parseServerTimestamp(dateStr: String): Date? {
-        if (dateStr.isEmpty()) return null
-        return try {
-            val cleaned =
-                dateStr
-                    .replace(Regex("\\.\\d+"), "")
-                    .replace("+00:00", "Z")
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-                .apply { timeZone = TimeZone.getTimeZone("UTC") }
-                .parse(cleaned)
-        } catch (_: ParseException) {
-            null
-        }
-    }
-
     fun formatNotificationTime(
         context: Context,
         date: Date,

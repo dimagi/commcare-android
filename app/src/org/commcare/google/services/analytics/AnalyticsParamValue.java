@@ -174,6 +174,8 @@ public class AnalyticsParamValue {
             "user_initiated_from_login_page";
     public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE =
             "user_initiated_from_setup_page";
+    public static final String PERSONAL_ID_FORGOT_USER_PROFILE_PAGE =
+            "user_initiated_from_profile_page";
     public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
 
     // Param values for PersonalID configuration failure

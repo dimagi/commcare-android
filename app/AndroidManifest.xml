@@ -401,6 +401,10 @@
         <uses-library
             android:name="com.google.android.maps"
             android:required="false" />
+        
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -566,7 +570,7 @@
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
         <activity
-            android:name="org.commcare.fragments.MicroImageActivity"
+            android:name="org.commcare.activities.camera.MicroImageActivity"
             android:screenOrientation="portrait"/>
         <!-- Start Collect Manifest -->
 
@@ -603,7 +607,7 @@
             android:theme="@style/CommonTheme.NoActionBar"/>
 
         <activity
-            android:name="org.commcare.activities.connect.PersonalIdProfileActivity"
+            android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
             android:theme="@style/CommonTheme.NoActionBar"/>
 

@@ -160,7 +160,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             Logger.exception("Invalid email otp", Exception("Invalid email otp length error - ${otp.length}"))
             return
         }
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(javaClass.simpleName, null)
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
+            javaClass.simpleName,
+            null,
+            PersonalIdWorkflow.fromEmailWorkFlow(workflow),
+        )
         clearError()
         enableVerifyButton(false)
 

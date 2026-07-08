@@ -12,12 +12,12 @@ import androidx.navigation.NavDestination
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import okhttp3.mockwebserver.MockResponse
+import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
-import org.commcare.fragments.MicroImageActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider

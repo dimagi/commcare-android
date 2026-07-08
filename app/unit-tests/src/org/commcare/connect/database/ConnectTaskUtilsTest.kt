@@ -101,8 +101,9 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `storeTasks does not rewrite an unchanged existing task`() {
-        seedTask(makeTask(taskId = "task-1", status = "assigned"))
-        val incoming = makeTask(taskId = "task-1", status = "assigned")
+        val sharedDate = Date()
+        seedTask(makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate))
+        val incoming = makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate)
 
         ConnectTaskUtils.storeTasks(context, listOf(incoming), jobUUID)
 
@@ -131,9 +132,10 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `storeTasks does not update task modified time when nothing changed`() {
-        seedTask(makeTask(taskId = "task-1", status = "assigned"))
+        val sharedDate = Date()
+        seedTask(makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate))
 
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = "assigned")), jobUUID)
+        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate)), jobUUID)
 
         assertEquals(ConnectJobPreferences.TIMESTAMP_NOT_SET, prefs().getTaskModifiedTime())
     }

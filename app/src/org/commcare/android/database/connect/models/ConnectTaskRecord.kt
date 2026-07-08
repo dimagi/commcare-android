@@ -1,7 +1,6 @@
 package org.commcare.android.database.connect.models
 
 import org.commcare.android.storage.framework.Persisted
-import org.commcare.connect.ConnectDateUtils
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
@@ -56,23 +55,6 @@ class ConnectTaskRecord :
     @MetaField(META_DATE_MODIFIED)
     var dateModified: Date = Date()
 
-    fun copyMutableFieldsFrom(incoming: ConnectTaskRecord) {
-        name = incoming.name
-        description = incoming.description
-        status = incoming.status
-        connectChannelId = incoming.connectChannelId
-        type = incoming.type
-        dueDate = incoming.dueDate
-    }
-
-    fun mutableFieldsDiffer(other: ConnectTaskRecord): Boolean =
-        name != other.name ||
-            description != other.description ||
-            status != other.status ||
-            connectChannelId != other.connectChannelId ||
-            type != other.type ||
-            dueDate != other.dueDate
-
     companion object {
         const val STORAGE_KEY = "connect_tasks"
         const val META_JOB_UUID = "opportunity_id"
@@ -104,9 +86,10 @@ class ConnectTaskRecord :
                 task.dueDate = DateUtils.parseDate(json.getString("due_date"))
             }
             if (json.hasNonNull("date_created")) {
-                task.dateCreated = ConnectDateUtils.parseServerTimestamp(
-                    json.getString("date_created"),
-                ) ?: Date()
+                task.dateCreated = DateUtils.parseDateTime(json.getString("date_created")) ?: Date()
+            }
+            if (json.hasNonNull("date_modified")) {
+                task.dateModified = DateUtils.parseDateTime(json.getString("date_modified")) ?: Date()
             }
             return task
         }

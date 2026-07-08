@@ -169,6 +169,7 @@ object InstrumentationUtility {
         // Click on About CommCare 4 times to become developer.
         for (i in 0..3) {
             openOptionsMenu()
+            onView(isRoot()).perform(waitForView(withText("About CommCare")))
             onView(withText("About CommCare"))
                 .perform(click())
             onView(withText(R.string.ok))
@@ -333,6 +334,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun changeWifi(enable: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.executeShellCommand("settings put global wifi_wakeup " + if (enable) "1" else "0")
         uiDevice.executeShellCommand(if (enable) "svc wifi enable" else "svc wifi disable")
         waitForWifiState(enable)
     }

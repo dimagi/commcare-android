@@ -53,6 +53,7 @@ import kotlin.Unit;
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
+    private boolean appLaunchedFromConnect = false;
     private String redirectionAction = "";
     private ConnectJobRecord job;
     private String opportunityUuid;
@@ -233,9 +234,23 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public void onBackPressed() {
-        if (backButtonAndActionBarEnabled) {
-            super.onBackPressed();
+        if (!backButtonAndActionBarEnabled) {
+            return;
         }
+        if (appLaunchedFromConnect && isAtStartDestination()) {
+            finishAffinity();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    public void markAppLaunchedFromConnect() {
+        appLaunchedFromConnect = true;
+    }
+
+    private boolean isAtStartDestination() {
+        return navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == navController.getGraph().getStartDestinationId();
     }
 
     @Override
