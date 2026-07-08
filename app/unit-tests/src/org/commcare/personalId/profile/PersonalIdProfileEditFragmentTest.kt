@@ -76,23 +76,9 @@ class PersonalIdProfileEditFragmentTest {
 
     @After
     fun tearDown() {
-        val errors = mutableListOf<Throwable>()
-        listOf(
-            { activityController.pause().stop().destroy() },
-            { connectUserDatabaseUtilMock.close() },
-            { mockApiServer.shutdown() },
-        ).forEach { step ->
-            try {
-                step()
-            } catch (throwable: Throwable) {
-                errors.add(throwable)
-            }
-        }
-        if (errors.isNotEmpty()) {
-            val first = errors.first()
-            errors.drop(1).forEach { first.addSuppressed(it) }
-            throw first
-        }
+        activityController.pause().stop().destroy()
+        connectUserDatabaseUtilMock.close()
+        mockApiServer.shutdown()
     }
 
     private fun launchEditFragment() {
