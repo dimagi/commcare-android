@@ -1057,6 +1057,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    public boolean shouldAbortDelivery() {
+        return isFinishing();
+    }
+
+    @Override
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
         if (selectedIntent != null) {
