@@ -17,7 +17,7 @@ import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
 import org.commcare.fragments.personalId.EmailHelper
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
-import org.commcare.utils.onTextChanged
+import org.commcare.views.extensions.onTextChanged
 
 class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     private var _binding: PersonalidProfileEditScreenBinding? = null
