@@ -206,6 +206,10 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             sessionData = null,
             tracker = viewModel.emailOtpTracker,
             onSuccess = {
+                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
+                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
+                )
                 _binding ?: return@sendEmailOtp
                 findNavController().navigate(
                     PersonalIdProfileEditFragmentDirections.actionProfileEditToEmailVerification(
@@ -216,6 +220,10 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 )
             },
             onFailure = { errorCode, throwable ->
+                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
+                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+                )
                 _binding ?: return@sendEmailOtp
                 onSaveFailed(errorCode, throwable)
             },

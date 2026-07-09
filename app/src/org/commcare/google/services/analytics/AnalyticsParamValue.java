@@ -175,6 +175,7 @@ public class AnalyticsParamValue {
     public static final String MANAGE_PROFILE_ACTION_PHOTO_UPDATED = "photo_updated";
     public static final String MANAGE_PROFILE_ACTION_NAME_UPDATED = "name_updated";
     public static final String MANAGE_PROFILE_ACTION_CHANGES_DISCARDED = "changes_discarded";
+    public static final String MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED = "email_update_initiated";
     public static final String MANAGE_PROFILE_OUTCOME_SUCCESS = "success";
     public static final String MANAGE_PROFILE_OUTCOME_FAILURE = "failure";
 

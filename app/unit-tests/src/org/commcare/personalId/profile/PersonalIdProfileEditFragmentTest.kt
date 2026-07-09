@@ -245,6 +245,30 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
     }
 
     @Test
+    fun `a failed email otp send reports the email update initiated failure and stays on the edit screen`() {
+        setText(emailField(), "grace@example.com")
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        mockWebServer.enqueue(MockResponse().setResponseCode(500).setBody("{}"))
+        onUiThread { confirmButton.performClick() }
+        mockApiServer.drainHttp()
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
+                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+            )
+        }
+        assertEquals(
+            "Should remain on the edit screen after a failed OTP send",
+            R.id.personalid_profile_edit_fragment,
+            currentDestinationId(),
+        )
+    }
+
+    @Test
     fun `saving a simultaneous name and email change commits the name before sending the email otp`() {
         setText(nameField(), "Grace Hopper")
         setText(emailField(), "grace@example.com")
