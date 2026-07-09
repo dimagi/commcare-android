@@ -16,6 +16,8 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
 import org.commcare.fragments.personalId.EmailHelper
 import org.commcare.fragments.personalId.EmailWorkFlow
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.views.extensions.onTextChanged
 
@@ -35,9 +37,17 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 onSuccess = { photoBase64 ->
                     viewModel.onPhotoUpdated(photoBase64)
                     _binding?.let { loadUserPhoto(it.profileHeader.profileUserImage, photoBase64) }
+                    FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                        AnalyticsParamValue.MANAGE_PROFILE_ACTION_PHOTO_UPDATED,
+                        AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
+                    )
                 },
                 onFailure = { _, _ ->
-                    // No-op for the Profile screen. The app sidebar shows a warning icon in the other flow.
+                    // No UI feedback on the Profile screen; the app sidebar shows a warning icon in the other flow.
+                    FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                        AnalyticsParamValue.MANAGE_PROFILE_ACTION_PHOTO_UPDATED,
+                        AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+                    )
                 },
             )
     }
@@ -109,6 +119,10 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             positiveText = getString(R.string.personalid_profile_edit_discard_positive),
             negativeText = getString(R.string.personalid_profile_edit_discard_negative),
         ) {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_CHANGES_DISCARDED,
+                null,
+            )
             findNavController().popBackStack()
         }
     }
@@ -141,6 +155,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         val user = viewModel.user
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
+                reportProfileSaveOutcome(AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS)
                 viewModel.commitProfileDetails()
                 _binding ?: return
                 onSaved()
@@ -150,10 +165,20 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                reportProfileSaveOutcome(AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE)
                 _binding ?: return
                 onSaveFailed(errorCode, t)
             }
         }.updateProfile(requireActivity(), user.userId, user.password, viewModel.currentName, null, null)
+    }
+
+    private fun reportProfileSaveOutcome(outcome: String) {
+        if (viewModel.isNameModified()) {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                outcome,
+            )
+        }
     }
 
     private fun showEmailOtpConfirmationDialog() {
@@ -163,7 +188,19 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             message = getString(R.string.personalid_profile_edit_otp_confirm_message, newEmail),
             positiveText = getString(R.string.personalid_profile_edit_otp_confirm_positive),
             negativeText = getString(R.string.personalid_profile_edit_otp_confirm_negative),
+            onNegative = {
+                FirebaseAnalyticsUtil.reportUserPromptEvent(
+                    AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                    AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL,
+                    AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+                )
+            },
         ) {
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT,
+                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+            )
             binding.btnSave.isEnabled = false
             if (viewModel.isNameModified()) {
                 saveProfileDetails { sendEmailOtpAndNavigate(newEmail) }
@@ -181,6 +218,10 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             sessionData = null,
             tracker = viewModel.emailOtpTracker,
             onSuccess = {
+                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
+                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
+                )
                 _binding ?: return@sendEmailOtp
                 findNavController().navigate(
                     PersonalIdProfileEditFragmentDirections.actionProfileEditToEmailVerification(
@@ -191,6 +232,10 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 )
             },
             onFailure = { errorCode, throwable ->
+                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
+                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+                )
                 _binding ?: return@sendEmailOtp
                 onSaveFailed(errorCode, throwable)
             },

@@ -171,6 +171,14 @@ public class AnalyticsParamValue {
             "user_initiated_from_profile_page";
     public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
 
+    // Param values for Manage Profile actions
+    public static final String MANAGE_PROFILE_ACTION_PHOTO_UPDATED = "photo_updated";
+    public static final String MANAGE_PROFILE_ACTION_NAME_UPDATED = "name_updated";
+    public static final String MANAGE_PROFILE_ACTION_CHANGES_DISCARDED = "changes_discarded";
+    public static final String MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED = "email_update_initiated";
+    public static final String MANAGE_PROFILE_OUTCOME_SUCCESS = "success";
+    public static final String MANAGE_PROFILE_OUTCOME_FAILURE = "failure";
+
     // Param values for PersonalID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE =
             "start_configuration_integrity_check_failure";
@@ -225,9 +233,12 @@ public class AnalyticsParamValue {
     public static final String USER_PROMPT_ACTION_SKIP = "skip";
     public static final String USER_PROMPT_ACTION_RETRY = "retry";
     public static final String USER_PROMPT_ACTION_PROCEED_WITHOUT_EMAIL = "proceed_without_email";
+    public static final String USER_PROMPT_ACTION_CANCEL = "cancel";
     public static final String USER_PROMPT_INFO_EXISTING_USER_REMINDER = "existing_user_reminder";
     public static final String USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY =
             "email_verification_failure_retry";
+    public static final String USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE =
+            "manage_profile_email_update";
 
     // Param values for SMS invite link analytics
     public static final String OPP_INVITE_LINK = "opp_invite_link";
