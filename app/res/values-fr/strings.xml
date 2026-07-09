@@ -370,7 +370,6 @@ License.
     <string name="personalid_link_app_yes">Oui</string>
     <string name="personalid_link_app_no">Non</string>
     <string name="personalid_signup">Inscrivez-vous à PersonalId</string>
-    <string name="personalid_forget_user">Oublier l\'utilisateur PersonalId</string>
     <string name="connect_refresh_opportunities">Actualiser les Opportunités</string>
     <string name="connect_app_install_unknown_error">L\'installation de l\'application a échoué en raison d\'une erreur inconnue</string>
     <string name="connect_app_installed">Application installée</string>

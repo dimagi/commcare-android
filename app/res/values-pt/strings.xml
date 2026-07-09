@@ -387,7 +387,6 @@
     <string name="personalid_link_app_yes">Sim</string>
     <string name="personalid_link_app_no">Não</string>
     <string name="personalid_signup">Inscreva-se no PersonalId</string>
-    <string name="personalid_forget_user">Esqueça o usuário do PersonalId</string>
     <string name="connect_refresh_opportunities">Atualizar Oportunidades</string>
     <string name="connect_app_install_unknown_error">Falha na instalação do aplicativo devido a um erro desconhecido</string>
     <string name="connect_app_installed">Aplicação instalada</string>

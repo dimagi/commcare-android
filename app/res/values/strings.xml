@@ -569,7 +569,6 @@
     <string name="personalid_link_app_yes">Yes</string>
     <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Sign up for PersonalID</string>
-    <string name="personalid_forget_user">Forget PersonalID user</string>
 
     <string name="connect_refresh_opportunities">Refresh Opportunities</string>
 
