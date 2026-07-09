@@ -42,7 +42,6 @@ public class EntityLoaderTask
     private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
     private boolean provideDetailProgressUpdates;
-    private String availableInstances;
 
     /**
      * Creates a new instance
@@ -55,8 +54,6 @@ public class EntityLoaderTask
         entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum, evalCtx, false, null);
         // we only want to provide progress updates for the new caching config
         provideDetailProgressUpdates = detail.shouldOptimize();
-        availableInstances = Arrays.toString(evalCtx.getInstanceIds().toArray())
-                + "; mainInstance=" + (evalCtx.getMainInstance() == null ? "null" : "present");
     }
 
     @Override
@@ -88,8 +85,7 @@ public class EntityLoaderTask
             return null;
         } catch (RuntimeException e) {
             Logger.log(LogTypes.SOFT_ASSERT, "Loading entities failed for " + getSessionShortDetail() +
-                    "; session expiring at: " + getSessionExpirationTime() +
-                    "; available instances: " + availableInstances);
+                    "; session expiring at: " + getSessionExpirationTime());
             throw e;
         }
     }
@@ -126,7 +122,7 @@ public class EntityLoaderTask
                         return;
                     }
 
-                    if (result == null) {
+                    if (result == null || listener.shouldAbortDelivery()) {
                         return;
                     }
 
