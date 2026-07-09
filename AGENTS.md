@@ -23,6 +23,9 @@ Tech documentation for this repo is organized by Gradle submodule and, within th
 
 **Before making any code change, search `/docs` and any module-level `docs/` folders for documentation relevant to the area you're modifying.** Update the corresponding doc when behavior, APIs, or data flow change.
 
+## Common Edge Cases
+When planning or writing a spec for a new feature, consult [`docs/common-edge-cases.md`](docs/common-edge-cases.md) and address every category that applies, so recurring edge cases are designed for up front rather than discovered in review or QA.
+
 ## Code Quality Standards
 - [General code standards](https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md)
 - [Exception Handling Guidelines](https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md)
