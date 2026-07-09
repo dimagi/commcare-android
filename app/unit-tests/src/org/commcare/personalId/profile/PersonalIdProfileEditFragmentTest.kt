@@ -163,6 +163,7 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
         firebaseAnalyticsUtilMock.verify {
             FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
                 AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
             )
         }
         assertEquals(
@@ -178,6 +179,28 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
             "Grace Hopper",
             displayedName.text.toString(),
         )
+    }
+
+    @Test
+    fun `a failed profile update reports the failure outcome and stays on the edit screen`() {
+        setText(nameField(), "Grace Hopper")
+        mockWebServer.enqueue(MockResponse().setResponseCode(500).setBody("{}"))
+
+        clickSave()
+        mockApiServer.drainHttp()
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+            )
+        }
+        assertEquals(
+            "Should remain on the edit screen after a failed save",
+            R.id.personalid_profile_edit_fragment,
+            currentDestinationId(),
+        )
+        assertTrue("Save button should be re-enabled after a failed save", saveButton().isEnabled)
     }
 
     @Test
@@ -211,7 +234,12 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
         val request = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", request.path)
         firebaseAnalyticsUtilMock.verify(
-            { FirebaseAnalyticsUtil.reportPersonalIdProfileAction(AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED) },
+            {
+                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
+                )
+            },
             never(),
         )
     }
@@ -256,6 +284,7 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
         firebaseAnalyticsUtilMock.verify {
             FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
                 AnalyticsParamValue.MANAGE_PROFILE_ACTION_CHANGES_DISCARDED,
+                null,
             )
         }
         assertEquals(

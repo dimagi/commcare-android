@@ -39,10 +39,15 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                     _binding?.let { loadUserPhoto(it.profileHeader.profileUserImage, photoBase64) }
                     FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
                         AnalyticsParamValue.MANAGE_PROFILE_ACTION_PHOTO_UPDATED,
+                        AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
                     )
                 },
                 onFailure = { _, _ ->
-                    // No-op for the Profile screen. The app sidebar shows a warning icon in the other flow.
+                    // No UI feedback on the Profile screen; the app sidebar shows a warning icon in the other flow.
+                    FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                        AnalyticsParamValue.MANAGE_PROFILE_ACTION_PHOTO_UPDATED,
+                        AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+                    )
                 },
             )
     }
@@ -116,6 +121,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         ) {
             FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
                 AnalyticsParamValue.MANAGE_PROFILE_ACTION_CHANGES_DISCARDED,
+                null,
             )
             findNavController().popBackStack()
         }
@@ -149,7 +155,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         val user = viewModel.user
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
-                reportSavedProfileDetails()
+                reportProfileSaveOutcome(AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS)
                 viewModel.commitProfileDetails()
                 _binding ?: return
                 onSaved()
@@ -159,16 +165,18 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 errorCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                reportProfileSaveOutcome(AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE)
                 _binding ?: return
                 onSaveFailed(errorCode, t)
             }
         }.updateProfile(requireActivity(), user.userId, user.password, viewModel.currentName, null, null)
     }
 
-    private fun reportSavedProfileDetails() {
+    private fun reportProfileSaveOutcome(outcome: String) {
         if (viewModel.isNameModified()) {
             FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
                 AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                outcome,
             )
         }
     }
