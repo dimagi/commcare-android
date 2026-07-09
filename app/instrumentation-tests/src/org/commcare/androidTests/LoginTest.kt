@@ -95,13 +95,13 @@ class LoginTest: BaseTest() {
         InstrumentationUtility.logout()
 
         // Login Offline
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         InstrumentationUtility.login("user_with_no_data", "123")
         verifyAllHomeButtonsPresent(homeButtons)
         InstrumentationUtility.logout()
 
         // login offline with bad password
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         InstrumentationUtility.login("user_with_no_data", "badpass")
         onView(withText("Either the password you entered was incorrect, or CommCare couldn't reach the server"))
                 .check(matches(isDisplayed()))
@@ -111,7 +111,7 @@ class LoginTest: BaseTest() {
         onView(withText("Couldn't Reach Server. Please check your network connection"))
                 .check(matches(isDisplayed()))
 
-        InstrumentationUtility.changeWifi(true)
+        InstrumentationUtility.setNetworkEnabled(true)
         onView(withId(R.id.edit_password))
                 .perform(clearText())
         onView(withId(R.id.login_button))

@@ -23,7 +23,7 @@ class DemoUserOfflineTest: DemoUserTest() {
 
     @Before
     fun setup() {
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         installApp(APP_NAME, CCZ_NAME, true)
     }
 
@@ -35,10 +35,10 @@ class DemoUserOfflineTest: DemoUserTest() {
     @Test
     fun testPracticeMode_withUpdatedApp_offline() {
         // Briefly turn the internet back on to allow us to log in
-        InstrumentationUtility.changeWifi(true)
+        InstrumentationUtility.setNetworkEnabled(true)
         updateApp("test_user_3", "123")
         // Internet back off
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         testPracticeMode_withUpdatedApp()
     }
 
