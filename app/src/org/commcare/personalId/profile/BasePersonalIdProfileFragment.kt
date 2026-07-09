@@ -40,6 +40,7 @@ abstract class BasePersonalIdProfileFragment : Fragment() {
         message: String,
         positiveText: String,
         negativeText: String,
+        onNegative: (() -> Unit)? = null,
         onPositive: () -> Unit,
     ) {
         val dialog = StandardAlertDialog(title, message)
@@ -49,6 +50,7 @@ abstract class BasePersonalIdProfileFragment : Fragment() {
         }
         dialog.setNegativeButton(negativeText) { dialogInterface, _ ->
             dialogInterface.dismiss()
+            onNegative?.invoke()
         }
         dialog.makeCancelable()
         dialog.showNonPersistentDialog(requireActivity())

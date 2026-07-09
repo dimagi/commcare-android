@@ -233,6 +233,13 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
         val request = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", request.path)
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT,
+                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+            )
+        }
         firebaseAnalyticsUtilMock.verify(
             {
                 FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
@@ -265,6 +272,29 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
             "Should remain on the edit screen after a failed OTP send",
             R.id.personalid_profile_edit_fragment,
             currentDestinationId(),
+        )
+    }
+
+    @Test
+    fun `canceling the otp confirmation dialog reports the cancel prompt and sends no request`() {
+        setText(emailField(), "grace@example.com")
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val cancelButton = dialog.findViewById<Button>(R.id.negative_button)!!
+        onUiThread { cancelButton.performClick() }
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL,
+                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+            )
+        }
+        assertEquals(
+            "No request should fire when the email change is canceled",
+            0,
+            mockWebServer.requestCount,
         )
     }
 

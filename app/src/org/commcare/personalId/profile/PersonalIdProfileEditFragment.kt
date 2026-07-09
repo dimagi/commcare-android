@@ -188,7 +188,19 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             message = getString(R.string.personalid_profile_edit_otp_confirm_message, newEmail),
             positiveText = getString(R.string.personalid_profile_edit_otp_confirm_positive),
             negativeText = getString(R.string.personalid_profile_edit_otp_confirm_negative),
+            onNegative = {
+                FirebaseAnalyticsUtil.reportUserPromptEvent(
+                    AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                    AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL,
+                    AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+                )
+            },
         ) {
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT,
+                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+            )
             binding.btnSave.isEnabled = false
             if (viewModel.isNameModified()) {
                 saveProfileDetails { sendEmailOtpAndNavigate(newEmail) }
