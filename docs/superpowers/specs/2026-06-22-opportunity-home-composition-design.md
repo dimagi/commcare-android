@@ -17,6 +17,57 @@ The defining requirement is that the activity loads with **no app seated and no 
 
 This spec covers the activity's composition, lifecycle, the refactor of two existing base classes that today bake the "session must exist" assumption into inheritance, and the state resolution / session-management policy that decides which status fragment to show and when to establish a session (see [State resolution and session management](#opportunity-home-state-resolution-and-session-management)). Entry points/routing, the inline silent-login mechanics themselves, and rollout remain out of scope and handled in parallel designs.
 
+## Design approach: inheritance vs. composition
+
+The behavior this activity needs — sync, form entry, app updates, launch checks — lives today in an inheritance chain (`SessionAwareCommCareActivity` → `SyncCapableCommCareActivity` → `HomeScreenBaseActivity` → `StandardHomeActivity`), where the session gate is the common ancestor `SessionAwareCommCareActivity` and the behaviors layer on top of it. Two approaches can give `OpportunityHomeActivity` those behaviors: an inheritance approach that keeps the existing chain, and the composition approach the rest of the spec adopts.
+
+They are not variations on one axis. They divide on a single question — **must the activity seat an app and establish a session without leaving the activity** (the defining requirement in the Summary)? The inheritance approach answers no; composition answers yes.
+
+### Inheritance — two activities split by session state
+
+Host the Opportunity Home UI in **two** activities and transition between them on session change:
+
+- **Session present** → `OpportunityHomeActivity extends HomeScreenBaseActivity`. The gate at `SessionAwareCommCareActivity` is **satisfied, not bypassed** — the activity is only launched once a session exists — so it inherits sync/updates/launch-checks/PIN/drift unchanged, as a sibling of `StandardHomeActivity`.
+- **Session absent** → `ConnectActivity` (already ungated, on the separate `NavigationHostCommCareActivity` branch) hosts the session-less states (Available / download CTA / loading) with home functionality hidden.
+
+**Advantages:**
+
+- **No refactor at all.** This is the decisive difference. The coordinator, delegates, `HomeActivityHost`, `attachSession`/`detachSession`, and `SavedStateRegistry` plumbing all exist *only* to let one activity gain and lose session capability at runtime. Accept two activities and that entire problem — and this whole spec's machinery — dissolves.
+- **Cleanest inheritance semantics.** Each activity's is-a is fixed for its whole life, so there is no runtime has-a to model, no single-inheritance conflict (the two activities are on different branches), and `SessionAwareCommCareActivity` is untouched.
+- **Less owed by the parallel inline-login flow.** The Dependency item 2 hand-off ("redirect completion into the *running* activity") disappears — the existing `LaunchOutcomeRouter.launchHome()` already launches a fresh home activity on login success; point it at `OpportunityHomeActivity`. Session loss can reuse the existing redirect pattern (→ `ConnectActivity` instead of `LoginActivity`) rather than new suppress-and-detach behavior.
+
+**Disadvantages — all product/UX and state-machine coherence, not engineering contortion:**
+
+- **It breaks the defining requirement.** Every session establishment or loss is an activity transition — recreation, animation, back-stack, state handoff — not the seamless single surface the Summary requires.
+- **The resolution table splits across two hosts.** The no-session rows live in `ConnectActivity`; the attached/ready rows live in `OpportunityHomeActivity`. One state machine, two owners — harder to reason about than the single [`OpportunityHomeStateController`](#opportunityhomestatecontroller) table.
+- **The expiration loop becomes activity churn.** The spec's "expire → detach → re-resolve to loading in place → next resume silently re-logs-in" collapses into finish/relaunch cycles, and back-button semantics after an expiration bounce get murky.
+- **Concern-blur risk.** `ConnectActivity` is *Connect Home* (the jobs list); overloading it as the per-opportunity session-less host mixes it with *Opportunity Home*, a separation the product otherwise keeps distinct.
+
+### Composition (chosen)
+
+Move the five session-dependent behaviors into composable delegates owned by a `HomeActivityCoordinator` that any activity can hold, with explicit `attachSession` / `detachSession` transitions.
+
+**Advantages, specific to this problem:**
+
+- **Models the runtime capability precisely.** `attachSession` / `detachSession` *is* a has-a that comes and goes; "no session" becomes a representable, safe state rather than an exception — while keeping one continuous surface, which the inheritance approach cannot.
+- **Sidesteps single inheritance entirely.** The `BaseDrawerActivity`-rooted new activity and the `SessionAwareCommCareActivity`-rooted existing chain hold the *same* coordinator — one source of truth — without a shared superclass and without touching `SessionAwareCommCareActivity` (non-goal preserved).
+- **Separates the five concerns and makes each independently unit-testable.** Delegates are plain Kotlin classes that take the session as a parameter; they can be tested without standing up an activity. This is a significant advantage given the near-total absence of home-page unit tests today — see [Testability the refactor unlocks](#testability-the-refactor-unlocks).
+
+**Disadvantages:**
+
+- **More wiring ceremony** — coordinator, `HomeActivityHost` interface, delegate/lifecycle registration, `SavedStateProvider` plumbing, residual `onActivityResult` forwarding.
+- **A pattern novel to this codebase**, so a learning curve against the inheritance idiom used everywhere else in the stack.
+- **Indirection**: a capability call hops activity → coordinator → delegate, and protected `Activity` members must be surfaced through the host interface.
+
+### Verdict
+
+The real axis is not inheritance vs. composition but **single continuous surface vs. activity swap on session change.**
+
+- **If the seamless single surface is a hard requirement** (as the Summary states), the inheritance approach is disqualified on that ground alone, and composition is the way to honor it: it is the only approach that keeps one activity *and* models the runtime session lifecycle honestly, at the cost of wiring ceremony.
+- **If that requirement could flex** to accept an activity transition on every session change, the inheritance approach is the lowest-effort path by a wide margin — it needs none of this spec's machinery — and would beat composition on simplicity.
+
+Composition is therefore chosen, but it rests on one load-bearing assumption made explicit here: **the seamless single surface is a real requirement, not a nice-to-have.** If that assumption ever softens, the fallback is the two-activity inheritance approach.
+
 ## Problem
 
 `SessionAwareCommCareActivity.onCreate()` calls `SessionAwareHelper.onCreateHelper()`, which calls `CommCareApplication.instance().getSession()` and redirects to `LoginActivity` on `SessionUnavailableException`. This is the session gate. `SyncCapableCommCareActivity` and `HomeScreenBaseActivity` build on that gate and assume an app is seated for sync, form entry, app-update prompts, and post-login launch checks.
@@ -312,3 +363,15 @@ Two harness concerns should be settled first, because they otherwise force churn
 
 - **Preserve the `setFormAndDataSyncer(...)` injection seam.** `ActivityLaunchUtils` and every form/entity test depend on it. When `FormAndDataSyncer` moves into `SyncDelegate`, keep a host-level setter that forwards to the delegate, or the fake cannot attach.
 - **Decide `FormAndDataSyncerFake`'s signature migration.** Its overrides take `SyncCapableCommCareActivity`; if `SyncDelegate` changes those signatures, migrate the fake in the same commit as the seam.
+
+### Testability the refactor unlocks
+
+The characterization tests above are a regression net, written through Robolectric against the *current* activity. Beyond protecting the refactor, the composition target is chosen partly because it makes the home page **unit-testable in a way it is not today** — directly serving the goal of adding real coverage to a page that has almost none (see [Current state](#current-state)). This is a first-class reason to prefer composition over the two-activity inheritance approach, which would leave testability at the status quo: `OpportunityHomeActivity` inheriting `HomeScreenBaseActivity` is still only exercisable by standing up the full gated activity in Robolectric.
+
+Three properties of the target design do the work:
+
+1. **Session is injected, not ambient.** Delegates receive the session through `attachSession(session)` instead of reading `CommCareApplication.instance().getCurrentSession()` (see Risk on ambient reads). A test supplies a fake/mock `SeatedAppSession` — no seated `ApplicationRecord`, no session singleton to construct.
+2. **The units are plain Kotlin classes behind `HomeActivityHost`.** The coordinator and each delegate can be built against a fake host and driven on the JVM without Robolectric. In particular, `runLaunchChecks(session)` — the 9-step ordering that carries the most risk and has zero coverage today — becomes a direct assertion on step order and early-return semantics against delegate fakes, exactly the line-for-line contract [`HomeActivityCoordinator`](#homeactivitycoordinator) describes.
+3. **Coordination logic is separated from framework edges.** The [state resolution table](#resolution-table) (`OpportunityHomeStateController`, a pure function of phase × installed × attached), the two gating predicates (`isDemoUser()` / `areActionsAvailable()`), and the attach/detach transitions are pure enough to test as truth tables.
+
+Honest boundary: the framework-touching edges still require Robolectric or mocking — `AppUpdateDelegate`'s Play Core `AppUpdateManager`, `SyncDelegate`'s `FormAndDataSyncer` / `PullTaskResultReceiver`, and dialog / fragment-swap surfaces. What composition newly makes unit-testable is the *coordination* (pipeline ordering, gating, state resolution, session lifecycle) — which is precisely the behavior uncovered today and most at risk in the refactor. The sequencing is therefore: pin the coarse observable behavior through Robolectric first (so the refactor is provably behavior-preserving), then add JVM unit tests on the extracted units as the seams appear.
