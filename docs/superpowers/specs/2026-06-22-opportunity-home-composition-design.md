@@ -121,10 +121,12 @@ When attached, the delegate has a live session and operates as the existing chai
 
 This requires threading the session through `attachSession` rather than reading `CommCareApplication.instance().getCurrentSession()` ambiently as the code does today (see [Risks](#risks-and-mitigations)) — which is what makes "no session" a representable, safe state rather than an exception.
 
-**Instance-state ownership splits by nature.** Each key stays with the concern that owns its lifecycle, and both ride the `SavedStateRegistry` the base `ComponentActivity` already provides (not a forwarded `onSaveInstanceState`, since the `ON_CREATE` observer callback carries no `savedInstanceState` Bundle).
+**Instance-state ownership splits by nature.** Each key stays with the concern that owns its lifecycle; both persist via a `SavedStateProvider` on the host's `SavedStateRegistry` (not a forwarded `onSaveInstanceState`, since the `ON_CREATE` observer callback carries no `savedInstanceState` Bundle).
 
-- **Coordinator** owns the three launch/nav keys — `wasExternal`, `loginExtraWasConsumed`, `pendingEndpointNavigationAfterSync` — because they describe how the activity was launched and must survive recreation that happens *before* a session is attached. It registers a `SavedStateProvider`, restores them in `onCreate(owner)` independent of attach state, and passes their values into `SessionLaunchDelegate`'s step bodies. `SessionLaunchDelegate` therefore holds no instance-state of its own.
-- **`SyncDelegate`** owns `lastIconTrigger` (the sync-icon animation trigger), which is only meaningful once a session exists. It registers its own `SavedStateProvider`; the coordinator does not forward save/restore for it.
+| Key(s) | Owner | Why there |
+|---|---|---|
+| `wasExternal`, `loginExtraWasConsumed`, `pendingEndpointNavigationAfterSync` | Coordinator | Describe how the activity was launched; exist and must survive recreation *before* a session is attached, so they can't live on a session-dependent delegate. Restored in `onCreate(owner)` independent of attach state; values passed into `SessionLaunchDelegate`'s step bodies, which therefore hold no instance-state of their own. |
+| `lastIconTrigger` (sync-icon animation trigger) | `SyncDelegate` | Only meaningful once a session exists — genuinely session-scoped. |
 
 `CrashRecoveryDelegate` and `AppUpdateDelegate` do not implement `attachSession`/`detachSession`. `CrashRecoveryDelegate` is session-independent by nature. `AppUpdateDelegate` is treated as session-independent because the underlying `AppUpdateController` cannot be safely reconstructed per session: `register()` attaches an `InstallStateUpdatedListener` to the Google Play Core `AppUpdateManager` and kicks off an async info fetch, so reconstructing on each `attachSession` would leak listeners (duplicate callbacks), orphan any in-progress download from the Play Store state machine, and re-fetch update info needlessly. App-binary updates are not opportunity- or seated-app-scoped, so the delegate is constructed once on the host lifecycle (register on `onResume`, unregister on `onDestroy`).
 
@@ -329,13 +331,15 @@ Because the rebase keeps the base classes' **public API unchanged** (see [Refact
 
 There is **no dedicated unit test for `StandardHomeActivity`, `RootMenuHomeActivity`, `HomeScreenBaseActivity`, or `SyncCapableCommCareActivity` as a unit.** The home activity is exercised only *incidentally*, as scaffolding in tests whose real subject is something else:
 
-- **`DemoUserRestoreTest.java`** — its `checkOptionsMenuVisibility()` is the **only** assertion guarding demo-mode menu gating (change-language visible; update / saved-forms / preferences / advanced / about / set-pin hidden). This maps directly to the riskiest relocation in this spec (the demo-semantics verify item: per-item `!isDemoUser()` → coordinator availability queries), but it is buried in a heavyweight end-to-end test (`LEGACY` looper, an analytics-disabled workaround for an infinite loop) whose purpose is demo restore/update.
-- **`ExternalLaunchTests.kt`** — drives `StandardHomeActivity` through `DispatchActivity` for session-endpoint and app-id launches. The closest thing to launch-path coverage; it exercises the `wasExternal` / endpoint-navigation state the coordinator will own, but asserts only on the next started intent, not the pipeline.
-- **`PersonalIdDrawerVisibilityTest.kt`** — covers only nav-drawer visibility, a `BaseDrawerActivity` concern the refactor does not touch. No overlap with the moving parts.
-- **`RecoveryMeasuresTest.java`** — drives `StandardHomeActivity` through recovery scenarios; a partial guard on recovery-measure execution around home launch, not on the extracted behaviors.
-- **`FormRecordListActivityTest.java`** — uses the home activity purely as a scaffold for `GET_INCOMPLETE_FORM` result routing.
-- **`HeartbeatAndPromptedUpdateTests.java`** — tests `UpdatePromptHelper` / `UpdateToPrompt` in isolation and never launches a home activity, so it does not cover the step-7 wiring.
-- **`ActivityLaunchUtils.buildHomeActivity` + `FormAndDataSyncerFake`** — the shared harness many form/entity tests depend on; builds `StandardHomeActivity`, injects a fake syncer via `setFormAndDataSyncer(...)`, and drives the `SessionNavigator`.
+| Test | What it touches | Gap for this refactor |
+|---|---|---|
+| `DemoUserRestoreTest.java` | `checkOptionsMenuVisibility()` — the **only** assertion guarding demo-mode menu gating | Buried in a heavyweight e2e demo-restore test (`LEGACY` looper); maps to the demo-semantics verify item |
+| `ExternalLaunchTests.kt` | `StandardHomeActivity` via `DispatchActivity` for session-endpoint / app-id launches; exercises `wasExternal` / endpoint-nav state | Asserts only the next started intent, not the launch pipeline |
+| `PersonalIdDrawerVisibilityTest.kt` | Nav-drawer visibility (a `BaseDrawerActivity` concern) | No overlap — refactor doesn't touch it |
+| `RecoveryMeasuresTest.java` | `StandardHomeActivity` recovery scenarios | Guards recovery-measure execution around launch, not the extracted behaviors |
+| `FormRecordListActivityTest.java` | Home activity as a scaffold for `GET_INCOMPLETE_FORM` result routing | Not testing home behavior |
+| `HeartbeatAndPromptedUpdateTests.java` | `UpdatePromptHelper` / `UpdateToPrompt` in isolation | Never launches home; misses step-7 wiring |
+| `ActivityLaunchUtils.buildHomeActivity` + `FormAndDataSyncerFake` | Shared harness: builds `StandardHomeActivity`, injects a fake syncer via `setFormAndDataSyncer(...)`, drives `SessionNavigator` | Scaffolding, not a home-behavior assertion — but the key injection seam (see [Harness prerequisites](#harness-prerequisites)) |
 
 Consequently, the behaviors this spec extracts are essentially uncovered at the home-activity level: the 9-step `doLoginLaunchChecksInOrder` pipeline (ordering and early-return semantics), sync (`sendFormsOrSync()`, `PullTaskResultReceiver.handlePullTaskResult`, the `lastIconTrigger` save/restore), session-expiration handling, PIN launch (step 8), drift check (step 9), in-home update prompting (step 7), and save/restore of the three launch/nav instance-state keys across recreation.
 
