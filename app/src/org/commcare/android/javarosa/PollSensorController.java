@@ -9,6 +9,7 @@ import android.os.Looper;
 import com.google.android.gms.common.api.ResolvableApiException;
 
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
@@ -33,6 +34,7 @@ public enum PollSensorController implements CommCareLocationListener {
     private CommCareLocationController mLocationController;
     private final ArrayList<PollSensorAction> actions = new ArrayList<>();
     private Timer timeoutTimer = new Timer();
+    private float lastAccuracy = Float.MAX_VALUE;
 
     private ResolvableApiException apiException;
     private boolean noProviders;
@@ -90,11 +92,17 @@ public enum PollSensorController implements CommCareLocationListener {
     public void onLocationResult(@NotNull Location location) {
         synchronized (actions) {
             if (location != null) {
+                float newAccuracy = location.getAccuracy();
+                if (newAccuracy > lastAccuracy) {
+                    FirebaseAnalyticsUtil.reportAccuracyDegradation(newAccuracy - lastAccuracy);
+                }
+                lastAccuracy = newAccuracy;
+
                 for (PollSensorAction action : actions) {
                     action.updateReference(location);
                 }
 
-                if (location.getAccuracy() <= HiddenPreferences.getGpsAutoCaptureAccuracy()) {
+                if (newAccuracy <= HiddenPreferences.getGpsAutoCaptureAccuracy()) {
                     stopLocationPolling();
                 }
             }
@@ -145,6 +153,7 @@ public enum PollSensorController implements CommCareLocationListener {
     public void stopLocationPolling() {
         synchronized (actions) {
             actions.clear();
+            lastAccuracy = Float.MAX_VALUE;
         }
         resetTimeoutTimer();
         if (mLocationController != null) {
