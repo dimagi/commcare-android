@@ -413,6 +413,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">ናብ %1$s ናይ 6 ኣሃዝ ኮድ ክንሰድድ ኢና። ንምርግጋጽ ኣብታ ቐጻሊት ስክሪን ኣእትውዎ።</string>
     <string name="personalid_profile_edit_otp_confirm_positive">ኮድ ስደድ</string>
     <string name="personalid_profile_edit_otp_confirm_negative">ሰርዝ</string>
+    <string name="personalid_profile_edit_save">ኣቐምጥ</string>
+    <string name="personalid_profile_edit_cancel">ሰርዝ</string>
+    <string name="personalid_profile_edit_save_success">ፕሮፋይልኩም ብዓወት ተሐዲሱ።</string>
     <string name="connect_job_info_title">ዝርዝር ዕድል</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
