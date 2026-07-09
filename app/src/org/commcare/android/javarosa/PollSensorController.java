@@ -93,7 +93,7 @@ public enum PollSensorController implements CommCareLocationListener {
         synchronized (actions) {
             if (location != null) {
                 float newAccuracy = location.getAccuracy();
-                if (newAccuracy > lastAccuracy) {
+                if (lastAccuracy < 30 && (newAccuracy - lastAccuracy) > 50) {
                     FirebaseAnalyticsUtil.reportAccuracyDegradation(newAccuracy - lastAccuracy);
                 }
                 lastAccuracy = newAccuracy;
