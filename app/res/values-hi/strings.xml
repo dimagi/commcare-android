@@ -370,7 +370,6 @@ License.
     <string name="personalid_link_app_yes">हाँ</string>
     <string name="personalid_link_app_no">नहीं</string>
     <string name="personalid_signup">PersonalId के लिए साइन अप करें</string>
-    <string name="personalid_forget_user">PersonalId उपयोगकर्ता को भूल जाएं</string>
     <string name="connect_refresh_opportunities">अवसर रीफ्रेश करें</string>
     <string name="connect_app_install_unknown_error">अज्ञात त्रुटि के कारण एप्लिकेशन इंस्टॉल करने में विफल रहा</string>
     <string name="connect_app_installed">एप्लिकेशन इंस्टॉल किया गया</string>
@@ -409,6 +408,9 @@ License.
     <string name="personalid_profile_edit_otp_confirm_message">हम %1$s पर 6 अंकों का कोड भेजेंगे। सत्यापित करने के लिए इसे अगली स्क्रीन पर दर्ज करें।</string>
     <string name="personalid_profile_edit_otp_confirm_positive">कोड भेजें</string>
     <string name="personalid_profile_edit_otp_confirm_negative">रद्द करें</string>
+    <string name="personalid_profile_edit_save">सहेजें</string>
+    <string name="personalid_profile_edit_cancel">रद्द करें</string>
+    <string name="personalid_profile_edit_save_success">आपकी प्रोफ़ाइल सफलतापूर्वक अपडेट कर दी गई है।</string>
     <string name="connect_job_info_title">अवसर विवरण</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>

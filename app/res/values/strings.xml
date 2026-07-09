@@ -569,7 +569,6 @@
     <string name="personalid_link_app_yes">Yes</string>
     <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Sign up for PersonalID</string>
-    <string name="personalid_forget_user">Forget PersonalID user</string>
 
     <string name="connect_refresh_opportunities">Refresh Opportunities</string>
 
@@ -666,6 +665,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">We\'ll send a 6-digit code to %1$s. Enter it on the next screen to verify.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Send Code</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Cancel</string>
+    <string name="personalid_profile_edit_save">Save</string>
+    <string name="personalid_profile_edit_cancel">Cancel</string>
+    <string name="personalid_profile_edit_save_success">Your profile has been updated successfully.</string>
 
     <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>

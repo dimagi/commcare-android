@@ -372,7 +372,6 @@
     <string name="personalid_link_app_yes">Ndiyo</string>
     <string name="personalid_link_app_no">Hapana</string>
     <string name="personalid_signup">Jisajili kwa PersonalId</string>
-    <string name="personalid_forget_user">Sahau mtumiaji wa PersonalId</string>
     <string name="connect_refresh_opportunities">Onyesha Fursa</string>
     <string name="connect_app_install_unknown_error">Usakinishaji wa programu haukufaulu kwa sababu ya hitilafu isiyojulikana</string>
     <string name="connect_app_installed">Programu imesakinishwa</string>
@@ -411,6 +410,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">Tutatuma msimbo wa tarakimu 6 kwa %1$s. Uweke kwenye skrini inayofuata ili kuthibitisha.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Tuma Msimbo</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Ghairi</string>
+    <string name="personalid_profile_edit_save">Hifadhi</string>
+    <string name="personalid_profile_edit_cancel">Ghairi</string>
+    <string name="personalid_profile_edit_save_success">Wasifu wako umesasishwa kwa mafanikio.</string>
     <string name="connect_job_info_title">Maelezo ya Fursa</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
