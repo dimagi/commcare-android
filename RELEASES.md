@@ -2,6 +2,12 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.63.2
+
+### QA Notes
+
+- Make sure there are no regressions in automated location capture in a CC form.  
+
 ## CommCare 2.63.1
 
 ### Release Notes

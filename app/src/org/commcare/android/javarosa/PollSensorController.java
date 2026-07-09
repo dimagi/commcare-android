@@ -9,6 +9,7 @@ import android.os.Looper;
 import com.google.android.gms.common.api.ResolvableApiException;
 
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
@@ -33,6 +34,7 @@ public enum PollSensorController implements CommCareLocationListener {
     private CommCareLocationController mLocationController;
     private final ArrayList<PollSensorAction> actions = new ArrayList<>();
     private Timer timeoutTimer = new Timer();
+    private float lastAccuracy = Float.MAX_VALUE;
 
     private ResolvableApiException apiException;
     private boolean noProviders;
@@ -60,7 +62,9 @@ public enum PollSensorController implements CommCareLocationListener {
         // LocationManager needs to be dealt with in the main UI thread, so
         // wrap GPS-checking logic in a Handler
         new Handler(Looper.getMainLooper()).post(() -> {
-            // Start requesting GPS updates
+            synchronized (actions) {
+                if (actions.isEmpty()) return;
+            }
             Context context = CommCareApplication.instance();
             mLocationController = CommCareLocationControllerFactory.getLocationController(context, this);
             requestLocationUpdates();
@@ -88,11 +92,17 @@ public enum PollSensorController implements CommCareLocationListener {
     public void onLocationResult(@NotNull Location location) {
         synchronized (actions) {
             if (location != null) {
+                float newAccuracy = location.getAccuracy();
+                if (lastAccuracy < 30 && (newAccuracy - lastAccuracy) > 50) {
+                    FirebaseAnalyticsUtil.reportAccuracyDegradation(newAccuracy - lastAccuracy);
+                }
+                lastAccuracy = newAccuracy;
+
                 for (PollSensorAction action : actions) {
                     action.updateReference(location);
                 }
 
-                if (location.getAccuracy() <= HiddenPreferences.getGpsAutoCaptureAccuracy()) {
+                if (newAccuracy <= HiddenPreferences.getGpsAutoCaptureAccuracy()) {
                     stopLocationPolling();
                 }
             }
@@ -143,6 +153,7 @@ public enum PollSensorController implements CommCareLocationListener {
     public void stopLocationPolling() {
         synchronized (actions) {
             actions.clear();
+            lastAccuracy = Float.MAX_VALUE;
         }
         resetTimeoutTimer();
         if (mLocationController != null) {
