@@ -196,6 +196,7 @@ we would like to communicate to QA as part of the release testing
 
 - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
 - Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
+- **Image reticle overlay:** On a form image-capture question with `appearance="rectangle-overlay"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
 
 
 ## CommCare 2.63
