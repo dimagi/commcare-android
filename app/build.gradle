@@ -261,7 +261,7 @@ static def getDate() {
 
 android {
     namespace 'org.commcare.dalvik'
-    compileSdk 36
+    compileSdk 37
     packagingOptions {
         resources {
             excludes += ['META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
