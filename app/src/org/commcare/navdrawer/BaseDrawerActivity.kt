@@ -1,11 +1,8 @@
 package org.commcare.navdrawer
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
@@ -15,19 +12,23 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
 import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
+import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private var drawerController: BaseDrawerController? = null
-    private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
+    private lateinit var photoUpdater: PersonalIdPhotoUpdater
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        takePhotoLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                drawerController?.handlePhotoResult(result)
-            }
+        photoUpdater =
+            PersonalIdPhotoUpdater(
+                this,
+                this,
+                onSuccess = { photoBase64 -> drawerController!!.onPhotoUpdateSuccess(photoBase64) },
+                onFailure = { _, _ -> drawerController!!.onPhotoUpdateFailure() },
+            )
         checkForDrawerSetUp()
         if (drawerController != null) {
             NotificationBroadcastHelper.registerForNotifications(this, this) {
@@ -66,7 +67,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 this,
                 drawerRefs,
                 shouldHighlightSeatedApp(),
-                takePhotoLauncher,
+                photoUpdater,
             ) { navItemType: NavItemType, recordId: String? ->
                 handleDrawerItemClick(navItemType, recordId)
             }

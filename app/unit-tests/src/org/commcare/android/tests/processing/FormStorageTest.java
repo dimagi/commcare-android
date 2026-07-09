@@ -422,7 +422,8 @@ public class FormStorageTest {
             "org.commcare.android.database.connect.models.PushNotificationRecordV24",
 
             // Added in 2.64
-            "org.commcare.android.database.connect.models.ConnectUserRecordV25"
+            "org.commcare.android.database.connect.models.ConnectUserRecordV25",
+            "org.commcare.android.database.connect.models.ConnectTaskRecord"
 
     );
 

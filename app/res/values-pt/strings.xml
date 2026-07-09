@@ -387,7 +387,6 @@
     <string name="personalid_link_app_yes">Sim</string>
     <string name="personalid_link_app_no">Não</string>
     <string name="personalid_signup">Inscreva-se no PersonalId</string>
-    <string name="personalid_forget_user">Esqueça o usuário do PersonalId</string>
     <string name="connect_refresh_opportunities">Atualizar Oportunidades</string>
     <string name="connect_app_install_unknown_error">Falha na instalação do aplicativo devido a um erro desconhecido</string>
     <string name="connect_app_installed">Aplicação instalada</string>
@@ -426,6 +425,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">Enviaremos um código de 6 dígitos para %1$s. Digite-o na próxima tela para verificar.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Enviar código</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Cancelar</string>
+    <string name="personalid_profile_edit_save">Salvar</string>
+    <string name="personalid_profile_edit_cancel">Cancelar</string>
+    <string name="personalid_profile_edit_save_success">Seu perfil foi atualizado com sucesso.</string>
     <string name="connect_job_info_title">Detalhes de oportunidade</string>
     <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
     <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>

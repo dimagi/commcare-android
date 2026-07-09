@@ -261,9 +261,10 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     }
 
     /**
-     * Confirms to the exiting (already-logged-in) user that the email was saved, then closes
-     * the activity once they acknowledge. The dialog is non-cancellable so the user must
-     * press OK — the DB write already succeeded by the time we get here.
+     * Confirms to the existing (already-logged-in) user that the email was saved. On acknowledge,
+     * return to the Profile screen when this flow is hosted there; otherwise close the activity.
+     * The dialog is non-cancellable so the user must press OK — the DB write already succeeded by
+     * the time we get here.
      */
     private fun showEmailAddedSuccessDialog() {
         val commCareActivity = requireActivity() as CommCareActivity<*>
@@ -274,7 +275,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             )
         dialog.setPositiveButton(getString(R.string.ok)) { _, _ ->
             commCareActivity.dismissAlertDialog()
-            requireActivity().finish()
+            val returnedToProfile =
+                binding.root.findNavController().popBackStack(R.id.personalid_profile_fragment, false)
+            if (!returnedToProfile) {
+                requireActivity().finish()
+            }
         }
         commCareActivity.showAlertDialog(dialog)
     }

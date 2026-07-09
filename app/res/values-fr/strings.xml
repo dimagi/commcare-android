@@ -370,7 +370,6 @@ License.
     <string name="personalid_link_app_yes">Oui</string>
     <string name="personalid_link_app_no">Non</string>
     <string name="personalid_signup">Inscrivez-vous à PersonalId</string>
-    <string name="personalid_forget_user">Oublier l\'utilisateur PersonalId</string>
     <string name="connect_refresh_opportunities">Actualiser les Opportunités</string>
     <string name="connect_app_install_unknown_error">L\'installation de l\'application a échoué en raison d\'une erreur inconnue</string>
     <string name="connect_app_installed">Application installée</string>
@@ -409,6 +408,9 @@ License.
     <string name="personalid_profile_edit_otp_confirm_message">Nous enverrons un code à 6 chiffres à %1$s. Saisissez-le sur l\'écran suivant pour vérifier.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Envoyer le code</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Annuler</string>
+    <string name="personalid_profile_edit_save">Enregistrer</string>
+    <string name="personalid_profile_edit_cancel">Annuler</string>
+    <string name="personalid_profile_edit_save_success">Votre profil a été mis à jour avec succès.</string>
     <string name="connect_job_info_title">Détails de l\'opportunité</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>

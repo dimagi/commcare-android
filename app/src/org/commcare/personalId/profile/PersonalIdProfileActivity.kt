@@ -10,6 +10,7 @@ import org.commcare.activities.NavigationHostCommCareActivity
 import org.commcare.connect.PersonalIdManager
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.views.dialogs.CustomProgressDialog
 
 class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfileActivity>() {
     override fun getLayoutResource(): Int = R.layout.activity_personalid_profile
@@ -23,6 +24,11 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         val appBarConfiguration = AppBarConfiguration(emptySet())
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
     }
+
+    override fun shouldShowBreadcrumbBar(): Boolean = false
+
+    override fun generateProgressDialog(taskId: Int): CustomProgressDialog =
+        CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId)
 
     fun forgetPersonalIdAccount() {
         PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_PROFILE_PAGE)
