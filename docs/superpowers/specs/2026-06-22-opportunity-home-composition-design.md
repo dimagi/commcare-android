@@ -17,6 +17,23 @@ The defining requirement is that the activity loads with **no app seated and no 
 
 This spec covers the activity's composition, lifecycle, the refactor of two existing base classes that today bake the "session must exist" assumption into inheritance, and the state resolution / session-management policy that decides which status fragment to show and when to establish a session (see [State resolution and session management](#opportunity-home-state-resolution-and-session-management)). Entry points/routing, the inline silent-login mechanics themselves, and rollout remain out of scope and handled in parallel designs.
 
+## Problem
+
+`SessionAwareCommCareActivity.onCreate()` calls `SessionAwareHelper.onCreateHelper()`, which calls `CommCareApplication.instance().getSession()` and redirects to `LoginActivity` on `SessionUnavailableException`. This is the session gate. `SyncCapableCommCareActivity` and `HomeScreenBaseActivity` build on that gate and assume an app is seated for sync, form entry, app-update prompts, and post-login launch checks.
+
+`OpportunityHomeActivity` cannot extend `SessionAwareCommCareActivity` — situation (1) above has no session. But it must still perform the work currently inherited from `SyncCapableCommCareActivity` and `HomeScreenBaseActivity` once a session does exist, and it must transition into and out of that capable state without recreating the activity.
+
+The fix is to move the session-dependent behavior out of inheritance and into a small set of composable delegates that any activity — including the existing chain — can use, and that can be bound and unbound to a live session at runtime.
+
+## Non-goals
+
+- Modifying `SessionAwareCommCareActivity`. Every other session-gated activity in the app keeps the existing redirect-to-login behavior.
+- Replacing `StandardHomeActivity` for non-Connect users.
+- Designing the visual contents/layout of each status fragment. This spec decides *which* fragment shows for a given state and the session action that state implies, not the fragment's internal UI.
+- Designing entry points, routing through `DispatchActivity`, or persistence of "last accessed opportunity".
+- Designing the inline silent app-login flow (in-flight work). This spec assumes that capability is available and exposes a session to the activity when it completes. See the dependency note below for the two pieces of new logic that flow owes this activity.
+- Implementing `WithUIController` on the new activity.
+
 ## Design approach: inheritance vs. composition
 
 The behavior this activity needs — sync, form entry, app updates, launch checks — lives today in an inheritance chain (`SessionAwareCommCareActivity` → `SyncCapableCommCareActivity` → `HomeScreenBaseActivity` → `StandardHomeActivity`), where the session gate is the common ancestor `SessionAwareCommCareActivity` and the behaviors layer on top of it. Two approaches can give `OpportunityHomeActivity` those behaviors: an inheritance approach that keeps the existing chain, and the composition approach the rest of the spec adopts.
@@ -67,23 +84,6 @@ The real axis is not inheritance vs. composition but **single continuous surface
 - **If that requirement could flex** to accept an activity transition on every session change, the inheritance approach is the lowest-effort path by a wide margin — it needs none of this spec's machinery — and would beat composition on simplicity.
 
 Composition is therefore chosen, but it rests on one load-bearing assumption made explicit here: **the seamless single surface is a real requirement, not a nice-to-have.** If that assumption ever softens, the fallback is the two-activity inheritance approach.
-
-## Problem
-
-`SessionAwareCommCareActivity.onCreate()` calls `SessionAwareHelper.onCreateHelper()`, which calls `CommCareApplication.instance().getSession()` and redirects to `LoginActivity` on `SessionUnavailableException`. This is the session gate. `SyncCapableCommCareActivity` and `HomeScreenBaseActivity` build on that gate and assume an app is seated for sync, form entry, app-update prompts, and post-login launch checks.
-
-`OpportunityHomeActivity` cannot extend `SessionAwareCommCareActivity` — situation (1) above has no session. But it must still perform the work currently inherited from `SyncCapableCommCareActivity` and `HomeScreenBaseActivity` once a session does exist, and it must transition into and out of that capable state without recreating the activity.
-
-The fix is to move the session-dependent behavior out of inheritance and into a small set of composable delegates that any activity — including the existing chain — can use, and that can be bound and unbound to a live session at runtime.
-
-## Non-goals
-
-- Modifying `SessionAwareCommCareActivity`. Every other session-gated activity in the app keeps the existing redirect-to-login behavior.
-- Replacing `StandardHomeActivity` for non-Connect users.
-- Designing the visual contents/layout of each status fragment. This spec decides *which* fragment shows for a given state and the session action that state implies, not the fragment's internal UI.
-- Designing entry points, routing through `DispatchActivity`, or persistence of "last accessed opportunity".
-- Designing the inline silent app-login flow (in-flight work). This spec assumes that capability is available and exposes a session to the activity when it completes. See the dependency note below for the two pieces of new logic that flow owes this activity.
-- Implementing `WithUIController` on the new activity.
 
 ## Dependency: what the inline silent-login flow owes this activity
 
