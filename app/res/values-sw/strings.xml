@@ -660,4 +660,10 @@
     <string name="connect_app_launch_failed_dialog_persistent_error_message">Hatukuweza kufungua programu baada ya majaribio kadhaa. Tafadhali angalia muunganisho wako na ujaribu tena baadaye.</string>
     <string name="connect_app_launch_failed_dialog_ok">Sawa</string>
     <string name="cannot_navigate_during_form_save">Huwezi kuondoka kwenye ukurasa wakati fomu inahifadhiwa</string>
+    <string name="image_capture_activity_title">Piga picha</string>
+    <string name="image_capture_failed">Imeshindwa kuhifadhi picha, tafadhali jaribu tena</string>
+    <string name="camera_start_failed">Kamera imeshindwa kuanza</string>
+    <string name="camera_permission_denied">Nenda kwenye mipangilio na uwashe ruhusa ya kamera ili kutumia kipengele hiki</string>
+    <string name="microimage_face_detection_mode_failed">Hali ya kutambua uso imeshindwa, inabadilika kwenda hali ya mkono</string>
+    <string name="microimage_cropping_failed">Imeshindwa kupunguza picha, hakikisha lengo liko ndani ya eneo la kupiga picha</string>
 </resources>

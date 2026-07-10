@@ -652,4 +652,10 @@ License.
     <string name="connect_app_launch_failed_dialog_persistent_error_message">कई बार प्रयास करने के बाद भी हम ऐप नहीं खोल सके। कृपया अपना कनेक्शन जांचें और बाद में पुनः प्रयास करें।</string>
     <string name="connect_app_launch_failed_dialog_ok">ठीक है</string>
     <string name="cannot_navigate_during_form_save">फ़ॉर्म सहेजते समय पृष्ठ नहीं छोड़ सकते</string>
+    <string name="image_capture_activity_title">फ़ोटो लें</string>
+    <string name="image_capture_failed">फ़ोटो सहेजने में विफल, कृपया पुनः प्रयास करें</string>
+    <string name="camera_start_failed">कैमरा शुरू करने में विफल</string>
+    <string name="camera_permission_denied">इस सुविधा का उपयोग करने के लिए सेटिंग्स में जाएं और कैमरा अनुमति सक्षम करें</string>
+    <string name="microimage_face_detection_mode_failed">चेहरा पहचान मोड विफल, मैनुअल मोड पर स्विच किया जा रहा है</string>
+    <string name="microimage_cropping_failed">छवि क्रॉप करने में विफल, सुनिश्चित करें कि लक्ष्य कैप्चर क्षेत्र के अंदर है</string>
 </resources>

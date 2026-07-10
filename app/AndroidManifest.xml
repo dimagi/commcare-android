@@ -572,6 +572,8 @@
         <activity
             android:name="org.commcare.activities.camera.MicroImageActivity"
             android:screenOrientation="portrait"/>
+        <activity
+            android:name="org.commcare.activities.camera.CameraOverlayActivity"/>
         <!-- Start Collect Manifest -->
 
         <meta-data

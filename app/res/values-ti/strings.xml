@@ -644,4 +644,10 @@
     <string name="connect_app_launch_failed_dialog_persistent_error_message">ብዙሕ ግዜ ድሕሪ ምፍታን፡ ነቲ መተግበሪ ክንከፍቶ ኣይከኣልናን። ብኽብረትኩም ርክብኩም ኣረጋግጹ፡ ጸኒሕኩም ድማ እንደገና ፈትኑ።</string>
     <string name="connect_app_launch_failed_dialog_ok">እሺ</string>
     <string name="cannot_navigate_during_form_save">ቅጥዒ እንዳተዓቀበ ካብ ገጽ ክትወጽእ ኣይትኽእልን</string>
+    <string name="image_capture_activity_title">ስእሊ ኣልዕል</string>
+    <string name="image_capture_failed">ስእሊ ምዕቓብ ኣይተኻእለን፣ በጃኹም እንደገና ፈትኑ</string>
+    <string name="camera_start_failed">ካሜራ ንምጅማር ኣይተኻእለን</string>
+    <string name="camera_permission_denied">ነዚ ባህሪ ንምጥቃም ናብ ቅንብራት ኪዱ እሞ ፍቓድ ካሜራ ኣንቅዑ</string>
+    <string name="microimage_face_detection_mode_failed">ናይ ገጽ ምልላይ ኩነታት ኣይሰርሐን፣ ናብ ናይ ኢድ ኩነታት ይቕይር ኣሎ</string>
+    <string name="microimage_cropping_failed">ስእሊ ምቍራጽ ኣይተኻእለን፣ ዒላማ ኣብ ውሽጢ ናይ ምቅራጽ ቦታ ከምዘሎ ኣረጋግጹ</string>
 </resources>
