@@ -1,6 +1,5 @@
 package org.commcare.androidTests
 
-
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -11,11 +10,9 @@ import org.commcare.AppUtils
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.test.BuildConfig
 import org.commcare.utils.InstrumentationUtility
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -47,5 +44,8 @@ class SessionExpirationTests : BaseTest() {
         // after the user is logged out, verifies the login expired notification
         uiDevice.openNotification()
         uiDevice.wait(Until.hasObject(By.textEndsWith("Login Expire")), 1000)
+
+        // Dismiss the notification drawer by going back
+        uiDevice.pressBack()
     }
 }

@@ -4,19 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.fragments.personalId.EmailWorkFlow;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
+import org.commcare.fragments.personalId.PersonalIdEmailFragment;
 
 public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
+
+    public static final String EXTRA_EXISTING_USER_EMAIL_FLOW = "extra_existing_user_email_flow";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkForEmailScreen();
         updateBackButton();
     }
 
@@ -72,6 +78,18 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     @Override
     protected boolean shouldShowBreadcrumbBar() {
         return false;
+    }
+
+    private void checkForEmailScreen() {
+        if (!getIntent().getBooleanExtra(EXTRA_EXISTING_USER_EMAIL_FLOW, false)) {
+            return;
+        }
+        Bundle args = new Bundle();
+        args.putSerializable(PersonalIdEmailFragment.ARG_EMAIL_WORKFLOW, EmailWorkFlow.EXISTING_USER);
+        getHostFragment().getNavController().navigate(R.id.personalid_email, args,
+                new NavOptions.Builder()
+                        .setPopUpTo(R.id.personalid_phone_fragment, true)
+                        .build());
     }
 }
 

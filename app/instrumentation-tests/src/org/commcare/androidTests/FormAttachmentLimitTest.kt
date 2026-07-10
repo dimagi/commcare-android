@@ -66,7 +66,7 @@ class FormAttachmentLimitTest : BaseTest() {
             .check(matches(isDisplayed()))
 
         // dismiss the error message
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
             .perform(click())
 
         // go back and remove an image

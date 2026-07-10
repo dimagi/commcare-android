@@ -46,7 +46,6 @@ import org.joda.time.DateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.commcare.utils.OtpAnalyticsMapper.getEventType;
 import static org.commcare.utils.OtpManager.SMS_METHOD_FIREBASE;
 import static org.commcare.utils.OtpManager.SMS_METHOD_PERSONAL_ID;
 
@@ -124,6 +123,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
+                recordFailedVerificationAttempt();
                 reportOtpAnalytics(
                         AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                         OtpAnalyticsMapper.reasonFrom(errorType));
@@ -157,6 +157,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             ) {
                 if (otpCallback == null) return;
 
+                recordFailedVerificationAttempt();
                 reportOtpAnalytics(
                         AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                         OtpAnalyticsMapper.reasonFrom(failureCode));
@@ -350,27 +351,36 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         }
     }
 
+    private void recordFailedVerificationAttempt() {
+        if (currentOtpOp == OtpAnalyticsMapper.OtpOp.VERIFY_PHONE) {
+            personalIdSessionData.setOtpVerificationFailedAttempts(
+                    personalIdSessionData.getOtpVerificationFailedAttempts() + 1);
+        }
+    }
+
     private void reportOtpAnalytics(String outcome, @Nullable String reason) {
-      String eventType = getEventType(currentOtpOp);
-        if (eventType == null) return;
         String method = OtpAnalyticsMapper.methodFromSmsMethod(lastOtpMethod);
         FirebaseAnalyticsUtil.reportOtpEvent(
-                eventType,
+                currentOtpOp,
                 outcome,
                 method,
                 reason,
-                personalIdSessionData.getOtpAttempts());
+                personalIdSessionData.getOtpAttempts(),
+                personalIdSessionData.getOtpVerificationFailedAttempts(),
+                OtpAnalyticsMapper.workflowParam(EmailWorkFlow.REGISTRATION));
     }
 
     private void requestOtp() {
         clearOtpError();
         otpRequestTime = new DateTime();
-        currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST;
+        currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST_PHONE;
         otpManager.requestOtp(primaryPhone);
         personalIdSessionData.setOtpAttempts(personalIdSessionData.getOtpAttempts() + 1);
     }
 
     private void verifyOtp() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null,
+                PersonalIdWorkflow.CONFIGURATION);
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
         String otpCode = binding.customOtpView.getCodeValue();
@@ -378,7 +388,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         if (otpCode.length() != 6) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
-            currentOtpOp = OtpAnalyticsMapper.OtpOp.VERIFY;
+            currentOtpOp = OtpAnalyticsMapper.OtpOp.VERIFY_PHONE;
             otpManager.verifyOtp(otpCode);
         }
     }

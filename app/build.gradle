@@ -525,6 +525,7 @@ android {
         unitTests.all {
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
+            maxHeapSize = "2g"
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
         }
