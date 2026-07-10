@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.withStyledAttributes
 import org.commcare.dalvik.R
-import org.commcare.utils.optionalFraction
+import org.commcare.utils.getOptionalFloat
 
 /**
  * Rectangular reticle drawn over the camera preview as a framing guide. Its width and height are
@@ -40,10 +40,10 @@ class RectangleOverlayView
                 defStyleAttr,
                 R.style.Widget_CommCare_RectangleOverlayView,
             ) {
-                configuredWidthFractionPortrait = optionalFraction(R.styleable.RectangleOverlayView_reticleWidthFractionPortrait)
-                configuredHeightFractionPortrait = optionalFraction(R.styleable.RectangleOverlayView_reticleHeightFractionPortrait)
-                configuredWidthFractionLandscape = optionalFraction(R.styleable.RectangleOverlayView_reticleWidthFractionLandscape)
-                configuredHeightFractionLandscape = optionalFraction(R.styleable.RectangleOverlayView_reticleHeightFractionLandscape)
+                configuredWidthFractionPortrait = getOptionalFloat(R.styleable.RectangleOverlayView_reticleWidthFractionPortrait)
+                configuredHeightFractionPortrait = getOptionalFloat(R.styleable.RectangleOverlayView_reticleHeightFractionPortrait)
+                configuredWidthFractionLandscape = getOptionalFloat(R.styleable.RectangleOverlayView_reticleWidthFractionLandscape)
+                configuredHeightFractionLandscape = getOptionalFloat(R.styleable.RectangleOverlayView_reticleHeightFractionLandscape)
                 val strokeWidthPx = getDimension(R.styleable.RectangleOverlayView_reticleStrokeWidth, 0f)
                 val outlineWidthPx = getDimension(R.styleable.RectangleOverlayView_reticleOutlineWidth, 0f)
 
