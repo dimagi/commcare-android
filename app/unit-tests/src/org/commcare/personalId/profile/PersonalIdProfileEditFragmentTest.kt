@@ -11,6 +11,8 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.PhoneNumberHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -21,6 +23,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.never
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 
@@ -157,6 +160,12 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
         connectUserDatabaseUtilMock.verify {
             ConnectUserDatabaseUtil.storeUser(any(), any())
         }
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
+            )
+        }
         assertEquals(
             "Should pop back to the profile screen after a successful save",
             R.id.personalid_profile_fragment,
@@ -170,6 +179,28 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
             "Grace Hopper",
             displayedName.text.toString(),
         )
+    }
+
+    @Test
+    fun `a failed profile update reports the failure outcome and stays on the edit screen`() {
+        setText(nameField(), "Grace Hopper")
+        mockWebServer.enqueue(MockResponse().setResponseCode(500).setBody("{}"))
+
+        clickSave()
+        mockApiServer.drainHttp()
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+            )
+        }
+        assertEquals(
+            "Should remain on the edit screen after a failed save",
+            R.id.personalid_profile_edit_fragment,
+            currentDestinationId(),
+        )
+        assertTrue("Save button should be re-enabled after a failed save", saveButton().isEnabled)
     }
 
     @Test
@@ -202,6 +233,69 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
         val request = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", request.path)
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT,
+                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+            )
+        }
+        firebaseAnalyticsUtilMock.verify(
+            {
+                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
+                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
+                )
+            },
+            never(),
+        )
+    }
+
+    @Test
+    fun `a failed email otp send reports the email update initiated failure and stays on the edit screen`() {
+        setText(emailField(), "grace@example.com")
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        mockWebServer.enqueue(MockResponse().setResponseCode(500).setBody("{}"))
+        onUiThread { confirmButton.performClick() }
+        mockApiServer.drainHttp()
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
+                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+            )
+        }
+        assertEquals(
+            "Should remain on the edit screen after a failed OTP send",
+            R.id.personalid_profile_edit_fragment,
+            currentDestinationId(),
+        )
+    }
+
+    @Test
+    fun `canceling the otp confirmation dialog reports the cancel prompt and sends no request`() {
+        setText(emailField(), "grace@example.com")
+        clickSave()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val cancelButton = dialog.findViewById<Button>(R.id.negative_button)!!
+        onUiThread { cancelButton.performClick() }
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportUserPromptEvent(
+                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
+                AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL,
+                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
+            )
+        }
+        assertEquals(
+            "No request should fire when the email change is canceled",
+            0,
+            mockWebServer.requestCount,
+        )
     }
 
     @Test
@@ -227,5 +321,38 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
         val otpRequest = mockApiServer.takeRequestOrFail()
         assertEquals("/users/send_email_otp", otpRequest.path)
+    }
+
+    // ========== Discard flow ==========
+
+    @Test
+    fun `confirming the discard dialog reports the discard action and pops back`() {
+        setText(nameField(), "Grace Hopper")
+
+        onUiThread { fragment.requireView().findViewById<Button>(R.id.btn_cancel).performClick() }
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        onUiThread { confirmButton.performClick() }
+
+        firebaseAnalyticsUtilMock.verify {
+            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
+                AnalyticsParamValue.MANAGE_PROFILE_ACTION_CHANGES_DISCARDED,
+                null,
+            )
+        }
+        assertEquals(
+            "Should pop back to the profile screen after discarding changes",
+            R.id.personalid_profile_fragment,
+            currentDestinationId(),
+        )
+
+        val profileFragment = navHostFragment.childFragmentManager.primaryNavigationFragment!!
+        val displayedName = profileFragment.requireView().findViewById<TextView>(R.id.profile_value_name)
+        assertEquals(
+            "The profile screen should still show the original name after discarding",
+            "Ada Lovelace",
+            displayedName.text.toString(),
+        )
     }
 }

@@ -1,13 +1,16 @@
 package org.commcare.personalId.profile
 
+import android.os.Bundle
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.junit.After
 import org.junit.Before
 import org.mockito.MockedStatic
@@ -29,6 +32,7 @@ abstract class BasePersonalIdProfileTest {
     protected lateinit var navController: NavController
 
     protected lateinit var connectUserDatabaseUtilMock: MockedStatic<ConnectUserDatabaseUtil>
+    protected lateinit var firebaseAnalyticsUtilMock: MockedStatic<FirebaseAnalyticsUtil>
 
     protected val mockApiServer = PersonalIdMockApiServer(PersonalIdMockApiServer.CallbackMode.MAIN_LOOPER)
     protected val mockWebServer get() = mockApiServer.server
@@ -56,6 +60,13 @@ abstract class BasePersonalIdProfileTest {
         connectUserDatabaseUtilMock
             .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(any()) }
             .thenReturn(user)
+        firebaseAnalyticsUtilMock = Mockito.mockStatic(FirebaseAnalyticsUtil::class.java)
+        firebaseAnalyticsUtilMock
+            .`when`<NavController.OnDestinationChangedListener> {
+                FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener()
+            }.thenReturn(
+                NavController.OnDestinationChangedListener { _: NavController, _: NavDestination, _: Bundle? -> },
+            )
         mockApiServer.start()
         launchProfileActivity()
     }
@@ -64,6 +75,7 @@ abstract class BasePersonalIdProfileTest {
     fun tearDown() {
         activityController.pause().stop().destroy()
         connectUserDatabaseUtilMock.close()
+        firebaseAnalyticsUtilMock.close()
         mockApiServer.shutdown()
     }
 

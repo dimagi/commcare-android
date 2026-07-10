@@ -34,6 +34,7 @@ public class CCAnalyticsEvent {
     static final String PERSONAL_ID_ACCOUNT_RECOVERED = "personalid_account_recovered";
     static final String PERSONAL_ID_ACCOUNT_FORGOTTEN = "personalid_account_forgotten";
     static final String PERSONAL_ID_INTEGRITY_REPORTED = "personalid_integrity_reported";
+    static final String PERSONAL_ID_MANAGE_PROFILE_ACTION = "personalid_manage_profile_action";
     static final String CCC_TAB_CHANGE = "ccc_tab_change";
     static final String CCC_LAUNCH_APP = "ccc_launch_app";
     static final String CCC_AUTO_LOGIN_FAILED = "ccc_auto_login_failed";
