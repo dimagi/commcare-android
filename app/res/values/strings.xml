@@ -569,7 +569,6 @@
     <string name="personalid_link_app_yes">Yes</string>
     <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Sign up for PersonalID</string>
-    <string name="personalid_forget_user">Forget PersonalID user</string>
 
     <string name="connect_refresh_opportunities">Refresh Opportunities</string>
 
@@ -638,6 +637,13 @@
     </string-array>
 
     <string name="micro_image_activity_title">Take Profile Photo</string>
+    <string name="image_capture_activity_title" cc:translatable="true">Take Photo</string>
+    <string name="image_capture_failed" cc:translatable="true">Failed to save photo, please try again</string>
+    <string name="camera_start_failed" cc:translatable="true">Camera failed to start</string>
+    <string name="camera_permission_denied" cc:translatable="true">Go to settings and enable camera permission to use this feature</string>
+    <string name="microimage_face_detection_mode_failed" cc:translatable="true">Face detection mode failed, switching to manual mode</string>
+    <string name="microimage_cropping_failed" cc:translatable="true">Image cropping failed, make sure the target is inside the capture area</string>
+    <string name="microimage_saving_failed" cc:translatable="true">Image couldn\'t be saved. Please try again</string>
 
     <string name="personalid_user_photo_update_dialog_title">Update Profile Photo</string>
     <string name="personalid_user_photo_update_dialog_message">Would you like to take a new profile photo?</string>
@@ -666,6 +672,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">We\'ll send a 6-digit code to %1$s. Enter it on the next screen to verify.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Send Code</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Cancel</string>
+    <string name="personalid_profile_edit_save">Save</string>
+    <string name="personalid_profile_edit_cancel">Cancel</string>
+    <string name="personalid_profile_edit_save_success">Your profile has been updated successfully.</string>
 
     <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>

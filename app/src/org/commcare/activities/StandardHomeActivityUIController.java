@@ -29,6 +29,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.connect.database.ConnectTaskUtils;
 import org.commcare.suite.model.Profile;
 
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
 
         String workingHours = job.getWorkingHours();
-        if (job.isRelearnTaskPending()) {
+        if (ConnectTaskUtils.hasPendingTask(activity, job.getJobUUID())) {
             cvRelearnTasksPending.setVisibility(View.VISIBLE);
             tvJobTime.setVisibility(View.GONE);
             hoursTitle.setVisibility(View.GONE);
@@ -154,7 +155,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
                 textColorRes = R.color.rich_amber_gold;
                 backgroundColorRes = R.color.pale_buttery_cream;
                 connectMessageWarningIcon.setVisibility(View.VISIBLE);
-            } else if (job.readyToTransitionToDelivery() || job.shouldShowRelearnTasksCompletedMessage()) {
+            } else if (job.readyToTransitionToDelivery() || ConnectTaskUtils.shouldShowTasksCompletedMessage(activity, job)) {
                 textColorRes = R.color.connect_green;
                 backgroundColorRes = R.color.connect_light_green;
                 connectMessageWarningIcon.setVisibility(View.GONE);
@@ -195,7 +196,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         syncJobCardVisibility(job);
 
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
-        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() || job.isRelearnTaskPending()) {
+        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() ||
+                ConnectTaskUtils.hasPendingTask(activity, job.getJobUUID())) {
             recyclerView.setVisibility(View.GONE);
         } else {
             recyclerView.setVisibility(View.VISIBLE);

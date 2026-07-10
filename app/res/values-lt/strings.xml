@@ -100,6 +100,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">Išsiųsime 6 skaitmenų kodą adresu %1$s. Įveskite jį kitame ekrane, kad patvirtintumėte.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Siųsti kodą</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Atšaukti</string>
+    <string name="personalid_profile_edit_save">Išsaugoti</string>
+    <string name="personalid_profile_edit_cancel">Atšaukti</string>
+    <string name="personalid_profile_edit_save_success">Jūsų profilis sėkmingai atnaujintas.</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
@@ -308,5 +311,14 @@
     <string name="get_app_list_unknown_error">Bandant gauti programų sąrašą įvyko klaida. Bandykite dar kartą arba susisiekite su pagalba, jei problema kartojasi.</string>
     <string name="no_apps_available">Šiam vartotojui atsisiųsti programų nėra.</string>
     <string name="could_not_refresh_apps">Atsiprašome, atnaujinant programų sąrašą įvyko klaida. Bandykite dar kartą įvesti vartotoją.</string>
+
+    <string name="image_capture_activity_title">Fotografuoti</string>
+    <string name="image_capture_failed">Nepavyko išsaugoti nuotraukos, bandykite dar kartą</string>
+    <string name="camera_start_failed">Nepavyko paleisti kameros</string>
+    <string name="camera_permission_denied">Eikite į nustatymus ir įjunkite kameros leidimą, kad galėtumėte naudoti šią funkciją</string>
+    <string name="microimage_face_detection_mode_failed">Nepavyko veido aptikimo režimas, perjungiama į rankinį režimą</string>
+    <string name="microimage_cropping_failed">Nepavyko apkarpyti vaizdo, įsitikinkite, kad objektas yra fiksavimo srityje</string>
+
     <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
+
 </resources>

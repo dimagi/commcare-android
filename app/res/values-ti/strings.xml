@@ -375,7 +375,6 @@
     <string name="personalid_link_app_yes">እወ</string>
     <string name="personalid_link_app_no">አይኮንን</string>
     <string name="personalid_signup">ኣብ PersonalId ተመዝገቡ</string>
-    <string name="personalid_forget_user">ተጠቃሚ PersonalId ረሲዕካዮ</string>
     <string name="connect_app_install_unknown_error">ናይ ኣፕሊኬሽን ምፅዓን ብሰንኪ ዘይተፈልጠ ጌጋ ኣይተዓወተን</string>
     <string name="connect_app_installed">ኣፕሊኬሽን ተፃዒኑ</string>
     <string name="app_with_id_not_found">ዘድሊ CommCare App ኣብ መሳርሒ ኣይተተኸለን</string>
@@ -413,6 +412,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">ናብ %1$s ናይ 6 ኣሃዝ ኮድ ክንሰድድ ኢና። ንምርግጋጽ ኣብታ ቐጻሊት ስክሪን ኣእትውዎ።</string>
     <string name="personalid_profile_edit_otp_confirm_positive">ኮድ ስደድ</string>
     <string name="personalid_profile_edit_otp_confirm_negative">ሰርዝ</string>
+    <string name="personalid_profile_edit_save">ኣቐምጥ</string>
+    <string name="personalid_profile_edit_cancel">ሰርዝ</string>
+    <string name="personalid_profile_edit_save_success">ፕሮፋይልኩም ብዓወት ተሐዲሱ።</string>
     <string name="connect_job_info_title">ዝርዝር ዕድል</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
@@ -642,4 +644,10 @@
     <string name="connect_app_launch_failed_dialog_persistent_error_message">ብዙሕ ግዜ ድሕሪ ምፍታን፡ ነቲ መተግበሪ ክንከፍቶ ኣይከኣልናን። ብኽብረትኩም ርክብኩም ኣረጋግጹ፡ ጸኒሕኩም ድማ እንደገና ፈትኑ።</string>
     <string name="connect_app_launch_failed_dialog_ok">እሺ</string>
     <string name="cannot_navigate_during_form_save">ቅጥዒ እንዳተዓቀበ ካብ ገጽ ክትወጽእ ኣይትኽእልን</string>
+    <string name="image_capture_activity_title">ስእሊ ኣልዕል</string>
+    <string name="image_capture_failed">ስእሊ ምዕቓብ ኣይተኻእለን፣ በጃኹም እንደገና ፈትኑ</string>
+    <string name="camera_start_failed">ካሜራ ንምጅማር ኣይተኻእለን</string>
+    <string name="camera_permission_denied">ነዚ ባህሪ ንምጥቃም ናብ ቅንብራት ኪዱ እሞ ፍቓድ ካሜራ ኣንቅዑ</string>
+    <string name="microimage_face_detection_mode_failed">ናይ ገጽ ምልላይ ኩነታት ኣይሰርሐን፣ ናብ ናይ ኢድ ኩነታት ይቕይር ኣሎ</string>
+    <string name="microimage_cropping_failed">ስእሊ ምቍራጽ ኣይተኻእለን፣ ዒላማ ኣብ ውሽጢ ናይ ምቅራጽ ቦታ ከምዘሎ ኣረጋግጹ</string>
 </resources>

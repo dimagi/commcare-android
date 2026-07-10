@@ -373,7 +373,6 @@
     <string name="personalid_link_app_yes">Sí</string>
     <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Registrarse en PersonalId</string>
-    <string name="personalid_forget_user">Olvidar usuario de PersonalId</string>
     <string name="connect_refresh_opportunities">Actualizar Oportunidades</string>
     <string name="connect_app_install_unknown_error">La instalación de la aplicación falló debido a un error desconocido</string>
     <string name="connect_app_installed">Aplicación instalada</string>
@@ -412,6 +411,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">Enviaremos un código de 6 dígitos a %1$s. Introdúcelo en la siguiente pantalla para verificar.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Enviar código</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Cancelar</string>
+    <string name="personalid_profile_edit_save">Guardar</string>
+    <string name="personalid_profile_edit_cancel">Cancelar</string>
+    <string name="personalid_profile_edit_save_success">Tu perfil se ha actualizado correctamente.</string>
     <string name="connect_job_info_title">Detalles de la oportunidad</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
@@ -654,4 +656,10 @@
     <string name="connect_app_launch_failed_dialog_persistent_error_message">No pudimos abrir la aplicación después de varios intentos. Comprueba tu conexión y vuelve a intentarlo más tarde.</string>
     <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="cannot_navigate_during_form_save">No se puede salir de la página mientras se guarda el formulario</string>
+    <string name="image_capture_activity_title">Tomar foto</string>
+    <string name="image_capture_failed">No se pudo guardar la foto, inténtalo de nuevo</string>
+    <string name="camera_start_failed">No se pudo iniciar la cámara</string>
+    <string name="camera_permission_denied">Ve a ajustes y habilita el permiso de la cámara para usar esta función</string>
+    <string name="microimage_face_detection_mode_failed">Falló el modo de detección de rostros, cambiando al modo manual</string>
+    <string name="microimage_cropping_failed">Falló el recorte de la imagen, asegúrate de que el objetivo esté dentro del área de captura</string>
 </resources>

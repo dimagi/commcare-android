@@ -208,7 +208,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_link_app_yes">Ee</string>
     <string name="personalid_link_app_no">A\'a</string>
     <string name="personalid_signup">Yi rijista don PersonalID</string>
-    <string name="personalid_forget_user">Manta da mai amfani da PersonalID</string>
     <string name="connect_refresh_opportunities">Damar Sabuntawa</string>
     <string name="connect_app_install_unknown_error">Shigar da manhajar ya gaza saboda kuskuren da ba a sani ba</string>
     <string name="connect_app_installed">An shigar da manhaja</string>
@@ -247,6 +246,9 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_profile_edit_otp_confirm_message">Za mu aika lamba mai lambobi 6 zuwa %1$s. Shigar da ita a shafi na gaba don tabbatarwa.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Aika Lamba</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Soke</string>
+    <string name="personalid_profile_edit_save">Ajiye</string>
+    <string name="personalid_profile_edit_cancel">Soke</string>
+    <string name="personalid_profile_edit_save_success">An sabunta bayanan martabarka cikin nasara.</string>
     <string name="connect_job_info_title">Cikakkun Bayanan Dama</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
@@ -648,4 +650,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_app_launch_failed_dialog_persistent_error_message">Ba mu iya buɗe manhajar ba bayan an gwada sau da yawa. Da fatan a duba haɗin Intanet ɗinku, sannan a sake gwadawa daga baya.</string>
     <string name="connect_app_launch_failed_dialog_ok">TAMAM</string>
     <string name="cannot_navigate_during_form_save">Ba za a iya barin shafin yayin ajiye fom ba</string>
+    <string name="image_capture_activity_title">Ɗauki hoto</string>
+    <string name="image_capture_failed">An kasa ajiye hoton, da fatan a sake gwadawa</string>
+    <string name="camera_start_failed">Kyamara ta kasa farawa</string>
+    <string name="camera_permission_denied">Je zuwa saituna ka kunna izinin kyamara don amfani da wannan fasalin</string>
+    <string name="microimage_face_detection_mode_failed">Yanayin gano fuska ya kasa, ana canzawa zuwa yanayin hannu</string>
+    <string name="microimage_cropping_failed">Yanke hoton ya kasa, ka tabbatar cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
 </resources>

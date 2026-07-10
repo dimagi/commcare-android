@@ -370,7 +370,6 @@ License.
     <string name="personalid_link_app_yes">हाँ</string>
     <string name="personalid_link_app_no">नहीं</string>
     <string name="personalid_signup">PersonalId के लिए साइन अप करें</string>
-    <string name="personalid_forget_user">PersonalId उपयोगकर्ता को भूल जाएं</string>
     <string name="connect_refresh_opportunities">अवसर रीफ्रेश करें</string>
     <string name="connect_app_install_unknown_error">अज्ञात त्रुटि के कारण एप्लिकेशन इंस्टॉल करने में विफल रहा</string>
     <string name="connect_app_installed">एप्लिकेशन इंस्टॉल किया गया</string>
@@ -409,6 +408,9 @@ License.
     <string name="personalid_profile_edit_otp_confirm_message">हम %1$s पर 6 अंकों का कोड भेजेंगे। सत्यापित करने के लिए इसे अगली स्क्रीन पर दर्ज करें।</string>
     <string name="personalid_profile_edit_otp_confirm_positive">कोड भेजें</string>
     <string name="personalid_profile_edit_otp_confirm_negative">रद्द करें</string>
+    <string name="personalid_profile_edit_save">सहेजें</string>
+    <string name="personalid_profile_edit_cancel">रद्द करें</string>
+    <string name="personalid_profile_edit_save_success">आपकी प्रोफ़ाइल सफलतापूर्वक अपडेट कर दी गई है।</string>
     <string name="connect_job_info_title">अवसर विवरण</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
@@ -650,4 +652,10 @@ License.
     <string name="connect_app_launch_failed_dialog_persistent_error_message">कई बार प्रयास करने के बाद भी हम ऐप नहीं खोल सके। कृपया अपना कनेक्शन जांचें और बाद में पुनः प्रयास करें।</string>
     <string name="connect_app_launch_failed_dialog_ok">ठीक है</string>
     <string name="cannot_navigate_during_form_save">फ़ॉर्म सहेजते समय पृष्ठ नहीं छोड़ सकते</string>
+    <string name="image_capture_activity_title">फ़ोटो लें</string>
+    <string name="image_capture_failed">फ़ोटो सहेजने में विफल, कृपया पुनः प्रयास करें</string>
+    <string name="camera_start_failed">कैमरा शुरू करने में विफल</string>
+    <string name="camera_permission_denied">इस सुविधा का उपयोग करने के लिए सेटिंग्स में जाएं और कैमरा अनुमति सक्षम करें</string>
+    <string name="microimage_face_detection_mode_failed">चेहरा पहचान मोड विफल, मैनुअल मोड पर स्विच किया जा रहा है</string>
+    <string name="microimage_cropping_failed">छवि क्रॉप करने में विफल, सुनिश्चित करें कि लक्ष्य कैप्चर क्षेत्र के अंदर है</string>
 </resources>

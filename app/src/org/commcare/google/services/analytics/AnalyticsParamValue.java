@@ -34,15 +34,12 @@ public class AnalyticsParamValue {
     public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
     public static final String CC_SETUP_MENU_OFFLINE_INSTALL = "cc_setup_menu_offline_install";
     public static final String CC_SETUP_MENU_INSTALL_FROM_LIST = "cc_setup_menu_install_from_list";
-    public static final String CC_SETUP_MENU_PERSONAL_ID_FORGET =
-            "cc_setup_menu_personal_id_forget";
     public static final String LOGIN_MENU_PRACTICE_MODE = "login_menu_practice_mode";
     public static final String LOGIN_MENU_ABOUT_COMMCARE = "login_menu_about_commcare";
     public static final String LOGIN_MENU_ACQUIRE_PERMISSIONS = "login_menu_acquire_permissions";
     public static final String LOGIN_MENU_FORGOT_PIN = "login_menu_forgot_pin";
     public static final String LOGIN_MENU_APP_MANAGER = "login_menu_app_manager";
     public static final String LOGIN_MENU_PERSONAL_ID_SIGN_IN = "login_menu_personal_id_sign_in";
-    public static final String LOGIN_MENU_PERSONAL_ID_FORGET = "login_menu_personal_id_forget";
     public static final String CONNECT_MESSAGING_CHANNEL_MENU_UNSUBSCRIBE =
             "connect_messaging_channel_menu_unsubscribe";
     public static final String CONNECT_MESSAGING_CHANNEL_MENU_RESUBSCRIBE =
@@ -170,13 +167,17 @@ public class AnalyticsParamValue {
     public static final String USER_TRIGGERED = "user_triggered";
     public static final String SYSTEM_TRIGGERED = "system_triggered";
 
-    public static final String PERSONAL_ID_FORGOT_USER_LOGIN_PAGE =
-            "user_initiated_from_login_page";
-    public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE =
-            "user_initiated_from_setup_page";
     public static final String PERSONAL_ID_FORGOT_USER_PROFILE_PAGE =
             "user_initiated_from_profile_page";
     public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
+
+    // Param values for Manage Profile actions
+    public static final String MANAGE_PROFILE_ACTION_PHOTO_UPDATED = "photo_updated";
+    public static final String MANAGE_PROFILE_ACTION_NAME_UPDATED = "name_updated";
+    public static final String MANAGE_PROFILE_ACTION_CHANGES_DISCARDED = "changes_discarded";
+    public static final String MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED = "email_update_initiated";
+    public static final String MANAGE_PROFILE_OUTCOME_SUCCESS = "success";
+    public static final String MANAGE_PROFILE_OUTCOME_FAILURE = "failure";
 
     // Param values for PersonalID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE =
@@ -232,9 +233,12 @@ public class AnalyticsParamValue {
     public static final String USER_PROMPT_ACTION_SKIP = "skip";
     public static final String USER_PROMPT_ACTION_RETRY = "retry";
     public static final String USER_PROMPT_ACTION_PROCEED_WITHOUT_EMAIL = "proceed_without_email";
+    public static final String USER_PROMPT_ACTION_CANCEL = "cancel";
     public static final String USER_PROMPT_INFO_EXISTING_USER_REMINDER = "existing_user_reminder";
     public static final String USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY =
             "email_verification_failure_retry";
+    public static final String USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE =
+            "manage_profile_email_update";
 
     // Param values for SMS invite link analytics
     public static final String OPP_INVITE_LINK = "opp_invite_link";

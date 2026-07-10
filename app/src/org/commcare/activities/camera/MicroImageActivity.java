@@ -28,6 +28,7 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.ImageSizeTooLargeException;
 import org.commcare.utils.ImageType;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.FaceCaptureView;
 
 import org.commcare.views.widgets.ImageWidget;
@@ -199,7 +200,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
                             imageProxy.close();
                             finalizeImageCapture(calcPreviewCaptureArea());
                         } else {
-                            logErrorAndExit("No image found, manual capture failed!", "microimage.camera.start.failed", null);
+                            logErrorAndExit("No image found, manual capture failed!", StringUtils.getStringRobust(MicroImageActivity.this, R.string.camera_start_failed), null);
                         }
                     }
                 });
@@ -238,7 +239,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     private void handleErrorDuringDetection(Exception e) {
         Logger.exception("Error during face detection ", e);
-        Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, StringUtils.getStringRobust(this, R.string.microimage_face_detection_mode_failed), Toast.LENGTH_LONG).show();
         switchToManualCaptureMode();
     }
 
@@ -285,7 +286,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             croppedBitmap = MediaUtil.cropImage(inputImage, safeFaceArea);
             deliverResult(croppedBitmap);
         } catch (IllegalArgumentException e) {
-            logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
+            logErrorAndExit(e.getMessage(), StringUtils.getStringRobust(MicroImageActivity.this, R.string.microimage_cropping_failed), e.getCause());
         } finally {
             recycleBitmap(croppedBitmap);
         }
@@ -308,8 +309,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap, getMaxImageSize());
             String finalImageAsBase64 = BASE_64_IMAGE_PREFIX + Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
             finishWithResult(finalImageAsBase64);
-        } catch (ImageSizeTooLargeException | IOException e) {
-            logErrorAndExit(e.getMessage(), "microimage.scalingdown.compression.error", e.getCause());
+        } catch (IOException | ImageSizeTooLargeException e) {
+            logErrorAndExit(e.getMessage(), StringUtils.getStringRobust(this, R.string.microimage_cropping_failed), e.getCause());
         } finally {
             recycleBitmap(scaledBitmap);
         }
@@ -325,7 +326,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             setResult(AppCompatActivity.RESULT_OK);
             finish();
         } catch (IOException e) {
-            logErrorAndExit(e.getMessage(), "microimage.saving.failed", e.getCause());
+            logErrorAndExit(e.getMessage(), StringUtils.getStringRobust(MicroImageActivity.this, R.string.microimage_saving_failed), e.getCause());
         }
     }
 

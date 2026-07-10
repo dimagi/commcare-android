@@ -165,12 +165,22 @@
         <attr name="navigable" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="ConnectInfoCard">
+        <attr name="valueText" />
+        <attr name="titleText" />
+        <attr name="subtitleText" />
+        <attr name="navigable" />
+    </declare-styleable>
+
     <declare-styleable name="RectangleOverlayView">
         <attr name="reticleScrimColor" format="color" />
         <attr name="reticleStrokeColor" format="color" />
         <attr name="reticleOutlineColor" format="color" />
         <attr name="reticleStrokeWidth" format="dimension" />
         <attr name="reticleOutlineWidth" format="dimension" />
-        <attr name="reticleMarginRatio" format="float" />
+        <attr name="reticleWidthFractionPortrait" format="float" />
+        <attr name="reticleHeightFractionPortrait" format="float" />
+        <attr name="reticleWidthFractionLandscape" format="float" />
+        <attr name="reticleHeightFractionLandscape" format="float" />
     </declare-styleable>
 </resources>
