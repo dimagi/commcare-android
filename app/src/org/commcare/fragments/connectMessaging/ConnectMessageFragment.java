@@ -83,7 +83,6 @@ public class ConnectMessageFragment extends Fragment {
         channelId = args.getChannelId();
 
         channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
-        requireActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
         setChatAdapter();
@@ -167,6 +166,7 @@ public class ConnectMessageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        requireActivity().setTitle(channel.getChannelName());
         activeChannel = channelId;
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
