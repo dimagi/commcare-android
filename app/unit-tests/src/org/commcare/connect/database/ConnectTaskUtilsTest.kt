@@ -10,7 +10,10 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING
 import org.commcare.android.database.connect.models.ConnectTaskRecord
+import org.commcare.android.database.connect.models.ConnectTaskRecord.Companion.STATUS_ASSIGNED
+import org.commcare.android.database.connect.models.ConnectTaskRecord.Companion.STATUS_COMPLETED
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.preferences.ConnectJobPreferences
 import org.commcare.utils.SyncDetailCalculations
@@ -50,7 +53,7 @@ class ConnectTaskUtilsTest {
 
     private fun makeTask(
         taskId: String = "task-1",
-        status: String = "assigned",
+        status: String = STATUS_ASSIGNED,
         type: String = "learning",
         dateModified: Date = Date(),
         dueDate: Date = Date(0),
@@ -64,7 +67,7 @@ class ConnectTaskUtilsTest {
         this.name = "Task $taskId"
     }
 
-    private fun makeJob(jobStatus: Int = ConnectJobRecord.STATUS_DELIVERING) =
+    private fun makeJob(jobStatus: Int = STATUS_DELIVERING) =
         mockk<ConnectJobRecord> {
             every { jobUUID } returns this@ConnectTaskUtilsTest.jobUUID
             every { status } returns jobStatus
@@ -102,8 +105,8 @@ class ConnectTaskUtilsTest {
     @Test
     fun `storeTasks does not rewrite an unchanged existing task`() {
         val sharedDate = Date()
-        seedTask(makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate))
-        val incoming = makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate)
+        seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED, dateModified = sharedDate))
+        val incoming = makeTask(taskId = "task-1", status = STATUS_ASSIGNED, dateModified = sharedDate)
 
         ConnectTaskUtils.storeTasks(context, listOf(incoming), jobUUID)
 
@@ -113,19 +116,19 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `storeTasks updates existing task whose mutable field changed`() {
-        seedTask(makeTask(taskId = "task-1", status = "assigned"))
-        val incoming = makeTask(taskId = "task-1", status = "completed")
+        seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED))
+        val incoming = makeTask(taskId = "task-1", status = STATUS_COMPLETED)
 
         ConnectTaskUtils.storeTasks(context, listOf(incoming), jobUUID)
 
-        assertEquals("completed", queryTasks().first().status)
+        assertEquals(STATUS_COMPLETED, queryTasks().first().status)
     }
 
     @Test
     fun `storeTasks updates task modified time when a task changed`() {
-        seedTask(makeTask(taskId = "task-1", status = "assigned"))
+        seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED))
 
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = "completed")), jobUUID)
+        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = STATUS_COMPLETED)), jobUUID)
 
         assertNotEquals(ConnectJobPreferences.TIMESTAMP_NOT_SET, prefs().getTaskModifiedTime())
     }
@@ -133,23 +136,23 @@ class ConnectTaskUtilsTest {
     @Test
     fun `storeTasks does not update task modified time when nothing changed`() {
         val sharedDate = Date()
-        seedTask(makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate))
+        seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED, dateModified = sharedDate))
 
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = "assigned", dateModified = sharedDate)), jobUUID)
+        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = STATUS_ASSIGNED, dateModified = sharedDate)), jobUUID)
 
         assertEquals(ConnectJobPreferences.TIMESTAMP_NOT_SET, prefs().getTaskModifiedTime())
     }
 
     @Test
     fun `storeTasks sets relearn task pending true when any incoming task is assigned`() {
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(status = "assigned")), jobUUID)
+        ConnectTaskUtils.storeTasks(context, listOf(makeTask(status = STATUS_ASSIGNED)), jobUUID)
 
         assertTrue(prefs().isRelearnTaskPending())
     }
 
     @Test
     fun `storeTasks sets relearn task pending false when no incoming tasks are assigned`() {
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(status = "completed")), jobUUID)
+        ConnectTaskUtils.storeTasks(context, listOf(makeTask(status = STATUS_COMPLETED)), jobUUID)
 
         assertFalse(prefs().isRelearnTaskPending())
     }
@@ -196,14 +199,14 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `hasPendingTask returns true when DB has an assigned task`() {
-        seedTask(makeTask(status = "assigned"))
+        seedTask(makeTask(status = STATUS_ASSIGNED))
 
         assertTrue(ConnectTaskUtils.hasPendingTask(context, jobUUID))
     }
 
     @Test
     fun `hasPendingTask returns false when DB has only completed tasks`() {
-        seedTask(makeTask(status = "completed"))
+        seedTask(makeTask(status = STATUS_COMPLETED))
 
         assertFalse(ConnectTaskUtils.hasPendingTask(context, jobUUID))
     }
@@ -226,7 +229,7 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `getPendingTaskOfType returns task matching type and assigned status`() {
-        seedTask(makeTask(taskId = "t1", status = "assigned", type = "learning"))
+        seedTask(makeTask(taskId = "t1", status = STATUS_ASSIGNED, type = "learning"))
 
         val result = ConnectTaskUtils.getPendingTaskOfType(context, jobUUID, "learning")
         assertEquals("t1", result?.taskId)
@@ -234,21 +237,21 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `getPendingTaskOfType returns null when type does not match`() {
-        seedTask(makeTask(status = "assigned", type = "delivery"))
+        seedTask(makeTask(status = STATUS_ASSIGNED, type = "delivery"))
 
         assertNull(ConnectTaskUtils.getPendingTaskOfType(context, jobUUID, "learning"))
     }
 
     @Test
     fun `getPendingTaskOfType returns null when type matches but status is not assigned`() {
-        seedTask(makeTask(status = "completed", type = "learning"))
+        seedTask(makeTask(status = STATUS_COMPLETED, type = "learning"))
 
         assertNull(ConnectTaskUtils.getPendingTaskOfType(context, jobUUID, "learning"))
     }
 
     @Test
     fun `hasPendingTaskOfType returns true when matching assigned task exists`() {
-        seedTask(makeTask(status = "assigned", type = "learning"))
+        seedTask(makeTask(status = STATUS_ASSIGNED, type = "learning"))
 
         assertTrue(ConnectTaskUtils.hasPendingTaskOfType(context, jobUUID, "learning"))
     }
@@ -264,7 +267,7 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `shouldShowTasksCompletedMessage returns false when there is a pending task`() {
-        seedTask(makeTask(status = "assigned"))
+        seedTask(makeTask(status = STATUS_ASSIGNED))
 
         assertFalse(ConnectTaskUtils.shouldShowTasksCompletedMessage(context, makeJob()))
     }
@@ -276,22 +279,22 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `shouldShowTasksCompletedMessage returns true when task completed within 6h and job is DELIVERING`() {
-        seedTask(makeTask(status = "completed", dateModified = Date()))
+        seedTask(makeTask(status = STATUS_COMPLETED, dateModified = Date()))
 
-        assertTrue(ConnectTaskUtils.shouldShowTasksCompletedMessage(context, makeJob(ConnectJobRecord.STATUS_DELIVERING)))
+        assertTrue(ConnectTaskUtils.shouldShowTasksCompletedMessage(context, makeJob(STATUS_DELIVERING)))
     }
 
     @Test
     fun `shouldShowTasksCompletedMessage returns false when task completed more than 6h ago`() {
         val sevenHoursAgo = Date(System.currentTimeMillis() - 7 * 60 * 60 * 1000L)
-        seedTask(makeTask(status = "completed", dateModified = sevenHoursAgo))
+        seedTask(makeTask(status = STATUS_COMPLETED, dateModified = sevenHoursAgo))
 
         assertFalse(ConnectTaskUtils.shouldShowTasksCompletedMessage(context, makeJob()))
     }
 
     @Test
     fun `shouldShowTasksCompletedMessage returns false when completed within 6h but job not DELIVERING`() {
-        seedTask(makeTask(status = "completed", dateModified = Date()))
+        seedTask(makeTask(status = STATUS_COMPLETED, dateModified = Date()))
 
         assertFalse(ConnectTaskUtils.shouldShowTasksCompletedMessage(context, makeJob(ConnectJobRecord.STATUS_LEARNING)))
     }
@@ -343,8 +346,8 @@ class ConnectTaskUtilsTest {
     @Test
     fun `isLastTaskUpdateLaterThanLastSync returns false when task was modified before last sync`() {
         // Trigger a real task change so taskModifiedTime = ~now
-        seedTask(makeTask(taskId = "task-1", status = "assigned"))
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = "completed")), jobUUID)
+        seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED))
+        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = STATUS_COMPLETED)), jobUUID)
 
         // Mock last sync as happening after the task update
         mockkObject(ConnectJobHelper)
@@ -361,8 +364,8 @@ class ConnectTaskUtilsTest {
         mockkStatic(SyncDetailCalculations::class)
         every { ConnectJobHelper.getJobForSeatedApp(context) } returns makeJob()
         every { SyncDetailCalculations.getLastSyncTime() } returns 0L
-        seedTask(makeTask(taskId = "task-1", status = "assigned"))
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = "completed")), jobUUID)
+        seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED))
+        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = STATUS_COMPLETED)), jobUUID)
 
         assertTrue(ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync(context))
     }

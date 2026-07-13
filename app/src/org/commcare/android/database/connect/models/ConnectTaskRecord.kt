@@ -57,6 +57,11 @@ class ConnectTaskRecord :
 
     companion object {
         const val STORAGE_KEY = "connect_tasks"
+
+        const val STATUS_ASSIGNED = "assigned"
+        const val STATUS_COMPLETED = "completed"
+        const val TYPE_OCS = "ocs"
+
         const val META_JOB_UUID = "opportunity_id"
         const val META_TASK_ID = "task_id"
         const val META_NAME = "name"
