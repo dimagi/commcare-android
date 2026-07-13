@@ -25,7 +25,7 @@
         android:id="@+id/cta_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/connect_cta_bar_background"
+        app:cardBackgroundColor="@color/connect_light_indigo"
         app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
         app:cardElevation="@dimen/connect_info_card_elevation"
         app:contentPadding="16dp">
