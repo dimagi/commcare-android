@@ -8,11 +8,17 @@ import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import org.commcare.activities.*
+import org.commcare.activities.CommCareVerificationActivity
+import org.commcare.activities.CommCareWiFiDirectActivity
+import org.commcare.activities.FormRecordListActivity
+import org.commcare.activities.RecoveryActivity
+import org.commcare.activities.UpdateActivity
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
@@ -21,36 +27,42 @@ import org.hamcrest.Matchers.startsWith
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.jvm.java
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class MenuTests: BaseTest() {
-
+class MenuTests : BaseTest() {
     companion object {
         const val CCZ_NAME = "settings_sheet_tests.ccz"
         const val APP_NAME = "App for Settings Sheet"
 
-        val homeMenuItems = arrayOf("Update App",
+        val homeMenuItems =
+            arrayOf(
+                "Update App",
                 "Saved Forms",
                 "Change Language",
                 "About CommCare",
                 "Advanced",
-                "Settings")
+                "Settings",
+            )
 
-        val advancedOptions = arrayOf("Wi-Fi Direct",
+        val advancedOptions =
+            arrayOf(
+                "Wi-Fi Direct",
                 "Manage SD",
                 "Report Problem",
                 "Force Log Submission",
                 "Validate Media",
                 "Connection Test",
                 "Recovery Mode",
-                "Clear User Data")
+                "Clear User Data",
+            )
     }
 
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("settings.test","123")
+        InstrumentationUtility.login("settings.test", "123")
     }
 
     @Test
@@ -62,63 +74,72 @@ class MenuTests: BaseTest() {
         checkStringExists(homeMenuItems)
         InstrumentationUtility.rotatePortrait()
 
+        // wait for the menu to settle after the rotation flash
+        InstrumentationUtility.waitForView(withText(homeMenuItems[0]))
+
         onView(withText(homeMenuItems[0]))
-                .perform(click())
+            .perform(click())
         Intents.intended(IntentMatchers.hasComponent(UpdateActivity::class.java.name))
         onView(withText("App is up to date"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         InstrumentationUtility.gotoHome()
 
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[1]))
-                .perform(click())
+            .perform(click())
         Intents.intended(IntentMatchers.hasComponent(FormRecordListActivity::class.java.name))
         onView(withText(startsWith("Filter By:")))
-                .perform(click())
-        checkStringExists(arrayOf(
+            .perform(click())
+        checkStringExists(
+            arrayOf(
                 "Filter By: All Completed Forms",
                 "Filter By: Only Submitted Forms",
                 "Filter By: Only Unsent Forms",
                 "Only Incomplete Forms",
-                "Filter: Quarantined Forms"))
+                "Filter: Quarantined Forms",
+            ),
+        )
         InstrumentationUtility.gotoHome()
 
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[2]))
-                .perform(click())
+            .perform(click())
         // Confirm we see 2 choices
         onView(withId(R.id.choices_list_view))
-                .check(matches(CustomMatchers.matchListSize(2)))
+            .check(matches(CustomMatchers.matchListSize(2)))
         InstrumentationUtility.gotoHome()
 
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[3]))
-                .perform(click())
+            .perform(click())
         onView(withText("About CommCare"))
-                .check(matches(isDisplayed()))
-        onView(withText("OK"))
-                .perform(click())
+            .check(matches(isDisplayed()))
+        onView(withText(R.string.ok))
+            .perform(click())
         InstrumentationUtility.gotoHome()
 
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[4]))
-                .perform(click())
+            .perform(click())
         onView(withText("CommCare > Advanced"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         checkStringExists(advancedOptions)
         InstrumentationUtility.gotoHome()
 
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[5]))
-                .perform(click())
+            .perform(click())
         onView(withText("CommCare > Settings"))
-                .check(matches(isDisplayed()))
-        checkStringExists(arrayOf(
+            .check(matches(isDisplayed()))
+        checkStringExists(
+            arrayOf(
                 "Auto Update Frequency",
                 "Set Print Template",
                 "Grid Menus Enabled",
                 "Fuzzy Search Matches",
-                "Opt Out of Analytics"))
+                "Opt Out of Analytics",
+            ),
+        )
         InstrumentationUtility.gotoHome()
     }
 
@@ -127,39 +148,39 @@ class MenuTests: BaseTest() {
     fun testAdvancedActions() {
         openAdvancedOption(0)
         onView(withText("Do you want to send, receive, or submit forms?"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withId(R.id.negative_button))
-                .perform(click())
+            .perform(click())
         Intents.intended(IntentMatchers.hasComponent(CommCareWiFiDirectActivity::class.java.name))
         InstrumentationUtility.gotoHome()
 
         openAdvancedOption(1)
         val formDumpConfirmation = "Do not use this feature unless you have been trained to do so. Do you wish to proceed?"
         onView(withText(formDumpConfirmation))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withId(R.id.negative_button))
-                .perform(click())
+            .perform(click())
         onView(withText("CommCare > Advanced"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText(advancedOptions[1]))
-                .perform(click())
+            .perform(click())
         onView(withText(formDumpConfirmation))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withId(R.id.positive_button))
-                .perform(click())
+            .perform(click())
         onView(withText(startsWith("Dump Forms")))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText(startsWith("Submit Forms")))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         Espresso.pressBack()
         onView(withText(formDumpConfirmation))
-                .check(doesNotExist())
+            .check(doesNotExist())
         InstrumentationUtility.gotoHome()
 
         openAdvancedOption(4)
         Intents.intended(IntentMatchers.hasComponent(CommCareVerificationActivity::class.java.name))
         onView(withId(R.id.home_gridview_buttons))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
 
         openAdvancedOption(6)
         Intents.intended(IntentMatchers.hasComponent(RecoveryActivity::class.java.name))
@@ -167,9 +188,9 @@ class MenuTests: BaseTest() {
 
         openAdvancedOption(7)
         onView(withId(R.id.positive_button))
-                .perform(click())
+            .perform(click())
         onView(withText("Welcome back! Please log in."))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
     }
 
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
@@ -177,14 +198,14 @@ class MenuTests: BaseTest() {
     fun runConnectionTest() {
         openAdvancedOption(5)
         onView(withId(R.id.run_connection_test))
-                .perform(click())
+            .perform(click())
         onView(withText("No problems were detected."))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         InstrumentationUtility.changeWifi(false)
         onView(withId(R.id.run_connection_test))
-                .perform(click())
+            .perform(click())
         onView(withText("You are not connected the Internet. Please run this test again after connecting to Wi-Fi or mobile data."))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         InstrumentationUtility.changeWifi(true)
         InstrumentationUtility.logout()
     }
@@ -192,15 +213,15 @@ class MenuTests: BaseTest() {
     private fun openAdvancedOption(index: Int) {
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[4]))
-                .perform(click())
+            .perform(click())
         onView(withText(advancedOptions[index]))
-                .perform(click())
+            .perform(click())
     }
 
     private fun checkStringExists(arr: Array<String>) {
         arr.forEach { item ->
             onView(withText(item))
-                    .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()))
         }
     }
 }

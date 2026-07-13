@@ -37,6 +37,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DelayedBlockingAction;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
@@ -245,6 +246,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if (this instanceof MediaCapableWidget &&
                 getContext() instanceof FormEntryActivity activity) {
                 activity.incrementAttachmentCount();
+
+            CrashUtil.log("Attachment count incremented for question " + mPrompt.getIndex() + ". Current count: "
+                    + activity.getFormAttachmentCount());
         }
     }
 
@@ -252,6 +256,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if (this instanceof MediaCapableWidget &&
                 getContext() instanceof FormEntryActivity activity) {
             activity.decrementAttachmentCount();
+
+            CrashUtil.log("Attachment count decremented for question " + mPrompt.getIndex() + ". Current count: "
+                    + activity.getFormAttachmentCount());
         }
     }
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_personalid_profile"
+    app:startDestination="@id/personalid_profile_fragment">
+
+    <fragment
+        android:id="@+id/personalid_profile_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileFragment"
+        android:label="@string/personalid_profile_title">
+        <action
+            android:id="@+id/action_profile_to_profile_edit"
+            app:destination="@id/personalid_profile_edit_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_edit_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileEditFragment"
+        android:label="@string/personalid_profile_edit_title">
+        <action
+            android:id="@+id/action_profile_edit_to_email_verification"
+            app:destination="@id/personalid_email_verification_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_email_verification_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdEmailVerificationFragment"
+        android:label="@string/personalid_email_verification_appbar_title"
+        tools:layout="@layout/fragment_personalid_email_verification">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <argument
+            android:name="emailOtpRequestCount"
+            app:argType="integer" />
+    </fragment>
+</navigation>

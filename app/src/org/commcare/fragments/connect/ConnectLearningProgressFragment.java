@@ -4,20 +4,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
-import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.repository.ConnectRepository;
+import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
@@ -37,6 +37,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         implements RefreshableFragment {
 
     private boolean showAppLaunch = true;
+    private ConnectLearningProgressViewModel viewModel;
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -56,9 +57,15 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         }
 
         requireActivity().setTitle(getString(R.string.connect_learn_title));
+        setWaitDialogEnabled(false);
+        viewModel = new ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(ConnectLearningProgressViewModel.class);
+
         setupRefreshButton();
         populateJobCard();
-        refreshLearningData();
+        observeLearningProgress();
         return view;
     }
 
@@ -66,33 +73,29 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refreshLearningData();
+            refresh(false);
         }
     }
 
     @Override
-    public void refresh() {
-        refreshLearningData();
+    public void refresh(boolean forceRefresh) {
+        viewModel.loadLearningProgress(job, forceRefresh);
     }
 
     private void setupRefreshButton() {
-        getBinding().btnSync.setOnClickListener(v -> refreshLearningData());
+        getBinding().btnSync.setOnClickListener(v -> refresh(true));
     }
 
-    private void refreshLearningData() {
-        ConnectJobHelper.INSTANCE.updateLearningProgress(
-                requireContext(),
-                job,
-                (success, error) -> {
-                    if (success && isAdded()) {
-                        updateLearningUI();
-                    } else if (!success && isAdded()) {
-                        Toast.makeText(
-                                requireContext(),
-                                getString(R.string.connect_fetch_learning_progress_error),
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
+    private void observeLearningProgress() {
+        observeDataState(
+                viewModel.getLearningProgress(),
+                cached -> {
+                    job = cached;
+                    updateLearningUI();
+                },
+                success -> {
+                    job = success;
+                    updateLearningUI();
                 }
         );
     }
@@ -316,8 +319,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getLearnAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, appId);
+            new ConnectAppLaunchController(this).launchApp(appId, true, this::popSelfOnceHidden);
         } else {
             NavDirections navDirections = ConnectLearningProgressFragmentDirections
                     .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
@@ -329,9 +331,8 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     @Override
-    @Nullable
-    public Date getLastSyncTime() {
-        return job != null ? job.getLastLearnUpdate() : null;
+    public String getEndpoint() {
+        return ConnectRepository.SYNC_KEY_LEARNING_PREFIX + job.getJobUUID();
     }
 
     @Override

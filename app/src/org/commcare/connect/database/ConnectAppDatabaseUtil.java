@@ -41,11 +41,10 @@ public class ConnectAppDatabaseUtil {
      * @param connectIdLinked Whether the app is linked to ConnectID
      * @param passwordOrPin   User's password or PIN
      * @param workerLinked    Whether the app is linked to a worker
-     * @param localPassphrase Whether using local passphrase
      * @return The stored record
      * throw error if storage operations fail
      */
-    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked, boolean localPassphrase) {
+    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked) {
 
         ConnectLinkedAppRecord record = getConnectLinkedAppRecord(context, appId, userId);
         if (record == null) {
@@ -55,7 +54,7 @@ public class ConnectAppDatabaseUtil {
         }
 
         record.setPersonalIdLinked(connectIdLinked);
-        record.setIsUsingLocalPassphrase(localPassphrase);
+        record.setIsUsingLocalPassphrase(false);
 
         if (workerLinked) {
             //If passed in false, we'll leave the setting unchanged

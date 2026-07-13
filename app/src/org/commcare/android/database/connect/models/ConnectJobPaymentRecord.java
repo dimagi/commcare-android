@@ -4,6 +4,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,7 +95,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         payment.amount = String.valueOf(json.getInt(META_AMOUNT));
         payment.confirmed = json.optBoolean(META_CONFIRMED, false);
         try {
-            payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ?
+            payment.confirmedDate = JsonExtensions.hasNonNull(json, META_CONFIRMED_DATE) ?
                     DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
         } catch (Exception e) {
             throw new JSONException("Error parsing confirmed date: " + e.getMessage());
