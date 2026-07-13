@@ -112,6 +112,7 @@
     <string name="nav_drawer_open">Atidaryti navigacijos meniu</string>
     <string name="nav_drawer_close">Uždaryti navigacijos meniu</string>
     <string name="connect_message_you">Jūs</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_message_them">Jie</string>
     <string name="fcm_sync_failed_body_text">Norėdami sužinoti daugiau, spustelėkite čia</string>
     <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
