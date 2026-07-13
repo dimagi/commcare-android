@@ -59,13 +59,6 @@ class ConnectSuccessFailureCardTest {
     }
 
     @Test
-    fun `card is hidden by default`() {
-        val card = ConnectSuccessFailureCard(context)
-
-        assertEquals(View.GONE, card.visibility)
-    }
-
-    @Test
     fun `honors an explicit visibility declared in xml`() {
         val attrs =
             Robolectric

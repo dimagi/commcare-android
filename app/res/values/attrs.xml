@@ -173,6 +173,7 @@
     </declare-styleable>
 
     <declare-styleable name="ConnectSuccessFailureCard">
+        <attr name="android:visibility" />
         <attr name="mode" format="enum">
             <enum name="success" value="0" />
             <enum name="failure" value="1" />

@@ -33,7 +33,7 @@ class ConnectSuccessFailureCard
         var mode: Mode? = null
             set(value) {
                 field = value
-                value?.let { applyMode(it) }
+                value?.let { applyMode(styleFor(it)) }
             }
 
         var messageText: CharSequence?
@@ -74,9 +74,6 @@ class ConnectSuccessFailureCard
 
         init {
             useCompatPadding = false
-            if (attrs?.getAttributeValue(ANDROID_NAMESPACE, "visibility") == null) {
-                visibility = GONE
-            }
 
             binding.successFailureCardClose.setOnClickListener {
                 visibility = GONE
@@ -89,6 +86,9 @@ class ConnectSuccessFailureCard
                 defStyleAttr,
                 R.style.Widget_CommCare_ConnectSuccessFailureCard,
             ) {
+                if (!hasValue(R.styleable.ConnectSuccessFailureCard_android_visibility)) {
+                    visibility = GONE
+                }
                 radius = getDimension(R.styleable.ConnectSuccessFailureCard_cardCornerRadius, radius)
                 cardElevation = getDimension(R.styleable.ConnectSuccessFailureCard_cardElevation, cardElevation)
                 successBackgroundColor = getColor(R.styleable.ConnectSuccessFailureCard_successBackgroundColor, 0)
@@ -96,28 +96,31 @@ class ConnectSuccessFailureCard
                 failureBackgroundColor = getColor(R.styleable.ConnectSuccessFailureCard_failureBackgroundColor, 0)
                 failureAccentColor = getColor(R.styleable.ConnectSuccessFailureCard_failureAccentColor, 0)
                 if (hasValue(R.styleable.ConnectSuccessFailureCard_mode)) {
-                    mode = Mode.values()[getInt(R.styleable.ConnectSuccessFailureCard_mode, 0)]
+                    mode = Mode.entries[getInt(R.styleable.ConnectSuccessFailureCard_mode, 0)]
                 }
                 getString(R.styleable.ConnectSuccessFailureCard_messageText)?.let { messageText = it }
             }
         }
 
-        private fun applyMode(mode: Mode) {
-            val (backgroundColor, iconRes, accent) =
-                when (mode) {
-                    Mode.SUCCESS -> Triple(successBackgroundColor, R.drawable.check_update, successAccentColor)
-                    Mode.FAILURE -> Triple(failureBackgroundColor, R.drawable.ic_connect_warning, failureAccentColor)
-                }
-            val accentTint = ColorStateList.valueOf(accent)
+        private fun styleFor(mode: Mode) =
+            when (mode) {
+                Mode.SUCCESS -> ModeStyle(successBackgroundColor, R.drawable.check_update, successAccentColor)
+                Mode.FAILURE -> ModeStyle(failureBackgroundColor, R.drawable.ic_connect_warning, failureAccentColor)
+            }
 
-            setCardBackgroundColor(backgroundColor)
-            binding.successFailureCardIcon.setImageResource(iconRes)
+        private fun applyMode(style: ModeStyle) {
+            val accentTint = ColorStateList.valueOf(style.accentColor)
+
+            setCardBackgroundColor(style.backgroundColor)
+            binding.successFailureCardIcon.setImageResource(style.iconRes)
             ImageViewCompat.setImageTintList(binding.successFailureCardIcon, accentTint)
-            binding.successFailureCardText.setTextColor(accent)
+            binding.successFailureCardText.setTextColor(style.accentColor)
             ImageViewCompat.setImageTintList(binding.successFailureCardClose, accentTint)
         }
 
-        companion object {
-            private const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
-        }
+        private data class ModeStyle(
+            val backgroundColor: Int,
+            val iconRes: Int,
+            val accentColor: Int,
+        )
     }
