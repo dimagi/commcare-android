@@ -10,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +27,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public static final String META_CHANNEL_CREATED = "created";
     public static final String META_ANSWERED_CONSENT = "answered_consent";
     public static final String META_CONSENT = "consent";
-    public static final String META_CHANNEL_NAME = "channel_source";
+    public static final String META_CHANNEL_SOURCE = "channel_source";
     public static final String META_KEY_URL = "key_url";
     public static final String META_KEY = "key";
 
@@ -53,8 +52,8 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     private boolean consented;
 
     @Persisting(5)
-    @MetaField(META_CHANNEL_NAME)
-    private String channelName;
+    @MetaField(META_CHANNEL_SOURCE)
+    private String channelSource;
 
     @Persisting(6)
     @MetaField(META_KEY_URL)
@@ -73,7 +72,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
         connectMessagingChannelRecord.channelId = json.getString(META_CHANNEL_ID);
         connectMessagingChannelRecord.consented = json.getBoolean(META_CONSENT);
-        connectMessagingChannelRecord.channelName = json.getString(META_CHANNEL_NAME);
+        connectMessagingChannelRecord.channelSource = json.getString(META_CHANNEL_SOURCE);
         connectMessagingChannelRecord.keyUrl = json.getString(META_KEY_URL);
 
         connectMessagingChannelRecord.channelCreated = new Date();
@@ -88,7 +87,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
         connectMessagingChannelRecord.channelId = payloadData.get(META_CHANNEL_ID);
         connectMessagingChannelRecord.consented = payloadData.get(META_CONSENT).equals("true");
-        connectMessagingChannelRecord.channelName = payloadData.get(META_CHANNEL_NAME);
+        connectMessagingChannelRecord.channelSource = payloadData.get(META_CHANNEL_SOURCE);
         connectMessagingChannelRecord.keyUrl = payloadData.get(META_KEY_URL);
 
         connectMessagingChannelRecord.channelCreated = new Date();
@@ -130,12 +129,12 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         this.consented = consented;
     }
 
-    public String getChannelName() {
-        return channelName;
+    public String getChannelSource() {
+        return channelSource;
     }
 
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
+    public void setChannelSource(String channelSource) {
+        this.channelSource = channelSource;
     }
 
     public String getKeyUrl() {

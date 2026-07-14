@@ -83,7 +83,7 @@ public class ConnectMessageFragment extends Fragment {
         channelId = args.getChannelId();
 
         channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
-        requireActivity().setTitle(channel.getChannelName());
+        requireActivity().setTitle(channel.getChannelSource());
 
         handleSendButtonListener();
         setChatAdapter();
@@ -341,7 +341,7 @@ public class ConnectMessageFragment extends Fragment {
         if (menuItemId == MENU_UNSUBSCRIBE) {
             String titleText = getString(
                     R.string.connect_messaging_unsubscribe_dialog_title,
-                    channel.getChannelName()
+                    channel.getChannelSource()
             );
             String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
             String negativeButtonText =
@@ -377,11 +377,11 @@ public class ConnectMessageFragment extends Fragment {
         } else if (menuItemId == MENU_RESUBSCRIBE) {
             String titleText = getString(
                     R.string.connect_messaging_resubscribe_dialog_title,
-                    channel.getChannelName()
+                    channel.getChannelSource()
             );
             String messageText = getString(
                     R.string.connect_messaging_resubscribe_dialog_body,
-                    channel.getChannelName()
+                    channel.getChannelSource()
             );
             String negativeButtonText =
                     getString(R.string.connect_messaging_resubscribe_dialog_cancel);

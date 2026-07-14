@@ -484,7 +484,7 @@ public class FirebaseMessagingUtil {
 
             notificationTitleId = R.string.connect_messaging_channel_notification_title;
             notificationMessage = context.getString(R.string.connect_messaging_channel_notification_message,
-                    channel.getChannelName());
+                    channel.getChannelSource());
 
             channelId = channel.getChannelId();
         }
