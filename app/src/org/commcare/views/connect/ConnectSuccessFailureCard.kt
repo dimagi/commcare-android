@@ -80,15 +80,18 @@ class ConnectSuccessFailureCard
                 onDismiss?.invoke()
             }
 
+            context.withStyledAttributes(attrs, intArrayOf(android.R.attr.visibility), defStyleAttr) {
+                if (!hasValue(0)) {
+                    visibility = GONE
+                }
+            }
+
             context.withStyledAttributes(
                 attrs,
                 R.styleable.ConnectSuccessFailureCard,
                 defStyleAttr,
                 R.style.Widget_CommCare_ConnectSuccessFailureCard,
             ) {
-                if (!hasValue(R.styleable.ConnectSuccessFailureCard_android_visibility)) {
-                    visibility = GONE
-                }
                 radius = getDimension(R.styleable.ConnectSuccessFailureCard_cardCornerRadius, radius)
                 cardElevation = getDimension(R.styleable.ConnectSuccessFailureCard_cardElevation, cardElevation)
                 successBackgroundColor = getColor(R.styleable.ConnectSuccessFailureCard_successBackgroundColor, 0)
