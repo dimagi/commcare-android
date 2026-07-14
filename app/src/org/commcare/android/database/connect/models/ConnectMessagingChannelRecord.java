@@ -30,6 +30,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public static final String META_CHANNEL_SOURCE = "channel_source";
     public static final String META_KEY_URL = "key_url";
     public static final String META_KEY = "key";
+    public static final String META_CHANNEL_NAME = "channel_name";
 
     public ConnectMessagingChannelRecord() {
 
@@ -63,6 +64,10 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     @MetaField(META_KEY)
     private String key;
 
+    @Persisting(8)
+    @MetaField(META_CHANNEL_NAME)
+    private String channelName;
+
     private SpannableString preview;
 
     private List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
@@ -74,6 +79,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         connectMessagingChannelRecord.consented = json.getBoolean(META_CONSENT);
         connectMessagingChannelRecord.channelSource = json.getString(META_CHANNEL_SOURCE);
         connectMessagingChannelRecord.keyUrl = json.getString(META_KEY_URL);
+        connectMessagingChannelRecord.channelName = json.optString(META_CHANNEL_NAME, "");
 
         connectMessagingChannelRecord.channelCreated = new Date();
         connectMessagingChannelRecord.answeredConsent = false;
@@ -89,6 +95,8 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         connectMessagingChannelRecord.consented = payloadData.get(META_CONSENT).equals("true");
         connectMessagingChannelRecord.channelSource = payloadData.get(META_CHANNEL_SOURCE);
         connectMessagingChannelRecord.keyUrl = payloadData.get(META_KEY_URL);
+        String channelName = payloadData.get(META_CHANNEL_NAME);
+        connectMessagingChannelRecord.channelName = channelName != null ? channelName : "";
 
         connectMessagingChannelRecord.channelCreated = new Date();
         connectMessagingChannelRecord.answeredConsent = false;
@@ -151,6 +159,18 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
+    public String getDisplayName() {
+        return (channelName != null && !channelName.isEmpty()) ? channelName : channelSource;
     }
 
     public List<ConnectMessagingMessageRecord> getMessages() {
