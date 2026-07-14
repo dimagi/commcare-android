@@ -117,6 +117,11 @@ public class FormEntryInstanceState {
         String path = mFormRecordDestination + file + "_" + time;
         if (FileUtil.createFolder(path)) {
             mFormRecordPath = path + File.separator + file + "_" + time + ".xml";
+        } else {
+            // TODO: This branch was left unhandled in the original code. We should handle this case more
+            //  gracefully, perhaps by notifying the user and cancelling the form entry process. For now, we log
+            //  a non-fatal exception to help with debugging.
+            Logger.exception("Unable to create form record folder at " + path, new RuntimeException());
         }
     }
 

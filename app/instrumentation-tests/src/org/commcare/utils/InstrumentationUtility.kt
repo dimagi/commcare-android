@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.net.wifi.WifiManager
-import android.os.Build
 import android.os.RemoteException
 import android.provider.MediaStore
 import android.view.View
@@ -24,10 +23,8 @@ import androidx.test.espresso.PerformException
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewInteraction
-import androidx.test.espresso.action.ViewActions.clearText
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.repeatedlyUntil
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.action.ViewActions.typeText
@@ -37,7 +34,6 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.hasSibling
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -115,7 +111,7 @@ object InstrumentationUtility {
         clickListItem(R.id.apps_list_view, 0)
         onView(withText("Uninstall"))
             .perform(click())
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
             .inRoot(RootMatchers.isDialog())
             .perform(click())
         onView(withId(R.id.install_app_button))
@@ -169,9 +165,10 @@ object InstrumentationUtility {
         // Click on About CommCare 4 times to become developer.
         for (i in 0..3) {
             openOptionsMenu()
+            onView(isRoot()).perform(waitForView(withText("About CommCare")))
             onView(withText("About CommCare"))
                 .perform(click())
-            onView(withText("OK"))
+            onView(withText(R.string.ok))
                 .perform(click())
         }
     }
@@ -327,19 +324,32 @@ object InstrumentationUtility {
     }
 
     /**
-     * This method will toggle the wifi state in mobile.
-     * Starting with Android Q, applications are not allowed to enable/disable Wi-Fi.
+     * This method will toggle the network state in mobile, both Wi-Fi and data. It will wait for the Wi-Fi state
+     * to be changed before returning.
      */
     @JvmStatic
-    fun changeWifi(enable: Boolean) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val context = InstrumentationRegistry.getInstrumentation().targetContext
-            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            wifiManager.isWifiEnabled = enable
-            sleep(10) // Sleep 5 seconds so that wifi is set up.
-        } else {
-            throw IllegalAccessException("changeWifi should only be called in pre-android Q devices")
+    fun setNetworkEnabled(enabled: Boolean) {
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.executeShellCommand(if (enabled) "svc wifi enable" else "svc wifi disable")
+        uiDevice.executeShellCommand("settings put global wifi_wakeup " + if (enabled) "1" else "0")
+        uiDevice.executeShellCommand(if (enabled) "svc data enable" else "svc data disable")
+        waitForWifiState(enabled)
+    }
+
+    private fun waitForWifiState(
+        expectedEnabled: Boolean,
+        timeoutMs: Long = 10_000,
+    ) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            if (wifiManager.isWifiEnabled == expectedEnabled) return
+            sleep(2)
         }
+        throw IllegalStateException(
+            "changeWifi did not reach state=${expectedEnabled.let { if (it) "enabled" else "disabled" }} within ${timeoutMs}ms",
+        )
     }
 
     /**
@@ -575,6 +585,7 @@ object InstrumentationUtility {
      * A utility to wait until a certain view appears
      * usage: onView(isRoot()).perform(waitForView(withText("<text>")))
      */
+    @JvmStatic
     fun waitForView(
         viewMatcher: Matcher<View>,
         timeout: Long = 10000,
@@ -586,7 +597,8 @@ object InstrumentationUtility {
             override fun getDescription(): String {
                 val matcherDescription = StringDescription()
                 viewMatcher.describeTo(matcherDescription)
-                return "wait for a specific view <$matcherDescription> to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
+                return "wait for a specific view <$matcherDescription> " +
+                    "to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
             }
 
             override fun perform(

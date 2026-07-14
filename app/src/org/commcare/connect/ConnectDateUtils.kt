@@ -102,13 +102,23 @@ object ConnectDateUtils {
         val days = diffMillis / (1000 * 60 * 60 * 24)
 
         return when {
-            minutes < 1 -> context.getString(R.string.just_now)
-            minutes < 60 -> context.getString(R.string.minutes_ago, minutes.toInt())
-            hours < 24 -> context.getString(R.string.hours_ago, hours.toInt())
+            minutes < 1 -> {
+                context.getString(R.string.just_now)
+            }
+
+            minutes < 60 -> {
+                context.getString(R.string.minutes_ago, minutes.toInt())
+            }
+
+            hours < 24 -> {
+                context.getString(R.string.hours_ago, hours.toInt())
+            }
+
             days < 2 -> {
                 val timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault())
                 context.getString(R.string.yesterday, timeFormat.format(date))
             }
+
             days <= 7 -> {
                 DateFormat
                     .getDateTimeInstance(
@@ -117,6 +127,7 @@ object ConnectDateUtils {
                         Locale.getDefault(),
                     ).format(date)
             }
+
             else -> {
                 DateFormat
                     .getDateTimeInstance(

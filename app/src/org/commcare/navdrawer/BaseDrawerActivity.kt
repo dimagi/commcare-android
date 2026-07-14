@@ -12,14 +12,23 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
 import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
+import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private var drawerController: BaseDrawerController? = null
+    private lateinit var photoUpdater: PersonalIdPhotoUpdater
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        photoUpdater =
+            PersonalIdPhotoUpdater(
+                this,
+                this,
+                onSuccess = { photoBase64 -> drawerController!!.onPhotoUpdateSuccess(photoBase64) },
+                onFailure = { _, _ -> drawerController!!.onPhotoUpdateFailure() },
+            )
         checkForDrawerSetUp()
         if (drawerController != null) {
             NotificationBroadcastHelper.registerForNotifications(this, this) {
@@ -58,6 +67,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 this,
                 drawerRefs,
                 shouldHighlightSeatedApp(),
+                photoUpdater,
             ) { navItemType: NavItemType, recordId: String? ->
                 handleDrawerItemClick(navItemType, recordId)
             }
@@ -72,11 +82,15 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.OPPORTUNITIES -> {
                 navigateToConnectMenu()
             }
+
             NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
+
             NavItemType.PAYMENTS -> {}
+
             NavItemType.MESSAGING -> {
                 navigateToMessaging()
             }
+
             NavItemType.WORK_HISTORY -> {
                 navigateToWorkHistory()
             }
@@ -94,48 +108,51 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     protected fun navigateToConnectMenu() {
         unlockAndGoToConnectJobsList(
             this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
+            listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        if (success) {
+                            closeDrawer()
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
     protected fun navigateToMessaging() {
         unlockAndGoToMessaging(
             this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
+            listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        if (success) {
+                            closeDrawer()
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
     protected fun navigateToWorkHistory() {
         unlockAndGoToWorkHistory(
             this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
+            listener =
+                object : ConnectActivityCompleteListener {
+                    override fun connectActivityComplete(
+                        success: Boolean,
+                        error: String?,
+                    ) {
+                        if (success) {
+                            closeDrawer()
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
@@ -161,7 +178,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         drawerController?.openDrawer()
     }
 
-    protected fun shouldShowDrawerAfterCheck(): Boolean {
+    protected fun shouldShowDrawerAfterCheck(requirePersonalIDLogin: Boolean): Boolean {
         if (drawerShownBefore()) {
             return true
         }
@@ -169,7 +186,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val personalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(this)
         val showDrawer =
-            personalIdManager.isloggedIn() &&
+            (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&
                 personalIdManager.checkDeviceCompability()
 
         if (showDrawer) {
@@ -179,7 +196,5 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return showDrawer
     }
 
-	fun isShowingGlobalError(): Boolean {
-        return drawerController?.isShowingError() ?: false
-    }
+    fun isShowingGlobalError(): Boolean = drawerController?.isShowingError() ?: false
 }

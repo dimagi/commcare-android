@@ -6,13 +6,11 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.connect.network.connect.models.ParsedConnectTask;
+import org.commcare.connect.database.ConnectTaskUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
-import org.commcare.preferences.ConnectJobPreferences;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
@@ -89,7 +87,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static final String META_JOB_UUID = "opportunity_id";
 
-    private static final long RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS = DateUtils.HOUR_IN_MS * 6;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -181,7 +178,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
     private List<ConnectPaymentUnitRecord> paymentUnits;
-    static Date startDate = new Date();
 
     private boolean claimed;
 
@@ -212,9 +208,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.organization = json.getString(META_ORGANIZATION);
         job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
         job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
-        if (job.projectStartDate != null && job.projectStartDate.after(startDate)) {
-            startDate = job.projectStartDate;
-        }
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
         job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
@@ -229,7 +222,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.assessments = new ArrayList<>();
         job.completedVisits = json.getInt(META_DELIVERY_PROGRESS);
 
-        job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
+        job.claimed = JsonExtensions.hasNonNull(json, META_CLAIM);
 
         job.isActive = json.optBoolean(META_IS_ACTIVE, true);
 
@@ -237,7 +230,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         //verification_flags -> {"form_submission_start":"07:30:00","form_submission_end":"18:45:00"}
         String flagsKey = "verification_flags";
-        JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey)
+        JSONObject flags = JsonExtensions.hasNonNull(json, flagsKey)
                 ? json.getJSONObject(flagsKey) : null;
         if (flags != null) {
             job.dailyStartTime = JsonExtensions.optStringSafe(flags, META_DAILY_START_TIME, "");
@@ -488,7 +481,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getDaysRemaining() {
-        long millis = projectEndDate.getTime() - (startDate).getTime();
+        long millis = projectEndDate.getTime() - new Date().getTime();
         //End date has 00:00 time, but project is valid until midnight
         //So add just under one day to the difference
         millis += 86399999; //one ms less than 24 hours
@@ -664,7 +657,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
-        } else if (shouldShowRelearnTasksCompletedMessage()) {
+        } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(context, this)) {
             return context.getString(R.string.connect_progress_relearn_tasks_completed);
         } else if (isMultiPayment()) {
             return getMultiVisitWarnings(context);
@@ -869,14 +862,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.jobUUID = modelId;
     }
 
-    public static Date getStartDate() {
-        return startDate;
-    }
-
-    public static void setStartDate(Date startDate) {
-        ConnectJobRecord.startDate = startDate;
-    }
-
     public boolean isClaimed() {
         return claimed;
     }
@@ -885,57 +870,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.claimed = claimed;
     }
 
-    public boolean isRelearnTaskPending() {
-        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
-        return jobPrefs.isRelearnTaskPending() && status == STATUS_DELIVERING;
-    }
 
-    public boolean shouldShowRelearnTasksCompletedMessage() {
-        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
-        long relearnTasksCompletedTimeMs = jobPrefs.getRelearnTasksCompletedTimeMs();
-        long timeElapsedSinceTasksCompleted = new Date().getTime() - relearnTasksCompletedTimeMs;
-
-        return !jobPrefs.relearnTasksCompletedTimeNotSet()
-                && timeElapsedSinceTasksCompleted < RELEARN_TASKS_COMPLETED_MESSAGE_WINDOW_MS
-                && status == STATUS_DELIVERING;
-    }
-
-    public void syncRelearnTasksPrefs(List<ParsedConnectTask> tasks) {
-        ConnectJobPreferences jobPrefs = ConnectJobUtils.getJobPreferences(jobUUID);
-
-        if (tasks == null || tasks.isEmpty()) {
-            jobPrefs.setRelearnTaskPending(false);
-            return;
-        }
-
-        boolean anyAssigned = false;
-        Date latestModified = null;
-        for (ParsedConnectTask task : tasks) {
-            if (task.getAssigned()) {
-                anyAssigned = true;
-            }
-
-            Date modified = task.getDateModified();
-            if (modified != null && (latestModified == null || modified.after(latestModified))) {
-                latestModified = modified;
-            }
-        }
-
-        jobPrefs.setRelearnTaskPending(anyAssigned);
-
-        // If at least one task is currently assigned, then we know that not all of them were completed.
-        if (anyAssigned) {
-            jobPrefs.resetRelearnTasksCompletedTime();
-            return;
-        }
-
-        if (jobPrefs.relearnTasksCompletedTimeNotSet()) {
-            // Set the completion time for all tasks to the latest date any task was modified, or
-            // fallback to the current date if there is no latest modified date.
-            long newTasksCompletedTime = latestModified != null
-                    ? latestModified.getTime()
-                    : new Date().getTime();
-            jobPrefs.setRelearnTasksCompletedTime(newTasksCompletedTime);
-        }
-    }
 }
+

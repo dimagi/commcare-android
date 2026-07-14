@@ -66,6 +66,17 @@
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray" />
 
+                <!-- Demo sample of the semi-circle progress bar; hard-coded values. -->
+                <org.commcare.views.connect.SemiCircleProgressBar
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="64dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="64dp"
+                    app:currentValue="17"
+                    app:maxValue="40"
+                    app:descriptionText="total visits completed" />
+
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

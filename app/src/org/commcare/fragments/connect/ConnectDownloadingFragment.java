@@ -13,6 +13,7 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDownloadingBinding;
@@ -77,13 +78,6 @@ public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConne
         }
     }
 
-    private void setWaitDialogEnabled(boolean enabled) {
-        Activity activity = getActivity();
-        if(activity instanceof ConnectActivity connectActivity) {
-            connectActivity.setWaitDialogEnabled(enabled);
-        }
-    }
-
     private void startAppDownload() {
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         ConnectAppUtils.INSTANCE.downloadApp(record.getInstallUrl(), this);
@@ -127,7 +121,7 @@ public class ConnectDownloadingFragment extends ConnectJobFragment<FragmentConne
 
             //Launch the learn/deliver app
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), getLearnApp, appToLaunch.getAppId());
+            new ConnectAppLaunchController(this).launchApp(appToLaunch.getAppId(), getLearnApp, this::popSelfOnceHidden);
         }
     }
 

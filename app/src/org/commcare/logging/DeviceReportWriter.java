@@ -110,7 +110,8 @@ public class DeviceReportWriter {
                         trace,
                         countingOutputStream.getCount(),
                         XML_EXTENSION,
-                        encryptionWithKeystore
+                        encryptionWithKeystore,
+                        true
                 );
                 countingOutputStream.close();
             } catch (IOException e) {

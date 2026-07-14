@@ -80,7 +80,7 @@ dependencies {
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation 'com.github.dimagi:zebra-print-android:v1.3'
     implementation 'com.simprints:libsimprints:2024.2.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "androidx.legacy:legacy-support-v4:$legacy_support_version"
@@ -526,6 +526,7 @@ android {
         unitTests.all {
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
+            maxHeapSize = "2g"
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
         }
