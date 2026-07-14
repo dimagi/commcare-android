@@ -107,4 +107,9 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     public void deliverProgress(Integer[] values) {
         // nothing to do
     }
+
+    @Override
+    public boolean shouldAbortDelivery() {
+        return getActivity() == null || getActivity().isFinishing();
+    }
 }
