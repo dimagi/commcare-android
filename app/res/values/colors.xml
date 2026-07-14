@@ -153,6 +153,7 @@
     <color name="connect_light_green">#E6F5E5</color>
     <color name="connect_red">#EA6944</color>
     <color name="connect_light_grey_transparent">#1AD9D9D9</color>
+    <color name="connect_light_indigo">#E8EAF6</color>
     <color name="connect_un_fill_progress">#ebecfa</color>
     <color name="connect_delivery_rejected_icon">#EA6944</color>
     <color name="connect_thumb_up">#16A085</color>
