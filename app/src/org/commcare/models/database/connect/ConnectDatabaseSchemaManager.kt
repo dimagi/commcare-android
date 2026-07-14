@@ -52,8 +52,9 @@ object ConnectDatabaseSchemaManager {
      * V.25 - Added sessionEndpointId and requireAppSync to PushNotificationRecord
      * V.26 - Added email to ConnectUserRecord
      * V.27 - Added connect_tasks table (ConnectTaskRecord) for DB-persisted task tracking
+     * V.28 - Added channel_name to ConnectMessagingChannelRecord
      */
-    const val DB_VERSION_CONNECT = 27
+    const val DB_VERSION_CONNECT = 28
 
     @JvmStatic
     fun initializeSchema(database: IDatabase) {

@@ -88,6 +88,19 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         return connectMessagingChannelRecord;
     }
 
+    public static ConnectMessagingChannelRecord fromV27(ConnectMessagingChannelRecordV27 oldRecord) {
+        ConnectMessagingChannelRecord record = new ConnectMessagingChannelRecord();
+        record.channelId = oldRecord.getChannelId();
+        record.channelCreated = oldRecord.getChannelCreated();
+        record.answeredConsent = oldRecord.getAnsweredConsent();
+        record.consented = oldRecord.getConsented();
+        record.channelSource = oldRecord.getChannelSource();
+        record.keyUrl = oldRecord.getKeyUrl();
+        record.key = oldRecord.getKey();
+        record.channelName = "";
+        return record;
+    }
+
     public static ConnectMessagingChannelRecord fromMessagePayload(Map<String, String> payloadData) {
         ConnectMessagingChannelRecord connectMessagingChannelRecord = new ConnectMessagingChannelRecord();
 

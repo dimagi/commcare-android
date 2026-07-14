@@ -423,7 +423,8 @@ public class FormStorageTest {
 
             // Added in 2.64
             "org.commcare.android.database.connect.models.ConnectUserRecordV25",
-            "org.commcare.android.database.connect.models.ConnectTaskRecord"
+            "org.commcare.android.database.connect.models.ConnectTaskRecord",
+            "org.commcare.android.database.connect.models.ConnectMessagingChannelRecordV27"
 
     );
 
