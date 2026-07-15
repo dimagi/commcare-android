@@ -93,6 +93,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 - Image capture questions support a new `rectangle-overlay` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+- Redesigned the delivery opportunity home into a tabbed layout (Dashboard, Payment, Visits) with a persistent bottom action bar to launch the delivery app.
 
 #### Important Bug Fixes
 
