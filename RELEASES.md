@@ -110,6 +110,9 @@ These are for internal use and for us to keep track of important notes that
 we would like to communicate to QA as part of the release testing
 -->
 
+- Verify the delivery opportunity home opens with Dashboard, Payment, and Visits tabs and that each tab renders content (no blank tab).
+- Confirm the bottom action bar launches the delivery app from every tab.
+
 - **Android Startup Strings Migration:** Walk the install / setup flows after a fresh install and confirm all on-screen text still renders correctly (no blank labels, no raw `install.button.start`-style keys showing through):
     - Launch a fresh CommCare install — verify the welcome screen ("Welcome to CommCare!" / "Please choose an installation method below") and install-method picker render.
     - Tap **Enter Code** / manual URL install — verify the prompt and the **Start Install** button label render. Submit an invalid URL and confirm the error message ("You did not scan a valid URL...") shows.
