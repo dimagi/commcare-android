@@ -73,6 +73,7 @@
             android:padding="16dp"
             android:layout_marginTop="12dp"
             android:gravity="center"
+            android:visibility="gone"
             android:stateListAnimator="@null"
             app:layout_constraintTop_toBottomOf="@id/cv_relearn_tasks_pending"
             app:layout_constraintStart_toStartOf="parent"

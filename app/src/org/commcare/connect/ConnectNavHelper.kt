@@ -45,7 +45,7 @@ object ConnectNavHelper {
         channelId: String? = null,
     ) {
         val i = Intent(context, ConnectMessagingActivity::class.java)
-        if (channelId != null) {
+        if (!channelId.isNullOrEmpty()) {
             i.putExtra(ConnectMessagingActivity.CHANNEL_ID, channelId)
         }
         context.startActivity(i)
