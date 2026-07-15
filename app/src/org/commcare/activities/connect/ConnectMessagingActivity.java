@@ -143,11 +143,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
         }
 
-        if (TextUtils.isEmpty(channelId)) {
-            showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
-            return;
-        }
-
         boolean redirect = CCC_MESSAGE.equals(action) || !TextUtils.isEmpty(channelId);
         if (redirect) {
             unlockAndNavigateToChannel(channelId);
@@ -155,7 +150,10 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     private void unlockAndNavigateToChannel(String channelId) {
-        Objects.requireNonNull(channelId);
+        if (TextUtils.isEmpty(channelId)) {
+            showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
+            return;
+        }
         PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
             if (success) {
                 String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
