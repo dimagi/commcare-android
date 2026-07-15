@@ -1,31 +1,24 @@
 # Test Improver - dimagi/commcare-android
 
 ## Commands
-- Tests: `./gradlew testCommcareDebug`; Coverage: `./gradlew JacocoTestReport`
-- Lint: `./gradlew ktlintFile -PfilePath=...`; Needs `../commcare-core/`
-- Note: Gradle wrapper needs `~/.gradle/wrapper/dists` write access (unavailable in sandbox)
+- Tests: `./gradlew testCommcareDebug` (single: `--tests "pkg.ClassTest"`); Coverage: `./gradlew JacocoTestReport`; Lint: `./gradlew ktlintFile -PfilePath=...`
+- Needs `../commcare-core/` sibling. SANDBOX CANNOT run gradle (no wrapper dists / no core) -> verify in CI. ktlint hook `.claude/hooks/ktlint-check.sh` always fails in sandbox (infra, ignore). No `.editorconfig` -> line-length unenforced.
 
 ## Project
-- Tests: `app/unit-tests/src/org/commcare/`; JUnit4+Robolectric+MockK/Mockito
-- `@RunWith(AndroidJUnit4::class)` + `@Config(application = CommCareTestApplication::class)`
-- pr-comment-handler (PR #3629) auto-implements reviewer feedback every 4h
+- Tests: `app/unit-tests/src/org/commcare/`; JUnit4 4.13.2 + Robolectric + MockK/Mockito.
+- Pure-logic tests: plain JUnit4, no `@RunWith`. Template `OtpAnalyticsMapperTest.kt` (backtick names, trailing commas multiline, specific assertEquals). `internal` main decls visible from unit-test source set.
 
 ## Maintainer Notes
-- "go or no go" — close if not ready; full-class coverage; specific+date assertions
+- "go or no go" - close if not ready; full-class coverage; specific+date assertions.
 
 ## Backlog
-1. MainCoroutineRule.kt - LOW - deprecate TestCoroutineDispatcher (issue filed 2026-04-02)
+1. MainCoroutineRule.kt - LOW - deprecate TestCoroutineDispatcher (issue 2026-04-02).
+2. Untested candidates (assess first): DeepLinkHelper, ConnectSsoSyncHelper, NotificationBroadcastHelper. Many Util/Helper classes Android/dialog-heavy - poor unit candidates.
 
-## Open PRs
-- #3610 HashUtils (2 approvals, merge-ready)
-- #3612 NetworkUtils (no-go); #3614 Delivery (no-go); #3619 Learning (no-go)
-- #3626 LinkHqWorker (no-go; updated 2026-04-01)
-- #3632 ConnectOpportunitiesParser; #3635 RetrieveHqToken; #3636 PushNotifRecord; #3637 PushNotifApi (awaiting review)
-- NEW PersonalIdWorkHistory.fromJsonArray() (submitted 2026-04-03, 11 tests)
+## PRs / State
+- 2026-07-15: OutcomeMapperTest PR (20 tests, branch test-assist/outcome-mapper) - awaiting review.
+- All April PRs (#3610,#3612,#3614,#3619,#3626,#3632,#3635,#3636,#3637,#3645) CLOSED/MERGED.
+- Monthly: April #3642 CLOSED 2026-07-15; July issue created.
 
-## Monthly Activity
-- April issue #3642 open
-
-## Round-Robin
-- T1:2026-04-01 T2:2026-03-31 T3:2026-04-03
-- T4:2026-04-01 T5:2026-04-02 T6:2026-04-02 T7:2026-04-03
+## Round-Robin (last run)
+- T1-T4,T7: 2026-07-15. T5,T6: 2026-04-02 (oldest - do next).
