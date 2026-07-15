@@ -3,6 +3,32 @@ This file is meant as an easy way for us to collate notes and change logs across
 -->
 
 
+## CommCare 2.63.2
+
+### Release Notes
+
+- Improved accuracy related to automated location capture during form session
+
+#### What's New
+
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for specific projects.
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+#### Important Bug Fixes
+
+- Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
+
+### QA Notes
+
+- Make sure there are no regressions in automated location capture in a CC form.  
+
+
 ## CommCare 2.63.1
 
 ### Release Notes

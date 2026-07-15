@@ -39,13 +39,13 @@ class ManualQuarantineTest : BaseTest() {
         InstrumentationUtility.login("test", "1234")
         // Enable quarantine
         enableFormQuarantine()
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
     }
 
     @After
     fun tearDown() {
         InstrumentationUtility.logout()
-        InstrumentationUtility.changeWifi(true)
+        InstrumentationUtility.setNetworkEnabled(true)
     }
 
     private fun enableFormQuarantine() {
@@ -136,7 +136,7 @@ class ManualQuarantineTest : BaseTest() {
             .perform(click())
         withText("Display Form").isDisplayed()
 
-        InstrumentationUtility.changeWifi(true)
+        InstrumentationUtility.setNetworkEnabled(true)
         InstrumentationUtility.gotoHome()
         onView(withText("Sync with Server"))
             .perform(click())

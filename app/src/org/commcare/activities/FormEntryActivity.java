@@ -988,10 +988,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         attemptToUnregisterBroadcastReceiver(mLocationServiceIssueReceiver);
 
         saveInlineVideoState();
-
-        if (isFinishing()) {
-            PollSensorController.INSTANCE.stopLocationPolling();
-        }
         TextToSpeechConverter.INSTANCE.stop();
 
         attemptToUnregisterBroadcastReceiver(pendingSyncAlertBroadcastReceiver);
@@ -1375,6 +1371,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         if (!isChangingConfigurations()) {
             isFormEntryActive = false;
+            PollSensorController.INSTANCE.stopLocationPolling();
         }
 
         TextToSpeechConverter.INSTANCE.shutDown();

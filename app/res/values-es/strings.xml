@@ -186,6 +186,7 @@
     <string name="personalid_welcome_user">¡Bienvenido %s!</string>
     <string name="personalid_choice_or">_____________    O    _____________</string>
     <string name="connect_button_logged_in">Ir al menú Conectar</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Se produjo un error en la configuración de la aplicación, por lo que no todos los marcadores del mapa se cargaron correctamente</string>
     <string name="personalid_generic_error">Ocurrió un problema con la base de datos, recupera tu cuenta.</string>
     <string name="connect_registration_title">Comience a usar PersonalID</string>

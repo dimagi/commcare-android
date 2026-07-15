@@ -248,6 +248,7 @@ License.
     <string name="personalid_welcome_user">स्वागत है %s!</string>
     <string name="personalid_choice_or">_____________    या    _____________</string>
     <string name="connect_button_logged_in">कनेक्ट मेनू पर जाएं</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">ऐप कॉन्फ़िगरेशन में एक गड़बड़ी थी, जिसकी वजह से मैप पर सभी मार्कर ठीक से लोड नहीं हो रहे हैं।</string>
     <string name="personalid_generic_error">डेटाबेस के साथ कोई समस्या हुई है, कृपया अपना खाता पुनर्प्राप्त करें।</string>
     <string name="connect_registration_title">पर्सनलआईडी के साथ शुरुआत करें</string>

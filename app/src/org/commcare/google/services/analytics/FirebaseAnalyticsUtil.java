@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.VALUE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -42,6 +43,7 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.ACCURACY_DEGRADATION;
 import static org.commcare.util.LogTypes.TYPE_ERROR_DESIGN;
 
 /**
@@ -474,6 +476,14 @@ public class FirebaseAnalyticsUtil {
                 CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.REASON},
                 new String[]{STAGE_UPDATE_FAILURE, reason}
+        );
+    }
+
+    public static void reportAccuracyDegradation(Float value) {
+        reportEvent(
+                CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID, VALUE},
+                new String[]{ACCURACY_DEGRADATION, value.toString()}
         );
     }
 
