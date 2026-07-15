@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/connect_background_color"
+    android:orientation="vertical">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/connect_delivery_opp_home_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/connect_background_color"
+        app:tabGravity="fill"
+        app:tabIndicator="@drawable/ic_connect_pager_indicator"
+        app:tabIndicatorColor="@color/connect_blue_color"
+        app:tabInlineLabel="true"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/connect_blue_color"
+        app:tabTextAppearance="@style/TabTextStyle"
+        app:tabTextColor="@color/connect_grey" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/connect_divider_color" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/connect_delivery_opp_home_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <org.commcare.views.connect.ConnectCtaBar
+        android:id="@+id/connect_delivery_cta_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:buttonText="@string/connect_delivery_start"
+        app:subtitleText="@string/connect_delivery_continue_visits_subtitle"
+        app:titleText="@string/connect_delivery_continue_visits" />
+</LinearLayout>

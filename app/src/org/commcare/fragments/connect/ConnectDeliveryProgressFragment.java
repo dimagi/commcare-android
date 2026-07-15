@@ -28,7 +28,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.connect.repository.ConnectRepository;
-import org.commcare.connect.viewmodel.ConnectDeliveryProgressViewModel;
+import org.commcare.connect.viewmodel.ConnectDeliveryOppHomeViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
@@ -55,7 +55,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private final ArrayList<ConnectPaymentConfirmationModel> paymentsToConfirm = new ArrayList<>();
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
-    private ConnectDeliveryProgressViewModel viewModel;
+    private ConnectDeliveryOppHomeViewModel viewModel;
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -78,7 +78,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         viewModel = new ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(ConnectDeliveryProgressViewModel.class);
+        ).get(ConnectDeliveryOppHomeViewModel.class);
 
         setupTabViewPager();
         setupJobCard();
@@ -370,8 +370,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         public ViewStateAdapter(@NonNull FragmentManager fm, @NonNull Lifecycle lifecycle) {
             super(fm, lifecycle);
             fragments = new ArrayList<>();
-            fragments.add(ConnectDeliveryProgressDeliveryFragment.newInstance());
-            fragments.add(ConnectResultsSummaryListFragment.newInstance());
+            fragments.add(ConnectDeliveryDashboardFragment.newInstance());
+            fragments.add(ConnectDeliveryPaymentFragment.newInstance());
         }
 
         @NonNull
@@ -387,10 +387,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         public void refresh() {
             for (Fragment fragment : fragments) {
-                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment deliveryFragment
+                if (fragment instanceof ConnectDeliveryDashboardFragment deliveryFragment
                         && deliveryFragment.getView() != null) {
                     deliveryFragment.updateProgressSummary();
-                } else if (fragment instanceof ConnectResultsSummaryListFragment summaryFragment
+                } else if (fragment instanceof ConnectDeliveryPaymentFragment summaryFragment
                         && summaryFragment.getView() != null) {
                     summaryFragment.updateView();
                 }

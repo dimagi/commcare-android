@@ -24,12 +24,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.common.base.Strings;
 
+import org.commcare.activities.CommonBaseActivity;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryVisitsBinding;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConnectDeliveryListBinding> {
+public class ConnectDeliveryVisitsFragment extends ConnectJobFragment<FragmentConnectDeliveryVisitsBinding> {
     private static final String ALL_IDENTIFIER = "all";
     private static final String APPROVED_IDENTIFIER = "approved";
     private static final String REJECTED_IDENTIFIER = "rejected";
@@ -50,19 +51,30 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     private String unitName;
     private DeliveryAdapter adapter;
 
-    public static ConnectDeliveryListFragment newInstance() {
-        return new ConnectDeliveryListFragment();
+    public static ConnectDeliveryVisitsFragment newInstance() {
+        return new ConnectDeliveryVisitsFragment();
     }
 
     @Override
     public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        unitName = ConnectDeliveryListFragmentArgs.fromBundle(getArguments()).getUnitId();
-        requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
+        if (getArguments() != null) {
+            unitName = ConnectDeliveryVisitsFragmentArgs.fromBundle(getArguments()).getUnitId();
+        }
+        if (unitName != null) {
+            ((CommonBaseActivity)requireActivity()).setActionBarTitle(getString(R.string.connect_visit_type_title, unitName));
+            setupMenuProvider();
+        }
         setupRecyclerView();
         setupFilterControls();
-        setupMenuProvider();
         return view;
+    }
+
+    public void updateView() {
+        if (adapter != null) {
+            updatePendingFilterVisibility();
+            adapter.updateDeliveries(getFilteredDeliveries());
+        }
     }
 
     private void setupRecyclerView() {
@@ -86,7 +98,9 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
         }
 
         updatePendingFilterVisibility();
-        setFilterHighlight(filterCards[0], filterLabels[0], true);
+        for (int i = 0; i < filterCards.length; i++) {
+            setFilterHighlight(filterCards[i], filterLabels[i], filterCards[i].getId() == getFilterCardId(currentFilter));
+        }
     }
 
     private void updatePendingFilterVisibility() {
@@ -170,14 +184,14 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     }
 
     private boolean matchesFilter(ConnectJobDeliveryRecord delivery, String filter) {
-        boolean matchesUnit = delivery.getUnitName().equalsIgnoreCase(unitName);
+        boolean matchesUnit = unitName == null || delivery.getUnitName().equalsIgnoreCase(unitName);
         boolean matchesStatus = filter.equals(ALL_IDENTIFIER) || delivery.getStatus().equalsIgnoreCase(filter);
         return matchesUnit && matchesStatus;
     }
 
     @Override
-    protected @NotNull FragmentConnectDeliveryListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentConnectDeliveryListBinding.inflate(inflater, container, false);
+    protected @NotNull FragmentConnectDeliveryVisitsBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectDeliveryVisitsBinding.inflate(inflater, container, false);
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.VerificationViewHolder> {

@@ -586,6 +586,12 @@
     <string name="connect_complete_by">La tarea termina el %s</string>
     <string name="connect_expired_on">La tarea terminó el %s</string>
     <string name="connect_job_preview_start">Iniciar</string>
+    <string name="connect_dashboard">Panel</string>
+    <string name="connect_visits">Visitas</string>
+    <string name="connect_more">Más</string>
+    <string name="connect_delivery_start">Iniciar</string>
+    <string name="connect_delivery_continue_visits">Continúa tus visitas</string>
+    <string name="connect_delivery_continue_visits_subtitle">Enviar formularios de entrega</string>
     <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
     <string name="install_barcode_top">¡Bienvenido a CommCare!</string>

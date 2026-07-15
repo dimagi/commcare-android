@@ -18,7 +18,7 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentConnectProgressDeliveryBinding;
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding;
 import org.commcare.views.connect.CircleProgressBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,12 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<FragmentConnectProgressDeliveryBinding> {
+public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<FragmentConnectDeliveryDashboardBinding> {
     private RecyclerView recyclerView;
     private ConnectDeliveryProgressReportAdapter adapter;
 
-    public static ConnectDeliveryProgressDeliveryFragment newInstance() {
-        return new ConnectDeliveryProgressDeliveryFragment();
+    public static ConnectDeliveryDashboardFragment newInstance() {
+        return new ConnectDeliveryDashboardFragment();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -41,7 +41,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
     public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         getBinding().btnSync.setOnClickListener(v -> {
-            ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment)getParentFragment();
+            ConnectDeliveryOppHomeFragment parentFragment = (ConnectDeliveryOppHomeFragment)getParentFragment();
             if (parentFragment != null) {
                 parentFragment.refresh(false);
             }
@@ -119,10 +119,10 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
         NavController navController = NavHostFragment.findNavController(this);
 
         if (navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.connect_job_delivery_progress_fragment) {
+                && navController.getCurrentDestination().getId() == R.id.connect_delivery_opp_home_fragment) {
             navController.navigate(
-                    ConnectDeliveryProgressFragmentDirections
-                            .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName)
+                    ConnectDeliveryOppHomeFragmentDirections
+                            .actionConnectDeliveryOppHomeFragmentToConnectDeliveryVisitsFragment(unitName)
             );
         }
     }
@@ -152,20 +152,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
     }
 
 
-    /**
-     * This was added to re-calculate the correct height of a fragment in ViewPager2. This is required as ViewPager2
-     * has bug currently due to which it's not calculating the height of it's different fragment correctly.
-     * When found some other solution for this ViewPager2 bug, we can remove this but make sure to QA
-     * by pressing sync button while in different fragments.
-     */
     @Override
-    public void onResume() {
-        super.onResume();
-        getBinding().getRoot().requestLayout();
-    }
-
-    @Override
-    protected @NotNull FragmentConnectProgressDeliveryBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentConnectProgressDeliveryBinding.inflate(inflater, container, false);
+    protected @NotNull FragmentConnectDeliveryDashboardBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectDeliveryDashboardBinding.inflate(inflater, container, false);
     }
 }
