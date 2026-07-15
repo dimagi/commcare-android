@@ -8,6 +8,7 @@ import org.commcare.models.database.SqlStorage
 import org.commcare.preferences.ConnectJobPreferences
 import org.commcare.utils.SyncDetailCalculations
 import org.javarosa.core.model.utils.DateUtils
+import org.javarosa.core.services.Logger
 import java.util.Date
 
 /**
@@ -88,6 +89,23 @@ object ConnectTaskUtils {
         type: String,
     ): ConnectTaskRecord? =
         getTasksForJob(context, jobUUID, null).find { it.type == type && it.status == ConnectTaskRecord.STATUS_ASSIGNED }
+
+    @JvmStatic
+    fun getValidPendingOcsTask(
+        context: Context,
+        job: ConnectJobRecord,
+    ): ConnectTaskRecord? {
+        if (job.status != ConnectJobRecord.STATUS_DELIVERING) return null
+        val task = getPendingTaskOfType(context, job.jobUUID, ConnectTaskRecord.TYPE_OCS) ?: return null
+        if (task.connectChannelId.isEmpty()) {
+            Logger.exception(
+                "Invalid messaging task",
+                Throwable("Messaging task has no channel id: ${task.taskId}"),
+            )
+            return null
+        }
+        return task
+    }
 
     @JvmStatic
     fun shouldShowTasksCompletedMessage(

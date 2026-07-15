@@ -35,7 +35,6 @@ import org.commcare.personalId.UnlockPolicy;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
-import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,35 +145,20 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private void setOpenConversationButtonVisibility(ConnectJobRecord job) {
-        if (job.getStatus() == STATUS_DELIVERING) {
-            ConnectTaskRecord messagingTask =
-                    ConnectTaskUtils.getPendingTaskOfType(
-                            activity,
-                            job.getJobUUID(),
-                            ConnectTaskRecord.TYPE_OCS
-                    );
-            if (messagingTask == null) {
-                acbOpenConversation.setVisibility(View.GONE);
-            } else if (messagingTask.getConnectChannelId().isEmpty()) {
-                Logger.exception(
-                        "Invalid messaging task",
-                        new Throwable("Messaging task has no channel id: " + messagingTask.getTaskId())
-                );
-                acbOpenConversation.setVisibility(View.GONE);
-            } else {
-                acbOpenConversation.setVisibility(View.VISIBLE);
-                acbOpenConversation.setOnClickListener(v ->
-                        ConnectNavHelper.INSTANCE.unlockAndGoToMessaging(
-                                activity,
-                                UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
-                                messagingTask.getConnectChannelId(),
-                                (success, error) -> {
-                                }
-                        )
-                );
-            }
-        } else {
+        ConnectTaskRecord messagingTask = ConnectTaskUtils.getValidPendingOcsTask(activity, job);
+        if (messagingTask == null) {
             acbOpenConversation.setVisibility(View.GONE);
+        } else {
+            acbOpenConversation.setVisibility(View.VISIBLE);
+            acbOpenConversation.setOnClickListener(v ->
+                    ConnectNavHelper.INSTANCE.unlockAndGoToMessaging(
+                            activity,
+                            UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
+                            messagingTask.getConnectChannelId(),
+                            (success, error) -> {
+                            }
+                    )
+            );
         }
     }
 
