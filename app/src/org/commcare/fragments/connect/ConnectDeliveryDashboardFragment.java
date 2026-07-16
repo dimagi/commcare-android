@@ -19,6 +19,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding;
+import org.commcare.fragments.RefreshableTab;
 import org.commcare.views.connect.CircleProgressBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<FragmentConnectDeliveryDashboardBinding> {
+public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>
+        implements RefreshableTab {
     private RecyclerView recyclerView;
     private ConnectDeliveryProgressReportAdapter adapter;
 
@@ -48,12 +50,13 @@ public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<Fragmen
             populateDeliveryProgress();
         });
 
-        updateProgressSummary();
+        updateView();
         populateDeliveryProgress();
         return view;
     }
 
-    public void updateProgressSummary() {
+    @Override
+    public void updateView() {
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
@@ -122,7 +125,7 @@ public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<Fragmen
                 && navController.getCurrentDestination().getId() == R.id.connect_delivery_opp_home_fragment) {
             navController.navigate(
                     ConnectDeliveryOppHomeFragmentDirections
-                            .actionConnectDeliveryOppHomeFragmentToConnectDeliveryVisitsFragment(unitName)
+                            .actionConnectDeliveryOppHomeFragmentToConnectDeliveryVisitsDetailFragment(unitName)
             );
         }
     }

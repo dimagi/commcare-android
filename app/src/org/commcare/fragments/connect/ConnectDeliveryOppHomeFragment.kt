@@ -15,12 +15,12 @@ import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
 import org.commcare.connect.ConnectAppLaunchController
-import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.viewmodel.ConnectDeliveryOppHomeViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryOppHomeBinding
 import org.commcare.fragments.RefreshableFragment
+import org.commcare.fragments.RefreshableTab
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 /**
@@ -41,7 +41,7 @@ class ConnectDeliveryOppHomeFragment :
             TabItem(R.string.connect_dashboard, { ConnectDeliveryDashboardFragment.newInstance() }),
             TabItem(R.string.connect_payment, { ConnectDeliveryPaymentFragment.newInstance() }),
             TabItem(R.string.connect_visits, { ConnectDeliveryVisitsFragment.newInstance() }),
-            TabItem(R.string.connect_more, { ConnectDeliveryMoreFragment.newInstance() }, visible = false),
+            TabItem(R.string.connect_more, { ConnectDeliveryMoreFragment.newInstance() }),
         )
 
     private val visibleTabs get() = tabs.filter { it.visible }
@@ -49,7 +49,7 @@ class ConnectDeliveryOppHomeFragment :
     private lateinit var viewModel: ConnectDeliveryOppHomeViewModel
     private lateinit var pagerAdapter: DeliveryViewStateAdapter
     private var initialTabPosition = TAB_DASHBOARD
-    private var loggedTabPosition = TAB_DASHBOARD
+    private var currentTabPosition = TAB_DASHBOARD
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -87,17 +87,17 @@ class ConnectDeliveryOppHomeFragment :
         }.attach()
 
         if (initialTabPosition in visibleTabs.indices) {
-            loggedTabPosition = initialTabPosition
+            currentTabPosition = initialTabPosition
             viewPager.setCurrentItem(initialTabPosition, false)
         }
 
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
-                    if (position == loggedTabPosition) {
+                    if (position == currentTabPosition) {
                         return
                     }
-                    loggedTabPosition = position
+                    currentTabPosition = position
                     tabLayout.getTabAt(position)?.text?.let {
                         FirebaseAnalyticsUtil.reportConnectTabChange(it.toString())
                     }
@@ -122,12 +122,8 @@ class ConnectDeliveryOppHomeFragment :
 
     private fun refreshTabs() {
         childFragmentManager.fragments.forEach { fragment ->
-            if (fragment.view == null) return@forEach
-            when (fragment) {
-                is ConnectDeliveryDashboardFragment -> fragment.updateProgressSummary()
-                is ConnectDeliveryPaymentFragment -> fragment.updateView()
-                is ConnectDeliveryVisitsFragment -> fragment.updateView()
-                is ConnectDeliveryMoreFragment -> fragment.updateView()
+            if (fragment.view != null && fragment is RefreshableTab) {
+                fragment.updateView()
             }
         }
     }
@@ -139,9 +135,7 @@ class ConnectDeliveryOppHomeFragment :
     override fun onResume() {
         super.onResume()
         updateActionBarTitle()
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            refresh(false)
-        }
+        refresh(false)
     }
 
     private fun updateActionBarTitle() {
@@ -182,7 +176,7 @@ class ConnectDeliveryOppHomeFragment :
     }
 
     companion object {
-        const val TAB_POSITION = "tabPosition"
+        const val TAB_POSITION = "tab_position"
         const val TAB_DASHBOARD = 0
         const val TAB_PAYMENT = 1
         const val TAB_VISITS = 2

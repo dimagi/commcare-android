@@ -36,7 +36,6 @@ import org.commcare.rules.MainCoroutineRule
 import org.commcare.views.connect.ConnectCtaBar
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -102,20 +101,15 @@ class ConnectDeliveryOppHomeFragmentTest {
     }
 
     @Test
-    fun `shows the three visible tabs and hides the More tab`() {
+    fun `shows the Dashboard, Payment, Visits and More tabs`() {
         val oppHome = launchOppHome()
         val tabLayout = oppHome.requireView().findViewById<TabLayout>(R.id.connect_delivery_opp_home_tabs)
 
-        assertEquals(3, tabLayout.tabCount)
+        assertEquals(4, tabLayout.tabCount)
         assertEquals(app.getString(R.string.connect_dashboard), tabLayout.getTabAt(0)?.text)
         assertEquals(app.getString(R.string.connect_payment), tabLayout.getTabAt(1)?.text)
         assertEquals(app.getString(R.string.connect_visits), tabLayout.getTabAt(2)?.text)
-
-        val moreLabel = app.getString(R.string.connect_more)
-        assertFalse(
-            "More tab should not be visible",
-            (0 until tabLayout.tabCount).any { tabLayout.getTabAt(it)?.text == moreLabel },
-        )
+        assertEquals(app.getString(R.string.connect_more), tabLayout.getTabAt(3)?.text)
     }
 
     @Test

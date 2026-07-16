@@ -389,7 +389,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             for (Fragment fragment : fragments) {
                 if (fragment instanceof ConnectDeliveryDashboardFragment deliveryFragment
                         && deliveryFragment.getView() != null) {
-                    deliveryFragment.updateProgressSummary();
+                    deliveryFragment.updateView();
                 } else if (fragment instanceof ConnectDeliveryPaymentFragment summaryFragment
                         && summaryFragment.getView() != null) {
                     summaryFragment.updateView();

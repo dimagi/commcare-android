@@ -31,6 +31,7 @@ import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationMod
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryPaymentBinding;
+import org.commcare.fragments.RefreshableTab;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +39,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ConnectDeliveryPaymentFragment extends ConnectJobFragment<FragmentConnectDeliveryPaymentBinding> {
+public class ConnectDeliveryPaymentFragment extends ConnectJobFragment<FragmentConnectDeliveryPaymentBinding>
+        implements RefreshableTab {
     private ResultsAdapter adapter;
 
     public static ConnectDeliveryPaymentFragment newInstance() {
@@ -53,6 +55,7 @@ public class ConnectDeliveryPaymentFragment extends ConnectJobFragment<FragmentC
         return view;
     }
 
+    @Override
     public void updateView() {
         updateSummaryView();
 
