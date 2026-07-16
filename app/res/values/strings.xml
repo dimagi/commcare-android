@@ -356,6 +356,7 @@
     <!-- PersonalID strings -->
     <string name="personalid_login_via">Via PersonalID (or press here)</string>
     <string name="connect_button_logged_in">Go to Connect menu</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
 
@@ -619,6 +620,16 @@
         <item>Incomplete</item>
         <item>Unsent</item>
         <item>Saved</item>
+    </string-array>
+    <string-array name="pref_audio_quality_profile_vals">
+        <item>smallest</item>
+        <item>balanced</item>
+        <item>default</item>
+    </string-array>
+    <string-array name="pref_audio_quality_profile_labels">
+        <item>Smallest</item>
+        <item>Balanced</item>
+        <item>System Default</item>
     </string-array>
     <string-array name="pref_password_show_options">
         <item>always_hidden</item>

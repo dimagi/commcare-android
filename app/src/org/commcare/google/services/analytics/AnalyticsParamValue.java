@@ -146,6 +146,7 @@ public class AnalyticsParamValue {
 
 
     // Param values for common commcare event
+    public static final String ACCURACY_DEGRADATION = "accuracy_degradation";
     public static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
     public static final String UPDATE_RESET = "update_reset";
     public static final String CORRUPT_APP_STATE = "corrupt_app_state";

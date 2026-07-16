@@ -186,6 +186,14 @@
         <attr name="failureAccentColor" format="color" />
     </declare-styleable>
 
+    <declare-styleable name="ConnectCtaBar">
+        <attr name="titleText" />
+        <attr name="subtitleText" />
+        <attr name="buttonText" format="string" />
+        <attr name="infoMessage" format="string" />
+        <attr name="progress" format="integer" />
+    </declare-styleable>
+
     <declare-styleable name="RectangleOverlayView">
         <attr name="reticleScrimColor" format="color" />
         <attr name="reticleStrokeColor" format="color" />

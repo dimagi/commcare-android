@@ -201,12 +201,12 @@ class MenuTests : BaseTest() {
             .perform(click())
         onView(withText("No problems were detected."))
             .check(matches(isDisplayed()))
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         onView(withId(R.id.run_connection_test))
             .perform(click())
         onView(withText("You are not connected the Internet. Please run this test again after connecting to Wi-Fi or mobile data."))
             .check(matches(isDisplayed()))
-        InstrumentationUtility.changeWifi(true)
+        InstrumentationUtility.setNetworkEnabled(true)
         InstrumentationUtility.logout()
     }
 

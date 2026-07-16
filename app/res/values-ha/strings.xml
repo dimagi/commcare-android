@@ -88,6 +88,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_welcome_user">Barka da zuwa %s!</string>
     <string name="personalid_choice_or">_________ KO _________</string>
     <string name="connect_button_logged_in">Je zuwa menu na Haɗawa</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_registration_title">Fara da PersonalID</string>
     <string name="connect_consent_message_1">Na karanta kuma na yarda da Dimagi\'s</string>
     <string name="connect_phone_country_code_default">+1</string>
