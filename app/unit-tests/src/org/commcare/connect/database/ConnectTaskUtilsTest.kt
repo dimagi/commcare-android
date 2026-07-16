@@ -138,7 +138,11 @@ class ConnectTaskUtilsTest {
         val sharedDate = Date()
         seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED, dateModified = sharedDate))
 
-        ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = STATUS_ASSIGNED, dateModified = sharedDate)), jobUUID)
+        ConnectTaskUtils.storeTasks(
+            context,
+            listOf(makeTask(taskId = "task-1", status = STATUS_ASSIGNED, dateModified = sharedDate)),
+            jobUUID,
+        )
 
         assertEquals(ConnectJobPreferences.TIMESTAMP_NOT_SET, prefs().getTaskModifiedTime())
     }
