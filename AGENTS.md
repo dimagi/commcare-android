@@ -60,9 +60,7 @@ The Gradle ktlint task auto-formats a file and verifies it is clean:
 ```
 When to run it depends on whether the Kotlin file is new or existing:
 - **New Kotlin file** — run ktlint directly before committing.
-- **Existing Kotlin file** — you may run ktlint to *check* for violations, but do NOT auto-apply its formatting. On a small change it often reformats unrelated lines, bloating the diff and confusing reviewers. Fix real lint errors in the lines you actually changed, and ask the author before applying formatting to anything else. The author may prefer to let CI flag formatting initially and apply ktlint once at the end of review.
-
-If any violations remain that cannot be auto-fixed, resolve them manually.
+- **Existing Kotlin file** — you may run ktlint to *check* for violations, but do NOT auto-apply its formatting
 
 ## Test File Locations
 - Unit tests: `app/unit-tests/src/`
