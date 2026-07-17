@@ -271,7 +271,7 @@ public class StandardHomeActivity
             }
             case MESSAGING -> {
                 if(personalIdManagedLogin) {
-                    ConnectNavHelper.INSTANCE.goToMessaging(this);
+                    ConnectNavHelper.INSTANCE.goToMessaging(this, null);
                     closeDrawer();
                 } else {
                     navigateToMessaging();

@@ -59,6 +59,26 @@
 
         </androidx.cardview.widget.CardView>
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/acb_open_conversation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/connect_open_conversation_button_text"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:background="@drawable/bg_rounded_corner_lavender_70"
+            android:drawableStart="@drawable/nav_drawer_message_icon"
+            android:drawableEnd="@drawable/connect_right_arrow"
+            android:drawablePadding="8dp"
+            android:padding="16dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:stateListAnimator="@null"
+            app:layout_constraintTop_toBottomOf="@id/cv_relearn_tasks_pending"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <TextView
             android:id="@+id/tv_view_more"
             android:layout_width="0dp"
@@ -122,7 +142,7 @@
             android:textColor="@color/connect_subtext_color"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cv_relearn_tasks_pending" />
+            app:layout_constraintTop_toBottomOf="@+id/acb_open_conversation" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline3"
