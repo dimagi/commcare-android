@@ -168,15 +168,15 @@ public class ConnectUnlockFragment extends Fragment {
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)) {
             fragmentId = R.id.connect_job_learning_progress_fragment;
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
-            fragmentId = R.id.connect_delivery_opp_home_fragment;
+            fragmentId = R.id.connect_delivery_home_fragment;
             // Set the tab position in the bundle based on the redirection action
-            bundle.putInt(ConnectDeliveryOppHomeFragment.TAB_POSITION,
-                    ConnectDeliveryOppHomeFragment.TAB_DASHBOARD);
+            bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
+                    ConnectDeliveryHomeFragment.TAB_DASHBOARD);
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
-            fragmentId = R.id.connect_delivery_opp_home_fragment;
+            fragmentId = R.id.connect_delivery_home_fragment;
             // Set the tab position in the bundle based on the redirection action
-            bundle.putInt(ConnectDeliveryOppHomeFragment.TAB_POSITION,
-                    ConnectDeliveryOppHomeFragment.TAB_PAYMENT);
+            bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
+                    ConnectDeliveryHomeFragment.TAB_PAYMENT);
         } else {
             //Default case
             fragmentId = R.id.connect_jobs_list_fragment;

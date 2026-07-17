@@ -128,7 +128,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 
         return job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
-                ? R.id.connect_delivery_opp_home_fragment
+                ? R.id.connect_delivery_home_fragment
                 : R.id.connect_job_learning_progress_fragment;
     }
 

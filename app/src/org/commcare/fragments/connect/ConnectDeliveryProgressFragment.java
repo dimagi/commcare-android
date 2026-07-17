@@ -28,7 +28,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.connect.repository.ConnectRepository;
-import org.commcare.connect.viewmodel.ConnectDeliveryOppHomeViewModel;
+import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
@@ -55,7 +55,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private final ArrayList<ConnectPaymentConfirmationModel> paymentsToConfirm = new ArrayList<>();
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
-    private ConnectDeliveryOppHomeViewModel viewModel;
+    private ConnectDeliveryHomeViewModel viewModel;
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -78,7 +78,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         viewModel = new ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(ConnectDeliveryOppHomeViewModel.class);
+        ).get(ConnectDeliveryHomeViewModel.class);
 
         setupTabViewPager();
         setupJobCard();

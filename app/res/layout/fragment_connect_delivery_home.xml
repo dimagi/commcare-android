@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/connect_delivery_opp_home_tabs"
+        android:id="@+id/connect_delivery_home_tabs"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:background="@color/connect_background_color"
@@ -27,7 +27,7 @@
         android:background="@color/connect_divider_color" />
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/connect_delivery_opp_home_view_pager"
+        android:id="@+id/connect_delivery_home_view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />

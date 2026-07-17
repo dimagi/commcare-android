@@ -48,7 +48,7 @@ import org.robolectric.annotation.Config
 @ExperimentalCoroutinesApi
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
 @RunWith(AndroidJUnit4::class)
-class ConnectDeliveryOppHomeFragmentTest {
+class ConnectDeliveryHomeFragmentTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
@@ -102,8 +102,8 @@ class ConnectDeliveryOppHomeFragmentTest {
 
     @Test
     fun `shows the Dashboard, Payment, Visits and More tabs`() {
-        val oppHome = launchOppHome()
-        val tabLayout = oppHome.requireView().findViewById<TabLayout>(R.id.connect_delivery_opp_home_tabs)
+        val oppHome = launchHome()
+        val tabLayout = oppHome.requireView().findViewById<TabLayout>(R.id.connect_delivery_home_tabs)
 
         assertEquals(4, tabLayout.tabCount)
         assertEquals(app.getString(R.string.connect_dashboard), tabLayout.getTabAt(0)?.text)
@@ -114,7 +114,7 @@ class ConnectDeliveryOppHomeFragmentTest {
 
     @Test
     fun `footer CTA bar and its start button are visible on the home screen`() {
-        val oppHome = launchOppHome()
+        val oppHome = launchHome()
         val ctaBar =
             oppHome.requireView().findViewById<ConnectCtaBar>(R.id.connect_delivery_cta_bar)
         val ctaButton = ctaBar.findViewById<MaterialButton>(R.id.cta_button)
@@ -125,20 +125,20 @@ class ConnectDeliveryOppHomeFragmentTest {
 
     @Test
     fun `selecting a tab switches the pager to that page`() {
-        val oppHome = launchOppHome()
+        val oppHome = launchHome()
         val view = oppHome.requireView()
-        val tabLayout = view.findViewById<TabLayout>(R.id.connect_delivery_opp_home_tabs)
-        val viewPager = view.findViewById<ViewPager2>(R.id.connect_delivery_opp_home_view_pager)
+        val tabLayout = view.findViewById<TabLayout>(R.id.connect_delivery_home_tabs)
+        val viewPager = view.findViewById<ViewPager2>(R.id.connect_delivery_home_view_pager)
 
-        tabLayout.getTabAt(ConnectDeliveryOppHomeFragment.TAB_VISITS)?.select()
+        tabLayout.getTabAt(ConnectDeliveryHomeFragment.TAB_VISITS)?.select()
         shadowOf(Looper.getMainLooper()).idle()
 
-        assertEquals(ConnectDeliveryOppHomeFragment.TAB_VISITS, viewPager.currentItem)
+        assertEquals(ConnectDeliveryHomeFragment.TAB_VISITS, viewPager.currentItem)
     }
 
     @Test
     fun `clicking Start when the app is not installed navigates to the downloading screen`() {
-        val oppHome = launchOppHome()
+        val oppHome = launchHome()
         val startButton =
             oppHome.requireView().findViewById<MaterialButton>(R.id.cta_button)
 
@@ -149,7 +149,7 @@ class ConnectDeliveryOppHomeFragmentTest {
         assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
     }
 
-    private fun launchOppHome(): ConnectDeliveryOppHomeFragment {
+    private fun launchHome(): ConnectDeliveryHomeFragment {
         val intent =
             Intent(app, ConnectActivity::class.java).apply {
                 putExtra(ConnectConstants.GO_TO_JOB_STATUS, true)
@@ -162,11 +162,11 @@ class ConnectDeliveryOppHomeFragmentTest {
             activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect)
                 as NavHostFragment
         assertTrue(
-            "Expected to land on the OppHome destination",
-            navHost.navController.currentDestination?.id == R.id.connect_delivery_opp_home_fragment,
+            "Expected to land on the Home destination",
+            navHost.navController.currentDestination?.id == R.id.connect_delivery_home_fragment,
         )
         return navHost.childFragmentManager.fragments
-            .filterIsInstance<ConnectDeliveryOppHomeFragment>()
+            .filterIsInstance<ConnectDeliveryHomeFragment>()
             .first()
     }
 }

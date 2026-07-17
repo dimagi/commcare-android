@@ -16,9 +16,9 @@ import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
 import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.repository.ConnectRepository
-import org.commcare.connect.viewmodel.ConnectDeliveryOppHomeViewModel
+import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel
 import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.FragmentConnectDeliveryOppHomeBinding
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.RefreshableTab
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -27,8 +27,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
  * Shell hosting the delivery opportunity tabs (Dashboard, Payment, Visits, More) and the bottom
  * launch CTA. Individual tab content lives in the child fragments.
  */
-class ConnectDeliveryOppHomeFragment :
-    ConnectJobFragment<FragmentConnectDeliveryOppHomeBinding>(),
+class ConnectDeliveryHomeFragment :
+    ConnectJobFragment<FragmentConnectDeliveryHomeBinding>(),
     RefreshableFragment {
     private data class TabItem(
         val titleRes: Int,
@@ -46,7 +46,7 @@ class ConnectDeliveryOppHomeFragment :
 
     private val visibleTabs get() = tabs.filter { it.visible }
 
-    private lateinit var viewModel: ConnectDeliveryOppHomeViewModel
+    private lateinit var viewModel: ConnectDeliveryHomeViewModel
     private lateinit var pagerAdapter: DeliveryViewStateAdapter
     private var initialTabPosition = TAB_DASHBOARD
     private var currentTabPosition = TAB_DASHBOARD
@@ -66,7 +66,7 @@ class ConnectDeliveryOppHomeFragment :
             ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-            )[ConnectDeliveryOppHomeViewModel::class.java]
+            )[ConnectDeliveryHomeViewModel::class.java]
 
         setupTabViewPager()
         binding.connectDeliveryCtaBar.setOnCtaClickListener { launchDeliveryApp() }
@@ -78,10 +78,10 @@ class ConnectDeliveryOppHomeFragment :
     private fun setupTabViewPager() {
         pagerAdapter = DeliveryViewStateAdapter(childFragmentManager, lifecycle, visibleTabs.map { it.fragmentFactory })
 
-        val viewPager = binding.connectDeliveryOppHomeViewPager
+        val viewPager = binding.connectDeliveryHomeViewPager
         viewPager.adapter = pagerAdapter
 
-        val tabLayout = binding.connectDeliveryOppHomeTabs
+        val tabLayout = binding.connectDeliveryHomeTabs
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.setText(visibleTabs[position].titleRes)
         }.attach()
@@ -149,8 +149,8 @@ class ConnectDeliveryOppHomeFragment :
             ConnectAppLaunchController(this).launchApp(appId, false, Runnable { popSelfOnceHidden() })
         } else {
             val directions =
-                ConnectDeliveryOppHomeFragmentDirections
-                    .actionConnectDeliveryOppHomeFragmentToConnectDownloadingFragment(
+                ConnectDeliveryHomeFragmentDirections
+                    .actionConnectDeliveryHomeFragmentToConnectDownloadingFragment(
                         getString(R.string.connect_downloading_delivery),
                         false,
                     )
@@ -163,7 +163,7 @@ class ConnectDeliveryOppHomeFragment :
     override fun inflateBinding(
         inflater: LayoutInflater,
         container: ViewGroup?,
-    ): FragmentConnectDeliveryOppHomeBinding = FragmentConnectDeliveryOppHomeBinding.inflate(inflater, container, false)
+    ): FragmentConnectDeliveryHomeBinding = FragmentConnectDeliveryHomeBinding.inflate(inflater, container, false)
 
     private class DeliveryViewStateAdapter(
         fm: FragmentManager,
@@ -183,6 +183,6 @@ class ConnectDeliveryOppHomeFragment :
         const val TAB_MORE = 3
 
         @JvmStatic
-        fun newInstance() = ConnectDeliveryOppHomeFragment()
+        fun newInstance() = ConnectDeliveryHomeFragment()
     }
 }

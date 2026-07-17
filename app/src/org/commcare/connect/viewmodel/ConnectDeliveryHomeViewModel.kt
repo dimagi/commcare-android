@@ -11,7 +11,7 @@ import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.repository.RefreshPolicy
 
-class ConnectDeliveryOppHomeViewModel(
+class ConnectDeliveryHomeViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
     @VisibleForTesting

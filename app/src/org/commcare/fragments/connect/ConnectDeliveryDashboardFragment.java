@@ -43,7 +43,7 @@ public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<Fragmen
     public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         getBinding().btnSync.setOnClickListener(v -> {
-            ConnectDeliveryOppHomeFragment parentFragment = (ConnectDeliveryOppHomeFragment)getParentFragment();
+            ConnectDeliveryHomeFragment parentFragment = (ConnectDeliveryHomeFragment)getParentFragment();
             if (parentFragment != null) {
                 parentFragment.refresh(false);
             }
@@ -122,10 +122,10 @@ public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<Fragmen
         NavController navController = NavHostFragment.findNavController(this);
 
         if (navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.connect_delivery_opp_home_fragment) {
+                && navController.getCurrentDestination().getId() == R.id.connect_delivery_home_fragment) {
             navController.navigate(
-                    ConnectDeliveryOppHomeFragmentDirections
-                            .actionConnectDeliveryOppHomeFragmentToConnectDeliveryVisitsDetailFragment(unitName)
+                    ConnectDeliveryHomeFragmentDirections
+                            .actionConnectDeliveryHomeFragmentToConnectDeliveryVisitsDetailFragment(unitName)
             );
         }
     }
