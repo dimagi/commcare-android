@@ -172,6 +172,20 @@
         <attr name="navigable" />
     </declare-styleable>
 
+    <declare-styleable name="ConnectSuccessFailureCard">
+        <attr name="mode" format="enum">
+            <enum name="success" value="0" />
+            <enum name="failure" value="1" />
+        </attr>
+        <attr name="messageText" format="string" />
+        <attr name="cardCornerRadius" />
+        <attr name="cardElevation" />
+        <attr name="successBackgroundColor" format="color" />
+        <attr name="successAccentColor" format="color" />
+        <attr name="failureBackgroundColor" format="color" />
+        <attr name="failureAccentColor" format="color" />
+    </declare-styleable>
+
     <declare-styleable name="ConnectCtaBar">
         <attr name="titleText" />
         <attr name="subtitleText" />
