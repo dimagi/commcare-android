@@ -49,16 +49,18 @@ When planning or writing a spec for a new feature, consult [`docs/common-edge-ca
 All the changes below should be part of a separate commit after the main code changes:
 - Clean up any unused code and imports
 - Verify Java code with `checkstyle.xml` and make changes as applicable
-- Run ktlint format and verify: `./gradlew ktlintFile -PfilePath=path/to/file.kt`
+- Run ktlint per the "AI Workflow: ktlint" rules below
 - Run relevant unit tests to ensure no regressions
 - Commit changes
 
 ## AI Workflow: ktlint
-After editing or creating a Kotlin file, always run the Gradle ktlint task:
+The Gradle ktlint task auto-formats a file and verifies it is clean:
 ```bash
 ./gradlew ktlintFile -PfilePath=<relative-path-to-file>
 ```
-This task auto-formats the file and then verifies it is clean. If any violations remain that cannot be auto-fixed, resolve them manually. This should be done before committing.
+When to run it depends on whether the Kotlin file is new or existing:
+- **New Kotlin file** — run ktlint directly before committing.
+- **Existing Kotlin file** — you may run ktlint to *check* for violations, but do NOT auto-apply its formatting
 
 ## Test File Locations
 - Unit tests: `app/unit-tests/src/`
