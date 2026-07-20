@@ -230,6 +230,12 @@
     <string name="connect_expired_on">Oppgaven ble avsluttet %s</string>
     <string name="connect_job_you_will_learn">Fullfør følgende læringsmoduler og vurdering for å tjene et sertifikat</string>
     <string name="connect_job_preview_start">Start</string>
+    <string name="connect_dashboard">Dashbord</string>
+    <string name="connect_visits">Besøk</string>
+    <string name="connect_more">Mer</string>
+    <string name="connect_delivery_start">Start</string>
+    <string name="connect_delivery_continue_visits">Fortsett besøkene dine</string>
+    <string name="connect_delivery_continue_visits_subtitle">Send inn leveringsskjemaer</string>
     <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>

@@ -240,6 +240,12 @@
     <string name="connect_expired_on">Užduotis baigėsi %s</string>
     <string name="connect_job_you_will_learn">Užbaikite šiuos mokymosi modulius ir vertinimą, kad gautumėte sertifikatą</string>
     <string name="connect_job_preview_start">Pradėti</string>
+    <string name="connect_dashboard">Skydelis</string>
+    <string name="connect_visits">Vizitai</string>
+    <string name="connect_more">Daugiau</string>
+    <string name="connect_delivery_start">Pradėti</string>
+    <string name="connect_delivery_continue_visits">Tęskite savo vizitus</string>
+    <string name="connect_delivery_continue_visits_subtitle">Pateikti pristatymo formas</string>
     <string name="connect_job_delivery_preview_subtitle">Baigę mokymosi vertinimą, pereisite prie pristatymo</string>
     <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>

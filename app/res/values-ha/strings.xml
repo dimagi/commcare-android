@@ -417,6 +417,12 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_complete_by">Aiki yana ƙarewa akan %s</string>
     <string name="connect_expired_on">Aiki ya ƙare a kan %s</string>
     <string name="connect_job_preview_start">Fara</string>
+    <string name="connect_dashboard">Dashboard</string>
+    <string name="connect_visits">Ziyarce-ziyarce</string>
+    <string name="connect_more">Ƙari</string>
+    <string name="connect_delivery_start">Fara</string>
+    <string name="connect_delivery_continue_visits">Ci gaba da ziyararku</string>
+    <string name="connect_delivery_continue_visits_subtitle">Aika fom ɗin isar da kaya</string>
     <string name="connect_job_delivery_preview_subtitle">Da zarar kun gama tantancewar koyo, za ku canza zuwa bayarwa</string>
     <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
