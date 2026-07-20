@@ -213,7 +213,7 @@ class RetrieveNotificationsResponseParserTest {
         // Create a mock channel with encryption key for decryption
         val mockChannel = mock(ConnectMessagingChannelRecord::class.java)
         `when`(mockChannel.channelId).thenReturn("channel_001")
-        `when`(mockChannel.channelName).thenReturn("Test Channel")
+        `when`(mockChannel.channelSource).thenReturn("Test Channel")
         `when`(mockChannel.key).thenReturn(encryptionKey)
         `when`(mockChannel.consented).thenReturn(true)
 
