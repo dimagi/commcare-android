@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -92,12 +93,10 @@ public class AndroidUtil {
 
         if (activityRootView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(activityRootView, (view, insets) -> {
-                WindowInsets windowInsets = activityRootView.getRootWindowInsets();
-                if (windowInsets != null) {
-                    Insets systemBars = windowInsets.getSystemWindowInsets();
-                    // Apply padding so content doesn't overlap with system bars
-                    view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-                }
+                Insets systemBars = insets.getSystemWindowInsets();
+
+                // Apply padding so content doesn't overlap with system bars
+                view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
                 return insets;
             });
         }
