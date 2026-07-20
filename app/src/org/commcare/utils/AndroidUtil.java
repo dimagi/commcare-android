@@ -93,7 +93,7 @@ public class AndroidUtil {
 
         if (activityRootView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(activityRootView, (view, insets) -> {
-                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
 
                 // Apply padding so content doesn't overlap with system bars
                 view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
