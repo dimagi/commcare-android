@@ -2,12 +2,10 @@ package org.commcare.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.WindowInsets;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -16,11 +14,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
-import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -93,7 +89,8 @@ public class AndroidUtil {
 
         if (activityRootView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(activityRootView, (view, insets) -> {
-                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                Insets systemBars = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
 
                 // Apply padding so content doesn't overlap with system bars
                 view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
