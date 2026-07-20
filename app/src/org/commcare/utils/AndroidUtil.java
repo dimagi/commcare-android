@@ -91,18 +91,14 @@ public class AndroidUtil {
         View activityRootView = activity.findViewById(rootViewId);
 
         if (activityRootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(activityRootView, new OnApplyWindowInsetsListener() {
-                @NonNull
-                @Override
-                public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
-                    WindowInsets windowInsets = activityRootView.getRootWindowInsets();
-                    if (windowInsets != null) {
-                        Insets systemBars = windowInsets.getSystemWindowInsets();
-                        // Apply padding so content doesn't overlap with system bars
-                        view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-                    }
-                    return insets;
+            ViewCompat.setOnApplyWindowInsetsListener(activityRootView, (view, insets) -> {
+                WindowInsets windowInsets = activityRootView.getRootWindowInsets();
+                if (windowInsets != null) {
+                    Insets systemBars = windowInsets.getSystemWindowInsets();
+                    // Apply padding so content doesn't overlap with system bars
+                    view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
                 }
+                return insets;
             });
         }
     }
