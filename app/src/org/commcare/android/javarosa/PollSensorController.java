@@ -90,7 +90,7 @@ public enum PollSensorController implements CommCareLocationListener {
     @Override
     public void onLocationResult(@NotNull Location location) {
         synchronized (actions) {
-            float newAccuracy = location.getAccuracy();
+            float newAccuracy = location.hasAccuracy() ? location.getAccuracy() : Float.MAX_VALUE;
             if (newAccuracy < lastAccuracy) {
                 lastAccuracy = newAccuracy;
                 for (PollSensorAction action : actions) {
