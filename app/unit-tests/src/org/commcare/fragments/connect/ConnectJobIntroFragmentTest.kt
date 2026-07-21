@@ -16,6 +16,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectDateUtils
+import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ApiConnect
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.io.ByteArrayInputStream
+import java.text.DateFormat
 
 /**
  * Robolectric UI tests for [ConnectJobIntroFragment]: verifies the job data renders into the
@@ -47,8 +49,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         fragment
             .requireView()
             .findViewById<ConnectInfoCard>(cardId)
-            .findViewById<TextView>(R.id.info_card_value_text)
-            .text
+            .valueText
             .toString()
 
     private fun cardSubtitle(
@@ -58,8 +59,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         fragment
             .requireView()
             .findViewById<ConnectInfoCard>(cardId)
-            .findViewById<TextView>(R.id.info_card_subtitle_text)
-            .text
+            .subtitleText
             .toString()
 
     @Test
@@ -87,7 +87,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     fun `expiry shows the short-formatted project end date`() {
         val fragment = launch()
         assertEquals(
-            ConnectDateUtils.formatShortDate(job.projectEndDate),
+            ConnectDateUtils.formatDate(job.projectEndDate, DateFormat.SHORT),
             fragment
                 .requireView()
                 .findViewById<TextView>(R.id.tv_expiry_value)
@@ -100,7 +100,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     fun `header maximum earnings shows the total budget with currency symbol`() {
         val fragment = launch()
         assertEquals(
-            job.getMoneyStringWithSymbol(job.totalBudget),
+            ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.totalBudget),
             fragment
                 .requireView()
                 .findViewById<TextView>(R.id.tv_max_earnings_value)
@@ -139,7 +139,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     fun `max earnings card shows total budget and payment unit count`() {
         val fragment = launch()
         assertEquals(
-            job.getMoneyStringWithSymbol(job.totalBudget),
+            ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.totalBudget),
             cardValue(fragment, R.id.card_max_earnings),
         )
         assertEquals(

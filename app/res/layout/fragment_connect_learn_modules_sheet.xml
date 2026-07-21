@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:background="@color/connect_background_color"
     android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="16dp">
+    android:paddingHorizontal="@dimen/standard_spacer_double"
+    android:paddingTop="@dimen/dp10"
+    android:paddingBottom="@dimen/standard_spacer_double">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="32dp"
-        android:layout_height="4dp"
+        android:layout_width="@dimen/dp32"
+        android:layout_height="@dimen/standard_spacer_half"
         android:layout_gravity="center"
         app:cardBackgroundColor="@color/connect_divider_color" />
 
@@ -20,7 +20,7 @@
         android:id="@+id/tv_modules_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/dp20"
         android:textColor="@color/connect_text_color"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/standard_spacer_double"
         android:clipToPadding="false"
         tools:listitem="@layout/item_connect_learn_module" />
 </LinearLayout>

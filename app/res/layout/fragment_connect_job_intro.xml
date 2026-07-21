@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="@dimen/standard_spacer_double">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -35,12 +35,12 @@
                     android:background="@drawable/bg_connect_opportunity_badge"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="6dp">
+                    android:paddingHorizontal="@dimen/dp6"
+                    android:paddingVertical="@dimen/dp6">
 
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="@dimen/standard_spacer_double"
+                        android:layout_height="@dimen/standard_spacer_double"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_connect_opportunity_badge" />
 
@@ -48,7 +48,7 @@
                         android:id="@+id/tv_opportunity_badge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginStart="@dimen/dp6"
                         android:text="@string/connect_opportunity_badge_new"
                         android:textColor="@color/orange"
                         android:textSize="12sp"
@@ -59,7 +59,7 @@
                     android:id="@+id/tv_job_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="@dimen/standard_spacer_double"
                     android:includeFontPadding="false"
                     android:textColor="@color/connect_text_color"
                     android:textSize="26sp"
@@ -70,7 +70,7 @@
                     android:id="@+id/tv_job_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="@dimen/dp6"
                     android:textColor="@color/connect_dark_grey"
                     android:textSize="14sp"
                     tools:text="One line description about the opportunity." />
@@ -78,7 +78,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="@dimen/dp20"
                     android:orientation="horizontal">
 
                     <LinearLayout
@@ -98,7 +98,7 @@
                             android:id="@+id/tv_expiry_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="@dimen/standard_spacer_half"
                             android:textColor="@color/connect_text_color"
                             android:textSize="16sp"
                             tools:text="01/31/27" />
@@ -107,7 +107,7 @@
                     <View
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
-                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginHorizontal="@dimen/standard_spacer_double"
                         android:background="@color/connect_divider_color" />
 
                     <LinearLayout
@@ -127,7 +127,7 @@
                             android:id="@+id/tv_max_earnings_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="@dimen/standard_spacer_half"
                             android:textColor="@color/connect_text_color"
                             android:textSize="16sp"
                             tools:text="₹2500" />
@@ -141,9 +141,9 @@
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingTop="24dp"
-                android:paddingBottom="16dp">
+                android:paddingHorizontal="@dimen/standard_spacer_double"
+                android:paddingTop="@dimen/standard_spacer_large"
+                android:paddingBottom="@dimen/standard_spacer_double">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -151,8 +151,8 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="@dimen/dp22"
+                        android:layout_height="@dimen/dp22"
                         android:layout_marginTop="1dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_connect_learn_app" />
@@ -160,7 +160,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="@dimen/dp10"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
@@ -175,7 +175,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="@dimen/standard_spacer_half"
                             android:text="@string/connect_opportunity_learn_section_subtitle"
                             android:textColor="@color/connect_dark_grey"
                             android:textSize="13sp" />
@@ -186,18 +186,18 @@
                     android:id="@+id/card_learn_modules"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="@dimen/dp12"
                     app:titleText="@string/connect_opportunity_learn_modules_label" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="@dimen/standard_spacer_large"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="@dimen/dp22"
+                        android:layout_height="@dimen/dp22"
                         android:layout_marginTop="1dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_connect_delivery_app" />
@@ -205,7 +205,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="@dimen/dp10"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
@@ -220,7 +220,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="@dimen/standard_spacer_half"
                             android:text="@string/connect_opportunity_delivery_section_subtitle"
                             android:textColor="@color/connect_dark_grey"
                             android:textSize="13sp" />
@@ -232,21 +232,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="0dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="@dimen/dp12"
                     app:titleText="@string/connect_opportunity_max_visits_label" />
 
                 <org.commcare.views.connect.ConnectInfoCard
                     android:id="@+id/card_days"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="@dimen/dp12"
                     app:titleText="@string/connect_opportunity_days_to_complete_label" />
 
                 <org.commcare.views.connect.ConnectInfoCard
                     android:id="@+id/card_max_earnings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="@dimen/dp12"
                     app:titleText="@string/connect_opportunity_max_earnings_card_label" />
             </LinearLayout>
         </LinearLayout>
@@ -258,7 +258,8 @@
         android:background="@drawable/bg_connect_opportunity_footer"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingHorizontal="@dimen/standard_spacer_double"
+        android:paddingVertical="@dimen/dp10">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -271,7 +272,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/connect_opportunity_footer_start_learning"
                 android:textColor="@color/connect_dark_blue_color"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -286,11 +287,19 @@
             android:id="@+id/btn_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
             android:backgroundTint="@color/connect_dark_blue_color"
+            android:includeFontPadding="false"
             android:text="@string/connect_opportunity_footer_download_app"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            app:cornerRadius="24dp"
+            android:textSize="14sp"
+            app:cornerRadius="@dimen/dp20"
             app:icon="@drawable/ic_connect_arrow_forward_20px"
             app:iconGravity="textEnd"
             app:iconTint="@color/white" />

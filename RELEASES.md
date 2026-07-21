@@ -94,7 +94,6 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 - Image capture questions support a new `rectangle-overlay` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
-- Redesigned the Connect opportunity introduction screen.
 
 #### Important Bug Fixes
 
@@ -232,11 +231,6 @@ we would like to communicate to QA as part of the release testing
   - **Edit name/photo:** From Manage Profile, open Edit (pencil icon), change the name and/or tap the photo to capture a new one, and save. Verify the changes persist on the Profile screen and in the drawer header.
   - **Edit email (one-time code):** Change the email and save; verify the new address must be confirmed with a one-time code before it updates. If you change both name and email but abandon the code entry, verify the new name is kept while the email stays unchanged.
   - **Forget PersonalID relocation:** Verify "Forget PersonalID" is no longer in the Login or app-setup menus, and that forgetting the account is available from the Manage Profile screen behind a confirmation prompt.
-
-- **Connect opportunity intro redesign:**
-  - Verify the Connect opportunity intro screen renders correctly: New Opportunity badge, title/description, Expiry & Maximum Earnings, Learn Modules card, the three delivery cards, and the footer.
-  - Confirm tapping the Learn Modules card opens the modules bottom sheet, and it lists each module with its estimated time.
-  - Confirm tapping Start Learning proceeds to app download.
 
 
 ## CommCare 2.63

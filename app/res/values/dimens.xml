@@ -123,6 +123,11 @@
     <dimen name="audio_button_size">55dp</dimen>
 
     <dimen name="dp6">6dp</dimen>
+    <dimen name="dp10">10dp</dimen>
+    <dimen name="dp12">12dp</dimen>
+    <dimen name="dp20">20dp</dimen>
+    <dimen name="dp22">22dp</dimen>
+    <dimen name="dp32">32dp</dimen>
     <dimen name="dp60">60dp</dimen>
     <dimen name="dp48">48dp</dimen>
 

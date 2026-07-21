@@ -12,20 +12,14 @@ import java.util.TimeZone
 
 object ConnectDateUtils {
     @JvmStatic
-    fun formatDate(date: Date): String {
+    @JvmOverloads
+    fun formatDate(
+        date: Date,
+        style: Int = DateFormat.MEDIUM,
+    ): String {
         val formatter =
             DateFormat.getDateInstance(
-                DateFormat.MEDIUM,
-                Locale.getDefault(),
-            )
-        return formatter.format(date)
-    }
-
-    @JvmStatic
-    fun formatShortDate(date: Date): String {
-        val formatter =
-            DateFormat.getDateInstance(
-                DateFormat.SHORT,
+                style,
                 Locale.getDefault(),
             )
         return formatter.format(date)

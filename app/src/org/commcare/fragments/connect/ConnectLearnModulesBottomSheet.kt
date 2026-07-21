@@ -36,7 +36,7 @@ class ConnectLearnModulesBottomSheet : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        expandToFullHeight(view)
+        configureBottomSheet(view)
 
         val job = (requireActivity() as ConnectActivity).activeJob
         binding.tvModulesTitle.text =
@@ -46,21 +46,23 @@ class ConnectLearnModulesBottomSheet : BottomSheetDialogFragment() {
             ConnectLearnModuleAdapter(job.learnAppInfo.learnModules)
     }
 
-    private fun expandToFullHeight(view: View) {
+    private fun configureBottomSheet(view: View) {
         view.post {
             val dialog = dialog as? BottomSheetDialog ?: return@post
             val bottomSheet =
                 dialog.findViewById<FrameLayout>(
                     com.google.android.material.R.id.design_bottom_sheet,
                 ) ?: return@post
-            val behavior = BottomSheetBehavior.from(bottomSheet)
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
             bottomSheet.layoutParams =
                 bottomSheet.layoutParams.apply {
                     height = ViewGroup.LayoutParams.MATCH_PARENT
                 }
             bottomSheet.background =
-                ColorDrawable(ContextCompat.getColor(requireContext(), R.color.transparent))
+                ColorDrawable(ContextCompat.getColor(view.context, R.color.transparent))
+            BottomSheetBehavior.from(bottomSheet).apply {
+                peekHeight = resources.displayMetrics.heightPixels / 2
+                state = BottomSheetBehavior.STATE_COLLAPSED
+            }
         }
     }
 
