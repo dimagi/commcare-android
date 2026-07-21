@@ -67,7 +67,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     private final Button mDiscardButton;
     private ImageView mImageView;
 
-    protected String mBinaryName;
+    private String mBinaryName;
 
     private final String mInstanceFolder;
 
