@@ -95,7 +95,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                 t: Throwable?,
             ) {
                 reportApiCall(false)
-                if (!isAdded) {
+                if (!isAdded || this@ConnectJobIntroFragment.view == null) {
                     return
                 }
 
@@ -114,15 +114,16 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
             }
 
             override fun onSuccess(success: Boolean) {
-                hideError()
                 reportApiCall(success)
 
                 job.status = ConnectJobRecord.STATUS_LEARNING
                 ConnectJobUtils.upsertJob(context, job)
 
-                if (!isAdded) {
+                if (!isAdded || this@ConnectJobIntroFragment.view == null) {
                     return
                 }
+
+                hideError()
 
                 val appId = job.learnAppInfo.appId
                 if (AppUtils.isAppInstalled(appId)) {
