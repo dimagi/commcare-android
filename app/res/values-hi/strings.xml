@@ -660,4 +660,23 @@ License.
     <string name="camera_permission_denied">इस सुविधा का उपयोग करने के लिए सेटिंग्स में जाएं और कैमरा अनुमति सक्षम करें</string>
     <string name="microimage_face_detection_mode_failed">चेहरा पहचान मोड विफल, मैनुअल मोड पर स्विच किया जा रहा है</string>
     <string name="microimage_cropping_failed">छवि क्रॉप करने में विफल, सुनिश्चित करें कि लक्ष्य कैप्चर क्षेत्र के अंदर है</string>
+    <string name="connect_opportunity_badge_new">नया अवसर</string>
+    <string name="connect_opportunity_expiry_label">समाप्ति</string>
+    <string name="connect_opportunity_max_earnings_label">अधिकतम कमाई</string>
+    <string name="connect_opportunity_learn_section_title">लर्न ऐप विवरण</string>
+    <string name="connect_opportunity_learn_section_subtitle">विज़िट शुरू करने के लिए प्रशिक्षण पूरा करें।</string>
+    <string name="connect_opportunity_learn_modules_label">लर्न मॉड्यूल</string>
+    <string name="connect_opportunity_learn_hours_total">~%d घंटे कुल</string>
+    <string name="connect_opportunity_delivery_section_title">डिलीवरी ऐप विवरण</string>
+    <string name="connect_opportunity_delivery_section_subtitle">देखभाल करें, भुगतान पाने के लिए फ़ॉर्म जमा करें।</string>
+    <string name="connect_opportunity_max_visits_label">अधिकतम विज़िट</string>
+    <string name="connect_opportunity_visits_per_day">%d विज़िट प्रति दिन</string>
+    <string name="connect_opportunity_days_to_complete_label">पूरा करने के लिए दिन</string>
+    <string name="connect_opportunity_max_earnings_card_label">अधिकतम कमाई</string>
+    <string name="connect_opportunity_payment_units">%d भुगतान इकाइयाँ</string>
+    <string name="connect_opportunity_footer_start_learning">सीखना शुरू करें</string>
+    <string name="connect_opportunity_footer_download_learn_app">लर्न ऐप डाउनलोड करें</string>
+    <string name="connect_opportunity_footer_download_app">ऐप डाउनलोड करें</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - लर्न मॉड्यूल</string>
+    <string name="connect_opportunity_module_estimated_time">अनुमानित समय: %d घंटे</string>
 </resources>

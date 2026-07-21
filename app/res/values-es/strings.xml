@@ -664,4 +664,23 @@
     <string name="camera_permission_denied">Ve a ajustes y habilita el permiso de la cámara para usar esta función</string>
     <string name="microimage_face_detection_mode_failed">Falló el modo de detección de rostros, cambiando al modo manual</string>
     <string name="microimage_cropping_failed">Falló el recorte de la imagen, asegúrate de que el objetivo esté dentro del área de captura</string>
+    <string name="connect_opportunity_badge_new">Nueva oportunidad</string>
+    <string name="connect_opportunity_expiry_label">Vencimiento</string>
+    <string name="connect_opportunity_max_earnings_label">Ganancias máximas</string>
+    <string name="connect_opportunity_learn_section_title">Detalles de la app de aprendizaje</string>
+    <string name="connect_opportunity_learn_section_subtitle">Termina la capacitación para comenzar las visitas.</string>
+    <string name="connect_opportunity_learn_modules_label">Módulos de aprendizaje</string>
+    <string name="connect_opportunity_learn_hours_total">~%d horas en total</string>
+    <string name="connect_opportunity_delivery_section_title">Detalles de la app de entrega</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Brinda atención, envía formularios para ganar pagos.</string>
+    <string name="connect_opportunity_max_visits_label">Visitas máximas</string>
+    <string name="connect_opportunity_visits_per_day">%d visitas por día</string>
+    <string name="connect_opportunity_days_to_complete_label">Días para completar</string>
+    <string name="connect_opportunity_max_earnings_card_label">Ganancias máximas</string>
+    <string name="connect_opportunity_payment_units">%d unidades de pago</string>
+    <string name="connect_opportunity_footer_start_learning">Comenzar a aprender</string>
+    <string name="connect_opportunity_footer_download_learn_app">Descargar app de aprendizaje</string>
+    <string name="connect_opportunity_footer_download_app">Descargar app</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - Módulos de aprendizaje</string>
+    <string name="connect_opportunity_module_estimated_time">Tiempo estimado: %d horas</string>
 </resources>

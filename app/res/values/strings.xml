@@ -707,6 +707,26 @@
     <string name="connect_job_info_view_review">Review</string>
     <string name="connect_job_info_view_proceed">Proceed</string>
 
+    <string name="connect_opportunity_badge_new">New Opportunity</string>
+    <string name="connect_opportunity_expiry_label">Expiry</string>
+    <string name="connect_opportunity_max_earnings_label">Maximum Earnings</string>
+    <string name="connect_opportunity_learn_section_title">Learn App Details</string>
+    <string name="connect_opportunity_learn_section_subtitle">Finish training to start visits.</string>
+    <string name="connect_opportunity_learn_modules_label">Learn Modules</string>
+    <string name="connect_opportunity_learn_hours_total">~%d hours total</string>
+    <string name="connect_opportunity_delivery_section_title">Delivery App Details</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Give care, submit forms to earn payment.</string>
+    <string name="connect_opportunity_max_visits_label">Maximum Visits</string>
+    <string name="connect_opportunity_visits_per_day">%d visits per day</string>
+    <string name="connect_opportunity_days_to_complete_label">Days to complete</string>
+    <string name="connect_opportunity_max_earnings_card_label">Maximum earnings</string>
+    <string name="connect_opportunity_payment_units">%d payment units</string>
+    <string name="connect_opportunity_footer_start_learning">Start Learning</string>
+    <string name="connect_opportunity_footer_download_learn_app">Download Learn App</string>
+    <string name="connect_opportunity_footer_download_app">Download App</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - Learn Modules</string>
+    <string name="connect_opportunity_module_estimated_time">Estimated time: %d hours</string>
+
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>

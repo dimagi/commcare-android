@@ -668,4 +668,23 @@
     <string name="camera_permission_denied">Nenda kwenye mipangilio na uwashe ruhusa ya kamera ili kutumia kipengele hiki</string>
     <string name="microimage_face_detection_mode_failed">Hali ya kutambua uso imeshindwa, inabadilika kwenda hali ya mkono</string>
     <string name="microimage_cropping_failed">Imeshindwa kupunguza picha, hakikisha lengo liko ndani ya eneo la kupiga picha</string>
+    <string name="connect_opportunity_badge_new">Fursa mpya</string>
+    <string name="connect_opportunity_expiry_label">Mwisho wa muda</string>
+    <string name="connect_opportunity_max_earnings_label">Mapato ya juu</string>
+    <string name="connect_opportunity_learn_section_title">Maelezo ya programu ya kujifunza</string>
+    <string name="connect_opportunity_learn_section_subtitle">Maliza mafunzo ili kuanza ziara.</string>
+    <string name="connect_opportunity_learn_modules_label">Moduli za kujifunza</string>
+    <string name="connect_opportunity_learn_hours_total">~%d saa kwa jumla</string>
+    <string name="connect_opportunity_delivery_section_title">Maelezo ya programu ya utoaji</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Toa huduma, wasilisha fomu ili kupata malipo.</string>
+    <string name="connect_opportunity_max_visits_label">Ziara za juu</string>
+    <string name="connect_opportunity_visits_per_day">Ziara %d kwa siku</string>
+    <string name="connect_opportunity_days_to_complete_label">Siku za kukamilisha</string>
+    <string name="connect_opportunity_max_earnings_card_label">Mapato ya juu</string>
+    <string name="connect_opportunity_payment_units">Vipimo %d vya malipo</string>
+    <string name="connect_opportunity_footer_start_learning">Anza kujifunza</string>
+    <string name="connect_opportunity_footer_download_learn_app">Pakua programu ya kujifunza</string>
+    <string name="connect_opportunity_footer_download_app">Pakua programu</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - Moduli za kujifunza</string>
+    <string name="connect_opportunity_module_estimated_time">Muda unaokadiriwa: saa %d</string>
 </resources>

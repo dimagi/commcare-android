@@ -54,6 +54,9 @@
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_personalid_message_display_dialog"
             app:destination="@id/personalid_message_display_dialog" />
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_learn_modules_bottom_sheet"
+            app:destination="@id/connect_learn_modules_bottom_sheet" />
     </fragment>
 
     <fragment
@@ -153,6 +156,11 @@
 
 
     </dialog>
+    <dialog
+        android:id="@+id/connect_learn_modules_bottom_sheet"
+        android:name="org.commcare.fragments.connect.ConnectLearnModulesBottomSheet"
+        tools:layout="@layout/fragment_connect_learn_modules_sheet"
+        android:label="ConnectLearnModulesBottomSheet" />
     <dialog
         android:id="@+id/personalid_message_display_dialog"
         android:name="org.commcare.fragments.personalId.PersonalIdMessageFragment"

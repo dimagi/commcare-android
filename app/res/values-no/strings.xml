@@ -313,4 +313,23 @@
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
 
+    <string name="connect_opportunity_badge_new">Ny mulighet</string>
+    <string name="connect_opportunity_expiry_label">Utløp</string>
+    <string name="connect_opportunity_max_earnings_label">Maksimal inntjening</string>
+    <string name="connect_opportunity_learn_section_title">Detaljer om læringsappen</string>
+    <string name="connect_opportunity_learn_section_subtitle">Fullfør opplæringen for å starte besøk.</string>
+    <string name="connect_opportunity_learn_modules_label">Læringsmoduler</string>
+    <string name="connect_opportunity_learn_hours_total">~%d timer totalt</string>
+    <string name="connect_opportunity_delivery_section_title">Detaljer om leveringsappen</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Gi omsorg, send inn skjemaer for å tjene betaling.</string>
+    <string name="connect_opportunity_max_visits_label">Maksimalt antall besøk</string>
+    <string name="connect_opportunity_visits_per_day">%d besøk per dag</string>
+    <string name="connect_opportunity_days_to_complete_label">Dager for å fullføre</string>
+    <string name="connect_opportunity_max_earnings_card_label">Maksimal inntjening</string>
+    <string name="connect_opportunity_payment_units">%d betalingsenheter</string>
+    <string name="connect_opportunity_footer_start_learning">Start læring</string>
+    <string name="connect_opportunity_footer_download_learn_app">Last ned læringsappen</string>
+    <string name="connect_opportunity_footer_download_app">Last ned appen</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - Læringsmoduler</string>
+    <string name="connect_opportunity_module_estimated_time">Estimert tid: %d timer</string>
 </resources>

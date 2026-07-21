@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -600,6 +601,19 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         return String.format(Locale.getDefault(), "%d%s", value, currency);
+    }
+
+    public String getMoneyStringWithSymbol(int value) {
+        String symbol = "";
+        if (currency != null && !currency.isEmpty()) {
+            try {
+                symbol = Currency.getInstance(currency.toUpperCase(Locale.ROOT)).getSymbol();
+            } catch (IllegalArgumentException e) {
+                symbol = currency;
+            }
+        }
+
+        return String.format(Locale.getDefault(), "%s%d", symbol, value);
     }
 
     public int numberOfDeliveriesToday() {

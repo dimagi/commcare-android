@@ -658,4 +658,23 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="camera_permission_denied">Je zuwa saituna ka kunna izinin kyamara don amfani da wannan fasalin</string>
     <string name="microimage_face_detection_mode_failed">Yanayin gano fuska ya kasa, ana canzawa zuwa yanayin hannu</string>
     <string name="microimage_cropping_failed">Yanke hoton ya kasa, ka tabbatar cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
+    <string name="connect_opportunity_badge_new">Sabuwar dama</string>
+    <string name="connect_opportunity_expiry_label">Ƙarewa</string>
+    <string name="connect_opportunity_max_earnings_label">Iyakar kuɗin shiga</string>
+    <string name="connect_opportunity_learn_section_title">Bayanan manhajar koyo</string>
+    <string name="connect_opportunity_learn_section_subtitle">Kammala horo don fara ziyarce-ziyarce.</string>
+    <string name="connect_opportunity_learn_modules_label">Sassan koyo</string>
+    <string name="connect_opportunity_learn_hours_total">~%d awanni gaba ɗaya</string>
+    <string name="connect_opportunity_delivery_section_title">Bayanan manhajar saukarwa</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Ba da kulawa, aika fom don samun biya.</string>
+    <string name="connect_opportunity_max_visits_label">Iyakar ziyara</string>
+    <string name="connect_opportunity_visits_per_day">Ziyara %d kowace rana</string>
+    <string name="connect_opportunity_days_to_complete_label">Kwanaki don kammalawa</string>
+    <string name="connect_opportunity_max_earnings_card_label">Iyakar kuɗin shiga</string>
+    <string name="connect_opportunity_payment_units">Sassan biya %d</string>
+    <string name="connect_opportunity_footer_start_learning">Fara koyo</string>
+    <string name="connect_opportunity_footer_download_learn_app">Sauke manhajar koyo</string>
+    <string name="connect_opportunity_footer_download_app">Sauke manhaja</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - Sassan koyo</string>
+    <string name="connect_opportunity_module_estimated_time">Ƙididdigar lokaci: awanni %d</string>
 </resources>

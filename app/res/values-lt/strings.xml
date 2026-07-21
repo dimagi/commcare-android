@@ -323,4 +323,23 @@
 
     <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
 
+    <string name="connect_opportunity_badge_new">Nauja galimybė</string>
+    <string name="connect_opportunity_expiry_label">Galiojimo pabaiga</string>
+    <string name="connect_opportunity_max_earnings_label">Didžiausias uždarbis</string>
+    <string name="connect_opportunity_learn_section_title">Mokymosi programos informacija</string>
+    <string name="connect_opportunity_learn_section_subtitle">Baikite mokymus, kad pradėtumėte vizitus.</string>
+    <string name="connect_opportunity_learn_modules_label">Mokymosi moduliai</string>
+    <string name="connect_opportunity_learn_hours_total">~%d valandų iš viso</string>
+    <string name="connect_opportunity_delivery_section_title">Pristatymo programos informacija</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Teikite priežiūrą, pateikite formas, kad uždirbtumėte.</string>
+    <string name="connect_opportunity_max_visits_label">Daugiausia vizitų</string>
+    <string name="connect_opportunity_visits_per_day">%d vizitų per dieną</string>
+    <string name="connect_opportunity_days_to_complete_label">Dienos iki pabaigos</string>
+    <string name="connect_opportunity_max_earnings_card_label">Didžiausias uždarbis</string>
+    <string name="connect_opportunity_payment_units">%d mokėjimo vienetai</string>
+    <string name="connect_opportunity_footer_start_learning">Pradėti mokymąsi</string>
+    <string name="connect_opportunity_footer_download_learn_app">Atsisiųsti mokymosi programą</string>
+    <string name="connect_opportunity_footer_download_app">Atsisiųsti programą</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - Mokymosi moduliai</string>
+    <string name="connect_opportunity_module_estimated_time">Numatomas laikas: %d val.</string>
 </resources>

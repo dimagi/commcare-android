@@ -669,4 +669,23 @@
     <string name="camera_permission_denied">Vá às configurações e ative a permissão da câmera para usar este recurso</string>
     <string name="microimage_face_detection_mode_failed">Falha no modo de detecção de rosto, alternando para o modo manual</string>
     <string name="microimage_cropping_failed">Falha ao recortar a imagem, verifique se o alvo está dentro da área de captura</string>
+    <string name="connect_opportunity_badge_new">Nova oportunidade</string>
+    <string name="connect_opportunity_expiry_label">Vencimento</string>
+    <string name="connect_opportunity_max_earnings_label">Ganhos máximos</string>
+    <string name="connect_opportunity_learn_section_title">Detalhes do app de aprendizagem</string>
+    <string name="connect_opportunity_learn_section_subtitle">Conclua o treinamento para iniciar as visitas.</string>
+    <string name="connect_opportunity_learn_modules_label">Módulos de aprendizagem</string>
+    <string name="connect_opportunity_learn_hours_total">~%d horas no total</string>
+    <string name="connect_opportunity_delivery_section_title">Detalhes do app de entrega</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Preste cuidados, envie formulários para receber pagamento.</string>
+    <string name="connect_opportunity_max_visits_label">Visitas máximas</string>
+    <string name="connect_opportunity_visits_per_day">%d visitas por dia</string>
+    <string name="connect_opportunity_days_to_complete_label">Dias para concluir</string>
+    <string name="connect_opportunity_max_earnings_card_label">Ganhos máximos</string>
+    <string name="connect_opportunity_payment_units">%d unidades de pagamento</string>
+    <string name="connect_opportunity_footer_start_learning">Começar a aprender</string>
+    <string name="connect_opportunity_footer_download_learn_app">Baixar app de aprendizagem</string>
+    <string name="connect_opportunity_footer_download_app">Baixar app</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - Módulos de aprendizagem</string>
+    <string name="connect_opportunity_module_estimated_time">Tempo estimado: %d horas</string>
 </resources>

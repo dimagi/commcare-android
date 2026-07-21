@@ -652,4 +652,23 @@
     <string name="camera_permission_denied">ነዚ ባህሪ ንምጥቃም ናብ ቅንብራት ኪዱ እሞ ፍቓድ ካሜራ ኣንቅዑ</string>
     <string name="microimage_face_detection_mode_failed">ናይ ገጽ ምልላይ ኩነታት ኣይሰርሐን፣ ናብ ናይ ኢድ ኩነታት ይቕይር ኣሎ</string>
     <string name="microimage_cropping_failed">ስእሊ ምቍራጽ ኣይተኻእለን፣ ዒላማ ኣብ ውሽጢ ናይ ምቅራጽ ቦታ ከምዘሎ ኣረጋግጹ</string>
+    <string name="connect_opportunity_badge_new">ሓድሽ ዕድል</string>
+    <string name="connect_opportunity_expiry_label">ናይ ምውዳእ ዕለት</string>
+    <string name="connect_opportunity_max_earnings_label">ዝለዓለ ኣታዊ</string>
+    <string name="connect_opportunity_learn_section_title">ዝርዝር ናይ ትምህርቲ መተግበሪ</string>
+    <string name="connect_opportunity_learn_section_subtitle">ምብጻሕ ንምጅማር ስልጠና ወድእ።</string>
+    <string name="connect_opportunity_learn_modules_label">ናይ ትምህርቲ ሞጁላት</string>
+    <string name="connect_opportunity_learn_hours_total">~%d ሰዓታት ብጠቕላላ</string>
+    <string name="connect_opportunity_delivery_section_title">ዝርዝር ናይ ኣገልግሎት መተግበሪ</string>
+    <string name="connect_opportunity_delivery_section_subtitle">ክንክን ሃብ፣ ክፍሊት ንምርካብ ቅጥዕታት ኣቕርብ።</string>
+    <string name="connect_opportunity_max_visits_label">ዝለዓለ ምብጻሕ</string>
+    <string name="connect_opportunity_visits_per_day">%d ምብጻሕ ኣብ መዓልቲ</string>
+    <string name="connect_opportunity_days_to_complete_label">ንምዝዛም መዓልትታት</string>
+    <string name="connect_opportunity_max_earnings_card_label">ዝለዓለ ኣታዊ</string>
+    <string name="connect_opportunity_payment_units">%d ናይ ክፍሊት ኣሃዱታት</string>
+    <string name="connect_opportunity_footer_start_learning">ትምህርቲ ጀምር</string>
+    <string name="connect_opportunity_footer_download_learn_app">ናይ ትምህርቲ መተግበሪ ኣውርድ</string>
+    <string name="connect_opportunity_footer_download_app">መተግበሪ ኣውርድ</string>
+    <string name="connect_opportunity_modules_sheet_title">%s - ናይ ትምህርቲ ሞጁላት</string>
+    <string name="connect_opportunity_module_estimated_time">ግምታዊ ግዜ፦ %d ሰዓታት</string>
 </resources>

@@ -1,7 +1,6 @@
 package org.commcare.fragments.connect;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +10,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
-import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
@@ -30,9 +27,7 @@ import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Fragment for showing detailed info about an available job
@@ -57,13 +52,13 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
         getBinding().tvJobTitle.setText(job.getTitle());
         getBinding().tvJobDescription.setText(job.getDescription());
-        getBinding().tvEndDate.setText(getString(R.string.connect_learn_complete_by,
-                ConnectDateUtils.formatDate(job.getProjectEndDate())));
+        getBinding().tvExpiryValue.setText(ConnectDateUtils.formatShortDate(job.getProjectEndDate()));
+        getBinding().tvMaxEarningsValue.setText(job.getMoneyStringWithSymbol(job.getTotalBudget()));
 
         getBinding().btnStart.setOnClickListener(v -> startLearning());
 
-        populateLearnModules();
-        populateDeliveryDetails();
+        populateLearnCard();
+        populateDeliveryCards();
 
         return view;
     }
@@ -77,42 +72,34 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
         }
     }
 
-    private void populateLearnModules() {
-        List<String> lines = new ArrayList<>();
+    private void populateLearnCard() {
         List<ConnectLearnModuleSummaryRecord> modules = job.getLearnAppInfo().getLearnModules();
-        for (int i = 0; i < modules.size(); i++) {
-            lines.add(String.format(Locale.getDefault(), "%d. %s", (i + 1), modules.get(i).getName()));
+        int totalHours = 0;
+        for (ConnectLearnModuleSummaryRecord module : modules) {
+            totalHours += module.getTimeEstimate();
         }
 
-        String text = modules.isEmpty() ? getString(R.string.connect_job_no_learning_required) :
-                TextUtils.join("\n\n", lines);
-        getBinding().tvLearnModulesList.setText(text);
+        getBinding().cardLearnModules.setValueText(String.valueOf(modules.size()));
+        getBinding().cardLearnModules.setSubtitleText(
+                getString(R.string.connect_opportunity_learn_hours_total, totalHours));
+        getBinding().cardLearnModules.setOnCardClick(() -> {
+            NavHostFragment.findNavController(this).navigate(
+                    ConnectJobIntroFragmentDirections
+                            .actionConnectJobIntroFragmentToConnectLearnModulesBottomSheet());
+            return null;
+        });
     }
 
-    private void populateDeliveryDetails() {
-        getBinding().connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit,
-                job.getMaxPossibleVisits()));
-        getBinding().connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days,
-                job.getDaysRemaining()));
-        getBinding().connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit,
-                job.getMaxDailyVisits()));
-        getBinding().connectDeliveryBudgetText.setText(buildPaymentText());
-    }
+    private void populateDeliveryCards() {
+        getBinding().cardMaxVisits.setValueText(String.valueOf(job.getMaxPossibleVisits()));
+        getBinding().cardMaxVisits.setSubtitleText(
+                getString(R.string.connect_opportunity_visits_per_day, job.getMaxDailyVisits()));
 
-    private String buildPaymentText() {
-        StringBuilder paymentTextBuilder = new StringBuilder();
+        getBinding().cardDays.setValueText(String.valueOf(job.getDaysRemaining()));
 
-        if (job.isMultiPayment()) {
-            paymentTextBuilder.append(getString(R.string.connect_delivery_earn_multi));
-            for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-                paymentTextBuilder.append(String.format("\n• %s: %s", unit.getName(),
-                        job.getMoneyString(unit.getAmount())));
-            }
-        } else if (!job.getPaymentUnits().isEmpty()) {
-            String moneyValue = job.getMoneyString(job.getPaymentUnits().get(0).getAmount());
-            paymentTextBuilder.append(getString(R.string.connect_job_info_visit_charge, moneyValue));
-        }
-        return paymentTextBuilder.toString();
+        getBinding().cardMaxEarnings.setValueText(job.getMoneyStringWithSymbol(job.getTotalBudget()));
+        getBinding().cardMaxEarnings.setSubtitleText(
+                getString(R.string.connect_opportunity_payment_units, job.getPaymentUnits().size()));
     }
 
     private void startLearning() {
@@ -122,7 +109,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
                 reportApiCall(false);
-                if (!isAdded() || getView() == null) {
+                if (!isAdded()) {
                     return;
                 }
 
@@ -146,7 +133,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                 ConnectJobUtils.upsertJob(getContext(), job);
 
-                if (!isAdded() || getView() == null) {
+                if (!isAdded()) {
                     return;
                 }
 

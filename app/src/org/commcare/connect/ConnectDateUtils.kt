@@ -21,6 +21,16 @@ object ConnectDateUtils {
         return formatter.format(date)
     }
 
+    @JvmStatic
+    fun formatShortDate(date: Date): String {
+        val formatter =
+            DateFormat.getDateInstance(
+                DateFormat.SHORT,
+                Locale.getDefault(),
+            )
+        return formatter.format(date)
+    }
+
     fun paymentDateFormat(date: Date): String {
         val formatter =
             DateFormat.getDateInstance(
