@@ -233,6 +233,11 @@ we would like to communicate to QA as part of the release testing
   - **Edit email (one-time code):** Change the email and save; verify the new address must be confirmed with a one-time code before it updates. If you change both name and email but abandon the code entry, verify the new name is kept while the email stays unchanged.
   - **Forget PersonalID relocation:** Verify "Forget PersonalID" is no longer in the Login or app-setup menus, and that forgetting the account is available from the Manage Profile screen behind a confirmation prompt.
 
+- **Connect opportunity intro redesign:**
+  - Verify the Connect opportunity intro screen renders correctly: New Opportunity badge, title/description, Expiry & Maximum Earnings, Learn Modules card, the three delivery cards, and the footer.
+  - Confirm tapping the Learn Modules card opens the modules bottom sheet, and it lists each module with its estimated time.
+  - Confirm tapping Start Learning proceeds to app download.
+
 
 ## CommCare 2.63
 
