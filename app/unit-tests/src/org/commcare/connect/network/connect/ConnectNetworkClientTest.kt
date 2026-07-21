@@ -214,4 +214,95 @@ class ConnectNetworkClientTest {
             val result = client.getDeliveryProgress(mockUser, mockJob)
             assertTrue(result.isSuccess)
         }
+
+    @Test
+    fun testStartLearnApp_success_returnsSuccess() =
+        runBlocking {
+            coEvery { mockApiService.startLearnApp(any(), any(), any()) } returns
+                Response.success("".toResponseBody("application/json".toMediaType()))
+            val result = client.startLearnApp(mockUser, "test-uuid")
+            assertTrue(result.isSuccess)
+        }
+
+    @Test
+    fun testStartLearnApp_authHeaderFailure_returnsFailure() =
+        runBlocking {
+            coEvery { getAuthorizationHeader(any()) } returns
+                Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR))
+            val result = client.startLearnApp(mockUser, "test-uuid")
+            assertTrue(result.isFailure)
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
+                (result.exceptionOrNull() as ConnectApiException).errorCode,
+            )
+        }
+
+    @Test
+    fun testStartLearnApp_http401_returnsFailedAuth() =
+        runBlocking {
+            val errorBody = "".toResponseBody("application/json".toMediaType())
+            coEvery { mockApiService.startLearnApp(any(), any(), any()) } returns Response.error(401, errorBody)
+            val result = client.startLearnApp(mockUser, "test-uuid")
+            assertTrue(result.isFailure)
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
+                (result.exceptionOrNull() as ConnectApiException).errorCode,
+            )
+        }
+
+    @Test
+    fun testClaimJob_success_returnsSuccess() =
+        runBlocking {
+            coEvery { mockApiService.claimJob(any(), any(), any(), any()) } returns
+                Response.success("".toResponseBody("application/json".toMediaType()))
+            val result = client.claimJob(mockUser, "test-uuid")
+            assertTrue(result.isSuccess)
+        }
+
+    @Test
+    fun testClaimJob_http403_returnsForbidden() =
+        runBlocking {
+            val errorBody = "".toResponseBody("application/json".toMediaType())
+            coEvery { mockApiService.claimJob(any(), any(), any(), any()) } returns Response.error(403, errorBody)
+            val result = client.claimJob(mockUser, "test-uuid")
+            assertTrue(result.isFailure)
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
+                (result.exceptionOrNull() as ConnectApiException).errorCode,
+            )
+        }
+
+    @Test
+    fun testClaimJob_networkException_returnsNetworkError() =
+        runBlocking {
+            coEvery { mockApiService.claimJob(any(), any(), any(), any()) } throws IOException("timeout")
+            val result = client.claimJob(mockUser, "test-uuid")
+            assertTrue(result.isFailure)
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
+                (result.exceptionOrNull() as ConnectApiException).errorCode,
+            )
+        }
+
+    @Test
+    fun testConfirmPayments_success_returnsSuccess() =
+        runBlocking {
+            coEvery { mockApiService.confirmPayments(any(), any(), any()) } returns
+                Response.success("".toResponseBody("application/json".toMediaType()))
+            val result = client.confirmPayments(mockUser, emptyList())
+            assertTrue(result.isSuccess)
+        }
+
+    @Test
+    fun testConfirmPayments_http500_returnsServerError() =
+        runBlocking {
+            val errorBody = "".toResponseBody("application/json".toMediaType())
+            coEvery { mockApiService.confirmPayments(any(), any(), any()) } returns Response.error(500, errorBody)
+            val result = client.confirmPayments(mockUser, emptyList())
+            assertTrue(result.isFailure)
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
+                (result.exceptionOrNull() as ConnectApiException).errorCode,
+            )
+        }
 }
