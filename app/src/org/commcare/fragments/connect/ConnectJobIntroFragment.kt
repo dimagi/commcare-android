@@ -87,6 +87,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     }
 
     private fun startLearning() {
+        val appContext = requireContext().applicationContext
         val user = ConnectUserDatabaseUtil.getUser(context)
 
         object : ConnectApiHandler<Boolean>() {
@@ -117,7 +118,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                 reportApiCall(success)
 
                 job.status = ConnectJobRecord.STATUS_LEARNING
-                ConnectJobUtils.upsertJob(context, job)
+                ConnectJobUtils.upsertJob(appContext, job)
 
                 if (!isAdded || this@ConnectJobIntroFragment.view == null) {
                     return
