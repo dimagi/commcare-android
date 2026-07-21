@@ -60,7 +60,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
 
     public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
-    private static final String RECTANGLE_OVERLAY = "rectangle-overlay";
+    private static final String OVERLAY_SMALL = "overlay-small";
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
@@ -176,7 +176,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
 
         String appearanceHint = mPrompt.getAppearanceHint();
         boolean acquire = appearanceHint != null && appearanceHint.contains(QuestionWidget.ACQUIREFIELD);
-        useRectangleOverlay = appearanceHint != null && appearanceHint.contains(RECTANGLE_OVERLAY);
+        useRectangleOverlay = appearanceHint != null && appearanceHint.contains(OVERLAY_SMALL);
         if (acquire) {
             mChooseButton.setVisibility(View.GONE);
         }
