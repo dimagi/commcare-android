@@ -28,7 +28,7 @@ class FaceCaptureWidget(
                 .putExtra(CAPTURE_OUTPUT_MODE_EXTRA, MicroImageActivity.CaptureOutputMode.TEMP_FILE.name)
                 .putExtra(ALLOW_CAMERA_LENS_SWITCH_EXTRA, true)
 
-        (context as AppCompatActivity).startActivityForResult(i, FormEntryConstants.FACE_CAPTURE)
+        (context as AppCompatActivity).startActivityForResult(i, FormEntryConstants.IMAGE_CAPTURE)
         pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex())
     }
 }
