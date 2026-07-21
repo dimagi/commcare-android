@@ -93,7 +93,7 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
-- Image capture questions support a new `rectangle-overlay` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+- Image capture questions support a new `overlay-small` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
 
 #### Important Bug Fixes
 
@@ -224,7 +224,7 @@ we would like to communicate to QA as part of the release testing
 
 - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
 - Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
-- **Image reticle overlay:** On a form image-capture question with `appearance="rectangle-overlay"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
+- **Image reticle overlay:** On a form image-capture question with `appearance="overlay-small"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
 
 - **Manage Profile (PersonalID):**
   - **Access:** Signed in to PersonalID, open the side navigation drawer and verify a "Manage Profile" link appears and opens a screen showing name, phone, email, and photo. Verify the link is absent when signed out.
