@@ -118,7 +118,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         }
         if (getAllowCameraLensSwitch()) {
             switchCameraLensButton.setVisibility(VISIBLE);
-            switchCameraLensButton.setOnClickListener(v -> switchCameraLensFacing());
+            switchCameraLensButton.setClickable(false);
         }
         if (!isAutoCaptureModeSupported() || getAllowCameraLensSwitch()) {
             cameraControlsContainer.setVisibility(VISIBLE);
@@ -129,11 +129,21 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     protected void onCameraProviderReady() {
         if (!lensFacingInitialized) {
             currentLensFacing = getCameraLensFacing();
-            if (!isFrontCameraAvailable() && getAllowCameraLensSwitch()) {
-                Toast.makeText(this, R.string.face_capture_front_camera_unavailable, Toast.LENGTH_LONG).show();
+            if (getAllowCameraLensSwitch()) {
+                if (!isFrontCameraAvailable()) {
+                    Toast.makeText(this, R.string.face_capture_front_camera_unavailable, Toast.LENGTH_LONG).show();
+                } else {
+                    enableSwitchCameraLensButton();
+                }
             }
             lensFacingInitialized = true;
         }
+    }
+
+    private void enableSwitchCameraLensButton() {
+        switchCameraLensButton.setClickable(true);
+        switchCameraLensButton.setAlpha(1.0f);
+        switchCameraLensButton.setOnClickListener(v -> switchCameraLensFacing());
     }
 
     private boolean isAutoCaptureModeSupported() {

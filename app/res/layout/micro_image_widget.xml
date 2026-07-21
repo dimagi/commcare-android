@@ -74,6 +74,8 @@
                     android:src="@drawable/ic_switch_camera_lens"
                     app:tint="@color/camera_button_tint"
                     android:visibility="invisible"
+                    android:clickable="false"
+                    android:alpha="0.5"
                     android:scaleType="centerInside" />
             </LinearLayout>
         </LinearLayout>
