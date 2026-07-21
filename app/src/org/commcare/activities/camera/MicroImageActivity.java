@@ -74,6 +74,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     public static final String DEFAULT_CAPTURE_OUTPUT_MODE = BASE64_EXTRA.name();
     private ImageView switchCameraLensButton;
     private int currentLensFacing;
+    private boolean lensFacingInitialized = false;
     private TextView cameraCaptureInstructions;
     private TextView cameraCaptureModeIndicator;
 
@@ -122,7 +123,17 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         if (!isAutoCaptureModeSupported() || getAllowCameraLensSwitch()) {
             cameraControlsContainer.setVisibility(VISIBLE);
         }
-        currentLensFacing = getCameraLensFacing();
+    }
+
+    @Override
+    protected void onCameraProviderReady() {
+        if (!lensFacingInitialized) {
+            currentLensFacing = getCameraLensFacing();
+            if (!isFrontCameraAvailable() && getAllowCameraLensSwitch()) {
+                Toast.makeText(this, R.string.face_capture_front_camera_unavailable, Toast.LENGTH_LONG).show();
+            }
+            lensFacingInitialized = true;
+        }
     }
 
     private boolean isAutoCaptureModeSupported() {
@@ -160,7 +171,11 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         };
     }
 
+    // If the front camera is not available, we will default to the back camera
     private int getCameraLensFacing() {
+        if (!isFrontCameraAvailable()) {
+            return LENS_FACING_BACK;
+        }
         return getIntent().getIntExtra(CAMERA_LENS_FACING_EXTRA, DEFAULT_CAMERA_LENS_FACING);
     }
 
