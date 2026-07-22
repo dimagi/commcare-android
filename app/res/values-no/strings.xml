@@ -228,9 +228,12 @@
 
     <string name="connect_complete_by">Oppgave avsluttes %s</string>
     <string name="connect_expired_on">Oppgaven ble avsluttet %s</string>
-    <string name="connect_job_you_will_learn">Fullfør følgende læringsmoduler og vurdering for å tjene et sertifikat</string>
-    <string name="connect_job_preview_start">Start</string>
-    <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
+    <string name="connect_dashboard">Dashbord</string>
+    <string name="connect_visits">Besøk</string>
+    <string name="connect_more">Mer</string>
+    <string name="connect_delivery_start">Start</string>
+    <string name="connect_delivery_continue_visits">Fortsett besøkene dine</string>
+    <string name="connect_delivery_continue_visits_subtitle">Send inn leveringsskjemaer</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>
@@ -314,22 +317,30 @@
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
 
     <string name="connect_opportunity_badge_new">Ny mulighet</string>
-    <string name="connect_opportunity_expiry_label">Utløp</string>
+    <string name="connect_opportunity_expiry_label">Utløpsdato</string>
     <string name="connect_opportunity_max_earnings_label">Maksimal inntjening</string>
-    <string name="connect_opportunity_learn_section_title">Detaljer om læringsappen</string>
-    <string name="connect_opportunity_learn_section_subtitle">Fullfør opplæringen for å starte besøk.</string>
-    <string name="connect_opportunity_learn_modules_label">Læringsmoduler</string>
-    <string name="connect_opportunity_learn_hours_total">~%d timer totalt</string>
-    <string name="connect_opportunity_delivery_section_title">Detaljer om leveringsappen</string>
-    <string name="connect_opportunity_delivery_section_subtitle">Gi omsorg, send inn skjemaer for å tjene betaling.</string>
-    <string name="connect_opportunity_max_visits_label">Maksimalt antall besøk</string>
-    <string name="connect_opportunity_visits_per_day">%d besøk per dag</string>
+    <string name="connect_opportunity_learn_section_title">Læring</string>
+    <string name="connect_opportunity_learn_section_subtitle">Fullfør opplæringen for å starte besøk</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Læringsmodul</item>
+        <item quantity="other">Læringsmoduler</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Estimert tid: %d time</item>
+        <item quantity="other">Estimert tid: %d timer</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Levering</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Fullfør besøk og send inn skjemaer for å motta betaling</string>
+    <string name="connect_opportunity_max_visits_label">Totalt antall besøk</string>
+    <string name="connect_opportunity_visits_per_day">Opptil %d per dag</string>
     <string name="connect_opportunity_days_to_complete_label">Dager for å fullføre</string>
     <string name="connect_opportunity_max_earnings_card_label">Maksimal inntjening</string>
-    <string name="connect_opportunity_payment_units">%d betalingsenheter</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d betalingsenhet</item>
+        <item quantity="other">%d betalingsenheter</item>
+    </plurals>
     <string name="connect_opportunity_footer_start_learning">Start læring</string>
-    <string name="connect_opportunity_footer_download_learn_app">Last ned læringsappen</string>
+    <string name="connect_opportunity_footer_download_learn_app">Last ned Læring</string>
+    <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
     <string name="connect_opportunity_footer_download_app">Last ned appen</string>
-    <string name="connect_opportunity_modules_sheet_title">%s - Læringsmoduler</string>
-    <string name="connect_opportunity_module_estimated_time">Estimert tid: %d timer</string>
 </resources>

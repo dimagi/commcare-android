@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/connect_background_color"
+    android:background="@drawable/bg_connect_sheet_rounded_top"
     android:orientation="vertical"
     android:paddingHorizontal="@dimen/standard_spacer_double"
-    android:paddingTop="@dimen/dp10"
+    android:paddingTop="@dimen/standard_spacer"
     android:paddingBottom="@dimen/standard_spacer_double">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="@dimen/dp32"
+        android:layout_width="@dimen/standard_spacer_extra_large"
         android:layout_height="@dimen/standard_spacer_half"
         android:layout_gravity="center"
         app:cardBackgroundColor="@color/connect_divider_color" />
@@ -20,18 +20,39 @@
         android:id="@+id/tv_modules_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp20"
+        android:layout_marginTop="@dimen/standard_spacer_large"
         android:textColor="@color/connect_text_color"
         android:textSize="18sp"
         android:textStyle="bold"
         tools:text="Infant Vaccination - Learn Modules" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_modules"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="@dimen/standard_spacer_double"
-        android:clipToPadding="false"
-        tools:listitem="@layout/item_connect_learn_module" />
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_modules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_connect_learn_module" />
+
+            <TextView
+                android:id="@+id/tv_modules_footer_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_spacer_double"
+                android:text="@string/connect_opportunity_modules_footer_note"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

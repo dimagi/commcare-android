@@ -317,8 +317,6 @@ License.
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_title">Connecter</string>
     <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
-    <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage et l\'évaluation suivants pour obtenir un certificat</string>
-    <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
     <string name="connect_learn_progress_title">Apprendre Progrès</string>
     <string name="connect_learn_complete_title">Formation terminée !</string>
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
@@ -452,7 +450,6 @@ License.
     <string name="connect_messaging_message_notification_message">Vous avez reçu un nouveau message de %s, appuyez ici pour voir.</string>
     <string name="connect_messaging_channel_notification_title">Nouvelle chaîne</string>
     <string name="connect_messaging_channel_notification_message">Un nouveau canal de messagerie est disponible depuis %s, appuyez ici pour voir</string>
-    <string name="connect_job_learn_details">En savoir plus sur les détails</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Vous avez réussi l\'évaluation et êtes prêt à livrer. Consultez le statut de la mission pour continuer.</string>
     <string name="connect_results_summary_all">Tous</string>
     <string name="connect_results_summary_pending">En attente</string>
@@ -585,8 +582,12 @@ License.
 
     <string name="connect_complete_by">La tâche se termine le %s</string>
     <string name="connect_expired_on">La tâche s\'est terminée le %s</string>
-    <string name="connect_job_preview_start">Démarrer</string>
-    <string name="connect_job_delivery_preview_subtitle">Une fois que vous avez terminé l\'évaluation d\'apprentissage, vous passerez à la livraison</string>
+    <string name="connect_dashboard">Tableau de bord</string>
+    <string name="connect_visits">Visites</string>
+    <string name="connect_more">Plus</string>
+    <string name="connect_delivery_start">Démarrer</string>
+    <string name="connect_delivery_continue_visits">Continuez vos visites</string>
+    <string name="connect_delivery_continue_visits_subtitle">Soumettre les formulaires de livraison</string>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
     <string name="install_barcode_top">Bienvenue sur CommCare !</string>
     <string name="install_barcode_bottom">Veuillez choisir une méthode d\'installation ci-dessous</string>
@@ -664,22 +665,30 @@ License.
     <string name="microimage_face_detection_mode_failed">Échec du mode de détection des visages, passage au mode manuel</string>
     <string name="microimage_cropping_failed">Échec du recadrage de l\'image, assurez-vous que la cible est dans la zone de capture</string>
     <string name="connect_opportunity_badge_new">Nouvelle opportunité</string>
-    <string name="connect_opportunity_expiry_label">Expiration</string>
+    <string name="connect_opportunity_expiry_label">Expire le</string>
     <string name="connect_opportunity_max_earnings_label">Gains maximum</string>
-    <string name="connect_opportunity_learn_section_title">Détails de l\'app d\'apprentissage</string>
-    <string name="connect_opportunity_learn_section_subtitle">Terminez la formation pour commencer les visites.</string>
-    <string name="connect_opportunity_learn_modules_label">Modules d\'apprentissage</string>
-    <string name="connect_opportunity_learn_hours_total">~%d heures au total</string>
-    <string name="connect_opportunity_delivery_section_title">Détails de l\'app de prestation</string>
-    <string name="connect_opportunity_delivery_section_subtitle">Fournissez des soins, soumettez des formulaires pour être payé.</string>
-    <string name="connect_opportunity_max_visits_label">Visites maximum</string>
-    <string name="connect_opportunity_visits_per_day">%d visites par jour</string>
+    <string name="connect_opportunity_learn_section_title">Apprentissage</string>
+    <string name="connect_opportunity_learn_section_subtitle">Terminez la formation pour commencer les visites</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Module d\'apprentissage</item>
+        <item quantity="other">Modules d\'apprentissage</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Temps estimé : %d heure</item>
+        <item quantity="other">Temps estimé : %d heures</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Prestation</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Effectuez les visites et soumettez les formulaires pour recevoir le paiement</string>
+    <string name="connect_opportunity_max_visits_label">Visites totales</string>
+    <string name="connect_opportunity_visits_per_day">Jusqu\'à %d par jour</string>
     <string name="connect_opportunity_days_to_complete_label">Jours pour terminer</string>
     <string name="connect_opportunity_max_earnings_card_label">Gains maximum</string>
-    <string name="connect_opportunity_payment_units">%d unités de paiement</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d unité de paiement</item>
+        <item quantity="other">%d unités de paiement</item>
+    </plurals>
     <string name="connect_opportunity_footer_start_learning">Commencer l\'apprentissage</string>
-    <string name="connect_opportunity_footer_download_learn_app">Télécharger l\'app d\'apprentissage</string>
+    <string name="connect_opportunity_footer_download_learn_app">Télécharger Apprentissage</string>
+    <string name="connect_opportunity_modules_footer_note">Terminez les modules, réussissez l\'évaluation et obtenez votre certificat</string>
     <string name="connect_opportunity_footer_download_app">Télécharger l\'app</string>
-    <string name="connect_opportunity_modules_sheet_title">%s - Modules d\'apprentissage</string>
-    <string name="connect_opportunity_module_estimated_time">Temps estimé : %d heures</string>
 </resources>

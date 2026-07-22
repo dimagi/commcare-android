@@ -255,8 +255,6 @@
     <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
-    <string name="connect_job_you_will_learn">Completa los siguientes módulos de aprendizaje y la evaluación para obtener un certificado</string>
-    <string name="connect_job_no_learning_required">No se requiere aprendizaje</string>
     <string name="connect_learn_progress_title">Progreso del aprendizaje</string>
     <string name="connect_learn_complete_title">¡Formación completada!</string>
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
@@ -457,7 +455,6 @@
     <string name="connect_messaging_message_notification_message">Has recibido un nuevo mensaje de %s, toca aquí para ver.</string>
     <string name="connect_messaging_channel_notification_title">Nuevo canal</string>
     <string name="connect_messaging_channel_notification_message">Un nuevo canal de mensajería está disponible de %s, toca aquí para ver</string>
-    <string name="connect_job_learn_details">Aprender detalles</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Has aprobado la evaluación y estás listo para entregar. Consulta el estado de la tarea para continuar.</string>
     <string name="connect_results_summary_all">Todo</string>
     <string name="connect_results_summary_pending">Pendiente</string>
@@ -586,8 +583,12 @@
 
     <string name="connect_complete_by">La tarea termina el %s</string>
     <string name="connect_expired_on">La tarea terminó el %s</string>
-    <string name="connect_job_preview_start">Iniciar</string>
-    <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
+    <string name="connect_dashboard">Panel</string>
+    <string name="connect_visits">Visitas</string>
+    <string name="connect_more">Más</string>
+    <string name="connect_delivery_start">Iniciar</string>
+    <string name="connect_delivery_continue_visits">Continúa tus visitas</string>
+    <string name="connect_delivery_continue_visits_subtitle">Enviar formularios de entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
     <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
     <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
@@ -665,22 +666,30 @@
     <string name="microimage_face_detection_mode_failed">Falló el modo de detección de rostros, cambiando al modo manual</string>
     <string name="microimage_cropping_failed">Falló el recorte de la imagen, asegúrate de que el objetivo esté dentro del área de captura</string>
     <string name="connect_opportunity_badge_new">Nueva oportunidad</string>
-    <string name="connect_opportunity_expiry_label">Vencimiento</string>
+    <string name="connect_opportunity_expiry_label">Vence el</string>
     <string name="connect_opportunity_max_earnings_label">Ganancias máximas</string>
-    <string name="connect_opportunity_learn_section_title">Detalles de la app de aprendizaje</string>
-    <string name="connect_opportunity_learn_section_subtitle">Termina la capacitación para comenzar las visitas.</string>
-    <string name="connect_opportunity_learn_modules_label">Módulos de aprendizaje</string>
-    <string name="connect_opportunity_learn_hours_total">~%d horas en total</string>
-    <string name="connect_opportunity_delivery_section_title">Detalles de la app de entrega</string>
-    <string name="connect_opportunity_delivery_section_subtitle">Brinda atención, envía formularios para ganar pagos.</string>
-    <string name="connect_opportunity_max_visits_label">Visitas máximas</string>
-    <string name="connect_opportunity_visits_per_day">%d visitas por día</string>
+    <string name="connect_opportunity_learn_section_title">Aprendizaje</string>
+    <string name="connect_opportunity_learn_section_subtitle">Completa la capacitación para comenzar las visitas</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Módulo de aprendizaje</item>
+        <item quantity="other">Módulos de aprendizaje</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Tiempo estimado: %d hora</item>
+        <item quantity="other">Tiempo estimado: %d horas</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Entrega</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Completa las visitas y envía formularios para recibir el pago</string>
+    <string name="connect_opportunity_max_visits_label">Visitas totales</string>
+    <string name="connect_opportunity_visits_per_day">Hasta %d por día</string>
     <string name="connect_opportunity_days_to_complete_label">Días para completar</string>
     <string name="connect_opportunity_max_earnings_card_label">Ganancias máximas</string>
-    <string name="connect_opportunity_payment_units">%d unidades de pago</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d unidad de pago</item>
+        <item quantity="other">%d unidades de pago</item>
+    </plurals>
     <string name="connect_opportunity_footer_start_learning">Comenzar a aprender</string>
-    <string name="connect_opportunity_footer_download_learn_app">Descargar app de aprendizaje</string>
+    <string name="connect_opportunity_footer_download_learn_app">Descargar Aprendizaje</string>
+    <string name="connect_opportunity_modules_footer_note">Completa los módulos, aprueba la evaluación y obtén tu certificado</string>
     <string name="connect_opportunity_footer_download_app">Descargar app</string>
-    <string name="connect_opportunity_modules_sheet_title">%s - Módulos de aprendizaje</string>
-    <string name="connect_opportunity_module_estimated_time">Tiempo estimado: %d horas</string>
 </resources>

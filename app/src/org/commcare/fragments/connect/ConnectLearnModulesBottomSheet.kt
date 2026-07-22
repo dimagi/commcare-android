@@ -5,11 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.adapters.ConnectLearnModuleAdapter
@@ -39,20 +37,19 @@ class ConnectLearnModulesBottomSheet : BottomSheetDialogFragment() {
         configureBottomSheet(view)
 
         val job = (requireActivity() as ConnectActivity).activeJob
+        val modules = job.learnAppInfo.learnModules
         binding.tvModulesTitle.text =
-            getString(R.string.connect_opportunity_modules_sheet_title, job.title)
+            resources.getQuantityString(
+                R.plurals.connect_opportunity_learn_modules_label,
+                modules.size,
+            )
         binding.rvModules.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvModules.adapter =
-            ConnectLearnModuleAdapter(job.learnAppInfo.learnModules)
+        binding.rvModules.adapter = ConnectLearnModuleAdapter(modules)
     }
 
     private fun configureBottomSheet(view: View) {
         view.post {
-            val dialog = dialog as? BottomSheetDialog ?: return@post
-            val bottomSheet =
-                dialog.findViewById<FrameLayout>(
-                    com.google.android.material.R.id.design_bottom_sheet,
-                ) ?: return@post
+            val bottomSheet = view.parent as? View ?: return@post
             bottomSheet.layoutParams =
                 bottomSheet.layoutParams.apply {
                     height = ViewGroup.LayoutParams.MATCH_PARENT

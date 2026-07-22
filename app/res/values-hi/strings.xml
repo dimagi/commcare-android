@@ -317,8 +317,6 @@ License.
     <string name="connect_last_update">अपडेट किया गया: %s</string>
     <string name="connect_title">कनेक्ट करें</string>
     <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
-    <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल और मूल्यांकन पूरे करें और एक प्रमाण पत्र प्राप्त करें</string>
-    <string name="connect_job_no_learning_required">कोई शिक्षण आवश्यक नहीं</string>
     <string name="connect_learn_progress_title">प्रगति सीखें</string>
     <string name="connect_learn_complete_title">प्रशिक्षण पूरा हुआ!</string>
     <string name="connect_learn_need_assessment_title">प्रशिक्षण लंबित</string>
@@ -453,7 +451,6 @@ License.
     <string name="connect_messaging_message_notification_message">आपको %s से एक नया संदेश मिला है, देखने के लिए यहां टैप करें।</string>
     <string name="connect_messaging_channel_notification_title">नया चैनल</string>
     <string name="connect_messaging_channel_notification_message">%s से एक नया मैसेजिंग चैनल उपलब्ध है, देखने के लिए यहां टैप करें</string>
-    <string name="connect_job_learn_details">विवरण के बारे में और जानें</string>
     <string name="connect_progress_ready_for_transition_to_delivery">आपने मूल्यांकन पास कर लिया है और वितरित करने के लिए तैयार हैं। जारी रखने के लिए असाइनमेंट स्थिति देखें।</string>
     <string name="connect_results_summary_all">सभी</string>
     <string name="connect_results_summary_pending">लंबित</string>
@@ -582,8 +579,12 @@ License.
 
     <string name="connect_complete_by">कार्य %s को समाप्त होती है</string>
     <string name="connect_expired_on">कार्य %s को समाप्त हुई</string>
-    <string name="connect_job_preview_start">शुरू करें</string>
-    <string name="connect_job_delivery_preview_subtitle">एक बार जब आप शिक्षण मूल्यांकन पूरा कर लेते हैं, तो आप वितरण चरण में जाएंगे</string>
+    <string name="connect_dashboard">डैशबोर्ड</string>
+    <string name="connect_visits">विज़िट</string>
+    <string name="connect_more">अधिक</string>
+    <string name="connect_delivery_start">शुरू करें</string>
+    <string name="connect_delivery_continue_visits">अपनी विज़िट जारी रखें</string>
+    <string name="connect_delivery_continue_visits_subtitle">डिलीवरी फ़ॉर्म सबमिट करें</string>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
     <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
     <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
@@ -661,22 +662,30 @@ License.
     <string name="microimage_face_detection_mode_failed">चेहरा पहचान मोड विफल, मैनुअल मोड पर स्विच किया जा रहा है</string>
     <string name="microimage_cropping_failed">छवि क्रॉप करने में विफल, सुनिश्चित करें कि लक्ष्य कैप्चर क्षेत्र के अंदर है</string>
     <string name="connect_opportunity_badge_new">नया अवसर</string>
-    <string name="connect_opportunity_expiry_label">समाप्ति</string>
+    <string name="connect_opportunity_expiry_label">समाप्ति तिथि</string>
     <string name="connect_opportunity_max_earnings_label">अधिकतम कमाई</string>
-    <string name="connect_opportunity_learn_section_title">लर्न ऐप विवरण</string>
-    <string name="connect_opportunity_learn_section_subtitle">विज़िट शुरू करने के लिए प्रशिक्षण पूरा करें।</string>
-    <string name="connect_opportunity_learn_modules_label">लर्न मॉड्यूल</string>
-    <string name="connect_opportunity_learn_hours_total">~%d घंटे कुल</string>
-    <string name="connect_opportunity_delivery_section_title">डिलीवरी ऐप विवरण</string>
-    <string name="connect_opportunity_delivery_section_subtitle">देखभाल करें, भुगतान पाने के लिए फ़ॉर्म जमा करें।</string>
-    <string name="connect_opportunity_max_visits_label">अधिकतम विज़िट</string>
-    <string name="connect_opportunity_visits_per_day">%d विज़िट प्रति दिन</string>
+    <string name="connect_opportunity_learn_section_title">लर्न</string>
+    <string name="connect_opportunity_learn_section_subtitle">विज़िट शुरू करने के लिए प्रशिक्षण पूरा करें</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">लर्न मॉड्यूल</item>
+        <item quantity="other">लर्न मॉड्यूल</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">अनुमानित समय: %d घंटा</item>
+        <item quantity="other">अनुमानित समय: %d घंटे</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">डिलीवरी</string>
+    <string name="connect_opportunity_delivery_section_subtitle">भुगतान पाने के लिए विज़िट पूरी करें और फ़ॉर्म जमा करें</string>
+    <string name="connect_opportunity_max_visits_label">कुल विज़िट</string>
+    <string name="connect_opportunity_visits_per_day">प्रति दिन %d तक</string>
     <string name="connect_opportunity_days_to_complete_label">पूरा करने के लिए दिन</string>
     <string name="connect_opportunity_max_earnings_card_label">अधिकतम कमाई</string>
-    <string name="connect_opportunity_payment_units">%d भुगतान इकाइयाँ</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d भुगतान इकाई</item>
+        <item quantity="other">%d भुगतान इकाइयाँ</item>
+    </plurals>
     <string name="connect_opportunity_footer_start_learning">सीखना शुरू करें</string>
-    <string name="connect_opportunity_footer_download_learn_app">लर्न ऐप डाउनलोड करें</string>
+    <string name="connect_opportunity_footer_download_learn_app">लर्न डाउनलोड करें</string>
+    <string name="connect_opportunity_modules_footer_note">मॉड्यूल पूरे करें, मूल्यांकन पास करें, और अपना प्रमाणपत्र प्राप्त करें</string>
     <string name="connect_opportunity_footer_download_app">ऐप डाउनलोड करें</string>
-    <string name="connect_opportunity_modules_sheet_title">%s - लर्न मॉड्यूल</string>
-    <string name="connect_opportunity_module_estimated_time">अनुमानित समय: %d घंटे</string>
 </resources>

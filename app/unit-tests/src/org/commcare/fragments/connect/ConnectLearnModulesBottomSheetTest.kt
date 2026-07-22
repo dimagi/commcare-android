@@ -34,10 +34,13 @@ class ConnectLearnModulesBottomSheetTest : BaseConnectJobIntroTest() {
     }
 
     @Test
-    fun `sheet title includes the job title`() {
+    fun `sheet title shows the learn modules label`() {
         val sheet = showSheet()
         assertEquals(
-            activity.getString(R.string.connect_opportunity_modules_sheet_title, "Infant Vaccination"),
+            activity.resources.getQuantityString(
+                R.plurals.connect_opportunity_learn_modules_label,
+                job.learnAppInfo.learnModules.size,
+            ),
             sheet
                 .requireView()
                 .findViewById<TextView>(R.id.tv_modules_title)
@@ -65,7 +68,11 @@ class ConnectLearnModulesBottomSheetTest : BaseConnectJobIntroTest() {
             firstRow!!.findViewById<TextView>(R.id.tv_module_name).text.toString(),
         )
         assertEquals(
-            activity.getString(R.string.connect_opportunity_module_estimated_time, 1),
+            activity.resources.getQuantityString(
+                R.plurals.connect_opportunity_estimated_hours,
+                1,
+                1,
+            ),
             firstRow.findViewById<TextView>(R.id.tv_module_estimate).text.toString(),
         )
     }

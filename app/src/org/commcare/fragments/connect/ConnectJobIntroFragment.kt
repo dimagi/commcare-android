@@ -36,17 +36,17 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         requireActivity().setTitle(R.string.connect_job_info_view_opportunity)
 
         (requireActivity() as AppCompatActivity)
-            .supportActionBar
-            ?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
+            .supportActionBar!!
+            .setHomeAsUpIndicator(R.drawable.ic_connect_close)
 
         binding.tvJobTitle.text = job.title
-        binding.tvJobDescription.text = job.description
+        binding.tvJobDescription.text = job.shortDescription
         binding.tvExpiryValue.text =
             ConnectDateUtils.formatDate(job.projectEndDate, DateFormat.SHORT)
         binding.tvMaxEarningsValue.text =
             ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.totalBudget)
 
-        binding.btnStart.setOnClickListener { startLearning() }
+        binding.connectIntroCtaBar.setOnCtaClickListener { startLearning() }
 
         populateLearnCard()
         populateDeliveryCards()
@@ -56,7 +56,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
 
     override fun onDestroyView() {
         super.onDestroyView()
-        (requireActivity() as AppCompatActivity).supportActionBar?.setHomeAsUpIndicator(0)
+        (requireActivity() as AppCompatActivity).supportActionBar!!.setHomeAsUpIndicator(0)
     }
 
     private fun populateLearnCard() {
@@ -64,8 +64,17 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         val totalHours = modules.sumOf { it.timeEstimate }
 
         binding.cardLearnModules.valueText = modules.size.toString()
+        binding.cardLearnModules.titleText =
+            resources.getQuantityString(
+                R.plurals.connect_opportunity_learn_modules_label,
+                modules.size,
+            )
         binding.cardLearnModules.subtitleText =
-            getString(R.string.connect_opportunity_learn_hours_total, totalHours)
+            resources.getQuantityString(
+                R.plurals.connect_opportunity_estimated_hours,
+                totalHours,
+                totalHours,
+            )
         binding.cardLearnModules.onCardClick = {
             NavHostFragment.findNavController(this).navigate(
                 ConnectJobIntroFragmentDirections
@@ -84,7 +93,11 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         binding.cardMaxEarnings.valueText =
             ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.totalBudget)
         binding.cardMaxEarnings.subtitleText =
-            getString(R.string.connect_opportunity_payment_units, job.paymentUnits.size)
+            resources.getQuantityString(
+                R.plurals.connect_opportunity_payment_units,
+                job.paymentUnits.size,
+                job.paymentUnits.size,
+            )
     }
 
     private fun startLearning() {

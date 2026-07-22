@@ -9,16 +9,20 @@ object ConnectMoneyUtils {
         currency: String?,
         value: Int,
     ): String {
+        if (currency.isNullOrEmpty()) {
+            return value.toString()
+        }
+        val code = currency.uppercase(Locale.ROOT)
         val symbol =
-            if (currency.isNullOrEmpty()) {
-                ""
-            } else {
-                try {
-                    Currency.getInstance(currency.uppercase(Locale.ROOT)).symbol
-                } catch (_: IllegalArgumentException) {
-                    currency
-                }
+            try {
+                Currency.getInstance(code).symbol
+            } catch (_: IllegalArgumentException) {
+                code
             }
-        return String.format(Locale.getDefault(), "%s%d", symbol, value)
+        return if (symbol == code) {
+            String.format(Locale.getDefault(), "%d %s", value, symbol)
+        } else {
+            String.format(Locale.getDefault(), "%s%d", symbol, value)
+        }
     }
 }
