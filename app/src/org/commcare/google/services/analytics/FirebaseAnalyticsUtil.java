@@ -43,7 +43,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.ACCURACY_DEGRADATION;
 import static org.commcare.util.LogTypes.TYPE_ERROR_DESIGN;
 
 /**
@@ -219,7 +218,7 @@ public class FirebaseAnalyticsUtil {
                 : AnalyticsParamValue.SAVED;
         reportEvent(
                 CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
-                FirebaseAnalytics.Param.ITEM_LIST,
+                FirebaseAnalytics.Param.ITEM_LIST_NAME,
                 formType
         );
     }
@@ -476,14 +475,6 @@ public class FirebaseAnalyticsUtil {
                 CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.REASON},
                 new String[]{STAGE_UPDATE_FAILURE, reason}
-        );
-    }
-
-    public static void reportAccuracyDegradation(Float value) {
-        reportEvent(
-                CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
-                new String[]{FirebaseAnalytics.Param.ITEM_ID, VALUE},
-                new String[]{ACCURACY_DEGRADATION, value.toString()}
         );
     }
 
