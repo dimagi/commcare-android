@@ -186,7 +186,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         mockkStatic(ConnectUserDatabaseUtil::class)
         every { ConnectUserDatabaseUtil.getUser(any()) } returns mockk<ConnectUserRecord>()
         mockkStatic(ConnectJobUtils::class)
-        every { ConnectJobUtils.upsertJob(any(), any()) } returns Unit
+        every { ConnectJobUtils.upsertJob(any()) } returns Unit
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
         mockkObject(ConnectAppUtils)
