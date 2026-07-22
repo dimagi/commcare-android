@@ -41,6 +41,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
@@ -77,7 +79,8 @@ public class RecordingFragment extends DialogFragment {
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
 
     private String fileName;
-    private static final String FILE_EXT = ".mp3";
+    private static final String FILE_EXT_LEGACY = ".mp3";
+    private static final String FILE_EXT_BALANCED = ".m4a";
 
     private LinearLayout layout;
     private FrameLayout recordingContainer;
@@ -151,7 +154,13 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void initAudioFile() {
-        fileName = CommCareApplication.instance().getAndroidFsTemp() + new Date().getTime() + FILE_EXT;
+        String extension;
+        if (DeveloperPreferences.getAudioQualityProfile().equals(PrefValues.AUDIO_QUALITY_BALANCED)) {
+            extension = FILE_EXT_BALANCED;
+        } else {
+            extension = FILE_EXT_LEGACY;
+        }
+        fileName = CommCareApplication.instance().getAndroidFsTemp() + new Date().getTime() + extension;
     }
 
     private void reloadSavedRecording() {

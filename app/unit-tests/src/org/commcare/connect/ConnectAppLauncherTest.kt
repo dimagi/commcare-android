@@ -82,7 +82,7 @@ class ConnectAppLauncherTest {
         runTest {
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
-            assertEquals(LaunchOutcome.Launched, outcome)
+            assertEquals(LaunchOutcome.Launched(alreadyLoggedIn = false), outcome)
             verify(exactly = 1) { app.closeUserSession() }
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", "app-1") }
             assertEquals(listOf("app-1"), seatedApps)
@@ -95,7 +95,7 @@ class ConnectAppLauncherTest {
 
             val outcome = launcher.awaitOutcome(context, "app-1", isLearning = false, listener)
 
-            assertEquals(LaunchOutcome.Launched, outcome)
+            assertEquals(LaunchOutcome.Launched(alreadyLoggedIn = true), outcome)
             verify(exactly = 0) { app.closeUserSession() }
             verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccAppLaunch("Deliver", "app-1") }
             assertTrue(seatedApps.isEmpty())

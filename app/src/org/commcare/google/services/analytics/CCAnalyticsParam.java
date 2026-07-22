@@ -54,6 +54,9 @@ public class CCAnalyticsParam {
     static final String CCC_MESSAGING_CONSENT_API_RESULT = "consent_api_success";
     static final String CCC_MESSAGING_DESIRED_CONSENT_STATUS = "consent_api_desired_consent_status";
 
+    static final String MANAGE_PROFILE_ACTION = "manage_profile_action";
+    static final String MANAGE_PROFILE_OUTCOME = "outcome";
+
     // Param keys for OTP analytics
     public static final String OTP_OUTCOME = "outcome";
     public static final String OTP_EVENT_TYPE = "event_type";

@@ -2,26 +2,55 @@ package org.commcare.views.widgets;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
+import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.os.Build;
 
+import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
 
 public class AudioRecordingHelper {
     private static final int HEAAC_SAMPLE_RATE = 44100;
     private static final int AMRNB_SAMPLE_RATE = 8000;
+    private static final int OPUS_SAMPLE_RATE = 48000;
+    private static final int BALANCED_BIT_RATE = 24000;
 
-    public MediaRecorder setupRecorder(String fileName) {
+    static final class EncoderProfile {
+        final int encoder, samplerate, bitrate, container;
+        public EncoderProfile(int encoder, int samplerate) {
+            this(encoder, samplerate, -1);
+        }
+        public EncoderProfile(int encoder, int samplerate, int bitrate) {
+            this(encoder, samplerate, bitrate, MediaRecorder.OutputFormat.MPEG_4);
+        }
+        public EncoderProfile(int encoder, int samplerate, int bitrate, int container) {
+            this.encoder = encoder;
+            this.samplerate = samplerate;
+            this.bitrate = bitrate;
+            this.container = container;
+        }
+    }
+
+
+    public MediaRecorder setupRecorder(String fileName, String profile) {
         MediaRecorder recorder = new MediaRecorder();
 
-        boolean isHeAacSupported = isHeAacEncoderSupported();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        EncoderProfile encoder = filterBestSupportedEncoder(profile);
+
+        if (PrefValues.AUDIO_QUALITY_SMALLEST.equals(profile) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        } else if (PrefValues.AUDIO_QUALITY_BALANCED.equals(profile)) {
+            recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
         } else {
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         }
@@ -29,21 +58,23 @@ public class AudioRecordingHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             recorder.setPrivacySensitive(true);
         }
-        recorder.setAudioSamplingRate(isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        if (isHeAacSupported) {
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
-        } else {
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        recorder.setOutputFormat(encoder.container);
+        recorder.setAudioEncoder(encoder.encoder);
+        recorder.setAudioSamplingRate(encoder.samplerate);
+
+        if (encoder.bitrate != -1) {
+            recorder.setAudioEncodingBitRate(encoder.bitrate);
         }
+
         recorder.setOutputFile(fileName);
 
         try {
             recorder.prepare();
             Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Preparing recording: " + fileName
-                    + " | " + (isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE)
-                    + " | " + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC :
-                    MediaRecorder.AudioEncoder.AMR_NB));
+                    + " | " + encoder.samplerate
+                    + " | " + encoder.encoder
+                    + " | " + encoder.bitrate);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -52,7 +83,28 @@ public class AudioRecordingHelper {
     }
 
     // Checks whether the device supports High Efficiency AAC (HE-AAC) audio codec
-    private boolean isHeAacEncoderSupported() {
+    private EncoderProfile filterBestSupportedEncoder(String profileKey) {
+
+        List<EncoderProfile> encoderPreference = new ArrayList<>();
+
+        if (PrefValues.AUDIO_QUALITY_BALANCED.equals(profileKey)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                encoderPreference.add(new EncoderProfile(MediaRecorder.AudioEncoder.OPUS,
+                        OPUS_SAMPLE_RATE, BALANCED_BIT_RATE, MediaRecorder.OutputFormat.OGG));
+            }
+            encoderPreference.add(new EncoderProfile(MediaRecorder.AudioEncoder.HE_AAC, HEAAC_SAMPLE_RATE, BALANCED_BIT_RATE));
+            encoderPreference.add(new EncoderProfile(MediaRecorder.AudioEncoder.AAC, HEAAC_SAMPLE_RATE, BALANCED_BIT_RATE));
+        } else {
+            encoderPreference.add(new EncoderProfile(MediaRecorder.AudioEncoder.HE_AAC, HEAAC_SAMPLE_RATE));
+            encoderPreference.add(new EncoderProfile(MediaRecorder.AudioEncoder.AMR_NB, AMRNB_SAMPLE_RATE));
+        }
+
+        HashSet<Integer> encoders = new HashSet<>();
+
+        //Always available
+        encoders.add(MediaRecorder.AudioEncoder.AAC);
+        encoders.add(MediaRecorder.AudioEncoder.AMR_NB);
+
         int numCodecs = MediaCodecList.getCodecCount();
 
         for (int i = 0; i < numCodecs; i++) {
@@ -63,6 +115,10 @@ public class AudioRecordingHelper {
             }
 
             for (String supportedType : codecInfo.getSupportedTypes()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                        supportedType.equalsIgnoreCase(MediaFormat.MIMETYPE_AUDIO_OPUS)) {
+                    encoders.add(MediaRecorder.AudioEncoder.OPUS);
+                }
                 if (supportedType.equalsIgnoreCase(MIMETYPE_AUDIO_AAC)) {
                     MediaCodecInfo.CodecCapabilities cap = codecInfo.getCapabilitiesForType(MIMETYPE_AUDIO_AAC);
                     MediaCodecInfo.CodecProfileLevel[] profileLevels = cap.profileLevels;
@@ -70,13 +126,20 @@ public class AudioRecordingHelper {
                         int profile = profileLevel.profile;
                         if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE
                                 || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
-                            return true;
+                            encoders.add(MediaRecorder.AudioEncoder.HE_AAC);
                         }
                     }
                 }
             }
         }
 
-        return false;
+        //preferences list is in order, pick the first supported one
+        for (EncoderProfile profile : encoderPreference) {
+            if (encoders.contains(profile.encoder)) {
+                return profile;
+            }
+        }
+
+        throw new RuntimeException("No supported audio codecs for recording");
     }
 }

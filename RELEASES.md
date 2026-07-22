@@ -3,6 +3,32 @@ This file is meant as an easy way for us to collate notes and change logs across
 -->
 
 
+## CommCare 2.63.2
+
+### Release Notes
+
+- Improved accuracy related to automated location capture during form session
+
+#### What's New
+
+
+#### Internal Release Notes
+
+<!--
+Release notes that are not applicable for wider CommCare users but only for specific projects.
+These notes are only published internally in [CommCare Change log wiki](https://dimagi.atlassian.net/wiki/spaces/internal/pages/2145058874/CommCare+Mobile+Changelog)
+along with the public release notes above
+-->
+
+#### Important Bug Fixes
+
+- Fixed a crash that could occur when navigating back from a case list that uses the GPS `here()` function
+
+### QA Notes
+
+- Make sure there are no regressions in automated location capture in a CC form.  
+
+
 ## CommCare 2.63.1
 
 ### Release Notes
@@ -56,6 +82,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- [Manage Profile] PersonalID users can now view and edit their profile details from the new Manage Profile screen.
+- [Open Conversation] Connect job tile now shows an "Open Conversation" button for delivering jobs with a pending OCS messaging task.
 
 #### Internal Release Notes
 - Deprecated PersonalID support for devices on Android OS less than Android 9.
@@ -67,12 +95,17 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
 - [Audio Recording Revamp] Refreshed the in-app audio recording UI across the capture, recording, playback, and delete screens
 - [Audio Recording Revamp] Recording now starts immediately when you tap the microphone and saves as soon as you stop, removing the previous intermediate tap-to-record and playback-confirm steps
+- Image capture questions support a new `rectangle-overlay` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+- [Auto Location Capture] We now save the location acquired with the best accuracy in a form session rather than the last one. 
+
 
 #### Important Bug Fixes
 
 - Fixed the back arrow on the camera capture screen so it correctly returns to the previous screen
 - Fixed an issue where Connect messages opened from a notification could be viewed without completing the unlock prompt
 - Fixed PersonalID app linking so a failed fingerprint scan no longer skips you past the login screen; you can retry the unlock and linking completes once it succeeds
+- Fixed a crash caused by tapping a payment unit row more than once on the Connect delivery progress screen
+- Fixed a crash that could occur when leaving a Connect opportunity's intro screen before its Start Learning request finished
 
 
 ### QA Notes
@@ -178,6 +211,11 @@ we would like to communicate to QA as part of the release testing
   - Logging out from inside the launched app returns to the screen it was launched from (not the login screen).
   - On the app home, "View Job Status" opens the job's progress page; backing out of it returns to the app home, and backing out of the home returns to the screen the app was launched from.
   - Opening a job's progress page directly from the opportunities list (tapping an in-progress job) returns to the opportunities list on back.
+  - Launching via a job's **Start** button (opportunity intro screen) and right after an **app download/install** finishes both open directly behind the single progress dialog (no login/app-setup flash); backing out of the app home returns to the opportunities list, not the intro/download screen.
+  - Launch several **not-yet-installed** apps back-to-back (open one, back out, open the next, repeat) and confirm none crash.
+  - After repeated launch failures, on the **third consecutive failure** (i.e. after retrying twice) the dialog shows a single **OK** "couldn't open the app after several tries — check your connection and try again later" message instead of another Retry prompt.
+  - After launching an app from Connect and backing out to the opportunities list, press back once more: verify the entire mobile app closes (returns to the device home screen) rather than re-opening the launched app's home.
+  - Launch an app you are already signed into (e.g. relaunch one you just backed out of): verify backing out of its home returns to the opportunities list and the app does not close on that first back.
 
 - **SMS opportunity-invite app link (Connect):** Tap an invite link of the form `https://connect.dimagi.com/users/invite_redirect/<uuid>` (and the `connect-staging.dimagi.com` equivalent) from an SMS app and verify each corner case:
   - CommCare not installed: navigates to a webpage on Connect (that should redirect user to Play Store) 
@@ -188,15 +226,27 @@ we would like to communicate to QA as part of the release testing
   - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
 
+
 - **Audio Recording Revamp:** Test on a form question that has two Audio Capture questions, one of which with the _long_ appearance attribute. Scope covers the capture, recording, pause, playback, and delete states.
   - **Start (direct):** Open the question. Verify the capture screen shows the large microphone button with the "Start recording" label and instructions. Tap the microphone and verify recording starts immediately with no intermediate "tap to record" dialog — the blinking "RECORDING" indicator, the animated red progress ring, and a live timer counting up are shown.
   - **Stop & save (direct):** For a standard (non-pausable) question, tap stop and verify the recording is finalized and saved straight away — the playback panel appears with no separate playback/confirm step in between.
-  - **Pause / resume (long-recording questions only):** In the question configured with the `long` appearance on Android 7+ (API 24+). While recording, verify the control shows a pause icon. Tap it and verify the paused state: static gray ring, a "PAUSED" indicator, the timer frozen, a Save button, and the "Recording is paused. Tap on the mic to unpause, or tap Save to proceed" instruction. Tap the mic to resume (timer continues) and tap Save from paused to finalize.
+  - **Pause / resume (long-recording questions only):** In the question configured with the `long` appearance, while recording, verify the control shows a pause icon. Tap it and verify the paused state: static gray ring, a "PAUSED" indicator, the timer frozen, a Save button, and the "Recording is paused. Tap on the mic to unpause, or tap Save to proceed" instruction. Tap the mic to resume (timer continues) and tap Save from paused to finalize.
   - **Playback panel:** After saving, verify the panel shows the recording's file name, total duration, a play button, and a seek bar. Play the audio and verify the play/pause toggle works, the current time updates, and dragging the seek bar scrubs playback.
   - **Delete (two-step):** Tap Delete and verify the confirmation prompt ("Delete this recording?") with "Yes, Delete" / "No, Go back". Confirm "No, Go back" keeps the recording and "Yes, Delete" clears it (the capture screen returns).
   - **File chooser:** Confirm the choose-from-file button appears only for questions using the `acquire-or-upload` appearance and is hidden otherwise.
   - **Persistence:** Record and save, navigate forward and back to the question, and verify the saved recording still loads and plays. Submit the form and verify the audio attachment is present on HQ.
   - **Icon rendering:** Verify the play, pause, record, and trash icons render crisply and are correctly sized/centered on their buttons (icons were moved to vector drawables and to `src`/`scaleType`).
+
+  - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
+- Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
+- **Image reticle overlay:** On a form image-capture question with `appearance="rectangle-overlay"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
+
+- **Manage Profile (PersonalID):**
+  - **Access:** Signed in to PersonalID, open the side navigation drawer and verify a "Manage Profile" link appears and opens a screen showing name, phone, email, and photo. Verify the link is absent when signed out.
+  - **Edit name/photo:** From Manage Profile, open Edit (pencil icon), change the name and/or tap the photo to capture a new one, and save. Verify the changes persist on the Profile screen and in the drawer header.
+  - **Edit email (one-time code):** Change the email and save; verify the new address must be confirmed with a one-time code before it updates. If you change both name and email but abandon the code entry, verify the new name is kept while the email stays unchanged.
+  - **Forget PersonalID relocation:** Verify "Forget PersonalID" is no longer in the Login or app-setup menus, and that forgetting the account is available from the Manage Profile screen behind a confirmation prompt.
+
 
 
 ## CommCare 2.63

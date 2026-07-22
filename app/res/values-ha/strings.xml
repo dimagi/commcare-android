@@ -88,6 +88,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_welcome_user">Barka da zuwa %s!</string>
     <string name="personalid_choice_or">_________ KO _________</string>
     <string name="connect_button_logged_in">Je zuwa menu na Haɗawa</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_registration_title">Fara da PersonalID</string>
     <string name="connect_consent_message_1">Na karanta kuma na yarda da Dimagi\'s</string>
     <string name="connect_phone_country_code_default">+1</string>
@@ -183,6 +184,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_delivery">Isarwa</string>
     <string name="connect_progress_title">Ci gaban Isarwa</string>
     <string name="connect_progress_status">Ka kammala %d na ziyara %d.</string>
+    <string name="semi_circle_progress_value_format">%1$d daga %2$d</string>
     <string name="connect_progress_warning_ended">Aikin ya ƙare. Ba za ku sami wani ci gaba ba don ƙarin aiki.</string>
     <string name="connect_progress_warning_not_started">Aikin bai fara ba tukuna. Ba za ka sami wani ci gaba ba don aiki.</string>
     <string name="connect_progress_warning_max_reached_single">Ka kammala matsakaicin adadin ziyara. Ba za ka sami wani ci gaba ba don ƙarin aiki.</string>
@@ -190,6 +192,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_warning_max_reached_multi">Kun kai matsakaicin adadin ziyara na %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Kun kai iyakar %s na yau da kullun.</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Kammala ayyukan da aka ba ka don ci gaba da bayar da hidimomi.</string>
+    <string name="connect_open_conversation_button_text">Buɗe Tattaunawa</string>
     <string name="connect_progress_relearn_tasks_completed">An kammala duk ayyukan da ake bukata. Kuna iya ci gaba da ayyukan isarwa.</string>
     <string name="connect_download_learn">Sauke Manhajar Koyi</string>
     <string name="connect_downloading_learn">Sauke Manhajar Koyo</string>
@@ -207,7 +210,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_link_app_yes">Ee</string>
     <string name="personalid_link_app_no">A\'a</string>
     <string name="personalid_signup">Yi rijista don PersonalID</string>
-    <string name="personalid_forget_user">Manta da mai amfani da PersonalID</string>
     <string name="connect_refresh_opportunities">Damar Sabuntawa</string>
     <string name="connect_app_install_unknown_error">Shigar da manhajar ya gaza saboda kuskuren da ba a sani ba</string>
     <string name="connect_app_installed">An shigar da manhaja</string>
@@ -246,6 +248,9 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_profile_edit_otp_confirm_message">Za mu aika lamba mai lambobi 6 zuwa %1$s. Shigar da ita a shafi na gaba don tabbatarwa.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Aika Lamba</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Soke</string>
+    <string name="personalid_profile_edit_save">Ajiye</string>
+    <string name="personalid_profile_edit_cancel">Soke</string>
+    <string name="personalid_profile_edit_save_success">An sabunta bayanan martabarka cikin nasara.</string>
     <string name="connect_job_info_title">Cikakkun Bayanan Dama</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
@@ -359,8 +364,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_second_device_login_title">Shiga a Na\'ura ta Biyu</string>
     <string name="personalid_second_device_login_message">An fita daga %s, an yi amfani da %s na ƙarshe. PersonalID za a iya shiga kawai akan na\'ura ɗaya a lokaci guda.</string>
     <string name="personalid_second_device_login_message_no_date">An fita daga %s. Ana iya shiga PersonalID akan na\'ura ɗaya kawai a lokaci guda.</string>
-    <string name="personalid_camera_permission_title">Izini don kyamara</string>
-    <string name="personalid_camera_permission_msg">Domin ɗaukar hoto, CommCare yana buƙatar izinin amfani da kyamarar na\'urarka.</string>
+    <string name="camera_permission_title">Izini don kyamara</string>
+    <string name="camera_permission_msg">Domin ɗaukar hoto, CommCare yana buƙatar izinin amfani da kyamarar na\'urarka.</string>
     <string name="personalid_capture_photo">Ɗauki Hoto</string>
     <string name="personalid_work_history_title">Tarihin Aikina</string>
     <string name="personalid_work_history">Tarihin Aiki</string>
@@ -644,5 +649,13 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_app_launch_failed_dialog_message">Wani abu ya ɓaci yayin buɗe manhajar. Kana son sake gwadawa?</string>
     <string name="connect_app_launch_failed_dialog_retry">Sake gwadawa</string>
     <string name="connect_app_launch_failed_dialog_cancel">Soke</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">Ba mu iya buɗe manhajar ba bayan an gwada sau da yawa. Da fatan a duba haɗin Intanet ɗinku, sannan a sake gwadawa daga baya.</string>
+    <string name="connect_app_launch_failed_dialog_ok">TAMAM</string>
     <string name="cannot_navigate_during_form_save">Ba za a iya barin shafin yayin ajiye fom ba</string>
+    <string name="image_capture_activity_title">Ɗauki hoto</string>
+    <string name="image_capture_failed">An kasa ajiye hoton, da fatan a sake gwadawa</string>
+    <string name="camera_start_failed">Kyamara ta kasa farawa</string>
+    <string name="camera_permission_denied">Je zuwa saituna ka kunna izinin kyamara don amfani da wannan fasalin</string>
+    <string name="microimage_face_detection_mode_failed">Yanayin gano fuska ya kasa, ana canzawa zuwa yanayin hannu</string>
+    <string name="microimage_cropping_failed">Yanke hoton ya kasa, ka tabbatar cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
 </resources>

@@ -251,6 +251,7 @@
     <string name="personalid_welcome_user">Bemvindo %s!</string>
     <string name="personalid_choice_or">OU</string>
     <string name="connect_button_logged_in">Vá para o Conectar menu</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Ocorreu um erro na configuração da aplicação, o que fez com que nem todos os marcadores no mapa fossem carregados corretamente</string>
     <string name="personalid_generic_error">Ocorreu um problema. Configure sua conta PersonalID novamente.</string>
     <string name="connect_registration_title">Comece a usar o PersonalID</string>
@@ -354,6 +355,7 @@
     <string name="connect_progress_delivery">Entrega</string>
     <string name="connect_progress_title">Progresso da entrega</string>
     <string name="connect_progress_status">Você concluiu %d de %d visitas.</string>
+    <string name="semi_circle_progress_value_format">%1$d de %2$d</string>
     <string name="connect_progress_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_progress_warning_not_started">O trabalho ainda não começou. Você não ganhará nenhum progresso para o trabalho.</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Você passou na avaliação e está pronto para entregar. Veja o status do trabalho para continuar.</string>
@@ -362,6 +364,7 @@
     <string name="connect_progress_warning_max_reached_multi">Você atingiu o número máximo de visitas para %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">Atingiu o seu limite diário para %s.</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Complete as tarefas atribuídas para continuar a prestar serviços.</string>
+    <string name="connect_open_conversation_button_text">Abrir conversa</string>
     <string name="connect_progress_relearn_tasks_completed">Todas as tarefas necessárias foram concluídas. Pode continuar com as atividades de entrega.</string>
     <string name="connect_download_learn">Baixe o Aplicativo Aprenda</string>
     <string name="connect_downloading_learn">Descarregamento da aplicação Learn</string>
@@ -386,7 +389,6 @@
     <string name="personalid_link_app_yes">Sim</string>
     <string name="personalid_link_app_no">Não</string>
     <string name="personalid_signup">Inscreva-se no PersonalId</string>
-    <string name="personalid_forget_user">Esqueça o usuário do PersonalId</string>
     <string name="connect_refresh_opportunities">Atualizar Oportunidades</string>
     <string name="connect_app_install_unknown_error">Falha na instalação do aplicativo devido a um erro desconhecido</string>
     <string name="connect_app_installed">Aplicação instalada</string>
@@ -425,6 +427,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">Enviaremos um código de 6 dígitos para %1$s. Digite-o na próxima tela para verificar.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Enviar código</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Cancelar</string>
+    <string name="personalid_profile_edit_save">Salvar</string>
+    <string name="personalid_profile_edit_cancel">Cancelar</string>
+    <string name="personalid_profile_edit_save_success">Seu perfil foi atualizado com sucesso.</string>
     <string name="connect_job_info_title">Detalhes de oportunidade</string>
     <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
     <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>
@@ -526,8 +531,8 @@
     <string name="personalid_second_device_login_title">Iniciar sessão no segundo dispositivo</string>
     <string name="personalid_second_device_login_message">Sessão encerrada em %s, último acesso em %s. O PersonalID só pode ser utilizado num dispositivo de cada vez.</string>
     <string name="personalid_second_device_login_message_no_date">Sessão encerrada de %s. O PersonalID só pode ser acedido num dispositivo de cada vez.</string>
-    <string name="personalid_camera_permission_title">Permissão para câmara</string>
-    <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
+    <string name="camera_permission_title">Permissão para câmara</string>
+    <string name="camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
     <string name="personalid_capture_photo">Capturar foto</string>
     <string name="personalid_work_history_title">Meu Histórico de Trabalho</string>
     <string name="personalid_work_history">Histórico de Trabalho</string>
@@ -655,5 +660,13 @@
     <string name="connect_app_launch_failed_dialog_message">Ocorreu um erro ao abrir o aplicativo. Deseja tentar novamente?</string>
     <string name="connect_app_launch_failed_dialog_retry">Tentar novamente</string>
     <string name="connect_app_launch_failed_dialog_cancel">Cancelar</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">Não foi possível abrir o aplicativo após várias tentativas. Verifique sua conexão e tente novamente mais tarde.</string>
+    <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="cannot_navigate_during_form_save">Não é possível sair da página enquanto o formulário é salvo</string>
+    <string name="image_capture_activity_title">Tirar foto</string>
+    <string name="image_capture_failed">Falha ao salvar a foto, tente novamente</string>
+    <string name="camera_start_failed">Falha ao iniciar a câmera</string>
+    <string name="camera_permission_denied">Vá às configurações e ative a permissão da câmera para usar este recurso</string>
+    <string name="microimage_face_detection_mode_failed">Falha no modo de detecção de rosto, alternando para o modo manual</string>
+    <string name="microimage_cropping_failed">Falha ao recortar a imagem, verifique se o alvo está dentro da área de captura</string>
 </resources>

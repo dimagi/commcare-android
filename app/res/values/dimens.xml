@@ -130,6 +130,8 @@
 
     <dimen name="connect_message_input_corner_radius">50dp</dimen>
     <dimen name="connect_message_input_stroke_width">0.5dp</dimen>
+    <dimen name="reticle_stroke_width">3dp</dimen>
+    <dimen name="reticle_outline_width">1dp</dimen>
     <dimen name="connect_message_corner_radius">16dp</dimen>
 
     <dimen name="corner_radius_small_5dp">5dp</dimen>
@@ -137,4 +139,13 @@
 
     <dimen name="side_nav_horizontal_padding">10dp</dimen>
     <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
+
+    <dimen name="connect_info_card_corner_radius">15dp</dimen>
+    <dimen name="connect_info_card_elevation">4dp</dimen>
+    <dimen name="connect_info_card_min_height">130dp</dimen>
+
+    <dimen name="semi_circle_progress_default_width">240dp</dimen>
+    <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
+    <dimen name="semi_circle_progress_value_text_size">28sp</dimen>
+    <dimen name="semi_circle_progress_description_text_size">16sp</dimen>
 </resources>

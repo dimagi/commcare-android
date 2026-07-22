@@ -356,6 +356,7 @@
     <!-- PersonalID strings -->
     <string name="personalid_login_via">Via PersonalID (or press here)</string>
     <string name="connect_button_logged_in">Go to Connect menu</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
 
@@ -486,6 +487,8 @@
     <string name="connect_app_launch_failed_dialog_message">Something went wrong while opening the app. Would you like to try again?</string>
     <string name="connect_app_launch_failed_dialog_retry">Retry</string>
     <string name="connect_app_launch_failed_dialog_cancel">Cancel</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">We couldn\'t open the app after several tries. Please check your connection and try again later.</string>
+    <string name="connect_app_launch_failed_dialog_ok">OK</string>
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>
@@ -529,6 +532,7 @@
     <string name="connect_progress_delivery">Delivery</string>
     <string name="connect_progress_title">Delivery Progress</string>
     <string name="connect_progress_status">You have completed %d of %d visits.</string>
+    <string name="semi_circle_progress_value_format" cc:translatable="true">%1$d of %2$d</string>
 
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
@@ -538,6 +542,7 @@
     <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Complete assigned tasks to continue delivering services.</string>
+    <string name="connect_open_conversation_button_text">Open Conversation</string>
     <string name="connect_progress_relearn_tasks_completed">All required tasks have been completed. You may continue with delivery activities.</string>
     <string name="connect_download_learn">Download Learn App</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
@@ -566,7 +571,6 @@
     <string name="personalid_link_app_yes">Yes</string>
     <string name="personalid_link_app_no">No</string>
     <string name="personalid_signup">Sign up for PersonalID</string>
-    <string name="personalid_forget_user">Forget PersonalID user</string>
 
     <string name="connect_refresh_opportunities">Refresh Opportunities</string>
 
@@ -618,6 +622,16 @@
         <item>Unsent</item>
         <item>Saved</item>
     </string-array>
+    <string-array name="pref_audio_quality_profile_vals">
+        <item>smallest</item>
+        <item>balanced</item>
+        <item>default</item>
+    </string-array>
+    <string-array name="pref_audio_quality_profile_labels">
+        <item>Smallest</item>
+        <item>Balanced</item>
+        <item>System Default</item>
+    </string-array>
     <string-array name="pref_password_show_options">
         <item>always_hidden</item>
         <item>default_show</item>
@@ -635,6 +649,12 @@
     </string-array>
 
     <string name="micro_image_activity_title">Take Profile Photo</string>
+    <string name="image_capture_activity_title" cc:translatable="true">Take Photo</string>
+    <string name="image_capture_failed" cc:translatable="true">Failed to save photo, please try again</string>
+    <string name="camera_start_failed" cc:translatable="true">Camera failed to start</string>
+    <string name="camera_permission_denied" cc:translatable="true">Go to settings and enable camera permission to use this feature</string>
+    <string name="microimage_face_detection_mode_failed" cc:translatable="true">Face detection mode failed, switching to manual mode</string>
+    <string name="microimage_cropping_failed" cc:translatable="true">Image cropping failed, make sure the target is inside the capture area</string>
 
     <string name="personalid_user_photo_update_dialog_title">Update Profile Photo</string>
     <string name="personalid_user_photo_update_dialog_message">Would you like to take a new profile photo?</string>
@@ -663,6 +683,9 @@
     <string name="personalid_profile_edit_otp_confirm_message">We\'ll send a 6-digit code to %1$s. Enter it on the next screen to verify.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Send Code</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Cancel</string>
+    <string name="personalid_profile_edit_save">Save</string>
+    <string name="personalid_profile_edit_cancel">Cancel</string>
+    <string name="personalid_profile_edit_save_success">Your profile has been updated successfully.</string>
 
     <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>
@@ -744,8 +767,8 @@
     <string name="personalid_error_message_login_different_device">Please continue on the new device, or configure your account again.</string>
     <string name="personalid_reconfigure">Reconfigure</string>
     <string name="personalid_dismiss">Dismiss</string>
-    <string name="personalid_camera_permission_title">Permission for camera</string>
-    <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="camera_permission_title" cc:translatable="true">Permission for camera</string>
+    <string name="camera_permission_msg" cc:translatable="true">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
     <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
     <string name="personalid_too_many_otp_attempts">You have made too many attempts to send OTP. Please wait and try again whenever the resend button is visible.</string>

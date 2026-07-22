@@ -248,6 +248,7 @@ License.
     <string name="personalid_welcome_user">स्वागत है %s!</string>
     <string name="personalid_choice_or">_____________    या    _____________</string>
     <string name="connect_button_logged_in">कनेक्ट मेनू पर जाएं</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">ऐप कॉन्फ़िगरेशन में एक गड़बड़ी थी, जिसकी वजह से मैप पर सभी मार्कर ठीक से लोड नहीं हो रहे हैं।</string>
     <string name="personalid_generic_error">डेटाबेस के साथ कोई समस्या हुई है, कृपया अपना खाता पुनर्प्राप्त करें।</string>
     <string name="connect_registration_title">पर्सनलआईडी के साथ शुरुआत करें</string>
@@ -345,6 +346,7 @@ License.
     <string name="connect_progress_delivery">वितरण</string>
     <string name="connect_progress_title">वितरण प्रगति</string>
     <string name="connect_progress_status">आपने %d में से %d विज़िट पूरी कर ली हैं।</string>
+    <string name="semi_circle_progress_value_format">%2$d में से %1$d</string>
     <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_progress_warning_not_started">नौकरी अभी शुरू नहीं हुई है। आपको कोई प्रगति नहीं मिलेगी।</string>
     <string name="connect_progress_warning_max_reached_single">आपने अधिकतम विज़िट पूरी कर ली हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>
@@ -352,6 +354,7 @@ License.
     <string name="connect_progress_warning_max_reached_multi">आप %s के लिए अधिकतम विज़िट तक पहुँच गए हैं।</string>
     <string name="connect_progress_warning_daily_max_reached_multi">आप %s के लिए अपनी दैनिक सीमा तक पहुँच गए हैं।</string>
     <string name="connect_progress_warning_relearn_tasks_pending">सेवाएँ प्रदान करना जारी रखने के लिए सौंपे गए कार्य पूरे करें।</string>
+    <string name="connect_open_conversation_button_text">बातचीत खोलें</string>
     <string name="connect_progress_relearn_tasks_completed">सभी आवश्यक कार्य पूरे हो गए हैं। आप वितरण गतिविधियों के साथ जारी रख सकते हैं।</string>
     <string name="connect_download_learn">लर्न ऐप डाउनलोड करें</string>
     <string name="connect_downloading_learn">Learn ऐप डाउनलोड हो रहा है</string>
@@ -369,7 +372,6 @@ License.
     <string name="personalid_link_app_yes">हाँ</string>
     <string name="personalid_link_app_no">नहीं</string>
     <string name="personalid_signup">PersonalId के लिए साइन अप करें</string>
-    <string name="personalid_forget_user">PersonalId उपयोगकर्ता को भूल जाएं</string>
     <string name="connect_refresh_opportunities">अवसर रीफ्रेश करें</string>
     <string name="connect_app_install_unknown_error">अज्ञात त्रुटि के कारण एप्लिकेशन इंस्टॉल करने में विफल रहा</string>
     <string name="connect_app_installed">एप्लिकेशन इंस्टॉल किया गया</string>
@@ -408,6 +410,9 @@ License.
     <string name="personalid_profile_edit_otp_confirm_message">हम %1$s पर 6 अंकों का कोड भेजेंगे। सत्यापित करने के लिए इसे अगली स्क्रीन पर दर्ज करें।</string>
     <string name="personalid_profile_edit_otp_confirm_positive">कोड भेजें</string>
     <string name="personalid_profile_edit_otp_confirm_negative">रद्द करें</string>
+    <string name="personalid_profile_edit_save">सहेजें</string>
+    <string name="personalid_profile_edit_cancel">रद्द करें</string>
+    <string name="personalid_profile_edit_save_success">आपकी प्रोफ़ाइल सफलतापूर्वक अपडेट कर दी गई है।</string>
     <string name="connect_job_info_title">अवसर विवरण</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
@@ -515,8 +520,8 @@ License.
     <string name="personalid_second_device_login_title">दूसरे डिवाइस पर लॉग इन करें</string>
     <string name="personalid_second_device_login_message">%s से लॉग आउट किया गया, आखिरी बार %s इस्तेमाल किया गया था। PersonalID से एक समय में सिर्फ़ एक डिवाइस पर लॉग इन किया जा सकता है।</string>
     <string name="personalid_second_device_login_message_no_date">%s से लॉग आउट कर दिया गया है। PersonalID से एक समय में सिर्फ़ एक डिवाइस पर ही लॉग इन किया जा सकता है।</string>
-    <string name="personalid_camera_permission_title">कैमरे के लिए अनुमति</string>
-    <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
+    <string name="camera_permission_title">कैमरे के लिए अनुमति</string>
+    <string name="camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
     <string name="personalid_work_history_title">मेरा कार्य इतिहास</string>
@@ -646,5 +651,13 @@ License.
     <string name="connect_app_launch_failed_dialog_message">ऐप खोलते समय कुछ गलत हो गया। क्या आप पुनः प्रयास करना चाहेंगे?</string>
     <string name="connect_app_launch_failed_dialog_retry">पुनः प्रयास करें</string>
     <string name="connect_app_launch_failed_dialog_cancel">रद्द करें</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">कई बार प्रयास करने के बाद भी हम ऐप नहीं खोल सके। कृपया अपना कनेक्शन जांचें और बाद में पुनः प्रयास करें।</string>
+    <string name="connect_app_launch_failed_dialog_ok">ठीक है</string>
     <string name="cannot_navigate_during_form_save">फ़ॉर्म सहेजते समय पृष्ठ नहीं छोड़ सकते</string>
+    <string name="image_capture_activity_title">फ़ोटो लें</string>
+    <string name="image_capture_failed">फ़ोटो सहेजने में विफल, कृपया पुनः प्रयास करें</string>
+    <string name="camera_start_failed">कैमरा शुरू करने में विफल</string>
+    <string name="camera_permission_denied">इस सुविधा का उपयोग करने के लिए सेटिंग्स में जाएं और कैमरा अनुमति सक्षम करें</string>
+    <string name="microimage_face_detection_mode_failed">चेहरा पहचान मोड विफल, मैनुअल मोड पर स्विच किया जा रहा है</string>
+    <string name="microimage_cropping_failed">छवि क्रॉप करने में विफल, सुनिश्चित करें कि लक्ष्य कैप्चर क्षेत्र के अंदर है</string>
 </resources>

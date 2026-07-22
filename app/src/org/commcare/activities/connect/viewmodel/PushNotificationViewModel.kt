@@ -7,13 +7,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager
 import org.commcare.utils.PushNotificationApiHelper
 import org.commcare.utils.PushNotificationApiHelper.retrieveLatestPushNotifications
+import org.commcare.utils.coroutines.DispatcherProvider
 
 class PushNotificationViewModel(
     application: Application,
@@ -32,7 +32,7 @@ class PushNotificationViewModel(
         isRefreshed: Boolean,
         context: Context,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(DispatcherProvider.io()) {
             _isLoading.postValue(true)
             // Load from DB first
             if (!isRefreshed) {

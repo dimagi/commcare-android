@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.VALUE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -217,7 +218,7 @@ public class FirebaseAnalyticsUtil {
                 : AnalyticsParamValue.SAVED;
         reportEvent(
                 CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
-                FirebaseAnalytics.Param.ITEM_LIST,
+                FirebaseAnalytics.Param.ITEM_LIST_NAME,
                 formType
         );
     }
@@ -669,6 +670,15 @@ public class FirebaseAnalyticsUtil {
         Bundle b = new Bundle();
         b.putString(CCAnalyticsParam.REASON, reason);
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_FORGOTTEN, b);
+    }
+
+    public static void reportPersonalIdProfileAction(String action, @Nullable String outcome) {
+        Bundle params = new Bundle();
+        params.putString(CCAnalyticsParam.MANAGE_PROFILE_ACTION, action);
+        if (outcome != null) {
+            params.putString(CCAnalyticsParam.MANAGE_PROFILE_OUTCOME, outcome);
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_MANAGE_PROFILE_ACTION, params);
     }
 
     public static void reportLoginClicks() {

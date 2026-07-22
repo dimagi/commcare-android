@@ -248,6 +248,7 @@ License.
     <string name="personalid_welcome_user">Bienvenue %s !</string>
     <string name="personalid_choice_or">_____________    OU    _____________</string>
     <string name="connect_button_logged_in">Accéder au menu Connecter</string>
+    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Une erreur s\'est produite dans la configuration de l\'application, ce qui a empêché le chargement correct de tous les marqueurs sur la carte</string>
     <string name="personalid_generic_error">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
     <string name="connect_registration_title">Démarrer avec PersonalID</string>
@@ -345,6 +346,7 @@ License.
     <string name="connect_progress_delivery">Livraison</string>
     <string name="connect_progress_title">Progression de la livraison</string>
     <string name="connect_progress_status">Vous avez effectué %d visites sur %d.</string>
+    <string name="semi_circle_progress_value_format">%1$d sur %2$d</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
@@ -352,6 +354,7 @@ License.
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne de %s.</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Complétez les tâches assignées pour continuer à fournir des services.</string>
+    <string name="connect_open_conversation_button_text">Ouvrir la conversation</string>
     <string name="connect_progress_relearn_tasks_completed">Toutes les tâches requises ont été complétées. Vous pouvez continuer avec les activités de livraison.</string>
     <string name="connect_download_learn">Téléchargez l\'application Apprendre</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
@@ -369,7 +372,6 @@ License.
     <string name="personalid_link_app_yes">Oui</string>
     <string name="personalid_link_app_no">Non</string>
     <string name="personalid_signup">Inscrivez-vous à PersonalId</string>
-    <string name="personalid_forget_user">Oublier l\'utilisateur PersonalId</string>
     <string name="connect_refresh_opportunities">Actualiser les Opportunités</string>
     <string name="connect_app_install_unknown_error">L\'installation de l\'application a échoué en raison d\'une erreur inconnue</string>
     <string name="connect_app_installed">Application installée</string>
@@ -408,6 +410,9 @@ License.
     <string name="personalid_profile_edit_otp_confirm_message">Nous enverrons un code à 6 chiffres à %1$s. Saisissez-le sur l\'écran suivant pour vérifier.</string>
     <string name="personalid_profile_edit_otp_confirm_positive">Envoyer le code</string>
     <string name="personalid_profile_edit_otp_confirm_negative">Annuler</string>
+    <string name="personalid_profile_edit_save">Enregistrer</string>
+    <string name="personalid_profile_edit_cancel">Annuler</string>
+    <string name="personalid_profile_edit_save_success">Votre profil a été mis à jour avec succès.</string>
     <string name="connect_job_info_title">Détails de l\'opportunité</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
@@ -519,8 +524,8 @@ License.
     <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
     <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
     <string name="personalid_second_device_login_message_no_date">Vous avez été déconnecté(e) de %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
-    <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
-    <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
+    <string name="camera_permission_title">Autorisation pour la caméra</string>
+    <string name="camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
     <string name="personalid_work_history_title">Mon Historique de Travail</string>
     <string name="personalid_work_history">Historique de Travail</string>
@@ -649,5 +654,13 @@ License.
     <string name="connect_app_launch_failed_dialog_message">Une erreur s\'est produite lors de l\'ouverture de l\'application. Voulez-vous réessayer ?</string>
     <string name="connect_app_launch_failed_dialog_retry">Réessayer</string>
     <string name="connect_app_launch_failed_dialog_cancel">Annuler</string>
+    <string name="connect_app_launch_failed_dialog_persistent_error_message">Nous n\'avons pas pu ouvrir l\'application après plusieurs tentatives. Veuillez vérifier votre connexion et réessayer plus tard.</string>
+    <string name="connect_app_launch_failed_dialog_ok">D\'ACCORD</string>
     <string name="cannot_navigate_during_form_save">Impossible de quitter la page pendant l\'enregistrement du formulaire</string>
+    <string name="image_capture_activity_title">Prendre une photo</string>
+    <string name="image_capture_failed">Échec de l\'enregistrement de la photo, veuillez réessayer</string>
+    <string name="camera_start_failed">Échec du démarrage de la caméra</string>
+    <string name="camera_permission_denied">Accédez aux paramètres et activez l\'autorisation de la caméra pour utiliser cette fonctionnalité</string>
+    <string name="microimage_face_detection_mode_failed">Échec du mode de détection des visages, passage au mode manuel</string>
+    <string name="microimage_cropping_failed">Échec du recadrage de l\'image, assurez-vous que la cible est dans la zone de capture</string>
 </resources>

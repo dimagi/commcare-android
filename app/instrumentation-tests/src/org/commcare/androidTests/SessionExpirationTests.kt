@@ -44,5 +44,8 @@ class SessionExpirationTests : BaseTest() {
         // after the user is logged out, verifies the login expired notification
         uiDevice.openNotification()
         uiDevice.wait(Until.hasObject(By.textEndsWith("Login Expire")), 1000)
+
+        // Dismiss the notification drawer by going back
+        uiDevice.pressBack()
     }
 }

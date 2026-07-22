@@ -31,7 +31,13 @@ import java.util.Locale
  * [Retryable]. This path only does PersonalID password logins, so there is no SyncFailed or Demo outcome.
  */
 sealed class LaunchOutcome {
-    object Launched : LaunchOutcome()
+    /**
+     * [alreadyLoggedIn] is true when the session was already signed into the target app, so Home can
+     * be resumed in place rather than started fresh.
+     */
+    data class Launched(
+        val alreadyLoggedIn: Boolean,
+    ) : LaunchOutcome()
 
     object AppSeatFailed : LaunchOutcome()
 
@@ -54,10 +60,7 @@ class ConnectAppLauncher internal constructor(
         seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
         performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
         connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
-        isLoggedIntoApp = { appId ->
-            CommCareApplication.isSessionActive() &&
-                CommCareApplication.instance().currentApp?.uniqueId == appId
-        },
+        isLoggedIntoApp = { appId -> PersonalIdManager.getInstance().isSessionLoggedIntoApp(appId) },
     )
 
     fun interface OutcomeCallback {
@@ -89,7 +92,7 @@ class ConnectAppLauncher internal constructor(
         )
 
         if (isLoggedIntoApp(appId)) {
-            return LaunchOutcome.Launched
+            return LaunchOutcome.Launched(alreadyLoggedIn = true)
         }
 
         CommCareApplication.instance().closeUserSession()
@@ -119,7 +122,7 @@ class ConnectAppLauncher internal constructor(
 
         return when (val result = performLogin(context, request, listener)) {
             is LoginResult.Success -> {
-                LaunchOutcome.Launched
+                LaunchOutcome.Launched(alreadyLoggedIn = false)
             }
 
             is LoginResult.Failed -> {

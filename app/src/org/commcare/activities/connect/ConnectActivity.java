@@ -6,7 +6,6 @@ import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
-import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
@@ -38,7 +37,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.personalId.PersonalIdFeatureFlagChecker;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -53,6 +51,7 @@ import kotlin.Unit;
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
+    private boolean appLaunchedFromConnect = false;
     private String redirectionAction = "";
     private ConnectJobRecord job;
     private String opportunityUuid;
@@ -170,7 +169,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         notificationsMenuItem = menu.findItem(R.id.action_bell);
-        notificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
         updateNotificationIcon();
 
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
@@ -233,9 +231,23 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public void onBackPressed() {
-        if (backButtonAndActionBarEnabled) {
-            super.onBackPressed();
+        if (!backButtonAndActionBarEnabled) {
+            return;
         }
+        if (appLaunchedFromConnect && isAtStartDestination()) {
+            finishAffinity();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    public void markAppLaunchedFromConnect() {
+        appLaunchedFromConnect = true;
+    }
+
+    private boolean isAtStartDestination() {
+        return navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == navController.getGraph().getStartDestinationId();
     }
 
     @Override

@@ -58,7 +58,6 @@ import static org.commcare.activities.DispatchActivity.CC_LAUNCH_REQUIRE_SYNC;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
@@ -485,7 +484,7 @@ public class FirebaseMessagingUtil {
 
             notificationTitleId = R.string.connect_messaging_channel_notification_title;
             notificationMessage = context.getString(R.string.connect_messaging_channel_notification_message,
-                    channel.getChannelName());
+                    channel.getDisplayName());
 
             channelId = channel.getChannelId();
         }
