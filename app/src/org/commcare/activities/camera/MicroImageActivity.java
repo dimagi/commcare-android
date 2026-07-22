@@ -152,20 +152,24 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     @Override
     protected void onCameraProviderReady() {
-        if (!lensFacingInitialized) {
-            if (!isStateRestored) {
-                currentLensFacing = getCameraLensFacing();
-            }
-            if (getAllowCameraLensSwitch()) {
-                if (!isFrontCameraAvailable()) {
-                    if (!isStateRestored) {
-                        Toast.makeText(this, R.string.face_capture_front_camera_unavailable, Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    enableSwitchCameraLensButton();
-                }
-            }
-            lensFacingInitialized = true;
+        if (lensFacingInitialized) {
+            return;
+        }
+        if (!isStateRestored) {
+            currentLensFacing = getCameraLensFacing();
+        }
+        if (getAllowCameraLensSwitch()) {
+            setupCameraLensSwitch();
+        }
+        lensFacingInitialized = true;
+
+    }
+
+    private void setupCameraLensSwitch() {
+        if (isFrontCameraAvailable()) {
+            enableSwitchCameraLensButton();
+        } else if (!isStateRestored) {
+            Toast.makeText(this, R.string.face_capture_front_camera_unavailable, Toast.LENGTH_LONG).show();
         }
     }
 
