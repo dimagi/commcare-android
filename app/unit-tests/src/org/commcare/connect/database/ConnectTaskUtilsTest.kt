@@ -54,14 +54,14 @@ class ConnectTaskUtilsTest {
     private fun makeTask(
         taskId: String = "task-1",
         status: String = STATUS_ASSIGNED,
-        type: String = "learning",
+        mode: String = "learning",
         dateModified: Date = Date(),
         dueDate: Date = Date(0),
     ) = ConnectTaskRecord().apply {
         this.jobUUID = this@ConnectTaskUtilsTest.jobUUID
         this.taskId = taskId
         this.status = status
-        this.type = type
+        this.mode = mode
         this.dateModified = dateModified
         this.dueDate = dueDate
         this.name = "Task $taskId"
@@ -228,41 +228,41 @@ class ConnectTaskUtilsTest {
     }
 
     // ===========================
-    // getPendingTaskOfType / hasPendingTaskOfType
+    // getPendingTaskOfMode / hasPendingTaskOfMode
     // ===========================
 
     @Test
-    fun `getPendingTaskOfType returns task matching type and assigned status`() {
-        seedTask(makeTask(taskId = "t1", status = STATUS_ASSIGNED, type = "learning"))
+    fun `getPendingTaskOfMode returns task matching mode and assigned status`() {
+        seedTask(makeTask(taskId = "t1", status = STATUS_ASSIGNED, mode = "learning"))
 
-        val result = ConnectTaskUtils.getPendingTaskOfType(context, jobUUID, "learning")
+        val result = ConnectTaskUtils.getPendingTaskOfMode(context, jobUUID, "learning")
         assertEquals("t1", result?.taskId)
     }
 
     @Test
-    fun `getPendingTaskOfType returns null when type does not match`() {
-        seedTask(makeTask(status = STATUS_ASSIGNED, type = "delivery"))
+    fun `getPendingTaskOfMode returns null when mode does not match`() {
+        seedTask(makeTask(status = STATUS_ASSIGNED, mode = "delivery"))
 
-        assertNull(ConnectTaskUtils.getPendingTaskOfType(context, jobUUID, "learning"))
+        assertNull(ConnectTaskUtils.getPendingTaskOfMode(context, jobUUID, "learning"))
     }
 
     @Test
-    fun `getPendingTaskOfType returns null when type matches but status is not assigned`() {
-        seedTask(makeTask(status = STATUS_COMPLETED, type = "learning"))
+    fun `getPendingTaskOfMode returns null when mode matches but status is not assigned`() {
+        seedTask(makeTask(status = STATUS_COMPLETED, mode = "learning"))
 
-        assertNull(ConnectTaskUtils.getPendingTaskOfType(context, jobUUID, "learning"))
+        assertNull(ConnectTaskUtils.getPendingTaskOfMode(context, jobUUID, "learning"))
     }
 
     @Test
-    fun `hasPendingTaskOfType returns true when matching assigned task exists`() {
-        seedTask(makeTask(status = STATUS_ASSIGNED, type = "learning"))
+    fun `hasPendingTaskOfMode returns true when matching assigned task exists`() {
+        seedTask(makeTask(status = STATUS_ASSIGNED, mode = "learning"))
 
-        assertTrue(ConnectTaskUtils.hasPendingTaskOfType(context, jobUUID, "learning"))
+        assertTrue(ConnectTaskUtils.hasPendingTaskOfMode(context, jobUUID, "learning"))
     }
 
     @Test
-    fun `hasPendingTaskOfType returns false when no tasks in DB`() {
-        assertFalse(ConnectTaskUtils.hasPendingTaskOfType(context, jobUUID, "learning"))
+    fun `hasPendingTaskOfMode returns false when no tasks in DB`() {
+        assertFalse(ConnectTaskUtils.hasPendingTaskOfMode(context, jobUUID, "learning"))
     }
 
     // ===========================

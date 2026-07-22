@@ -76,19 +76,19 @@ object ConnectTaskUtils {
     }
 
     @JvmStatic
-    fun hasPendingTaskOfType(
+    fun hasPendingTaskOfMode(
         context: Context,
         jobUUID: String,
-        type: String,
-    ): Boolean = getPendingTaskOfType(context, jobUUID, type) != null
+        mode: String,
+    ): Boolean = getPendingTaskOfMode(context, jobUUID, mode) != null
 
     @JvmStatic
-    fun getPendingTaskOfType(
+    fun getPendingTaskOfMode(
         context: Context,
         jobUUID: String,
-        type: String,
+        mode: String,
     ): ConnectTaskRecord? =
-        getTasksForJob(context, jobUUID, null).find { it.type == type && it.status == ConnectTaskRecord.STATUS_ASSIGNED }
+        getTasksForJob(context, jobUUID, null).find { it.mode == mode && it.status == ConnectTaskRecord.STATUS_ASSIGNED }
 
     @JvmStatic
     fun getValidPendingOcsTask(
@@ -96,7 +96,7 @@ object ConnectTaskUtils {
         job: ConnectJobRecord,
     ): ConnectTaskRecord? {
         if (job.status != ConnectJobRecord.STATUS_DELIVERING) return null
-        val task = getPendingTaskOfType(context, job.jobUUID, ConnectTaskRecord.TYPE_OCS) ?: return null
+        val task = getPendingTaskOfMode(context, job.jobUUID, ConnectTaskRecord.MODE_OCS) ?: return null
         if (task.connectChannelId.isEmpty()) {
             Logger.exception(
                 "Invalid messaging task",
