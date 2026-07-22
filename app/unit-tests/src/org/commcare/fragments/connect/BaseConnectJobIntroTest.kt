@@ -67,6 +67,7 @@ abstract class BaseConnectJobIntroTest {
             Robolectric
                 .buildActivity(ConnectActivity::class.java)
                 .create()
+                .postCreate(null)
                 .start()
                 .resume()
                 .get()

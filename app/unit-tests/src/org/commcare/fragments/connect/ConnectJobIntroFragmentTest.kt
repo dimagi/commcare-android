@@ -114,7 +114,11 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         val fragment = launch()
         assertEquals("2", cardValue(fragment, R.id.card_learn_modules))
         assertEquals(
-            activity.getString(R.string.connect_opportunity_learn_hours_total, 2),
+            activity.resources.getQuantityString(
+                R.plurals.connect_opportunity_estimated_hours,
+                2,
+                2,
+            ),
             cardSubtitle(fragment, R.id.card_learn_modules),
         )
     }
@@ -143,7 +147,11 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
             cardValue(fragment, R.id.card_max_earnings),
         )
         assertEquals(
-            activity.getString(R.string.connect_opportunity_payment_units, 2),
+            activity.resources.getQuantityString(
+                R.plurals.connect_opportunity_payment_units,
+                2,
+                2,
+            ),
             cardSubtitle(fragment, R.id.card_max_earnings),
         )
     }

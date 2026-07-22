@@ -36,7 +36,11 @@ class ConnectLearnModuleAdapter(
         with(holder.binding) {
             tvModuleName.text = "${position + 1}. ${module.name}"
             tvModuleEstimate.text =
-                context.getString(R.string.connect_opportunity_module_estimated_time, module.timeEstimate)
+                context.resources.getQuantityString(
+                    R.plurals.connect_opportunity_estimated_hours,
+                    module.timeEstimate,
+                    module.timeEstimate,
+                )
         }
     }
 
