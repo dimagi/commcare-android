@@ -254,7 +254,6 @@
         android:id="@+id/connect_intro_cta_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         app:buttonText="@string/connect_opportunity_footer_download_app"
         app:subtitleText="@string/connect_opportunity_footer_download_learn_app"
         app:titleText="@string/connect_opportunity_footer_start_learning" />
