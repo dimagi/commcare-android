@@ -582,6 +582,12 @@ License.
 
     <string name="connect_complete_by">La tâche se termine le %s</string>
     <string name="connect_expired_on">La tâche s\'est terminée le %s</string>
+    <string name="connect_dashboard">Tableau de bord</string>
+    <string name="connect_visits">Visites</string>
+    <string name="connect_more">Plus</string>
+    <string name="connect_delivery_start">Démarrer</string>
+    <string name="connect_delivery_continue_visits">Continuez vos visites</string>
+    <string name="connect_delivery_continue_visits_subtitle">Soumettre les formulaires de livraison</string>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
     <string name="install_barcode_top">Bienvenue sur CommCare !</string>
     <string name="install_barcode_bottom">Veuillez choisir une méthode d\'installation ci-dessous</string>

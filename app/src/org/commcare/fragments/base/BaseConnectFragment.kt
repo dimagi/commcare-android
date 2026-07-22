@@ -98,7 +98,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     )
             }
 
-        verticalContainer.addView(mainView)
+        verticalContainer.addView(
+            mainView,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f,
+            ),
+        )
         rootFrame.addView(verticalContainer)
 
         // Inflate loading layout

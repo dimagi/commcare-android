@@ -588,6 +588,13 @@
 
     <string name="connect_complete_by">A tarefa termina em %s</string>
     <string name="connect_expired_on">A tarefa terminou em %s</string>
+
+    <string name="connect_dashboard">Painel</string>
+    <string name="connect_visits">Visitas</string>
+    <string name="connect_more">Mais</string>
+    <string name="connect_delivery_start">Iniciar</string>
+    <string name="connect_delivery_continue_visits">Continue suas visitas</string>
+    <string name="connect_delivery_continue_visits_subtitle">Enviar formulários de entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidade</string>
     <string name="install_barcode_top">Bem-vindo ao CommCare!</string>
     <string name="install_barcode_bottom">Por favor, escolha um método de instalação abaixo</string>

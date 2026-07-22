@@ -732,6 +732,12 @@
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
+    <string name="connect_dashboard">Dashboard</string>
+    <string name="connect_visits">Visits</string>
+    <string name="connect_more">More</string>
+    <string name="connect_delivery_start">Start</string>
+    <string name="connect_delivery_continue_visits">Continue your visits</string>
+    <string name="connect_delivery_continue_visits_subtitle">Submit delivery forms</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
     <string name="connect_visit_type_title">%s Visits</string>

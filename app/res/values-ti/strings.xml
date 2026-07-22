@@ -571,6 +571,12 @@
 
     <string name="connect_complete_by">ዕዮ ኣብ %s ይወዳእ</string>
     <string name="connect_expired_on">ዕዮ ኣብ %s ተወዲኡ</string>
+    <string name="connect_dashboard">ዳሽቦርድ</string>
+    <string name="connect_visits">ምብጻሓት</string>
+    <string name="connect_more">ተወሳኺ</string>
+    <string name="connect_delivery_start">ጀምር</string>
+    <string name="connect_delivery_continue_visits">ምብጻሓትካ ቀፅል</string>
+    <string name="connect_delivery_continue_visits_subtitle">ናይ ምብጻሕ ቅጥዕታት ኣቕርብ</string>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
     <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
     <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>

@@ -228,6 +228,12 @@
 
     <string name="connect_complete_by">Oppgave avsluttes %s</string>
     <string name="connect_expired_on">Oppgaven ble avsluttet %s</string>
+    <string name="connect_dashboard">Dashbord</string>
+    <string name="connect_visits">Besøk</string>
+    <string name="connect_more">Mer</string>
+    <string name="connect_delivery_start">Start</string>
+    <string name="connect_delivery_continue_visits">Fortsett besøkene dine</string>
+    <string name="connect_delivery_continue_visits_subtitle">Send inn leveringsskjemaer</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>

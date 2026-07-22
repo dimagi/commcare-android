@@ -26,20 +26,20 @@ import org.robolectric.annotation.Config
 @ExperimentalCoroutinesApi
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class ConnectDeliveryProgressViewModelTest {
+class ConnectDeliveryHomeViewModelTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
     private val application = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
     private lateinit var mockRepository: ConnectRepository
     private lateinit var mockJob: ConnectJobRecord
-    private lateinit var viewModel: ConnectDeliveryProgressViewModel
+    private lateinit var viewModel: ConnectDeliveryHomeViewModel
 
     @Before
     fun setUp() {
         mockRepository = mockk()
         mockJob = mockk(relaxed = true)
-        viewModel = ConnectDeliveryProgressViewModel(application)
+        viewModel = ConnectDeliveryHomeViewModel(application)
         viewModel.repository = mockRepository
     }
 

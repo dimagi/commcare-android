@@ -579,6 +579,12 @@ License.
 
     <string name="connect_complete_by">कार्य %s को समाप्त होती है</string>
     <string name="connect_expired_on">कार्य %s को समाप्त हुई</string>
+    <string name="connect_dashboard">डैशबोर्ड</string>
+    <string name="connect_visits">विज़िट</string>
+    <string name="connect_more">अधिक</string>
+    <string name="connect_delivery_start">शुरू करें</string>
+    <string name="connect_delivery_continue_visits">अपनी विज़िट जारी रखें</string>
+    <string name="connect_delivery_continue_visits_subtitle">डिलीवरी फ़ॉर्म सबमिट करें</string>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
     <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
     <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>

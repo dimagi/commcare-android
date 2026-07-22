@@ -587,6 +587,12 @@
 
     <string name="connect_complete_by">Kazi inaisha tarehe %s</string>
     <string name="connect_expired_on">Kazi iliisha tarehe %s</string>
+    <string name="connect_dashboard">Dashibodi</string>
+    <string name="connect_visits">Ziara</string>
+    <string name="connect_more">Zaidi</string>
+    <string name="connect_delivery_start">Anza</string>
+    <string name="connect_delivery_continue_visits">Endelea na ziara zako</string>
+    <string name="connect_delivery_continue_visits_subtitle">Wasilisha fomu za utoaji</string>
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_barcode_top">Karibu CommCare!</string>
     <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
