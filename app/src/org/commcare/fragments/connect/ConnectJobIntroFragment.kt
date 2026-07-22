@@ -18,6 +18,7 @@ import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiEr
 import org.commcare.connect.network.connect.ConnectApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding
+import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import java.text.DateFormat
 
@@ -95,7 +96,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                 t: Throwable?,
             ) {
                 reportApiCall(false)
-                if (!isAdded || this@ConnectJobIntroFragment.view == null) {
+                if (!hasLiveView()) {
                     return
                 }
 
@@ -119,7 +120,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                 job.status = ConnectJobRecord.STATUS_LEARNING
                 ConnectJobUtils.upsertJob(job)
 
-                if (!isAdded || this@ConnectJobIntroFragment.view == null) {
+                if (!hasLiveView()) {
                     return
                 }
 
