@@ -570,8 +570,7 @@
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
         <activity
-            android:name="org.commcare.activities.camera.MicroImageActivity"
-            android:screenOrientation="portrait"/>
+            android:name="org.commcare.activities.camera.MicroImageActivity"/>
         <activity
             android:name="org.commcare.activities.camera.CameraOverlayActivity"/>
         <!-- Start Collect Manifest -->

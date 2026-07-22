@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.Image;
+import android.os.Bundle;
 import android.util.Base64;
 import android.util.Size;
 import android.view.View;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -64,6 +66,8 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     private static final int DEFAULT_CAMERA_LENS_FACING = LENS_FACING_FRONT;
     public static final String ALLOW_CAMERA_LENS_SWITCH_EXTRA = "allow-camera-lens-switch-extra";
     public static final String TITLE_RES_EXTRA = "title-res-extra";
+    private static final String KEY_CURRENT_LENS_FACING = "current-lens-facing";
+    private static final String KEY_IS_GOOGLE_PLAY_SERVICES_AVAILABLE = "is-google-play-services-available";
 
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
@@ -76,8 +80,26 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     private ImageView switchCameraLensButton;
     private int currentLensFacing;
     private boolean lensFacingInitialized = false;
+    private boolean isStateRestored = false;
     private TextView cameraCaptureInstructions;
     private TextView cameraCaptureModeIndicator;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            currentLensFacing = savedInstanceState.getInt(KEY_CURRENT_LENS_FACING);
+            isGooglePlayServicesAvailable = savedInstanceState.getBoolean(KEY_IS_GOOGLE_PLAY_SERVICES_AVAILABLE);
+            isStateRestored = true;
+        }
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_CURRENT_LENS_FACING, currentLensFacing);
+        outState.putBoolean(KEY_IS_GOOGLE_PLAY_SERVICES_AVAILABLE, isGooglePlayServicesAvailable);
+    }
 
     @Override
     protected int getContentLayout() {
@@ -110,7 +132,9 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         cameraCaptureInstructions = findViewById(R.id.camera_capture_instructions);
         cameraCaptureModeIndicator = findViewById(R.id.camera_capture_mode_indicator);
 
-        isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
+        if (!isStateRestored) {
+            isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
+        }
         if (isAutoCaptureModeSupported()) {
             faceCaptureView.setImageStabilizedListener(this);
         } else {
@@ -129,10 +153,14 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     @Override
     protected void onCameraProviderReady() {
         if (!lensFacingInitialized) {
-            currentLensFacing = getCameraLensFacing();
+            if (!isStateRestored) {
+                currentLensFacing = getCameraLensFacing();
+            }
             if (getAllowCameraLensSwitch()) {
                 if (!isFrontCameraAvailable()) {
-                    Toast.makeText(this, R.string.face_capture_front_camera_unavailable, Toast.LENGTH_LONG).show();
+                    if (!isStateRestored) {
+                        Toast.makeText(this, R.string.face_capture_front_camera_unavailable, Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     enableSwitchCameraLensButton();
                 }
