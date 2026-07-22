@@ -159,7 +159,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     @Test
     fun `footer button shows download app label and is enabled`() {
         val fragment = launch()
-        val button = fragment.requireView().findViewById<MaterialButton>(R.id.btn_start)
+        val button = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
         assertEquals(
             activity.getString(R.string.connect_opportunity_footer_download_app),
             button.text.toString(),
@@ -201,7 +201,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         } returns Unit
 
         val fragment = launch()
-        val button = fragment.requireView().findViewById<MaterialButton>(R.id.btn_start)
+        val button = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
 
         activity.runOnUiThread { button.performClick() }
         ShadowLooper.idleMainLooper()

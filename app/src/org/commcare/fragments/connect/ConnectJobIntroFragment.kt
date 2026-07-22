@@ -45,7 +45,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         binding.tvMaxEarningsValue.text =
             ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.totalBudget)
 
-        binding.btnStart.setOnClickListener { startLearning() }
+        binding.connectIntroCtaBar.setOnCtaClickListener { startLearning() }
 
         populateLearnCard()
         populateDeliveryCards()

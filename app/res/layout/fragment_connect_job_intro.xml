@@ -250,56 +250,12 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
+    <org.commcare.views.connect.ConnectCtaBar
+        android:id="@+id/connect_intro_cta_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_connect_opportunity_footer"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/standard_spacer_double"
-        android:paddingVertical="@dimen/standard_spacer">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/connect_opportunity_footer_start_learning"
-                android:textColor="@color/connect_dark_blue_color"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/connect_opportunity_footer_download_learn_app"
-                android:textColor="@color/connect_dark_grey"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            android:backgroundTint="@color/connect_dark_blue_color"
-            android:includeFontPadding="false"
-            android:text="@string/connect_opportunity_footer_download_app"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            app:cornerRadius="@dimen/standard_spacer_large"
-            app:icon="@drawable/ic_connect_arrow_forward_20px"
-            app:iconGravity="textEnd"
-            app:iconTint="@color/white" />
-    </LinearLayout>
+        android:layout_margin="10dp"
+        app:buttonText="@string/connect_opportunity_footer_download_app"
+        app:subtitleText="@string/connect_opportunity_footer_download_learn_app"
+        app:titleText="@string/connect_opportunity_footer_start_learning" />
 </LinearLayout>
