@@ -63,6 +63,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     public static final String CAMERA_LENS_FACING_EXTRA = "camera-lens-facing-extra";
     private static final int DEFAULT_CAMERA_LENS_FACING = LENS_FACING_FRONT;
     public static final String ALLOW_CAMERA_LENS_SWITCH_EXTRA = "allow-camera-lens-switch-extra";
+    public static final String TITLE_RES_EXTRA = "title-res-extra";
 
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
@@ -85,7 +86,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     @Override
     protected int getTitleRes() {
-        return R.string.micro_image_activity_title;
+        return getIntent().getIntExtra(TITLE_RES_EXTRA, R.string.micro_image_activity_title);
     }
 
     @NonNull

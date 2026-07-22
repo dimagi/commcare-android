@@ -638,6 +638,7 @@
 
     <string name="micro_image_activity_title">Take Profile Photo</string>
     <string name="image_capture_activity_title" cc:translatable="true">Take Photo</string>
+    <string name="face_capture_activity_title" cc:translatable="true">Take Face Photo</string>
     <string name="image_capture_failed" cc:translatable="true">Failed to save photo, please try again</string>
     <string name="camera_start_failed" cc:translatable="true">Camera failed to start</string>
     <string name="camera_permission_denied" cc:translatable="true">Go to settings and enable camera permission to use this feature</string>
