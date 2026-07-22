@@ -115,7 +115,7 @@ abstract class BaseConnectJobIntroTest {
                 put("id", 1)
                 put("opportunity_id", "job-uuid-1")
                 put("name", "Infant Vaccination")
-                put("description", "One line description about the opportunity.")
+                put("description", "A detailed multi-line description of the opportunity.")
                 put("organization", "Test Org")
                 put("end_date", "2027-12-31")
                 put("start_date", "2025-01-01")
@@ -124,7 +124,7 @@ abstract class BaseConnectJobIntroTest {
                 put("budget_per_visit", 25)
                 put("budget_per_user", 2500)
                 put("currency", "INR")
-                put("short_description", "Short description")
+                put("short_description", "One line description about the opportunity.")
                 put("deliver_progress", 0)
                 put("payment_units", paymentUnitsJson())
                 put(
