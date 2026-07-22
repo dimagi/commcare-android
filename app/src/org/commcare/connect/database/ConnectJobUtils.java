@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
@@ -32,7 +33,8 @@ import java.util.Vector;
 
 public class ConnectJobUtils {
 
-    public static void upsertJob(Context context, ConnectJobRecord job) {
+    public static void upsertJob(ConnectJobRecord job) {
+        Context context = CommCareApplication.instance();
         List<ConnectJobRecord> list = new ArrayList<>();
         list.add(job);
         new JobStoreManager(context).storeJobs(context, list, false);
