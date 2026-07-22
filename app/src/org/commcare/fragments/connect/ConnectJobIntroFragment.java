@@ -1,6 +1,5 @@
 package org.commcare.fragments.connect;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -117,7 +116,6 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
     }
 
     private void startLearning() {
-        Context appContext = requireContext().getApplicationContext();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
 
         new ConnectApiHandler<Boolean>() {
@@ -145,7 +143,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
                 reportApiCall(success);
 
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
-                ConnectJobUtils.upsertJob(appContext, job);
+                ConnectJobUtils.upsertJob(job);
 
                 if (!isAdded() || ConnectJobIntroFragment.this.getView() == null) {
                     return;
