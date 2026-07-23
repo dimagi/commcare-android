@@ -330,6 +330,7 @@ public class RecordingFragment extends DialogFragment {
         // resume first just in case we were paused
         if (inPausedState) {
             audioRecordingService.resumeRecording();
+            inPausedState = false;
         }
 
         audioRecordingService.stopRecording();
