@@ -357,6 +357,12 @@ License.
     <string name="choose_a_6_digit_recovery_code">Choisissez un code de récupération à 6 chiffres</string>
     <string name="sync">Synchroniser</string>
     <string name="micro_image_activity_title">Capturer Photo Visage</string>
+    <string name="image_capture_activity_title">Prendre une photo</string>
+    <string name="image_capture_failed">Échec de l\'enregistrement de la photo, veuillez réessayer</string>
+    <string name="camera_start_failed">Le démarrage de la caméra a échoué</string>
+    <string name="camera_permission_denied">Accédez aux paramètres et activez l\'autorisation de la caméra pour utiliser cette fonctionnalité</string>
+    <string name="microimage_face_detection_mode_failed">Le mode de détection des visages a échoué, passage en mode manuel</string>
+    <string name="microimage_cropping_failed">Le recadrage de l\'image a échoué, assurez-vous que la cible se trouve dans la zone de capture</string>
     <string name="connect_job_info_title">Détails de l\'opportunité</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
@@ -468,8 +474,8 @@ License.
     <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
     <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
     <string name="personalid_second_device_login_message_no_date">Vous avez été déconnecté(e) de %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
-    <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
-    <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
+    <string name="camera_permission_title">Autorisation pour la caméra</string>
+    <string name="camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
     <string name="personalid_work_history_title">Mon Historique de Travail</string>
     <string name="personalid_work_history">Historique de Travail</string>

@@ -21,6 +21,7 @@ import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.camera.CameraOverlayActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.ImageCaptureProcessing;
@@ -59,6 +60,8 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
 
     public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
+    private static final String OVERLAY_SMALL = "overlay-small";
+
     private final Button mCaptureButton;
     private final Button mChooseButton;
     private final Button mDiscardButton;
@@ -71,6 +74,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
+    private final boolean useRectangleOverlay;
     private final PendingCalloutInterface pendingCalloutInterface;
 
     public static File getTempFileForImageCapture() {
@@ -170,8 +174,10 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
         addView(mChooseButton);
         addView(mDiscardButton);
 
-        String acq = mPrompt.getAppearanceHint();
-        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
+        String appearanceHint = mPrompt.getAppearanceHint();
+        boolean acquire = appearanceHint != null && appearanceHint.contains(QuestionWidget.ACQUIREFIELD);
+        useRectangleOverlay = appearanceHint != null && appearanceHint.contains(OVERLAY_SMALL);
+        if (acquire) {
             mChooseButton.setVisibility(View.GONE);
         }
         addView(mErrorTextView);
@@ -257,21 +263,14 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     }
 
     private void takePicture() {
-        Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
-
-        // We give the camera an absolute filename/path where to put the
-        // picture because of bug:
-        // http://code.google.com/p/android/issues/detail?id=1480
-        // The bug appears to be fixed in Android 2.0+, but as of feb 2,
-        // 2010, G1 phones only run 1.6. Without specifying the path the
-        // images returned by the camera in 1.6 (and earlier) are ~1/4
-        // the size. boo.
-        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
-        i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        Intent intent;
+        if (useRectangleOverlay) {
+            intent = buildOverlayCaptureIntent();
+        } else {
+            intent = buildSystemCaptureIntent();
+        }
         try {
-            ((AppCompatActivity)getContext()).startActivityForResult(i,
+            ((AppCompatActivity)getContext()).startActivityForResult(intent,
                     FormEntryConstants.IMAGE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
@@ -280,6 +279,20 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                             R.string.activity_not_found, "image capture"),
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private Intent buildOverlayCaptureIntent() {
+        Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
+        return CameraOverlayActivity.getIntent(getContext(), uri);
+    }
+
+    private Intent buildSystemCaptureIntent() {
+        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
+        intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        return intent;
     }
 
     public void clearBinaryAttachment() {

@@ -195,6 +195,12 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="choose_a_6_digit_recovery_code">Zaɓi Lambar Ajiyar Bayanai Mai Lambobi 6</string>
     <string name="sync">Daidaita</string>
     <string name="micro_image_activity_title">Ɗaukar Hoton Fuska</string>
+    <string name="image_capture_activity_title">Ɗauki Hoto</string>
+    <string name="image_capture_failed">An kasa ajiye hoto, don Allah a sake gwadawa</string>
+    <string name="camera_start_failed">Kyamara ta kasa farawa</string>
+    <string name="camera_permission_denied">Je zuwa saituna kuma kunna izinin kyamara don amfani da wannan fasalin</string>
+    <string name="microimage_face_detection_mode_failed">Yanayin gano fuska ya kasa, ana canzawa zuwa yanayin hannu</string>
+    <string name="microimage_cropping_failed">Yankan hoto ya kasa, tabbatar da cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
     <string name="connect_job_info_title">Cikakkun Bayanan Dama</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
@@ -308,8 +314,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_second_device_login_title">Shiga a Na\'ura ta Biyu</string>
     <string name="personalid_second_device_login_message">An fita daga %s, an yi amfani da %s na ƙarshe. PersonalID za a iya shiga kawai akan na\'ura ɗaya a lokaci guda.</string>
     <string name="personalid_second_device_login_message_no_date">An fita daga %s. Ana iya shiga PersonalID akan na\'ura ɗaya kawai a lokaci guda.</string>
-    <string name="personalid_camera_permission_title">Izini don kyamara</string>
-    <string name="personalid_camera_permission_msg">Domin ɗaukar hoto, CommCare yana buƙatar izinin amfani da kyamarar na\'urarka.</string>
+    <string name="camera_permission_title">Izini don kyamara</string>
+    <string name="camera_permission_msg">Domin ɗaukar hoto, CommCare yana buƙatar izinin amfani da kyamarar na\'urarka.</string>
     <string name="personalid_capture_photo">Ɗauki Hoto</string>
     <string name="personalid_work_history_title">Tarihin Aikina</string>
     <string name="personalid_work_history">Tarihin Aiki</string>

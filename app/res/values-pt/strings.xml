@@ -374,6 +374,12 @@
     <string name="choose_a_6_digit_recovery_code">Escolha um código de recuperação de 6 dígitos</string>
     <string name="sync">Sincronizar</string>
     <string name="micro_image_activity_title">Capturar Imagem Facial</string>
+    <string name="image_capture_activity_title">Tirar foto</string>
+    <string name="image_capture_failed">Falha ao guardar a foto, por favor tente novamente</string>
+    <string name="camera_start_failed">A câmara falhou ao iniciar</string>
+    <string name="camera_permission_denied">Vá às definições e ative a permissão da câmara para usar esta funcionalidade</string>
+    <string name="microimage_face_detection_mode_failed">O modo de deteção de rostos falhou, a mudar para o modo manual</string>
+    <string name="microimage_cropping_failed">O recorte da imagem falhou, certifique-se de que o alvo está dentro da área de captura</string>
     <string name="connect_job_info_title">Detalhes de oportunidade</string>
     <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
     <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>
@@ -475,8 +481,8 @@
     <string name="personalid_second_device_login_title">Iniciar sessão no segundo dispositivo</string>
     <string name="personalid_second_device_login_message">Sessão encerrada em %s, último acesso em %s. O PersonalID só pode ser utilizado num dispositivo de cada vez.</string>
     <string name="personalid_second_device_login_message_no_date">Sessão encerrada de %s. O PersonalID só pode ser acedido num dispositivo de cada vez.</string>
-    <string name="personalid_camera_permission_title">Permissão para câmara</string>
-    <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
+    <string name="camera_permission_title">Permissão para câmara</string>
+    <string name="camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
     <string name="personalid_capture_photo">Capturar foto</string>
     <string name="personalid_work_history_title">Meu Histórico de Trabalho</string>
     <string name="personalid_work_history">Histórico de Trabalho</string>

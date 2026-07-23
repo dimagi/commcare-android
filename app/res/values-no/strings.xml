@@ -185,4 +185,10 @@
     <string name="connect_offline">Frakoblet</string>
     <string name="connect_never">Aldri</string>
     <string name="cannot_navigate_during_form_save">Kan ikke forlate siden mens skjemaet lagres</string>
+    <string name="image_capture_activity_title">Ta bilde</string>
+    <string name="image_capture_failed">Kunne ikke lagre bildet, prøv igjen</string>
+    <string name="camera_start_failed">Kameraet kunne ikke startes</string>
+    <string name="camera_permission_denied">Gå til innstillinger og aktiver kameratillatelse for å bruke denne funksjonen</string>
+    <string name="microimage_face_detection_mode_failed">Ansiktsgjenkjenningsmodus mislyktes, bytter til manuell modus</string>
+    <string name="microimage_cropping_failed">Beskjæring av bildet mislyktes, sørg for at målet er innenfor fangstområdet</string>
 </resources>

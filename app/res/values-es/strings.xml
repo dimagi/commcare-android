@@ -360,6 +360,12 @@
     <string name="choose_a_6_digit_recovery_code">Elige un código de recuperación de 6 dígitos</string>
     <string name="sync">Sincronizar</string>
     <string name="micro_image_activity_title">Capturar foto de rostro</string>
+    <string name="image_capture_activity_title">Tomar foto</string>
+    <string name="image_capture_failed">No se pudo guardar la foto, inténtalo de nuevo</string>
+    <string name="camera_start_failed">La cámara no pudo iniciarse</string>
+    <string name="camera_permission_denied">Ve a ajustes y habilita el permiso de la cámara para usar esta función</string>
+    <string name="microimage_face_detection_mode_failed">Falló el modo de detección de rostros, cambiando a modo manual</string>
+    <string name="microimage_cropping_failed">Falló el recorte de la imagen, asegúrate de que el objetivo esté dentro del área de captura</string>
     <string name="connect_job_info_title">Detalles de la oportunidad</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
@@ -468,8 +474,8 @@
     <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
     <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
     <string name="personalid_second_device_login_message_no_date">Se ha cerrado la sesión en %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
-    <string name="personalid_camera_permission_title">Permiso de cámara</string>
-    <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
+    <string name="camera_permission_title">Permiso de cámara</string>
+    <string name="camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
     <string name="personalid_work_history_title">Mi Historial Laboral</string>

@@ -195,4 +195,10 @@
     <string name="connect_offline">Neprisijungęs</string>
     <string name="connect_never">Niekada</string>
     <string name="cannot_navigate_during_form_save">Negalima palikti puslapio, kol išsaugoma forma</string>
+    <string name="image_capture_activity_title">Fotografuoti</string>
+    <string name="image_capture_failed">Nepavyko išsaugoti nuotraukos, bandykite dar kartą</string>
+    <string name="camera_start_failed">Nepavyko paleisti kameros</string>
+    <string name="camera_permission_denied">Eikite į nustatymus ir įjunkite kameros leidimą, kad galėtumėte naudoti šią funkciją</string>
+    <string name="microimage_face_detection_mode_failed">Veido aptikimo režimas nepavyko, perjungiama į rankinį režimą</string>
+    <string name="microimage_cropping_failed">Nepavyko apkarpyti vaizdo, įsitikinkite, kad objektas yra fiksavimo srityje</string>
 </resources>

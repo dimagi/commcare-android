@@ -361,6 +361,12 @@
     <string name="choose_a_6_digit_recovery_code">6 ኣሃዝ ዘለዎ ሓድሽ ኮድ ምረጽ</string>
     <string name="sync">ምትእስሳር</string>
     <string name="micro_image_activity_title">ስእሊ ገጽ ምቕራጽ</string>
+    <string name="image_capture_activity_title">ስእሊ ውሰድ</string>
+    <string name="image_capture_failed">ስእሊ ምዕቓብ ኣይተኻእለን፡ በጃኻ ደጊምካ ፈትን</string>
+    <string name="camera_start_failed">ካሜራ ክጅምር ኣይከኣለን</string>
+    <string name="camera_permission_denied">ናብ ቅንብራት ኪድ እሞ ነዚ ባህሪ ንምጥቃም ፍቓድ ካሜራ ኣንቅሕ</string>
+    <string name="microimage_face_detection_mode_failed">ኩነታት ምልላይ ገጽ ኣይሰርሐን፡ ናብ ኢደ-ሰብ ኩነታት ይቕይር ኣሎ</string>
+    <string name="microimage_cropping_failed">ምቁራጽ ስእሊ ኣይተኻእለን፡ ዕላማ ኣብ ውሽጢ ቦታ ምቅራጽ ከምዘሎ ኣረጋግጽ</string>
     <string name="connect_job_info_title">ዝርዝር ዕድል</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
@@ -460,8 +466,8 @@
     <string name="personalid_second_device_login_title">ኣብ ካልኣይ መሳርሒ እቶ</string>
     <string name="personalid_second_device_login_message">ካብ %s ወጺኡ፣ ንመወዳእታ ግዜ ዝተጠቕመሉ %s። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
     <string name="personalid_second_device_login_message_no_date">ካብ %s ወጺኡ። PersonalID ኣብ ሓደ እዋን ኣብ ሓደ መሳርሒ ጥራይ እዩ ክኣቱ ዝኽእል።</string>
-    <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
-    <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
+    <string name="camera_permission_title">ፍቓድ ንካሜራ</string>
+    <string name="camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
     <string name="personalid_work_history_title">ታሪኽ ስራሐይ</string>
     <string name="personalid_work_history">ታሪኽ ስራሕ</string>

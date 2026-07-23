@@ -359,6 +359,12 @@
     <string name="choose_a_6_digit_recovery_code">Chagua Msimbo wa Urejeshaji wa Dijiti 6</string>
     <string name="sync">Sawazisha</string>
     <string name="micro_image_activity_title">Piga Picha ya Uso</string>
+    <string name="image_capture_activity_title">Piga Picha</string>
+    <string name="image_capture_failed">Imeshindwa kuhifadhi picha, tafadhali jaribu tena</string>
+    <string name="camera_start_failed">Kamera imeshindwa kuanza</string>
+    <string name="camera_permission_denied">Nenda kwenye mipangilio na uwashe ruhusa ya kamera ili kutumia kipengele hiki</string>
+    <string name="microimage_face_detection_mode_failed">Hali ya utambuzi wa uso imeshindwa, inabadilisha hadi hali ya mikono</string>
+    <string name="microimage_cropping_failed">Upunguzaji wa picha umeshindwa, hakikisha lengo liko ndani ya eneo la kunasa</string>
     <string name="connect_job_info_title">Maelezo ya Fursa</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
@@ -474,8 +480,8 @@
     <string name="personalid_second_device_login_title">Ingia kwenye Kifaa cha Pili</string>
     <string name="personalid_second_device_login_message">Imetoka kwenye %s, imetumika mara ya mwisho %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
     <string name="personalid_second_device_login_message_no_date">Umetoka kwenye %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
-    <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
-    <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
+    <string name="camera_permission_title">Ruhusa ya kamera</string>
+    <string name="camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
     <string name="personalid_work_history_title">Historia Yangu ya Kazi</string>
     <string name="personalid_work_history">Historia ya Kazi</string>
