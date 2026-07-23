@@ -10,6 +10,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - Image capture using the in-app camera overlay now captures faster, reducing shutter lag when taking a photo.
 
+### QA Notes
+
+- **Overlay capture speed:** On an `overlay-small` image-capture question, verify Take Picture captures promptly with no noticeable shutter lag, and the saved photo is acceptable quality.
+
 ## CommCare 2.63.3
 
 ### Release Notes
