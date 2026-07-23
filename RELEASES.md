@@ -14,6 +14,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 ### QA Notes
 
+- **Image reticle overlay:** On a form image-capture question with `appearance="overlay-small"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
+
 ## CommCare 2.63.2
 
 ### QA Notes
