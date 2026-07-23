@@ -20,6 +20,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
@@ -137,14 +138,14 @@ public class AudioRecordingService extends Service {
         // service re-posts the notification on pause/resume, so the label/action flip themselves.
         if (pauseSupported) {
             String toggleAction = recordingRunning ? ACTION_PAUSE_RECORDING : ACTION_RESUME_RECORDING;
-            String toggleLabelKey = recordingRunning ? "recording.notification.pause.action"
-                    : "recording.notification.resume.action";
+            int toggleLabelResourceId = recordingRunning ? R.string.recording_notification_pause_action
+                    : R.string.recording_notification_resume_action;
             Intent toggleIntent = new Intent(this, AudioRecordingService.class).setAction(toggleAction);
             PendingIntent togglePendingIntent = PendingIntent.getService(this, 2, toggleIntent, pendingIntentFlags);
-            builder.addAction(0, Localization.get(toggleLabelKey), togglePendingIntent);
+            builder.addAction(0, StringUtils.getStringRobust(this, toggleLabelResourceId), togglePendingIntent);
         }
 
-        builder.addAction(0, Localization.get("recording.notification.save.action"), savePendingIntent);
+        builder.addAction(0, StringUtils.getStringRobust(this, R.string.recording_notification_save_action), savePendingIntent);
         return builder.build();
     }
 
