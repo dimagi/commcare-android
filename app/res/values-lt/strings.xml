@@ -323,4 +323,7 @@
 
     <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
 
+    <string name="recording_notification_save_action">Išsaugoti</string>
+    <string name="recording_notification_pause_action">Pristabdyti</string>
+    <string name="recording_notification_resume_action">Tęsti</string>
 </resources>

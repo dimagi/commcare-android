@@ -658,4 +658,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="camera_permission_denied">Je zuwa saituna ka kunna izinin kyamara don amfani da wannan fasalin</string>
     <string name="microimage_face_detection_mode_failed">Yanayin gano fuska ya kasa, ana canzawa zuwa yanayin hannu</string>
     <string name="microimage_cropping_failed">Yanke hoton ya kasa, ka tabbatar cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
+    <string name="recording_notification_save_action">Ajiye</string>
+    <string name="recording_notification_pause_action">Dakata</string>
+    <string name="recording_notification_resume_action">Ci gaba</string>
 </resources>

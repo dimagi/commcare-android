@@ -668,4 +668,7 @@
     <string name="camera_permission_denied">Nenda kwenye mipangilio na uwashe ruhusa ya kamera ili kutumia kipengele hiki</string>
     <string name="microimage_face_detection_mode_failed">Hali ya kutambua uso imeshindwa, inabadilika kwenda hali ya mkono</string>
     <string name="microimage_cropping_failed">Imeshindwa kupunguza picha, hakikisha lengo liko ndani ya eneo la kupiga picha</string>
+    <string name="recording_notification_save_action">Hifadhi</string>
+    <string name="recording_notification_pause_action">Sitisha</string>
+    <string name="recording_notification_resume_action">Endelea</string>
 </resources>

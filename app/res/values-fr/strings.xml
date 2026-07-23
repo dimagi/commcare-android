@@ -663,4 +663,7 @@ License.
     <string name="camera_permission_denied">Accédez aux paramètres et activez l\'autorisation de la caméra pour utiliser cette fonctionnalité</string>
     <string name="microimage_face_detection_mode_failed">Échec du mode de détection des visages, passage au mode manuel</string>
     <string name="microimage_cropping_failed">Échec du recadrage de l\'image, assurez-vous que la cible est dans la zone de capture</string>
+    <string name="recording_notification_save_action">Enregistrer</string>
+    <string name="recording_notification_pause_action">Pause</string>
+    <string name="recording_notification_resume_action">Reprendre</string>
 </resources>

@@ -664,4 +664,7 @@
     <string name="camera_permission_denied">Ve a ajustes y habilita el permiso de la cámara para usar esta función</string>
     <string name="microimage_face_detection_mode_failed">Falló el modo de detección de rostros, cambiando al modo manual</string>
     <string name="microimage_cropping_failed">Falló el recorte de la imagen, asegúrate de que el objetivo esté dentro del área de captura</string>
+    <string name="recording_notification_save_action">Guardar</string>
+    <string name="recording_notification_pause_action">Pausar</string>
+    <string name="recording_notification_resume_action">Reanudar</string>
 </resources>
