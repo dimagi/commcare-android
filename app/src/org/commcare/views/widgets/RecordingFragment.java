@@ -213,17 +213,12 @@ public class RecordingFragment extends DialogFragment {
         actionButton.setText(StringUtils.getStringRobust(getContext(), stringResourceId));
     }
 
+
+    //reset recording view
     private void resetRecordingView() {
         // reset the file path
         initAudioFile();
-        recordingContainer.setVisibility(VISIBLE);
-        toggleRecording.setBackgroundResource(R.drawable.record_start);
-        toggleRecording.setOnClickListener(v -> startRecording());
-        instruction.setText(Localization.get("before.overwrite.recording"));
-        recordingDuration.setVisibility(INVISIBLE);
-        negativeActionButton.setVisibility(GONE);
-        enableSave(false);
-        setActionText(positiveActionButton, CLEAR_TEXT_KEY);
+        saveRecording();
     }
 
     private void startRecording() {
