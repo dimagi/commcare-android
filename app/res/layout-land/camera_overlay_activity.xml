@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/view_finder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <org.commcare.views.RectangleOverlayView
+        android:id="@+id/rectangle_overlay"
+        app:reticleWidthFractionLandscape="0.40"
+        app:reticleHeightFractionLandscape="0.40"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/camera_shutter_button"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/bg_camera_shutter_button"
+        android:clickable="true"
+        android:contentDescription="@string/image_capture_activity_title"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless" />
+
+    <ProgressBar
+        android:id="@+id/capture_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@android:color/white"
+        android:visibility="gone" />
+</FrameLayout>

@@ -194,4 +194,6 @@
     <color name="shimmer_grey_0">#00E6E7EB</color>
     <color name="shimmer_grey_20">#33E6E7EB</color>
     <color name="shimmer_grey_60">#99E6E7EB</color>
+    <color name="black_60">#99000000</color>
+    <color name="black_80">#CC000000</color>
 </resources>

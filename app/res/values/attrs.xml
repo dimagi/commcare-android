@@ -143,4 +143,16 @@
         <attr name="progressBackgroundColor" format="color" />
         <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="RectangleOverlayView">
+        <attr name="reticleScrimColor" format="color" />
+        <attr name="reticleStrokeColor" format="color" />
+        <attr name="reticleOutlineColor" format="color" />
+        <attr name="reticleStrokeWidth" format="dimension" />
+        <attr name="reticleOutlineWidth" format="dimension" />
+        <attr name="reticleWidthFractionPortrait" format="float" />
+        <attr name="reticleHeightFractionPortrait" format="float" />
+        <attr name="reticleWidthFractionLandscape" format="float" />
+        <attr name="reticleHeightFractionLandscape" format="float" />
+    </declare-styleable>
 </resources>
