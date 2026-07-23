@@ -197,7 +197,6 @@ public class RecordingFragment extends DialogFragment {
         recordingContainer = layout.findViewById(R.id.recording_layout);
         discardRecording.setOnClickListener(v -> dismiss());
         toggleRecording = layout.findViewById(R.id.startrecording);
-        toggleRecording.setOnClickListener(v -> startRecording());
         negativeActionButton = layout.findViewById(R.id.negative_action_button);
         recordingActionContainer = layout.findViewById(R.id.recording_action_container);
         positiveActionButton = layout.findViewById(R.id.positive_action_button);
