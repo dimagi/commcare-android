@@ -217,7 +217,10 @@ public class RecordingFragment extends DialogFragment {
     private void resetRecordingView() {
         // reset the file path
         initAudioFile();
-        saveRecording();
+        if (listener != null) {
+            listener.onRecordingCompletion(fileName);
+        }
+        dismiss();
     }
 
     private void startRecording() {
