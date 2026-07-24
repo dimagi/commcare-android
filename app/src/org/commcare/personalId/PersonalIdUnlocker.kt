@@ -85,7 +85,9 @@ object PersonalIdUnlocker {
                     callback.connectActivityComplete(true)
                 }
 
-                override fun onAuthenticationFailed() = callback.connectActivityComplete(false)
+                // A recoverable failure (e.g. an unrecognized fingerprint). The system
+                // prompt stays open for the user to retry.
+                override fun onAuthenticationFailed() = Unit
             }
 
         when {

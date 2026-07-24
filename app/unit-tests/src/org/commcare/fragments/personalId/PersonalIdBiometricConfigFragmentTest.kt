@@ -364,10 +364,9 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
         setUpBiometricFragment()
 
         val fingerprintButton = fragment.view!!.findViewById<Button>(R.id.connect_verify_fingerprint_button)
-        val testableFragment = fragment as TestablePersonalIdBiometricConfigFragment
 
         fingerprintButton.performClick()
-        mockBiometricAuthentication(testableFragment, successfulAuth)
+        mockBiometricAuthentication(fragment, successfulAuth)
     }
 
     private fun setUpAndClickPinButton(successfulAuth: Boolean) {
@@ -378,9 +377,8 @@ class PersonalIdBiometricConfigFragmentTest : BasePersonalIdBiometricConfigFragm
         setUpBiometricFragment()
 
         val pinButton = fragment.view!!.findViewById<Button>(R.id.connect_verify_pin_button)
-        val testableFragment = fragment as TestablePersonalIdBiometricConfigFragment
         pinButton.performClick()
-        mockBiometricAuthentication(testableFragment, successfulAuth)
+        mockBiometricAuthentication(fragment, successfulAuth)
     }
 
     private fun mockBiometricAuthentication(

@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.DeveloperPreferences;
 import org.javarosa.core.services.locale.Localization;
 
 import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
@@ -53,7 +54,8 @@ public class AudioRecordingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         if (recorder == null) {
-            recorder = audioRecordingHelper.setupRecorder(fileName);
+            recorder = audioRecordingHelper.setupRecorder(fileName,
+                    DeveloperPreferences.getAudioQualityProfile());
         }
         recorder.start();
         return START_NOT_STICKY;

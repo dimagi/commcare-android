@@ -1,6 +1,7 @@
 package org.commcare.utils
 
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -158,23 +159,56 @@ class OtpAnalyticsMapperTest {
     // --- getEventType ---
 
     @Test
-    fun `getEventType returns request for REQUEST`() {
+    fun `getEventType returns request for REQUEST_PHONE`() {
         assertEquals(
             AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST,
-            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.REQUEST),
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.REQUEST_PHONE),
         )
     }
 
     @Test
-    fun `getEventType returns verify for VERIFY`() {
+    fun `getEventType returns verify for VERIFY_PHONE`() {
         assertEquals(
             AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY,
-            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.VERIFY),
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.VERIFY_PHONE),
+        )
+    }
+
+    @Test
+    fun `getEventType returns request_email for REQUEST_EMAIL`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST_EMAIL,
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL),
+        )
+    }
+
+    @Test
+    fun `getEventType returns verify_email for VERIFY_EMAIL`() {
+        assertEquals(
+            AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY_EMAIL,
+            OtpAnalyticsMapper.getEventType(OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL),
         )
     }
 
     @Test
     fun `getEventType returns null for null input`() {
         assertNull(OtpAnalyticsMapper.getEventType(null))
+    }
+
+    // --- workflowParam ---
+
+    @Test
+    fun `workflowParam lowercases REGISTRATION`() {
+        assertEquals("registration", OtpAnalyticsMapper.workflowParam(EmailWorkFlow.REGISTRATION))
+    }
+
+    @Test
+    fun `workflowParam lowercases RECOVERY`() {
+        assertEquals("recovery", OtpAnalyticsMapper.workflowParam(EmailWorkFlow.RECOVERY))
+    }
+
+    @Test
+    fun `workflowParam lowercases EXISTING_USER`() {
+        assertEquals("existing_user", OtpAnalyticsMapper.workflowParam(EmailWorkFlow.EXISTING_USER))
     }
 }

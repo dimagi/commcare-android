@@ -62,6 +62,8 @@ class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
         }
     }
 
+    override fun shouldShowBreadcrumbBar(): Boolean = false
+
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         supportActionBar?.title = getString(R.string.personalid_notification)
@@ -112,7 +114,9 @@ class PushNotificationActivity : CommCareActivity<PushNotificationActivity>() {
                 true
             }
 
-            else -> super.onOptionsItemSelected(item)
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
         }
 
     fun registerForNewNotification() {

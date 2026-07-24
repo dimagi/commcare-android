@@ -29,10 +29,12 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecordV27;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecordV21;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
+import org.commcare.android.database.connect.models.ConnectTaskRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
@@ -182,6 +184,17 @@ public class ConnectDatabaseUpgrader {
 
         if (oldVersion == 25) {
             upgradeTwentyFiveTwentySix(db);
+            oldVersion = 26;
+        }
+
+        if (oldVersion == 26) {
+            upgradeTwentySixTwentySeven(db);
+            oldVersion = 27;
+        }
+
+        if (oldVersion == 27) {
+            upgradeTwentySevenTwentyEight(db);
+            oldVersion = 28;
         }
     }
 
@@ -596,7 +609,7 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeElevenTwelve(IDatabase db) {
-        addTableForNewModel(db, ConnectMessagingChannelRecord.STORAGE_KEY, new ConnectMessagingChannelRecord());
+        addTableForNewModel(db, ConnectMessagingChannelRecord.STORAGE_KEY, new ConnectMessagingChannelRecordV27());
         addTableForNewModel(db, ConnectMessagingMessageRecord.STORAGE_KEY, new ConnectMessagingMessageRecord());
     }
 
@@ -1097,6 +1110,40 @@ public class ConnectDatabaseUpgrader {
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentySixTwentySeven(IDatabase db) {
+        addTableForNewModel(db, ConnectTaskRecord.STORAGE_KEY, new ConnectTaskRecord());
+    }
+
+    private void upgradeTwentySevenTwentyEight(IDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectMessagingChannelRecord.STORAGE_KEY,
+                    ConnectMessagingChannelRecord.META_CHANNEL_NAME,
+                    "TEXT"));
+
+            SqlStorage<ConnectMessagingChannelRecordV27> oldStorage = new SqlStorage<>(
+                    ConnectMessagingChannelRecord.STORAGE_KEY,
+                    ConnectMessagingChannelRecordV27.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectMessagingChannelRecord> newStorage = new SqlStorage<>(
+                    ConnectMessagingChannelRecord.STORAGE_KEY,
+                    ConnectMessagingChannelRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectMessagingChannelRecordV27 oldRecord : oldStorage) {
+                ConnectMessagingChannelRecord newRecord = ConnectMessagingChannelRecord.fromV27(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

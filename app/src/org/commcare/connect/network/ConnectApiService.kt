@@ -20,4 +20,11 @@ interface ConnectApiService {
         @Path("id") jobId: String,
         @HeaderMap headers: Map<String, String>,
     ): Response<ResponseBody>
+
+    @GET(ApiEndPoints.connectDeliveriesURL)
+    suspend fun getDeliveryProgress(
+        @Header("Authorization") authorization: String,
+        @Path("id") jobId: String,
+        @HeaderMap headers: Map<String, String>,
+    ): Response<ResponseBody>
 }

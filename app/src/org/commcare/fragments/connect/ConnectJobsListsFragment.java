@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -18,11 +19,11 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.viewmodel.ConnectJobsListViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
@@ -165,7 +166,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else if (isLearning && job.passedAssessment()) {
             navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
+            new ConnectAppLaunchController(this).launchApp(appId, isLearning);
         } else {
             int textId = isLearning
                     ? R.string.connect_downloading_learn

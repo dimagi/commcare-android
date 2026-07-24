@@ -7,6 +7,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -206,5 +207,64 @@ class ConfirmBackupCodeResponseParserTest {
 
         // Act
         parser.parse(json, sessionData)
+    }
+
+    private fun validSuccessJson() =
+        JSONObject().apply {
+            put("username", "test-user")
+            put("db_key", "test-db-key")
+            put("password", "test-password")
+        }
+
+    @Test
+    fun `parse sets email when server returns it`() {
+        val json = validSuccessJson().apply { put("email", "user@example.com") }
+
+        parser.parse(json, sessionData)
+
+        assertEquals("user@example.com", sessionData.email)
+    }
+
+    @Test
+    fun `parse leaves email null when server omits email`() {
+        parser.parse(validSuccessJson(), sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun `parse leaves email null when server returns blank`() {
+        val json = validSuccessJson().apply { put("email", "   ") }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun `parse leaves email null when server returns empty string`() {
+        val json = validSuccessJson().apply { put("email", "") }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun `parse leaves email null when server returns malformed address`() {
+        val json = validSuccessJson().apply { put("email", "not-an-email") }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun `parse leaves email null when server returns json null`() {
+        val json = validSuccessJson().apply { put("email", JSONObject.NULL) }
+
+        parser.parse(json, sessionData)
+
+        assertNull(sessionData.email)
     }
 }

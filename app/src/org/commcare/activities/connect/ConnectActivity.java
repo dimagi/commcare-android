@@ -1,16 +1,11 @@
 package org.commcare.activities.connect;
 
-import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
-import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
-import static org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.NOTIFICATIONS;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
@@ -30,7 +25,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.common.base.Strings;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -40,7 +37,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.personalId.PersonalIdFeatureFlagChecker;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -55,9 +51,10 @@ import kotlin.Unit;
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
+    private boolean appLaunchedFromConnect = false;
     private String redirectionAction = "";
     private ConnectJobRecord job;
-    private MenuItem messagingMenuItem = null;
+    private String opportunityUuid;
     private MenuItem notificationsMenuItem = null;
 
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
@@ -119,7 +116,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        String opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
+        opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
         if (!TextUtils.isEmpty(opportunityUuid)) {
             job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
         }
@@ -149,18 +146,17 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             );
         }
 
-        if(CCC_GENERIC_OPPORTUNITY.equals(redirectionAction)) {
-            String paymentId = getIntent().getStringExtra(PAYMENT_UUID);
-            if (!TextUtils.isEmpty(paymentId) && job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-                redirectionAction = CCC_DEST_PAYMENTS;  //  Generic push notification for payment related
-            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING){
-                redirectionAction = CCC_DEST_DELIVERY_PROGRESS; //  Generic push notification for delivery progress related
-            }else if(job!=null && job.getStatus() == ConnectJobRecord.STATUS_LEARNING){
-                redirectionAction = CCC_DEST_LEARN_PROGRESS;    // Generic push notification for learning progress related
-            }
-        }
+        redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
+                redirectionAction, job, getIntent().getStringExtra(PAYMENT_UUID));
+
+
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
+        startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
+                getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false));
+        if (!TextUtils.isEmpty(opportunityUuid)) {
+            startArgs.putString(OPPORTUNITY_UUID, opportunityUuid);
+        }
 
         return R.id.connect_unlock_fragment;
     }
@@ -173,7 +169,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         notificationsMenuItem = menu.findItem(R.id.action_bell);
-        notificationsMenuItem.setVisible(PersonalIdFeatureFlagChecker.isFeatureEnabled(NOTIFICATIONS));
         updateNotificationIcon();
 
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
@@ -236,9 +231,23 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public void onBackPressed() {
-        if (backButtonAndActionBarEnabled) {
-            super.onBackPressed();
+        if (!backButtonAndActionBarEnabled) {
+            return;
         }
+        if (appLaunchedFromConnect && isAtStartDestination()) {
+            finishAffinity();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    public void markAppLaunchedFromConnect() {
+        appLaunchedFromConnect = true;
+    }
+
+    private boolean isAtStartDestination() {
+        return navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == navController.getGraph().getStartDestinationId();
     }
 
     @Override
@@ -257,7 +266,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if (waitDialogEnabled) {
             return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
         }
-
         return null;
     }
 

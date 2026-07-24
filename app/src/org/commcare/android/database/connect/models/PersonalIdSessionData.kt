@@ -45,6 +45,8 @@ data class PersonalIdSessionData(
     var otpFallback: Boolean = false,
     // the total number of times we attempted to send the user an OTP
     var otpAttempts: Int = 0,
+    // the total number of failed OTP verification attempts this session
+    var otpVerificationFailedAttempts: Int = 0,
     // identifier of the device that was previously configured for this user
     var previousDevice: String? = null,
     // timestamp of the last time this account was accessed from the previous device

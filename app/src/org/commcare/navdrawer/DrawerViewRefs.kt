@@ -26,6 +26,7 @@ class DrawerViewRefs(
     val userImage: ImageView = rootView.findViewById(R.id.user_image)
     val userImageOverlayIcon: ImageView = rootView.findViewById(R.id.user_image_overlay_icon)
     val userName: TextView = rootView.findViewById(R.id.header_user_name)
+    val manageProfileLink: TextView = rootView.findViewById(R.id.header_manage_profile)
     val notificationView: LinearLayout = rootView.findViewById(R.id.notification_view)
     val ivNotification: ImageView = rootView.findViewById(R.id.ivNotification)
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)

@@ -82,7 +82,10 @@ import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
+import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.models.database.user.UserSandboxUtils;
+import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
@@ -220,8 +223,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
-        PersonalIdUnlocker.INSTANCE.resetSession();
-
         ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
 
         turnOnStrictMode();
@@ -1238,10 +1239,22 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
+            case ON_STOP:
+                PersonalIdUnlocker.INSTANCE.resetSession();
+                break;
             case ON_DESTROY:
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
         }
+    }
+
+    public IDatabase getConnectDbOpenHelper(Context context) {
+        byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
+        if (passphrase == null || passphrase.length == 0) {
+            throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
+        }
+        return new EncryptedDatabaseAdapter(new DatabaseConnectOpenHelper(
+                context, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));
     }
 
     public IDatabase getGlobalDbOpenHelper() {

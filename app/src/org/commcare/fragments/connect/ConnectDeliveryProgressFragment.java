@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -19,17 +20,19 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.AppUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
+import org.commcare.connect.repository.ConnectRepository;
+import org.commcare.connect.viewmodel.ConnectDeliveryProgressViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
+import org.commcare.connect.database.ConnectTaskUtils;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.ConnectJobPreferences;
@@ -52,6 +55,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private final ArrayList<ConnectPaymentConfirmationModel> paymentsToConfirm = new ArrayList<>();
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
+    private ConnectDeliveryProgressViewModel viewModel;
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -70,6 +74,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
         }
 
+        setWaitDialogEnabled(false);
+        viewModel = new ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(ConnectDeliveryProgressViewModel.class);
+
         setupTabViewPager();
         setupJobCard();
         setupRefreshAndConfirmationActions();
@@ -78,7 +88,31 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         updateCardMessage();
         updatePaymentConfirmationTile(false);
 
+        observeDeliveryProgress();
+
         return view;
+    }
+
+    private void observeDeliveryProgress() {
+        observeDataState(
+                viewModel.getDeliveryProgress(),
+                cached -> {
+                    job = cached;
+                    onDeliveryProgressUpdated();
+                },
+                success -> {
+                    job = success;
+                    onDeliveryProgressUpdated();
+                }
+        );
+    }
+
+    private void onDeliveryProgressUpdated() {
+        updateLastUpdatedText(job.getLastDeliveryUpdate());
+        setupJobCard();
+        updateCardMessage();
+        updatePaymentConfirmationTile(false);
+        viewPagerAdapter.refresh();
     }
 
     private void setupTabViewPager() {
@@ -132,21 +166,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     @Override
     public void refresh(boolean forceRefresh) {
-        setWaitDialogEnabled(false);
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(
-                getContext(),
-                job,
-                true,
-                this,
-                (success, error) -> {
-                    if (success && isAdded()) {
-                        updateLastUpdatedText(new Date());
-                        updateCardMessage();
-                        updatePaymentConfirmationTile(false);
-                        viewPagerAdapter.refresh();
-                    }
-                }
-        );
+        viewModel.loadDeliveryProgress(job, forceRefresh);
     }
 
     private void setupRefreshAndConfirmationActions() {
@@ -242,7 +262,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                 textColorRes = R.color.rich_amber_gold;
                 backgroundColorRes = R.color.pale_buttery_cream;
                 getBinding().ivConnectMessageWarningIcon.setVisibility(View.VISIBLE);
-            } else if (job.shouldShowRelearnTasksCompletedMessage()) {
+            } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(requireContext(), job)) {
                 textColorRes = R.color.connect_green;
                 backgroundColorRes = R.color.connect_light_green;
                 getBinding().ivConnectMessageWarningIcon.setVisibility(View.GONE);
@@ -320,8 +340,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         String appId = job.getDeliveryAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            CommCareApplication.instance().closeUserSession();
-            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), false, appId);
+            new ConnectAppLaunchController(this).launchApp(appId, false, this::popSelfOnceHidden);
         } else {
             NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
                     .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
@@ -330,6 +349,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
                     );
             Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
         }
+    }
+
+    @Override
+    public String getEndpoint() {
+        return ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.getJobUUID();
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.connect.ConnectApiHandler;
@@ -129,7 +130,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     public static final int MENU_OFFLINE_INSTALL = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_INSTALL_FROM_LIST = Menu.FIRST + 3;
-    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 4;
 
     private static final int MENU_REFRESH_OPPORTUNITIES = Menu.FIRST + 5;
 
@@ -313,7 +313,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     @Override
     protected boolean shouldShowDrawer() {
-        return PersonalIdManager.getInstance().checkDeviceCompability();
+        return shouldShowDrawerAfterCheck(false);
     }
 
     @Override
@@ -497,7 +497,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.add(0, MENU_OFFLINE_INSTALL, 0, getString(R.string.menu_archive)).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_INSTALL_FROM_LIST, 2, getString(R.string.menu_app_list_install));
-        menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.personalid_forget_user));
         menu.add(0, MENU_REFRESH_OPPORTUNITIES, 4, getString(R.string.connect_refresh_opportunities));
         return true;
     }
@@ -505,11 +504,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem item = menu.findItem(MENU_PERSONAL_ID_FORGET);
-        if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
-        }
-
         MenuItem refreshItem = menu.findItem(MENU_REFRESH_OPPORTUNITIES);
         if (refreshItem != null) {
             boolean showRefreshMenu = !fromExternal &&
@@ -640,10 +634,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
-            case MENU_PERSONAL_ID_FORGET:
-                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
-                updateConnectButton();
-                break;
             case MENU_REFRESH_OPPORTUNITIES:
                 refreshOpportunities();
                 break;
@@ -656,8 +646,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     private Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         return Map.of(
                 MENU_OFFLINE_INSTALL, AnalyticsParamValue.CC_SETUP_MENU_OFFLINE_INSTALL,
-                MENU_INSTALL_FROM_LIST, AnalyticsParamValue.CC_SETUP_MENU_INSTALL_FROM_LIST,
-                MENU_PERSONAL_ID_FORGET, AnalyticsParamValue.CC_SETUP_MENU_PERSONAL_ID_FORGET
+                MENU_INSTALL_FROM_LIST, AnalyticsParamValue.CC_SETUP_MENU_INSTALL_FROM_LIST
         );
     }
 
@@ -665,7 +654,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
                 && ConnectUserDatabaseUtil.hasConnectAccess(this);
         installFragment.updateConnectButton(isConnectEnabled, v -> {
-            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
+            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
             });
         });
     }

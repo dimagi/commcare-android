@@ -143,4 +143,66 @@
         <attr name="progressBackgroundColor" format="color" />
         <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="SemiCircleProgressBar">
+        <attr name="progressColor" />
+        <attr name="trackColor" format="color" />
+        <attr name="valueTextColor" format="color" />
+        <attr name="descriptionTextColor" format="color" />
+        <attr name="strokeWidth" />
+        <attr name="valueTextSize" format="dimension" />
+        <attr name="descriptionTextSize" format="dimension" />
+        <attr name="currentValue" format="integer" />
+        <attr name="maxValue" format="integer" />
+        <attr name="descriptionText" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="ConnectInfoHalfCard">
+        <attr name="valueText" format="string" />
+        <attr name="titleText" format="string" />
+        <attr name="subtitleText" format="string" />
+        <attr name="icon" format="reference" />
+        <attr name="navigable" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ConnectInfoCard">
+        <attr name="valueText" />
+        <attr name="titleText" />
+        <attr name="subtitleText" />
+        <attr name="navigable" />
+    </declare-styleable>
+
+    <declare-styleable name="ConnectSuccessFailureCard">
+        <attr name="mode" format="enum">
+            <enum name="success" value="0" />
+            <enum name="failure" value="1" />
+        </attr>
+        <attr name="messageText" format="string" />
+        <attr name="cardCornerRadius" />
+        <attr name="cardElevation" />
+        <attr name="successBackgroundColor" format="color" />
+        <attr name="successAccentColor" format="color" />
+        <attr name="failureBackgroundColor" format="color" />
+        <attr name="failureAccentColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="ConnectCtaBar">
+        <attr name="titleText" />
+        <attr name="subtitleText" />
+        <attr name="buttonText" format="string" />
+        <attr name="infoMessage" format="string" />
+        <attr name="progress" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="RectangleOverlayView">
+        <attr name="reticleScrimColor" format="color" />
+        <attr name="reticleStrokeColor" format="color" />
+        <attr name="reticleOutlineColor" format="color" />
+        <attr name="reticleStrokeWidth" format="dimension" />
+        <attr name="reticleOutlineWidth" format="dimension" />
+        <attr name="reticleWidthFractionPortrait" format="float" />
+        <attr name="reticleHeightFractionPortrait" format="float" />
+        <attr name="reticleWidthFractionLandscape" format="float" />
+        <attr name="reticleHeightFractionLandscape" format="float" />
+    </declare-styleable>
 </resources>
