@@ -82,8 +82,10 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- Added a face-capture image widget: image questions with `appearance="face"` now open a dedicated camera that automatically detects and captures the respondent's face, with front/back camera switching and a manual-capture fallback.
 - [Manage Profile] PersonalID users can now view and edit their profile details from the new Manage Profile screen.
 - [Open Conversation] Connect job tile now shows an "Open Conversation" button for delivering jobs with a pending OCS messaging task.
+
 
 #### Internal Release Notes
 - Deprecated PersonalID support for devices on Android OS less than Android 9.
@@ -96,8 +98,9 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [Audio Recording Revamp] Refreshed the in-app audio recording UI across the capture, recording, playback, and delete screens
 - [Audio Recording Revamp] Recording now starts immediately when you tap the microphone and saves as soon as you stop, removing the previous intermediate tap-to-record and playback-confirm steps
 - [Audio Recording Revamp] The recording notification now has a Save button, and a Pause/Resume button for long recordings, so you can control the recording without returning to the form
-- Image capture questions support a new `rectangle-overlay` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+- Image capture questions support a new `overlay-small` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
 - [Auto Location Capture] We now save the location acquired with the best accuracy in a form session rather than the last one.
+
 
 #### Important Bug Fixes
 
@@ -227,23 +230,21 @@ we would like to communicate to QA as part of the release testing
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
 
 
-- **Audio Recording Revamp:** Test on a form question that has two Audio Capture questions, one of which with the _long_ appearance attribute. Scope covers the capture, recording, pause, playback, and delete states.
+- **Audio Recording Revamp:** Test on a form question that has two Audio Capture questions, one of which with the _long_ appearance attribute. 
   - **Start (direct):** Open the question. Verify the capture screen shows the large microphone button with the "Start recording" label and instructions. Tap the microphone and verify recording starts immediately with no intermediate "tap to record" dialog — the blinking "RECORDING" indicator, the animated red progress ring, and a live timer counting up are shown.
   - **Stop & save (direct):** For a standard (non-pausable) question, tap stop and verify the recording is finalized and saved straight away — the playback panel appears with no separate playback/confirm step in between.
   - **Pause / resume (long-recording questions only):** In the question configured with the `long` appearance, while recording, verify the control shows a pause icon. Tap it and verify the paused state: static gray ring, a "PAUSED" indicator, the timer frozen, a Save button, and the "Recording is paused. Tap on the mic to unpause, or tap Save to proceed" instruction. Tap the mic to resume (timer continues) and tap Save from paused to finalize.
-  - **Playback panel:** After saving, verify the panel shows the recording's file name, total duration, a play button, and a seek bar. Play the audio and verify the play/pause toggle works, the current time updates, and dragging the seek bar scrubs playback.
-  - **Delete (two-step):** Tap Delete and verify the confirmation prompt ("Delete this recording?") with "Yes, Delete" / "No, Go back". Confirm "No, Go back" keeps the recording and "Yes, Delete" clears it (the capture screen returns).
-  - **File chooser:** Confirm the choose-from-file button appears only for questions using the `acquire-or-upload` appearance and is hidden otherwise.
+  - **Playback panel:** After saving, verify the panel shows the recording's file name, total duration, a play button, and a seek bar. Play the audio and verify the play/pause toggle works and the current time updates.
+  - **Delete (two-step):** Tap Delete and verify the confirmation prompt ("Delete this recording?") with "Yes, Delete" / "No, Go back". Confirm "No, Go back" keeps the recording and "Yes, Delete" clears it.
   - **Persistence:** Record and save, navigate forward and back to the question, and verify the saved recording still loads and plays. Submit the form and verify the audio attachment is present on HQ.
-  - **Icon rendering:** Verify the play, pause, record, and trash icons render crisply and are correctly sized/centered on their buttons (icons were moved to vector drawables and to `src`/`scaleType`).
-  - **Notification – Save:** While recording, pull down the notification shade and verify the persistent recording notification shows a **Save** action. Tap it and verify the recording is finalized and saved (same result as tapping Save in the dialog), the dialog returns to the playback panel, and the notification is dismissed. Confirm the audio attachment is present on HQ after submitting.
-  - **Notification – Pause/Resume (long-recording questions only):** For a question with the `long` appearance on Android 7+ (API 24+), verify the notification shows a **Pause** action alongside Save. Tap **Pause** and verify the recording pauses, the in-dialog UI reflects the paused state (frozen timer, "PAUSED"), and the notification button relabels to **Resume**. Tap **Resume** and verify recording continues and the button flips back to **Pause**.
-  - **Notification – action visibility:** For a standard (non-pausable) question, verify only the **Save** action is shown (no Pause/Resume). Confirm the Pause/Resume action never appears on pre-Android 7 devices or non-`long` questions.
+  - **Notification – Save:** While recording, pull down the notification shade and verify the persistent recording notification shows a **Save** action. Tap it and verify the recording is finalized and saved, the dialog returns to the playback panel, and the notification is dismissed. Confirm the audio attachment is present on HQ after submitting.
+  - **Notification – Pause/Resume (long recordings only):** Verify the notification shows a **Pause** action alongside Save. Tap **Pause** and verify the recording pauses, the UI reflects the paused state, and the notification button changes to **Resume**. Tap **Resume** and verify recording continues and the button flips back to **Pause**.
   - **Notification – cross-control consistency:** Pause from the notification, then resume using the in-dialog mic (and vice-versa); verify the notification label and dialog state stay in sync in both directions. Background/rotate the host activity, then use the notification Save/Pause/Resume and verify no crash.
+
 
   - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
 - Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
-- **Image reticle overlay:** On a form image-capture question with `appearance="rectangle-overlay"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
+- **Image reticle overlay:** On a form image-capture question with `appearance="overlay-small"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
 
 - **Manage Profile (PersonalID):**
   - **Access:** Signed in to PersonalID, open the side navigation drawer and verify a "Manage Profile" link appears and opens a screen showing name, phone, email, and photo. Verify the link is absent when signed out.
@@ -251,6 +252,13 @@ we would like to communicate to QA as part of the release testing
   - **Edit email (one-time code):** Change the email and save; verify the new address must be confirmed with a one-time code before it updates. If you change both name and email but abandon the code entry, verify the new name is kept while the email stays unchanged.
   - **Forget PersonalID relocation:** Verify "Forget PersonalID" is no longer in the Login or app-setup menus, and that forgetting the account is available from the Manage Profile screen behind a confirmation prompt.
 
+- **Face capture image widget:**
+  - **Setup:** Use a form with a face capture question or an image question configured with `appearance="face"`.
+  - **Automatic capture (devices with Google Play Services):** Navigate to the question and tap the capture button. 
+    - Verify the **rear (back) camera** is used by default, position a face within the oval. Verify the app detects the face and once the image stabilizes the photo is captured automatically and then appears in the form. 
+    - Submit the form and verify the image is saved and uploaded to HQ.
+  - **Lens switching:** Tap the switch-camera button. Verify the preview toggles between the front and back cameras on each tap.
+  - **Back navigation:** From the camera screen, tap the toolbar back arrow and the device back button. In both cases verify the camera closes and returns to the form without capturing or crashing.
 
 
 ## CommCare 2.63

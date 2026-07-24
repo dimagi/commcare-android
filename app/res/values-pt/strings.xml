@@ -669,6 +669,14 @@
     <string name="camera_permission_denied">Vá às configurações e ative a permissão da câmera para usar este recurso</string>
     <string name="microimage_face_detection_mode_failed">Falha no modo de detecção de rosto, alternando para o modo manual</string>
     <string name="microimage_cropping_failed">Falha ao recortar a imagem, verifique se o alvo está dentro da área de captura</string>
+    <string name="microimage_saving_failed">Não foi possível salvar a imagem. Tente novamente</string>
+    <string name="face_capture_activity_title">Tirar foto do rosto</string>
+    <string name="face_capture_manual_instructions">Centralize um rosto dentro da oval e depois toque no botão branco para tirar a foto</string>
+    <string name="face_capture_auto_instructions">Centralize um rosto dentro da oval e fique parado para acionar o processo de captura automática</string>
+    <string name="face_capture_auto_mode">Captura automática</string>
+    <string name="face_capture_manual_mode">Captura manual</string>
+    <string name="face_capture_front_camera_unavailable">A câmera frontal não está disponível, a opção de trocar de câmera será desativada</string>
+
     <string name="recording_notification_save_action">Salvar</string>
     <string name="recording_notification_pause_action">Pausar</string>
     <string name="recording_notification_resume_action">Retomar</string>

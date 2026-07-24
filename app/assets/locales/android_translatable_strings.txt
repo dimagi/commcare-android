@@ -1009,4 +1009,3 @@ android.package.name.callout.commcare.org.sendussd=Commcare USSD
 android.package.name.org.commcare.dalvik.abha=CommCare ABHA
 
 location.capture.cancelled=Location capture cancelled
-
