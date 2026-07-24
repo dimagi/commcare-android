@@ -18,7 +18,7 @@ fun DeliveryAppProgressResponseModel.applyToJob(
     context: Context,
 ) {
     if (updatedJob) {
-        ConnectJobUtils.upsertJob(context, job)
+        ConnectJobUtils.upsertJob(job)
     }
     if (hasDeliveries) {
         ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobUUID, true)

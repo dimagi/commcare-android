@@ -650,11 +650,13 @@
 
     <string name="micro_image_activity_title">Take Profile Photo</string>
     <string name="image_capture_activity_title" cc:translatable="true">Take Photo</string>
+    <string name="face_capture_activity_title" cc:translatable="true">Take Face Photo</string>
     <string name="image_capture_failed" cc:translatable="true">Failed to save photo, please try again</string>
     <string name="camera_start_failed" cc:translatable="true">Camera failed to start</string>
     <string name="camera_permission_denied" cc:translatable="true">Go to settings and enable camera permission to use this feature</string>
     <string name="microimage_face_detection_mode_failed" cc:translatable="true">Face detection mode failed, switching to manual mode</string>
     <string name="microimage_cropping_failed" cc:translatable="true">Image cropping failed, make sure the target is inside the capture area</string>
+    <string name="microimage_saving_failed" cc:translatable="true">Image couldn\'t be saved. Please try again</string>
 
     <string name="personalid_user_photo_update_dialog_title">Update Profile Photo</string>
     <string name="personalid_user_photo_update_dialog_message">Would you like to take a new profile photo?</string>
@@ -852,5 +854,9 @@
     <string name="recording_paused" cc:translatable="true">PAUSED</string>
 
     <string name="clear_search_button_description">Clear query</string>
-
+    <string name="face_capture_manual_instructions" cc:translatable="true">Center a face inside the frame, then tap the white button to take the picture</string>
+    <string name="face_capture_auto_instructions" cc:translatable="true">Center a face inside the frame, hold still to trigger the auto-capture process</string>
+    <string name="face_capture_auto_mode" cc:translatable="true">Auto capture</string>
+    <string name="face_capture_manual_mode" cc:translatable="true">Manual capture</string>
+    <string name="face_capture_front_camera_unavailable" cc:translatable="true">Front-facing camera is not available, the option to switch cameras will be disabled</string>
 </resources>
