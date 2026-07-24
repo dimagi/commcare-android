@@ -111,7 +111,7 @@ object InstrumentationUtility {
         clickListItem(R.id.apps_list_view, 0)
         onView(withText("Uninstall"))
             .perform(click())
-        onView(withText("OK"))
+        onView(withText(R.string.ok))
             .inRoot(RootMatchers.isDialog())
             .perform(click())
         onView(withId(R.id.install_app_button))
@@ -168,7 +168,7 @@ object InstrumentationUtility {
             onView(isRoot()).perform(waitForView(withText("About CommCare")))
             onView(withText("About CommCare"))
                 .perform(click())
-            onView(withText("OK"))
+            onView(withText(R.string.ok))
                 .perform(click())
         }
     }
@@ -331,6 +331,7 @@ object InstrumentationUtility {
     fun setNetworkEnabled(enabled: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.executeShellCommand(if (enabled) "svc wifi enable" else "svc wifi disable")
+        uiDevice.executeShellCommand("settings put global wifi_wakeup " + if (enabled) "1" else "0")
         uiDevice.executeShellCommand(if (enabled) "svc data enable" else "svc data disable")
         waitForWifiState(enabled)
     }

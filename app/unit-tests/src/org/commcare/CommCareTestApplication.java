@@ -27,6 +27,7 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.database.UnencryptedDatabaseAdapter;
 import org.commcare.models.database.app.DatabaseAppOpenHelperMock;
+import org.commcare.models.database.connect.DatabaseConnectOpenHelperMock;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelperMock;
 import org.commcare.models.database.user.DatabaseUserOpenHelperMock;
 import org.commcare.models.encryption.ByteEncrypter;
@@ -54,6 +55,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.WorkManager;
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -112,8 +115,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         } catch (IllegalStateException e) {
             Configuration config = new Configuration.Builder()
                     .setMinimumLoggingLevel(Log.DEBUG)
+                    .setExecutor(new SynchronousExecutor())
                     .build();
-            WorkManager.initialize(context, config);
+            WorkManagerTestInitHelper.initializeTestWorkManager(context, config);
         }
     }
 
@@ -335,6 +339,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     public void setSkipWorkManager() {
         skipWorkManager = true;
+    }
+
+    @Override
+    public IDatabase getConnectDbOpenHelper(Context context) {
+        return new UnencryptedDatabaseAdapter(new DatabaseConnectOpenHelperMock(this));
     }
 
     @Override

@@ -33,6 +33,8 @@ data class PersonalIdSessionData(
     var attemptsLeft: Int? = null,
     // name of the user
     var userName: String? = null,
+    // email of the user; non-null means the address has been verified server-side or via OTP this session
+    var email: String? = null,
     // phone number of the user
     var phoneNumber: String? = null,
     // recovery code of the user
@@ -43,6 +45,8 @@ data class PersonalIdSessionData(
     var otpFallback: Boolean = false,
     // the total number of times we attempted to send the user an OTP
     var otpAttempts: Int = 0,
+    // the total number of failed OTP verification attempts this session
+    var otpVerificationFailedAttempts: Int = 0,
     // identifier of the device that was previously configured for this user
     var previousDevice: String? = null,
     // timestamp of the last time this account was accessed from the previous device

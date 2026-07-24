@@ -389,8 +389,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                     break;
                 case FormEntryConstants.IMAGE_CAPTURE:
-                    ImageCaptureProcessing.processCaptureResponse(this,
-                            FormEntryInstanceState.getInstanceFolder(), true);
+                    ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
                     break;
                 case FormEntryConstants.SIGNATURE_CAPTURE:
                     Logger.log(LogTypes.SOFT_ASSERT, "Signature captured successfully");

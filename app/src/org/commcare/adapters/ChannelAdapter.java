@@ -84,7 +84,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 ConnectMessagingChannelRecord channel,
                 OnChannelClickListener clickListener
         ) {
-            binding.tvChannelName.setText(channel.getChannelName());
+            binding.tvChannelName.setText(channel.getDisplayName());
 
             Date lastDate = channel.getLastMessageDate();
             int unread = channel.getUnreadCount();

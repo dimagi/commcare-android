@@ -58,6 +58,7 @@ public class FormAttachmentUploadTest extends BaseTest {
 
         onView(withText("Gather Signature"))
                 .perform(click());
+
         onView(isRoot())
                 .perform(InstrumentationUtility.waitForView(instanceOf(DrawView.class), 5000, true));
         onView(instanceOf(DrawView.class))

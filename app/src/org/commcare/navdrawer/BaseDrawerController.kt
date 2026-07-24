@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
@@ -19,9 +20,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.NOTIFICATIONS
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY
+import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.MultipleAppsUtil
@@ -32,12 +31,14 @@ class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
     private val highlightSeatedApp: Boolean,
+    private val photoUpdater: PersonalIdPhotoUpdater,
     private val onItemClicked: (NavItemType, String?) -> Unit,
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
     private var hasRefreshed = false
     private var showingError = false
+    var lastPhotoUploadFailed: Boolean = false
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -144,6 +145,36 @@ class BaseDrawerController(
             closeDrawer()
         }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
+        binding.userImage.setOnClickListener {
+            photoUpdater.initiatePhotoUpdate()
+        }
+        binding.manageProfileLink.setOnClickListener {
+            ConnectNavHelper.unlockAndGoToProfile(
+                activity,
+                listener =
+                    object : ConnectActivityCompleteListener {
+                        override fun connectActivityComplete(
+                            success: Boolean,
+                            error: String?,
+                        ) {
+                            if (success) {
+                                closeDrawer()
+                            }
+                        }
+                    },
+            )
+        }
+    }
+
+    fun onPhotoUpdateSuccess(photoBase64: String) {
+        lastPhotoUploadFailed = false
+        loadUserPhoto(photoBase64)
+        binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_camera)
+    }
+
+    fun onPhotoUpdateFailure() {
+        lastPhotoUploadFailed = true
+        binding.userImageOverlayIcon.setImageResource(R.drawable.ic_personalid_warning)
     }
 
     fun refreshDrawerContent() {
@@ -153,15 +184,15 @@ class BaseDrawerController(
 
             val user = ConnectUserDatabaseUtil.getUser(activity)
             binding.userName.text = user.name
-            Glide
-                .with(binding.imageUserProfile)
-                .load(user.photo)
-                .apply(
-                    RequestOptions
-                        .circleCropTransform()
-                        .placeholder(R.drawable.nav_drawer_person_avatar)
-                        .error(R.drawable.nav_drawer_person_avatar),
-                ).into(binding.imageUserProfile)
+            user.photo?.let { loadUserPhoto(it) }
+
+            val userImageOverlayIconRes =
+                if (lastPhotoUploadFailed) {
+                    R.drawable.ic_personalid_warning
+                } else {
+                    R.drawable.ic_personalid_camera
+                }
+            binding.userImageOverlayIcon.setImageResource(userImageOverlayIconRes)
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
@@ -244,6 +275,7 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+        binding.manageProfileLink.visibility = if (shouldShowManageProfile()) View.VISIBLE else View.GONE
         binding.notificationView.visibility =
             if (shouldShowNotifications()) View.VISIBLE else View.GONE
     }
@@ -273,12 +305,11 @@ class BaseDrawerController(
         }
     }
 
-    private fun shouldShowWorkHistory(): Boolean {
-        // we are keeping this off for now until we have go ahead to release this feature
-        return PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(WORK_HISTORY)
-    }
+    private fun shouldShowWorkHistory(): Boolean = PersonalIdManager.getInstance().isloggedIn()
 
-    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn() && isFeatureEnabled(NOTIFICATIONS)
+    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn()
+
+    private fun shouldShowManageProfile(): Boolean = PersonalIdManager.getInstance().isloggedIn()
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -291,4 +322,15 @@ class BaseDrawerController(
     fun isShowingError(): Boolean = showingError
 
     fun handleOptionsItem(item: MenuItem): Boolean = drawerToggle.onOptionsItemSelected(item)
+
+    private fun loadUserPhoto(photoBase64: String) {
+        Glide
+            .with(binding.userImage)
+            .load(photoBase64)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.nav_drawer_person_avatar)
+                    .error(R.drawable.nav_drawer_person_avatar),
+            ).into(binding.userImage)
+    }
 }

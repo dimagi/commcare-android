@@ -4,10 +4,15 @@ import android.os.Build
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withClassName
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -15,15 +20,16 @@ import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.endsWith
+import org.hamcrest.Matchers.startsWith
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class FormEntryTest: BaseTest() {
-
+class FormEntryTest : BaseTest() {
     companion object {
         const val CCZ_NAME = "languages.ccz"
         const val APP_NAME = "Language Test"
@@ -45,56 +51,56 @@ class FormEntryTest: BaseTest() {
         // Open the incomplete form and make changes but do not save.
         InstrumentationUtility.openFirstIncompleteForm()
         onView(withId(R.id.jumpBeginningButton))
-                .perform(click())
+            .perform(click())
         onView(withClassName(endsWith("EditText")))
-                .perform(typeText("test"))
+            .perform(typeText("test"))
         closeSoftKeyboard()
         Espresso.pressBack()
         onView(withText(R.string.do_not_save))
-                .perform(click())
+            .perform(click())
         InstrumentationUtility.gotoHome()
 
         // Open the incomplete form and confirm that the changes you made aren't saved.
         InstrumentationUtility.openFirstIncompleteForm()
         onView(withId(R.id.jumpBeginningButton))
-                .perform(click())
+            .perform(click())
         onView(withClassName(endsWith("EditText")))
-                .check(matches(withText("")))
+            .check(matches(withText("")))
 
         // Again make changes and this time save it.
         onView(withClassName(endsWith("EditText")))
-                .perform(typeText("test"))
+            .perform(typeText("test"))
         saveAsIncomplete()
 
         // Open incomplete form again and confirm that the changes you made exists.
         InstrumentationUtility.openFirstIncompleteForm()
         onView(withId(R.id.jumpBeginningButton))
-                .perform(click())
+            .perform(click())
         onView(withClassName(endsWith("EditText")))
-                .check(matches(withText("test")))
+            .check(matches(withText("test")))
 
-        //Proceed to second question
+        // Proceed to second question
         onView(withId(R.id.nav_btn_next))
             .perform(click())
 
-        //Input some text to the second question
+        // Input some text to the second question
         onView(withClassName(endsWith("EditText")))
             .perform(typeText("hello"))
 
         // Confirm that we can submit the form.
         onView(withId(R.id.nav_btn_finish))
-                .perform(click())
+            .perform(click())
 
         // Check that the form now appears in saved form and not in incomplete form.
         onView(withText("Saved"))
-                .perform(click())
+            .perform(click())
         onView(withText("Languages"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         Espresso.pressBack()
         onView(withText(startsWith("Incomplete")))
-                .perform(click())
+            .perform(click())
         onView(withText("Languages"))
-                .check(doesNotExist())
+            .check(doesNotExist())
     }
 
     @Test
@@ -108,36 +114,38 @@ class FormEntryTest: BaseTest() {
         // Confirm that backing out without saving goes to form list.
         Espresso.pressBack()
         onView(withText(R.string.do_not_save))
-                .perform(click())
-        onView(CustomMatchers.find(
+            .perform(click())
+        onView(
+            CustomMatchers.find(
                 allOf(withText("Basic Form Tests")),
-                1
-        )).check(matches(isDisplayed()))
+                1,
+            ),
+        ).check(matches(isDisplayed()))
         onView(withText("Languages"))
-                .perform(click())
+            .perform(click())
 
         // Make changes to the form.
         onView(withClassName(endsWith("EditText")))
-                .perform(typeText("test"))
+            .perform(typeText("test"))
         closeSoftKeyboard()
 
         // Save the form using options menu item.
         InstrumentationUtility.openOptionsMenu()
         onView(withText(R.string.save_all_answers))
-                .perform(click())
+            .perform(click())
 
         // Exit form using do not save.
         Espresso.pressBack()
         onView(withText(R.string.do_not_save))
-                .perform(click())
+            .perform(click())
         InstrumentationUtility.gotoHome()
 
         // Open the incomplete form and confirm that the changes exists.
         InstrumentationUtility.openFirstIncompleteForm()
         onView(withId(R.id.jumpBeginningButton))
-                .perform(click())
+            .perform(click())
         onView(withClassName(endsWith("EditText")))
-                .check(matches(withText("test")))
+            .check(matches(withText("test")))
     }
 
     @Test
@@ -148,16 +156,16 @@ class FormEntryTest: BaseTest() {
 
         // Trigger constraint violation(require response)
         onView(withId(R.id.nav_btn_next))
-                .perform(click())
+            .perform(click())
         onView(withText("Sorry, this response is required!"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
 
         // Confirm that we can save form despite violated constraint
         saveAsIncomplete()
         onView(withText(startsWith("Incomplete")))
-                .perform(click())
+            .perform(click())
         onView(withText("Constraint"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
     }
 
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
@@ -172,39 +180,39 @@ class FormEntryTest: BaseTest() {
         // Submit a form.
         InstrumentationUtility.openForm(0, 0)
         onView(withClassName(endsWith("EditText")))
-                .perform(typeText("hello"))
+            .perform(typeText("hello"))
         onView(withId(R.id.nav_btn_next))
             .perform(click())
         onView(withClassName(endsWith("EditText")))
             .perform(typeText("hello"))
         onView(withId(R.id.nav_btn_finish))
-                .perform(click())
+            .perform(click())
         // Confirm unsent form.
         onView(withText("Start"))
-                .perform(click())
+            .perform(click())
         Espresso.pressBack()
         onView(withText("Unsent Forms: 1"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
 
         // Enabled wifi.
         InstrumentationUtility.setNetworkEnabled(true)
 
         // Confirm form is sent on sync.
         onView(withText("Sync with Server"))
-                .perform(click())
+            .perform(click())
         onView(withText("Unsent Forms: 1"))
-                .check(doesNotExist())
+            .check(doesNotExist())
         onView(withText("Start"))
-                .perform(click())
+            .perform(click())
         Espresso.pressBack()
         onView(withText(startsWith("You last synced with the server:")))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
 
         // Confirm form is present in saved forms
         onView(withText("Saved"))
-                .perform(click())
+            .perform(click())
         onView(withText("Languages"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         InstrumentationUtility.logout()
     }
 
@@ -216,9 +224,9 @@ class FormEntryTest: BaseTest() {
         InstrumentationUtility.openForm(1, 1)
         openCase("Snow")
         onView(withId(R.id.nav_btn_next))
-                .perform(click())
+            .perform(click())
         onView(withClassName(endsWith("EditText")))
-                .perform(typeText("hello"))
+            .perform(typeText("hello"))
         saveAsIncomplete()
 
         // testing notification for having incomplete form for case already made
@@ -226,34 +234,36 @@ class FormEntryTest: BaseTest() {
         openCase("Snow")
         confirmNotification_whenCaseHasIncompeleteForm()
         onView(withText("NO"))
-                .perform(click())
+            .perform(click())
         onView(withText("A"))
-                .perform(click())
+            .perform(click())
         onView(withId(R.id.nav_btn_next))
-                .perform(click())
+            .perform(click())
         onView(withClassName(endsWith("EditText")))
-                .check(matches(withText(""))) // we don't see the text hello here.
+            .check(matches(withText(""))) // we don't see the text hello here.
         saveAsIncomplete()
 
         // Deleting one incomplete form for case
         onView(withText(startsWith("Incomplete")))
-                .perform(click())
-        onView(CustomMatchers.find(
+            .perform(click())
+        onView(
+            CustomMatchers.find(
                 allOf(withText("Update a Case")),
-                1
-        )).perform(longClick())
+                1,
+            ),
+        ).perform(longClick())
         onView(withText("Open"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText("Delete Record"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText("Scan Record Integrity"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText("Delete Record"))
-                .perform(click())
+            .perform(click())
 
         // Confirm we still have one and only one incomplete case.
         onView(withText("Update a Case"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         Espresso.pressBack()
 
         // Continue incomplete case form.
@@ -261,20 +271,20 @@ class FormEntryTest: BaseTest() {
         openCase("Snow")
         confirmNotification_whenCaseHasIncompeleteForm()
         onView(withText("YES"))
-                .perform(click())
+            .perform(click())
         onView(withId(R.id.jumpEndButton))
-                .perform(click())
+            .perform(click())
 
         // Save form
         onView(withText("hello"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         saveAsIncomplete()
 
         // Confirm that we have only one incomplete form.
         onView(withText(startsWith("Incomplete")))
-                .perform(click())
+            .perform(click())
         onView(withText("Update a Case"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
     }
 
     @Test
@@ -285,47 +295,46 @@ class FormEntryTest: BaseTest() {
         InstrumentationUtility.openForm(0, 0)
         closeSoftKeyboard()
 
-        //Confirm the hint is visible and contains the correct text
+        // Confirm the hint is visible and contains the correct text
         onView(withClassName(endsWith("ShrinkingTextView")))
             .check(matches(isDisplayed()))
             .check(matches(withText("Name hint")))
 
-        //Input some text to the first question
+        // Input some text to the first question
         onView(withClassName(endsWith("EditText")))
             .perform(typeText("hello"))
 
-        //Proceed to second question
+        // Proceed to second question
         onView(withId(R.id.nav_btn_next))
             .perform(click())
 
-        //Verify hint text does not exist
+        // Verify hint text does not exist
         onView(withClassName(endsWith("ShrinkingTextView")))
             .check(doesNotExist())
     }
 
     private fun openCase(caseName: String) {
         onView(withText(caseName))
-                .perform(click())
+            .perform(click())
         onView(withText("Continue"))
-                .perform(click())
+            .perform(click())
     }
 
     private fun saveAsIncomplete() {
         closeSoftKeyboard()
         Espresso.pressBack()
         onView(withText(R.string.keep_changes))
-                .perform(click())
+            .perform(click())
     }
 
     private fun confirmNotification_whenCaseHasIncompeleteForm() {
         onView(withText("Continue Form"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText("DELETE OLD COPY"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText("YES"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText("NO"))
-                .check(matches(isDisplayed()))
+            .check(matches(isDisplayed()))
     }
-
 }

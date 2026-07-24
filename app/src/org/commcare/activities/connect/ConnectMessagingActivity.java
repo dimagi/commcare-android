@@ -14,6 +14,8 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -21,6 +23,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
+
+import java.util.Objects;
 
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID;
@@ -125,6 +129,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
 
     private void handleRedirectIfAny() {
         String action = getIntent().getStringExtra(REDIRECT_ACTION);
+        String channelId = getIntent().getStringExtra(CHANNEL_ID);
+
         if (CCC_MESSAGE.equals(action)) {
             PersonalIdManager.getInstance().init(this);
             FirebaseAnalyticsUtil.reportNotificationEvent(
@@ -133,23 +139,33 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     getNotificationActionFromIntent(getIntent()),
                     getIntent().getStringExtra(NOTIFICATION_ID)
             );
-            PersonalIdManager.getInstance().unlockConnect(this, success -> {
-                if (success) {
-                    String channelId = getIntent().getStringExtra(
-                            ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
-                    String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
-                    if (!TextUtils.isEmpty(notificationId)) {
-                        NotificationRecordDatabaseHelper.INSTANCE
-                                .updateReadStatus(this, notificationId, true);
-                    }
-                    if (TextUtils.isEmpty(channelId)) {
-                        showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
-                    } else {
-                        handleChannelForValidity(channelId);
-                    }
-                }
-            });
+            channelId = getIntent().getStringExtra(
+                    ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
         }
+
+        boolean redirect = CCC_MESSAGE.equals(action) || !TextUtils.isEmpty(channelId);
+        if (redirect) {
+            unlockAndNavigateToChannel(channelId);
+        }
+    }
+
+    private void unlockAndNavigateToChannel(String channelId) {
+        if (TextUtils.isEmpty(channelId)) {
+            showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
+            return;
+        }
+        PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
+            if (success) {
+                String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
+                if (!TextUtils.isEmpty(notificationId)) {
+                    NotificationRecordDatabaseHelper.INSTANCE
+                            .updateReadStatus(this, notificationId, true);
+                }
+                handleChannelForValidity(channelId);
+            } else {
+                finish();
+            }
+        });
     }
 
     private void handleChannelForValidity(String channelId) {

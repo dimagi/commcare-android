@@ -2,6 +2,7 @@ package org.commcare.utils;
 
 import android.content.Context;
 import android.text.Spannable;
+import android.util.Patterns;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -62,6 +63,15 @@ public class StringUtils {
             }
         }
         return total;
+    }
+
+    /**
+     * Validates an email address against {@link Patterns#EMAIL_ADDRESS}. Returns false for
+     * null, empty, or whitespace-only input.
+     */
+    public static boolean isValidEmail(String email) {
+        return email != null && !email.trim().isEmpty()
+                && Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches();
     }
 
     public static String getLocalizedLevel(String levelCode, Context context) {

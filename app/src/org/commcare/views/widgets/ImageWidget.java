@@ -63,7 +63,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     private static final String OVERLAY_SMALL = "overlay-small";
 
     private final Button mCaptureButton;
-    private final Button mChooseButton;
+    protected final Button mChooseButton;
     private final Button mDiscardButton;
     private ImageView mImageView;
 
@@ -74,8 +74,9 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
+
     private final boolean useRectangleOverlay;
-    private final PendingCalloutInterface pendingCalloutInterface;
+    protected final PendingCalloutInterface pendingCalloutInterface;
 
     public static File getTempFileForImageCapture() {
         return new File(CommCareApplication.instance().
@@ -216,6 +217,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }
                 mImageView.setImageBitmap(bmp);
+                mDiscardButton.setVisibility(View.VISIBLE);
             } else {
                 mImageView.setImageBitmap(null);
             }
@@ -227,7 +229,6 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                     MediaWidget.playMedia(getContext(), "image/*", toDisplay.getAbsolutePath()));
 
             addView(mImageView);
-            mDiscardButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -262,7 +263,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
         return toDisplay;
     }
 
-    private void takePicture() {
+    protected void takePicture() {
         Intent intent;
         if (useRectangleOverlay) {
             intent = buildOverlayCaptureIntent();

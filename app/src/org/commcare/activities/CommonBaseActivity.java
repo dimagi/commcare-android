@@ -32,6 +32,26 @@ public class CommonBaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets the action bar title with no subtitle, clearing any subtitle a previous page set so the
+     * bar keeps its single-line appearance.
+     */
+    public void setActionBarTitle(@Nullable CharSequence title) {
+        setActionBarTitle(title, null);
+    }
+
+    /**
+     * Sets the action bar title and an optional second line. Pass a {@code null} subtitle for the
+     * standard single-line bar; a non-null subtitle renders below the title.
+     */
+    public void setActionBarTitle(@Nullable CharSequence title, @Nullable CharSequence subtitle) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(title);
+            actionBar.setSubtitle(subtitle);
+        }
+    }
+
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
         wasOptionsMenuOpen = true;

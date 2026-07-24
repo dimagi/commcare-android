@@ -6,11 +6,8 @@ import android.widget.CheckBox
 import android.widget.EditText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.commcare.CommCareTestApplication
 import org.commcare.android.logging.ReportingUtils
-import org.commcare.connect.network.ApiService
-import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.connectId.PersonalIdApiClient
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
@@ -18,7 +15,6 @@ import org.commcare.utils.HashUtils
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
@@ -35,39 +31,6 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmentTest() {
-    private lateinit var mockWebServer: MockWebServer
-
-    @Before
-    override fun setUp() {
-        super.setUp()
-        setupMockWebServer()
-    }
-
-    private fun setupMockWebServer() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-
-        val mockServerUrl = mockWebServer.url("/").toString()
-
-        val apiService =
-            BaseApiClient
-                .buildRetrofitClient(mockServerUrl, PersonalIdApiClient.API_VERSION)
-                .create(ApiService::class.java)
-
-        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, apiService)
-    }
-
-    @After
-    override fun tearDown() {
-        super.tearDown()
-        val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, null)
-        mockWebServer.shutdown()
-    }
-
     // ========== Request Payload Tests ==========
 
     @Test
@@ -159,8 +122,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         clickContinueButton()
 
         // Assert
-        mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        drainHttp()
 
         assertEquals(
             "Should navigate to biometric config fragment on success",
@@ -183,8 +145,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         clickContinueButton()
 
         // Assert
-        mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        drainHttp()
 
         assertEquals(
             "Should navigate to message display screen on forbidden error",
@@ -216,8 +177,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         clickContinueButton()
 
         // Assert
-        mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        drainHttp()
 
         val errorView = fragment.view!!.findViewById<android.widget.TextView>(R.id.personalid_phone_error)
         assertEquals(
@@ -253,8 +213,7 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         clickContinueButton()
 
         // Assert
-        mockWebServer.takeRequest()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        drainHttp()
 
         // Verify navigation to message display occurred
         assertEquals(
@@ -271,6 +230,27 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
             "Message should indicate account is locked",
             expectedMessage,
             actualMessage,
+        )
+    }
+
+    @Test
+    fun testStartConfiguration_missingDataIntegrityHeaders_tokenPresent_noRetry() {
+        setupFragmentForRequest()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(400)
+                .setBody("""{"error_code": "MISSING_DATA", "error_sub_code": "INTEGRITY_HEADERS"}"""),
+        )
+
+        clickContinueButton()
+
+        drainHttp()
+
+        assertEquals(
+            "Should navigate to failure screen",
+            R.id.personalid_message_display,
+            navController.currentDestination!!.id,
         )
     }
 
