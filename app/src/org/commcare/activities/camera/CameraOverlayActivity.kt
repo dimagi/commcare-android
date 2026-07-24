@@ -22,8 +22,9 @@ import org.javarosa.core.services.Logger
 /**
  * Back-camera capture screen that draws a static [org.commcare.views.RectangleOverlayView] reticle
  * over the preview as a framing guide. Capture is manual via the shutter
- * button; the full-resolution frame is written to the caller-supplied output URI without cropping,
- * so the reticle never appears in the saved image.
+ * button; the captured frame is written to the caller-supplied output URI without cropping,
+ * so the reticle never appears in the saved image. Capture resolution is capped (see
+ * [TARGET_CAPTURE_RESOLUTION]) to keep shutter-to-save latency low on high-megapixel sensors.
  */
 class CameraOverlayActivity : BaseCameraActivity() {
     private val outputUri: Uri by lazy { intentOutputUri()!! }
@@ -39,7 +40,7 @@ class CameraOverlayActivity : BaseCameraActivity() {
 
     override fun getCameraSelector(): CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-    override fun getTargetResolution(): Size? = null
+    override fun getTargetResolution(): Size = TARGET_CAPTURE_RESOLUTION
 
     override fun onCameraViewReady() {
         findViewById<ImageView>(R.id.camera_shutter_button).setOnClickListener { captureImage() }
@@ -49,12 +50,13 @@ class CameraOverlayActivity : BaseCameraActivity() {
         targetResolution: Size?,
         targetRotation: Int,
     ): UseCase {
-        val capture =
+        val builder =
             ImageCapture
                 .Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setTargetRotation(targetRotation)
-                .build()
+        targetResolution?.let { builder.setResolutionSelector(buildResolutionSelector(it)) }
+        val capture = builder.build()
         imageCapture = capture
         return capture
     }
@@ -118,6 +120,10 @@ class CameraOverlayActivity : BaseCameraActivity() {
         const val OUTPUT_FILE_URI_EXTRA = "camera_overlay_output_file_uri_extra"
 
         private const val DISABLED_SHUTTER_ALPHA = 0.5f
+
+        // Caps capture to ~5 MP (4:3, long edge 2560 px) instead of the sensor's full resolution,
+        // which is the dominant shutter-to-save cost on high-megapixel devices.
+        private val TARGET_CAPTURE_RESOLUTION = Size(2560, 1920)
 
         @JvmStatic
         fun getIntent(
