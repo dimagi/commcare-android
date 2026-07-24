@@ -166,4 +166,21 @@
     <dimen name="connect_progress_card_info_text_size">14sp</dimen>
 
     <dimen name="linear_progress_bar_corner_radius">5dp</dimen>
+
+    <!-- Connect/PersonalID shared tokens -->
+    <!-- Text -->
+    <dimen name="connect_text_caption">12sp</dimen>
+    <dimen name="connect_text_body">14sp</dimen>
+    <dimen name="connect_text_title">16sp</dimen>
+    <dimen name="connect_text_metric">22sp</dimen>
+    <dimen name="connect_text_value">28sp</dimen>
+    <!-- Spacing / padding -->
+    <dimen name="connect_space_xs">4dp</dimen>
+    <dimen name="connect_space_sm">8dp</dimen>
+    <dimen name="connect_space_md">12dp</dimen>
+    <dimen name="connect_space_lg">16dp</dimen>
+    <!-- Corner radii -->
+    <dimen name="connect_radius_sm">5dp</dimen>
+    <dimen name="connect_radius_card">15dp</dimen>
+    <dimen name="connect_radius_pill">24dp</dimen>
 </resources>
