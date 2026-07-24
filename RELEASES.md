@@ -2,6 +2,31 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.63.4
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- Image capture with the camera overlay now has reduced latency.
+
+### QA Notes
+
+- The Image-capture question with the overlay-small appearance should capture photos promptly with no noticeable shutter lag while maintaining acceptable image quality.
+
+## CommCare 2.63.3
+
+### Release Notes
+
+#### What's New
+
+- Image capture questions support a new 'overlay-small' appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+
+#### Internal Release Notes
+
+### QA Notes
+
+- **Image reticle overlay:** On a form image-capture question with `appearance="overlay-small"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
 
 ## CommCare 2.63.2
 
