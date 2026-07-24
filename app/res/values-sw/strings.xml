@@ -357,6 +357,7 @@
     <string name="connect_progress_warning_max_reached_multi">Umefikia idadi ya juu zaidi ya kutembelewa kwa %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Umefikia kikomo chako cha kila siku kwa %s.</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Kamilisha kazi zilizopewa ili kuendelea kutoa huduma.</string>
+    <string name="connect_open_conversation_button_text">Fungua Mazungumzo</string>
     <string name="connect_progress_relearn_tasks_completed">Kazi zote zinazohitajika zimekamilika. Unaweza kuendelea na shughuli za uwasilishaji.</string>
     <string name="connect_download_learn">Pakua Programu ya Jifunze</string>
     <string name="connect_downloading_learn">Inapakua Programu ya Jifunze</string>
@@ -668,4 +669,11 @@
     <string name="camera_permission_denied">Nenda kwenye mipangilio na uwashe ruhusa ya kamera ili kutumia kipengele hiki</string>
     <string name="microimage_face_detection_mode_failed">Hali ya kutambua uso imeshindwa, inabadilika kwenda hali ya mkono</string>
     <string name="microimage_cropping_failed">Imeshindwa kupunguza picha, hakikisha lengo liko ndani ya eneo la kupiga picha</string>
+    <string name="microimage_saving_failed">Picha haikuweza kuhifadhiwa. Tafadhali jaribu tena</string>
+    <string name="face_capture_activity_title">Piga picha ya uso</string>
+    <string name="face_capture_manual_instructions">Weka uso katikati ya fremu, kisha gusa kitufe cheupe kupiga picha</string>
+    <string name="face_capture_auto_instructions">Weka uso katikati ya fremu, kaa bila kutikisika ili kuanzisha mchakato wa kupiga picha kiotomatiki</string>
+    <string name="face_capture_auto_mode">Kupiga picha kiotomatiki</string>
+    <string name="face_capture_manual_mode">Kupiga picha kwa mkono</string>
+    <string name="face_capture_front_camera_unavailable">Kamera ya mbele haipatikani, chaguo la kubadilisha kamera litazimwa</string>
 </resources>

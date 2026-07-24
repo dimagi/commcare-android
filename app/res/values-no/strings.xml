@@ -233,6 +233,7 @@
     <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
+    <string name="connect_open_conversation_button_text">Åpne samtale</string>
     <string name="connect_progress_relearn_tasks_completed">Alle nødvendige oppgaver er fullført. Du kan fortsette med leveringsaktiviteter.</string>
     <string name="connect_last_synced">Sist synkronisert: %s</string>
     <string name="connect_sync_successful">Sist synkronisert: Akkurat nå</string>
@@ -309,6 +310,13 @@
     <string name="camera_permission_denied">Gå til innstillinger og aktiver kameratillatelse for å bruke denne funksjonen</string>
     <string name="microimage_face_detection_mode_failed">Ansiktsgjenkjenningsmodus mislyktes, bytter til manuell modus</string>
     <string name="microimage_cropping_failed">Kunne ikke beskjære bildet, kontroller at målet er innenfor opptaksområdet</string>
+    <string name="microimage_saving_failed">Kunne ikke lagre bildet. Prøv igjen</string>
+    <string name="face_capture_activity_title">Ta bilde av ansikt</string>
+    <string name="face_capture_manual_instructions">Sentrer et ansikt i rammen, trykk deretter på den hvite knappen for å ta bildet</string>
+    <string name="face_capture_auto_instructions">Sentrer et ansikt i rammen, hold deg i ro for å utløse automatisk opptak</string>
+    <string name="face_capture_auto_mode">Automatisk opptak</string>
+    <string name="face_capture_manual_mode">Manuelt opptak</string>
+    <string name="face_capture_front_camera_unavailable">Frontkameraet er ikke tilgjengelig, alternativet for å bytte kamera vil bli deaktivert</string>
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
     <string name="connect_progress_count_format">%1$d av %2$d</string>

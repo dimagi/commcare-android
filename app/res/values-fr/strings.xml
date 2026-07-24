@@ -355,6 +355,7 @@ License.
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne de %s.</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Complétez les tâches assignées pour continuer à fournir des services.</string>
+    <string name="connect_open_conversation_button_text">Ouvrir la conversation</string>
     <string name="connect_progress_relearn_tasks_completed">Toutes les tâches requises ont été complétées. Vous pouvez continuer avec les activités de livraison.</string>
     <string name="connect_download_learn">Téléchargez l\'application Apprendre</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
@@ -663,4 +664,11 @@ License.
     <string name="camera_permission_denied">Accédez aux paramètres et activez l\'autorisation de la caméra pour utiliser cette fonctionnalité</string>
     <string name="microimage_face_detection_mode_failed">Échec du mode de détection des visages, passage au mode manuel</string>
     <string name="microimage_cropping_failed">Échec du recadrage de l\'image, assurez-vous que la cible est dans la zone de capture</string>
+    <string name="microimage_saving_failed">Impossible d\'enregistrer l\'image. Veuillez réessayer</string>
+    <string name="face_capture_activity_title">Prendre une photo de visage</string>
+    <string name="face_capture_manual_instructions">Centrez un visage dans le cadre, puis appuyez sur le bouton blanc pour prendre la photo</string>
+    <string name="face_capture_auto_instructions">Centrez un visage dans le cadre et restez immobile pour déclencher la capture automatique</string>
+    <string name="face_capture_auto_mode">Capture automatique</string>
+    <string name="face_capture_manual_mode">Capture manuelle</string>
+    <string name="face_capture_front_camera_unavailable">La caméra frontale n\'est pas disponible, l\'option de changer de caméra sera désactivée</string>
 </resources>

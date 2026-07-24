@@ -122,7 +122,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
                 reportApiCall(false);
-                if (!isAdded() || getView() == null) {
+                if (!isAdded() || ConnectJobIntroFragment.this.getView() == null) {
                     return;
                 }
 
@@ -140,15 +140,16 @@ public class ConnectJobIntroFragment extends ConnectJobFragment<FragmentConnectJ
 
             @Override
             public void onSuccess(Boolean success) {
-                hideError();
                 reportApiCall(success);
 
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
-                ConnectJobUtils.upsertJob(getContext(), job);
+                ConnectJobUtils.upsertJob(job);
 
-                if (!isAdded() || getView() == null) {
+                if (!isAdded() || ConnectJobIntroFragment.this.getView() == null) {
                     return;
                 }
+
+                hideError();
 
                 String appId = job.getLearnAppInfo().getAppId();
                 boolean appInstalled = AppUtils.isAppInstalled(appId);

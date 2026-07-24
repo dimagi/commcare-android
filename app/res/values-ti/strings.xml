@@ -353,6 +353,7 @@
     <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>
     <string name="connect_progress_warning_daily_max_reached_multi">ንመዓልታዊ ገደብ %s በፂሕካ ኣለኻ።</string>
     <string name="connect_progress_warning_relearn_tasks_pending">ኣገልግሎት ምሃብ ንምቕጻል ዝተመደቡ ዕማማት ኣጠናቕቑ።</string>
+    <string name="connect_open_conversation_button_text">ዘተ ክፈት</string>
     <string name="connect_progress_relearn_tasks_completed">ኩሎም ዝድለዩ ስራሕቲ ተዛዚሞም ኣለዉ። ምስ ናይ ኣወሃህባ ንጥፈታት ክትቅጽል ትኽእል ኢኻ።</string>
     <string name="connect_download_learn">Download ተማሃሩ ኣፕ</string>
     <string name="connect_downloading_learn">ምውራድ ( Downloading ) ናይ ትምህርቲ ኣፕ ( App )</string>
@@ -652,4 +653,11 @@
     <string name="camera_permission_denied">ነዚ ባህሪ ንምጥቃም ናብ ቅንብራት ኪዱ እሞ ፍቓድ ካሜራ ኣንቅዑ</string>
     <string name="microimage_face_detection_mode_failed">ናይ ገጽ ምልላይ ኩነታት ኣይሰርሐን፣ ናብ ናይ ኢድ ኩነታት ይቕይር ኣሎ</string>
     <string name="microimage_cropping_failed">ስእሊ ምቍራጽ ኣይተኻእለን፣ ዒላማ ኣብ ውሽጢ ናይ ምቅራጽ ቦታ ከምዘሎ ኣረጋግጹ</string>
+    <string name="microimage_saving_failed">ስእሊ ክዕቀብ ኣይተኻእለን። በጃኹም ደጊምኩም ፈትኑ</string>
+    <string name="face_capture_activity_title">ስእሊ ገጽ ምውሳድ</string>
+    <string name="face_capture_manual_instructions">ገጽ ኣብ ውሽጢ እቲ ቦታ ኣቐምጡ፣ ድሕሪኡ ስእሊ ንምውሳድ ነቲ ጻዕዳ መልጎም ጠውቑ</string>
+    <string name="face_capture_auto_instructions">ገጽ ኣብ ውሽጢ እቲ ቦታ ኣቐምጡ፣ ነቲ ናይ ብዘሓት ምውሳድ መስርሕ ንምጅማር ከይተንቀሳቐስኩም ጽንሑ</string>
+    <string name="face_capture_auto_mode">ብዘሓት ምውሳድ</string>
+    <string name="face_capture_manual_mode">ብኢድ ምውሳድ</string>
+    <string name="face_capture_front_camera_unavailable">ቅድሚት ካሜራ ኣይርከብን፣ ካሜራ ናይ ምቕያር ኣማራጺ ኪዕፀው እዩ</string>
 </resources>

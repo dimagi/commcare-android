@@ -8,6 +8,7 @@ import org.commcare.models.database.SqlStorage
 import org.commcare.preferences.ConnectJobPreferences
 import org.commcare.utils.SyncDetailCalculations
 import org.javarosa.core.model.utils.DateUtils
+import org.javarosa.core.services.Logger
 import java.util.Date
 
 /**
@@ -50,7 +51,7 @@ object ConnectTaskUtils {
         }
 
         ConnectJobUtils.getJobPreferences(jobUUID).apply {
-            setRelearnTaskPending(incoming.any { it.status == "assigned" })
+            setRelearnTaskPending(incoming.any { it.status == ConnectTaskRecord.STATUS_ASSIGNED })
             resetRelearnTasksCompletedTime()
             if (changed) {
                 updateTaskModifiedTime()
@@ -69,24 +70,42 @@ object ConnectTaskUtils {
     ): Boolean {
         val tasks = getTasksForJob(context, jobUUID, null)
         if (tasks.isNotEmpty()) {
-            return tasks.any { it.status == "assigned" }
+            return tasks.any { it.status == ConnectTaskRecord.STATUS_ASSIGNED }
         }
         return ConnectJobUtils.getJobPreferences(jobUUID).isRelearnTaskPending()
     }
 
     @JvmStatic
-    fun hasPendingTaskOfType(
+    fun hasPendingTaskOfMode(
         context: Context,
         jobUUID: String,
-        type: String,
-    ): Boolean = getPendingTaskOfType(context, jobUUID, type) != null
+        mode: String,
+    ): Boolean = getPendingTaskOfMode(context, jobUUID, mode) != null
 
     @JvmStatic
-    fun getPendingTaskOfType(
+    fun getPendingTaskOfMode(
         context: Context,
         jobUUID: String,
-        type: String,
-    ): ConnectTaskRecord? = getTasksForJob(context, jobUUID, null).find { it.type == type && it.status == "assigned" }
+        mode: String,
+    ): ConnectTaskRecord? =
+        getTasksForJob(context, jobUUID, null).find { it.mode == mode && it.status == ConnectTaskRecord.STATUS_ASSIGNED }
+
+    @JvmStatic
+    fun getValidPendingOcsTask(
+        context: Context,
+        job: ConnectJobRecord,
+    ): ConnectTaskRecord? {
+        if (job.status != ConnectJobRecord.STATUS_DELIVERING) return null
+        val task = getPendingTaskOfMode(context, job.jobUUID, ConnectTaskRecord.MODE_OCS) ?: return null
+        if (task.connectChannelId.isEmpty()) {
+            Logger.exception(
+                "Invalid messaging task",
+                Throwable("Messaging task has no channel id: ${task.taskId}"),
+            )
+            return null
+        }
+        return task
+    }
 
     @JvmStatic
     fun shouldShowTasksCompletedMessage(
@@ -119,7 +138,7 @@ object ConnectTaskUtils {
     ): ConnectTaskRecord? {
         val tasks = getTasksForJob(context, jobUUID, null)
         if (tasks.isNotEmpty()) {
-            return tasks.filter { it.status == "completed" }.maxByOrNull { it.dateModified }
+            return tasks.filter { it.status == ConnectTaskRecord.STATUS_COMPLETED }.maxByOrNull { it.dateModified }
         }
         val prefs = ConnectJobUtils.getJobPreferences(jobUUID)
         val completedTimeMs = prefs.getRelearnTasksCompletedTimeMs()

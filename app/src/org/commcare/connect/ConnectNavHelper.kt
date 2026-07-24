@@ -34,13 +34,20 @@ object ConnectNavHelper {
     fun unlockAndGoToMessaging(
         activity: CommCareActivity<*>,
         policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
+        channelId: String? = null,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, policy, listener, ::goToMessaging)
+        unlockAndGoTo(activity, policy, listener) { context -> goToMessaging(context, channelId) }
     }
 
-    fun goToMessaging(context: Context) {
+    fun goToMessaging(
+        context: Context,
+        channelId: String? = null,
+    ) {
         val i = Intent(context, ConnectMessagingActivity::class.java)
+        if (!channelId.isNullOrEmpty()) {
+            i.putExtra(ConnectMessagingActivity.CHANNEL_ID, channelId)
+        }
         context.startActivity(i)
     }
 

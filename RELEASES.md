@@ -2,6 +2,31 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.63.4
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- Image capture with the camera overlay now has reduced latency.
+
+### QA Notes
+
+- The Image-capture question with the overlay-small appearance should capture photos promptly with no noticeable shutter lag while maintaining acceptable image quality.
+
+## CommCare 2.63.3
+
+### Release Notes
+
+#### What's New
+
+- Image capture questions support a new 'overlay-small' appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+
+#### Internal Release Notes
+
+### QA Notes
+
+- **Image reticle overlay:** On a form image-capture question with `appearance="overlay-small"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
 
 ## CommCare 2.63.2
 
@@ -82,7 +107,10 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- Added a face-capture image widget: image questions with `appearance="face"` now open a dedicated camera that automatically detects and captures the respondent's face, with front/back camera switching and a manual-capture fallback.
 - [Manage Profile] PersonalID users can now view and edit their profile details from the new Manage Profile screen.
+- [Open Conversation] Connect job tile now shows an "Open Conversation" button for delivering jobs with a pending OCS messaging task.
+
 
 #### Internal Release Notes
 - Deprecated PersonalID support for devices on Android OS less than Android 9.
@@ -92,7 +120,11 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
-- Image capture questions support a new `rectangle-overlay` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+- [Audio Recording Revamp] Refreshed the in-app audio recording UI across the capture, recording, playback, and delete screens
+- [Audio Recording Revamp] Recording now starts immediately when you tap the microphone and saves as soon as you stop, removing the previous intermediate tap-to-record and playback-confirm steps
+- Image capture questions support a new `overlay-small` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
+- [Auto Location Capture] We now save the location acquired with the best accuracy in a form session rather than the last one.
+
 
 #### Important Bug Fixes
 
@@ -221,15 +253,32 @@ we would like to communicate to QA as part of the release testing
   - Malformed link (extra path segments, wrong host, or missing UUID): treated as a normal app launch, no toast, no crash.
   - After any of the above, background and reopen the app from recents and verify the link is not reprocessed.
 
-- Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
+
+- **Audio Recording Revamp:** Test on a form question that has two Audio Capture questions, one of which with the _long_ appearance attribute. 
+  - **Start (direct):** Open the question. Verify the capture screen shows the large microphone button with the "Start recording" label and instructions. Tap the microphone and verify recording starts immediately with no intermediate "tap to record" dialog — the blinking "RECORDING" indicator, the animated red progress ring, and a live timer counting up are shown.
+  - **Stop & save (direct):** For a standard (non-pausable) question, tap stop and verify the recording is finalized and saved straight away — the playback panel appears with no separate playback/confirm step in between.
+  - **Pause / resume (long-recording questions only):** In the question configured with the `long` appearance, while recording, verify the control shows a pause icon. Tap it and verify the paused state: static gray ring, a "PAUSED" indicator, the timer frozen, a Save button, and the "Recording is paused. Tap on the mic to unpause, or tap Save to proceed" instruction. Tap the mic to resume (timer continues) and tap Save from paused to finalize.
+  - **Playback panel:** After saving, verify the panel shows the recording's file name, total duration, a play button, and a seek bar. Play the audio and verify the play/pause toggle works and the current time updates.
+  - **Delete (two-step):** Tap Delete and verify the confirmation prompt ("Delete this recording?") with "Yes, Delete" / "No, Go back". Confirm "No, Go back" keeps the recording and "Yes, Delete" clears it.
+  - **Persistence:** Record and save, navigate forward and back to the question, and verify the saved recording still loads and plays. Submit the form and verify the audio attachment is present on HQ.
+
+  - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
 - Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.
-- **Image reticle overlay:** On a form image-capture question with `appearance="rectangle-overlay"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
+- **Image reticle overlay:** On a form image-capture question with `appearance="overlay-small"`, verify Take Picture opens the in-app camera with a rectangular framing guide, and the saved photo is the full frame with the guide not drawn on it.
 
 - **Manage Profile (PersonalID):**
   - **Access:** Signed in to PersonalID, open the side navigation drawer and verify a "Manage Profile" link appears and opens a screen showing name, phone, email, and photo. Verify the link is absent when signed out.
   - **Edit name/photo:** From Manage Profile, open Edit (pencil icon), change the name and/or tap the photo to capture a new one, and save. Verify the changes persist on the Profile screen and in the drawer header.
   - **Edit email (one-time code):** Change the email and save; verify the new address must be confirmed with a one-time code before it updates. If you change both name and email but abandon the code entry, verify the new name is kept while the email stays unchanged.
   - **Forget PersonalID relocation:** Verify "Forget PersonalID" is no longer in the Login or app-setup menus, and that forgetting the account is available from the Manage Profile screen behind a confirmation prompt.
+
+- **Face capture image widget:**
+  - **Setup:** Use a form with a face capture question or an image question configured with `appearance="face"`.
+  - **Automatic capture (devices with Google Play Services):** Navigate to the question and tap the capture button. 
+    - Verify the **rear (back) camera** is used by default, position a face within the oval. Verify the app detects the face and once the image stabilizes the photo is captured automatically and then appears in the form. 
+    - Submit the form and verify the image is saved and uploaded to HQ.
+  - **Lens switching:** Tap the switch-camera button. Verify the preview toggles between the front and back cameras on each tap.
+  - **Back navigation:** From the camera screen, tap the toolbar back arrow and the device back button. In both cases verify the camera closes and returns to the form without capturing or crashing.
 
 
 ## CommCare 2.63

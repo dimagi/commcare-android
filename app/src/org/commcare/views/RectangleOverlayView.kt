@@ -119,12 +119,12 @@ class RectangleOverlayView
 
         companion object {
             private const val PORTRAIT_WIDTH_DEFAULT = 0.90f
-            private const val PORTRAIT_WIDTH_MIN = 0.80f
+            private const val PORTRAIT_WIDTH_MIN = 0.20f
             private const val PORTRAIT_HEIGHT_DEFAULT = 0.25f
-            private const val PORTRAIT_HEIGHT_MIN = 0.20f
+            private const val PORTRAIT_HEIGHT_MIN = 0.10f
             private const val LANDSCAPE_WIDTH_DEFAULT = 0.70f
-            private const val LANDSCAPE_WIDTH_MIN = 0.60f
+            private const val LANDSCAPE_WIDTH_MIN = 0.30f
             private const val LANDSCAPE_HEIGHT_DEFAULT = 0.50f
-            private const val LANDSCAPE_HEIGHT_MIN = 0.40f
+            private const val LANDSCAPE_HEIGHT_MIN = 0.20f
         }
     }

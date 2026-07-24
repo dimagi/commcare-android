@@ -315,4 +315,13 @@
         <item name="contentDisabledColor">@color/connect_grey</item>
     </style>
 
+    <style name="Widget.CommCare.ConnectSuccessFailureCard" parent="">
+        <item name="cardCornerRadius">@dimen/connect_radius_card</item>
+        <item name="cardElevation">6dp</item>
+        <item name="successBackgroundColor">@color/connect_light_green</item>
+        <item name="successAccentColor">@color/connect_green</item>
+        <item name="failureBackgroundColor">@color/pale_coral</item>
+        <item name="failureAccentColor">@color/connect_red</item>
+    </style>
+
 </resources>

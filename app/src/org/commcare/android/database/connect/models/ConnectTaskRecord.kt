@@ -40,8 +40,8 @@ class ConnectTaskRecord :
     var connectChannelId: String = ""
 
     @Persisting(7)
-    @MetaField(META_TYPE)
-    var type: String = ""
+    @MetaField(META_MODE)
+    var mode: String = ""
 
     @Persisting(8)
     @MetaField(META_DUE_DATE)
@@ -57,13 +57,18 @@ class ConnectTaskRecord :
 
     companion object {
         const val STORAGE_KEY = "connect_tasks"
+
+        const val STATUS_ASSIGNED = "assigned"
+        const val STATUS_COMPLETED = "completed"
+        const val MODE_OCS = "ocs"
+
         const val META_JOB_UUID = "opportunity_id"
         const val META_TASK_ID = "task_id"
         const val META_NAME = "name"
         const val META_DESCRIPTION = "description"
         const val META_STATUS = "status"
         const val META_CONNECT_CHANNEL_ID = "connect_channel_id"
-        const val META_TYPE = "type"
+        const val META_MODE = "mode"
         const val META_DUE_DATE = "due_date"
         const val META_DATE_CREATED = "date_created"
         const val META_DATE_MODIFIED = "date_modified"
@@ -81,7 +86,7 @@ class ConnectTaskRecord :
             task.description = json.optString("task_description", "")
             task.status = json.getString("status")
             task.connectChannelId = json.optString("connect_channel_id", "")
-            task.type = json.optString("task_type", "")
+            task.mode = json.optString("task_mode", "")
             if (json.hasNonNull("due_date")) {
                 task.dueDate = DateUtils.parseDate(json.getString("due_date"))
             }
