@@ -148,4 +148,22 @@
     <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
     <dimen name="semi_circle_progress_value_text_size">28sp</dimen>
     <dimen name="semi_circle_progress_description_text_size">16sp</dimen>
+
+    <!-- Connect progress card -->
+    <dimen name="connect_progress_card_content_padding">16dp</dimen>
+    <dimen name="connect_progress_card_shadow_inset_horizontal">8dp</dimen>
+    <dimen name="connect_progress_card_shadow_inset_top">6dp</dimen>
+    <dimen name="connect_progress_card_shadow_inset_bottom">10dp</dimen>
+    <dimen name="connect_progress_card_title_text_size">16sp</dimen>
+    <dimen name="connect_progress_card_label_text_size">14sp</dimen>
+    <dimen name="connect_progress_card_count_text_size">22sp</dimen>
+    <dimen name="connect_progress_card_caption_text_size">12sp</dimen>
+    <dimen name="connect_progress_card_semi_circle_inset">48dp</dimen>
+    <dimen name="connect_progress_card_bar_height">10dp</dimen>
+    <dimen name="connect_progress_card_info_overlap">-20dp</dimen>
+    <dimen name="connect_progress_card_info_padding_top">28dp</dimen>
+    <dimen name="connect_progress_card_info_padding_bottom">12dp</dimen>
+    <dimen name="connect_progress_card_info_text_size">14sp</dimen>
+
+    <dimen name="linear_progress_bar_corner_radius">5dp</dimen>
 </resources>

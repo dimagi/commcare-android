@@ -21,8 +21,8 @@ public class LinearProgressBar extends View {
     private Paint progressPaint;
     private float progress = 0f;
     private float strokeWidth = 10f;
-    private int startCornerRadius = 10; // Start corner radius
-    private int endCornerRadius = 10;   // End corner radius
+    private int startCornerRadius;
+    private int endCornerRadius;
     private int[] gradientColors = {Color.BLUE, Color.GREEN};
     private boolean isGradient = false;
     private int progressColor = Color.BLUE;
@@ -44,6 +44,10 @@ public class LinearProgressBar extends View {
     }
 
     private void init(Context context) {
+        startCornerRadius = context.getResources()
+                .getDimensionPixelSize(R.dimen.linear_progress_bar_corner_radius);
+        endCornerRadius = startCornerRadius;
+
         backgroundPaint = new Paint();
         backgroundColor = ContextCompat.getColor(context, R.color.connect_un_fill_progress);
         backgroundPaint.setColor(backgroundColor);

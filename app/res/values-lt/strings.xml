@@ -321,5 +321,6 @@
     <string name="microimage_cropping_failed">Nepavyko apkarpyti vaizdo, įsitikinkite, kad objektas yra fiksavimo srityje</string>
 
     <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
+    <string name="connect_progress_count_format">%1$d iš %2$d</string>
 
 </resources>
