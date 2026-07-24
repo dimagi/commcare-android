@@ -134,8 +134,15 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     protected void captureAudio(FormEntryPrompt prompt) {
+        setCaptureButtonEnabled(false);
         launchAudioRecorder(prompt);
     }
+
+    private void setCaptureButtonEnabled(boolean enabled) {
+        captureButton.setClickable(enabled);
+        captureButton.setAlpha(enabled ? 1.0f : 0.5f);
+    }
+
 
     private void launchAudioRecorder(FormEntryPrompt prompt) {
         RecordingFragment recorder = new RecordingFragment();
@@ -250,6 +257,7 @@ public class CommCareAudioWidget extends AudioWidget
             resetAudioPlayer();
             hidePlaybackIndicators();
             recordingContainer.setVisibility(VISIBLE);
+            setCaptureButtonEnabled(true);
         }
     }
 
