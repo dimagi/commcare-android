@@ -45,7 +45,7 @@ public class LinearProgressBar extends View {
 
     private void init(Context context) {
         startCornerRadius = context.getResources()
-                .getDimensionPixelSize(R.dimen.linear_progress_bar_corner_radius);
+                .getDimensionPixelSize(R.dimen.connect_radius_sm);
         endCornerRadius = startCornerRadius;
 
         backgroundPaint = new Paint();
