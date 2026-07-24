@@ -52,7 +52,7 @@ class CameraOverlayActivity : BaseCameraActivity() {
         val capture =
             ImageCapture
                 .Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setTargetRotation(targetRotation)
                 .build()
         imageCapture = capture
