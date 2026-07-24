@@ -2,6 +2,14 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.63.4
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- Image capture with the camera overlay now has reduced latency.
+
 ## CommCare 2.63.3
 
 ### Release Notes
