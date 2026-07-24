@@ -82,8 +82,10 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 
 #### What's New
 
+- Added a face-capture image widget: image questions with `appearance="face"` now open a dedicated camera that automatically detects and captures the respondent's face, with front/back camera switching and a manual-capture fallback.
 - [Manage Profile] PersonalID users can now view and edit their profile details from the new Manage Profile screen.
 - [Open Conversation] Connect job tile now shows an "Open Conversation" button for delivering jobs with a pending OCS messaging task.
+
 
 #### Internal Release Notes
 - Deprecated PersonalID support for devices on Android OS less than Android 9.
@@ -233,6 +235,13 @@ we would like to communicate to QA as part of the release testing
   - **Edit email (one-time code):** Change the email and save; verify the new address must be confirmed with a one-time code before it updates. If you change both name and email but abandon the code entry, verify the new name is kept while the email stays unchanged.
   - **Forget PersonalID relocation:** Verify "Forget PersonalID" is no longer in the Login or app-setup menus, and that forgetting the account is available from the Manage Profile screen behind a confirmation prompt.
 
+- **Face capture image widget:**
+  - **Setup:** Use a form with a face capture question or an image question configured with `appearance="face"`.
+  - **Automatic capture (devices with Google Play Services):** Navigate to the question and tap the capture button. 
+    - Verify the **rear (back) camera** is used by default, position a face within the oval. Verify the app detects the face and once the image stabilizes the photo is captured automatically and then appears in the form. 
+    - Submit the form and verify the image is saved and uploaded to HQ.
+  - **Lens switching:** Tap the switch-camera button. Verify the preview toggles between the front and back cameras on each tap.
+  - **Back navigation:** From the camera screen, tap the toolbar back arrow and the device back button. In both cases verify the camera closes and returns to the form without capturing or crashing.
 
 ## CommCare 2.63
 
