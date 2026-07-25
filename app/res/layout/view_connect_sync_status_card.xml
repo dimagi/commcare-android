@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/sync_card_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_connect_sync_badge"
+        android:backgroundTint="@color/connect_light_green"
+        android:contentDescription="@null"
+        android:padding="9dp"
+        android:src="@drawable/check_update"
+        app:tint="@color/connect_green" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sync_card_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/connect_text_color"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="Everything is synced" />
+
+        <TextView
+            android:id="@+id/sync_card_subtext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/connect_grey"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Synced just now"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</LinearLayout>

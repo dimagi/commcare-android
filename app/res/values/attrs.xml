@@ -172,6 +172,16 @@
         <attr name="navigable" />
     </declare-styleable>
 
+    <declare-styleable name="ConnectSyncStatusCard">
+        <attr name="statusText" format="string" />
+        <attr name="statusSubtext" format="string" />
+        <attr name="warning" format="boolean" />
+        <attr name="syncOkBadgeColor" format="color" />
+        <attr name="syncOkIconColor" format="color" />
+        <attr name="syncWarningBadgeColor" format="color" />
+        <attr name="syncWarningIconColor" format="color" />
+    </declare-styleable>
+
     <declare-styleable name="ConnectSuccessFailureCard">
         <attr name="mode" format="enum">
             <enum name="success" value="0" />
