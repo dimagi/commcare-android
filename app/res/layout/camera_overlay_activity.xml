@@ -13,8 +13,8 @@
 
     <org.commcare.views.RectangleOverlayView
         android:id="@+id/rectangle_overlay"
-        app:reticleWidthFractionPortrait="0.85"
-        app:reticleHeightFractionPortrait="0.30"
+        app:reticleWidthFractionPortrait="0.50"
+        app:reticleHeightFractionPortrait="0.20"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

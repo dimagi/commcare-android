@@ -7,7 +7,6 @@ import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseMo
 import org.javarosa.core.model.utils.DateUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -282,7 +281,7 @@ class DeliveryAppProgressResponseParserTest {
         val task = result.tasks[0]
         assertEquals("", task.description)
         assertEquals("", task.connectChannelId)
-        assertEquals("", task.type)
+        assertEquals("", task.mode)
         assertNull(task.dueDate)
     }
 
