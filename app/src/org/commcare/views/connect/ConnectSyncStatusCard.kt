@@ -2,19 +2,22 @@ package org.commcare.views.connect
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
+import androidx.core.widget.ImageViewCompat
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectSyncStatusCardBinding
 
 /**
  * Reusable Connect card that displays sync status: a circular badge icon plus a bold status line
  * and an optional grey subline. Appearance is driven by content properties; there is no state enum.
- * [warning] switches the badge between the OK (green check) and warning (amber refresh) appearance.
+ * [State.warning] switches the badge between the OK (green check) and warning (amber refresh)
+ * appearance.
  */
 class ConnectSyncStatusCard
     @JvmOverloads
@@ -26,26 +29,21 @@ class ConnectSyncStatusCard
         private val binding =
             ViewConnectSyncStatusCardBinding.inflate(LayoutInflater.from(context), this, true)
 
-        private var syncOkBadgeColor: Int = 0
-        private var syncOkIconColor: Int = 0
-        private var syncWarningBadgeColor: Int = 0
-        private var syncWarningIconColor: Int = 0
+        private val syncOkBadgeColor: Int
+        private val syncOkIconColor: Int
+        private val syncWarningBadgeColor: Int
+        private val syncWarningIconColor: Int
 
-        var statusText: CharSequence?
-            get() = binding.syncCardText.text
-            set(value) {
-                binding.syncCardText.text = value
-            }
+        /** The state currently bound to the card. */
+        var state: State = State()
+            private set
 
-        var statusSubtext: CharSequence?
-            get() = binding.syncCardSubtext.text
-            set(value) = bindOptionalText(binding.syncCardSubtext, value)
-
-        var warning: Boolean = false
-            set(value) {
-                field = value
-                applyAppearance()
-            }
+        /** Complete, atomic description of everything the card renders. */
+        data class State(
+            val statusText: CharSequence? = null,
+            val statusSubtext: CharSequence? = null,
+            val warning: Boolean = false,
+        )
 
         init {
             radius = resources.getDimension(R.dimen.connect_info_card_corner_radius)
@@ -53,36 +51,39 @@ class ConnectSyncStatusCard
             useCompatPadding = true
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
+            var okBadge = ContextCompat.getColor(context, R.color.connect_light_green)
+            var okIcon = ContextCompat.getColor(context, R.color.connect_green)
+            var warningBadge = ContextCompat.getColor(context, R.color.connect_light_amber)
+            var warningIcon = ContextCompat.getColor(context, R.color.connect_yellowish_orange_color)
+            var initialState = State()
+
             context.withStyledAttributes(
                 attrs,
                 R.styleable.ConnectSyncStatusCard,
                 defStyleAttr,
                 R.style.Widget_CommCare_ConnectSyncStatusCard,
             ) {
-                syncOkBadgeColor =
-                    getColor(
-                        R.styleable.ConnectSyncStatusCard_syncOkBadgeColor,
-                        ContextCompat.getColor(context, R.color.connect_light_green),
-                    )
-                syncOkIconColor =
-                    getColor(
-                        R.styleable.ConnectSyncStatusCard_syncOkIconColor,
-                        ContextCompat.getColor(context, R.color.connect_green),
-                    )
-                syncWarningBadgeColor =
-                    getColor(
-                        R.styleable.ConnectSyncStatusCard_syncWarningBadgeColor,
-                        ContextCompat.getColor(context, R.color.connect_light_amber),
-                    )
-                syncWarningIconColor =
-                    getColor(
-                        R.styleable.ConnectSyncStatusCard_syncWarningIconColor,
-                        ContextCompat.getColor(context, R.color.connect_yellowish_orange_color),
-                    )
-                statusText = getString(R.styleable.ConnectSyncStatusCard_statusText)
-                statusSubtext = getString(R.styleable.ConnectSyncStatusCard_statusSubtext)
-                warning = getBoolean(R.styleable.ConnectSyncStatusCard_warning, false)
+                okBadge = getColor(R.styleable.ConnectSyncStatusCard_syncOkBadgeColor, okBadge)
+                okIcon = getColor(R.styleable.ConnectSyncStatusCard_syncOkIconColor, okIcon)
+                warningBadge = getColor(R.styleable.ConnectSyncStatusCard_syncWarningBadgeColor, warningBadge)
+                warningIcon = getColor(R.styleable.ConnectSyncStatusCard_syncWarningIconColor, warningIcon)
+                initialState = readStateFromAttributes(this)
             }
+
+            syncOkBadgeColor = okBadge
+            syncOkIconColor = okIcon
+            syncWarningBadgeColor = warningBadge
+            syncWarningIconColor = warningIcon
+
+            bind(initialState)
+        }
+
+        /** Render [state], replacing whatever was previously shown. */
+        fun bind(state: State) {
+            this.state = state
+            binding.syncCardText.text = state.statusText
+            bindOptionalText(binding.syncCardSubtext, state.statusSubtext)
+            applyAppearance(state.warning)
         }
 
         private fun bindOptionalText(
@@ -93,12 +94,19 @@ class ConnectSyncStatusCard
             view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
         }
 
-        private fun applyAppearance() {
+        private fun applyAppearance(warning: Boolean) {
             val badgeColor = if (warning) syncWarningBadgeColor else syncOkBadgeColor
             val iconColor = if (warning) syncWarningIconColor else syncOkIconColor
             val iconRes = if (warning) R.drawable.ic_connect_directory_sync else R.drawable.check_update
             binding.syncCardIcon.setImageResource(iconRes)
-            binding.syncCardIcon.setColorFilter(iconColor)
+            ImageViewCompat.setImageTintList(binding.syncCardIcon, ColorStateList.valueOf(iconColor))
             binding.syncCardIcon.backgroundTintList = ColorStateList.valueOf(badgeColor)
         }
+
+        private fun readStateFromAttributes(typedArray: TypedArray): State =
+            State(
+                statusText = typedArray.getString(R.styleable.ConnectSyncStatusCard_statusText),
+                statusSubtext = typedArray.getString(R.styleable.ConnectSyncStatusCard_statusSubtext),
+                warning = typedArray.getBoolean(R.styleable.ConnectSyncStatusCard_warning, false),
+            )
     }

@@ -144,6 +144,16 @@
     <dimen name="connect_info_card_elevation">4dp</dimen>
     <dimen name="connect_info_card_min_height">130dp</dimen>
 
+    <!-- Shared Connect dimension tokens (kept in sync with the wider Connect redesign) -->
+    <dimen name="connect_text_caption">12sp</dimen>
+    <dimen name="connect_text_body">14sp</dimen>
+    <dimen name="connect_space_md">12dp</dimen>
+    <dimen name="connect_space_lg">16dp</dimen>
+
+    <dimen name="connect_sync_card_badge_size">40dp</dimen>
+    <dimen name="connect_sync_card_badge_icon_inset">9dp</dimen>
+    <dimen name="connect_sync_card_subtext_spacing">2dp</dimen>
+
     <dimen name="semi_circle_progress_default_width">240dp</dimen>
     <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
     <dimen name="semi_circle_progress_value_text_size">28sp</dimen>
