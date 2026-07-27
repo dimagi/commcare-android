@@ -323,6 +323,8 @@
         <item name="syncOkIconColor">@color/connect_green</item>
         <item name="syncWarningBadgeColor">@color/connect_light_amber</item>
         <item name="syncWarningIconColor">@color/connect_yellowish_orange_color</item>
+        <item name="syncOkIcon">@drawable/check_update</item>
+        <item name="syncWarningIcon">@drawable/ic_connect_directory_sync</item>
     </style>
 
 </resources>

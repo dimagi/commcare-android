@@ -33,6 +33,8 @@ class ConnectSyncStatusCard
         private var syncOkIconColor = 0
         private var syncWarningBadgeColor = 0
         private var syncWarningIconColor = 0
+        private var syncOkIcon = 0
+        private var syncWarningIcon = 0
 
         /** The state currently bound to the card. */
         var state: State = State()
@@ -63,6 +65,8 @@ class ConnectSyncStatusCard
                 syncOkIconColor = getColor(R.styleable.ConnectSyncStatusCard_syncOkIconColor, 0)
                 syncWarningBadgeColor = getColor(R.styleable.ConnectSyncStatusCard_syncWarningBadgeColor, 0)
                 syncWarningIconColor = getColor(R.styleable.ConnectSyncStatusCard_syncWarningIconColor, 0)
+                syncOkIcon = getResourceId(R.styleable.ConnectSyncStatusCard_syncOkIcon, 0)
+                syncWarningIcon = getResourceId(R.styleable.ConnectSyncStatusCard_syncWarningIcon, 0)
                 initialState = readStateFromAttributes(this)
             }
 

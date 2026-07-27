@@ -180,6 +180,8 @@
         <attr name="syncOkIconColor" format="color" />
         <attr name="syncWarningBadgeColor" format="color" />
         <attr name="syncWarningIconColor" format="color" />
+        <attr name="syncOkIcon" format="reference" />
+        <attr name="syncWarningIcon" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="ConnectSuccessFailureCard">
