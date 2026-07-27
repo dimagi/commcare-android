@@ -2,6 +2,7 @@ package org.commcare.views.connect
 
 import android.view.ContextThemeWrapper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
@@ -121,6 +122,27 @@ class ConnectProgressCardTest {
 
         card.bind(State(linearProgress = State.LinearProgress(caption = "")))
         assertEquals(View.GONE, caption.visibility)
+    }
+
+    @Test
+    fun `bar row hugs the card padding only when nothing is shown above it`() {
+        val card = newCard()
+        val row = card.findViewById<View>(R.id.progress_card_bar_row)
+        val gap = card.resources.getDimensionPixelSize(R.dimen.connect_space_lg)
+
+        fun topMargin() = (row.layoutParams as ViewGroup.MarginLayoutParams).topMargin
+
+        card.bind(State(linearProgress = State.LinearProgress(label = "Modules Completed")))
+        assertEquals(0, topMargin())
+
+        card.bind(State(title = "Delivery Progress"))
+        assertEquals(gap, topMargin())
+
+        card.bind(State(semiCircle = State.SemiCircle()))
+        assertEquals(gap, topMargin())
+
+        card.bind(State())
+        assertEquals(0, topMargin())
     }
 
     @Test

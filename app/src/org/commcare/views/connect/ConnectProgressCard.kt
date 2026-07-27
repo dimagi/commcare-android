@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.updateLayoutParams
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectProgressCardBinding
 import org.commcare.util.LogTypes
@@ -117,8 +119,24 @@ class ConnectProgressCard
             bindOptionalText(binding.progressCardTitle, state.title)
             bindSemiCircle(state.semiCircle)
             bindLinearProgress(state.linearProgress)
+            bindBarRowSpacing()
             bindInfo(state.info)
             applyContentColors(state.contentEnabled)
+        }
+
+        /**
+         * A GONE view's margins are ignored but the bar row's own top margin is not, so with no
+         * title and no semi-circle the row would sit a margin's width below the card padding
+         * instead of against it.
+         */
+        private fun bindBarRowSpacing() {
+            val hasContentAbove =
+                binding.progressCardTitle.visibility == VISIBLE ||
+                    binding.progressCardSemiCircle.visibility == VISIBLE
+            binding.progressCardBarRow.updateLayoutParams<MarginLayoutParams> {
+                topMargin =
+                    if (hasContentAbove) resources.getDimensionPixelSize(R.dimen.connect_space_lg) else 0
+            }
         }
 
         private fun bindSemiCircle(semiCircle: State.SemiCircle?) {

@@ -153,7 +153,7 @@
     <dimen name="connect_progress_card_shadow_inset_top">6dp</dimen>
     <dimen name="connect_progress_card_shadow_inset_bottom">10dp</dimen>
     <dimen name="connect_progress_card_semi_circle_inset">48dp</dimen>
-    <dimen name="connect_progress_card_bar_height">10dp</dimen>
+    <dimen name="connect_progress_card_bar_height">8dp</dimen>
     <dimen name="connect_progress_card_info_overlap">-20dp</dimen>
     <dimen name="connect_progress_card_info_padding_top">28dp</dimen>
 
@@ -162,7 +162,7 @@
     <dimen name="connect_text_caption">12sp</dimen>
     <dimen name="connect_text_body">14sp</dimen>
     <dimen name="connect_text_title">16sp</dimen>
-    <dimen name="connect_text_metric">22sp</dimen>
+    <dimen name="connect_text_metric">24sp</dimen>
     <dimen name="connect_text_value">28sp</dimen>
     <!-- Spacing / padding -->
     <dimen name="connect_space_xs">4dp</dimen>
@@ -171,6 +171,6 @@
     <dimen name="connect_space_lg">16dp</dimen>
     <!-- Corner radii -->
     <dimen name="connect_radius_sm">5dp</dimen>
-    <dimen name="connect_radius_card">15dp</dimen>
+    <dimen name="connect_radius_card">8dp</dimen>
     <dimen name="connect_radius_pill">24dp</dimen>
 </resources>
