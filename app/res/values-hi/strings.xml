@@ -667,4 +667,8 @@ License.
     <string name="face_capture_auto_mode">ऑटो कैप्चर</string>
     <string name="face_capture_manual_mode">मैनुअल कैप्चर</string>
     <string name="face_capture_front_camera_unavailable">फ्रंट कैमरा उपलब्ध नहीं है, कैमरा बदलने का विकल्प अक्षम कर दिया जाएगा</string>
+
+    <string name="recording_notification_save_action">सहेजें</string>
+    <string name="recording_notification_pause_action">रोकें</string>
+    <string name="recording_notification_resume_action">फिर से शुरू करें</string>
 </resources>

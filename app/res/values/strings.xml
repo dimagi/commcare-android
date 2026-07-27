@@ -852,6 +852,9 @@
 
     <string name="recording_in_progress" cc:translatable="true">RECORDING</string>
     <string name="recording_paused" cc:translatable="true">PAUSED</string>
+    <string name="recording_notification_save_action" cc:translatable="true">Save</string>
+    <string name="recording_notification_pause_action" cc:translatable="true">Pause</string>
+    <string name="recording_notification_resume_action" cc:translatable="true">Resume</string>
 
     <string name="clear_search_button_description">Clear query</string>
     <string name="face_capture_manual_instructions" cc:translatable="true">Center a face inside the frame, then tap the white button to take the picture</string>
