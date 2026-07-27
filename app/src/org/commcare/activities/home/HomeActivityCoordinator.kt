@@ -1,5 +1,6 @@
 package org.commcare.activities.home
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -72,6 +73,15 @@ class HomeActivityCoordinator(
         // Covers hosts that never touch the launch/nav state, so the provider is registered and
         // the state is still persisted for them.
         ensureRestored()
+    }
+
+    /**
+     * Fan an activity result out to the delegates that need it. `onActivityResult` is the only
+     * cross-cutting host callback with no `Lifecycle` hook, so it stays a forwarded call. No
+     * delegates are registered yet, so this currently does nothing but establish the seam.
+     */
+    fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        // Intentionally empty: delegates arrive in later slices.
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.commcare.activities.home
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
@@ -146,5 +148,27 @@ class HomeActivityCoordinatorTest {
         secondHost.dispatchOnCreate()
 
         assertTrue(second.pendingEndpointNavigationAfterSync)
+    }
+
+    /**
+     * No delegates exist yet, so forwarding is a no-op fan-out. Pinning it here means the host can
+     * wire the forward now and later slices only add fan-out targets.
+     */
+    @Test
+    fun `forwarding an activity result does not disturb launch and nav state`() {
+        val host = FakeHomeActivityHost()
+        val coordinator = HomeActivityCoordinator(host)
+        host.performRestore()
+        host.dispatchOnCreate()
+        coordinator.wasExternal = true
+
+        coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent())
+
+        assertTrue(coordinator.wasExternal)
+        assertFalse(coordinator.loginExtraWasConsumed)
+    }
+
+    private companion object {
+        const val REQUEST_CODE = 7
     }
 }
