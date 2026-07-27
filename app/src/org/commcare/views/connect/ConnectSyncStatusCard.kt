@@ -5,13 +5,13 @@ import android.content.res.ColorStateList
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.widget.ImageViewCompat
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectSyncStatusCardBinding
+import org.commcare.views.extensions.bindOptional
 
 /**
  * Reusable Connect card that displays sync status: a circular badge icon plus a bold status line
@@ -73,16 +73,8 @@ class ConnectSyncStatusCard
         fun bind(state: State) {
             this.state = state
             binding.syncCardText.text = state.statusText
-            bindOptionalText(binding.syncCardSubtext, state.statusSubtext)
+            binding.syncCardSubtext.bindOptional(state.statusSubtext)
             applyAppearance(state.warning)
-        }
-
-        private fun bindOptionalText(
-            view: TextView,
-            value: CharSequence?,
-        ) {
-            view.text = value
-            view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
         }
 
         private fun applyAppearance(warning: Boolean) {
