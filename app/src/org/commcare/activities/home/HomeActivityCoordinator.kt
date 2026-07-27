@@ -80,7 +80,11 @@ class HomeActivityCoordinator(
      * cross-cutting host callback with no `Lifecycle` hook, so it stays a forwarded call. No
      * delegates are registered yet, so this currently does nothing but establish the seam.
      */
-    fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+    fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        intent: Intent?,
+    ) {
         // Intentionally empty: delegates arrive in later slices.
     }
 

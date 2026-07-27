@@ -18,7 +18,10 @@ interface HomeActivityHost : SavedStateRegistryOwner {
     val hostContext: Context
 
     /** Launch [intent] for [requestCode]; results come back through the host's `onActivityResult`. */
-    fun startActivityForResult(intent: Intent, requestCode: Int)
+    fun startActivityForResult(
+        intent: Intent,
+        requestCode: Int,
+    )
 
     /** Show [dialog] on the host, so dialogs survive the host's own dismissal bookkeeping. */
     fun showAlertDialog(dialog: CommCareAlertDialog)

@@ -36,7 +36,10 @@ class FakeHomeActivityHost : HomeActivityHost {
     override val savedStateRegistry: SavedStateRegistry get() = savedStateController.savedStateRegistry
     override val hostContext: Context get() = ApplicationProvider.getApplicationContext()
 
-    override fun startActivityForResult(intent: Intent, requestCode: Int) {
+    override fun startActivityForResult(
+        intent: Intent,
+        requestCode: Int,
+    ) {
         startedForResult += intent to requestCode
     }
 
