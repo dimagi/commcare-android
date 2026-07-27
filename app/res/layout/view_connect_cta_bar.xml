@@ -28,7 +28,7 @@
         app:cardBackgroundColor="@color/connect_light_indigo"
         app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
         app:cardElevation="@dimen/connect_info_card_elevation"
-        app:contentPadding="16dp">
+        app:contentPadding="@dimen/standard_spacer_double">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

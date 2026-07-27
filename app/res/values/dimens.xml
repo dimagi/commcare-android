@@ -19,6 +19,7 @@
     <dimen name="spacer_small">5dp</dimen>
     <dimen name="standard_spacer_half">4dp</dimen>
     <dimen name="standard_spacer">8dp</dimen>
+    <dimen name="standard_spacer_one_and_half">12dp</dimen>
     <dimen name="standard_spacer_double">16dp</dimen>
     <dimen name="standard_spacer_large">24dp</dimen>
     <dimen name="standard_spacer_extra_large">32dp</dimen>
@@ -141,8 +142,8 @@
     <dimen name="side_nav_horizontal_padding">10dp</dimen>
     <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
 
-    <dimen name="connect_info_card_corner_radius">7dp</dimen>
-    <dimen name="connect_info_card_elevation">4dp</dimen>
+    <dimen name="connect_info_card_corner_radius">8dp</dimen>
+    <dimen name="connect_info_card_elevation">0dp</dimen>
     <dimen name="connect_info_card_min_height">130dp</dimen>
 
     <dimen name="semi_circle_progress_default_width">240dp</dimen>

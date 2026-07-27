@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/standard_spacer_double"
+    android:layout_marginBottom="@dimen/standard_title_margin_bottom"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
     app:cardElevation="0dp"
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/standard_spacer"
             android:textColor="@color/connect_grey"
-            android:textSize="12sp"
+            android:textSize="11sp"
             tools:text="Estimated time: 1 hour" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -5,7 +5,6 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
@@ -14,9 +13,11 @@ import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
+import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ApiConnect
@@ -31,6 +32,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.io.ByteArrayInputStream
 import java.text.DateFormat
+import java.util.Date
 
 /**
  * Robolectric UI tests for [ConnectJobIntroFragment]: verifies the job data renders into the
@@ -183,10 +185,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
 
     @Test
     fun `tapping the footer button starts learning and navigates to downloading`() {
-        mockkStatic(ConnectUserDatabaseUtil::class)
-        every { ConnectUserDatabaseUtil.getUser(any()) } returns mockk<ConnectUserRecord>()
-        mockkStatic(ConnectJobUtils::class)
-        every { ConnectJobUtils.upsertJob(any()) } returns Unit
+        seedConnectUser()
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
         mockkObject(ConnectAppUtils)
@@ -214,8 +213,37 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         verify { ApiConnect.startLearnApp(any(), any(), eq(job.jobUUID), any()) }
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
         assertEquals(
+            ConnectJobRecord.STATUS_LEARNING,
+            ConnectJobUtils.getCompositeJob(activity, job.jobUUID)?.status,
+        )
+        assertEquals(
             R.id.connect_downloading_fragment,
             navController.currentDestination?.id,
+        )
+    }
+
+    /**
+     * Writes a real user through the Connect storage layer so [ConnectUserDatabaseUtil.getUser]
+     * returns it. [ConnectDatabaseHelper.dbExists] has to be stubbed because it probes for the
+     * on-disk connect db, which never exists under the in-memory test open helper.
+     */
+    private fun seedConnectUser() {
+        mockkStatic(ConnectDatabaseHelper::class)
+        every { ConnectDatabaseHelper.dbExists() } returns true
+        ConnectUserDatabaseUtil.storeUser(
+            activity,
+            ConnectUserRecord(
+                "1234567890",
+                "test-user-id",
+                "password",
+                "Test User",
+                "1234",
+                Date(),
+                null,
+                false,
+                PersonalIdSessionData.PIN,
+                true,
+            ),
         )
     }
 }

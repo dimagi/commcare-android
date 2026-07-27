@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/standard_spacer_large"
         android:textColor="@color/connect_text_color"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         tools:text="Infant Vaccination - Learn Modules" />
 
@@ -49,10 +49,9 @@
                 android:id="@+id/tv_modules_footer_note"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/standard_spacer_double"
                 android:text="@string/connect_opportunity_modules_footer_note"
                 android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:textSize="11sp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>
