@@ -29,10 +29,10 @@ class ConnectSyncStatusCard
         private val binding =
             ViewConnectSyncStatusCardBinding.inflate(LayoutInflater.from(context), this, true)
 
-        private val syncOkBadgeColor: Int
-        private val syncOkIconColor: Int
-        private val syncWarningBadgeColor: Int
-        private val syncWarningIconColor: Int
+        private var syncOkBadgeColor = 0
+        private var syncOkIconColor = 0
+        private var syncWarningBadgeColor = 0
+        private var syncWarningIconColor = 0
 
         /** The state currently bound to the card. */
         var state: State = State()
@@ -51,10 +51,6 @@ class ConnectSyncStatusCard
             useCompatPadding = true
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
-            var okBadge = ContextCompat.getColor(context, R.color.connect_light_green)
-            var okIcon = ContextCompat.getColor(context, R.color.connect_green)
-            var warningBadge = ContextCompat.getColor(context, R.color.connect_light_amber)
-            var warningIcon = ContextCompat.getColor(context, R.color.connect_yellowish_orange_color)
             var initialState = State()
 
             context.withStyledAttributes(
@@ -63,17 +59,12 @@ class ConnectSyncStatusCard
                 defStyleAttr,
                 R.style.Widget_CommCare_ConnectSyncStatusCard,
             ) {
-                okBadge = getColor(R.styleable.ConnectSyncStatusCard_syncOkBadgeColor, okBadge)
-                okIcon = getColor(R.styleable.ConnectSyncStatusCard_syncOkIconColor, okIcon)
-                warningBadge = getColor(R.styleable.ConnectSyncStatusCard_syncWarningBadgeColor, warningBadge)
-                warningIcon = getColor(R.styleable.ConnectSyncStatusCard_syncWarningIconColor, warningIcon)
+                syncOkBadgeColor = getColor(R.styleable.ConnectSyncStatusCard_syncOkBadgeColor, 0)
+                syncOkIconColor = getColor(R.styleable.ConnectSyncStatusCard_syncOkIconColor, 0)
+                syncWarningBadgeColor = getColor(R.styleable.ConnectSyncStatusCard_syncWarningBadgeColor, 0)
+                syncWarningIconColor = getColor(R.styleable.ConnectSyncStatusCard_syncWarningIconColor, 0)
                 initialState = readStateFromAttributes(this)
             }
-
-            syncOkBadgeColor = okBadge
-            syncOkIconColor = okIcon
-            syncWarningBadgeColor = warningBadge
-            syncWarningIconColor = warningIcon
 
             bind(initialState)
         }
