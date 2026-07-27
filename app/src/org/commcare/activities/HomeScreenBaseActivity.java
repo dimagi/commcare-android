@@ -21,6 +21,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
+import org.commcare.activities.home.HomeActivityCoordinator;
 import org.commcare.activities.home.HomeActivityHost;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -192,8 +193,25 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private boolean pendingEndpointNavigationAfterSync = false;
     private static final String KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC = "pending_endpoint_nav_after_sync";
 
+    private final HomeActivityCoordinator coordinator = new HomeActivityCoordinator(this);
+
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
+    }
+
+    /**
+     * The coordinator this home activity composes. Public so tests can assert on the launch/nav
+     * state it now owns. Held here rather than in each concrete home activity for as long as this
+     * class exists; the slice that removes this class pushes the field down into both subclasses.
+     */
+    public HomeActivityCoordinator getCoordinator() {
+        return coordinator;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        coordinator.onActivityResult(requestCode, resultCode, intent);
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     @Override
