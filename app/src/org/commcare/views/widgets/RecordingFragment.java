@@ -421,7 +421,7 @@ public class RecordingFragment extends DialogFragment {
         if (listener != null) {
             listener.onRecordingCompletion(fileName);
         }
-        dismiss();
+        dismissAllowingStateLoss();
     }
 
     /**
