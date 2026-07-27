@@ -497,9 +497,6 @@
     <string name="connect_corrupt_job_text">Failed to load this opportunity</string>
 
 
-    <string name="connect_job_learn_details">Learn Details</string>
-    <string name="connect_job_you_will_learn">Complete the following learn modules and assessment to earn a certificate</string>
-    <string name="connect_job_no_learning_required">No learning required</string>
 
     <string name="connect_learn_progress_title">Learn Progress</string>
     <string name="connect_learn_complete_title">Training Complete!</string>
@@ -690,8 +687,6 @@
     <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>
     <string name="connect_job_info_review_delivery">Review the delivery details</string>
-    <string name="connect_job_preview_start">Start</string>
-    <string name="connect_job_delivery_preview_subtitle">Once you have completed the learning assessment, you will transition to delivery</string>
     <string name="connect_job_info_visit">%d maximum Visits</string>
     <string name="connect_job_info_days">%d Days to complete</string>
     <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
@@ -706,6 +701,34 @@
     <string name="connect_job_info_view_resume">Resume</string>
     <string name="connect_job_info_view_review">Review</string>
     <string name="connect_job_info_view_proceed">Proceed</string>
+
+    <string name="connect_opportunity_badge_new">New Opportunity</string>
+    <string name="connect_opportunity_expiry_label">Expires on</string>
+    <string name="connect_opportunity_max_earnings_label">Maximum Earnings</string>
+    <string name="connect_opportunity_learn_section_title">Learn</string>
+    <string name="connect_opportunity_learn_section_subtitle">Complete training to begin visits</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Learn Module</item>
+        <item quantity="other">Learn Modules</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Estimated time: %d hour</item>
+        <item quantity="other">Estimated time: %d hours</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Delivery</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Complete visits and submit forms to receive payment</string>
+    <string name="connect_opportunity_max_visits_label">Total Visits</string>
+    <string name="connect_opportunity_visits_per_day">Up to %d per day</string>
+    <string name="connect_opportunity_days_to_complete_label">Days to complete</string>
+    <string name="connect_opportunity_max_earnings_card_label">Maximum earnings</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d payment unit</item>
+        <item quantity="other">%d payment units</item>
+    </plurals>
+    <string name="connect_opportunity_footer_start_learning">Start Learning</string>
+    <string name="connect_opportunity_footer_download_learn_app">Download Learn</string>
+    <string name="connect_opportunity_modules_footer_note">Complete the modules, pass the assessment, and earn your certificate</string>
+    <string name="connect_opportunity_footer_download_app">Download App</string>
 
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>

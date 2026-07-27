@@ -121,7 +121,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment<FragmentC
 
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {
         job.setStatus(ConnectJobRecord.STATUS_DELIVERING);
-        ConnectJobUtils.upsertJob(getContext(), job);
+        ConnectJobUtils.upsertJob(job);
         CommCareApplication.instance().closeUserSession();
 
         NavDirections directions = installed

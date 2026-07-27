@@ -325,9 +325,6 @@
     <string name="connect_last_update">Atualizado: %s</string>
     <string name="connect_title">Ligar</string>
     <string name="connect_no_jobs">Você ainda não foi convidado para nenhuma oportunidade. Assim que for convidado para uma oportunidade, ela aparecerá nesta lista.</string>
-    <string name="connect_job_learn_details">Detalhes da Aprendizagem</string>
-    <string name="connect_job_you_will_learn">Complete os seguintes módulos de aprendizagem e a avaliação para obter um certificado</string>
-    <string name="connect_job_no_learning_required">Não é necessário aprender</string>
     <string name="connect_learn_progress_title">O seu progresso de aprendizagem</string>
     <string name="connect_learn_complete_title">Formação Completa!</string>
     <string name="connect_learn_need_assessment_title">Formação pendente</string>
@@ -591,14 +588,13 @@
 
     <string name="connect_complete_by">A tarefa termina em %s</string>
     <string name="connect_expired_on">A tarefa terminou em %s</string>
-    <string name="connect_job_preview_start">Iniciar</string>
+
     <string name="connect_dashboard">Painel</string>
     <string name="connect_visits">Visitas</string>
     <string name="connect_more">Mais</string>
     <string name="connect_delivery_start">Iniciar</string>
     <string name="connect_delivery_continue_visits">Continue suas visitas</string>
     <string name="connect_delivery_continue_visits_subtitle">Enviar formulários de entrega</string>
-    <string name="connect_job_delivery_preview_subtitle">Depois de concluir a avaliação de aprendizagem, você fará a transição para a entrega</string>
     <string name="connect_job_info_view_opportunity">Ver oportunidade</string>
     <string name="install_barcode_top">Bem-vindo ao CommCare!</string>
     <string name="install_barcode_bottom">Por favor, escolha um método de instalação abaixo</string>
@@ -675,4 +671,31 @@
     <string name="camera_permission_denied">Vá às configurações e ative a permissão da câmera para usar este recurso</string>
     <string name="microimage_face_detection_mode_failed">Falha no modo de detecção de rosto, alternando para o modo manual</string>
     <string name="microimage_cropping_failed">Falha ao recortar a imagem, verifique se o alvo está dentro da área de captura</string>
+    <string name="connect_opportunity_badge_new">Nova oportunidade</string>
+    <string name="connect_opportunity_expiry_label">Vence em</string>
+    <string name="connect_opportunity_max_earnings_label">Ganhos máximos</string>
+    <string name="connect_opportunity_learn_section_title">Aprendizagem</string>
+    <string name="connect_opportunity_learn_section_subtitle">Conclua o treinamento para iniciar as visitas</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Módulo de aprendizagem</item>
+        <item quantity="other">Módulos de aprendizagem</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Tempo estimado: %d hora</item>
+        <item quantity="other">Tempo estimado: %d horas</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Entrega</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Conclua as visitas e envie formulários para receber o pagamento</string>
+    <string name="connect_opportunity_max_visits_label">Total de visitas</string>
+    <string name="connect_opportunity_visits_per_day">Até %d por dia</string>
+    <string name="connect_opportunity_days_to_complete_label">Dias para concluir</string>
+    <string name="connect_opportunity_max_earnings_card_label">Ganhos máximos</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d unidade de pagamento</item>
+        <item quantity="other">%d unidades de pagamento</item>
+    </plurals>
+    <string name="connect_opportunity_footer_start_learning">Começar a aprender</string>
+    <string name="connect_opportunity_footer_download_learn_app">Baixar Aprendizagem</string>
+    <string name="connect_opportunity_modules_footer_note">Conclua os módulos, seja aprovado na avaliação e receba seu certificado</string>
+    <string name="connect_opportunity_footer_download_app">Baixar app</string>
 </resources>

@@ -155,8 +155,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_last_update">An sabunta: %s</string>
     <string name="connect_title">Haɗa</string>
     <string name="connect_no_jobs">Ba a gayyace ka zuwa wata dama ba tukuna. Da zarar an gayyace ka zuwa wata dama, za ta bayyana a cikin wannan jerin.</string>
-    <string name="connect_job_you_will_learn">Kammala waɗannan kayan koyo kuma ka sami takardar sheda</string>
-    <string name="connect_job_no_learning_required">Ba a buƙatar koyo ba</string>
     <string name="connect_learn_progress_title">Koyi Ci gaba</string>
     <string name="connect_learn_complete_title">An kammala horo!</string>
     <string name="connect_learn_need_assessment_title">Ana Jiran Horarwa</string>
@@ -290,7 +288,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_messaging_message_notification_message">Kun sami sabon saƙo daga %s, danna nan don gani.</string>
     <string name="connect_messaging_channel_notification_title">🔔 Sabuwar Tasha 🔔</string>
     <string name="connect_messaging_channel_notification_message">Akwai sabuwar hanyar aika saƙo daga %s, danna nan don gani</string>
-    <string name="connect_job_learn_details">Koyi Cikakkun Bayanai</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Kun ci jarrabawar kuma kun shirya don kammalawa. Duba matsayin aikin don ci gaba.</string>
     <string name="connect_results_summary_all">Duk</string>
     <string name="connect_results_summary_pending">Ana jira</string>
@@ -417,14 +414,12 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_biometric_error_cannot_configure">Ba za mu iya saita yanayin halittu a na\'urarka ba. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba.</string>
     <string name="connect_complete_by">Aiki yana ƙarewa akan %s</string>
     <string name="connect_expired_on">Aiki ya ƙare a kan %s</string>
-    <string name="connect_job_preview_start">Fara</string>
     <string name="connect_dashboard">Dashboard</string>
     <string name="connect_visits">Ziyarce-ziyarce</string>
     <string name="connect_more">Ƙari</string>
     <string name="connect_delivery_start">Fara</string>
     <string name="connect_delivery_continue_visits">Ci gaba da ziyararku</string>
     <string name="connect_delivery_continue_visits_subtitle">Aika fom ɗin isar da kaya</string>
-    <string name="connect_job_delivery_preview_subtitle">Da zarar kun gama tantancewar koyo, za ku canza zuwa bayarwa</string>
     <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
     <string name="please_wait">Da fatan za a jira wasu lokuta.</string>
@@ -664,4 +659,31 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="camera_permission_denied">Je zuwa saituna ka kunna izinin kyamara don amfani da wannan fasalin</string>
     <string name="microimage_face_detection_mode_failed">Yanayin gano fuska ya kasa, ana canzawa zuwa yanayin hannu</string>
     <string name="microimage_cropping_failed">Yanke hoton ya kasa, ka tabbatar cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
+    <string name="connect_opportunity_badge_new">Sabuwar dama</string>
+    <string name="connect_opportunity_expiry_label">Ranar ƙarewa</string>
+    <string name="connect_opportunity_max_earnings_label">Iyakar kuɗin shiga</string>
+    <string name="connect_opportunity_learn_section_title">Koyo</string>
+    <string name="connect_opportunity_learn_section_subtitle">Kammala horo don fara ziyara</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Sashen koyo</item>
+        <item quantity="other">Sassan koyo</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Ƙididdigar lokaci: awa %d</item>
+        <item quantity="other">Ƙididdigar lokaci: awanni %d</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Saukarwa</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Kammala ziyara ka aika fom don karɓar biya</string>
+    <string name="connect_opportunity_max_visits_label">Jimillar ziyara</string>
+    <string name="connect_opportunity_visits_per_day">Har zuwa %d kowace rana</string>
+    <string name="connect_opportunity_days_to_complete_label">Kwanaki don kammalawa</string>
+    <string name="connect_opportunity_max_earnings_card_label">Iyakar kuɗin shiga</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">Sashen biya %d</item>
+        <item quantity="other">Sassan biya %d</item>
+    </plurals>
+    <string name="connect_opportunity_footer_start_learning">Fara koyo</string>
+    <string name="connect_opportunity_footer_download_learn_app">Sauke Koyo</string>
+    <string name="connect_opportunity_modules_footer_note">Kammala kayayyakin koyo, ka ci jarrabawa, sannan ka sami takardar shaidarka</string>
+    <string name="connect_opportunity_footer_download_app">Sauke manhaja</string>
 </resources>
