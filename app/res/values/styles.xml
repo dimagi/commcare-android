@@ -318,7 +318,7 @@
         <item name="failureAccentColor">@color/connect_red</item>
     </style>
 
-    <style name="Widget.CommCare.ConnectSyncStatusCard" parent="">
+    <style name="Widget.CommCare.ConnectSyncStatusCard" parent="CardView">
         <item name="syncOkBadgeColor">@color/connect_light_green</item>
         <item name="syncOkIconColor">@color/connect_green</item>
         <item name="syncWarningBadgeColor">@color/connect_light_amber</item>
