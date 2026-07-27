@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,11 +12,11 @@
         android:layout_width="@dimen/connect_sync_card_badge_size"
         android:layout_height="@dimen/connect_sync_card_badge_size"
         android:background="@drawable/bg_connect_sync_badge"
-        android:backgroundTint="@color/connect_light_green"
         android:contentDescription="@null"
         android:padding="@dimen/connect_sync_card_badge_icon_inset"
-        android:src="@drawable/check_update"
-        app:tint="@color/connect_green" />
+        tools:backgroundTint="@color/connect_light_green"
+        tools:src="@drawable/check_update"
+        tools:tint="@color/connect_green" />
 
     <LinearLayout
         android:layout_width="0dp"
