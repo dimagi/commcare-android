@@ -659,4 +659,8 @@
     <string name="face_capture_auto_mode">ብዘሓት ምውሳድ</string>
     <string name="face_capture_manual_mode">ብኢድ ምውሳድ</string>
     <string name="face_capture_front_camera_unavailable">ቅድሚት ካሜራ ኣይርከብን፣ ካሜራ ናይ ምቕያር ኣማራጺ ኪዕፀው እዩ</string>
+
+    <string name="recording_notification_save_action">ኣቐምጥ</string>
+    <string name="recording_notification_pause_action">ደው በል</string>
+    <string name="recording_notification_resume_action">ቐጽል</string>
 </resources>

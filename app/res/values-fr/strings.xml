@@ -670,4 +670,8 @@ License.
     <string name="face_capture_auto_mode">Capture automatique</string>
     <string name="face_capture_manual_mode">Capture manuelle</string>
     <string name="face_capture_front_camera_unavailable">La caméra frontale n\'est pas disponible, l\'option de changer de caméra sera désactivée</string>
+
+    <string name="recording_notification_save_action">Enregistrer</string>
+    <string name="recording_notification_pause_action">Pause</string>
+    <string name="recording_notification_resume_action">Reprendre</string>
 </resources>

@@ -320,4 +320,7 @@
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
 
+    <string name="recording_notification_save_action">Lagre</string>
+    <string name="recording_notification_pause_action">Pause</string>
+    <string name="recording_notification_resume_action">Gjenoppta</string>
 </resources>

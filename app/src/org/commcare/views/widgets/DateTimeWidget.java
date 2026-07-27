@@ -1,7 +1,6 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
@@ -39,6 +38,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mDatePicker.setFocusable(!prompt.isReadOnly());
         mDatePicker.setEnabled(!prompt.isReadOnly());
         mDatePicker.setCalendarViewShown(true);
+        mDatePicker.setSpinnersShown(false);
         updateCalendarViewHeight();
 
         mTimePicker = (TimePicker)LayoutInflater.from(getContext()).inflate(R.layout.time_widget, this, false);
@@ -97,6 +97,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         CalendarView calendarView = mDatePicker.getCalendarView();
         LayoutParams params = (LayoutParams) calendarView.getLayoutParams();
         params.height = LayoutParams.WRAP_CONTENT;
+        params.width = LayoutParams.WRAP_CONTENT;
         calendarView.setLayoutParams(params);
     }
 
