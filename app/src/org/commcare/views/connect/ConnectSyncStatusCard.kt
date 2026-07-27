@@ -5,6 +5,8 @@ import android.content.res.ColorStateList
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
@@ -15,9 +17,8 @@ import org.commcare.views.extensions.bindOptional
 
 /**
  * Reusable Connect card that displays sync status: a circular badge icon plus a bold status line
- * and an optional grey subline. Appearance is driven by content properties; there is no state enum.
- * [State.warning] switches the badge between the OK (green check) and warning (amber refresh)
- * appearance.
+ * and an optional grey subline. [State.warning] selects the [Appearance] that drives the badge
+ * icon and colors, switching between the OK (green check) and warning (amber refresh) appearance.
  */
 class ConnectSyncStatusCard
     @JvmOverloads
@@ -78,16 +79,18 @@ class ConnectSyncStatusCard
             this.state = state
             binding.syncCardText.text = state.statusText
             binding.syncCardSubtext.bindOptional(state.statusSubtext)
-            applyAppearance(state.warning)
+            applyAppearance(if (state.warning) Appearance.Warning else Appearance.Ok)
         }
 
-        private fun applyAppearance(warning: Boolean) {
-            val badgeColor = if (warning) syncWarningBadgeColor else syncOkBadgeColor
-            val iconColor = if (warning) syncWarningIconColor else syncOkIconColor
-            val iconRes = if (warning) R.drawable.ic_connect_directory_sync else R.drawable.check_update
-            binding.syncCardIcon.setImageResource(iconRes)
-            ImageViewCompat.setImageTintList(binding.syncCardIcon, ColorStateList.valueOf(iconColor))
-            binding.syncCardIcon.backgroundTintList = ColorStateList.valueOf(badgeColor)
+        private fun applyAppearance(appearance: Appearance) {
+            val style =
+                when (appearance) {
+                    Appearance.Ok -> AppearanceStyle(syncOkBadgeColor, syncOkIconColor, syncOkIcon)
+                    Appearance.Warning -> AppearanceStyle(syncWarningBadgeColor, syncWarningIconColor, syncWarningIcon)
+                }
+            binding.syncCardIcon.setImageResource(style.iconRes)
+            ImageViewCompat.setImageTintList(binding.syncCardIcon, ColorStateList.valueOf(style.iconColor))
+            binding.syncCardIcon.backgroundTintList = ColorStateList.valueOf(style.badgeColor)
         }
 
         private fun readStateFromAttributes(typedArray: TypedArray): State =
@@ -96,4 +99,17 @@ class ConnectSyncStatusCard
                 statusSubtext = typedArray.getString(R.styleable.ConnectSyncStatusCard_statusSubtext),
                 warning = typedArray.getBoolean(R.styleable.ConnectSyncStatusCard_warning, false),
             )
+
+        /** Visual states the card can render. Add new states (e.g. an error state) here. */
+        private sealed interface Appearance {
+            object Ok : Appearance
+
+            object Warning : Appearance
+        }
+
+        private data class AppearanceStyle(
+            @ColorInt val badgeColor: Int,
+            @ColorInt val iconColor: Int,
+            @DrawableRes val iconRes: Int,
+        )
     }
