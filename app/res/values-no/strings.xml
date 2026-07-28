@@ -313,6 +313,13 @@
     <string name="camera_permission_denied">Gå til innstillinger og aktiver kameratillatelse for å bruke denne funksjonen</string>
     <string name="microimage_face_detection_mode_failed">Ansiktsgjenkjenningsmodus mislyktes, bytter til manuell modus</string>
     <string name="microimage_cropping_failed">Kunne ikke beskjære bildet, kontroller at målet er innenfor opptaksområdet</string>
+    <string name="microimage_saving_failed">Kunne ikke lagre bildet. Prøv igjen</string>
+    <string name="face_capture_activity_title">Ta bilde av ansikt</string>
+    <string name="face_capture_manual_instructions">Sentrer et ansikt i rammen, trykk deretter på den hvite knappen for å ta bildet</string>
+    <string name="face_capture_auto_instructions">Sentrer et ansikt i rammen, hold deg i ro for å utløse automatisk opptak</string>
+    <string name="face_capture_auto_mode">Automatisk opptak</string>
+    <string name="face_capture_manual_mode">Manuelt opptak</string>
+    <string name="face_capture_front_camera_unavailable">Frontkameraet er ikke tilgjengelig, alternativet for å bytte kamera vil bli deaktivert</string>
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
 
@@ -343,4 +350,7 @@
     <string name="connect_opportunity_footer_download_learn_app">Last ned Læring</string>
     <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
     <string name="connect_opportunity_footer_download_app">Last ned appen</string>
+    <string name="recording_notification_save_action">Lagre</string>
+    <string name="recording_notification_pause_action">Pause</string>
+    <string name="recording_notification_resume_action">Gjenoppta</string>
 </resources>

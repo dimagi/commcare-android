@@ -696,4 +696,15 @@
     <string name="connect_opportunity_footer_download_learn_app">Pakua Kujifunza</string>
     <string name="connect_opportunity_modules_footer_note">Kamilisha moduli, ufaulu tathmini, na upate cheti chako</string>
     <string name="connect_opportunity_footer_download_app">Pakua programu</string>
+    <string name="microimage_saving_failed">Picha haikuweza kuhifadhiwa. Tafadhali jaribu tena</string>
+    <string name="face_capture_activity_title">Piga picha ya uso</string>
+    <string name="face_capture_manual_instructions">Weka uso katikati ya fremu, kisha gusa kitufe cheupe kupiga picha</string>
+    <string name="face_capture_auto_instructions">Weka uso katikati ya fremu, kaa bila kutikisika ili kuanzisha mchakato wa kupiga picha kiotomatiki</string>
+    <string name="face_capture_auto_mode">Kupiga picha kiotomatiki</string>
+    <string name="face_capture_manual_mode">Kupiga picha kwa mkono</string>
+    <string name="face_capture_front_camera_unavailable">Kamera ya mbele haipatikani, chaguo la kubadilisha kamera litazimwa</string>
+
+    <string name="recording_notification_save_action">Hifadhi</string>
+    <string name="recording_notification_pause_action">Sitisha</string>
+    <string name="recording_notification_resume_action">Endelea</string>
 </resources>

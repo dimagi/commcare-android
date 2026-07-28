@@ -692,4 +692,15 @@
     <string name="connect_opportunity_footer_download_learn_app">Descargar Aprendizaje</string>
     <string name="connect_opportunity_modules_footer_note">Completa los módulos, aprueba la evaluación y obtén tu certificado</string>
     <string name="connect_opportunity_footer_download_app">Descargar app</string>
+    <string name="microimage_saving_failed">No se pudo guardar la imagen. Inténtalo de nuevo</string>
+    <string name="face_capture_activity_title">Tomar foto de rostro</string>
+    <string name="face_capture_manual_instructions">Centra un rostro dentro del marco y luego toca el botón blanco para tomar la foto</string>
+    <string name="face_capture_auto_instructions">Centra un rostro dentro del marco y mantente quieto para activar el proceso de captura automática</string>
+    <string name="face_capture_auto_mode">Captura automática</string>
+    <string name="face_capture_manual_mode">Captura manual</string>
+    <string name="face_capture_front_camera_unavailable">La cámara frontal no está disponible, la opción de cambiar de cámara estará deshabilitada</string>
+
+    <string name="recording_notification_save_action">Guardar</string>
+    <string name="recording_notification_pause_action">Pausar</string>
+    <string name="recording_notification_resume_action">Reanudar</string>
 </resources>

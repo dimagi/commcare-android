@@ -12,8 +12,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.AudioRecordingConfiguration;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -33,6 +31,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
@@ -95,7 +95,6 @@ public class RecordingFragment extends DialogFragment {
     private Chronometer recordingDuration;
 
     private RecordingCompletionListener listener;
-    private MediaPlayer player;
     private long mLastStopTime;
     private boolean inPausedState = false;
     private boolean savedRecordingExists = false;
@@ -117,8 +116,15 @@ public class RecordingFragment extends DialogFragment {
         disableScreenRotation((AppCompatActivity) getContext());
         prepareButtons();
         prepareText();
+        initMediaResources();
         setWindowSize();
 
+        return layout;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         Bundle args = getArguments();
         if (args != null) {
             fileName = args.getString(AUDIO_FILE_PATH_ARG_KEY);
@@ -131,7 +137,12 @@ public class RecordingFragment extends DialogFragment {
         File f = new File(fileName);
         if (f.exists()) {
             reloadSavedRecording();
+        } else if (savedInstanceState == null) {
+            startRecording();
         }
+    }
+
+    private void initMediaResources() {
         recordingAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.blink);
         primaryColor = getContext().getColor(R.color.audio_recording_primary_color);
         lightGrayColor = getContext().getColor(R.color.grey_light);
@@ -140,7 +151,6 @@ public class RecordingFragment extends DialogFragment {
         progressBarPausedDrawable = getContext().getDrawable(R.drawable.progress_bar_paused);
         pausedDrawable = getContext().getDrawable(R.drawable.recording_paused);
         recordingDrawable = getContext().getDrawable(R.drawable.recording_dot);
-        return layout;
     }
 
     private void initAudioFile() {
@@ -187,7 +197,6 @@ public class RecordingFragment extends DialogFragment {
         recordingContainer = layout.findViewById(R.id.recording_layout);
         discardRecording.setOnClickListener(v -> dismiss());
         toggleRecording = layout.findViewById(R.id.startrecording);
-        toggleRecording.setOnClickListener(v -> startRecording());
         negativeActionButton = layout.findViewById(R.id.negative_action_button);
         recordingActionContainer = layout.findViewById(R.id.recording_action_container);
         positiveActionButton = layout.findViewById(R.id.positive_action_button);
@@ -203,21 +212,15 @@ public class RecordingFragment extends DialogFragment {
         actionButton.setText(StringUtils.getStringRobust(getContext(), stringResourceId));
     }
 
-    private void resetRecordingView() {
-        if (player != null) {
-            resetAudioPlayer();
-        }
 
+    //reset recording view
+    private void resetRecordingView() {
         // reset the file path
         initAudioFile();
-        recordingContainer.setVisibility(VISIBLE);
-        toggleRecording.setBackgroundResource(R.drawable.record_start);
-        toggleRecording.setOnClickListener(v -> startRecording());
-        instruction.setText(Localization.get("before.overwrite.recording"));
-        recordingDuration.setVisibility(INVISIBLE);
-        negativeActionButton.setVisibility(GONE);
-        enableSave(false);
-        setActionText(positiveActionButton, CLEAR_TEXT_KEY);
+        if (listener != null) {
+            listener.onRecordingCompletion(fileName);
+        }
+        dismiss();
     }
 
     private void startRecording() {
@@ -235,6 +238,7 @@ public class RecordingFragment extends DialogFragment {
 
         Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
         serviceIntent.putExtra(RECORDING_FILENAME_EXTRA_KEY, fileName);
+        serviceIntent.putExtra(AudioRecordingService.PAUSE_SUPPORTED_EXTRA_KEY, isPauseSupported());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             requireActivity().startForegroundService(serviceIntent);
         } else {
@@ -249,6 +253,31 @@ public class RecordingFragment extends DialogFragment {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 audioRecordingService = ((AudioRecordingService.AudioRecorderBinder) service).getService();
+
+                // Relay notification action presses back to the recording UI. Invoked on the
+                // main thread from the service; guarded in case the dialog is no longer attached.
+                audioRecordingService.setRecordingActionListener(new AudioRecordingService.RecordingActionListener() {
+                    @Override
+                    public void onSaveRequested() {
+                        if (isAdded() && getView() != null) {
+                            stopRecording(true);
+                        }
+                    }
+
+                    @Override
+                    public void onPauseRequested() {
+                        if (isAdded() && getView() != null && !inPausedState) {
+                            pauseRecording(true);
+                        }
+                    }
+
+                    @Override
+                    public void onResumeRequested() {
+                        if (isAdded() && getView() != null && inPausedState) {
+                            resumeRecording();
+                        }
+                    }
+                });
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     registerAudioRecordingConfigurationChangeCallback();
@@ -280,7 +309,7 @@ public class RecordingFragment extends DialogFragment {
             toggleRecording.setOnClickListener(v -> pauseRecording(true));
         } else {
             toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
-            toggleRecording.setOnClickListener(v -> stopRecording());
+            toggleRecording.setOnClickListener(v -> stopRecording(true));
         }
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(VISIBLE);
@@ -293,7 +322,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     @SuppressLint("NewApi")
-    private void stopRecording() {
+    private void stopRecording(boolean shouldSave) {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
         recordingDuration.stop();
         recordingProgress.setVisibility(INVISIBLE);
@@ -304,14 +333,14 @@ public class RecordingFragment extends DialogFragment {
         // resume first just in case we were paused
         if (inPausedState) {
             audioRecordingService.resumeRecording();
+            inPausedState = false;
         }
 
         audioRecordingService.stopRecording();
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> playAudio());
-        instruction.setText(Localization.get("after.recording"));
-        enableSave(false);
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopped");
+        if (shouldSave) {
+            saveRecording();
+        }
     }
 
     @SuppressLint("NewApi")
@@ -387,12 +416,12 @@ public class RecordingFragment extends DialogFragment {
 
     private void saveRecording() {
         if (inPausedState) {
-            stopRecording();
+            stopRecording(false);
         }
         if (listener != null) {
             listener.onRecordingCompletion(fileName);
         }
-        dismiss();
+        dismissAllowingStateLoss();
     }
 
     /**
@@ -410,14 +439,6 @@ public class RecordingFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         enableScreenRotation((AppCompatActivity) getContext());
-
-        if (player != null) {
-            try {
-                player.release();
-            } catch (IllegalStateException e) {
-                // Do nothing because player wasn't recording
-            }
-        }
     }
 
     private static void disableScreenRotation(AppCompatActivity context) {
@@ -432,38 +453,6 @@ public class RecordingFragment extends DialogFragment {
 
     private static void enableScreenRotation(AppCompatActivity context) {
         context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
-
-    private void playAudio() {
-        Uri myPath = Uri.parse(fileName);
-        player = MediaPlayer.create(getContext(), myPath);
-        player.setOnCompletionListener(mp -> resetAudioPlayer());
-        recordingDuration.setBase(SystemClock.elapsedRealtime());
-        recordingDuration.start();
-        player.start();
-        toggleRecording.setBackgroundResource(R.drawable.pause);
-        toggleRecording.setOnClickListener(v -> pauseAudioPlayer());
-    }
-
-    private void pauseAudioPlayer() {
-        player.pause();
-        chronoPause();
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> resumeAudioPlayer());
-    }
-
-    private void resumeAudioPlayer() {
-        chronoResume();
-        player.start();
-        toggleRecording.setBackgroundResource(R.drawable.pause);
-        toggleRecording.setOnClickListener(v -> pauseAudioPlayer());
-    }
-
-    private void resetAudioPlayer() {
-        player.release();
-        recordingDuration.stop();
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> playAudio());
     }
 
     private void chronoPause() {
@@ -556,6 +545,9 @@ public class RecordingFragment extends DialogFragment {
 
     private void unbindAudioRecordingService() {
         if (audioRecordingServiceBounded) {
+            if (audioRecordingService != null) {
+                audioRecordingService.setRecordingActionListener(null);
+            }
             requireActivity().unbindService(audioRecordingServiceConnection);
             requireActivity()
                     .stopService(new Intent(requireActivity(), AudioRecordingService.class));

@@ -75,6 +75,10 @@ class PersonalIdPhotoUpdater(
                     MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA,
                     USER_PHOTO_MAX_SIZE_BYTES,
                 )
+                putExtra(
+                    MicroImageActivity.TITLE_RES_EXTRA,
+                    R.string.micro_image_activity_title,
+                )
             }
         takePhotoLauncher.launch(intent)
     }

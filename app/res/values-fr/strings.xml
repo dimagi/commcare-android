@@ -691,4 +691,15 @@ License.
     <string name="connect_opportunity_footer_download_learn_app">Télécharger Apprentissage</string>
     <string name="connect_opportunity_modules_footer_note">Terminez les modules, réussissez l\'évaluation et obtenez votre certificat</string>
     <string name="connect_opportunity_footer_download_app">Télécharger l\'app</string>
+    <string name="microimage_saving_failed">Impossible d\'enregistrer l\'image. Veuillez réessayer</string>
+    <string name="face_capture_activity_title">Prendre une photo de visage</string>
+    <string name="face_capture_manual_instructions">Centrez un visage dans le cadre, puis appuyez sur le bouton blanc pour prendre la photo</string>
+    <string name="face_capture_auto_instructions">Centrez un visage dans le cadre et restez immobile pour déclencher la capture automatique</string>
+    <string name="face_capture_auto_mode">Capture automatique</string>
+    <string name="face_capture_manual_mode">Capture manuelle</string>
+    <string name="face_capture_front_camera_unavailable">La caméra frontale n\'est pas disponible, l\'option de changer de caméra sera désactivée</string>
+
+    <string name="recording_notification_save_action">Enregistrer</string>
+    <string name="recording_notification_pause_action">Pause</string>
+    <string name="recording_notification_resume_action">Reprendre</string>
 </resources>
