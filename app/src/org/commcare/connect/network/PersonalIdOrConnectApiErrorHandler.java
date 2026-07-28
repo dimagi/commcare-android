@@ -67,6 +67,15 @@ public class PersonalIdOrConnectApiErrorHandler {
                 return context.getString(R.string.personalid_network_response_parsing_error);
             case EMAIL_ALREADY_IN_USE_ERROR:
                 return context.getString(R.string.personalid_email_already_in_use);
+            // Reachable from the email OTP endpoints now that their error_code is read: a malformed
+            // request, or a configuration session that expired mid-signup. Nothing actionable to tell
+            // the user beyond retrying, but they must not reach the throwing default below.
+            case BAD_REQUEST_ERROR:
+            case MISSING_DATA_ERROR:
+            case TOKEN_INVALID_ERROR:
+                Logger.exception("API error on a PersonalID flow: " + errorCode,
+                        t != null ? t : new RuntimeException("API error code: " + errorCode));
+                return context.getString(R.string.recovery_network_unknown);
             default:
                 if (t != null) {
                     Logger.exception("Unhandled throwable passed with API error code: " + errorCode, t);

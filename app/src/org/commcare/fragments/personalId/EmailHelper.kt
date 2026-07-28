@@ -125,34 +125,20 @@ object EmailHelper {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                val resolvedCode = resolveVerifyFailure(failureCode)
                 tracker.recordFailedAttempt()
                 FirebaseAnalyticsUtil.reportOtpEvent(
                     OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                     AnalyticsParamValue.OTP_METHOD_EMAIL,
-                    OtpAnalyticsMapper.reasonFrom(resolvedCode),
+                    OtpAnalyticsMapper.reasonFrom(failureCode),
                     tracker.requestCount,
                     tracker.failedAttempts,
                     OtpAnalyticsMapper.workflowParam(workflow),
                 )
-                onFailure(resolvedCode, t)
+                onFailure(failureCode, t)
             }
         }.verifyEmailOtp(activity, email, otp, token, user)
     }
-
-    /**
-     * Treats a bad request from /users/verify_email_otp as an already-in-use email. The server only
-     * rejects a verify with 400 when the code was correct but the email already belongs to another
-     * active account — its remaining 400 branches need an empty email or OTP, which this screen
-     * cannot submit. A wrong code returns 401.
-     */
-    private fun resolveVerifyFailure(failureCode: PersonalIdOrConnectApiErrorCodes) =
-        if (failureCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
-            PersonalIdOrConnectApiErrorCodes.EMAIL_ALREADY_IN_USE_ERROR
-        } else {
-            failureCode
-        }
 
     // ---------- Workflow routing ---------------------------------------------------------
 

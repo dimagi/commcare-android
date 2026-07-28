@@ -3,6 +3,8 @@ package org.commcare.connect.network.connectId;
 import android.app.Activity;
 import android.content.Context;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
@@ -97,13 +99,21 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         };
     }
 
+    /**
+     * Maps the server's {@code error_code} onto a {@link PersonalIdOrConnectApiErrorCodes}, returning
+     * false when the code is unrecognised so the caller can fall back to the HTTP status. The email
+     * OTP endpoints pass a null {@code sessionData} — they have no configuration session to record
+     * the failure against, but still need the code translated.
+     */
     private boolean handleErrorCodeIfPresent(
             String errorCode,
             String errorSubCode,
-            PersonalIdSessionData sessionData
+            @Nullable PersonalIdSessionData sessionData
     ) {
-        sessionData.setSessionFailureCode(errorCode);
-        sessionData.setSessionFailureSubcode(errorSubCode);
+        if (sessionData != null) {
+            sessionData.setSessionFailureCode(errorCode);
+            sessionData.setSessionFailureSubcode(errorSubCode);
+        }
         switch (errorCode) {
             case "LOCKED_ACCOUNT":
                 onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
@@ -185,6 +195,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "RATE_LIMITED":
                 onFailure(PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR, null);
                 return true;
+            case "EMAIL_ALREADY_IN_USE":
+                onFailure(PersonalIdOrConnectApiErrorCodes.EMAIL_ALREADY_IN_USE_ERROR, null);
+                return true;
             case "ACTIVE_USER_EXISTS":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
@@ -196,6 +209,42 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Callback for the email OTP endpoints, which authenticate with either a session token or the
+     * stored user's credentials and so have no {@link PersonalIdSessionData} to thread through. The
+     * shared {@code createCallback} never consults {@link #handleErrorCodeIfPresent}, which left the
+     * server's {@code error_code} unread: a wrong code (401 INCORRECT_OTP) surfaced as a generic auth
+     * failure, and a duplicate email (400 EMAIL_ALREADY_IN_USE) as a bad request.
+     */
+    private IApiCallback createEmailOtpCallback() {
+        onStart();
+        return new BaseApiCallback<T>(this) {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                // Mirrors NoParsingResponseParser: these endpoints return an empty 200 body.
+                onSuccess((T)Boolean.valueOf(responseCode >= 200 && responseCode < 300));
+                onStop();
+            }
+
+            @Override
+            public void processFailure(
+                    int responseCode,
+                    String url,
+                    String errorBody,
+                    Throwable t
+            ) {
+                Pair<String, String> errorCodes = getErrorCodes(errorBody);
+                if (!handleErrorCodeIfPresent(
+                        errorCodes.getFirst(),
+                        errorCodes.getSecond(),
+                        null
+                )) {
+                    super.processFailure(responseCode, url, errorBody, t);
+                }
+            }
+        };
     }
 
     public void makeIntegrityReportCall(
@@ -348,7 +397,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 email,
                 personalIdConfigurationToken,
                 user,
-                createCallback(new NoParsingResponseParser<>(), null)
+                createEmailOtpCallback()
         );
     }
 
@@ -370,7 +419,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 otp,
                 personalIdConfigurationToken,
                 user,
-                createCallback(new NoParsingResponseParser<>(), null)
+                createEmailOtpCallback()
         );
     }
 
