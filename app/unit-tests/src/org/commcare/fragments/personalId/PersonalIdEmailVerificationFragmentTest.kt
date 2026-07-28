@@ -162,6 +162,27 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
     }
 
     @Test
+    fun `email already in use response shows the email-in-use error instead of crashing`() {
+        mockWebServer.enqueue(emailAlreadyInUseResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        val errorText =
+            fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(
+            "Error text should be visible after a 400 response",
+            View.VISIBLE,
+            errorText!!.visibility,
+        )
+        assertEquals(
+            "A 400 should surface the email-already-in-use message",
+            activity.getString(R.string.personalid_email_already_in_use),
+            errorText.text.toString(),
+        )
+    }
+
+    @Test
     fun `three failed OTP attempts show the verification-unsuccessful dialog`() {
         mockWebServer.enqueue(incorrectOtpResponse())
         mockWebServer.enqueue(incorrectOtpResponse())
@@ -257,4 +278,11 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         MockResponse()
             .setResponseCode(401)
             .setBody("""{"error_code":"INCORRECT_OTP"}""")
+
+    // connect-id returns this when the OTP verifies but the email is already attached to another
+    // active account, so the user record cannot be saved.
+    private fun emailAlreadyInUseResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(400)
+            .setBody("""{"error_code":"EMAIL_ALREADY_IN_USE"}""")
 }

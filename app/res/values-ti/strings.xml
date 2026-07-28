@@ -451,6 +451,7 @@
     <string name="connect_completed">ተዛዚሙ</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
+    <string name="personalid_email_already_in_use">እዚ ኢመይል እዚ ምስ ካልእ ኣካውንት ተኣሳሲሩ ኣሎ። በጃኻ ካልእ ኣድራሻ ኢመይል ተጠቐም።</string>
     <string name="personalid_too_many_otp_attempts">OTP ንምልኣኽ ብዙሕ ግዜ ፈቲንካ ኢኻ። በጃኻ ተጸበ እሞ እቲ ናይ ደጊም ምልኣኽ መልጎም ክረአ ከሎ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed">ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
