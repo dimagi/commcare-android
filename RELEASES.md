@@ -13,6 +13,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 ### QA Notes
 
 - The Image-capture question with the overlay-small appearance should capture photos promptly with no noticeable shutter lag while maintaining acceptable image quality.
+- After launching CommCare from an external app, rotate the screen on the home page, then submit a form — CommCare should still return to the calling app instead of staying on the home screen.
+- Log in, then rotate the screen on the home page — one-time post-login prompts (app update, PIN setup) should not re-appear.
 
 ## CommCare 2.63.3
 
