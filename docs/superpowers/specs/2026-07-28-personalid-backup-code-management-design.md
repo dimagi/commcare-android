@@ -165,10 +165,10 @@ Cleared on success or cancellation.
    `handleCommonSignupFailures` pattern
 
 **Analytics:**
-- Workflow initiated (source: profile)
+- Workflow initiated — with source (Manage Profile / Email Recovery Flow / Reminder prompt)
 - Outcome: success / failure / cancelled
-- Failure reason
-- Number of attempts
+- Failure reason (e.g. server error, network issue, incorrect current backup code)
+- Number of attempts to confirm current backup code
 
 ---
 
@@ -217,6 +217,7 @@ New value added to `EmailWorkFlow` enum. Changes to `PersonalIdEmailVerification
 - OTP requested
 - OTP verification attempt
 - New backup code set (success / failure)
+- User blocked on reminder prompt and redirected to set new backup code (success / failure)
 
 ---
 
@@ -319,6 +320,14 @@ graph only — recovery graph hides the "Forgot?" link when no email):
 Buttons: "Cancel Recovery" / "Add Email".
 
 "Add Email" → navigates to `personalid_profile_phone_verification` flow from change #2.
+
+**Analytics:**
+- Email change initiated (with backup code gate)
+- Email change outcome: success / failure / cancelled
+- Add email (no existing email) initiated
+- Add email outcome: success / failure / cancelled
+- Skip email prompt shown
+- Skip email prompt outcome: skipped / added email
 
 ---
 
