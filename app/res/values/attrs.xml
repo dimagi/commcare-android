@@ -194,6 +194,24 @@
         <attr name="progress" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="ConnectProgressCard">
+        <attr name="titleText" />
+        <attr name="semiCircleVisible" format="boolean" />
+        <attr name="semiCircleCurrent" format="integer" />
+        <attr name="semiCircleMax" format="integer" />
+        <attr name="semiCircleDescription" format="string" />
+        <attr name="linearProgressLabel" format="string" />
+        <attr name="linearProgressCurrent" format="integer" />
+        <attr name="linearProgressMax" format="integer" />
+        <attr name="linearProgressCaption" format="string" />
+        <attr name="contentEnabled" format="boolean" />
+        <attr name="infoMessage" />
+        <attr name="infoCtaText" format="string" />
+        <attr name="contentPrimaryColor" format="color" />
+        <attr name="contentAccentColor" format="color" />
+        <attr name="contentDisabledColor" format="color" />
+    </declare-styleable>
+
     <declare-styleable name="RectangleOverlayView">
         <attr name="reticleScrimColor" format="color" />
         <attr name="reticleStrokeColor" format="color" />

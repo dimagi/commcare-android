@@ -309,8 +309,14 @@
         <item name="descriptionTextColor">@color/connect_text_color</item>
     </style>
 
+    <style name="Widget.CommCare.ConnectProgressCard" parent="">
+        <item name="contentPrimaryColor">@color/connect_text_color</item>
+        <item name="contentAccentColor">@color/connect_dark_blue_color</item>
+        <item name="contentDisabledColor">@color/connect_grey</item>
+    </style>
+
     <style name="Widget.CommCare.ConnectSuccessFailureCard" parent="">
-        <item name="cardCornerRadius">@dimen/connect_info_card_corner_radius</item>
+        <item name="cardCornerRadius">@dimen/connect_radius_card</item>
         <item name="cardElevation">6dp</item>
         <item name="successBackgroundColor">@color/connect_light_green</item>
         <item name="successAccentColor">@color/connect_green</item>

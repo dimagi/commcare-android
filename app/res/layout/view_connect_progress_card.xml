@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/progress_card_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/connect_radius_card"
+        app:cardElevation="@dimen/connect_info_card_elevation">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/connect_space_lg">
+
+            <TextView
+                android:id="@+id/progress_card_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/connect_text_color"
+                android:textSize="@dimen/connect_text_title"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Delivery Progress"
+                tools:visibility="visible" />
+
+            <org.commcare.views.connect.SemiCircleProgressBar
+                android:id="@+id/progress_card_semi_circle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/connect_progress_card_semi_circle_inset"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                android:layout_marginEnd="@dimen/connect_progress_card_semi_circle_inset"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- Top margin is cleared at bind time when nothing is shown above this row, so the
+                 row sits directly against the card's own padding. -->
+            <LinearLayout
+                android:id="@+id/progress_card_bar_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/progress_card_bar_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/connect_text_color"
+                    android:textSize="@dimen/connect_text_body"
+                    android:visibility="gone"
+                    tools:text="Learning Progress"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/progress_card_bar_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/connect_space_sm"
+                    android:textColor="@color/connect_dark_blue_color"
+                    android:textSize="@dimen/connect_text_metric"
+                    android:visibility="gone"
+                    tools:text="2 of 5"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+            <org.commcare.views.connect.LinearProgressBar
+                android:id="@+id/progress_card_linear_bar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/connect_progress_card_bar_height"
+                android:layout_marginTop="@dimen/connect_space_xs" />
+
+            <TextView
+                android:id="@+id/progress_card_bar_caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_xs"
+                android:textColor="@color/connect_dark_blue_color"
+                android:textSize="@dimen/connect_text_caption"
+                android:visibility="gone"
+                tools:text="You're almost there!"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Blue "appendage" that tucks up behind the main card (negative top margin +
+         0dp elevation so the main card, at 4dp, draws on top of the overlap). -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/progress_card_info_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_progress_card_info_overlap"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/connect_dark_blue_color"
+        app:cardCornerRadius="@dimen/connect_radius_card"
+        app:cardElevation="0dp"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/connect_space_lg"
+            android:paddingTop="@dimen/connect_progress_card_info_padding_top"
+            android:paddingEnd="@dimen/connect_space_sm"
+            android:paddingBottom="@dimen/connect_space_md">
+
+            <TextView
+                android:id="@+id/progress_card_info_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="@dimen/connect_text_body"
+                tools:text="Complete assigned tasks to continue delivering services" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/progress_card_info_cta"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/connect_space_sm"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                tools:text="More Info"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</merge>

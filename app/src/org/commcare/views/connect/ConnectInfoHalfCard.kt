@@ -56,7 +56,7 @@ class ConnectInfoHalfCard
             }
 
         init {
-            radius = resources.getDimension(R.dimen.connect_info_card_corner_radius)
+            radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
             useCompatPadding = true
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))

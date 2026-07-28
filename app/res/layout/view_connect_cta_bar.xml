@@ -12,9 +12,9 @@
         android:layout_marginBottom="-15dp"
         android:background="@drawable/bg_connect_cta_banner"
         android:gravity="center"
-        android:paddingStart="12dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="12dp"
+        android:paddingStart="@dimen/connect_space_md"
+        android:paddingTop="@dimen/connect_space_md"
+        android:paddingEnd="@dimen/connect_space_md"
         android:paddingBottom="27dp"
         android:textColor="@color/white"
         android:visibility="gone"
@@ -26,9 +26,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/connect_light_indigo"
-        app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
+        app:cardCornerRadius="@dimen/connect_radius_card"
         app:cardElevation="@dimen/connect_info_card_elevation"
-        app:contentPadding="16dp">
+        app:contentPadding="@dimen/connect_space_lg">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -40,9 +40,9 @@
                 android:id="@+id/cta_title_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="@dimen/connect_space_sm"
                 android:textColor="@color/connect_dark_blue_color"
-                android:textSize="16sp"
+                android:textSize="@dimen/connect_text_title"
                 app:layout_constraintBottom_toTopOf="@id/cta_subtitle_text"
                 app:layout_constraintEnd_toStartOf="@id/cta_end_barrier"
                 app:layout_constraintStart_toStartOf="parent"
@@ -54,10 +54,10 @@
                 android:id="@+id/cta_subtitle_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginTop="@dimen/connect_space_xs"
+                android:layout_marginEnd="@dimen/connect_space_sm"
                 android:textColor="@color/connect_secondary_text"
-                android:textSize="14sp"
+                android:textSize="@dimen/connect_text_body"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/cta_end_barrier"
@@ -79,7 +79,7 @@
                 android:textColor="@color/white"
                 android:textStyle="normal"
                 app:backgroundTint="@color/connect_dark_blue_color"
-                app:cornerRadius="24dp"
+                app:cornerRadius="@dimen/connect_radius_pill"
                 app:icon="@drawable/ic_connect_arrow_forward"
                 app:iconGravity="textEnd"
                 app:iconTint="@color/white"
@@ -112,7 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textColor="@color/connect_dark_blue_color"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/connect_text_caption"
                     tools:text="25%" />
             </FrameLayout>
 
