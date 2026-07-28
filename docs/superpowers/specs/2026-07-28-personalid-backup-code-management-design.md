@@ -1,33 +1,98 @@
 # PersonalID Backup Code Management — Design
 
-**Date:** 2026-07-28
-**Author:** Shubham Goyal
 **Jira:** CCCT-2677
 **Related:** https://dimagi.atlassian.net/browse/CCCT-2555
 
 ---
+**Design Doc:**  https://docs.google.com/document/d/1EC8d9TnQMRAJbAAIGcVaaHE9VLc-stoYZjirMyuaGjw/
 
-## Problem
+## Navigation Overview
 
-Front Line Workers using Personal ID authenticate with a backup code set once at account
-creation. There is no mechanism to update it, no reminder system, and no recovery path when it
-is forgotten. This creates hard lock-out risk and a security risk when codes are compromised.
+New screens and flows added across both nav graphs.
+
+**Profile graph (`nav_graph_personalid_profile.xml`):**
+
+```
+Manage Profile
+ ├─[Change backup code]──────────────────────────────────────────────────┐
+ │                                                                       ▼
+ │                                                   Confirm current backup code
+ │                                                   │                        │
+ │                                          [Forgot?]│               [correct]│
+ │                                                   ▼                        ▼
+ │                                            [email?]             Set new backup code
+ │                                         no │    │ yes                      │
+ │                                             ▼    ▼                         ▼
+ │                                   ◄ Profile   Send email OTP screen  Biometric / PIN unlock
+ │                                   (toast)          │                       │
+ │                                                    ▼                       ▼
+ │                                           Email OTP entry          ◄ Profile (success)
+ │                                                    │
+ │                                                    ▼
+ │                                          Set new backup code
+ │                                                    │ Save
+ │                                                    ▼
+ │                                          Biometric / PIN unlock
+ │                                                    │
+ │                                                    ▼
+ │                                           ◄ Profile (success)
+ │
+ └─[Save — email change]─────────────────────────────────────────────────┐
+                                                                         ▼
+                                              [has email]           [no email]
+                                                   │                     │
+                                                   ▼                     ▼
+                                        Confirm backup code    Send Phone OTP screen
+                                         │           │                   │
+                                [Forgot?]│  [correct]│                   ▼
+                                         ▼           │           Phone OTP entry
+                              (→ same as Change      │                   │
+                               backup code           └─────────┬─────────┘
+                               forgot flow)                    │
+                                                               ▼
+                                                   Send email OTP screen
+                                                               │
+                                                               ▼
+                                                       Email OTP entry
+                                                               │
+                                                               ▼
+                                                   Biometric / PIN unlock
+                                                               │
+                                                               ▼
+                                                    ◄ Profile (success)
+```
+
+**Account Configuration Flow (`nav_graph_personalid.xml`) — additions only:**
+
+```
+Enter backup code  (existing, gains [Forgot?] link)
+ └─[Forgot?]──► Send email OTP screen ──► Email OTP entry ──► Set new backup code
+```
 
 ---
 
-## Four Work Areas
+## Architecture
 
-1. **Change Backup Code** — proactively update from Manage Profile
-2. **Backup Code Recovery** — self-service recovery via email OTP when code is forgotten
-3. **Periodic Reminders** — periodic prompts to rehearse the code
-4. **Email Modification Flow Changes** — gate email changes behind backup code; add email without
-   backup code via phone OTP
+We need to support 2 versions of the backup code and phone verification fragments:
 
----
+1. One for the existing PersonalID flow (signup/recovery) and
+2. Another for the new flows (backup code change and recovery, email modification).
 
-## Section 1: Architecture
+###  Backup Fragment Refactor — Base + Two Implementations
 
-### Fragment Refactor — Base + Two Implementations
+**Backup code fragment hierarchy:**
+
+```
+BasePersonalIdBackupCodeFragment
+├── PersonalIdBackupCodeFragment 
+│   workflows : REGISTRATION, CONFIRM_RECOVERY
+│   auth      : PersonalID session token
+│   nav graph : nav_graph_personalid
+└── PersonalIdProfileBackupCodeFragment 
+    workflows : CONFIRM_BACKUP_CODE, SET_NEW_CODE
+    auth      : ProvidedAuth(userId, password)
+    nav graph : nav_graph_personalid_profile
+```
 
 #### `BasePersonalIdBackupCodeFragment` (new abstract Kotlin class)
 
@@ -40,37 +105,47 @@ Abstract hooks:
 ```kotlin
 abstract fun getWorkflow(): BackupCodeWorkflow
 abstract fun onValidCodeSubmitted(code: String, confirmCode: String?)
-abstract fun navigateOnForgotBackupCode()           // base shows "Forgot?" link only when workflow has it
-abstract fun getUserDisplayData(): UserDisplayData? // for welcome-back name/photo UI
+abstract fun navigateOnForgotBackupCode()  // base shows "Forgot?" link only when workflow has it
+abstract fun setupHeader()                // implementations own full header UI setup
 ```
-
-#### `PersonalIdBackupCodeFragment` (existing Java, refactored to extend base)
-
-Handles `REGISTRATION` and `CONFIRM_RECOVERY`. Auth: session token from `PersonalIdSessionData`.
-Navigation: existing SafeArgs actions in `nav_graph_personalid.xml`. No behaviour change.
-
-#### `PersonalIdProfileBackupCodeFragment` (new Kotlin)
-
-Handles `CONFIRM_CHANGE` and `SET_AFTER_RECOVERY`, passed as a nav arg. Auth:
-`ProvidedAuth(user.userId, user.password)` from `ConnectUserRecord` — same dual-auth pattern as
-`sendEmailOtp`. Navigation: SafeArgs actions in `nav_graph_personalid_profile.xml`.
 
 #### `BackupCodeWorkflow` enum
 
-| Value | Fields | API call | Auth |
-|---|---|---|---|
-| `REGISTRATION` | two | none (stored in session) | — |
-| `CONFIRM_RECOVERY` | one | `confirmBackupCode` | session token |
-| `CONFIRM_CHANGE` | one | none (code held in ViewModel) | — |
-| `SET_AFTER_RECOVERY` | two | `POST /users/set_backup_code` | user credentials or session token |
+| Value | API call | API Auth | Biometric/Pin Unlock on Save |
+|---|---|---|------------------------------|
+| `REGISTRATION` | none (stored in session) | — | no                           |
+| `CONFIRM_RECOVERY` | `users/recover/confirm_backup_code` | session token | no                           |
+| `CONFIRM_BACKUP_CODE` | none (stored in `PersonalIdProfileActivityViewModel`) | — | no                           |
+| `SET_NEW_CODE` | `/users/set_backup_code` | user credentials or session token | yes                          |
 
-`confirmBackupCode` API gains dual-auth support:
-`token != null ? TokenAuth(token) : ProvidedAuth(user.userId, user.password)` — same pattern as
-`sendEmailOtp`.
+### API Changes
+
+#### New: `POST /users/set_backup_code`
+
+We currently set the backup code only during registration using the `complete_profile` endpoint.
+This new endpoint allows users to change their backup code after registration or during account recovery.
+
+| Field | Value |
+|---|---|
+| Auth | `ProvidedAuth(userId, currentCode)` (change flow) or `TokenAuth(sessionToken)` (recovery flow) |
+| Request | `{ "recovery_pin": "<new_code>" }` |
+| Success | `HTTP 200` — no response body |
 
 ### Phone Verification Refactor — Base + Two Implementations
 
-Same pattern applied to `PersonalIdPhoneVerificationFragment`.
+**Phone verification fragment hierarchy:**
+
+```
+BasePersonalIdPhoneVerificationFragment
+├── PersonalIdPhoneVerificationFragment (existing fragment in signup/recovery flow)
+│   data source : PersonalIdSessionData.phone
+│   on success  : → name entry
+│   nav graph   : nav_graph_personalid
+└── PersonalIdProfilePhoneVerificationFragment (new fragment in profile graph)
+    data source : ConnectUserRecord.primaryPhone
+    on success  : → email verification 
+    nav graph   : nav_graph_personalid_profile
+```
 
 #### `BasePersonalIdPhoneVerificationFragment` (new abstract Kotlin class)
 
@@ -87,70 +162,42 @@ abstract fun recordFailedAttempt()
 abstract fun getOtpAttemptCount(): Int
 ```
 
-#### `PersonalIdPhoneVerificationFragment` (existing Java, refactored to extend base)
+### `PersonalIdSendEmailOtpFragment`
 
-Implements hooks using `PersonalIdSessionData`. Navigates to name entry on success.
+Reusable screen that shows the email address an OTP will be sent to, with a "Send code" button.
+Nav args: `email: String`, `masked: Boolean`, `workflow: EmailWorkFlow`.
 
-#### `PersonalIdProfilePhoneVerificationFragment` (new Kotlin)
+- `masked = true`: displays `email` as `x***y@gmail.com` (existing account email)
+- `masked = false`: displays `email` as-is (newly entered email)
 
-Implements hooks using `ConnectUserRecord.primaryPhone` and a simplified `OtpManager` config.
-Navigates to email entry within the profile graph on success.
+On "Send code" → calls `send_email_otp` → navigates to `PersonalIdEmailVerificationFragment`.
 
-### New API Endpoint
+### `PersonalIdProfileActivityViewModel`
 
-**`POST /users/set_backup_code`**
-
-- Body: `{ recovery_pin: newCode }`
-- Auth: `ProvidedAuth(userId, currentCode)` for change flow; `TokenAuth(sessionToken)` for
-  recovery flow — same dual-auth pattern as `sendEmailOtp`
-- Error codes: `INCORRECT_BACKUP_CODE`, `ACCOUNT_LOCKED`
-
-All other operations reuse existing endpoints:
-- Send recovery OTP → `send_email_otp` (existing)
-- Verify recovery OTP → `verify_email_otp` (existing)
-
-### Nav Graph Changes
-
-`nav_graph_personalid_profile.xml` gains:
-
-| Destination ID | Fragment | Workflow arg |
-|---|---|---|
-| `personalid_confirm_change_backup_code` | `PersonalIdProfileBackupCodeFragment` | `CONFIRM_CHANGE` |
-| `personalid_set_new_backup_code` | `PersonalIdProfileBackupCodeFragment` | `SET_AFTER_RECOVERY` |
-| `personalid_forgot_backup_code_email` | `PersonalIdForgotBackupCodeEmailFragment` | — |
-| `personalid_email_verification_fragment` | `PersonalIdEmailVerificationFragment` | `BACKUP_CODE_RECOVERY` |
-| `personalid_profile_phone_verification` | `PersonalIdProfilePhoneVerificationFragment` | — |
-
-`nav_graph_personalid.xml` gains a "Forgot?" action on `personalid_backup_code` pointing to:
-
-| Destination ID | Fragment |
-|---|---|
-| `personalid_forgot_backup_code_email` | `PersonalIdForgotBackupCodeEmailFragment` |
-| `personalid_email_verification` | `PersonalIdEmailVerificationFragment` (workflow=`BACKUP_CODE_RECOVERY`) |
-
-### `PersonalIdChangeBackupCodeViewModel`
-
-Activity-scoped ViewModel on `PersonalIdProfileActivity`. Holds:
-- `currentCode: String?` — entered at `CONFIRM_CHANGE` step, used as auth for the final API call
+Single activity-scoped ViewModel on `PersonalIdProfileActivity`. Consolidates profile display and cross-fragment workflow state:
+- `profileDisplayModel: LiveData<PersonalIdProfileDisplayModel>` — replaces the existing fragment-scoped `PersonalIdProfileViewModel`
+- `currentCode: String?` — entered at `CONFIRM_BACKUP_CODE` step, used as auth for the final API call
 - `pendingEmail: String?` — set when email change is gated behind backup code confirmation
 
-Cleared on success or cancellation.
-
 ---
+# Implementation Details
 
-## Section 2: Area 1 — Change Backup Code
+The following sections describe the implementation in detail and is intended to be used as an implementation reference for Claude.
+These changes are better reviewed as part of the code review on the implementation PRs on this work and can therefore be skipped
+to save time during spec review.
+
+## Area 1 — Change Backup Code
 
 **Entry point:** New "Change backup code" row on `PersonalIdProfileFragment`.
 
 **Flow:**
 
-1. Tap "Change backup code" → `personalid_confirm_change_backup_code`
-   (`PersonalIdProfileBackupCodeFragment(CONFIRM_CHANGE)`)
-   - One field, no API call — submitted code stored in `PersonalIdChangeBackupCodeViewModel.currentCode`
+1. Tap "Change backup code" → `personalid_confirm_backup_code`
+   (`PersonalIdProfileBackupCodeFragment(CONFIRM_BACKUP_CODE)`)
+   - One field, no API call — submitted code stored in `PersonalIdProfileActivityViewModel.currentCode`
    - "Forgot backup code?" link visible only if `user.email != null`
 
-2. On submit → `personalid_set_new_backup_code`
-   (`PersonalIdProfileBackupCodeFragment(SET_AFTER_RECOVERY)`)
+2. On submit → `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
    - Two fields (new + confirm)
    - "Save" → `PersonalIdUnlocker.unlock(ALWAYS)` → `POST /users/set_backup_code` with
      `ProvidedAuth(userId, currentCode)`
@@ -158,11 +205,10 @@ Cleared on success or cancellation.
 3. **Success:** update `ConnectUserRecord.password = newCode`, persist, pop back to profile
    with success toast
 
-4. **`INCORRECT_BACKUP_CODE`:** navigate back to `personalid_confirm_change_backup_code`,
+4. **`INCORRECT_BACKUP_CODE`:** navigate back to `personalid_confirm_backup_code`,
    clear fields, show error
 
-5. **`ACCOUNT_LOCKED`** (3 failed attempts, 24h): navigate to message screen via existing
-   `handleCommonSignupFailures` pattern
+5. **`ACCOUNT_LOCKED`** (3 failed attempts, 24h): navigate to message screen with a CTA to pop back to profile. 
 
 **Analytics:**
 - Workflow initiated — with source (Manage Profile / Email Recovery Flow / Reminder prompt)
@@ -172,45 +218,39 @@ Cleared on success or cancellation.
 
 ---
 
-## Section 3: Area 2 — Backup Code Recovery
+## Area 2 — Backup Code Recovery
 
 **Triggered from** "Forgot backup code?" link on:
 - `PersonalIdBackupCodeFragment` in signup/recovery graph (session token available)
-- `personalid_confirm_change_backup_code` in profile graph (user signed in, no session token)
+- `PersonalIdProfileBackupCodeFragment` in profile graph (user signed in, no session token)
 
 **Visibility rule:**
 - Recovery graph: link hidden if `user.email == null`
-- Profile graph: link always visible; if `user.email == null`, `PersonalIdForgotBackupCodeEmailFragment`
-  shows "add email" prompt instead of masked email (see Area 4)
-
-### New Fragment
-
-**`PersonalIdForgotBackupCodeEmailFragment`** — shows masked `user.email` (`x***y@gmail.com`),
-"Send code" button. When `user.email == null` (profile graph only): shows "You need to add an
-email to recover your account" with "Cancel Recovery" and "Add Email" buttons.
+- Profile graph: link always visible; if `user.email == null`, redirect to Manage Profile with
+  toast "Please add email to recover your backup code"
 
 ### `EmailWorkFlow.BACKUP_CODE_RECOVERY`
 
 New value added to `EmailWorkFlow` enum. Changes to `PersonalIdEmailVerificationFragment`:
-- `onEmailVerified()` — new branch navigates to `personalid_set_new_backup_code`
-- 3-failure path: no "skip" option; navigate to lockout message screen (server returns
-  `ACCOUNT_LOCKED` after 3 OTP failures; `handleCommonSignupFailures` handles it)
+- `onEmailVerified()` — new branch navigates to `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
+- 3-failure path: navigate to message screen with CTA to pop back to profile
+- no "skip" option
 
 ### Flow
 
-1. "Forgot backup code?" → `PersonalIdForgotBackupCodeEmailFragment`
+1. "Forgot backup code?" → `PersonalIdSendEmailOtpFragment(email=user.email, BACKUP_CODE_RECOVERY)`
    → tap "Send code" → `send_email_otp`
    → navigate to `PersonalIdEmailVerificationFragment(BACKUP_CODE_RECOVERY)`
 
-2. OTP verified → navigate to `personalid_set_new_backup_code`
-   (`PersonalIdProfileBackupCodeFragment(SET_AFTER_RECOVERY)`)
+2. OTP verified → navigate to `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
    - Two fields, biometric gate on Save
    - `POST /users/set_backup_code`
    - Auth: `TokenAuth(sessionToken)` in recovery graph;
      `ProvidedAuth(userId, ConnectUserRecord.password)` in profile graph
-     (stored value used as auth even though user can't recall it from memory)
 
-3. **Success:** update `ConnectUserRecord.password`, persist, navigate to success message
+3. **Success:** update `ConnectUserRecord.password`
+   - Navigate to next screen in recovery graph with success toast
+   - Success Message screen with CTA to pop back to profile
 
 **Analytics:**
 - Recovery workflow initiated
@@ -221,7 +261,7 @@ New value added to `EmailWorkFlow` enum. Changes to `PersonalIdEmailVerification
 
 ---
 
-## Section 4: Area 3 — Periodic Backup Code Reminders
+## Area 3 — Periodic Backup Code Reminders
 
 ### State
 
@@ -230,14 +270,6 @@ One new key in `PersonalIdUserPreferences`:
 
 ### Scheduling
 
-```kotlin
-fun scheduleNext() {
-    val now = System.currentTimeMillis()
-    val nextDue = if (now - getNextDue() < 2.days) now + 3.days else now + 7.days
-    prefs.put(KEY_BACKUP_CODE_REMINDER_NEXT_DUE, nextDue)
-}
-```
-
 Reminder cadence:
 - First: 1h after registration
 - Second: ~3d after registration (scheduled from current time when first fires)
@@ -245,17 +277,20 @@ Reminder cadence:
 
 ### Hook
 
-`ConnectActivity.onResume()` calls `PersonalIdReminderHelper.isDue()`. If due, show
+All CommCare launching activities (e.g. `ConnectActivity`, `LoginActivity`, `StandardHomeActivity`) check for due reminders on resume. 
+If due, show the reminder dialog.
+
+`onResume()` calls `PersonalIdReminderHelper.isDue()`. If due, show
 `BackupCodeReminderDialogFragment`.
 
 ### `BackupCodeReminderDialogFragment`
 
-- Single `NumericCodeView` + "Skip" button
+- Single `NumericCodeView` + "Skip" and "Confirm" buttons
 - Local validation only: compare entered code against `ConnectUserRecord.password` (no API call)
-- **Correct or skip:** `scheduleNext()`, dismiss
+- **Correct or skip:** schedule next reminder time and dismiss
 - **Wrong code (up to 3):** show inline error, allow retry
-- **3 wrong attempts:** dismiss, start `PersonalIdProfileActivity` and navigate to
-  `personalid_forgot_backup_code_email` (profile graph — user is signed in at this point)
+- **3 wrong attempts:** dismiss and initiate the backup code recovery flow (Area 2). If there is no email, show a toast "Please add email to recover your backup code" and pop to Manage Profile.
+- **Forgot backup code:** Initiates the backup code recovery flow (Area 2)
 
 ### `PersonalIdReminderHelper`
 
@@ -274,30 +309,33 @@ object PersonalIdReminderHelper {
 
 ---
 
-## Section 5: Area 4 — Email Modification Flow Changes
+## Area 4 — Email Modification Flow Changes
 
 ### 1. Changing email (user has existing email)
 
-`PersonalIdProfileEditFragment.onSaveClicked()` when `isEmailModified()` and
-`user.email != null`: navigate to `personalid_confirm_change_backup_code` before initiating
-email OTP. Pending email stored in `PersonalIdChangeBackupCodeViewModel.pendingEmail`.
+`PersonalIdProfileEditFragment.onSaveClicked()` when `isEmailModified()` and `user.email != null`:
+store new email in `PersonalIdProfileActivityViewModel.pendingEmail`, then navigate to
+`personalid_confirm_backup_code`.
 
-On backup code confirmed → new nav action leads to
-`PersonalIdEmailVerificationFragment(EXISTING_USER)`.
+On backup code confirmed → `PersonalIdSendEmailOtpFragment(email=pendingEmail, EXISTING_USER)`
+→ `PersonalIdEmailVerificationFragment(EXISTING_USER)` → `PersonalIdUnlocker.unlock(ALWAYS)`
+→ persist new email locally, pop to profile with success toast.
 
-The `personalid_confirm_change_backup_code` destination is reused from Area 1 with a separate
+The `PersonalIdProfileBackupCodeFragment` is reused from Area 1 with a separate
 nav action for the email-change exit path.
 
 ### 2. Adding email (no existing email, already signed in)
 
-When `user.email == null` and email is modified:
-- `PersonalIdUnlocker.unlock(ALWAYS)`
-- On success → navigate to `personalid_profile_phone_verification`
-  (`PersonalIdProfilePhoneVerificationFragment`)
-- On phone OTP verified → existing email entry + email OTP flow
+`PersonalIdProfileEditFragment.onSaveClicked()` when `isEmailModified()` and `user.email == null`:
+store new email in `PersonalIdProfileActivityViewModel.pendingEmail`, then navigate to
+the Phone OTP verification screen(`PersonalIdProfilePhoneVerificationFragment`) (sends otp to `ConnectUserRecord.primaryPhone`)
 
-`PersonalIdProfilePhoneVerificationFragment` extends `BasePersonalIdPhoneVerificationFragment`,
-using `ConnectUserRecord.primaryPhone` and simplified `OtpManager` config.
+On phone OTP verified → `PersonalIdSendEmailOtpFragment(email=pendingEmail, EXISTING_USER)`
+→ `PersonalIdEmailVerificationFragment(EXISTING_USER)` → `PersonalIdUnlocker.unlock(ALWAYS)`
+→ persist new email locally, pop to profile with success toast.
+
+Note: On manage profile screen under "Email" row, if `user.email == null`, the row should show a hint message -
+"A verification code will be sent to your registered phone number to add an email address." 
 
 ### 3. Skip email dialog during signup
 
@@ -310,33 +348,20 @@ using `ConnectUserRecord.primaryPhone` and simplified `OtpManager` config.
 
 Buttons: "Skip" / "Add Email".
 
+
 ### 4. Forgot backup code with no email (profile graph only)
 
-`PersonalIdForgotBackupCodeEmailFragment` when `user.email == null` (reachable from profile
-graph only — recovery graph hides the "Forgot?" link when no email):
+When `user.email == null` and "Forgot?" is tapped in the  profile graph, the user is redirected
+immediately to Manage Profile with a toast:
 
-> "You need to add an email to be able to recover your account"
+> "Please add email to recover your backup code"
 
-Buttons: "Cancel Recovery" / "Add Email".
-
-"Add Email" → navigates to `personalid_profile_phone_verification` flow from change #2.
+No intermediate screen is shown. The user must add an email via change #2 before recovery is possible.
 
 **Analytics:**
 - Email change initiated (with backup code gate)
-- Email change outcome: success / failure / cancelled
+- Email change outcome: success / failure / cancelled/r
 - Add email (no existing email) initiated
 - Add email outcome: success / failure / cancelled
 - Skip email prompt shown
 - Skip email prompt outcome: skipped / added email
-
----
-
-## Rollout Order (per spec)
-
-1. Area 1 — Change backup code (without "Forgot?" link)
-2. Area 2 — Email recovery + wire "Forgot?" into Area 1 and account recovery
-3. Area 3 — Periodic reminders
-4. Area 4 — Email modification flow changes
-
-Each area can be shipped independently by hiding intersection points (e.g., omitting "Forgot?"
-link until Area 2 is ready).
