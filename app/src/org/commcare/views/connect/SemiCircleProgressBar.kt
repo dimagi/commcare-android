@@ -8,6 +8,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewSemiCircleProgressBarBinding
+import org.commcare.utils.ProgressUtils
 
 /**
  * Reusable semi-circle (180°) progress indicator.
@@ -122,7 +123,7 @@ class SemiCircleProgressBar
 
         private fun onValueChanged() {
             binding.semiCircleValueText.text = valueLabel()
-            binding.semiCircleArc.progress = if (max > 0) current.toFloat() / max else 0f
+            binding.semiCircleArc.progress = ProgressUtils.calculateProgress(current, max)
             updateContentDescription()
         }
 

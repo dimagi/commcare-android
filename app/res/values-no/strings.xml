@@ -322,6 +322,7 @@
     <string name="face_capture_front_camera_unavailable">Frontkameraet er ikke tilgjengelig, alternativet for å bytte kamera vil bli deaktivert</string>
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
+    <string name="connect_progress_count_format">%1$d av %2$d</string>
 
     <string name="connect_opportunity_badge_new">Ny mulighet</string>
     <string name="connect_opportunity_expiry_label">Utløpsdato</string>
