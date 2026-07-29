@@ -78,7 +78,7 @@ public class AndroidUtil {
 
     /**
      * Attaches a WindowInsetsListener to the root view of the activity for devices running Android 15+. This
-     * listener applies padding to the view based on the system window insets.
+     * listener applies padding to the view based on the system window insets, including the keyboard.
      *
      * @param activity   The activity to which the listener is attached.
      * @param rootViewId The ID of the root view in the activity's layout.
@@ -89,11 +89,13 @@ public class AndroidUtil {
 
         if (activityRootView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(activityRootView, (view, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                Insets obstructions = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+                                | WindowInsetsCompat.Type.ime());
 
-                // Apply padding so content doesn't overlap with system bars
-                view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                // Apply padding so content doesn't overlap with system bars or the keyboard. Edge-to-edge
+                // enforcement makes adjustResize a no-op, so this is what makes room for the IME.
+                view.setPadding(obstructions.left, obstructions.top, obstructions.right, obstructions.bottom);
                 return insets;
             });
         }
