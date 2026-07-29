@@ -335,4 +335,13 @@
         <item name="syncWarningIcon">@drawable/ic_connect_directory_sync</item>
     </style>
 
+    <style name="ConnectBottomSheetAnimation" parent="Animation.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowEnterAnimation">@anim/connect_bottom_sheet_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/connect_bottom_sheet_slide_out</item>
+    </style>
+
+    <style name="ConnectBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="android:windowAnimationStyle">@style/ConnectBottomSheetAnimation</item>
+    </style>
+
 </resources>
