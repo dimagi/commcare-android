@@ -61,7 +61,7 @@ class ConnectInfoCard
         init {
             radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
-            useCompatPadding = true
+            useCompatPadding = false
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
             context.withStyledAttributes(attrs, R.styleable.ConnectInfoCard) {
