@@ -16,8 +16,8 @@ import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -188,44 +188,32 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         )
     }
 
-    // The endpoint returns 401 for a wrong code but also for auth failures, so the error_code — not
-    // the status — has to drive the outcome. A locked account is claimed by
-    // handleCommonSignupFailures, which routes to the message screen rather than the inline error.
+    // The endpoint shares its 401 between a wrong code and auth failures, so error_code — not the
+    // status — has to decide the message.
     @Test
-    fun `locked account response is not reported as a wrong code`() {
+    fun `auth failure sharing the 401 is not reported as a wrong code`() {
         mockWebServer.enqueue(lockedAccountResponse())
 
         enterCode("123456")
         drainHttp()
 
-        assertEquals(
-            "A locked account should route to the configuration-failed message screen",
-            R.id.personalid_message_display,
-            navController.currentDestination!!.id,
-        )
         val errorText =
             fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
-        assertNotEquals(
-            "A locked account must not be reported as a wrong passcode",
-            activity.getString(R.string.personalid_incorrect_otp),
+        assertEquals(
+            "A non-OTP 401 should keep its existing unauthorized message",
+            activity.getString(R.string.recovery_network_unauthorized),
             errorText!!.text.toString(),
         )
     }
 
     @Test
-    fun `generic bad request is not reported as an already-in-use email`() {
+    fun `malformed request fails fast rather than reporting an in-use email`() {
         mockWebServer.enqueue(missingDataResponse())
 
-        enterCode("123456")
-        drainHttp()
-
-        val errorText =
-            fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
-        assertEquals(
-            "An unrelated 400 should fall back to the generic message",
-            activity.getString(R.string.recovery_network_unknown),
-            errorText!!.text.toString(),
-        )
+        assertThrows(RuntimeException::class.java) {
+            enterCode("123456")
+            drainHttp()
+        }
     }
 
     @Test
@@ -325,14 +313,11 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
             .setResponseCode(401)
             .setBody("""{"error_code":"INCORRECT_OTP"}""")
 
-    // connect-id returns this when the OTP verifies but the email is already attached to another
-    // active account, so the user record cannot be saved.
     private fun emailAlreadyInUseResponse(): MockResponse =
         MockResponse()
             .setResponseCode(400)
             .setBody("""{"error_code":"EMAIL_ALREADY_IN_USE"}""")
 
-    // Raised by the endpoint's authentication classes, which share the 401 status with a wrong code.
     private fun lockedAccountResponse(): MockResponse =
         MockResponse()
             .setResponseCode(401)

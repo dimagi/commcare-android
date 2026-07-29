@@ -100,10 +100,8 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
     /**
-     * Maps the server's {@code error_code} onto a {@link PersonalIdOrConnectApiErrorCodes}, returning
-     * false when the code is unrecognised so the caller can fall back to the HTTP status. The email
-     * OTP endpoints pass a null {@code sessionData} — they have no configuration session to record
-     * the failure against, but still need the code translated.
+     * Returns false when the code is unrecognized, so the caller can fall back to the HTTP status.
+     * {@code sessionData} is null for calls with no configuration session to record the failure on.
      */
     private boolean handleErrorCodeIfPresent(
             String errorCode,
@@ -212,18 +210,14 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
     /**
-     * Callback for the email OTP endpoints, which authenticate with either a session token or the
-     * stored user's credentials and so have no {@link PersonalIdSessionData} to thread through. The
-     * shared {@code createCallback} never consults {@link #handleErrorCodeIfPresent}, which left the
-     * server's {@code error_code} unread: a wrong code (401 INCORRECT_OTP) surfaced as a generic auth
-     * failure, and a duplicate email (400 EMAIL_ALREADY_IN_USE) as a bad request.
+     * Callback for the email OTP endpoints, which have no {@link PersonalIdSessionData} and so would
+     * otherwise never have the server's {@code error_code} read.
      */
     private IApiCallback createEmailOtpCallback() {
         onStart();
         return new BaseApiCallback<T>(this) {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                // Mirrors NoParsingResponseParser: these endpoints return an empty 200 body.
                 onSuccess((T)Boolean.valueOf(responseCode >= 200 && responseCode < 300));
                 onStop();
             }
@@ -236,15 +230,18 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                     Throwable t
             ) {
                 Pair<String, String> errorCodes = getErrorCodes(errorBody);
-                if (!handleErrorCodeIfPresent(
-                        errorCodes.getFirst(),
-                        errorCodes.getSecond(),
-                        null
-                )) {
+
+                // Deliberately narrow: every other code keeps its existing status-based handling.
+                if (!isEmailOtpErrorCode(errorCodes.getFirst())
+                        || !handleErrorCodeIfPresent(errorCodes.getFirst(), errorCodes.getSecond(), null)) {
                     super.processFailure(responseCode, url, errorBody, t);
                 }
             }
         };
+    }
+
+    private static boolean isEmailOtpErrorCode(String errorCode) {
+        return "INCORRECT_OTP".equals(errorCode) || "EMAIL_ALREADY_IN_USE".equals(errorCode);
     }
 
     public void makeIntegrityReportCall(
