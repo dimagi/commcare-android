@@ -8,6 +8,8 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
+import java.util.regex.Pattern;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -66,12 +68,26 @@ public class StringUtils {
     }
 
     /**
-     * Validates an email address against {@link Patterns#EMAIL_ADDRESS}. Returns false for
-     * null, empty, or whitespace-only input.
+     * The final domain label, mirroring the server-side validator: 2-63 characters with no
+     * leading or trailing hyphen. {@link Patterns#EMAIL_ADDRESS} on its own accepts
+     * single-character top-level domains that the server rejects.
+     */
+    private static final Pattern EMAIL_TOP_LEVEL_DOMAIN =
+            Pattern.compile("\\.[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$");
+
+    /**
+     * Validates an email address against {@link Patterns#EMAIL_ADDRESS} and
+     * {@link #EMAIL_TOP_LEVEL_DOMAIN}. Returns false for null, empty, or whitespace-only input.
      */
     public static boolean isValidEmail(String email) {
-        return email != null && !email.trim().isEmpty()
-                && Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches();
+        if (email == null) {
+            return false;
+        }
+
+        String trimmedEmail = email.trim();
+        return !trimmedEmail.isEmpty()
+                && Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()
+                && EMAIL_TOP_LEVEL_DOMAIN.matcher(trimmedEmail).find();
     }
 
     public static String getLocalizedLevel(String levelCode, Context context) {
