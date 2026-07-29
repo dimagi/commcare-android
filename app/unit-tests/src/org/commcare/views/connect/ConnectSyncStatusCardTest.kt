@@ -2,6 +2,7 @@ package org.commcare.views.connect
 
 import android.view.ContextThemeWrapper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -60,6 +61,10 @@ class ConnectSyncStatusCardTest {
             ContextCompat.getColor(card.context, R.color.connect_light_green),
             icon.backgroundTintList?.defaultColor,
         )
+        assertEquals(
+            ContextCompat.getColor(card.context, R.color.connect_light_grey),
+            card.strokeColorStateList?.defaultColor,
+        )
     }
 
     @Test
@@ -71,9 +76,51 @@ class ConnectSyncStatusCardTest {
 
         assertEquals(R.drawable.ic_connect_directory_sync, Shadows.shadowOf(icon.drawable).createdFromResId)
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_light_amber),
+            ContextCompat.getColor(card.context, R.color.pale_buttery_cream),
             icon.backgroundTintList?.defaultColor,
         )
+    }
+
+    @Test
+    fun `warning switches the card outline`() {
+        val card = newCard()
+
+        card.bind(ConnectSyncStatusCard.State(warning = true))
+
+        assertEquals(
+            ContextCompat.getColor(card.context, R.color.burnt_amber),
+            card.strokeColorStateList?.defaultColor,
+        )
+    }
+
+    @Test
+    fun `the badge trails the status text`() {
+        val card = newCard()
+        val row = card.findViewById<ImageView>(R.id.sync_card_icon).parent as ViewGroup
+
+        assertEquals(row.childCount - 1, row.indexOfChild(card.findViewById(R.id.sync_card_icon)))
+    }
+
+    @Test
+    fun `onCardClick makes the card tappable`() {
+        val card = newCard()
+        var clicks = 0
+
+        assertEquals(false, card.isClickable)
+
+        card.onCardClick = { clicks++ }
+        assertEquals(true, card.isClickable)
+        assertEquals(true, card.isFocusable)
+
+        card.performClick()
+        assertEquals(1, clicks)
+
+        card.onCardClick = null
+        assertEquals(false, card.isClickable)
+        assertEquals(false, card.isFocusable)
+
+        card.performClick()
+        assertEquals(1, clicks)
     }
 
     @Test

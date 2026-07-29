@@ -7,21 +7,10 @@
     android:orientation="horizontal"
     android:padding="@dimen/connect_space_lg">
 
-    <ImageView
-        android:id="@+id/sync_card_icon"
-        android:layout_width="@dimen/connect_sync_card_badge_size"
-        android:layout_height="@dimen/connect_sync_card_badge_size"
-        android:background="@drawable/bg_connect_sync_badge"
-        android:contentDescription="@null"
-        android:padding="@dimen/connect_sync_card_badge_icon_inset"
-        tools:backgroundTint="@color/connect_light_green"
-        tools:src="@drawable/check_update"
-        tools:tint="@color/connect_green" />
-
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/connect_space_md"
+        android:layout_marginEnd="@dimen/connect_space_md"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -46,5 +35,16 @@
             tools:visibility="visible" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/sync_card_icon"
+        android:layout_width="@dimen/connect_sync_card_badge_size"
+        android:layout_height="@dimen/connect_sync_card_badge_size"
+        android:background="@drawable/bg_connect_sync_badge"
+        android:contentDescription="@null"
+        android:padding="@dimen/connect_sync_card_badge_icon_inset"
+        tools:backgroundTint="@color/connect_light_green"
+        tools:src="@drawable/check_update"
+        tools:tint="@color/connect_green" />
 
 </LinearLayout>

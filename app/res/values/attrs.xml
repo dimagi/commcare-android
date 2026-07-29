@@ -178,8 +178,10 @@
         <attr name="warning" format="boolean" />
         <attr name="syncOkBadgeColor" format="color" />
         <attr name="syncOkIconColor" format="color" />
+        <attr name="syncOkStrokeColor" format="color" />
         <attr name="syncWarningBadgeColor" format="color" />
         <attr name="syncWarningIconColor" format="color" />
+        <attr name="syncWarningStrokeColor" format="color" />
         <attr name="syncOkIcon" format="reference" />
         <attr name="syncWarningIcon" format="reference" />
     </declare-styleable>

@@ -54,8 +54,9 @@ class ConnectInfoCard
         var onCardClick: (() -> Unit)? = null
             set(value) {
                 field = value
-                navigable = value != null
+                // setOnClickListener forces isClickable on, even for null, so apply it first.
                 setOnClickListener(value?.let { callback -> OnClickListener { callback() } })
+                navigable = value != null
             }
 
         init {
