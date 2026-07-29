@@ -58,4 +58,9 @@ class StringUtilsTest {
         assertTrue(StringUtils.isValidEmail("user@gmail.co"))
         assertTrue(StringUtils.isValidEmail("user@g.co"))
     }
+
+    @Test
+    fun `isValidEmail returns true for the longest top level domain in the IANA root`() {
+        assertTrue(StringUtils.isValidEmail("user@example.xn--vermgensberatung-pwb"))
+    }
 }

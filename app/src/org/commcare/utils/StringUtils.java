@@ -68,12 +68,12 @@ public class StringUtils {
     }
 
     /**
-     * The final domain label, mirroring the server-side validator: 2-63 characters with no
-     * leading or trailing hyphen. {@link Patterns#EMAIL_ADDRESS} on its own accepts
-     * single-character top-level domains that the server rejects.
+     * Requires a final domain label of two or more characters with no edge hyphens, which
+     * {@link Patterns#EMAIL_ADDRESS} does not — it accepts the single-character top-level domains
+     * the server rejects. Maximum label length stays with Patterns, at 26 characters.
      */
     private static final Pattern EMAIL_TOP_LEVEL_DOMAIN =
-            Pattern.compile("\\.[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$");
+            Pattern.compile("\\.[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9]$");
 
     /**
      * Validates an email address against {@link Patterns#EMAIL_ADDRESS} and
