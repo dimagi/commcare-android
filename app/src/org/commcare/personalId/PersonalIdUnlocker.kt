@@ -21,13 +21,6 @@ import kotlin.time.Duration.Companion.minutes
 private val SESSION_UNLOCK_THRESHOLD_MS = 10.minutes.inWholeMilliseconds
 internal const val BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key"
 
-private val PROMPT_DISMISSED_ERRORS =
-    setOf(
-        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
-        BiometricPrompt.ERROR_USER_CANCELED,
-        BiometricPrompt.ERROR_CANCELED,
-    )
-
 /** Middleware to manage Personal ID unlock prompts with session-based bypass logic. */
 object PersonalIdUnlocker {
     @VisibleForTesting
@@ -86,8 +79,19 @@ object PersonalIdUnlocker {
                     errString: CharSequence,
                 ) {
                     callback.connectActivityComplete(false)
-                    if (errorCode !in PROMPT_DISMISSED_ERRORS) {
-                        Toast.makeText(activity, errString, Toast.LENGTH_LONG).show()
+                    val fingerprintConfigured =
+                        BiometricsHelper.isFingerprintConfigured(
+                            activity,
+                            bioManager,
+                        )
+
+                    getBiometricErrorStringRes(fingerprintConfigured, errorCode)?.let { messageRes ->
+                        Toast
+                            .makeText(
+                                activity,
+                                activity.getString(messageRes),
+                                Toast.LENGTH_LONG,
+                            ).show()
                     }
                 }
 
@@ -129,6 +133,30 @@ object PersonalIdUnlocker {
                     }
                 Toast.makeText(activity, activity.getString(messageRes), Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun getBiometricErrorStringRes(
+        fingerprintConfigured: Boolean,
+        errorCode: Int,
+    ): Int? {
+        val promptDismissedErrors =
+            setOf(
+                BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+                BiometricPrompt.ERROR_USER_CANCELED,
+                BiometricPrompt.ERROR_CANCELED,
+            )
+
+        return when {
+            errorCode in promptDismissedErrors -> null
+            errorCode == BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
+                R.string.personalid_biometric_error_lockout_permanent
+            errorCode == BiometricPrompt.ERROR_TIMEOUT ->
+                R.string.personalid_biometric_error_timeout
+            fingerprintConfigured ->
+                R.string.personalid_biometric_error_lockout
+            else ->
+                R.string.personalid_configuration_process_biometric_unavailable_message
         }
     }
 
