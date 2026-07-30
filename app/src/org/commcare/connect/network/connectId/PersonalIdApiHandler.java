@@ -209,41 +209,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         }
     }
 
-    /**
-     * Callback for the email OTP endpoints, which have no {@link PersonalIdSessionData} and so would
-     * otherwise never have the server's {@code error_code} read.
-     */
-    private IApiCallback createEmailOtpCallback() {
-        onStart();
-        return new BaseApiCallback<T>(this) {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                onSuccess((T)Boolean.valueOf(responseCode >= 200 && responseCode < 300));
-                onStop();
-            }
-
-            @Override
-            public void processFailure(
-                    int responseCode,
-                    String url,
-                    String errorBody,
-                    Throwable t
-            ) {
-                Pair<String, String> errorCodes = getErrorCodes(errorBody);
-
-                // Deliberately narrow: every other code keeps its existing status-based handling.
-                if (!isEmailOtpErrorCode(errorCodes.getFirst())
-                        || !handleErrorCodeIfPresent(errorCodes.getFirst(), errorCodes.getSecond(), null)) {
-                    super.processFailure(responseCode, url, errorBody, t);
-                }
-            }
-        };
-    }
-
-    private static boolean isEmailOtpErrorCode(String errorCode) {
-        return "INCORRECT_OTP".equals(errorCode) || "EMAIL_ALREADY_IN_USE".equals(errorCode);
-    }
-
     public void makeIntegrityReportCall(
             Context context,
             String requestId,
@@ -394,7 +359,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 email,
                 personalIdConfigurationToken,
                 user,
-                createEmailOtpCallback()
+                createCallback((PersonalIdSessionData) null, null)
         );
     }
 
@@ -416,7 +381,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 otp,
                 personalIdConfigurationToken,
                 user,
-                createEmailOtpCallback()
+                createCallback((PersonalIdSessionData) null, null)
         );
     }
 

@@ -188,8 +188,6 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         )
     }
 
-    // The endpoint shares its 401 between a wrong code and auth failures, so error_code — not the
-    // status — has to decide the message.
     @Test
     fun `auth failure sharing the 401 is not reported as a wrong code`() {
         mockWebServer.enqueue(lockedAccountResponse())
@@ -197,12 +195,10 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         enterCode("123456")
         drainHttp()
 
-        val errorText =
-            fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
         assertEquals(
-            "A non-OTP 401 should keep its existing unauthorized message",
-            activity.getString(R.string.recovery_network_unauthorized),
-            errorText!!.text.toString(),
+            "A locked account should route to the configuration-failed message screen",
+            R.id.personalid_message_display,
+            navController.currentDestination!!.id,
         )
     }
 
