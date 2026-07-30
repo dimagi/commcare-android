@@ -324,6 +324,17 @@
         <item name="failureAccentColor">@color/connect_red</item>
     </style>
 
+    <style name="Widget.CommCare.ConnectSyncStatusCard" parent="Widget.MaterialComponents.CardView">
+        <item name="syncOkBadgeColor">@color/connect_light_green</item>
+        <item name="syncOkIconColor">@color/connect_green</item>
+        <item name="syncOkStrokeColor">@color/connect_light_grey</item>
+        <item name="syncWarningBadgeColor">@color/pale_buttery_cream</item>
+        <item name="syncWarningIconColor">@color/burnt_amber</item>
+        <item name="syncWarningStrokeColor">@color/burnt_amber</item>
+        <item name="syncOkIcon">@drawable/check_update</item>
+        <item name="syncWarningIcon">@drawable/ic_connect_directory_sync</item>
+    </style>
+
     <style name="ConnectBottomSheetAnimation" parent="Animation.MaterialComponents.BottomSheetDialog">
         <item name="android:windowEnterAnimation">@anim/connect_bottom_sheet_slide_in</item>
         <item name="android:windowExitAnimation">@anim/connect_bottom_sheet_slide_out</item>

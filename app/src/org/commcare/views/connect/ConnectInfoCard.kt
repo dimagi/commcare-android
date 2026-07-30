@@ -4,12 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoCardBinding
+import org.commcare.views.extensions.bindOptional
 
 /**
  * Reusable full-width Connect info card.
@@ -32,15 +32,15 @@ class ConnectInfoCard
 
         var valueText: CharSequence?
             get() = binding.infoCardValueText.text
-            set(value) = bindOptionalText(binding.infoCardValueText, value)
+            set(value) = binding.infoCardValueText.bindOptional(value)
 
         var titleText: CharSequence?
             get() = binding.infoCardTitleText.text
-            set(value) = bindOptionalText(binding.infoCardTitleText, value)
+            set(value) = binding.infoCardTitleText.bindOptional(value)
 
         var subtitleText: CharSequence?
             get() = binding.infoCardSubtitleText.text
-            set(value) = bindOptionalText(binding.infoCardSubtitleText, value)
+            set(value) = binding.infoCardSubtitleText.bindOptional(value)
 
         var navigable: Boolean = false
             set(value) {
@@ -54,8 +54,9 @@ class ConnectInfoCard
         var onCardClick: (() -> Unit)? = null
             set(value) {
                 field = value
-                navigable = value != null
+                // setOnClickListener forces isClickable on, even for null, so apply it first.
                 setOnClickListener(value?.let { callback -> OnClickListener { callback() } })
+                navigable = value != null
             }
 
         init {
@@ -70,14 +71,6 @@ class ConnectInfoCard
                 subtitleText = getString(R.styleable.ConnectInfoCard_subtitleText)
                 navigable = getBoolean(R.styleable.ConnectInfoCard_navigable, false)
             }
-        }
-
-        private fun bindOptionalText(
-            view: TextView,
-            value: CharSequence?,
-        ) {
-            view.text = value
-            view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
         }
 
         private fun selectableItemForeground() =

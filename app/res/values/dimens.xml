@@ -146,6 +146,10 @@
     <dimen name="connect_info_card_elevation">0dp</dimen>
     <dimen name="connect_info_card_min_height">130dp</dimen>
 
+    <dimen name="connect_sync_card_badge_size">40dp</dimen>
+    <dimen name="connect_sync_card_badge_icon_inset">9dp</dimen>
+    <dimen name="connect_sync_card_subtext_spacing">2dp</dimen>
+
     <dimen name="semi_circle_progress_default_width">240dp</dimen>
     <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
     <dimen name="semi_circle_progress_value_text_size">28sp</dimen>
@@ -176,4 +180,6 @@
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>
     <dimen name="connect_radius_pill">24dp</dimen>
+    <!-- Strokes -->
+    <dimen name="connect_stroke_hairline">1dp</dimen>
 </resources>

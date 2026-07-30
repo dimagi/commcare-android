@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/connect_space_lg">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/connect_space_md"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sync_card_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/connect_text_color"
+            android:textSize="@dimen/connect_text_body"
+            android:textStyle="bold"
+            tools:text="Everything is synced" />
+
+        <TextView
+            android:id="@+id/sync_card_subtext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_sync_card_subtext_spacing"
+            android:textColor="@color/connect_grey"
+            android:textSize="@dimen/connect_text_caption"
+            android:visibility="gone"
+            tools:text="Synced just now"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/sync_card_icon"
+        android:layout_width="@dimen/connect_sync_card_badge_size"
+        android:layout_height="@dimen/connect_sync_card_badge_size"
+        android:background="@drawable/bg_connect_sync_badge"
+        android:contentDescription="@null"
+        android:padding="@dimen/connect_sync_card_badge_icon_inset"
+        tools:backgroundTint="@color/connect_light_green"
+        tools:src="@drawable/check_update"
+        tools:tint="@color/connect_green" />
+
+</LinearLayout>
