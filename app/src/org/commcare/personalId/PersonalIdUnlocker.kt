@@ -21,6 +21,13 @@ import kotlin.time.Duration.Companion.minutes
 private val SESSION_UNLOCK_THRESHOLD_MS = 10.minutes.inWholeMilliseconds
 internal const val BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key"
 
+private val PROMPT_DISMISSED_ERRORS =
+    setOf(
+        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+        BiometricPrompt.ERROR_USER_CANCELED,
+        BiometricPrompt.ERROR_CANCELED,
+    )
+
 /** Middleware to manage Personal ID unlock prompts with session-based bypass logic. */
 object PersonalIdUnlocker {
     @VisibleForTesting
@@ -77,7 +84,12 @@ object PersonalIdUnlocker {
                 override fun onAuthenticationError(
                     errorCode: Int,
                     errString: CharSequence,
-                ) = callback.connectActivityComplete(false)
+                ) {
+                    callback.connectActivityComplete(false)
+                    if (errorCode !in PROMPT_DISMISSED_ERRORS) {
+                        Toast.makeText(activity, errString, Toast.LENGTH_LONG).show()
+                    }
+                }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     lastUnlockTime = SystemClock.elapsedRealtime()
@@ -109,12 +121,13 @@ object PersonalIdUnlocker {
                     "No unlock method available when trying to unlock PersonalId",
                     Exception("No unlock option"),
                 )
-                Toast
-                    .makeText(
-                        activity,
-                        activity.getString(R.string.connect_unlock_unavailable),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                val messageRes =
+                    if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
+                        R.string.personalid_configuration_process_biometric_unavailable_message
+                    } else {
+                        R.string.connect_unlock_unavailable
+                    }
+                Toast.makeText(activity, activity.getString(messageRes), Toast.LENGTH_LONG).show()
             }
         }
     }
