@@ -115,7 +115,7 @@ abstract fun setupHeader()                // implementations own full header UI 
 |---|---|---|------------------------------|
 | `REGISTRATION` | none (stored in session) | — | no                           |
 | `CONFIRM_RECOVERY` | `users/recover/confirm_backup_code` | session token | no                           |
-| `CONFIRM_BACKUP_CODE` | none (stored in `PersonalIdProfileActivityViewModel`) | — | no                           |
+| `CONFIRM_BACKUP_CODE` | none (local validation against `ConnectUserRecord.password`) | — | no                           |
 | `SET_NEW_CODE` | `/users/set_backup_code` | user credentials or session token | yes                          |
 
 ### API Changes
@@ -125,11 +125,11 @@ abstract fun setupHeader()                // implementations own full header UI 
 We currently set the backup code only during registration using the `complete_profile` endpoint.
 This new endpoint allows users to change their backup code after registration or during account recovery.
 
-| Field | Value |
-|---|---|
-| Auth | `ProvidedAuth(userId, currentCode)` (change flow) or `TokenAuth(sessionToken)` (recovery flow) |
-| Request | `{ "recovery_pin": "<new_code>" }` |
-| Success | `HTTP 200` — no response body |
+| Field | Value                                                                                       |
+|---|---------------------------------------------------------------------------------------------|
+| Auth | `ProvidedAuth(userId, password)` (change flow) or `TokenAuth(sessionToken)` (recovery flow) |
+| Request | `{ "recovery_pin": "<new_code>" }`                                                          |
+| Success | `HTTP 200` — no response body                                                               |
 
 ### Phone Verification Refactor — Base + Two Implementations
 
@@ -176,8 +176,7 @@ On "Send code" → calls `send_email_otp` → navigates to `PersonalIdEmailVerif
 
 Single activity-scoped ViewModel on `PersonalIdProfileActivity`. Consolidates profile display and cross-fragment workflow state:
 - `profileDisplayModel: LiveData<PersonalIdProfileDisplayModel>` — replaces the existing fragment-scoped `PersonalIdProfileViewModel`
-- `currentCode: String?` — entered at `CONFIRM_BACKUP_CODE` step, used as auth for the final API call
-- `pendingEmail: String?` — set when email change is gated behind backup code confirmation
+- `pendingEmail: String?` — set before navigation begins on the email-change path
 
 ---
 # Implementation Details
@@ -194,13 +193,13 @@ to save time during spec review.
 
 1. Tap "Change backup code" → `personalid_confirm_backup_code`
    (`PersonalIdProfileBackupCodeFragment(CONFIRM_BACKUP_CODE)`)
-   - One field, no API call — submitted code stored in `PersonalIdProfileActivityViewModel.currentCode`
+   - One field, no API call — local validation only (compare against `ConnectUserRecord.password`)
    - "Forgot backup code?" link visible only if `user.email != null`
 
 2. On submit → `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
    - Two fields (new + confirm)
    - "Save" → `PersonalIdUnlocker.unlock(ALWAYS)` → `POST /users/set_backup_code` with
-     `ProvidedAuth(userId, currentCode)`
+     `ProvidedAuth(userId, password)`
 
 3. **Success:** update `ConnectUserRecord.password = newCode`, persist, pop back to profile
    with success toast
