@@ -611,6 +611,7 @@
         <activity
             android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/CommonTheme.NoActionBar"/>
 
         <service
