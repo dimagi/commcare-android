@@ -147,16 +147,26 @@ object PersonalIdUnlocker {
                 BiometricPrompt.ERROR_CANCELED,
             )
 
+        val plausibleLockoutErrors =
+            setOf(
+                BiometricPrompt.ERROR_NO_BIOMETRICS,
+                BiometricPrompt.ERROR_HW_UNAVAILABLE,
+            )
+
         return when {
             errorCode in promptDismissedErrors -> null
+            errorCode == BiometricPrompt.ERROR_LOCKOUT ->
+                R.string.personalid_biometric_error_lockout
             errorCode == BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
                 R.string.personalid_biometric_error_lockout_permanent
             errorCode == BiometricPrompt.ERROR_TIMEOUT ->
                 R.string.personalid_biometric_error_timeout
-            fingerprintConfigured ->
+            fingerprintConfigured && errorCode in plausibleLockoutErrors ->
                 R.string.personalid_biometric_error_lockout
-            else ->
+            !fingerprintConfigured ->
                 R.string.personalid_configuration_process_biometric_unavailable_message
+            else ->
+                R.string.personalid_authentication_failed
         }
     }
 
