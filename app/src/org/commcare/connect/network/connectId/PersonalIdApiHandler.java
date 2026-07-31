@@ -3,6 +3,8 @@ package org.commcare.connect.network.connectId;
 import android.app.Activity;
 import android.content.Context;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
@@ -97,13 +99,19 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         };
     }
 
+    /**
+     * Returns false when the code is unrecognized, so the caller can fall back to the HTTP status.
+     * {@code sessionData} is null for calls with no configuration session to record the failure on.
+     */
     private boolean handleErrorCodeIfPresent(
             String errorCode,
             String errorSubCode,
-            PersonalIdSessionData sessionData
+            @Nullable PersonalIdSessionData sessionData
     ) {
-        sessionData.setSessionFailureCode(errorCode);
-        sessionData.setSessionFailureSubcode(errorSubCode);
+        if (sessionData != null) {
+            sessionData.setSessionFailureCode(errorCode);
+            sessionData.setSessionFailureSubcode(errorSubCode);
+        }
         switch (errorCode) {
             case "LOCKED_ACCOUNT":
                 onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
@@ -184,6 +192,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 return true;
             case "RATE_LIMITED":
                 onFailure(PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR, null);
+                return true;
+            case "EMAIL_ALREADY_IN_USE":
+                onFailure(PersonalIdOrConnectApiErrorCodes.EMAIL_ALREADY_IN_USE_ERROR, null);
                 return true;
             case "ACTIVE_USER_EXISTS":
                 onFailure(
@@ -348,7 +359,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 email,
                 personalIdConfigurationToken,
                 user,
-                createCallback(new NoParsingResponseParser<>(), null)
+                createCallback((PersonalIdSessionData) null, null)
         );
     }
 
@@ -370,7 +381,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 otp,
                 personalIdConfigurationToken,
                 user,
-                createCallback(new NoParsingResponseParser<>(), null)
+                createCallback((PersonalIdSessionData) null, null)
         );
     }
 

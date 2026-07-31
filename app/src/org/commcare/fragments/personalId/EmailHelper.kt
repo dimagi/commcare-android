@@ -55,8 +55,8 @@ object EmailHelper {
     ) {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
         tracker.recordRequest()
-        object : PersonalIdApiHandler<Boolean>() {
-            override fun onSuccess(status: Boolean) {
+        object : PersonalIdApiHandler<Any?>() {
+            override fun onSuccess(data: Any?) {
                 FirebaseAnalyticsUtil.reportOtpEvent(
                     OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
@@ -107,8 +107,8 @@ object EmailHelper {
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
         val (token, user) = buildAuthArgs(activity, workflow, sessionData)
-        object : PersonalIdApiHandler<Boolean>() {
-            override fun onSuccess(status: Boolean) {
+        object : PersonalIdApiHandler<Any?>() {
+            override fun onSuccess(data: Any?) {
                 FirebaseAnalyticsUtil.reportOtpEvent(
                     OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
                     AnalyticsParamValue.OTP_OUTCOME_SUCCESS,

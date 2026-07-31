@@ -468,6 +468,7 @@ License.
     <string name="connect_job_tile_daily_visits">दैनिक विज़िट</string>
     <string name="connect_appbar_title_app_lock">ऐप लॉक</string>
     <string name="personalid_incorrect_otp">आपने गलत 6-अंकीय पासकोड दर्ज किया है। कृपया पुन: प्रयास करें।</string>
+    <string name="personalid_email_already_in_use">यह ईमेल पहले से ही किसी अन्य खाते से जुड़ा हुआ है। कृपया कोई दूसरा ईमेल पता उपयोग करें।</string>
     <string name="personalid_too_many_otp_attempts">आपने OTP भेजने के बहुत अधिक प्रयास किए हैं। कृपया प्रतीक्षा करें और जब पुनः भेजें बटन दिखाई दे तब पुनः प्रयास करें।</string>
     <string name="personalid_otp_verification_failed_generic">आपके फ़ोन नंबर का सत्यापन करते समय कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
     <string name="personalid_otp_verification_failed">कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
