@@ -155,18 +155,12 @@ object PersonalIdUnlocker {
 
         return when {
             errorCode in promptDismissedErrors -> null
-            errorCode == BiometricPrompt.ERROR_LOCKOUT ->
-                R.string.personalid_biometric_error_lockout
-            errorCode == BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
-                R.string.personalid_biometric_error_lockout_permanent
-            errorCode == BiometricPrompt.ERROR_TIMEOUT ->
-                R.string.personalid_biometric_error_timeout
-            fingerprintConfigured && errorCode in plausibleLockoutErrors ->
-                R.string.personalid_biometric_error_lockout
-            !fingerprintConfigured ->
-                R.string.personalid_configuration_process_biometric_unavailable_message
-            else ->
-                R.string.personalid_authentication_failed
+            errorCode == BiometricPrompt.ERROR_LOCKOUT -> R.string.personalid_biometric_error_lockout
+            errorCode == BiometricPrompt.ERROR_LOCKOUT_PERMANENT -> R.string.personalid_biometric_error_lockout_permanent
+            errorCode == BiometricPrompt.ERROR_TIMEOUT -> R.string.personalid_biometric_error_timeout
+            fingerprintConfigured && errorCode in plausibleLockoutErrors -> R.string.personalid_biometric_error_lockout
+            !fingerprintConfigured -> R.string.personalid_configuration_process_biometric_unavailable_message
+            else -> R.string.personalid_authentication_failed
         }
     }
 
