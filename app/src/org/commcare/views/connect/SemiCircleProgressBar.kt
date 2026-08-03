@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewSemiCircleProgressBarBinding
 import org.commcare.utils.ProgressUtils
+import org.commcare.views.extensions.bindOptional
 
 /**
  * Reusable semi-circle (180°) progress indicator.
@@ -72,8 +73,7 @@ class SemiCircleProgressBar
         var descriptionText: CharSequence?
             get() = binding.semiCircleDescriptionText.text
             set(value) {
-                binding.semiCircleDescriptionText.text = value
-                binding.semiCircleDescriptionText.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
+                binding.semiCircleDescriptionText.bindOptional(value)
                 updateContentDescription()
             }
 

@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
-import android.widget.TextView
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectCtaBarBinding
+import org.commcare.views.extensions.bindOptional
 
 /**
  * Reusable Connect bottom action bar.
@@ -27,11 +27,11 @@ class ConnectCtaBar
 
         var titleText: CharSequence?
             get() = binding.ctaTitleText.text
-            set(value) = bindOptionalText(binding.ctaTitleText, value)
+            set(value) = binding.ctaTitleText.bindOptional(value)
 
         var subtitleText: CharSequence?
             get() = binding.ctaSubtitleText.text
-            set(value) = bindOptionalText(binding.ctaSubtitleText, value)
+            set(value) = binding.ctaSubtitleText.bindOptional(value)
 
         var buttonText: CharSequence?
             get() = binding.ctaButton.text
@@ -47,7 +47,7 @@ class ConnectCtaBar
 
         var infoMessage: CharSequence?
             get() = binding.ctaInfoBanner.text
-            set(value) = bindOptionalText(binding.ctaInfoBanner, value)
+            set(value) = binding.ctaInfoBanner.bindOptional(value)
 
         var isCtaEnabled: Boolean
             get() = binding.ctaButton.isEnabled
@@ -85,13 +85,5 @@ class ConnectCtaBar
                     resources.getString(R.string.connect_cta_progress_percent, value)
                 binding.ctaProgressCluster.contentDescription = binding.ctaProgressText.text
             }
-        }
-
-        private fun bindOptionalText(
-            view: TextView,
-            value: CharSequence?,
-        ) {
-            view.text = value
-            view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
         }
     }
