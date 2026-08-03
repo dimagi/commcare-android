@@ -2,6 +2,18 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.65
+
+### Release Notes
+
+<!--
+These are published publicly on Playstore, Github Releases and CommCare Forums
+-->
+
+#### Internal Release Notes
+
+- [Learn Completion Screen] Once training is complete and the assessment is passed, the Connect learn screen now shows a redesigned completion view with a collapsible certificate, the delivery figures, and a persistent bottom action bar that claims the opportunity and then downloads the delivery app.
+
 ## CommCare 2.63.4
 
 ### Release Notes
