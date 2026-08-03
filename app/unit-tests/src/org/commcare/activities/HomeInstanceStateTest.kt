@@ -1,47 +1,20 @@
 package org.commcare.activities
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Characterization pins for the launch/nav instance-state that must survive an activity
- * `recreate()`.
+ * Characterization pin for the sync-icon instance-state that must survive an activity `recreate()`.
  *
- * CCCT-2679 relocates three keys off `HomeScreenBaseActivity` onto the coordinator's
- * `SavedStateProvider` (`was_external`, `login_extra_was_consumed`,
- * `pending_endpoint_nav_after_sync`); CCCT-2683 does the same for `last-icon-trigger` on
- * `SyncCapableCommCareActivity`. Both slices claim the move is behavior-preserving, and 2679's
- * acceptance is literally "the keys survive `recreate()`". Nothing in the suite exercised
- * `recreate()` before this, so the round-trip had no net.
+ * CCCT-2683 relocates `last-icon-trigger` off `SyncCapableCommCareActivity` onto a
+ * `SavedStateProvider`, claiming the move is behavior-preserving. The flag is private with no
+ * accessor, so the round-trip is asserted via reflection against the field name
+ * ([readField]/[writeField]); that scaffolding retires once the field moves.
  *
- * The flags are private with no accessors, so the round-trip is asserted via reflection against
- * the field names ([readField]/[writeField]). That scaffolding retires once the fields live behind
- * the coordinator's `SavedStateProvider`, which the refactor can then assert against directly.
+ * The three launch/nav keys this file also pinned now live on `HomeActivityCoordinator` (CCCT-2679)
+ * and are asserted directly in [HomeInstanceStateRecreationTest].
  */
 class HomeInstanceStateTest : HomeScreenActivityTest() {
-    @Test
-    fun `launch and nav flags survive recreate`() {
-        val controller = buildStandardHomeController()
-        val home = controller.get()
-        writeField(home, "wasExternal", true)
-        writeField(home, "loginExtraWasConsumed", true)
-        writeField(home, "pendingEndpointNavigationAfterSync", true)
-
-        controller.recreate()
-
-        val recreated = controller.get()
-        assertTrue("wasExternal did not survive recreate", readField(recreated, "wasExternal") as Boolean)
-        assertTrue(
-            "loginExtraWasConsumed did not survive recreate",
-            readField(recreated, "loginExtraWasConsumed") as Boolean,
-        )
-        assertTrue(
-            "pendingEndpointNavigationAfterSync did not survive recreate",
-            readField(recreated, "pendingEndpointNavigationAfterSync") as Boolean,
-        )
-    }
-
     @Test
     fun `last icon trigger survives recreate`() {
         val controller = buildStandardHomeController()

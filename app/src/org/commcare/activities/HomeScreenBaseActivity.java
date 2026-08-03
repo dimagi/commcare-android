@@ -21,6 +21,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
+import org.commcare.activities.home.HomeActivityCoordinator;
+import org.commcare.activities.home.HomeActivityHost;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.user.models.FormRecord;
@@ -121,7 +123,7 @@ import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLat
  * lifecycle, implementation of available actions, session navigation, etc.
  */
 public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
-        implements SessionNavigationResponder {
+        implements SessionNavigationResponder, HomeActivityHost {
 
     /**
      * Request code for launching a menu list or menu grid
@@ -159,14 +161,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private SessionNavigator sessionNavigator;
     private boolean sessionNavigationProceedingAfterOnResume;
 
-    private boolean loginExtraWasConsumed;
-    private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
     private boolean isRestoringSession = false;
-
-    // The API allows for external calls. When this occurs, redispatch to their
-    // activity instead of commcare.
-    private boolean wasExternal = false;
-    private static final String WAS_EXTERNAL_KEY = "was_external";
 
     // Indicates if 1 of the checks we performed in onCreate resulted in redirecting to a
     // different activity or starting a UI-blocking task
@@ -187,18 +182,30 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private FirebaseMessagingDataSyncer dataSyncer;
     private boolean isVisible;
 
-    // Set when a session endpoint launch requires a blocking sync before navigating to the endpoint
-    private boolean pendingEndpointNavigationAfterSync = false;
-    private static final String KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC = "pending_endpoint_nav_after_sync";
+    private final HomeActivityCoordinator coordinator = new HomeActivityCoordinator(this);
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
     }
 
+    /**
+     * The coordinator this home activity composes. Public so tests can assert on the launch/nav
+     * state it now owns. Held here rather than in each concrete home activity for as long as this
+     * class exists; the slice that removes this class pushes the field down into both subclasses.
+     */
+    public HomeActivityCoordinator getCoordinator() {
+        return coordinator;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        coordinator.onActivityResult(requestCode, resultCode, intent);
+        super.onActivityResult(requestCode, resultCode, intent);
+    }
+
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        loadInstanceState(savedInstanceState);
         CrashUtil.registerAppData();
 
         updateLastSuccessfulCommCareVersion();
@@ -225,25 +232,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         editor.apply();
     }
 
-    private void loadInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
-            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
-            pendingEndpointNavigationAfterSync = savedInstanceState.getBoolean(
-                    KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC
-            );
-        }
-    }
-
     /**
      * Set state that signifies activity was launch from external app
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
-            wasExternal = true;
+            coordinator.setWasExternal(true);
             if (getIntent().getBooleanExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC, false)) {
                 getIntent().removeExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC);
-                pendingEndpointNavigationAfterSync = true;
+                coordinator.setPendingEndpointNavigationAfterSync(true);
                 redirectedInOnCreate = true;
                 triggerSync(false);
             } else if (processSessionEndpoint()) {
@@ -333,9 +330,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void processFromLoginLaunch() {
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
-                !loginExtraWasConsumed) {
+                !coordinator.getLoginExtraWasConsumed()) {
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
-            loginExtraWasConsumed = true;
+            coordinator.setLoginExtraWasConsumed(true);
             try {
                 redirectedInOnCreate = doLoginLaunchChecksInOrder();
             } finally {
@@ -629,17 +626,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 "View Job Status pressed but no Connect job was found for the seated app"
         );
         ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(WAS_EXTERNAL_KEY, wasExternal);
-        outState.putBoolean(EXTRA_CONSUMED_KEY, loginExtraWasConsumed);
-        outState.putBoolean(
-                KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC,
-                pendingEndpointNavigationAfterSync
-        );
     }
 
     @Override
@@ -1071,7 +1057,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (intent != null) {
             intent.removeExtra(EXIT_AFTER_FORM_SUBMISSION);
         }
-        return wasExternal && exitAfterFormSubmission;
+        return coordinator.getWasExternal() && exitAfterFormSubmission;
     }
 
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
@@ -1570,9 +1556,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 formsToSend,
                 usingRemoteKeyManagement
         );
-        if (pendingEndpointNavigationAfterSync && processSessionEndpoint()) {
+        if (coordinator.getPendingEndpointNavigationAfterSync() && processSessionEndpoint()) {
             sessionNavigator.startNextSessionStep();
-            pendingEndpointNavigationAfterSync = false;
+            coordinator.setPendingEndpointNavigationAfterSync(false);
         } else if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
             i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
@@ -1635,7 +1621,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         showAlertDialog(d);
     }
 
-    protected static boolean isDemoUser() {
+    @Override
+    public boolean isDemoUser() {
         try {
             User u = CommCareApplication.instance().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));
@@ -1644,6 +1631,34 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // expires and hasn't redirected to login.
             return false;
         }
+    }
+
+    /**
+     * Per-action availability for the session-gated home activities: a demo user gets no actions.
+     * OpportunityHomeActivity will instead report "session attached".
+     */
+    @Override
+    public boolean areActionsAvailable() {
+        return !isDemoUser();
+    }
+
+    @Override
+    public Context getHostContext() {
+        return this;
+    }
+
+    /**
+     * Host-agnostic name for "re-render the surface that presents coordinator actions". Each home
+     * activity already knows whether that means its options menu or its nav drawer.
+     */
+    @Override
+    public void rebuildOptionsMenu() {
+        refreshCCUpdateOption();
+    }
+
+    @Override
+    public void refreshHostUi() {
+        refreshUI();
     }
 
     public static void createPreferencesMenu(AppCompatActivity activity) {
