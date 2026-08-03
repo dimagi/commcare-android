@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/standard_spacer_double">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/learn_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/standard_spacer_double"
+                android:background="@color/white"
+                android:padding="@dimen/standard_spacer_double"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/learn_complete_icon"
+                    android:layout_width="@dimen/standard_spacer_large"
+                    android:layout_height="@dimen/standard_spacer_large"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_connect_learn_app"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/learn_complete_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/standard_spacer_half"
+                    android:layout_marginEnd="@dimen/standard_spacer_half"
+                    android:text="@string/connect_opportunity_learn_section_title"
+                    android:textColor="@color/neon_blue"
+                    android:textSize="@dimen/connect_text_title"
+                    app:layout_constraintEnd_toStartOf="@id/learn_complete_check"
+                    app:layout_constraintStart_toEndOf="@id/learn_complete_icon"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/learn_complete_completed_on"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_half"
+                    android:textColor="@color/connect_secondary_text"
+                    android:textSize="@dimen/connect_text_caption"
+                    app:layout_constraintEnd_toEndOf="@id/learn_complete_title"
+                    app:layout_constraintStart_toStartOf="@id/learn_complete_title"
+                    app:layout_constraintTop_toBottomOf="@id/learn_complete_title"
+                    tools:text="Completed on 21/12/2026" />
+
+                <ImageView
+                    android:id="@+id/learn_complete_check"
+                    android:layout_width="@dimen/standard_spacer_large"
+                    android:layout_height="@dimen/standard_spacer_large"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_connect_delivery_check_circle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/connect_green" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_double"
+                    android:background="@drawable/connect_view_info_card_border"
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/connect_space_lg"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/learn_complete_completed_on">
+
+                    <LinearLayout
+                        android:id="@+id/certificate_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/connect_space_md">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/connect_learn_certificate"
+                            android:textColor="@color/connect_text_color"
+                            android:textSize="@dimen/connect_text_caption" />
+
+                        <ImageView
+                            android:id="@+id/certificate_chevron"
+                            android:layout_width="@dimen/standard_spacer_large"
+                            android:layout_height="@dimen/standard_spacer_large"
+                            android:contentDescription="@null"
+                            android:rotation="180"
+                            android:src="@drawable/nav_drawer_arrow_down"
+                            app:tint="@color/connect_dark_grey" />
+                    </LinearLayout>
+
+                    <include
+                        android:id="@+id/certificate"
+                        layout="@layout/view_connect_learn_certificate" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/delivery_icon"
+                android:layout_width="@dimen/standard_spacer_large"
+                android:layout_height="@dimen/standard_spacer_large"
+                android:layout_marginStart="@dimen/standard_spacer_double"
+                android:contentDescription="@null"
+                android:layout_marginTop="1dp"
+                android:src="@drawable/ic_connect_delivery_app"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/delivery_title" />
+
+            <TextView
+                android:id="@+id/delivery_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_spacer"
+                android:layout_marginEnd="@dimen/standard_spacer_double"
+                android:text="@string/connect_opportunity_delivery_section_title"
+                android:textColor="@color/neon_blue"
+                android:textSize="@dimen/connect_text_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/standard_spacer_double"
+                app:layout_constraintStart_toEndOf="@id/delivery_icon"
+                app:layout_constraintTop_toBottomOf="@id/learn_card" />
+
+            <TextView
+                android:id="@+id/delivery_subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_spacer_half"
+                android:text="@string/connect_opportunity_delivery_section_subtitle"
+                android:textColor="@color/connect_dark_grey"
+                android:textSize="@dimen/connect_text_caption"
+                app:layout_constraintEnd_toEndOf="@id/delivery_title"
+                app:layout_constraintStart_toStartOf="@id/delivery_title"
+                app:layout_constraintTop_toBottomOf="@id/delivery_title" />
+
+            <org.commcare.views.connect.ConnectInfoCard
+                android:id="@+id/card_total_visits"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/delivery_subtitle"
+                app:titleText="@string/connect_opportunity_max_visits_label" />
+
+            <org.commcare.views.connect.ConnectInfoCard
+                android:id="@+id/card_days_to_complete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_total_visits"
+                app:titleText="@string/connect_opportunity_days_to_complete_label" />
+
+            <org.commcare.views.connect.ConnectInfoCard
+                android:id="@+id/card_max_earnings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_days_to_complete"
+                app:titleText="@string/connect_opportunity_max_earnings_card_label" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <org.commcare.views.connect.ConnectSuccessFailureCard
+        android:id="@+id/learn_complete_failure_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/standard_spacer_double"
+        android:layout_marginBottom="@dimen/standard_spacer_double" />
+
+    <org.commcare.views.connect.ConnectCtaBar
+        android:id="@+id/learn_complete_cta_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleText="@string/connect_learn_complete_footer_start_visits" />
+</merge>

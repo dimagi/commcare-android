@@ -175,5 +175,6 @@
     <!-- Corner radii -->
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>
+    <dimen name="connect_radius_lg">16dp</dimen>
     <dimen name="connect_radius_pill">24dp</dimen>
 </resources>
