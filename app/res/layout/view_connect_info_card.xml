@@ -11,6 +11,7 @@
         android:id="@+id/info_card_value_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:includeFontPadding="false"
         android:textColor="@color/connect_dark_grey"
         android:textSize="@dimen/connect_text_metric"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -34,6 +35,7 @@
             android:id="@+id/info_card_title_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:includeFontPadding="false"
             android:textColor="@color/connect_text_color"
             android:textSize="@dimen/connect_text_title"
             tools:text="Maximum Visits" />

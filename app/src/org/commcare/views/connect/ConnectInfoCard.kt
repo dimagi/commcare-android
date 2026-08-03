@@ -6,8 +6,10 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.updateLayoutParams
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoCardBinding
 
@@ -40,7 +42,10 @@ class ConnectInfoCard
 
         var subtitleText: CharSequence?
             get() = binding.infoCardSubtitleText.text
-            set(value) = bindOptionalText(binding.infoCardSubtitleText, value)
+            set(value) {
+                binding.infoCardSubtitleText.text = value
+                applySubtitleLayout(hasSubtitle = !value.isNullOrEmpty())
+            }
 
         var navigable: Boolean = false
             set(value) {
@@ -72,6 +77,24 @@ class ConnectInfoCard
             }
         }
 
+        private fun applySubtitleLayout(hasSubtitle: Boolean) {
+            binding.infoCardSubtitleText.visibility = if (hasSubtitle) VISIBLE else GONE
+
+            val reserved = if (hasSubtitle) 0 else subtitleReservedHeight()
+            binding.infoCardTextContainer.setPadding(0, reserved / 2, 0, reserved - reserved / 2)
+
+            binding.infoCardValueText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                verticalBias = if (hasSubtitle) 0f else CENTERED_BIAS
+            }
+        }
+
+        private fun subtitleReservedHeight(): Int {
+            val subtitle = binding.infoCardSubtitleText
+            val unspecified = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            subtitle.measure(unspecified, unspecified)
+            return subtitle.measuredHeight + (subtitle.layoutParams as MarginLayoutParams).topMargin
+        }
+
         private fun bindOptionalText(
             view: TextView,
             value: CharSequence?,
@@ -85,4 +108,8 @@ class ConnectInfoCard
                 context.theme.resolveAttribute(android.R.attr.selectableItemBackground, it, true)
                 ContextCompat.getDrawable(context, it.resourceId)
             }
+
+        companion object {
+            private const val CENTERED_BIAS = 0.5f
+        }
     }
