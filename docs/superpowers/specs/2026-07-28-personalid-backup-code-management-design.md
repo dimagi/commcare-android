@@ -312,11 +312,14 @@ object PersonalIdReminderHelper {
 
 ### 1. Changing email (user has existing email)
 
-`PersonalIdProfileEditFragment.onSaveClicked()` when `isEmailModified()` and `user.email != null`:
-store new email in `PersonalIdProfileActivityViewModel.pendingEmail`, then navigate to
-`personalid_confirm_backup_code`.
+`PersonalIdSendEmailOtpFragment` replaces the existing `showEmailOtpConfirmationDialog` in this flow.
 
-On backup code confirmed → `PersonalIdSendEmailOtpFragment(email=pendingEmail, EXISTING_USER)`
+`PersonalIdProfileEditFragment.onSaveClicked()` when `isEmailModified()` and `user.email != null`:
+1. Store new email in `PersonalIdProfileActivityViewModel.pendingEmail`.
+2. If name is also modified, call `saveProfileDetails` first (name save must complete before navigating).
+3. Navigate to `personalid_confirm_backup_code`.
+
+On backup code confirmed → `PersonalIdSendEmailOtpFragment(email=pendingEmail, masked=true, EXISTING_USER)`
 → `PersonalIdEmailVerificationFragment(EXISTING_USER)` → `PersonalIdUnlocker.unlock(ALWAYS)`
 → persist new email locally, pop to profile with success toast.
 
@@ -329,7 +332,7 @@ nav action for the email-change exit path.
 store new email in `PersonalIdProfileActivityViewModel.pendingEmail`, then navigate to
 the Phone OTP verification screen(`PersonalIdProfilePhoneVerificationFragment`) (sends otp to `ConnectUserRecord.primaryPhone`)
 
-On phone OTP verified → `PersonalIdSendEmailOtpFragment(email=pendingEmail, EXISTING_USER)`
+On phone OTP verified → `PersonalIdSendEmailOtpFragment(email=pendingEmail, masked=false, EXISTING_USER)`
 → `PersonalIdEmailVerificationFragment(EXISTING_USER)` → `PersonalIdUnlocker.unlock(ALWAYS)`
 → persist new email locally, pop to profile with success toast.
 
