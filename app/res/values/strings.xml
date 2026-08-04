@@ -518,7 +518,7 @@
     <string name="connect_learn_completed">Completed on %s</string>
     <string name="connect_learn_cert_score">Score: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Start Visits</string>
-    <string name="connect_learn_claim_failed">Download failed. Please try again.</string>
+    <string name="connect_learn_download_failed">Download failed. Please try again.</string>
     <string name="connect_learn_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_learn_review">Review Learning</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>

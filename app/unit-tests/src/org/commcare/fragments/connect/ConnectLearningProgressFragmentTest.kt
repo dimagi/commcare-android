@@ -205,7 +205,7 @@ class ConnectLearningProgressFragmentTest {
             )
         assertEquals(View.VISIBLE, failureCard.visibility)
         assertEquals(
-            activity.getString(R.string.connect_learn_claim_failed),
+            activity.getString(R.string.connect_learn_download_failed),
             failureCard.messageText.toString(),
         )
         assertTrue("CTA should be re-enabled after a failure", ctaButton.isEnabled)

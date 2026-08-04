@@ -330,7 +330,7 @@
     <string name="connect_learn_completed">ኣብ %s ዝተዛዘመ</string>
     <string name="connect_learn_cert_score">ነጥቢ: %s</string>
     <string name="connect_learn_complete_footer_start_visits">ምብጻሓት ጀምር</string>
-    <string name="connect_learn_claim_failed">ምውራድ ኣይተሳኸዐን። በጃኻ ደጊምካ ፈትን።</string>
+    <string name="connect_learn_download_failed">ምውራድ ኣይተሳኸዐን። በጃኻ ደጊምካ ፈትን።</string>
     <string name="connect_learn_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_learn_review">ትምህርቲ ዳግመ ግምት</string>
     <string name="connect_learn_go_to_assessment">ናብ ገምጋም ኪድ</string>

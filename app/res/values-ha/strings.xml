@@ -172,7 +172,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_learn_completed">An kammala a ranar %s</string>
     <string name="connect_learn_cert_score">Maki: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Fara Ziyarce-ziyarce</string>
-    <string name="connect_learn_claim_failed">Saukewa ta gaza. Da fatan za a sake gwadawa.</string>
+    <string name="connect_learn_download_failed">Saukewa ta gaza. Da fatan za a sake gwadawa.</string>
     <string name="connect_learn_warning_ended">Aikin ya ƙare. Ba za ku sami wani ci gaba ba don ƙarin aiki.</string>
     <string name="connect_learn_review">Koyon Bita</string>
     <string name="connect_learn_go_to_assessment">Je zuwa Kimantawa</string>

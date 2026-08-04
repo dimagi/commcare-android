@@ -363,9 +363,10 @@
         <item quantity="many">%d mokėjimo vieneto</item>
         <item quantity="other">%d mokėjimo vienetų</item>
     </plurals>
+    <string name="connect_learn_completed">Užbaigta %s</string>
     <string name="connect_learn_cert_score">Rezultatas: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Pradėti vizitus</string>
-    <string name="connect_learn_claim_failed">Atsisiuntimas nepavyko. Bandykite dar kartą.</string>
+    <string name="connect_learn_download_failed">Atsisiuntimas nepavyko. Bandykite dar kartą.</string>
     <string name="connect_opportunity_footer_start_learning">Pradėti mokymąsi</string>
     <string name="connect_opportunity_footer_download_learn_app">Atsisiųsti mokymąsi</string>
     <string name="connect_opportunity_modules_footer_note">Užbaikite modulius, išlaikykite vertinimą ir gaukite savo pažymėjimą</string>

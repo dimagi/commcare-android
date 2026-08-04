@@ -198,17 +198,26 @@ class ConnectLearnCompleteViewTest {
         val header = view.findViewById<View>(R.id.certificate_header)
         val certificate = view.findViewById<View>(R.id.certificate)
         val chevron = view.findViewById<View>(R.id.certificate_chevron)
+        val container = view.findViewById<View>(R.id.certificate_container)
+        val expandedPadding = container.paddingBottom
 
         assertEquals(View.VISIBLE, certificate.visibility)
         assertEquals(180f, chevron.rotation)
+        assertTrue("Expanded container should pad below the certificate", expandedPadding > 0)
 
         header.performClick()
         assertEquals(View.GONE, certificate.visibility)
         assertEquals(0f, chevron.rotation)
+        assertEquals(
+            "Collapsed container should not keep the certificate's bottom padding",
+            0,
+            container.paddingBottom,
+        )
 
         header.performClick()
         assertEquals(View.VISIBLE, certificate.visibility)
         assertEquals(180f, chevron.rotation)
+        assertEquals(expandedPadding, container.paddingBottom)
     }
 
     @Test
@@ -231,7 +240,7 @@ class ConnectLearnCompleteViewTest {
         view.showClaimFailure()
         assertEquals(View.VISIBLE, failureCard.visibility)
         assertEquals(
-            context.getString(R.string.connect_learn_claim_failed),
+            context.getString(R.string.connect_learn_download_failed),
             failureCard.messageText.toString(),
         )
         assertEquals(ConnectSuccessFailureCard.Mode.FAILURE, failureCard.mode)

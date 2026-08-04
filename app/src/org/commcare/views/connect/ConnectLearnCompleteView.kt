@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.updatePadding
 import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
@@ -34,6 +35,8 @@ class ConnectLearnCompleteView
         private val binding =
             ViewConnectLearnCompleteBinding.inflate(LayoutInflater.from(context), this)
 
+        private val certificateBottomPadding = binding.certificateContainer.paddingBottom
+
         var isCtaEnabled: Boolean
             get() = binding.learnCompleteCtaBar.isCtaEnabled
             set(value) {
@@ -48,7 +51,7 @@ class ConnectLearnCompleteView
         fun showClaimFailure() {
             binding.learnCompleteFailureCard.show(
                 ConnectSuccessFailureCard.Mode.FAILURE,
-                R.string.connect_learn_claim_failed,
+                R.string.connect_learn_download_failed,
             )
         }
 
@@ -164,6 +167,9 @@ class ConnectLearnCompleteView
             val expand = binding.certificate.root.visibility != VISIBLE
             binding.certificate.root.visibility = if (expand) VISIBLE else GONE
             binding.certificateChevron.rotation = if (expand) EXPANDED_CHEVRON_ROTATION else 0f
+            binding.certificateContainer.updatePadding(
+                bottom = if (expand) certificateBottomPadding else 0,
+            )
         }
 
         companion object {

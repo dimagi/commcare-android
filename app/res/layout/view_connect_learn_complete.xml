@@ -72,6 +72,7 @@
                     app:tint="@color/connect_green" />
 
                 <LinearLayout
+                    android:id="@+id/certificate_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standard_spacer_double"

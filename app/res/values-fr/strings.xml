@@ -334,7 +334,7 @@ License.
     <string name="connect_learn_completed">Terminé le %s</string>
     <string name="connect_learn_cert_score">Score: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Commencer les visites</string>
-    <string name="connect_learn_claim_failed">Le téléchargement a échoué. Veuillez réessayer.</string>
+    <string name="connect_learn_download_failed">Le téléchargement a échoué. Veuillez réessayer.</string>
     <string name="connect_learn_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_learn_review">Révision de l\'apprentissage</string>
     <string name="connect_learn_go_to_assessment">Accéder à l\'évaluation</string>

@@ -342,7 +342,7 @@
     <string name="connect_learn_completed">Concluído em %s</string>
     <string name="connect_learn_cert_score">Pontuação: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Iniciar visitas</string>
-    <string name="connect_learn_claim_failed">O download falhou. Tente novamente.</string>
+    <string name="connect_learn_download_failed">O download falhou. Tente novamente.</string>
     <string name="connect_learn_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_learn_review">Rever a aprendizagem</string>
     <string name="connect_learn_go_to_assessment">Ir para avaliação</string>

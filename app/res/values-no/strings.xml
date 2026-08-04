@@ -347,9 +347,10 @@
         <item quantity="one">%d betalingsenhet</item>
         <item quantity="other">%d betalingsenheter</item>
     </plurals>
+    <string name="connect_learn_completed">Fullført %s</string>
     <string name="connect_learn_cert_score">Poengsum: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Start besøk</string>
-    <string name="connect_learn_claim_failed">Nedlastingen mislyktes. Prøv igjen.</string>
+    <string name="connect_learn_download_failed">Nedlastingen mislyktes. Prøv igjen.</string>
     <string name="connect_opportunity_footer_start_learning">Start læring</string>
     <string name="connect_opportunity_footer_download_learn_app">Last ned Læring</string>
     <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>

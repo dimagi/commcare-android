@@ -272,7 +272,7 @@
     <string name="connect_learn_completed">Completado el %s</string>
     <string name="connect_learn_cert_score">Puntuación: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Comenzar visitas</string>
-    <string name="connect_learn_claim_failed">La descarga falló. Inténtalo de nuevo.</string>
+    <string name="connect_learn_download_failed">La descarga falló. Inténtalo de nuevo.</string>
     <string name="connect_learn_warning_ended">El trabajo ha terminado. No progresarás si realizas tareas adicionales.</string>
     <string name="connect_learn_review">Revisión del aprendizaje</string>
     <string name="connect_learn_go_to_assessment">Ir a la evaluación</string>

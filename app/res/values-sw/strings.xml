@@ -336,7 +336,7 @@
     <string name="connect_learn_completed">Ilikamilika mnamo %s</string>
     <string name="connect_learn_cert_score">Alama: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Anza Ziara</string>
-    <string name="connect_learn_claim_failed">Upakuaji umeshindikana. Tafadhali jaribu tena.</string>
+    <string name="connect_learn_download_failed">Upakuaji umeshindikana. Tafadhali jaribu tena.</string>
     <string name="connect_learn_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_learn_review">Kagua Mafunzo</string>
     <string name="connect_learn_go_to_assessment">Nenda kwa Tathmini</string>

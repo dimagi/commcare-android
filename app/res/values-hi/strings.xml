@@ -334,7 +334,7 @@ License.
     <string name="connect_learn_completed">पूरा हुआ %s</string>
     <string name="connect_learn_cert_score">स्कोर: %s</string>
     <string name="connect_learn_complete_footer_start_visits">विज़िट शुरू करें</string>
-    <string name="connect_learn_claim_failed">डाउनलोड विफल रहा। कृपया पुनः प्रयास करें।</string>
+    <string name="connect_learn_download_failed">डाउनलोड विफल रहा। कृपया पुनः प्रयास करें।</string>
     <string name="connect_learn_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_learn_review">सीखने की समीक्षा करें</string>
     <string name="connect_learn_go_to_assessment">मूल्यांकन पर जाएं</string>
