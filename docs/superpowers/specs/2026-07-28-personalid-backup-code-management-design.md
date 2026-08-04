@@ -37,29 +37,34 @@ Manage Profile
  │                                                    ▼
  │                                           ◄ Profile (success)
  │
- └─[Save — email change]─────────────────────────────────────────────────┐
-                                                                         ▼
-                                              [has email]           [no email]
-                                                   │                     │
-                                                   ▼                     ▼
-                                        Confirm backup code    Send Phone OTP screen
-                                         │           │                   │
-                                [Forgot?]│  [correct]│                   ▼
-                                         ▼           │           Phone OTP entry
-                              (→ same as Change      │                   │
-                               backup code           └─────────┬─────────┘
-                               forgot flow)                    │
-                                                               ▼
-                                                   Send email OTP screen
-                                                               │
-                                                               ▼
-                                                       Email OTP entry
-                                                               │
-                                                               ▼
-                                                   Biometric / PIN unlock
-                                                               │
-                                                               ▼
-                                                    ◄ Profile (success)
+ └─[Save — email change]────────────────────────────────────────────────────┐
+                                                                            ▼
+                                                            Confirm backup code
+                                                           │                │
+                                                  [Forgot?]│       [correct]│
+                                                           │                │
+                                               [has email] │  [no email]    │
+                                                      │         │           │
+                                                      ▼         ▼           │
+                                          (→ same as    Send Phone OTP      │
+                                           Change        screen             │
+                                           backup code        │             │
+                                           forgot flow)       ▼             │
+                                                        Phone OTP entry     │
+                                                                   │        │
+                                                                   └────────┘
+                                                                        │
+                                                                        ▼
+                                                            Send email OTP screen
+                                                                        │
+                                                                        ▼
+                                                                Email OTP entry
+                                                                        │
+                                                                        ▼
+                                                            Biometric / PIN unlock
+                                                                        │
+                                                                        ▼
+                                                             ◄ Profile (success)
 ```
 
 **Account Configuration Flow (`nav_graph_personalid.xml`) — additions only:**
@@ -89,7 +94,8 @@ BasePersonalIdBackupCodeFragment
 │   auth      : PersonalID session token
 │   nav graph : nav_graph_personalid
 └── PersonalIdProfileBackupCodeFragment 
-    workflows : CONFIRM_BACKUP_CODE, SET_NEW_CODE
+    workflows : CONFIRM_BACKUP_CODE_CHANGE_CODE, CONFIRM_BACKUP_CODE_CHANGE_EMAIL,
+                CONFIRM_BACKUP_CODE_ADD_EMAIL, SET_NEW_CODE
     auth      : ProvidedAuth(userId, password)
     nav graph : nav_graph_personalid_profile
 ```
@@ -111,12 +117,14 @@ abstract fun setupHeader()                // implementations own full header UI 
 
 #### `BackupCodeWorkflow` enum
 
-| Value | API call | API Auth | Biometric/Pin Unlock on Save |
-|---|---|---|------------------------------|
-| `REGISTRATION` | none (stored in session) | — | no                           |
-| `CONFIRM_RECOVERY` | `users/recover/confirm_backup_code` | session token | no                           |
-| `CONFIRM_BACKUP_CODE` | none (local validation against `ConnectUserRecord.password`) | — | no                           |
-| `SET_NEW_CODE` | `/users/set_backup_code` | user credentials or session token | yes                          |
+| Value | API call | API Auth | Biometric/Pin Unlock on Save | Forgot? routing |
+|---|---|---|---|---|
+| `REGISTRATION` | none (stored in session) | — | no | n/a |
+| `CONFIRM_RECOVERY` | `users/recover/confirm_backup_code` | session token | no | n/a |
+| `CONFIRM_BACKUP_CODE_CHANGE_CODE` | none (local validation against `ConnectUserRecord.password`) | — | no | no email → Manage Profile toast; has email → email OTP recovery |
+| `CONFIRM_BACKUP_CODE_CHANGE_EMAIL` | none (local validation against `ConnectUserRecord.password`) | — | no | → email OTP recovery (has email guaranteed) |
+| `CONFIRM_BACKUP_CODE_ADD_EMAIL` | none (local validation against `ConnectUserRecord.password`) | — | no | → Send Phone OTP screen |
+| `SET_NEW_CODE` | `/users/set_backup_code` | user credentials or session token | yes | n/a |
 
 ### API Changes
 
@@ -192,9 +200,11 @@ to save time during spec review.
 **Flow:**
 
 1. Tap "Change backup code" → `personalid_confirm_backup_code`
-   (`PersonalIdProfileBackupCodeFragment(CONFIRM_BACKUP_CODE)`)
+   (`PersonalIdProfileBackupCodeFragment(CONFIRM_BACKUP_CODE_CHANGE_CODE)`)
    - One field, no API call — local validation only (compare against `ConnectUserRecord.password`)
-   - "Forgot backup code?" link visible only if `user.email != null`
+   - "Forgot backup code?" link always visible. If `user.email == null`, tapping it redirects
+     immediately to Manage Profile with toast "Please add email to recover your backup code".
+     If `user.email != null`, navigates to email OTP recovery.
 
 2. On submit → `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
    - Two fields (new + confirm)
@@ -317,27 +327,27 @@ object PersonalIdReminderHelper {
 `PersonalIdProfileEditFragment.onSaveClicked()` when `isEmailModified()` and `user.email != null`:
 1. Store new email in `PersonalIdProfileActivityViewModel.pendingEmail`.
 2. If name is also modified, call `saveProfileDetails` first (name save must complete before navigating).
-3. Navigate to `personalid_confirm_backup_code`.
+3. Navigate to `personalid_confirm_backup_code` with `CONFIRM_BACKUP_CODE_CHANGE_EMAIL`.
 
 On backup code confirmed → `PersonalIdSendEmailOtpFragment(email=pendingEmail, masked=true, EXISTING_USER)`
 → `PersonalIdEmailVerificationFragment(EXISTING_USER)` → `PersonalIdUnlocker.unlock(ALWAYS)`
 → persist new email locally, pop to profile with success toast.
 
-The `PersonalIdProfileBackupCodeFragment` is reused from Area 1 with a separate
-nav action for the email-change exit path.
+On Forgot? → email OTP recovery (email guaranteed; same forgot flow as `CONFIRM_BACKUP_CODE_CHANGE_CODE` with email).
 
 ### 2. Adding email (no existing email, already signed in)
 
 `PersonalIdProfileEditFragment.onSaveClicked()` when `isEmailModified()` and `user.email == null`:
-store new email in `PersonalIdProfileActivityViewModel.pendingEmail`, then navigate to
-the Phone OTP verification screen(`PersonalIdProfilePhoneVerificationFragment`) (sends otp to `ConnectUserRecord.primaryPhone`)
+1. Store new email in `PersonalIdProfileActivityViewModel.pendingEmail`.
+2. Navigate to `personalid_confirm_backup_code` with `CONFIRM_BACKUP_CODE_ADD_EMAIL`.
 
-On phone OTP verified → `PersonalIdSendEmailOtpFragment(email=pendingEmail, masked=false, EXISTING_USER)`
+On backup code confirmed → `PersonalIdSendEmailOtpFragment(email=pendingEmail, masked=false, EXISTING_USER)`
 → `PersonalIdEmailVerificationFragment(EXISTING_USER)` → `PersonalIdUnlocker.unlock(ALWAYS)`
 → persist new email locally, pop to profile with success toast.
 
-Note: On manage profile screen under "Email" row, if `user.email == null`, the row should show a hint message -
-"A verification code will be sent to your registered phone number to add an email address." 
+On Forgot? → `PersonalIdProfilePhoneVerificationFragment` (sends OTP to `ConnectUserRecord.primaryPhone`)
+→ on phone OTP verified → `PersonalIdSendEmailOtpFragment(email=pendingEmail, masked=false, EXISTING_USER)`
+→ (same path as above).
 
 ### 3. Skip email dialog during signup
 
@@ -351,18 +361,9 @@ Note: On manage profile screen under "Email" row, if `user.email == null`, the r
 Buttons: "Skip" / "Add Email".
 
 
-### 4. Forgot backup code with no email (profile graph only)
-
-When `user.email == null` and "Forgot?" is tapped in the  profile graph, the user is redirected
-immediately to Manage Profile with a toast:
-
-> "Please add email to recover your backup code"
-
-No intermediate screen is shown. The user must add an email via change #2 before recovery is possible.
-
 **Analytics:**
 - Email change initiated (with backup code gate)
-- Email change outcome: success / failure / cancelled/r
+- Email change outcome: success / failure / cancelled
 - Add email (no existing email) initiated
 - Add email outcome: success / failure / cancelled
 - Skip email prompt shown
