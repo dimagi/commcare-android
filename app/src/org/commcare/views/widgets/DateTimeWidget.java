@@ -1,8 +1,10 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
@@ -90,6 +92,8 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mPickerContainer.addView(mDatePicker);
         mPickerContainer.addView(mTimePicker);
         addView(mPickerContainer);
+
+        applyOrientationLayout(getResources().getConfiguration().orientation);
     }
 
 
@@ -104,6 +108,26 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         params.height = LayoutParams.WRAP_CONTENT;
         params.width = LayoutParams.WRAP_CONTENT;
         calendarView.setLayoutParams(params);
+    }
+
+    private void applyOrientationLayout(int orientation) {
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mPickerContainer.setOrientation(HORIZONTAL);
+            applyChildParams(mDatePicker, 0, 2f);
+            applyChildParams(mTimePicker, 0, 1f);
+        } else {
+            mPickerContainer.setOrientation(VERTICAL);
+            applyChildParams(mDatePicker, LayoutParams.WRAP_CONTENT, 0f);
+            applyChildParams(mTimePicker, LayoutParams.WRAP_CONTENT, 0f);
+        }
+    }
+
+    private void applyChildParams(View child, int width, float weight) {
+        LayoutParams params = (LayoutParams) child.getLayoutParams();
+        params.width = width;
+        params.height = LayoutParams.WRAP_CONTENT;
+        params.weight = weight;
+        child.setLayoutParams(params);
     }
 
     public void setAnswer() {
