@@ -54,6 +54,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment<
     }
 
     public void updateProgressSummary() {
+        reloadActiveJob();
+
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
