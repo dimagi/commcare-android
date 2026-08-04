@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
@@ -30,6 +31,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     private final DatePicker mDatePicker;
     private final TimePicker mTimePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
+    private final LinearLayout mPickerContainer;
 
     public DateTimeWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
@@ -83,10 +85,13 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         setAnswer();
 
         setGravity(Gravity.LEFT);
-        addView(mDatePicker);
-        addView(mTimePicker);
-
+        mPickerContainer = new LinearLayout(getContext());
+        mPickerContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        mPickerContainer.addView(mDatePicker);
+        mPickerContainer.addView(mTimePicker);
+        addView(mPickerContainer);
     }
+
 
     /**
      * CalendarView bottom line gets cut off in appcompat theme because it's height is fixed here:
@@ -127,7 +132,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
 
         widgetEntryChanged();
     }
-
 
     /**
      * Resets date to today.
