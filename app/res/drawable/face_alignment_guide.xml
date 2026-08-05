@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="252dp"
+    android:height="360dp"
+    android:viewportWidth="570"
+    android:viewportHeight="815">
+
+    <path
+        android:name="face_alignment_guide"
+        android:pathData="M 285,5 C 145,5 55,70 40,200 C 33,255 35,325 40,375 C 10,383 3,405 5,440 C 7,495 25,530 60,555 C 75,625 110,690 160,740 C 205,785 250,810 285,810 C 320,810 365,785 410,740 C 460,690 495,625 510,555 C 545,530 563,495 565,440 C 567,405 560,383 530,375 C 535,325 537,255 530,200 C 515,70 425,5 285,5 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/solid_green"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

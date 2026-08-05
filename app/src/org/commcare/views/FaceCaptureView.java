@@ -12,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -23,6 +24,7 @@ import org.commcare.dalvik.R;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.content.ContextCompat;
 
 import static java.lang.Math.max;
 
@@ -42,6 +44,7 @@ public class FaceCaptureView extends AppCompatImageView {
     public static int DEFAULT_IMAGE_WIDTH = 480;
     public static int DEFAULT_IMAGE_HEIGHT = 640;
     private static float VIEW_CAPTURE_AREA_RATIO = 0.8f;
+    private static float FACE_ALIGNMENT_GUIDE_MARGIN_RATIO = 0.1f;
     private Object lock = new Object();
     private FaceOvalGraphic faceOvalGraphic;
     private float postScaleHeightOffset;
@@ -113,6 +116,13 @@ public class FaceCaptureView extends AppCompatImageView {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         canvas.drawOval(faceCaptureArea, paint);
 
+        // draw face alignment guide
+        Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.face_alignment_guide);
+        if (drawable != null) {
+            drawable.setBounds(calcFaceAlignmentGuideBounds(drawable));
+            drawable.draw(canvas);
+        }
+
         setImageBitmap(previewOverlay);
 
         if (captureMode == CaptureMode.FaceDetectionMode) {
@@ -183,6 +193,30 @@ public class FaceCaptureView extends AppCompatImageView {
         int captureAreaBottom = captureAreaTop + captureAreaHeigth;
 
         return new RectF(captureAreaLeft, captureAreaTop, captureAreaRight, captureAreaBottom);
+    }
+
+    /**
+     * Calculates the bounds at which the face alignment guide should be drawn so that it fits inside the
+     * faceCaptureArea while preserving the drawable's aspect ratio.
+     */
+    private Rect calcFaceAlignmentGuideBounds(Drawable guide) {
+        int drawableWidth = guide.getIntrinsicWidth();
+        int drawableHeight = guide.getIntrinsicHeight();
+        float areaWidth = faceCaptureArea.width();
+        float areaHeight = faceCaptureArea.height();
+
+        float scale = Math.min(areaWidth / drawableWidth, areaHeight / drawableHeight);
+        int guideWidth = Math.round(drawableWidth * scale);
+        int guideHeight = Math.round(drawableHeight * scale);
+
+        // Inset by a margin proportional to the guide's own size
+        guideWidth -= Math.round(guideWidth * FACE_ALIGNMENT_GUIDE_MARGIN_RATIO);
+        guideHeight -= Math.round(guideHeight * FACE_ALIGNMENT_GUIDE_MARGIN_RATIO);
+
+        int left = Math.round(faceCaptureArea.left + (areaWidth - guideWidth) / 2);
+        int top = Math.round(faceCaptureArea.top + (areaHeight - guideHeight) / 2);
+
+        return new Rect(left, top, left + guideWidth, top + guideHeight);
     }
 
     private void calcScaleFactors(int viewWidth, int viewHeight) {
