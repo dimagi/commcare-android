@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Size;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -77,6 +78,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     public enum CaptureOutputMode { TEMP_FILE, BASE64_EXTRA }
     public static final String CAPTURE_OUTPUT_MODE_EXTRA = "capture-output-mode-extra";
     public static final String DEFAULT_CAPTURE_OUTPUT_MODE = BASE64_EXTRA.name();
+    private FrameLayout switchCameraLensContainer;
     private ImageView switchCameraLensButton;
     private int currentLensFacing;
     private boolean lensFacingInitialized = false;
@@ -128,6 +130,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         faceCaptureView = findViewById(R.id.face_overlay);
         cameraControlsContainer = findViewById(R.id.camera_controls_container);
         cameraShutterButton = findViewById(R.id.camera_shutter_button);
+        switchCameraLensContainer = findViewById(R.id.switch_camera_lens_container);
         switchCameraLensButton = findViewById(R.id.switch_camera_lens_button);
         cameraCaptureInstructions = findViewById(R.id.camera_capture_instructions);
         cameraCaptureModeIndicator = findViewById(R.id.camera_capture_mode_indicator);
@@ -142,7 +145,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
             showManualModeUI();
         }
         if (getAllowCameraLensSwitch()) {
-            switchCameraLensButton.setVisibility(VISIBLE);
+            switchCameraLensContainer.setVisibility(VISIBLE);
             switchCameraLensButton.setClickable(false);
         }
         if (!isAutoCaptureModeSupported() || getAllowCameraLensSwitch()) {

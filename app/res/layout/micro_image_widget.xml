@@ -66,17 +66,27 @@
                     android:src="@drawable/ic_camera_shutter"
                     app:tint="@color/camera_button_tint"
                     android:visibility="invisible" />
-                <ImageView
-                    android:id="@+id/switch_camera_lens_button"
-                    android:layout_height="match_parent"
+                <FrameLayout
+                    android:id="@+id/switch_camera_lens_container"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_switch_camera_lens"
-                    app:tint="@color/camera_button_tint"
-                    android:visibility="invisible"
-                    android:clickable="false"
-                    android:alpha="0.5"
-                    android:scaleType="centerInside" />
+                    android:layout_height="match_parent"
+                    android:visibility="invisible">
+                    <View
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/circle_background" />
+                    <ImageView
+                        android:id="@+id/switch_camera_lens_button"
+                        android:layout_height="match_parent"
+                        android:layout_width="match_parent"
+                        android:src="@drawable/ic_switch_camera_lens"
+                        app:tint="@color/camera_button_tint"
+                        android:clickable="false"
+                        android:alpha="0.5"
+                        android:scaleType="centerInside" />
+                </FrameLayout>
             </LinearLayout>
         </LinearLayout>
         <TextView
