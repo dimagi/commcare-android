@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:text="@string/face_capture_auto_instructions"
-                    android:padding="10dp"
+                    android:paddingBottom="2dp"
                     android:textColor="@color/white"
                     android:textSize="@dimen/text_medium" />
             </FrameLayout>
@@ -83,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@string/face_capture_auto_mode"
-            android:padding="5dp"
+            android:paddingTop="2dp"
             android:textColor="@color/white"
             android:textSize="@dimen/text_medium"
             android:drawablePadding="7dp"
