@@ -24,6 +24,10 @@ import java.util.Date
  * Shows a Learn summary with a collapsible certificate, the delivery figures for the opportunity,
  * and a [ConnectCtaBar] pinned below the scrolling content. Call [bind] to populate it; the
  * certificate's expanded state is managed internally and starts expanded.
+ *
+ * Claiming is driven by the caller: toggle [isCtaEnabled] while a claim is in flight, and report the
+ * outcome through [showClaimFailure] / [hideClaimFailure] — the failure message is supplied by the
+ * caller rather than derived here.
  */
 class ConnectLearnCompleteView
     @JvmOverloads
@@ -48,11 +52,8 @@ class ConnectLearnCompleteView
             binding.certificateHeader.setOnClickListener { toggleCertificate() }
         }
 
-        fun showClaimFailure() {
-            binding.learnCompleteFailureCard.show(
-                ConnectSuccessFailureCard.Mode.FAILURE,
-                R.string.connect_learn_download_failed,
-            )
+        fun showClaimFailure(message: String) {
+            binding.learnCompleteFailureCard.show(ConnectSuccessFailureCard.Mode.FAILURE, message)
         }
 
         fun hideClaimFailure() {
@@ -68,7 +69,7 @@ class ConnectLearnCompleteView
             binding.learnCompleteCompletedOn.text = completedOnText(completedOn)
             bindCertificate(job, learnerName, completedOn)
             bindDeliveryCards(job)
-            bindCta(job, onCtaClick)
+            bindCtaBar(job, onCtaClick)
         }
 
         private fun completedOnText(
@@ -135,27 +136,20 @@ class ConnectLearnCompleteView
                 )
         }
 
-        private fun bindCta(
+        private fun bindCtaBar(
             job: ConnectJobRecord,
             onCtaClick: OnClickListener,
         ) {
             val deliveryAppInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
 
             binding.learnCompleteCtaBar.apply {
-                buttonText =
-                    context.getString(
-                        if (deliveryAppInstalled) {
-                            R.string.connect_delivery_go
-                        } else {
-                            R.string.connect_opportunity_footer_download_app
-                        },
-                    )
-                subtitleText =
-                    if (deliveryAppInstalled) {
-                        null
-                    } else {
-                        context.getString(R.string.connect_job_info_download_delivery).trim()
-                    }
+                if (deliveryAppInstalled) {
+                    buttonText = context.getString(R.string.connect_delivery_go)
+                    subtitleText = null
+                } else {
+                    buttonText = context.getString(R.string.connect_opportunity_footer_download_app)
+                    subtitleText = context.getString(R.string.connect_job_info_download_delivery).trim()
+                }
                 infoMessage =
                     if (job.isFinished) context.getString(R.string.connect_learn_warning_ended) else null
                 isCtaEnabled = true
@@ -165,11 +159,16 @@ class ConnectLearnCompleteView
 
         private fun toggleCertificate() {
             val expand = binding.certificate.root.visibility != VISIBLE
-            binding.certificate.root.visibility = if (expand) VISIBLE else GONE
-            binding.certificateChevron.rotation = if (expand) EXPANDED_CHEVRON_ROTATION else 0f
-            binding.certificateContainer.updatePadding(
-                bottom = if (expand) certificateBottomPadding else 0,
-            )
+
+            if (expand) {
+                binding.certificate.root.visibility = VISIBLE
+                binding.certificateChevron.rotation = EXPANDED_CHEVRON_ROTATION
+                binding.certificateContainer.updatePadding(bottom = certificateBottomPadding)
+            } else {
+                binding.certificate.root.visibility = GONE
+                binding.certificateChevron.rotation = 0f
+                binding.certificateContainer.updatePadding(bottom = 0)
+            }
         }
 
         companion object {

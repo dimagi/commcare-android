@@ -180,7 +180,7 @@
     <string name="recovery_forms_send_error">Erro ao enviar formulários</string>
     <string name="recovery_forms_state_unavailable">Os formulários não estão disponíveis. Verifique se o armazenamento do seu telefone está disponível</string>
     <string name="recovery_network_unavailable">Sem conexão de rede. Verifique sua internet e tente novamente.</string>
-    <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade, entre em contato com um administrador.</string>
+    <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade. Tente novamente ou entre em contato com o suporte.</string>
     <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
     <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
     <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
@@ -342,7 +342,6 @@
     <string name="connect_learn_completed">Concluído em %s</string>
     <string name="connect_learn_cert_score">Pontuação: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Iniciar visitas</string>
-    <string name="connect_learn_download_failed">O download falhou. Tente novamente.</string>
     <string name="connect_learn_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_learn_review">Rever a aprendizagem</string>
     <string name="connect_learn_go_to_assessment">Ir para avaliação</string>

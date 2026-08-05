@@ -168,7 +168,7 @@
     <string name="recovery_forms_send_error">ቅጥዕታት ኣብ ምልኣክ ስሕተት ኣሎ</string>
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
-    <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
+    <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን። በጃኹም ደጊምኩም ፈትኑ ወይ ንደገፍ ተወከሱ።</string>
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
     <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ PersonalID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
@@ -330,7 +330,6 @@
     <string name="connect_learn_completed">ኣብ %s ዝተዛዘመ</string>
     <string name="connect_learn_cert_score">ነጥቢ: %s</string>
     <string name="connect_learn_complete_footer_start_visits">ምብጻሓት ጀምር</string>
-    <string name="connect_learn_download_failed">ምውራድ ኣይተሳኸዐን። በጃኻ ደጊምካ ፈትን።</string>
     <string name="connect_learn_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_learn_review">ትምህርቲ ዳግመ ግምት</string>
     <string name="connect_learn_go_to_assessment">ናብ ገምጋም ኪድ</string>

@@ -72,7 +72,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="managed_configuration_username_description">Sunan mai amfani na ma\'aikacin wayar hannu na CommCare don shiga da dawo da shi akan na\'urar</string>
     <string name="managed_configuration_password_description">Kalmar sirri ta mai amfani da wayar hannu</string>
     <string name="managed_configuration_profile_url_description">URL ɗin zuwa Aikace-aikacen CommCare ɗinku daga shafin bugawa na CommCareHQ</string>
-    <string name="recovery_unable_to_claim_opportunity">Ba za a iya neman damar ba, tuntuɓi mai gudanarwa.</string>
+    <string name="recovery_unable_to_claim_opportunity">Ba za a iya neman damar ba. Da fatan za a sake gwadawa ko a tuntuɓi tallafi.</string>
     <string name="personalid_token_unavailable">Akwai matsalar hanyar sadarwa. Da fatan za a sake gwadawa.</string>
     <string name="personalid_token_request_rejected">Saitin PersonalID da aka rasa tare da uwar garken, da fatan za a dawo da PersonalID asusun ku kuma sake gwadawa</string>
     <string name="personalid_error_title_login_different_device">Asusun da ake amfani da shi akan wata na\'ura</string>
@@ -172,7 +172,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_learn_completed">An kammala a ranar %s</string>
     <string name="connect_learn_cert_score">Maki: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Fara Ziyarce-ziyarce</string>
-    <string name="connect_learn_download_failed">Saukewa ta gaza. Da fatan za a sake gwadawa.</string>
     <string name="connect_learn_warning_ended">Aikin ya ƙare. Ba za ku sami wani ci gaba ba don ƙarin aiki.</string>
     <string name="connect_learn_review">Koyon Bita</string>
     <string name="connect_learn_go_to_assessment">Je zuwa Kimantawa</string>

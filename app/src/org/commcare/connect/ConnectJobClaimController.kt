@@ -2,7 +2,6 @@ package org.commcare.connect
 
 import android.content.Context
 import org.commcare.AppUtils
-import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -66,7 +65,6 @@ class ConnectJobClaimController(
     ) {
         job.status = ConnectJobRecord.STATUS_DELIVERING
         ConnectJobUtils.upsertJob(job)
-        CommCareApplication.instance().closeUserSession()
         onClaimed.onClaimed(deliveryAppInstalled)
     }
 

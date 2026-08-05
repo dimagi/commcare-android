@@ -8,15 +8,14 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
-import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
-import io.mockk.slot
 import io.mockk.unmockkAll
-import io.mockk.verify
 import kotlinx.coroutines.flow.emptyFlow
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
@@ -29,8 +28,7 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.ApiConnect
-import org.commcare.connect.network.IApiCallback
+import org.commcare.connect.network.ConnectMockApiServer
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -44,13 +42,16 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
-import java.io.ByteArrayInputStream
+import java.util.Calendar
 import java.util.Date
 
 /**
  * Robolectric tests for [ConnectLearningProgressFragment]: verifies which state the screen renders
  * before any refresh lands, and drives the delivery CTA through a real click so the claim call,
  * local status update and navigation are all covered end to end.
+ *
+ * The claim request goes through the real networking stack against [ConnectMockApiServer]; the
+ * seeded user carries a live Connect token so the call skips the SSO round-trip.
  */
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
 @RunWith(AndroidJUnit4::class)
@@ -58,6 +59,7 @@ class ConnectLearningProgressFragmentTest {
     private lateinit var activity: ConnectActivity
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private val mockApi = ConnectMockApiServer()
 
     private val navController: NavController get() = navHostFragment.navController
 
@@ -65,6 +67,7 @@ class ConnectLearningProgressFragmentTest {
     fun setUp() {
         savedStatus = PersonalIdManager.getInstance().status
         PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        mockApi.start()
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
@@ -108,6 +111,7 @@ class ConnectLearningProgressFragmentTest {
     @After
     fun tearDown() {
         PersonalIdManager.getInstance().status = savedStatus
+        mockApi.shutdown()
         unmockkAll()
     }
 
@@ -142,14 +146,13 @@ class ConnectLearningProgressFragmentTest {
     @Test
     fun `tapping the cta claims the job and navigates to the delivery download`() {
         val job = ConnectLearnJobTestData.job()
-        val callback = captureClaimCallback()
         val fragment = launch(job)
 
         clickCta(fragment)
+        val request = respondToClaim(responseCode = 200)
 
-        verify { ApiConnect.claimJob(any(), any(), eq(job.jobUUID), any()) }
-        succeed(callback)
-
+        assertEquals("POST", request.method)
+        assertEquals("/api/opportunity/${job.jobUUID}/claim", request.path)
         assertEquals(ConnectJobRecord.STATUS_DELIVERING, job.status)
         assertEquals(
             ConnectJobRecord.STATUS_DELIVERING,
@@ -162,11 +165,10 @@ class ConnectLearningProgressFragmentTest {
     fun `tapping the cta navigates to delivery home when the delivery app is installed`() {
         every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
         val job = ConnectLearnJobTestData.job()
-        val callback = captureClaimCallback()
         val fragment = launch(job)
 
         clickCta(fragment)
-        succeed(callback)
+        respondToClaim(responseCode = 200)
 
         assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
     }
@@ -175,29 +177,24 @@ class ConnectLearningProgressFragmentTest {
     fun `an already claimed job skips the claim call and navigates straight on`() {
         val job = ConnectLearnJobTestData.job()
         job.status = ConnectJobRecord.STATUS_DELIVERING
-        mockkStatic(ApiConnect::class)
         val fragment = launch(job)
 
         clickCta(fragment)
 
-        verify(exactly = 0) { ApiConnect.claimJob(any(), any(), any(), any()) }
+        assertEquals("No claim request should be sent", 0, mockApi.requestCount)
         assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
     }
 
     @Test
     fun `a failed claim shows the failure card, re-enables the cta and stays on the screen`() {
         val job = ConnectLearnJobTestData.job()
-        val callback = captureClaimCallback()
         val fragment = launch(job)
         val ctaButton = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
 
         clickCta(fragment)
         assertEquals("CTA should be disabled while claiming", false, ctaButton.isEnabled)
 
-        activity.runOnUiThread {
-            callback.captured.processFailure(400, "url", "bad request", RuntimeException("claim failed"))
-        }
-        ShadowLooper.idleMainLooper()
+        respondToClaim(responseCode = 400)
 
         val failureCard =
             fragment.requireView().findViewById<ConnectSuccessFailureCard>(
@@ -205,7 +202,7 @@ class ConnectLearningProgressFragmentTest {
             )
         assertEquals(View.VISIBLE, failureCard.visibility)
         assertEquals(
-            activity.getString(R.string.connect_learn_download_failed),
+            activity.getString(R.string.recovery_unable_to_claim_opportunity),
             failureCard.messageText.toString(),
         )
         assertTrue("CTA should be re-enabled after a failure", ctaButton.isEnabled)
@@ -235,33 +232,27 @@ class ConnectLearningProgressFragmentTest {
     }
 
     /**
-     * Captures the claim callback without invoking it, so success is delivered after the click
-     * returns as a real async response would be.
+     * Answers the pending claim request with [responseCode] and drains the response callback,
+     * returning the request the fragment actually sent.
      */
-    private fun captureClaimCallback(): CapturingSlot<IApiCallback> {
-        val slot = slot<IApiCallback>()
-        mockkStatic(ApiConnect::class)
-        every { ApiConnect.claimJob(any(), any(), any(), capture(slot)) } returns Unit
-        return slot
-    }
-
-    private fun succeed(callback: CapturingSlot<IApiCallback>) {
-        activity.runOnUiThread {
-            callback.captured.processSuccess(200, ByteArrayInputStream(ByteArray(0)))
-        }
+    private fun respondToClaim(responseCode: Int): RecordedRequest {
+        mockApi.server.enqueue(MockResponse().setResponseCode(responseCode).setBody("{}"))
+        val request = mockApi.drainHttp()
         ShadowLooper.idleMainLooper()
+        return request
     }
 
     /**
      * Writes a real user through the Connect storage layer so the learn-complete view can read the
-     * learner name. [ConnectDatabaseHelper.dbExists] has to be stubbed because it probes for the
-     * on-disk connect db, which never exists under the in-memory test open helper.
+     * learner name and the claim call finds a live token instead of making an SSO round-trip.
+     * [ConnectDatabaseHelper.dbExists] has to be stubbed because it probes for the on-disk connect
+     * db, which never exists under the in-memory test open helper.
      */
     private fun seedConnectUser() {
         mockkStatic(ConnectDatabaseHelper::class)
         every { ConnectDatabaseHelper.dbExists() } returns true
-        ConnectUserDatabaseUtil.storeUser(
-            activity,
+
+        val user =
             ConnectUserRecord(
                 "1234567890",
                 "test-user-id",
@@ -273,7 +264,10 @@ class ConnectLearningProgressFragmentTest {
                 false,
                 PersonalIdSessionData.PIN,
                 true,
-            ),
-        )
+            )
+        user.updateConnectToken("test-token", tomorrow())
+        ConnectUserDatabaseUtil.storeUser(activity, user)
     }
+
+    private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time
 }

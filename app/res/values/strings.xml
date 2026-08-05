@@ -284,7 +284,7 @@
     <string name="recovery_network_server_error">There was an error processing your request.</string>
     <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
     <string name="recovery_network_unknown">Something went wrong. Please try again.</string>
-    <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity, please contact an administrator.</string>
+    <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity. Please try again or contact support.</string>
     <string name="notification_channel_errors_description">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
@@ -518,7 +518,6 @@
     <string name="connect_learn_completed">Completed on %s</string>
     <string name="connect_learn_cert_score">Score: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Start Visits</string>
-    <string name="connect_learn_download_failed">Download failed. Please try again.</string>
     <string name="connect_learn_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_learn_review">Review Learning</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>

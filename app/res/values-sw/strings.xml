@@ -180,7 +180,7 @@
     <string name="recovery_forms_send_error">Hitilafu wakati wa kutuma fomu</string>
     <string name="recovery_forms_state_unavailable">Fomu hazipatikani. Hakikisha hifadhi ya simu yako inapatikana</string>
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
-    <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa, tafadhali wasiliana na msimamizi.</string>
+    <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa. Tafadhali jaribu tena au wasiliana na usaidizi.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
     <string name="personalid_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
     <string name="personalid_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>
@@ -336,7 +336,6 @@
     <string name="connect_learn_completed">Ilikamilika mnamo %s</string>
     <string name="connect_learn_cert_score">Alama: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Anza Ziara</string>
-    <string name="connect_learn_download_failed">Upakuaji umeshindikana. Tafadhali jaribu tena.</string>
     <string name="connect_learn_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_learn_review">Kagua Mafunzo</string>
     <string name="connect_learn_go_to_assessment">Nenda kwa Tathmini</string>

@@ -237,12 +237,9 @@ class ConnectLearnCompleteViewTest {
 
         assertEquals(View.GONE, failureCard.visibility)
 
-        view.showClaimFailure()
+        view.showClaimFailure("Unable to claim")
         assertEquals(View.VISIBLE, failureCard.visibility)
-        assertEquals(
-            context.getString(R.string.connect_learn_download_failed),
-            failureCard.messageText.toString(),
-        )
+        assertEquals("Unable to claim", failureCard.messageText.toString())
         assertEquals(ConnectSuccessFailureCard.Mode.FAILURE, failureCard.mode)
 
         failureCard.findViewById<View>(R.id.success_failure_card_close).performClick()

@@ -80,13 +80,16 @@ class ConnectInfoCard
         }
 
         private fun applySubtitleLayout(hasSubtitle: Boolean) {
-            binding.infoCardSubtitleText.visibility = if (hasSubtitle) VISIBLE else GONE
+            val (reserved, bias) =
+                if (hasSubtitle) {
+                    0 to 0f
+                } else {
+                    subtitleReservedHeight() to CENTERED_BIAS
+                }
 
-            val reserved = if (hasSubtitle) 0 else subtitleReservedHeight()
             binding.infoCardTextContainer.setPadding(0, reserved / 2, 0, reserved - reserved / 2)
-
             binding.infoCardValueText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                verticalBias = if (hasSubtitle) 0f else CENTERED_BIAS
+                verticalBias = bias
             }
         }
 

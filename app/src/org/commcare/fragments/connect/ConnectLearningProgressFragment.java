@@ -106,10 +106,9 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         boolean learningComplete = job.getLearningPercentComplete(false) >= 100;
         boolean showLearningComplete = learningComplete && job.passedAssessment();
 
-        getBinding().progressContainer.setVisibility(showLearningComplete ? View.GONE : View.VISIBLE);
-        getBinding().learnCompleteView.setVisibility(showLearningComplete ? View.VISIBLE : View.GONE);
-
         if (showLearningComplete) {
+            getBinding().progressContainer.setVisibility(View.GONE);
+            getBinding().learnCompleteView.setVisibility(View.VISIBLE);
             getBinding().learnCompleteView.bind(
                     job,
                     getLatestCompletionDate(),
@@ -117,6 +116,8 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                     this::onDeliveryCtaClicked
             );
         } else {
+            getBinding().progressContainer.setVisibility(View.VISIBLE);
+            getBinding().learnCompleteView.setVisibility(View.GONE);
             updateProgressViews(job.getLearningPercentComplete(true));
             updateButtons(learningComplete);
             updateLearningStatus(learningComplete, job.attemptedAssessment());
@@ -146,12 +147,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                                     : navigateToDeliveryDownload()
                     );
                 },
-                ignoredMessage -> {
+                message -> {
                     if (!hasLiveView(this)) {
                         return;
                     }
                     getBinding().learnCompleteView.setCtaEnabled(true);
-                    getBinding().learnCompleteView.showClaimFailure();
+                    getBinding().learnCompleteView.showClaimFailure(message);
                 }
         );
     }

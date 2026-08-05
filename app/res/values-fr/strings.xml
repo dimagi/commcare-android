@@ -179,7 +179,7 @@ License.
     <string name="recovery_forms_send_error">Erreur lors de l\'envoi des formulaires</string>
     <string name="recovery_forms_state_unavailable">Les formulaires ne sont pas disponibles. Vérifiez que l\'espace de stockage de votre téléphone est disponible.</string>
     <string name="recovery_network_unavailable">Aucune connexion réseau. Veuillez vérifier votre connexion Internet et réessayer.</string>
-    <string name="recovery_unable_to_claim_opportunity">Impossible de réclamer l\'opportunité, veuillez contacter un administrateur.</string>
+    <string name="recovery_unable_to_claim_opportunity">Impossible de réclamer l\'opportunité. Veuillez réessayer ou contacter le support.</string>
     <string name="recovery_network_outdated">Cette application est obsolète. Veuillez mettre à jour l\'application sur le Google Play Store pour continuer.</string>
     <string name="personalid_token_unavailable">Un problème de réseau est survenu. Veuillez réessayer.</string>
     <string name="personalid_token_request_rejected">Configuration PersonalID perdue sur le serveur. Veuillez récupérer votre compte PersonalID et réessayer.</string>
@@ -334,7 +334,6 @@ License.
     <string name="connect_learn_completed">Terminé le %s</string>
     <string name="connect_learn_cert_score">Score: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Commencer les visites</string>
-    <string name="connect_learn_download_failed">Le téléchargement a échoué. Veuillez réessayer.</string>
     <string name="connect_learn_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_learn_review">Révision de l\'apprentissage</string>
     <string name="connect_learn_go_to_assessment">Accéder à l\'évaluation</string>
