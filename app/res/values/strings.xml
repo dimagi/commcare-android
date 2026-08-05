@@ -863,4 +863,5 @@
     <string name="face_capture_auto_mode" cc:translatable="true">Auto capture</string>
     <string name="face_capture_manual_mode" cc:translatable="true">Manual capture</string>
     <string name="face_capture_front_camera_unavailable" cc:translatable="true">Front-facing camera is not available, the option to switch cameras will be disabled</string>
+    <string name="face_capture_retake_photo" cc:translatable="true">Retake photo</string>
 </resources>
