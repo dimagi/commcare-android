@@ -41,7 +41,9 @@
                     android:text="@string/face_capture_auto_instructions"
                     android:paddingBottom="2dp"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_medium" />
+                    android:textSize="@dimen/text_medium"
+                    android:gravity="center"
+                    style="@style/TextWithDropShadow" />
             </FrameLayout>
             <LinearLayout
                 android:id="@+id/camera_controls_container"
