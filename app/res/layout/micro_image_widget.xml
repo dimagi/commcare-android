@@ -41,9 +41,7 @@
                     android:text="@string/face_capture_auto_instructions"
                     android:padding="10dp"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_medium"
-                    android:drawablePadding="10dp"
-                    app:drawableStartCompat="@drawable/instruction_hand" />
+                    android:textSize="@dimen/text_medium" />
             </FrameLayout>
             <LinearLayout
                 android:id="@+id/camera_controls_container"
