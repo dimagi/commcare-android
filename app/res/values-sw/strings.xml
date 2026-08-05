@@ -676,6 +676,7 @@
     <string name="face_capture_auto_mode">Kupiga picha kiotomatiki</string>
     <string name="face_capture_manual_mode">Kupiga picha kwa mkono</string>
     <string name="face_capture_front_camera_unavailable">Kamera ya mbele haipatikani, chaguo la kubadilisha kamera litazimwa</string>
+    <string name="face_capture_retake_photo">Piga picha tena</string>
 
     <string name="recording_notification_save_action">Hifadhi</string>
     <string name="recording_notification_pause_action">Sitisha</string>

@@ -318,6 +318,7 @@
     <string name="face_capture_auto_mode">Automatisk opptak</string>
     <string name="face_capture_manual_mode">Manuelt opptak</string>
     <string name="face_capture_front_camera_unavailable">Frontkameraet er ikke tilgjengelig, alternativet for å bytte kamera vil bli deaktivert</string>
+    <string name="face_capture_retake_photo">Ta bilde på nytt</string>
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
 

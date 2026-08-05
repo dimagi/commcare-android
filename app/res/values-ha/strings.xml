@@ -666,6 +666,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="face_capture_auto_mode">Ɗaukar hoto ta atomatik</string>
     <string name="face_capture_manual_mode">Ɗaukar hoto da hannu</string>
     <string name="face_capture_front_camera_unavailable">Kyamarar gaba ba ta samuwa, za a kashe zaɓin canza kyamara</string>
+    <string name="face_capture_retake_photo">Sake ɗaukar hoto</string>
 
     <string name="recording_notification_save_action">Ajiye</string>
     <string name="recording_notification_pause_action">Dakata</string>

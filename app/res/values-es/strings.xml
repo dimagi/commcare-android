@@ -672,6 +672,7 @@
     <string name="face_capture_auto_mode">Captura automática</string>
     <string name="face_capture_manual_mode">Captura manual</string>
     <string name="face_capture_front_camera_unavailable">La cámara frontal no está disponible, la opción de cambiar de cámara estará deshabilitada</string>
+    <string name="face_capture_retake_photo">Volver a tomar la foto</string>
 
     <string name="recording_notification_save_action">Guardar</string>
     <string name="recording_notification_pause_action">Pausar</string>
