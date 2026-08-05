@@ -155,7 +155,7 @@ public class FaceCaptureView extends AppCompatImageView {
 
         synchronized (lock) {
             if (faceOvalGraphic != null) {
-                faceOvalGraphic.drawFaceOval(canvas);
+                faceOvalGraphic.drawCaptureCountdown(canvas);
             }
         }
     }
@@ -283,11 +283,6 @@ public class FaceCaptureView extends AppCompatImageView {
         private Paint faceAreaTextPaint;
 
         public FaceOvalGraphic(){
-            faceAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            faceAreaPaint.setStyle(Paint.Style.STROKE);
-            faceAreaPaint.setColor(faceMarkerColor);
-            faceAreaPaint.setStrokeWidth(10);
-
             faceAreaTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             faceAreaTextPaint.setTextSize((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, countdownTextSizeSp, getResources().getDisplayMetrics()));
             faceAreaTextPaint.setTextAlign(Paint.Align.CENTER);
@@ -311,14 +306,12 @@ public class FaceCaptureView extends AppCompatImageView {
             countdown = COUNTDOWN_START;
         }
 
-        public void drawFaceOval(Canvas canvas) {
+        public void drawCaptureCountdown(Canvas canvas) {
             if (!isFaceBlank()) {
                 Rect faceOvalCoord = translateFaceOvalCoordinates(currFace.getBoundingBox());
-                canvas.drawOval(faceOvalCoord.left, faceOvalCoord.top, faceOvalCoord.right, faceOvalCoord.bottom, faceAreaPaint);
 
                 Point textCoord = calcTextPosition(faceOvalCoord);
                 canvas.drawText(countdown != COUNTDOWN_START? String.valueOf(countdown):"", textCoord.x, textCoord.y, faceAreaTextPaint);
-
                 if (countdown == 0) {
                     imageStabilizedListener.onImageStabilizedListener(currFace.getBoundingBox());
                 }
