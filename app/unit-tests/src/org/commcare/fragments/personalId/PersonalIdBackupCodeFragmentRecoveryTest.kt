@@ -285,6 +285,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     fun `not me switches the screen to set-code mode`() {
         enterBackupCode("123")
 
+        assertEquals(View.GONE, notMeButton.visibility)
         clickView(notMeButton)
 
         assertEquals(false, sessionData.accountExists)
