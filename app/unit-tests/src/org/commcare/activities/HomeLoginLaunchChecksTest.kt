@@ -46,7 +46,7 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
             .edit()
             .remove(DeveloperPreferences.OFFER_PIN_FOR_LOGIN)
             .remove(HiddenPreferences.HAS_DISMISSED_PIN_CREATION)
-            .remove(DriftHelper.INCORRECT_TIME_WARNING_ENABLED)
+            .remove(DRIFT_WARNING_ENABLED)
             .apply()
     }
 
@@ -393,7 +393,7 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
     private fun enableDriftWarning() {
         appPrefs()
             .edit()
-            .putString(DriftHelper.INCORRECT_TIME_WARNING_ENABLED, PrefValues.YES)
+            .putString(DRIFT_WARNING_ENABLED, PrefValues.YES)
             .apply()
     }
 
@@ -401,7 +401,7 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
         defaultPrefs().edit().putLong(CURRENT_DRIFT, driftMillis).apply()
     }
 
-    private fun driftWarningStamped(): Boolean = defaultPrefs().getLong(DriftHelper.LAST_INCORRECT_TIME_WARNING_AT, -1) > 0
+    private fun driftWarningStamped(): Boolean = defaultPrefs().getLong(LAST_DRIFT_WARNING_AT, -1) > 0
 
     /**
      * Mark a background sync as pending for the logged-in user. Written through the same key
@@ -439,5 +439,9 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
 
         /** Comfortably ahead of the test app's profile version, so the prompt stays relevant. */
         private const val FAR_FUTURE_CCZ_VERSION = "999999"
+
+        /** Mirrors the private preference keys `DriftHelper` reads. */
+        private const val DRIFT_WARNING_ENABLED = "incorrect_time_warning_enabled"
+        private const val LAST_DRIFT_WARNING_AT = "last_incorrect_time_warning_at"
     }
 }

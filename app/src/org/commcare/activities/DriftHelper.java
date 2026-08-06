@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.VisibleForTesting;
 import androidx.preference.PreferenceManager;
 
 import org.commcare.CommCareApplication;
@@ -20,10 +19,8 @@ import static org.javarosa.core.model.utils.DateUtils.DAY_IN_MS;
 
 public class DriftHelper {
 
-    @VisibleForTesting
-    static final String INCORRECT_TIME_WARNING_ENABLED = "incorrect_time_warning_enabled";
-    @VisibleForTesting
-    static final String LAST_INCORRECT_TIME_WARNING_AT = "last_incorrect_time_warning_at";
+    private static final String INCORRECT_TIME_WARNING_ENABLED = "incorrect_time_warning_enabled";
+    private static final String LAST_INCORRECT_TIME_WARNING_AT = "last_incorrect_time_warning_at";
 
     static boolean shouldShowDriftWarning() {
         if (isWarningEnabled()) {
