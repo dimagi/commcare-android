@@ -2,7 +2,15 @@ package org.commcare.activities
 
 import android.view.Menu
 import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.verify
+import org.commcare.appupdate.AppUpdateControllerFactory
+import org.commcare.appupdate.AppUpdateState
+import org.commcare.appupdate.FlexibleAppUpdateController
 import org.commcare.dalvik.R
+import org.commcare.preferences.HiddenPreferences
 import org.commcare.utils.ConnectivityStatus
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertEquals
@@ -45,6 +53,8 @@ import org.robolectric.shadows.ShadowToast
  * [HomeConnectJobProgressTest].
  */
 class HomeActionsTest : HomeScreenActivityTest() {
+    private val updateController = mockk<FlexibleAppUpdateController>(relaxed = true)
+
     // region options menu visibility
 
     @Test
@@ -129,9 +139,8 @@ class HomeActionsTest : HomeScreenActivityTest() {
     }
 
     @Test
-    fun `commcare update item shown once an update is available`() {
-        val home = buildHome()
-        home.showCommCareUpdateMenu = true
+    fun `commcare update item shown once the user has dismissed the update enough times`() {
+        val home = buildHomeReportingAvailableUpdate(timesDismissed = MAX_CC_UPDATE_CANCELLATION + 1)
 
         val menu = menuFor(home)
 
@@ -139,10 +148,19 @@ class HomeActionsTest : HomeScreenActivityTest() {
     }
 
     @Test
+    fun `an available update starts straight away rather than offering the menu item`() {
+        val home = buildHomeReportingAvailableUpdate(timesDismissed = MAX_CC_UPDATE_CANCELLATION)
+
+        val menu = menuFor(home)
+
+        assertFalse(menu.findItem(R.id.action_update_commcare).isVisible)
+        verify(exactly = 1) { updateController.startUpdate(home) }
+    }
+
+    @Test
     fun `commcare update item hidden for a demo user even when an update is available`() {
         seatDemoUser()
-        val home = buildHome()
-        home.showCommCareUpdateMenu = true
+        val home = buildHomeReportingAvailableUpdate(timesDismissed = MAX_CC_UPDATE_CANCELLATION + 1)
 
         val menu = menuFor(home)
 
@@ -254,6 +272,30 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
     // endregion
 
+    /**
+     * Build home with the in-app update check reporting an available update, having already been
+     * dismissed [timesDismissed] times, and let the activity handle that state change.
+     *
+     * The controller is a stand-in for the Play Store's update manager. Home creates it through
+     * [AppUpdateControllerFactory] and keeps it private, so the factory is stubbed to hand back the
+     * fake and to capture the callback home registers — running that callback is what a real
+     * controller does when the update state changes.
+     */
+    private fun buildHomeReportingAvailableUpdate(timesDismissed: Int): StandardHomeActivity {
+        every { updateController.getStatus() } returns AppUpdateState.AVAILABLE
+        every { updateController.availableVersionCode() } returns AVAILABLE_VERSION_CODE
+        val onUpdateStateChanged = slot<Runnable>()
+        mockkStatic(AppUpdateControllerFactory::class)
+        every { AppUpdateControllerFactory.create(capture(onUpdateStateChanged), any()) } returns updateController
+        repeat(timesDismissed) {
+            HiddenPreferences.incrementCommCareUpdateCancellationCounter(AVAILABLE_VERSION_CODE.toString())
+        }
+
+        val home = buildHome()
+        onUpdateStateChanged.captured.run()
+        return home
+    }
+
     /** Build home and return it with its options menu created + prepared. */
     private fun homeWithMenu(): Pair<StandardHomeActivity, Menu> {
         val home = buildHome()
@@ -266,4 +308,10 @@ class HomeActionsTest : HomeScreenActivityTest() {
             home.onCreateOptionsMenu(it)
             home.onPrepareOptionsMenu(it)
         }
+
+    companion object {
+        /** Matches `HomeScreenBaseActivity.MAX_CC_UPDATE_CANCELLATION`, which is private. */
+        private const val MAX_CC_UPDATE_CANCELLATION = 3
+        private const val AVAILABLE_VERSION_CODE = 999
+    }
 }
