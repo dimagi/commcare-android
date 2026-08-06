@@ -22,13 +22,15 @@ class FaceCaptureWidget(
 ) : ImageWidget(context, prompt, pic) {
     init {
         mChooseButton.visibility = GONE
-        mCaptureButton.text = StringUtils.getStringSpannableRobust( context,
-            if (mImageView != null && mImageView.drawable != null) {
-                R.string.face_capture_retake_photo
-            } else {
-                R.string.capture_image
-            }
-        )
+        mCaptureButton.text =
+            StringUtils.getStringSpannableRobust(
+                context,
+                if (mImageView != null && mImageView.drawable != null) {
+                    R.string.face_capture_retake_photo
+                } else {
+                    R.string.capture_image
+                },
+            )
     }
 
     override fun takePicture() {
