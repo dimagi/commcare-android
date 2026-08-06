@@ -37,11 +37,20 @@ public class ShadowPhoneAuthProvider {
     private static final int MAX_REQUESTS = 10;
 
     private static FirebaseException failure;
+    private static String sentVerificationId;
     private static int requestCount;
 
     /** Makes every subsequent verifyPhoneNumber call report {@code e} to onVerificationFailed. */
     public static void failWith(FirebaseException e) {
         failure = e;
+    }
+
+    /**
+     * Makes every subsequent verifyPhoneNumber call report success to onCodeSent, as Firebase does
+     * once it has handed the SMS off for delivery.
+     */
+    public static void sendCodeWith(String verificationId) {
+        sentVerificationId = verificationId;
     }
 
     /** Number of verifyPhoneNumber calls since the last {@link #reset()}. */
@@ -51,6 +60,7 @@ public class ShadowPhoneAuthProvider {
 
     public static void reset() {
         failure = null;
+        sentVerificationId = null;
         requestCount = 0;
     }
 
@@ -61,11 +71,17 @@ public class ShadowPhoneAuthProvider {
             throw new AssertionError("Firebase was asked to send an OTP " + requestCount
                     + " times; the code under test is re-requesting without bound.");
         }
-        if (failure == null) {
-            return;
+        if (failure != null) {
+            FirebaseException reported = failure;
+            post(() -> options.zze().onVerificationFailed(reported));
+        } else if (sentVerificationId != null) {
+            String verificationId = sentVerificationId;
+            // The resend token is only stored by the caller, so it is safe to omit here.
+            post(() -> options.zze().onCodeSent(verificationId, null));
         }
-        FirebaseException reported = failure;
-        new Handler(Looper.getMainLooper()).post(
-                () -> options.zze().onVerificationFailed(reported));
+    }
+
+    private static void post(Runnable runnable) {
+        new Handler(Looper.getMainLooper()).post(runnable);
     }
 }
