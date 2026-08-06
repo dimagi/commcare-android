@@ -313,8 +313,8 @@
     <string name="microimage_cropping_failed">Kunne ikke beskjære bildet, kontroller at målet er innenfor opptaksområdet</string>
     <string name="microimage_saving_failed">Kunne ikke lagre bildet. Prøv igjen</string>
     <string name="face_capture_activity_title">Ta bilde av ansikt</string>
-    <string name="face_capture_manual_instructions">Sentrer et ansikt i rammen, trykk deretter på den hvite knappen for å ta bildet</string>
-    <string name="face_capture_auto_instructions">Sentrer et ansikt i rammen, hold deg i ro for å utløse automatisk opptak</string>
+    <string name="face_capture_manual_instructions">Sentrer et ansikt innenfor det grønne omrisset, trykk deretter på den hvite knappen for å ta bildet</string>
+    <string name="face_capture_auto_instructions">Sentrer et ansikt innenfor det grønne omrisset og hold deg i ro, bildet tas automatisk</string>
     <string name="face_capture_auto_mode">Automatisk opptak</string>
     <string name="face_capture_manual_mode">Manuelt opptak</string>
     <string name="face_capture_front_camera_unavailable">Frontkameraet er ikke tilgjengelig, alternativet for å bytte kamera vil bli deaktivert</string>

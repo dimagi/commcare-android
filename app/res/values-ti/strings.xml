@@ -655,8 +655,8 @@
     <string name="microimage_cropping_failed">ስእሊ ምቍራጽ ኣይተኻእለን፣ ዒላማ ኣብ ውሽጢ ናይ ምቅራጽ ቦታ ከምዘሎ ኣረጋግጹ</string>
     <string name="microimage_saving_failed">ስእሊ ክዕቀብ ኣይተኻእለን። በጃኹም ደጊምኩም ፈትኑ</string>
     <string name="face_capture_activity_title">ስእሊ ገጽ ምውሳድ</string>
-    <string name="face_capture_manual_instructions">ገጽ ኣብ ውሽጢ እቲ ቦታ ኣቐምጡ፣ ድሕሪኡ ስእሊ ንምውሳድ ነቲ ጻዕዳ መልጎም ጠውቑ</string>
-    <string name="face_capture_auto_instructions">ገጽ ኣብ ውሽጢ እቲ ቦታ ኣቐምጡ፣ ነቲ ናይ ብዘሓት ምውሳድ መስርሕ ንምጅማር ከይተንቀሳቐስኩም ጽንሑ</string>
+    <string name="face_capture_manual_instructions">ገጽ ኣብ ውሽጢ እቲ ቀጠልያ ቅርጺ ኣቐምጡ፣ ድሕሪኡ ስእሊ ንምውሳድ ነቲ ጻዕዳ መልጎም ጠውቑ</string>
+    <string name="face_capture_auto_instructions">ገጽ ኣብ ውሽጢ እቲ ቀጠልያ ቅርጺ ኣቐምጡ፣ ከይተንቀሳቐስኩም ጽንሑ፣ እታ ስእሊ ብቐጥታ ክትውሰድ እያ</string>
     <string name="face_capture_auto_mode">ብዘሓት ምውሳድ</string>
     <string name="face_capture_manual_mode">ብኢድ ምውሳድ</string>
     <string name="face_capture_front_camera_unavailable">ቅድሚት ካሜራ ኣይርከብን፣ ካሜራ ናይ ምቕያር ኣማራጺ ኪዕፀው እዩ</string>

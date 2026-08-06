@@ -323,8 +323,8 @@
     <string name="microimage_cropping_failed">Nepavyko apkarpyti vaizdo, įsitikinkite, kad objektas yra fiksavimo srityje</string>
     <string name="microimage_saving_failed">Nepavyko išsaugoti vaizdo. Bandykite dar kartą</string>
     <string name="face_capture_activity_title">Fotografuoti veidą</string>
-    <string name="face_capture_manual_instructions">Nustatykite veidą rėmelio viduryje, tada palieskite baltą mygtuką, kad padarytumėte nuotrauką</string>
-    <string name="face_capture_auto_instructions">Nustatykite veidą rėmelio viduryje ir nejudėkite, kad būtų suaktyvintas automatinio fiksavimo procesas</string>
+    <string name="face_capture_manual_instructions">Nustatykite veidą žalio kontūro viduryje, tada palieskite baltą mygtuką, kad padarytumėte nuotrauką</string>
+    <string name="face_capture_auto_instructions">Nustatykite veidą žalio kontūro viduryje ir nejudėkite, nuotrauka bus padaryta automatiškai</string>
     <string name="face_capture_auto_mode">Automatinis fiksavimas</string>
     <string name="face_capture_manual_mode">Rankinis fiksavimas</string>
     <string name="face_capture_front_camera_unavailable">Priekinė kamera nepasiekiama, kameros keitimo parinktis bus išjungta</string>
