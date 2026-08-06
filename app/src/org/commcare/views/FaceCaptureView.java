@@ -49,6 +49,7 @@ public class FaceCaptureView extends AppCompatImageView {
     private FaceOvalGraphic faceOvalGraphic;
     private float postScaleHeightOffset;
     private float postScaleWidthOffset;
+    private boolean mirrored = false;
     private float scaleFactor;
     private ImageStabilizedListener imageStabilizedListener;
     public enum CaptureMode {FaceDetectionMode, ManualMode}
@@ -175,6 +176,15 @@ public class FaceCaptureView extends AppCompatImageView {
         this.imageStabilizedListener = imageStabilizedListener;
     }
 
+    /**
+     * When mirrored (front-facing camera), the preview is horizontally flipped but the detected face coordinates
+     * are not; enabling this flips the overlay's x-axis so it aligns with what the user sees.
+     */
+      public void setMirrored(boolean mirrored) {
+        this.mirrored = mirrored;
+        invalidate();
+    }
+
     public RectF getFaceCaptureArea() {
         return faceCaptureArea;
     }
@@ -263,6 +273,10 @@ public class FaceCaptureView extends AppCompatImageView {
         float y0 = scaleY(boundingBox.top);
         float dx = scaleX(boundingBox.right);
         float dy = scaleY(boundingBox.bottom);
+        if (mirrored) {
+            int width = (int) getFullContentWidth();
+            return new Rect(width - (int)x0, (int)y0, width - (int)dx, (int)dy);
+        }
         return new Rect((int)x0, (int)y0, (int)dx, (int)dy);
     }
 

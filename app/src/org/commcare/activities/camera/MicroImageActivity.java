@@ -161,11 +161,16 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
         if (!isStateRestored) {
             currentLensFacing = getCameraLensFacing();
         }
+        updateFaceOverlayMirroring();
         if (getAllowCameraLensSwitch()) {
             setupCameraLensSwitch();
         }
         lensFacingInitialized = true;
 
+    }
+
+    private void updateFaceOverlayMirroring() {
+        faceCaptureView.setMirrored(currentLensFacing == LENS_FACING_FRONT);
     }
 
     private void setupCameraLensSwitch() {
@@ -195,6 +200,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
 
     private void switchCameraLensFacing() {
         currentLensFacing = currentLensFacing == LENS_FACING_BACK ? LENS_FACING_FRONT : LENS_FACING_BACK;
+        updateFaceOverlayMirroring();
         startCamera();
     }
 
