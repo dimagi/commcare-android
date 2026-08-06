@@ -64,7 +64,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             String savedJobUuid = savedInstanceState.getString(OPPORTUNITY_UUID);
-            if (!Strings.isNullOrEmpty(savedJobUuid)) {
+            if (savedJobUuid != null) {
                 job = ConnectJobUtils.getCompositeJob(this, savedJobUuid);
             }
         }
