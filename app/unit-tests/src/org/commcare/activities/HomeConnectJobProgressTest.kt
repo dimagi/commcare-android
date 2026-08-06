@@ -4,11 +4,13 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.verify
+import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectJobHelper
-import org.commcare.connect.ConnectNavHelper
 import org.commcare.utils.ConnectivityStatus
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -39,9 +41,11 @@ class HomeConnectJobProgressTest : HomeConnectTestBase() {
 
         home.userPressedOpportunityStatus()
 
-        val job = slot<ConnectJobRecord>()
-        verify(exactly = 1) { ConnectNavHelper.goToActiveInfoForJob(home, capture(job), true) }
-        assertEquals("test-job-uuid", job.captured.jobUUID)
+        val started = shadowOf(home).nextStartedActivity
+        assertEquals(ConnectActivity::class.java.name, started.component!!.className)
+        assertTrue(started.getBooleanExtra(ConnectConstants.GO_TO_JOB_STATUS, false))
+        assertEquals("test-job-uuid", started.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        assertTrue(started.getBooleanExtra(ConnectConstants.SHOW_LAUNCH_BUTTON, false))
     }
 
     @Test(expected = NullPointerException::class)

@@ -36,7 +36,7 @@ abstract class HomeConnectTestBase : HomeScreenActivityTest() {
         job: ConnectJobRecord,
         isLearning: Boolean = false,
     ) {
-        signInToPersonalId()
+        signInToPersonalId(hasConnectAccess = true)
         connectStorage(ConnectJobRecord::class.java).write(job)
         val apps = connectStorage(ConnectAppRecord::class.java)
         apps.write(appRecordFor(job, seatedAppId(), isLearning))
@@ -84,12 +84,12 @@ abstract class HomeConnectTestBase : HomeScreenActivityTest() {
      * (`DatabaseConnectOpenHelperMock` passes a null name). Reads and writes still go to the real
      * in-memory DB; the empty file only makes that existence probe agree with it.
      */
-    private fun signInToPersonalId() {
+    protected fun signInToPersonalId(hasConnectAccess: Boolean = false) {
         val context = ApplicationProvider.getApplicationContext<Context>()
         createConnectDbFile()
         ConnectUserDatabaseUtil.storeUser(
             context,
-            ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", false),
+            ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", hasConnectAccess),
         )
         PersonalIdManager.getInstance().init(context)
     }

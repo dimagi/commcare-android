@@ -5,7 +5,6 @@ import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import org.commcare.CommCareApplication
@@ -14,7 +13,6 @@ import org.commcare.android.database.app.models.UserKeyRecord
 import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.models.database.user.DemoUserBuilder
@@ -34,16 +32,13 @@ import org.robolectric.shadows.ShadowLooper
 import java.lang.reflect.Field
 
 /**
- * Shared base for home-screen characterization tests. Installs a test app + user, static-mocks the
- * Connect statics the home screen boots through (defaulting to "no Connect job / nothing to show")
- * and [ConnectivityStatus] (defaulting to "online, not in airplane mode"), and exposes helpers to
- * build the home activity.
+ * Shared base for home-screen characterization tests. Installs a test app + user and exposes helpers
+ * to build the home activity.
  *
- * Direct subclasses of this class cover *traditional* home behaviour — everything that isn't
- * PersonalId/Connect. The Connect stubbing here is boot scaffolding, not a subject: the home screen
- * cannot be created without it, and pinning it to "no Connect" is what keeps the traditional tests
- * deterministic and offline. Tests that actually assert on Connect behaviour belong in the
- * `HomeConnect*` classes, which extend [HomeConnectTestBase] for the job/tile fixtures.
+ * The only thing stubbed here is [ConnectivityStatus], which reports on the device's radios; every
+ * other dependency, Connect DB included, runs for real. An empty Connect DB is what makes a direct
+ * subclass boot with no job seated. Tests that assert on Connect behaviour extend
+ * [HomeConnectTestBase], which seats that state in the DB.
  *
  * Subclasses run under [AndroidJUnit4] with [CommCareTestApplication]; add `@Config(sdk = [...])`
  * on individual tests only when a specific Android level matters.
@@ -65,16 +60,6 @@ abstract class HomeScreenActivityTest {
         mockkStatic(ConnectivityStatus::class)
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
         every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
-
-        // Stub outbound Connect navigation so we can verify it without real navigation/unlock.
-        mockkObject(ConnectNavHelper)
-        every { ConnectNavHelper.goToConnectJobsList(any(), any()) } returns Unit
-        every { ConnectNavHelper.goToMessaging(any(), any()) } returns Unit
-        every { ConnectNavHelper.goToWorkHistory(any()) } returns Unit
-        every { ConnectNavHelper.goToActiveInfoForJob(any(), any(), any()) } returns Unit
-        every { ConnectNavHelper.unlockAndGoToConnectJobsList(any(), any(), any()) } returns Unit
-        every { ConnectNavHelper.unlockAndGoToMessaging(any(), any(), any(), any()) } returns Unit
-        every { ConnectNavHelper.unlockAndGoToWorkHistory(any(), any(), any()) } returns Unit
     }
 
     @After
