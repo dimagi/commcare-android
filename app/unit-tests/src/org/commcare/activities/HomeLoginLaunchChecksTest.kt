@@ -3,6 +3,7 @@ package org.commcare.activities
 import android.content.Intent
 import androidx.preference.PreferenceManager
 import org.commcare.CommCareApplication
+import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN
 import org.commcare.core.network.CommCareNetworkServiceGenerator.CURRENT_DRIFT
 import org.commcare.heartbeat.UpdateToPrompt
@@ -27,8 +28,9 @@ import org.junit.Test
  * halts with `false`, steps 2-7 short-circuit with `true` when they claim the launch, and steps 8-9
  * (PIN, drift) are non-claiming side effects that still return `false`. It reaches the activity as
  * the private `redirectedInOnCreate` flag, which `onResumeSessionSafe` consults to decide whether to
- * dispatch the home screen on top of whatever the claiming step launched, so it is read here by
- * reflection ([claimedLaunch]) rather than inferred from side effects alone.
+ * dispatch the home screen on top of whatever the claiming step launched. It surfaces nowhere else
+ * at create time, so [claimedLaunch] reads it by reflection rather than inferring it from side
+ * effects alone.
  *
  * Of the six claiming steps (2-7), four are pinned: 3, 4 and 7 with positive rows, and the rest by
  * the fall-through baselines that reach step 8. Three are still NOT pinned:
@@ -43,9 +45,9 @@ import org.junit.Test
  *
  * Those three rows belong in the 2685 truth-table against delegate fakes.
  *
- * Dialogs raised during `onCreate` are stashed in `alertDialogToShowOnResume` rather than shown,
- * because `CommCareActivity.areFragmentsPaused` is still true on a created-but-not-resumed activity;
- * [pendingAlertDialog] reads that field for the same reason.
+ * Dialogs raised during `onCreate` are stashed rather than shown, because
+ * `CommCareActivity.areFragmentsPaused` is still true on a created-but-not-resumed activity;
+ * [pendingAlertDialog] asks the activity to show what it stashed, as `onResume` would.
  *
  * `buildHomeLaunchIntent` is pinned here too: it builds the very intent whose extras decide whether
  * these checks run at all, and which mode step 8 sees.
@@ -334,10 +336,20 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
      * `SessionAwareCommCareActivity`. This reflection retires when the flag moves behind the
      * coordinator.
      */
-    private fun claimedLaunch(home: StandardHomeActivity): Boolean = readField(home, "redirectedInOnCreate") as Boolean
+    private fun claimedLaunch(home: StandardHomeActivity): Boolean = ReflectionUtils.readField(home, "redirectedInOnCreate") as Boolean
 
-    /** The dialog a launch check raised during `onCreate`, or null if none was raised. */
-    private fun pendingAlertDialog(home: StandardHomeActivity): Any? = readField(home, "alertDialogToShowOnResume")
+    /**
+     * The dialog a launch check raised during `onCreate`, or null if none was raised. Asking the
+     * activity to show what it stashed is what `onResume` does, so the dialog becomes a real
+     * fragment to assert on. Drains the pending dialog, so call it once per test.
+     */
+    private fun pendingAlertDialog(home: StandardHomeActivity): Any? {
+        home.showPendingAlertDialog()
+        // DialogFragment.show() commits asynchronously; the fragment isn't findable by tag until
+        // the transaction runs.
+        home.supportFragmentManager.executePendingTransactions()
+        return home.currentAlertDialog
+    }
 
     /**
      * Every activity home started for result during create, oldest first. Reading drains the

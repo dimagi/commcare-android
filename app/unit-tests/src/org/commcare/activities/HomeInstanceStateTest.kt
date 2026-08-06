@@ -1,5 +1,6 @@
 package org.commcare.activities
 
+import org.commcare.android.util.ReflectionUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -15,30 +16,31 @@ import org.junit.Test
  * acceptance is literally "the keys survive `recreate()`". Nothing in the suite exercised
  * `recreate()` before this, so the round-trip had no net.
  *
- * The flags are private with no accessors, so the round-trip is asserted via reflection against
- * the field names ([readField]/[writeField]). That scaffolding retires once the fields live behind
- * the coordinator's `SavedStateProvider`, which the refactor can then assert against directly.
+ * The flags are private, have no accessors, and reach no view or intent, so there is nothing to
+ * observe them through: the round-trip is asserted against the field names via [ReflectionUtils].
+ * That scaffolding retires once the fields live behind the coordinator's `SavedStateProvider`,
+ * which the refactor can then assert against directly.
  */
 class HomeInstanceStateTest : HomeScreenActivityTest() {
     @Test
     fun `launch and nav flags survive recreate`() {
         val controller = buildStandardHomeController()
         val home = controller.get()
-        writeField(home, "wasExternal", true)
-        writeField(home, "loginExtraWasConsumed", true)
-        writeField(home, "pendingEndpointNavigationAfterSync", true)
+        ReflectionUtils.writeField(home, "wasExternal", true)
+        ReflectionUtils.writeField(home, "loginExtraWasConsumed", true)
+        ReflectionUtils.writeField(home, "pendingEndpointNavigationAfterSync", true)
 
         controller.recreate()
 
         val recreated = controller.get()
-        assertTrue("wasExternal did not survive recreate", readField(recreated, "wasExternal") as Boolean)
+        assertTrue("wasExternal did not survive recreate", ReflectionUtils.readField(recreated, "wasExternal") as Boolean)
         assertTrue(
             "loginExtraWasConsumed did not survive recreate",
-            readField(recreated, "loginExtraWasConsumed") as Boolean,
+            ReflectionUtils.readField(recreated, "loginExtraWasConsumed") as Boolean,
         )
         assertTrue(
             "pendingEndpointNavigationAfterSync did not survive recreate",
-            readField(recreated, "pendingEndpointNavigationAfterSync") as Boolean,
+            ReflectionUtils.readField(recreated, "pendingEndpointNavigationAfterSync") as Boolean,
         )
     }
 
@@ -49,12 +51,12 @@ class HomeInstanceStateTest : HomeScreenActivityTest() {
 
         // Force a value distinct from the fresh-create default so the assertion is meaningful,
         // without importing the private SyncIconTrigger enum. (Default after create is NO_ANIMATION.)
-        val current = readField(home, "lastIconTrigger")!!
+        val current = ReflectionUtils.readField(home, "lastIconTrigger")!!
         val distinct = current.javaClass.enumConstants.first { it != current }
-        writeField(home, "lastIconTrigger", distinct)
+        ReflectionUtils.writeField(home, "lastIconTrigger", distinct)
 
         controller.recreate()
 
-        assertEquals(distinct, readField(controller.get(), "lastIconTrigger"))
+        assertEquals(distinct, ReflectionUtils.readField(controller.get(), "lastIconTrigger"))
     }
 }

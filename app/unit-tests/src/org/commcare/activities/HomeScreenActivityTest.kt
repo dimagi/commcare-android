@@ -32,7 +32,6 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowActivity
 import org.robolectric.shadows.ShadowLooper
-import java.lang.reflect.Field
 
 /**
  * Shared base for home-screen characterization tests. Installs a test app + user and exposes helpers
@@ -201,38 +200,6 @@ abstract class HomeScreenActivityTest {
      * the answer `messagesForCommCareArePending()` gives to whichever test runs next.
      */
     private fun clearPendingNotifications() = CommCareApplication.notificationManager().clearNotifications(null)
-
-    /**
-     * Read a private field by name, walking up the class hierarchy. Several launch/nav flags on the
-     * home activity's base classes have no accessors; these helpers let a characterization test pin
-     * their save/restore contract until CCCT-2679/2683 move them behind the coordinator's
-     * SavedStateProvider (at which point real seams replace this reflection).
-     */
-    protected fun readField(
-        target: Any,
-        name: String,
-    ): Any? = fieldFor(target.javaClass, name).get(target)
-
-    protected fun writeField(
-        target: Any,
-        name: String,
-        value: Any?,
-    ) = fieldFor(target.javaClass, name).set(target, value)
-
-    private fun fieldFor(
-        start: Class<*>,
-        name: String,
-    ): Field {
-        var cls: Class<*>? = start
-        while (cls != null) {
-            try {
-                return cls.getDeclaredField(name).apply { isAccessible = true }
-            } catch (e: NoSuchFieldException) {
-                cls = cls.superclass
-            }
-        }
-        throw NoSuchFieldException("$name not found on ${start.name} or its superclasses")
-    }
 
     private fun clearPrefs() {
         PreferenceManager
