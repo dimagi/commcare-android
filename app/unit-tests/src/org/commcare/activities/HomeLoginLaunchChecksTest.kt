@@ -20,47 +20,25 @@ import org.junit.Test
 
 /**
  * Characterization pins for the login-launch check sequence run from `onCreateSessionSafe`
- * (`doLoginLaunchChecksInOrder`). CCCT-2685 relocates this 9-step ordering into
- * `coordinator.runLaunchChecks(session)` and wants a truth-table over it, so these tests pin both
- * *which* step claims the launch and the boolean it returns.
+ * (`doLoginLaunchChecksInOrder`): which step claims the launch, and the boolean it returns.
  *
- * The return value is the contract the refactor is most likely to break silently: step 1 (demo)
- * halts with `false`, steps 2-7 short-circuit with `true` when they claim the launch, and steps 8-9
- * (PIN, drift) are non-claiming side effects that still return `false`. It reaches the activity as
- * the private `redirectedInOnCreate` flag, which `onResumeSessionSafe` consults to decide whether to
- * dispatch the home screen on top of whatever the claiming step launched. It surfaces nowhere else
- * at create time, so [claimedLaunch] reads it by reflection rather than inferring it from side
- * effects alone.
+ * That return value is the contract most likely to break silently. Step 1 (demo) halts with `false`,
+ * steps 2-7 short-circuit with `true` when they claim the launch, and steps 8-9 (PIN, drift) are
+ * non-claiming side effects that still return `false`. It reaches the activity as the private
+ * `redirectedInOnCreate` flag, which `onResumeSessionSafe` consults to decide whether to dispatch
+ * home on top of whatever the claiming step launched.
  *
- * Of the six claiming steps (2-7), four are pinned: 3, 4 and 7 with positive rows, and the rest by
- * the fall-through baselines that reach step 8. Three are still NOT pinned:
+ * Three of the six claiming steps are not pinned: steps 5 and 6 both call through `sendFormsOrSync`,
+ * which assigns the real syncer before `setFormAndDataSyncer(fake)` can land, and step 2 needs an
+ * app whose profile declares an update-info form xmlns.
  *
- * - Steps 5 (post-update sync) and 6 (pending FCM sync) both call through `sendFormsOrSync`, and
- *   pre-refactor there is no seam to inject a fake syncer before the checks run —
- *   `SyncCapableCommCareActivity.onCreateSessionSafe` assigns the real `FormAndDataSyncer` before
- *   `processFromLoginLaunch`, so `setFormAndDataSyncer(fake)` lands too late and the fixture would
- *   kick off a real submit/pull task on a background thread.
- * - Step 2 (update-info form) needs an app whose profile declares an update-info form xmlns, which
- *   the test app does not.
- *
- * Those three rows belong in the 2685 truth-table against delegate fakes.
- *
- * Dialogs raised during `onCreate` are stashed rather than shown, because
- * `CommCareActivity.areFragmentsPaused` is still true on a created-but-not-resumed activity;
- * [pendingAlertDialog] asks the activity to show what it stashed, as `onResume` would.
- *
- * `buildHomeLaunchIntent` is pinned here too: it builds the very intent whose extras decide whether
- * these checks run at all, and which mode step 8 sees.
+ * `buildHomeLaunchIntent` is pinned here too: it builds the intent whose extras decide whether these
+ * checks run at all, and which mode step 8 sees.
  */
 class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
     /**
-     * The base class clears the default preferences around every test, but the PIN and drift steps
-     * read *app* preferences. Clear the keys this class writes so the "feature off" rows can't be
-     * turned green (or red) by whichever test ran before them.
-     *
-     * Belt-and-braces today: each test reinstalls the app under a fresh application id, and
-     * `CommCareApp.getPreferencesFilename()` is that id, so app preferences already start empty.
-     * Kept so these rows stay honest if the suite ever moves to a shared app fixture.
+     * The base clears default preferences per test, but the PIN and drift steps read *app*
+     * preferences. Belt-and-braces today, since each test reinstalls under a fresh application id.
      */
     @Before
     fun clearLaunchCheckAppPrefs() {
@@ -92,12 +70,9 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
     @Suppress("DEPRECATION") // typed getSerializableExtra needs a higher minSdk than the app's
     @Test
     fun `buildHomeLaunchIntent targets standard home with managed login enabled`() {
-        // The precondition for everything else in this class: LoginActivity reaches home through
-        // this builder, and every check below runs only because the intent carries START_FROM_LOGIN.
-        // [buildHomeFromLogin] sets that extra itself, so without this row the whole sequence could
-        // stop running in production with the suite still green. LOGIN_MODE and
-        // MANUAL_SWITCH_TO_PW_MODE are the step-8 inputs pinned further down.
-        // form_nav_tests is a single-app profile, so useRootMenuHomeActivity() is false.
+        // The precondition for everything else here: [buildHomeFromLogin] sets START_FROM_LOGIN
+        // itself, so without this row the sequence could stop running in production, suite still
+        // green. form_nav_tests is a single-app profile, so useRootMenuHomeActivity() is false.
         val context = CommCareApplication.instance()
         val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(context)
 
@@ -208,9 +183,8 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
     @Suppress("DEPRECATION") // typed getSerializableExtra needs a higher minSdk than the app's
     @Test
     fun `primed login reaches the pin step and launches create pin without claiming`() {
-        // A fresh (non-demo) login with nothing pending falls through steps 2-7 to step 8, which for
-        // PRIMED mode launches CreatePinActivity directly. That the PIN screen launches proves
-        // control reached step 8 rather than being claimed earlier.
+        // A fresh login with nothing pending falls through steps 2-7 to step 8, which in PRIMED
+        // mode launches CreatePinActivity — proof that control reached step 8 unclaimed.
         val home = buildHomeFromLogin(LoginMode.PRIMED)
 
         val started = onlyStartedActivity(startedActivities(home))
@@ -300,9 +274,8 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
 
     @Test
     fun `one time login flags are cleared even when an earlier step claims the launch`() {
-        // Step 3 claims this launch, so steps 5 and 6 never read their flags. Only
-        // clearOneTimeLoginActionFlags() — which runs in a `finally`, whatever claimed — can clear
-        // them, and dropping it would leave the sync steps to fire again on the next home create.
+        // Step 3 claims this launch, so steps 5 and 6 never read their flags. Only the `finally`
+        // block can clear them; dropping it would re-fire the sync steps on the next home create.
         seedInterruptedFormSession()
         HiddenPreferences.setPostUpdateSyncNeeded(true)
         seedPendingSyncRequest()
@@ -330,11 +303,9 @@ class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
     // region assertions on the launch checks
 
     /**
-     * The boolean `doLoginLaunchChecksInOrder` returned, as stored on the activity. Declared private
-     * on [HomeScreenBaseActivity] with no accessor; [readField] walks up from [StandardHomeActivity]
-     * so it finds that field rather than the same-named one further up on
-     * `SessionAwareCommCareActivity`. This reflection retires when the flag moves behind the
-     * coordinator.
+     * The boolean `doLoginLaunchChecksInOrder` returned, as stored on the activity. Private with no
+     * accessor; the walk up from [StandardHomeActivity] finds this field rather than the same-named
+     * one further up on `SessionAwareCommCareActivity`.
      */
     private fun claimedLaunch(home: StandardHomeActivity): Boolean = ReflectionUtils.readField(home, "redirectedInOnCreate") as Boolean
 

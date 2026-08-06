@@ -6,20 +6,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Characterization pins for the launch/nav instance-state that must survive an activity
- * `recreate()`.
+ * Characterization pins for the launch/nav instance-state that must survive an activity `recreate()`.
  *
- * CCCT-2679 relocates three keys off `HomeScreenBaseActivity` onto the coordinator's
- * `SavedStateProvider` (`was_external`, `login_extra_was_consumed`,
- * `pending_endpoint_nav_after_sync`); CCCT-2683 does the same for `last-icon-trigger` on
- * `SyncCapableCommCareActivity`. Both slices claim the move is behavior-preserving, and 2679's
- * acceptance is literally "the keys survive `recreate()`". Nothing in the suite exercised
- * `recreate()` before this, so the round-trip had no net.
+ * CCCT-2679 and CCCT-2683 move these four keys onto the coordinator's `SavedStateProvider`, claiming
+ * the move preserves behaviour. Nothing exercised `recreate()` before this, so the round-trip had no
+ * net.
  *
  * The flags are private, have no accessors, and reach no view or intent, so there is nothing to
  * observe them through: the round-trip is asserted against the field names via [ReflectionUtils].
- * That scaffolding retires once the fields live behind the coordinator's `SavedStateProvider`,
- * which the refactor can then assert against directly.
+ * That scaffolding retires once the fields live behind the coordinator.
  */
 class HomeInstanceStateTest : HomeScreenActivityTest() {
     @Test

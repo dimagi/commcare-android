@@ -28,9 +28,8 @@ abstract class HomeConnectTestBase : HomeScreenActivityTest() {
      * Seat [job] against the currently seated CommCare app. Pass `isLearning = true` to link the
      * seated app as the job's learn app rather than its delivery app.
      *
-     * Both app records are written, as a Connect sync would leave them: a job carries a learn app
-     * and a delivery app, and code such as `passedAssessment()` reads the learn app's passing score
-     * unconditionally. Only one of the two is the seated CommCare app.
+     * Both app records are written, as a Connect sync would leave them: `passedAssessment()` and
+     * friends read the learn app unconditionally. Only one of the two is the seated CommCare app.
      */
     protected fun seatJob(
         job: ConnectJobRecord,
@@ -76,13 +75,11 @@ abstract class HomeConnectTestBase : HomeScreenActivityTest() {
 
     /**
      * Write a signed-in PersonalId user, then let [PersonalIdManager.init] derive its status from
-     * that record. `ConnectJobUtils.getAppRecord()` returns null unless PersonalId reports logged
-     * in, so no Connect lookup resolves without this.
+     * that record: no Connect lookup resolves unless PersonalId reports logged in.
      *
-     * The DB file is created because `ConnectUserDatabaseUtil.getUser()` refuses to read unless
-     * `dbExists()` finds one on disk, and the test Connect DB is in-memory
-     * (`DatabaseConnectOpenHelperMock` passes a null name). Reads and writes still go to the real
-     * in-memory DB; the empty file only makes that existence probe agree with it.
+     * The DB file is created because `getUser()` refuses to read unless `dbExists()` finds one on
+     * disk, and the test Connect DB is in-memory. Reads and writes still go to that in-memory DB;
+     * the empty file only makes the existence probe agree with it.
      */
     protected fun signInToPersonalId(hasConnectAccess: Boolean = false) {
         val context = ApplicationProvider.getApplicationContext<Context>()

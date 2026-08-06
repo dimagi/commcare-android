@@ -56,9 +56,7 @@ abstract class HomeScreenActivityTest {
         TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
 
         // Default to "online, not in airplane mode" so the sync paths don't branch into the
-        // offline handling unless a test asks for it. Mocked with MockK rather than Mockito: mixing
-        // the two inline mock makers in the same JVM corrupts bytecode instrumentation for
-        // unrelated classes later in the run.
+        // offline handling unless a test asks for it.
         mockkStatic(ConnectivityStatus::class)
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
         every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
@@ -83,12 +81,11 @@ abstract class HomeScreenActivityTest {
 
     /**
      * Like [buildHome], but returns the [ActivityController] so a test can drive further lifecycle
-     * transitions (notably `recreate()` for save/restore round-trips). Stopped at `onCreate`.
+     * transitions (notably `recreate()`). Stopped at `onCreate`.
      *
-     * Note: the fake syncer is injected into the instance this returns. `recreate()` produces a
-     * *new* activity carrying the real [org.commcare.activities.FormAndDataSyncer], so a test that
-     * recreates and then drives a sync path must call [injectFakeSyncer] on the new instance. The
-     * current recreate tests don't reach a sync, which is why they get away without it.
+     * The fake syncer is injected into the instance this returns; `recreate()` produces a new
+     * activity carrying the real one, so a test that recreates and then syncs must call
+     * [injectFakeSyncer] again.
      */
     protected fun buildStandardHomeController(
         personalIdManagedLogin: Boolean = false,
@@ -150,11 +147,9 @@ abstract class HomeScreenActivityTest {
     }
 
     /**
-     * Give the logged-in user a PIN, so `UserKeyRecord.hasPinSet()` reports true.
-     *
-     * The record must be written back to storage: `CommCareSessionService.getUserKeyRecord()` re-reads
-     * it from SQL on every call rather than holding it in memory, so mutating the instance alone is
-     * discarded. This mirrors what `CreatePinActivity` does after assigning a PIN.
+     * Give the logged-in user a PIN, so `UserKeyRecord.hasPinSet()` reports true. The record has to
+     * be written back: `getUserKeyRecord()` re-reads it from SQL on every call, so mutating the
+     * instance alone is discarded.
      */
     protected fun assignPinToCurrentUser(pin: String = "1234") {
         val record = CommCareApplication.instance().recordForCurrentUser
@@ -166,10 +161,7 @@ abstract class HomeScreenActivityTest {
             .write(record)
     }
 
-    /**
-     * Turn on the "offer a PIN at login" developer preference, which gates both the launch-check PIN
-     * step and the `action_set_pin` options-menu item.
-     */
+    /** Turn on the developer preference gating the launch-check PIN step and the set-pin menu item. */
     protected fun offerPinForLogin() {
         CommCareApplication
             .instance()
@@ -179,10 +171,7 @@ abstract class HomeScreenActivityTest {
             .apply()
     }
 
-    /**
-     * Queue a CommCare notification so `messagesForCommCareArePending()` reports true. The category
-     * is arbitrary — the reader only counts pending messages.
-     */
+    /** Queue a notification so `messagesForCommCareArePending()` reports true. */
     protected fun reportPendingNotification() {
         CommCareApplication.notificationManager().reportNotificationMessage(
             NotificationMessageFactory.message(
@@ -194,11 +183,7 @@ abstract class HomeScreenActivityTest {
 
     protected fun notificationsArePending(): Boolean = CommCareApplication.notificationManager().messagesForCommCareArePending()
 
-    /**
-     * The notification manager is app-scoped and its pending list outlives an individual test, so
-     * clear it around every test — otherwise a test that reports a notification silently changes
-     * the answer `messagesForCommCareArePending()` gives to whichever test runs next.
-     */
+    /** The notification manager is app-scoped, so its pending list has to be cleared per test. */
     private fun clearPendingNotifications() = CommCareApplication.notificationManager().clearNotifications(null)
 
     private fun clearPrefs() {

@@ -24,30 +24,10 @@ import org.robolectric.shadows.ShadowToast
 /**
  * Characterization pins for the traditional home actions a user can invoke: options-menu visibility
  * (demo and non-demo), item-selection routing, and the sync button's offline handling and sub-text.
- * These are the behaviours CCCT-2685 moves behind the coordinator's action facade (`sync()`,
- * `viewSavedForms()`, `updateApp()`, ...) and its paired availability queries.
  *
- * Host coverage: these rows are driven through [StandardHomeActivity] only. `onCreateOptionsMenu`,
- * `onPrepareOptionsMenu` and `onOptionsItemSelected` are all overridden there, and
- * [RootMenuHomeActivity] carries its own `onOptionsItemSelected`, so a green run here is *not* the
- * two-host coverage CCCT-2685's acceptance asks for — the root-menu host needs its own rows once the
- * facade lands.
- *
- * Item-selection routing is pinned for the two destinations that leave an assertable intent
- * (`action_update`, `action_saved_forms`). The remaining six branches — `change_language`,
- * `preferences`, `advanced`, `about`, `set_pin`, `update_commcare` — open dialogs or fragment-hosted
- * preference screens rather than activities, and belong in the 2685 truth-table against facade fakes.
- *
- * Menu access mechanism: [StandardHomeActivity.onCreateOptionsMenu] is called directly with a
- * [RoboMenu], which the real [android.view.MenuInflater] inflates into just fine, then
- * [StandardHomeActivity.onPrepareOptionsMenu] is called on the same instance to apply visibility.
- * This was deterministic; `Shadows.shadowOf(activity).optionsMenu` was not needed.
- *
- * `onOptionsItemSelected` calls the real (no-op under Robolectric) `FirebaseAnalyticsUtil`; it is
- * deliberately NOT static-mocked. Static-mocking `FirebaseAnalyticsUtil` transforms a Google-Play-
- * Services-adjacent class, and the accumulated inline-mock-maker instrumentation corrupts GMS
- * bytecode for unrelated tests later in the same JVM (e.g. PersonalId fragment tests that call the
- * real `GoogleApiAvailability`).
+ * Driven through [StandardHomeActivity] only; [RootMenuHomeActivity] overrides
+ * `onOptionsItemSelected` and needs its own rows. Routing is pinned for the two menu items that
+ * leave an assertable intent — the rest open dialogs or preference fragments.
  *
  * The Connect job-progress fetch that `syncButtonPressed()` also triggers is pinned in
  * [HomeConnectJobProgressTest].
@@ -90,7 +70,6 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
     @Test
     fun `set pin item hidden when the pin feature is off`() {
-        // OFFER_PIN_FOR_LOGIN defaults to off, so this is the default characterization.
         val (_, menu) = homeWithMenu()
 
         assertFalse(menu.findItem(R.id.action_set_pin).isVisible)
@@ -213,8 +192,7 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
     @Test
     fun `sync with no connection toasts the connections message and reports a notification`() {
-        // Offline but NOT in airplane mode: the else branch, which is a different message and a
-        // different StockMessage from the airplane row above.
+        // Offline but not in airplane mode: a different message and StockMessage from the row above.
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
         every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
         val home = buildHome()
@@ -230,9 +208,8 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
     @Test
     fun `sync while online clears the airplane-mode notifications`() {
-        // Seed a pending notification by going offline first, so the clear is observable. Note the
-        // offline block is gated on !isNetworkAvailable alone — airplane mode only picks which
-        // message it reports — so isNetworkAvailable must be false here, not just airplane mode true.
+        // The offline block is gated on !isNetworkAvailable alone; airplane mode only picks which
+        // message it reports. So seed the notification with the network down, not just airplane on.
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
         every { ConnectivityStatus.isAirplaneModeOn(any()) } returns true
         buildHome().syncButtonPressed()
@@ -255,7 +232,6 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
         home.syncSubTextPressed()
 
-        // No pending messages: the notifications view must not be launched.
         assertNull(shadowOf(home).nextStartedActivity)
     }
 
