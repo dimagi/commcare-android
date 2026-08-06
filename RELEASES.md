@@ -2,6 +2,14 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.63.5
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- During PersonalID sign-up, the OTP request will automatically fall back to Twilio if Firebase encounters an unrecoverable error—without requiring the user to tap 'Resend Code'.
+
 ## CommCare 2.63.4
 
 ### Release Notes
