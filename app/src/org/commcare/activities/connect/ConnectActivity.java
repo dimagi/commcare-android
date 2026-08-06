@@ -62,6 +62,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            String savedJobUuid = savedInstanceState.getString(OPPORTUNITY_UUID);
+            if (!Strings.isNullOrEmpty(savedJobUuid)) {
+                job = ConnectJobUtils.getCompositeJob(this, savedJobUuid);
+            }
+        }
+
         super.onCreate(savedInstanceState);
 
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
@@ -102,6 +109,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     public void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         getSupportActionBar().setTitle(getString(R.string.connect_title));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (job != null) {
+            outState.putString(OPPORTUNITY_UUID, job.getJobUUID());
+        }
     }
 
     private int getStartDestinationId(Bundle startArgs) {
