@@ -45,7 +45,7 @@ import org.robolectric.shadows.ShadowLooper
  * Subclasses run under [AndroidJUnit4] with [CommCareTestApplication]; add `@Config(sdk = [...])`
  * on individual tests only when a specific Android level matters.
  */
-@Config(application = CommCareTestApplication::class, shadows = [ShadowHomeTestSandbox::class])
+@Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 abstract class HomeScreenActivityTest {
     @Before
