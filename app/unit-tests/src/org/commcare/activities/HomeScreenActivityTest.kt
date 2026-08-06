@@ -14,12 +14,9 @@ import org.commcare.android.database.app.models.UserKeyRecord
 import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.ConnectNavHelper
-import org.commcare.connect.database.ConnectAppDatabaseUtil
+import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.database.ConnectJobUtils
-import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.models.database.user.DemoUserBuilder
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.PrefValues
@@ -61,23 +58,6 @@ abstract class HomeScreenActivityTest {
         (CommCareTestApplication.instance() as CommCareTestApplication).initWorkManager()
         TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
 
-        // Keep Connect DB lookups deterministic and offline.
-        mockkStatic(
-            ConnectDatabaseHelper::class,
-            ConnectJobUtils::class,
-            ConnectMessagingDatabaseHelper::class,
-            ConnectAppDatabaseUtil::class,
-        )
-        every { ConnectDatabaseHelper.isDbBroken() } returns false
-        every { ConnectJobUtils.getAppRecord(any(), any()) } returns null
-        every { ConnectMessagingDatabaseHelper.getMessagingChannels(any()) } returns emptyList()
-        every { ConnectAppDatabaseUtil.getReleaseToggles(any()) } returns emptyList()
-
-        // Home reads job state through ConnectJobHelper; default to "no job seated".
-        mockkObject(ConnectJobHelper)
-        every { ConnectJobHelper.getJobForSeatedApp(any()) } returns null
-        every { ConnectJobHelper.shouldShowJobStatus(any(), any()) } returns false
-
         // Default to "online, not in airplane mode" so the sync paths don't branch into the
         // offline handling unless a test asks for it. Mocked with MockK rather than Mockito: mixing
         // the two inline mock makers in the same JVM corrupts bytecode instrumentation for
@@ -100,6 +80,9 @@ abstract class HomeScreenActivityTest {
     @After
     fun baseTearDown() {
         unmockkAll()
+        // PersonalIdManager is a process-wide singleton holding its own login status, so a test that
+        // signs in would otherwise leave the next one logged in.
+        PersonalIdManager.getInstance().forgetUser("home test teardown")
         ConnectDatabaseHelper.teardown()
         clearPrefs()
         clearPendingNotifications()

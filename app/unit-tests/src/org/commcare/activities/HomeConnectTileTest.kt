@@ -2,8 +2,7 @@ package org.commcare.activities
 
 import android.view.View
 import android.widget.TextView
-import io.mockk.every
-import org.commcare.connect.ConnectJobHelper
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.dalvik.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -20,16 +19,25 @@ class HomeConnectTileTest : HomeConnectTestBase() {
     // ---- getHiddenButtons ----
 
     @Test
-    fun `connect button hidden when job status should not show`() {
-        // shouldShowJobStatus defaults to false in the base builder.
+    fun `connect button hidden when no job is seated`() {
         val home = buildHome()
 
         assertTrue(uiController(home).getHiddenButtons().contains("connect"))
     }
 
     @Test
-    fun `connect button shown when job status should show`() {
-        every { ConnectJobHelper.shouldShowJobStatus(any(), any()) } returns true
+    fun `connect button hidden while learning for a job already in delivery`() {
+        // shouldShowJobStatus() suppresses the button only in this combination: the seated app is
+        // the job's learn app, but the job has already moved on to delivery.
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING), isLearning = true)
+        val home = buildHome()
+
+        assertTrue(uiController(home).getHiddenButtons().contains("connect"))
+    }
+
+    @Test
+    fun `connect button shown when a delivery job is seated`() {
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
         val home = buildHome()
 
         assertFalse(uiController(home).getHiddenButtons().contains("connect"))
@@ -39,13 +47,14 @@ class HomeConnectTileTest : HomeConnectTestBase() {
 
     @Test
     fun `job card hidden when no job is seated`() {
-        val home = buildHome() // base default: getJobForSeatedApp returns null
+        val home = buildHome()
+
         assertEquals(View.GONE, home.findViewById<View>(R.id.viewJobCard).visibility)
     }
 
     @Test
     fun `job card visible and titled when a job is seated`() {
-        seatJobForTileRender(connectJob(title = "Field Survey", shortDescription = "Collect visits"))
+        seatJob(connectJob(title = "Field Survey", shortDescription = "Collect visits"))
         val home = buildHome()
 
         val card = home.findViewById<View>(R.id.viewJobCard)
@@ -57,10 +66,8 @@ class HomeConnectTileTest : HomeConnectTestBase() {
     // ---- Message card ----
 
     @Test
-    fun `message card hidden when job has no card message`() {
-        val job = connectJob()
-        every { job.getCardMessageText(any()) } returns null
-        seatJobForTileRender(job)
+    fun `message card hidden when the job has nothing to warn about`() {
+        seatJob(connectJob())
         val home = buildHome()
 
         uiController(home).updateConnectJobMessage()
@@ -70,10 +77,10 @@ class HomeConnectTileTest : HomeConnectTestBase() {
     }
 
     @Test
-    fun `delivery-complete message shows warning icon`() {
-        val job = connectJob(deliveryComplete = true)
-        every { job.getCardMessageText(any()) } returns "All deliveries complete"
-        seatJobForTileRender(job)
+    fun `ended job shows its message with a warning icon`() {
+        // A past end date leaves no days remaining, which is what makes the job both finished
+        // (so getCardMessageText returns the "ended" warning) and delivery-complete.
+        seatJob(connectJob(endDate = daysFromNow(-1)))
         val home = buildHome()
 
         uiController(home).updateConnectJobMessage()

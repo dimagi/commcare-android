@@ -1,11 +1,15 @@
 package org.commcare.activities
 
 import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.slot
 import io.mockk.verify
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.utils.ConnectivityStatus
+import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -13,29 +17,37 @@ import org.junit.Test
  * screen, and when `fetchJobProgressOverNetwork()` actually hits the network — both when called
  * directly and when reached through the sync button.
  *
- * [HomeScreenActivityTest] pins [ConnectivityStatus] to "online, not in airplane mode"; the offline
- * rows below re-stub it per test.
- *
  * The sync button's traditional behaviour — the toast and notification raised when a sync can't be
  * attempted — lives in [HomeActionsTest].
  */
 class HomeConnectJobProgressTest : HomeConnectTestBase() {
+    @Before
+    fun stubProgressFetch() {
+        // updateDeliveryProgress() is the outbound network call this suite is asserting on, so it
+        // is stubbed rather than run. mockkObject spies: every other ConnectJobHelper method,
+        // including the job lookups home boots through, still runs for real against the DB.
+        mockkObject(ConnectJobHelper)
+        every { ConnectJobHelper.updateDeliveryProgress(any(), any(), any()) } returns Unit
+    }
+
     // ---- Opportunity status ----
 
     @Test
     fun `view opportunity status navigates to job info when a job is seated`() {
-        val job = connectJob()
-        seatJob(job)
+        seatJob(connectJob())
         val home = buildHome()
 
         home.userPressedOpportunityStatus()
 
-        verify(exactly = 1) { ConnectNavHelper.goToActiveInfoForJob(home, job, true) }
+        val job = slot<ConnectJobRecord>()
+        verify(exactly = 1) { ConnectNavHelper.goToActiveInfoForJob(home, capture(job), true) }
+        assertEquals("test-job-uuid", job.captured.jobUUID)
     }
 
     @Test(expected = NullPointerException::class)
     fun `view opportunity status throws when no job is seated`() {
-        val home = buildHome() // base default: no job
+        val home = buildHome()
+
         home.userPressedOpportunityStatus()
     }
 
@@ -43,22 +55,19 @@ class HomeConnectJobProgressTest : HomeConnectTestBase() {
 
     @Test
     fun `fetch job progress over network updates progress for a delivering job`() {
-        val job = connectJob(status = ConnectJobRecord.STATUS_DELIVERING)
-        seatJob(job)
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
         val home = buildHome()
-        // mockkObject(ConnectJobHelper) isn't relaxed here; the real body would run and NPE on
-        // ConnectUserDatabaseUtil.getUser(context)!! since no Connect user is set up in this test.
-        every { ConnectJobHelper.updateDeliveryProgress(any(), any(), any()) } returns Unit
 
         home.fetchJobProgressOverNetwork()
 
-        verify(exactly = 1) { ConnectJobHelper.updateDeliveryProgress(home, job, any()) }
+        val job = slot<ConnectJobRecord>()
+        verify(exactly = 1) { ConnectJobHelper.updateDeliveryProgress(home, capture(job), any()) }
+        assertEquals("test-job-uuid", job.captured.jobUUID)
     }
 
     @Test
     fun `fetch job progress over network does nothing for a non-delivering job`() {
-        val job = connectJob(status = ConnectJobRecord.STATUS_LEARNING)
-        seatJob(job)
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_LEARNING))
         val home = buildHome()
 
         home.fetchJobProgressOverNetwork()
@@ -81,14 +90,13 @@ class HomeConnectJobProgressTest : HomeConnectTestBase() {
 
     @Test
     fun `sync with network available fetches job progress for delivering job`() {
-        every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
-        every { ConnectJobHelper.updateDeliveryProgress(any(), any(), any()) } returns Unit
-        val job = connectJob(status = ConnectJobRecord.STATUS_DELIVERING)
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
         val home = buildHome()
-        seatJob(job)
 
         home.syncButtonPressed()
 
-        verify(exactly = 1) { ConnectJobHelper.updateDeliveryProgress(home, job, any()) }
+        val job = slot<ConnectJobRecord>()
+        verify(exactly = 1) { ConnectJobHelper.updateDeliveryProgress(home, capture(job), any()) }
+        assertEquals("test-job-uuid", job.captured.jobUUID)
     }
 }

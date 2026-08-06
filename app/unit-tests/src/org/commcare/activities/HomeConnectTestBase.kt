@@ -1,67 +1,135 @@
 package org.commcare.activities
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkStatic
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import org.commcare.CommCareApplication
+import org.commcare.android.database.connect.models.ConnectAppRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.ConnectJobHelper
-import org.commcare.connect.database.ConnectJobUtils
-import org.commcare.connect.database.ConnectTaskUtils
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.models.database.connect.ConnectDatabaseSchemaManager
+import org.javarosa.core.services.storage.Persistable
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 /**
- * Shared base for the home screen's PersonalId/Connect characterization tests (`HomeConnect*`).
+ * Shared fixtures for the home screen's PersonalId/Connect tests (`HomeConnect*`).
  *
- * [HomeScreenActivityTest] already pins the Connect statics to "no job / nothing to show" so the
- * home screen boots deterministically; this class adds the fixtures a test needs when Connect state
- * *is* the subject — seating a job and rendering the job tile.
- *
- * Traditional (non-Connect) home tests extend [HomeScreenActivityTest] directly and should not need
- * anything here.
+ * Seating a job writes the same rows into the real Connect DB that a Connect sync would leave
+ * behind — a signed-in PersonalId user, the job, and the app record linking it to the seated
+ * CommCare app — so the home screen resolves it through the production lookups rather than a stub.
  */
 abstract class HomeConnectTestBase : HomeScreenActivityTest() {
-    /** Make [ConnectJobHelper.getJobForSeatedApp] return [job] for the seated app. */
-    protected fun seatJob(job: ConnectJobRecord) {
-        every { ConnectJobHelper.getJobForSeatedApp(any()) } returns job
+    /**
+     * Seat [job] against the currently seated CommCare app. Pass `isLearning = true` to link the
+     * seated app as the job's learn app rather than its delivery app.
+     *
+     * Both app records are written, as a Connect sync would leave them: a job carries a learn app
+     * and a delivery app, and code such as `passedAssessment()` reads the learn app's passing score
+     * unconditionally. Only one of the two is the seated CommCare app.
+     */
+    protected fun seatJob(
+        job: ConnectJobRecord,
+        isLearning: Boolean = false,
+    ) {
+        signInToPersonalId()
+        connectStorage(ConnectJobRecord::class.java).write(job)
+        val apps = connectStorage(ConnectAppRecord::class.java)
+        apps.write(appRecordFor(job, seatedAppId(), isLearning))
+        apps.write(appRecordFor(job, UNSEATED_APP_ID, !isLearning))
     }
 
     /**
-     * A lightweight [ConnectJobRecord] stub. `relaxed = true` means unspecified numeric/boolean
-     * getters return 0/false, so each test only overrides the accessors it asserts on.
+     * A job with no warning to show: active, running, and well under both visit caps, so
+     * `getCardMessageText()` returns null. Individual tests push it past one of those edges.
      */
     protected fun connectJob(
         jobUUID: String = "test-job-uuid",
         status: Int = ConnectJobRecord.STATUS_DELIVERING,
         title: String = "Test Job",
         shortDescription: String = "Job description",
-        deliveryComplete: Boolean = false,
+        endDate: Date = daysFromNow(30),
     ): ConnectJobRecord =
-        mockk(relaxed = true) {
-            every { this@mockk.jobUUID } returns jobUUID
-            every { this@mockk.status } returns status
-            every { this@mockk.title } returns title
-            every { this@mockk.shortDescription } returns shortDescription
-            every { deliveryComplete() } returns deliveryComplete
+        ConnectJobRecord().apply {
+            setJobUUID(jobUUID)
+            setJobId(JOB_ID)
+            setStatus(status)
+            setTitle(title)
+            setShortDescription(shortDescription)
+            // Every persisted String has to be non-null: the record serialises all of them on write.
+            setDescription("Long job description")
+            setOrganization("Test Org")
+            setCurrency("USD")
+            setPaymentAccrued("0")
+            setIsActive(true)
+            setProjectStartDate(daysFromNow(-1))
+            setProjectEndDate(endDate)
+            setMaxVisits(MAX_VISITS)
+            setMaxDailyVisits(MAX_DAILY_VISITS)
         }
 
+    protected fun daysFromNow(days: Int): Date = Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(days.toLong()))
+
     /**
-     * Seating a job also drives the rest of setupConnectJobTile()/updateConnectJobProgress(),
-     * which calls the real (unmocked) ConnectTaskUtils and ConnectDateUtils.formatDate(). Stub
-     * ConnectTaskUtils so it doesn't fall through into the mocked-but-unstubbed
-     * ConnectDatabaseHelper/ConnectJobUtils statics, and give getProjectEndDate() a real Date so
-     * formatDate() has a non-null value to format.
+     * Write a signed-in PersonalId user, then let [PersonalIdManager.init] derive its status from
+     * that record. `ConnectJobUtils.getAppRecord()` returns null unless PersonalId reports logged
+     * in, so no Connect lookup resolves without this.
      *
-     * Also seats an app record: [HomeScreenActivityTest] pins `getAppRecord` to null for the
-     * "nothing to show" boot, but updateConnectJobMessage() reads the record's learn/deliver
-     * metadata, so a tile-rendering test needs one present.
+     * The DB file is created because `ConnectUserDatabaseUtil.getUser()` refuses to read unless
+     * `dbExists()` finds one on disk, and the test Connect DB is in-memory
+     * (`DatabaseConnectOpenHelperMock` passes a null name). Reads and writes still go to the real
+     * in-memory DB; the empty file only makes that existence probe agree with it.
      */
-    protected fun seatJobForTileRender(job: ConnectJobRecord) {
-        every { job.projectEndDate } returns Date()
-        every { ConnectJobUtils.getAppRecord(any(), any()) } returns mockk(relaxed = true)
-        mockkStatic(ConnectTaskUtils::class)
-        every { ConnectTaskUtils.hasPendingTask(any(), any()) } returns false
-        every { ConnectTaskUtils.getValidPendingOcsTask(any(), any()) } returns null
-        every { ConnectTaskUtils.shouldShowTasksCompletedMessage(any(), any()) } returns false
-        seatJob(job)
+    private fun signInToPersonalId() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        createConnectDbFile()
+        ConnectUserDatabaseUtil.storeUser(
+            context,
+            ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", false),
+        )
+        PersonalIdManager.getInstance().init(context)
+    }
+
+    private fun createConnectDbFile() {
+        CommCareApplication.instance().getDatabasePath(ConnectDatabaseSchemaManager.DB_NAME).apply {
+            parentFile?.mkdirs()
+            createNewFile()
+        }
+    }
+
+    private fun appRecordFor(
+        job: ConnectJobRecord,
+        appId: String,
+        isLearning: Boolean,
+    ): ConnectAppRecord =
+        ConnectAppRecord
+            .fromJson(
+                JSONObject().apply {
+                    put(ConnectAppRecord.META_DOMAIN, "test-domain")
+                    put(ConnectAppRecord.META_APP_ID, appId)
+                    put(ConnectAppRecord.META_NAME, "Test Connect App")
+                    put(ConnectAppRecord.META_DESCRIPTION, "App description")
+                    put(ConnectAppRecord.META_ORGANIZATION, "Test Org")
+                    put(ConnectAppRecord.META_PASSING_SCORE, PASSING_SCORE)
+                    put(ConnectAppRecord.META_INSTALL_URL, "https://example.org/app.ccz")
+                    put(ConnectAppRecord.META_MODULES, JSONArray())
+                },
+                job,
+                isLearning,
+            ).apply { setLastUpdate(Date()) }
+
+    private fun <T : Persistable> connectStorage(clazz: Class<T>) =
+        ConnectDatabaseHelper.getConnectStorage(ApplicationProvider.getApplicationContext(), clazz)
+
+    companion object {
+        private const val UNSEATED_APP_ID = "connect-app-not-seated"
+        private const val JOB_ID = 1
+        private const val MAX_VISITS = 100
+        private const val MAX_DAILY_VISITS = 10
+        private const val PASSING_SCORE = 80
     }
 }
