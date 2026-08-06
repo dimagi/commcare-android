@@ -1,7 +1,6 @@
 package org.commcare.fragments.personalId
 
 import android.graphics.drawable.BitmapDrawable
-import android.os.Build
 import android.util.Base64
 import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,11 +31,8 @@ import org.robolectric.annotation.Config
 
 /**
  * Tests [PersonalIdBackupCodeFragment] in account recovery mode.
- *
- * Pinned to API 32 because NumericCodeView uses try-with-resources on TypedArray, and
- * TypedArray.close() was added in API 31. Robolectric 4.8.2 supports up to API 32 (S_V2).
  */
-@Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.S_V2])
+@Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmentTest() {
     private lateinit var connectDatabaseHelperMock: MockedStatic<ConnectDatabaseHelper>
