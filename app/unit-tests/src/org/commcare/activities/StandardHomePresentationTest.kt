@@ -70,7 +70,7 @@ class StandardHomePresentationTest : HomeScreenActivityTest() {
             .apply()
         val home = buildHome()
 
-        assertTrue(uiController(home).getHiddenButtons().contains("incomplete"))
+        assertFalse(homeButtonLabels(home).contains(Localization.get("home.forms.incomplete")))
     }
 
     @Test
@@ -80,7 +80,7 @@ class StandardHomePresentationTest : HomeScreenActivityTest() {
         // default characterization rather than an explicitly-set one.
         val home = buildHome()
 
-        assertTrue(uiController(home).getHiddenButtons().contains("report"))
+        assertFalse(homeButtonLabels(home).contains(Localization.get("home.report")))
     }
 
     // endregion

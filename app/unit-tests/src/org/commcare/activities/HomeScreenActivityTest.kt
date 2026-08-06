@@ -1,7 +1,9 @@
 package org.commcare.activities
 
 import android.content.Intent
+import android.widget.TextView
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
@@ -15,6 +17,7 @@ import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.dalvik.R
 import org.commcare.models.database.user.DemoUserBuilder
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.PrefValues
@@ -113,6 +116,23 @@ abstract class HomeScreenActivityTest {
 
     protected fun uiController(home: StandardHomeActivity): StandardHomeActivityUIController =
         home.getUIController() as StandardHomeActivityUIController
+
+    /**
+     * The labels of the buttons the home grid renders, read off the bound card views. Position 0 is
+     * the banner header rather than a button, so it is skipped.
+     */
+    protected fun homeButtonLabels(home: StandardHomeActivity): List<String> {
+        val grid = home.findViewById<RecyclerView>(R.id.home_gridview_buttons)
+        val adapter = grid.adapter!!
+        return (1 until adapter.itemCount).map { position ->
+            val holder = adapter.createViewHolder(grid, adapter.getItemViewType(position))
+            adapter.bindViewHolder(holder, position)
+            holder.itemView
+                .findViewById<TextView>(R.id.card_text)
+                .text
+                .toString()
+        }
+    }
 
     /** The uniqueId of the currently seated CommCare app. */
     protected fun seatedAppId(): String = CommCareApplication.instance().currentApp.uniqueId
