@@ -253,10 +253,11 @@ public class StandardHomeActivity
                     if(!recordId.equals(currentSeatedId)) {
                         //Navigate to LoginActivity for selected app
                         CommCareApplication.instance().closeUserSession();
-                        Intent i = new Intent();
+                        Intent i = new Intent(this, DispatchActivity.class);
                         i.putExtra(EXTRA_APP_ID, recordId);
                         i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
-                        setResult(RESULT_OK, i);
+                        i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
+                        startActivity(i);
                         finish();
                     }
                 }

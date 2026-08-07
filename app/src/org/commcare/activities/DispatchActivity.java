@@ -85,6 +85,9 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
+    private static final String KEY_REDIRECT_TO_LOGIN_APP_ID = "redirect-to-login-app-id";
+    private static final String KEY_FORCE_SINGLE_APP_MODE = "force-single-app-mode";
+    private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     private boolean waitingForActivityResultFromLogin;
 
@@ -109,7 +112,21 @@ public class DispatchActivity extends AppCompatActivity {
             waitingForActivityResultFromLogin = savedInstanceState.getBoolean(
                     KEY_WAITING_FOR_ACTIVITY_RESULT
             );
+            redirectToLoginAppId = savedInstanceState.getString(KEY_REDIRECT_TO_LOGIN_APP_ID);
+            forceSingleAppMode = savedInstanceState.getBoolean(KEY_FORCE_SINGLE_APP_MODE, true);
+            userTriggeredLogout = savedInstanceState.getBoolean(KEY_USER_TRIGGERED_LOGOUT);
+        } else if (isAppSwitchRequest()) {
+            redirectToLoginAppId = getIntent().getStringExtra(EXTRA_APP_ID);
+            forceSingleAppMode = getIntent().getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
+            userTriggeredLogout = getIntent().getBooleanExtra(
+                    LoginActivity.USER_TRIGGERED_LOGOUT,
+                    false
+            );
         }
+    }
+
+    private boolean isAppSwitchRequest() {
+        return getIntent().getAction() == null && getIntent().hasExtra(EXTRA_APP_ID);
     }
 
     private Intent checkIfAnyPNIntentPresent() {
@@ -152,6 +169,9 @@ public class DispatchActivity extends AppCompatActivity {
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
         outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
         outState.putBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT, waitingForActivityResultFromLogin);
+        outState.putString(KEY_REDIRECT_TO_LOGIN_APP_ID, redirectToLoginAppId);
+        outState.putBoolean(KEY_FORCE_SINGLE_APP_MODE, forceSingleAppMode);
+        outState.putBoolean(KEY_USER_TRIGGERED_LOGOUT, userTriggeredLogout);
     }
 
     private void checkForChangedCCZ() {
