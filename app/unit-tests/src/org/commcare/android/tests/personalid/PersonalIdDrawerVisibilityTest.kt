@@ -4,8 +4,11 @@ import android.os.Build
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockkStatic
+import io.mockk.spyk
 import io.mockk.unmockkAll
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
@@ -27,27 +30,32 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.MockedStatic
-import org.mockito.Mockito.CALLS_REAL_METHODS
-import org.mockito.Mockito.mockStatic
-import org.mockito.Mockito.spy
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doNothing
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import java.util.Date
 
 /**
- * Tests that the nav drawer is shown or hidden correctly
+ * Tests that the nav drawer is shown or hidden correctly, across the three activities that can host
+ * it before a CommCare session is fully up: setup, login and home.
+ *
+ * The rule under test lives in `BaseDrawerActivity.shouldShowDrawerAfterCheck`: the drawer appears
+ * when the device is compatible (Android 9+) and — for the hosts that require it — PersonalId is
+ * logged in, or unconditionally if it has ever been shown before.
+ *
+ * Mocking: MockK only. Mixing MockK with Mockito's static mocking in one JVM corrupts bytecode
+ * instrumentation for unrelated classes later in the run, which is what this class used to do.
+ * [PersonalIdManager] is not static-mocked at all — its singleton is a plain private static field,
+ * so [installSpyManager] writes a spy straight into it and `getInstance()` hands that back with no
+ * instrumentation involved. The spy (rather than a mock) keeps every method it doesn't stub on real
+ * behaviour, which is what `checkDeviceCompability()` needs so the per-test `@Config(sdk = ...)`
+ * actually decides the outcome.
+
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdDrawerVisibilityTest {
     private lateinit var spyManager: PersonalIdManager
-    private lateinit var mockedPersonalIdManager: MockedStatic<PersonalIdManager>
-    private lateinit var mockedConnectUserDb: MockedStatic<ConnectUserDatabaseUtil>
+    private var realManager: PersonalIdManager? = null
 
     @Before
     fun setUp() {
@@ -55,35 +63,33 @@ class PersonalIdDrawerVisibilityTest {
         (CommCareTestApplication.instance() as CommCareTestApplication).initWorkManager()
         TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
 
-        spyManager = spy(PersonalIdManager.getInstance())
-        doNothing().whenever(spyManager).init(any())
-        doReturn(false).whenever(spyManager).isloggedIn()
-
-        mockedPersonalIdManager = mockStatic(PersonalIdManager::class.java, CALLS_REAL_METHODS)
-        mockedPersonalIdManager.`when`<PersonalIdManager> { PersonalIdManager.getInstance() }.thenReturn(spyManager)
+        installSpyManager()
 
         mockkStatic(
             ConnectDatabaseHelper::class,
             ConnectJobUtils::class,
             ConnectMessagingDatabaseHelper::class,
             ConnectAppDatabaseUtil::class,
+            ConnectUserDatabaseUtil::class,
         )
         every { ConnectDatabaseHelper.isDbBroken() } returns false
         every { ConnectJobUtils.getAppRecord(any(), any()) } returns null
         every { ConnectMessagingDatabaseHelper.getMessagingChannels(any()) } returns emptyList()
         every { ConnectAppDatabaseUtil.getReleaseToggles(any()) } returns emptyList()
 
-        mockedConnectUserDb = mockStatic(ConnectUserDatabaseUtil::class.java, CALLS_REAL_METHODS)
-        mockedConnectUserDb
-            .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(any()) }
-            .thenReturn(ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", false))
+        // The drawer header reads the signed-in user's name off getUser(). hasConnectAccess() is
+        // stubbed rather than left to run its real body (which just re-reads getUser() and checks a
+        // flag), because a MockK static mock throws on any method it wasn't told about, and the
+        // drawer + setup + login paths all call it.
+        every { ConnectUserDatabaseUtil.getUser(any()) } returns
+            ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", false)
+        every { ConnectUserDatabaseUtil.hasConnectAccess(any()) } returns false
     }
 
     @After
     fun tearDown() {
-        mockedPersonalIdManager.close()
-        mockedConnectUserDb.close()
         unmockkAll()
+        restoreRealManager()
         clearPrefs()
     }
 
@@ -117,12 +123,12 @@ class PersonalIdDrawerVisibilityTest {
     fun `setup activity shows drawer when previously shown regardless of Android version`() {
         // Simulate a prior session where Personal ID was logged in on Android 9+
         setLoggedIn(true)
-        doReturn(true).whenever(spyManager).checkDeviceCompability()
+        setDeviceCompatible(true)
         Robolectric.buildActivity(CommCareSetupActivity::class.java).create()
 
         // Next launch: drawer persists from prior session
         setLoggedIn(false)
-        doReturn(false).whenever(spyManager).checkDeviceCompability()
+        setDeviceCompatible(false)
         val activity = Robolectric.buildActivity(CommCareSetupActivity::class.java).create().get()
         assertNotNull("Drawer should be set up if previously shown, regardless of Android version", activity.drawerAdapter)
     }
@@ -157,12 +163,12 @@ class PersonalIdDrawerVisibilityTest {
     fun `login activity shows drawer when previously shown regardless of Android version`() {
         // Simulate a prior session where Personal ID was logged in on Android 9+.
         setLoggedIn(true)
-        doReturn(true).whenever(spyManager).checkDeviceCompability()
+        setDeviceCompatible(true)
         Robolectric.buildActivity(LoginActivity::class.java).create()
 
         // Next launch: drawer persists from prior session
         setLoggedIn(false)
-        doReturn(false).whenever(spyManager).checkDeviceCompability()
+        setDeviceCompatible(false)
         val activity = Robolectric.buildActivity(LoginActivity::class.java).create().get()
         assertNotNull("Drawer should be set up if previously shown, regardless of Android version", activity.drawerAdapter)
     }
@@ -197,12 +203,12 @@ class PersonalIdDrawerVisibilityTest {
     fun `home activity shows drawer when previously shown regardless of Android version`() {
         // Simulate a prior session where Personal ID was logged in on Android 9+.
         setLoggedIn(true)
-        doReturn(true).whenever(spyManager).checkDeviceCompability()
+        setDeviceCompatible(true)
         Robolectric.buildActivity(StandardHomeActivity::class.java).create()
 
         // Next launch: drawer persists from prior session
         setLoggedIn(false)
-        doReturn(false).whenever(spyManager).checkDeviceCompability()
+        setDeviceCompatible(false)
         val activity = Robolectric.buildActivity(StandardHomeActivity::class.java).create().get()
         assertNotNull("Drawer should be set up if previously shown, regardless of Android version", activity.drawerAdapter)
     }
@@ -217,8 +223,44 @@ class PersonalIdDrawerVisibilityTest {
         get() = findViewById<RecyclerView?>(R.id.nav_drawer_recycler)?.adapter
 
     private fun setLoggedIn(loggedIn: Boolean) {
-        doReturn(loggedIn).whenever(spyManager).isloggedIn()
+        every { spyManager.isloggedIn() } returns loggedIn
     }
+
+    /**
+     * Pin `checkDeviceCompability()` to [compatible] instead of letting the spy run its real
+     * `SDK_INT >= P` check. Only needed by the "previously shown" rows, where the first launch has to
+     * disagree with the `@Config(sdk = ...)` the assertion itself runs under.
+     */
+    private fun setDeviceCompatible(compatible: Boolean) {
+        every { spyManager.checkDeviceCompability() } returns compatible
+    }
+
+    /**
+     * Seat a spy on the [PersonalIdManager] singleton. `getInstance()` just returns the private
+     * static `manager` field, so writing the spy there is enough — no static mocking needed.
+     * `init()` is stubbed to a no-op because its real body reads the Connect DB.
+     */
+    private fun installSpyManager() {
+        realManager = PersonalIdManager.getInstance()
+        spyManager = spyk(realManager!!)
+        every { spyManager.init(any()) } just Runs
+        setLoggedIn(false)
+        singletonField().set(null, spyManager)
+    }
+
+    /**
+     * Put the real singleton back. Without this the spy outlives the test and every later test in
+     * this sandbox would see stubbed login state — the same kind of leak this class was cleaned up
+     * to avoid.
+     */
+    private fun restoreRealManager() {
+        singletonField().set(null, realManager)
+    }
+
+    private fun singletonField() =
+        PersonalIdManager::class.java
+            .getDeclaredField("manager")
+            .apply { isAccessible = true }
 
     private fun clearPrefs() {
         PreferenceManager
