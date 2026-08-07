@@ -132,7 +132,7 @@ object ConnectJobHelper {
         paymentConfirmations: List<ConnectPaymentConfirmationModel>,
         listener: ConnectActivityCompleteListener,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(context) ?: return
+        val user = ConnectUserDatabaseUtil.getUser(context)
         CoroutineScope(Dispatchers.IO).launch {
             val result = ConnectNetworkClient.getInstance().confirmPayments(user, paymentConfirmations)
             result.fold(
@@ -160,7 +160,7 @@ object ConnectJobHelper {
         context: Context,
         listener: ConnectActivityCompleteListener,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(context) ?: return
+        val user = ConnectUserDatabaseUtil.getUser(context)
         CoroutineScope(Dispatchers.IO).launch {
             val success = ConnectNetworkClient.getInstance().getConnectOpportunities(user).isSuccess
             withContext(Dispatchers.Main) { listener.connectActivityComplete(success) }
