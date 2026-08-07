@@ -8,20 +8,19 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
-import io.mockk.verify
+import kotlinx.coroutines.flow.flow
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.ApiConnect
-import org.commcare.connect.network.IApiCallback
+import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
 import org.commcare.views.connect.ConnectInfoCard
 import org.junit.Assert.assertEquals
@@ -30,7 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
-import java.io.ByteArrayInputStream
 import java.text.DateFormat
 import java.util.Date
 
@@ -188,16 +186,13 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         seedConnectUser()
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
-        mockkObject(ConnectAppUtils)
-        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
 
-        // Capture the API callback without invoking it synchronously, so success is delivered
-        // after the click returns (as a real async network response would be).
-        val callbackSlot = slot<IApiCallback>()
-        mockkStatic(ApiConnect::class)
-        every {
-            ApiConnect.startLearnApp(any(), any(), any(), capture(callbackSlot))
-        } returns Unit
+        val jobUuidSlot = slot<String>()
+        val repo = ConnectRepository.getInstance(activity)
+        every { repo.startLearning(any(), capture(jobUuidSlot)) } returns
+            flow {
+                emit(DataState.Success(Unit))
+            }
 
         val fragment = launch()
         val button = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
@@ -205,12 +200,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         activity.runOnUiThread { button.performClick() }
         ShadowLooper.idleMainLooper()
 
-        activity.runOnUiThread {
-            callbackSlot.captured.processSuccess(200, ByteArrayInputStream(ByteArray(0)))
-        }
-        ShadowLooper.idleMainLooper()
-
-        verify { ApiConnect.startLearnApp(any(), any(), eq(job.jobUUID), any()) }
+        assertEquals(job.jobUUID, jobUuidSlot.captured)
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
         assertEquals(
             ConnectJobRecord.STATUS_LEARNING,

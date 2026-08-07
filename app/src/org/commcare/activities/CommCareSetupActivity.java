@@ -999,7 +999,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                         Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(this, (error != null && !error.isEmpty()) ? error
-                                : getString(R.string.connect_network_error), Toast.LENGTH_LONG).show();
+                                : getString(R.string.recovery_network_server_error), Toast.LENGTH_LONG).show();
                     }
                 }
         );

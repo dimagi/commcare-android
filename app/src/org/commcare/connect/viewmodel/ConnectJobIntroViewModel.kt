@@ -11,8 +11,10 @@ import org.commcare.connect.repository.DataState
 
 class ConnectJobIntroViewModel(
     application: Application,
-    private val repository: ConnectRepository = ConnectRepository.getInstance(application),
+    private val repository: ConnectRepository,
 ) : AndroidViewModel(application) {
+    constructor(application: Application) : this(application, ConnectRepository.getInstance(application))
+
     private val _startLearning = MutableLiveData<DataState<Unit>>()
     val startLearning: LiveData<DataState<Unit>> = _startLearning
 

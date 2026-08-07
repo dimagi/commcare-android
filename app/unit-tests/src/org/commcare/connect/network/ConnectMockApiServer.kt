@@ -7,12 +7,12 @@ import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
-import org.commcare.connect.network.connect.ConnectApiClient
+import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
 /**
- * [MockWebServer] harness that points [ConnectApiClient] at a local mock server so Connect API
+ * [MockWebServer] harness that points [ConnectNetworkClient] at a local mock server so Connect API
  * calls hit it. The PersonalID equivalent lives in `PersonalIdMockApiServer`; the two target
  * different Retrofit clients.
  *
@@ -43,12 +43,12 @@ class ConnectMockApiServer {
                     Handler(Looper.getMainLooper()).post(runnable)
                 }.build()
         httpDispatcher = (retrofit.callFactory() as OkHttpClient).dispatcher
-        setConnectApiService(retrofit.create(ApiService::class.java))
+        setConnectNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
     }
 
     fun shutdown() {
         dispatchCallbacks = false
-        setConnectApiService(null)
+        setConnectNetworkClient(null)
         server.shutdown()
     }
 
@@ -82,9 +82,9 @@ class ConnectMockApiServer {
         }
     }
 
-    private fun setConnectApiService(apiService: ApiService?) {
-        val apiServiceField = ConnectApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, apiService)
+    private fun setConnectNetworkClient(client: ConnectNetworkClient?) {
+        val field = ConnectNetworkClient::class.java.getDeclaredField("instance")
+        field.isAccessible = true
+        field.set(null, client)
     }
 }
