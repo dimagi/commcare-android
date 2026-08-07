@@ -17,11 +17,13 @@ import org.commcare.DiskUtils;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.fragments.personalId.PersonalIdWorkflow;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.FormUploadResult;
+import org.commcare.utils.OtpAnalyticsMapper;
 import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
@@ -41,7 +43,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
-import static org.commcare.google.services.analytics.AnalyticsParamValue.ACCURACY_DEGRADATION;
 import static org.commcare.util.LogTypes.TYPE_ERROR_DESIGN;
 
 /**
@@ -217,7 +218,7 @@ public class FirebaseAnalyticsUtil {
                 : AnalyticsParamValue.SAVED;
         reportEvent(
                 CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
-                FirebaseAnalytics.Param.ITEM_LIST,
+                FirebaseAnalytics.Param.ITEM_LIST_NAME,
                 formType
         );
     }
@@ -477,14 +478,6 @@ public class FirebaseAnalyticsUtil {
         );
     }
 
-    public static void reportAccuracyDegradation(Float value) {
-        reportEvent(
-                CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
-                new String[]{FirebaseAnalytics.Param.ITEM_ID, VALUE},
-                new String[]{ACCURACY_DEGRADATION, value.toString()}
-        );
-    }
-
     public static void reportUpdateReset(String reason) {
         reportEvent(
                 CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
@@ -614,6 +607,17 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_JOBS, b);
     }
 
+    public static void reportExternalAppLaunchEvent(String launchType, boolean success, String error) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.TYPE, launchType);
+        bundle.putBoolean(CCAnalyticsParam.SUCCESS, success);
+        if(!TextUtils.isEmpty(error)) {
+            bundle.putString(CCAnalyticsParam.ERROR, error);
+        }
+
+        reportEvent(CCAnalyticsEvent.EXTERNAL_APP_LAUNCH, bundle);
+    }
+
     public static void reportCccApiStartLearning(boolean success) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
@@ -668,17 +672,36 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_FORGOTTEN, b);
     }
 
+    public static void reportPersonalIdProfileAction(String action, @Nullable String outcome) {
+        Bundle params = new Bundle();
+        params.putString(CCAnalyticsParam.MANAGE_PROFILE_ACTION, action);
+        if (outcome != null) {
+            params.putString(CCAnalyticsParam.MANAGE_PROFILE_OUTCOME, outcome);
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_MANAGE_PROFILE_ACTION, params);
+    }
+
     public static void reportLoginClicks() {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
-    public static void reportPersonalIDContinueClicked(String screenName, @Nullable String info) {
+    public static void reportPersonalIDContinueClicked(String screenName, @Nullable String info,
+            PersonalIdWorkflow workflow) {
         Bundle params = new Bundle();
         params.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
         if (info != null) {
             params.putString(CCAnalyticsParam.PERSONAL_ID_CONTINUE_CLICKED_INFO, info);
         }
+        params.putString(CCAnalyticsParam.PERSONAL_ID_WORKFLOW, workflow.getAnalyticsValue());
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
+    }
+
+    public static void reportUserPromptEvent(String type, String action, String info) {
+        Bundle params = new Bundle();
+        params.putString(CCAnalyticsParam.USER_PROMPT_TYPE, type);
+        params.putString(CCAnalyticsParam.USER_PROMPT_ACTION, action);
+        params.putString(CCAnalyticsParam.USER_PROMPT_INFO, info);
+        reportEvent(CCAnalyticsEvent.USER_PROMPT, params);
     }
 
     public static void reportPersonalIDMessageSent() {
@@ -748,28 +771,38 @@ public class FirebaseAnalyticsUtil {
     }
 
     /**
-     * Reports the otp_requested event with the outcome and reason of an OTP request
-     * or verify call.
+     * Reports the otp_requested event for a phone or email OTP request/verify call. Resolves the
+     * event type via {@link OtpAnalyticsMapper#getEventType} so callers pass the {@link
+     * OtpAnalyticsMapper.OtpOp} enum rather than a pre-mapped string.
      *
-     * @param eventType    one of {@link AnalyticsParamValue#OTP_EVENT_TYPE_REQUEST} /
-     *                     {@link AnalyticsParamValue#OTP_EVENT_TYPE_VERIFY}.
-     * @param outcome      one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
-     *                     {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
-     * @param method       one of {@link AnalyticsParamValue#OTP_METHOD_FIREBASE} /
-     *                     {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID}.
-     * @param reason       failure reason from {@link org.commcare.utils.OtpAnalyticsMapper};
-     *                     pass null for success events. Null reasons are omitted from the
-     *                     bundle (Firebase does not accept null string params). Logged under
-     *                     {@link CCAnalyticsParam#REASON}.
-     * @param attempts     attempt counter from PersonalIdSessionData. Logged to
-     *                     {@link FirebaseAnalytics.Param#VALUE} for backwards compatibility
-     *                     with the original event signature.
+     * @param op             the OTP operation in flight; resolved to the event type. Logged under
+     *                       {@link CCAnalyticsParam#OTP_EVENT_TYPE}.
+     * @param outcome        one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
+     * @param method         one of {@link AnalyticsParamValue#OTP_METHOD_FIREBASE} /
+     *                       {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID} /
+     *                       {@link AnalyticsParamValue#OTP_METHOD_EMAIL}.
+     * @param reason         failure reason from {@link OtpAnalyticsMapper}; pass null for success
+     *                       events. Null reasons are omitted from the bundle (Firebase does not
+     *                       accept null string params). Logged under {@link CCAnalyticsParam#REASON}.
+     * @param requestCount   total number of times an OTP was sent/requested this session. Logged to
+     *                       {@link FirebaseAnalytics.Param#VALUE}.
+     * @param failedAttempts absolute number of failed OTP verifications this session. Logged to
+     *                       {@link CCAnalyticsParam#OTP_FAILED_ATTEMPTS}.
+     * @param workflow       the workflow string from {@link OtpAnalyticsMapper#workflowParam}.
+     *                       Logged to {@link CCAnalyticsParam#OTP_WORKFLOW}.
      */
-    public static void reportOtpEvent(String eventType,
+    public static void reportOtpEvent(OtpAnalyticsMapper.OtpOp op,
                                       String outcome,
                                       String method,
                                       @Nullable String reason,
-                                      int attempts) {
+                                      int requestCount,
+                                      int failedAttempts,
+                                      String workflow) {
+        String eventType = OtpAnalyticsMapper.getEventType(op);
+        if (eventType == null) {
+            return;
+        }
         Bundle bundle = new Bundle();
         bundle.putString(CCAnalyticsParam.OTP_EVENT_TYPE, eventType);
         bundle.putString(CCAnalyticsParam.OTP_OUTCOME, outcome);
@@ -777,7 +810,9 @@ public class FirebaseAnalyticsUtil {
         if (reason != null) {
             bundle.putString(CCAnalyticsParam.REASON, reason);
         }
-        bundle.putLong(FirebaseAnalytics.Param.VALUE, attempts);
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, requestCount);
+        bundle.putLong(CCAnalyticsParam.OTP_FAILED_ATTEMPTS, failedAttempts);
+        bundle.putString(CCAnalyticsParam.OTP_WORKFLOW, workflow);
         reportEvent(CCAnalyticsEvent.OTP_REQUESTED, bundle);
     }
 

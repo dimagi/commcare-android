@@ -9,7 +9,6 @@ import android.os.Looper;
 import com.google.android.gms.common.api.ResolvableApiException;
 
 import org.commcare.CommCareApplication;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
@@ -91,20 +90,16 @@ public enum PollSensorController implements CommCareLocationListener {
     @Override
     public void onLocationResult(@NotNull Location location) {
         synchronized (actions) {
-            if (location != null) {
-                float newAccuracy = location.getAccuracy();
-                if (lastAccuracy < 30 && (newAccuracy - lastAccuracy) > 50) {
-                    FirebaseAnalyticsUtil.reportAccuracyDegradation(newAccuracy - lastAccuracy);
-                }
+            float newAccuracy = location.hasAccuracy() ? location.getAccuracy() : Float.MAX_VALUE;
+            if (newAccuracy < lastAccuracy) {
                 lastAccuracy = newAccuracy;
-
                 for (PollSensorAction action : actions) {
                     action.updateReference(location);
                 }
+            }
 
-                if (newAccuracy <= HiddenPreferences.getGpsAutoCaptureAccuracy()) {
-                    stopLocationPolling();
-                }
+            if (newAccuracy <= HiddenPreferences.getGpsAutoCaptureAccuracy()) {
+                stopLocationPolling();
             }
         }
     }

@@ -45,6 +45,7 @@ class ManualQuarantineTest : BaseTest() {
     @After
     fun tearDown() {
         InstrumentationUtility.logout()
+        InstrumentationUtility.setNetworkEnabled(true)
     }
 
     private fun enableFormQuarantine() {

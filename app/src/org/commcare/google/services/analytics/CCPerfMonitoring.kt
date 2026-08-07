@@ -36,8 +36,9 @@ object CCPerfMonitoring {
     fun startTracing(traceName: String): Trace? {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
-            trace.putAttribute(ATTR_CC_APP,
-                ReportingUtils.getDomain() + "|" + ReportingUtils.getAppId() + "|" + ReportingUtils.getAppName()
+            trace.putAttribute(
+                ATTR_CC_APP,
+                ReportingUtils.getDomain() + "|" + ReportingUtils.getAppId() + "|" + ReportingUtils.getAppName(),
             )
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
             trace.start()
@@ -48,7 +49,10 @@ object CCPerfMonitoring {
         return null
     }
 
-    fun stopTracing(trace: Trace?, attrs: MutableMap<String, String>?) {
+    fun stopTracing(
+        trace: Trace?,
+        attrs: MutableMap<String, String>?,
+    ) {
         if (trace == null) return
         try {
             attrs?.forEach { (key, value) -> trace.putAttribute(key, value) }
@@ -63,7 +67,7 @@ object CCPerfMonitoring {
         fileSizeBytes: Long,
         fileExtension: String,
         keystoreEncrypted: Boolean,
-        isLogsFile: Boolean
+        isLogsFile: Boolean,
     ) {
         try {
             val attrs: MutableMap<String, String> = HashMap()
@@ -75,5 +79,4 @@ object CCPerfMonitoring {
             Logger.exception("Failed to stop tracing: $TRACE_FILE_ENCRYPTION_TIME", e)
         }
     }
-
 }

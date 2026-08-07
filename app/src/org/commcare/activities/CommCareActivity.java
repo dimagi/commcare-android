@@ -645,6 +645,13 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
         }
     }
 
+    public void showProgressDialogIfNeeded(int taskId) {
+        CustomProgressDialog current = getCurrentProgressDialog();
+        if (current == null || current.getTaskId() != taskId) {
+            showProgressDialog(taskId);
+        }
+    }
+
     @Override
     public CustomProgressDialog getCurrentProgressDialog() {
         return (CustomProgressDialog)getSupportFragmentManager().

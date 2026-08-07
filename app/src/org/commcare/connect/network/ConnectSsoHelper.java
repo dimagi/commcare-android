@@ -47,11 +47,11 @@ public class ConnectSsoHelper {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                if (errorCode != PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR ||
-                        !GlobalErrorUtil.triggerGlobalError(
-                                GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR)) {
-                    callback.tokenUnavailable();
+                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
+                    GlobalErrorUtil.triggerGlobalError(
+                            GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
                 }
+                callback.tokenUnavailable();
             }
 
             @Override
