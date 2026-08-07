@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -14,8 +15,8 @@ import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
-import org.commcare.connect.network.connect.ConnectApiHandler
+import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.ConnectJobIntroViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding
 import org.commcare.fragments.extensions.hasLiveView
@@ -27,6 +28,8 @@ import java.text.DateFormat
  *
  */
 class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
+    private lateinit var viewModel: ConnectJobIntroViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,6 +41,14 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         (requireActivity() as AppCompatActivity)
             .supportActionBar!!
             .setHomeAsUpIndicator(R.drawable.ic_connect_close)
+
+        viewModel =
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
+            )[ConnectJobIntroViewModel::class.java]
+
+        observeStartLearning()
 
         binding.tvJobTitle.text = job.title
         binding.tvJobDescription.text = job.shortDescription
@@ -57,6 +68,63 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     override fun onDestroyView() {
         super.onDestroyView()
         (requireActivity() as AppCompatActivity).supportActionBar!!.setHomeAsUpIndicator(0)
+    }
+
+    private fun observeStartLearning() {
+        viewModel.startLearning.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is DataState.Loading -> {
+                    showLoading()
+                }
+
+                is DataState.Success -> {
+                    hideLoading()
+                    reportApiCall(true)
+
+                    job.status = ConnectJobRecord.STATUS_LEARNING
+                    ConnectJobUtils.upsertJob(job)
+
+                    if (!hasLiveView()) return@observe
+                    hideError()
+
+                    val appId = job.learnAppInfo.appId
+                    if (AppUtils.isAppInstalled(appId)) {
+                        ConnectAppLaunchController(this)
+                            .launchApp(appId, true, this::popSelfOnceHidden)
+                    } else {
+                        val title = getString(R.string.connect_downloading_learn)
+                        NavHostFragment.findNavController(this).navigate(
+                            ConnectJobIntroFragmentDirections
+                                .actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true),
+                        )
+                    }
+                }
+
+                is DataState.Error -> {
+                    reportApiCall(false)
+                    if (!hasLiveView()) return@observe
+                    hideLoading()
+                    val error =
+                        PersonalIdOrConnectApiErrorHandler.handle(
+                            requireActivity(),
+                            state.errorCode,
+                            state.throwable,
+                        )
+                    if (PersonalIdOrConnectApiErrorHandler.isNetworkError(state.errorCode)) {
+                        showError(getString(R.string.failed_to_start_learning))
+                    } else {
+                        navigateToMessageDisplayDialog(
+                            getString(R.string.error),
+                            error,
+                            false,
+                            R.string.ok,
+                        )
+                    }
+                }
+
+                else -> {}
+            }
+        }
     }
 
     private fun populateLearnCard() {
@@ -102,56 +170,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
 
     private fun startLearning() {
         val user = ConnectUserDatabaseUtil.getUser(context)
-
-        object : ConnectApiHandler<Boolean>() {
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                reportApiCall(false)
-                if (!hasLiveView()) {
-                    return
-                }
-
-                val error =
-                    PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, t)
-                if (PersonalIdOrConnectApiErrorHandler.isNetworkError(errorCode)) {
-                    showError(getString(R.string.failed_to_start_learning))
-                } else {
-                    navigateToMessageDisplayDialog(
-                        getString(R.string.error),
-                        error,
-                        false,
-                        R.string.ok,
-                    )
-                }
-            }
-
-            override fun onSuccess(success: Boolean) {
-                reportApiCall(success)
-
-                job.status = ConnectJobRecord.STATUS_LEARNING
-                ConnectJobUtils.upsertJob(job)
-
-                if (!hasLiveView()) {
-                    return
-                }
-
-                hideError()
-
-                val appId = job.learnAppInfo.appId
-                if (AppUtils.isAppInstalled(appId)) {
-                    ConnectAppLaunchController(this@ConnectJobIntroFragment)
-                        .launchApp(appId, true, this@ConnectJobIntroFragment::popSelfOnceHidden)
-                } else {
-                    val title = getString(R.string.connect_downloading_learn)
-                    NavHostFragment.findNavController(this@ConnectJobIntroFragment).navigate(
-                        ConnectJobIntroFragmentDirections
-                            .actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true),
-                    )
-                }
-            }
-        }.connectStartLearning(requireContext(), user, job.jobUUID)
+        viewModel.startLearning(user, job.jobUUID)
     }
 
     private fun reportApiCall(success: Boolean) {
