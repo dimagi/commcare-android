@@ -2,13 +2,13 @@ package org.commcare.connect.repository
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -17,6 +17,7 @@ import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationMod
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
+import org.commcare.utils.coroutines.DispatcherProvider
 
 class ConnectRepository
     @VisibleForTesting
@@ -96,12 +97,22 @@ class ConnectRepository
             )
 
         fun startLearning(jobUUID: String): Flow<DataState<Unit>> =
-            networkOnlyFlow { networkClient.startLearnApp(getConnectUser(), jobUUID) }
+            networkOnlyFlow(networkCall = { networkClient.startLearnApp(getConnectUser(), jobUUID) })
 
-        fun claimJob(jobUUID: String): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.claimJob(getConnectUser(), jobUUID) }
+        fun claimJob(job: ConnectJobRecord): Flow<DataState<Unit>> =
+            networkOnlyFlow(
+                networkCall = {
+                    val user = ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())
+                    networkClient.claimJob(user, job.jobUUID)
+                },
+                onNetworkSuccess = {
+                    job.status = ConnectJobRecord.STATUS_DELIVERING
+                    ConnectJobUtils.upsertJob(job)
+                },
+            )
 
         fun confirmPayments(paymentConfirmations: List<ConnectPaymentConfirmationModel>): Flow<DataState<Unit>> =
-            networkOnlyFlow { networkClient.confirmPayments(getConnectUser(), paymentConfirmations) }
+            networkOnlyFlow(networkCall = { networkClient.confirmPayments(getConnectUser(), paymentConfirmations) })
 
         /**
          * Emits Cached first,then Loading, then Success or Error after network call.
@@ -139,15 +150,20 @@ class ConnectRepository
                 result
                     .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
                     .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
-            }.flowOn(Dispatchers.IO)
+            }.flowOn(DispatcherProvider.io())
 
-        private fun <T> networkOnlyFlow(networkCall: suspend () -> Result<T>): Flow<DataState<T>> =
+        private fun <T> networkOnlyFlow(
+            networkCall: suspend () -> Result<T>,
+            onNetworkSuccess: suspend (T) -> Unit = {},
+        ): Flow<DataState<T>> =
             flow {
                 emit(DataState.Loading)
                 networkCall()
-                    .onSuccess { emit(DataState.Success(it)) }
-                    .onFailure { emit(DataState.Error.from(it)) }
-            }.flowOn(Dispatchers.IO)
+                    .onSuccess { data ->
+                        onNetworkSuccess(data)
+                        emit(DataState.Success(data))
+                    }.onFailure { emit(DataState.Error.from(it)) }
+            }.flowOn(DispatcherProvider.io())
 
         private fun getConnectUser(): ConnectUserRecord =
             requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
