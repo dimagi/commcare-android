@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.flowOn
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -98,17 +99,24 @@ class ConnectRepository
         fun startLearning(
             user: ConnectUserRecord,
             jobUUID: String,
-        ): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.startLearnApp(user, jobUUID) }
+        ): Flow<DataState<Unit>> = networkOnlyFlow(networkCall = { networkClient.startLearnApp(user, jobUUID) })
 
-        fun claimJob(
-            user: ConnectUserRecord,
-            jobUUID: String,
-        ): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.claimJob(user, jobUUID) }
+        fun claimJob(job: ConnectJobRecord): Flow<DataState<Unit>> =
+            networkOnlyFlow(
+                networkCall = {
+                    val user = ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())
+                    networkClient.claimJob(user, job.jobUUID)
+                },
+                onNetworkSuccess = {
+                    job.status = ConnectJobRecord.STATUS_DELIVERING
+                    ConnectJobUtils.upsertJob(job)
+                },
+            )
 
         fun confirmPayments(
             user: ConnectUserRecord,
             paymentConfirmations: List<ConnectPaymentConfirmationModel>,
-        ): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.confirmPayments(user, paymentConfirmations) }
+        ): Flow<DataState<Unit>> = networkOnlyFlow(networkCall = { networkClient.confirmPayments(user, paymentConfirmations) })
 
         /**
          * Emits Cached first,then Loading, then Success or Error after network call.
@@ -148,12 +156,17 @@ class ConnectRepository
                     .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
             }.flowOn(Dispatchers.IO)
 
-        private fun <T> networkOnlyFlow(networkCall: suspend () -> Result<T>): Flow<DataState<T>> =
+        private fun <T> networkOnlyFlow(
+            networkCall: suspend () -> Result<T>,
+            onNetworkSuccess: suspend (T) -> Unit = {},
+        ): Flow<DataState<T>> =
             flow {
                 emit(DataState.Loading)
                 networkCall()
-                    .onSuccess { emit(DataState.Success(it)) }
-                    .onFailure { emit(DataState.Error.from(it)) }
+                    .onSuccess { data ->
+                        onNetworkSuccess(data)
+                        emit(DataState.Success(data))
+                    }.onFailure { emit(DataState.Error.from(it)) }
             }.flowOn(Dispatchers.IO)
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> {
