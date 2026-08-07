@@ -5,17 +5,22 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ConnectApiService
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
+import org.commcare.connect.network.connect.models.PaymentConfirmationBody
 import org.commcare.connect.network.getAuthorizationHeader
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -218,10 +223,12 @@ class ConnectNetworkClientTest {
     @Test
     fun testStartLearnApp_success_returnsSuccess() =
         runBlocking {
-            coEvery { mockApiService.startLearnApp(any(), any(), any()) } returns
+            val opportunityIdSlot = slot<String>()
+            coEvery { mockApiService.startLearnApp(any(), any(), capture(opportunityIdSlot)) } returns
                 Response.success("".toResponseBody("application/json".toMediaType()))
             val result = client.startLearnApp(mockUser, "test-uuid")
             assertTrue(result.isSuccess)
+            assertEquals("test-uuid", opportunityIdSlot.captured)
         }
 
     @Test
@@ -240,69 +247,110 @@ class ConnectNetworkClientTest {
     @Test
     fun testStartLearnApp_http401_returnsFailedAuth() =
         runBlocking {
+            val opportunityIdSlot = slot<String>()
             val errorBody = "".toResponseBody("application/json".toMediaType())
-            coEvery { mockApiService.startLearnApp(any(), any(), any()) } returns Response.error(401, errorBody)
+            coEvery { mockApiService.startLearnApp(any(), any(), capture(opportunityIdSlot)) } returns Response.error(401, errorBody)
             val result = client.startLearnApp(mockUser, "test-uuid")
             assertTrue(result.isFailure)
             assertEquals(
                 PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
                 (result.exceptionOrNull() as ConnectApiException).errorCode,
             )
+            assertEquals("test-uuid", opportunityIdSlot.captured)
         }
 
     @Test
     fun testClaimJob_success_returnsSuccess() =
         runBlocking {
-            coEvery { mockApiService.claimJob(any(), any(), any(), any()) } returns
+            val jobUuidSlot = slot<String>()
+            val bodySlot = slot<Map<String, String>>()
+            coEvery { mockApiService.claimJob(any(), capture(jobUuidSlot), any(), capture(bodySlot)) } returns
                 Response.success("".toResponseBody("application/json".toMediaType()))
             val result = client.claimJob(mockUser, "test-uuid")
             assertTrue(result.isSuccess)
+            assertEquals("test-uuid", jobUuidSlot.captured)
+            assertTrue(bodySlot.captured.isEmpty())
         }
 
     @Test
     fun testClaimJob_http403_returnsForbidden() =
         runBlocking {
+            val jobUuidSlot = slot<String>()
+            val bodySlot = slot<Map<String, String>>()
             val errorBody = "".toResponseBody("application/json".toMediaType())
-            coEvery { mockApiService.claimJob(any(), any(), any(), any()) } returns Response.error(403, errorBody)
+            coEvery { mockApiService.claimJob(any(), capture(jobUuidSlot), any(), capture(bodySlot)) } returns
+                Response.error(403, errorBody)
             val result = client.claimJob(mockUser, "test-uuid")
             assertTrue(result.isFailure)
             assertEquals(
                 PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
                 (result.exceptionOrNull() as ConnectApiException).errorCode,
             )
+            assertEquals("test-uuid", jobUuidSlot.captured)
+            assertTrue(bodySlot.captured.isEmpty())
         }
 
     @Test
     fun testClaimJob_networkException_returnsNetworkError() =
         runBlocking {
-            coEvery { mockApiService.claimJob(any(), any(), any(), any()) } throws IOException("timeout")
+            val jobUuidSlot = slot<String>()
+            val bodySlot = slot<Map<String, String>>()
+            coEvery { mockApiService.claimJob(any(), capture(jobUuidSlot), any(), capture(bodySlot)) } throws IOException("timeout")
             val result = client.claimJob(mockUser, "test-uuid")
             assertTrue(result.isFailure)
             assertEquals(
                 PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
                 (result.exceptionOrNull() as ConnectApiException).errorCode,
             )
+            assertEquals("test-uuid", jobUuidSlot.captured)
+            assertTrue(bodySlot.captured.isEmpty())
         }
 
     @Test
     fun testConfirmPayments_success_returnsSuccess() =
         runBlocking {
-            coEvery { mockApiService.confirmPayments(any(), any(), any()) } returns
+            val requestSlot = slot<ConfirmPaymentsRequest>()
+            coEvery { mockApiService.confirmPayments(any(), any(), capture(requestSlot)) } returns
                 Response.success("".toResponseBody("application/json".toMediaType()))
-            val result = client.confirmPayments(mockUser, emptyList())
+            val mockPayment1 = mockk<ConnectJobPaymentRecord>()
+            every { mockPayment1.paymentUUID } returns "pay-1"
+            val mockPayment2 = mockk<ConnectJobPaymentRecord>()
+            every { mockPayment2.paymentUUID } returns "pay-2"
+            val confirmations =
+                listOf(
+                    ConnectPaymentConfirmationModel(mockPayment1, true),
+                    ConnectPaymentConfirmationModel(mockPayment2, false),
+                )
+            val result = client.confirmPayments(mockUser, confirmations)
             assertTrue(result.isSuccess)
+            assertEquals(2, requestSlot.captured.payments.size)
+            assertEquals(PaymentConfirmationBody("pay-1", "true"), requestSlot.captured.payments[0])
+            assertEquals(PaymentConfirmationBody("pay-2", "false"), requestSlot.captured.payments[1])
         }
 
     @Test
     fun testConfirmPayments_http500_returnsServerError() =
         runBlocking {
+            val requestSlot = slot<ConfirmPaymentsRequest>()
             val errorBody = "".toResponseBody("application/json".toMediaType())
-            coEvery { mockApiService.confirmPayments(any(), any(), any()) } returns Response.error(500, errorBody)
-            val result = client.confirmPayments(mockUser, emptyList())
+            coEvery { mockApiService.confirmPayments(any(), any(), capture(requestSlot)) } returns Response.error(500, errorBody)
+            val mockPayment1 = mockk<ConnectJobPaymentRecord>()
+            every { mockPayment1.paymentUUID } returns "pay-1"
+            val mockPayment2 = mockk<ConnectJobPaymentRecord>()
+            every { mockPayment2.paymentUUID } returns "pay-2"
+            val confirmations =
+                listOf(
+                    ConnectPaymentConfirmationModel(mockPayment1, true),
+                    ConnectPaymentConfirmationModel(mockPayment2, false),
+                )
+            val result = client.confirmPayments(mockUser, confirmations)
             assertTrue(result.isFailure)
             assertEquals(
                 PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
                 (result.exceptionOrNull() as ConnectApiException).errorCode,
             )
+            assertEquals(2, requestSlot.captured.payments.size)
+            assertEquals(PaymentConfirmationBody("pay-1", "true"), requestSlot.captured.payments[0])
+            assertEquals(PaymentConfirmationBody("pay-2", "false"), requestSlot.captured.payments[1])
         }
 }
