@@ -56,8 +56,6 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaCapableWidget {
 
-    public static final int REQUEST_CAMERA_PERMISSION = 1001;
-
     public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
     private static final String OVERLAY_SMALL = "overlay-small";

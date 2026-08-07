@@ -112,6 +112,7 @@ import static org.commcare.android.database.user.models.FormRecord.QuarantineRea
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_RECORD_ERROR;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
 import static org.commcare.tasks.SaveToDiskTask.SaveStatus.SAVE_UNRECOVERABLE_ERROR;
+import static org.commcare.views.widgets.QuestionWidget.REQUEST_CAMERA_PERMISSION;
 
 /**
  * Displays questions, animates transitions between
@@ -1732,7 +1733,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case ImageWidget.REQUEST_CAMERA_PERMISSION: {
+            case REQUEST_CAMERA_PERMISSION: {
 
                 QuestionWidget pendingWidget = getPendingWidget();
                 resetPendingCalloutIndex();
