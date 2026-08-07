@@ -3,7 +3,7 @@ package org.commcare.fragments.personalId
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.lifecycle.ViewModelProvider
+import androidx.annotation.CallSuper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseException
@@ -16,19 +16,13 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GetTokenResult
-import okhttp3.mockwebserver.MockWebServer
 import org.commcare.CommCareTestApplication
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.shadows.ShadowPhoneAuthProvider
 import org.commcare.android.util.FirebaseTestUtils
-import org.commcare.connect.network.ApiService
-import org.commcare.connect.network.base.BaseApiClient
-import org.commcare.connect.network.connectId.PersonalIdApiClient
 import org.commcare.dalvik.R
 import org.commcare.utils.OtpManager
 import org.commcare.views.connect.NumericCodeView
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -42,10 +36,11 @@ import org.robolectric.shadows.ShadowToast
 import org.robolectric.util.ReflectionHelpers
 
 /**
- * Drives the OTP request cycle end to end. A test supplies only the Firebase exception; everything
+ * Drives the OTP request cycle end to end. A test supplies only the Firebase outcome; everything
  * above it is production code — FirebaseAuthService classifies it and calls back into the fragment.
- * [ShadowPhoneAuthProvider] delivers the failure asynchronously, so the state before and after the
- * callback is separately observable via [ShadowLooper.idleMainLooper].
+ * [ShadowPhoneAuthProvider] delivers that outcome asynchronously, so a resend can be observed both
+ * before and after its callback lands. The launch-time request is already settled by the time
+ * launchWith returns, because navigateToFragment idles the looper itself.
  *
  * Runs above the project-wide sdk=23 default because the OTP screen inflates NumericCodeView,
  * which closes a TypedArray with try-with-resources; TypedArray only became AutoCloseable at API 31.
@@ -56,54 +51,50 @@ import org.robolectric.util.ReflectionHelpers
     shadows = [ShadowPhoneAuthProvider::class],
 )
 @RunWith(AndroidJUnit4::class)
-class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdPhoneFragmentTest() {
-    private lateinit var verificationFragment: PersonalIdPhoneVerificationFragment
+class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<PersonalIdPhoneVerificationFragment>() {
     private lateinit var sessionData: PersonalIdSessionData
-    private var mockWebServer: MockWebServer? = null
 
     @Before
-    fun initializeFirebase() {
+    @CallSuper
+    override fun setUp() {
+        super.setUp()
         FirebaseTestUtils.initializeDefaultAppIfNeeded()
         ShadowPhoneAuthProvider.reset()
     }
 
-    @After
-    fun resetPhoneAuthProvider() {
+    @CallSuper
+    override fun tearDown() {
         ShadowPhoneAuthProvider.reset()
-        mockWebServer?.let {
-            apiServiceField().set(null, null)
-            it.shutdown()
-            mockWebServer = null
-        }
+        activityController.pause().stop().destroy()
+        super.tearDown()
+    }
+
+    /**
+     * The Firebase outcome has to be staged before launching, because the fragment requests an OTP
+     * from onCreateView.
+     */
+    private fun launchWith(
+        smsMethod: String?,
+        otpFallback: Boolean,
+    ) {
+        sessionData =
+            PersonalIdSessionData(
+                smsMethod = smsMethod,
+                otpFallback = otpFallback,
+                phoneNumber = "+15555550123",
+                token = "test-session-token",
+            )
+        navigateToFragment(sessionData, R.id.personalid_otp_page)
     }
 
     private fun givenFirebaseFailsWith(e: FirebaseException) = ShadowPhoneAuthProvider.failWith(e)
 
-    private fun apiServiceField() = PersonalIdApiClient::class.java.getDeclaredField("apiService").apply { isAccessible = true }
-
-    /**
-     * Points the PersonalID API at a MockWebServer. Started per test rather than for the whole class
-     * so the failure tests keep reaching the unmodified client.
-     */
-    private fun givenPersonalIdApiIsMocked(): MockWebServer {
-        val server = MockWebServer()
-        server.start()
-        val apiService =
-            BaseApiClient
-                .buildRetrofitClient(server.url("/").toString(), PersonalIdApiClient.API_VERSION)
-                .create(ApiService::class.java)
-        apiServiceField().set(null, apiService)
-        mockWebServer = server
-        return server
-    }
-
     /**
      * Replaces the FirebaseAuth held by the live FirebaseAuthService so signInWithCredential and
-     * getIdToken resolve successfully. Reads the field at call time, so injecting after the fragment
-     * is created is enough.
+     * getIdToken resolve successfully. Read at call time, so injecting after launch is enough.
      */
     private fun stubFirebaseSignInWith(idToken: String) {
-        val otpManager = ReflectionHelpers.getField<Any>(verificationFragment, "otpManager")
+        val otpManager = ReflectionHelpers.getField<Any>(fragment, "otpManager")
         val authService = ReflectionHelpers.getField<Any>(otpManager, "authService")
 
         val tokenResult = mock(GetTokenResult::class.java)
@@ -121,43 +112,15 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdPhoneFragmentTest(
         ReflectionHelpers.setField(authService, "firebaseAuth", firebaseAuth)
     }
 
-    private fun codeView() = verificationFragment.requireView().findViewById<NumericCodeView>(R.id.customOtpView)
+    private fun lastOtpMethod(): String? = ReflectionHelpers.getField(fragment, "lastOtpMethod")
 
-    private fun verifyButton() = verificationFragment.requireView().findViewById<Button>(R.id.connect_phone_verify_button)
+    private fun codeView() = fragment.requireView().findViewById<NumericCodeView>(R.id.customOtpView)
 
-    private fun launchWith(
-        smsMethod: String?,
-        otpFallback: Boolean,
-    ) {
-        sessionData =
-            PersonalIdSessionData().apply {
-                this.smsMethod = smsMethod
-                this.otpFallback = otpFallback
-                this.phoneNumber = "+15555550123"
-                // The PersonalID OTP API requires a session token from start configuration.
-                this.token = "test-session-token"
-            }
-        ViewModelProvider(activity)[PersonalIdSessionDataViewModel::class.java]
-            .personalIdSessionData = sessionData
+    private fun verifyButton() = fragment.requireView().findViewById<Button>(R.id.connect_phone_verify_button)
 
-        verificationFragment = PersonalIdPhoneVerificationFragment()
-        activity.supportFragmentManager
-            .beginTransaction()
-            .add(verificationFragment, "otp")
-            .commitNow()
-    }
+    private fun errorView() = fragment.requireView().findViewById<TextView>(R.id.connect_phone_verify_error)
 
-    private fun lastOtpMethod(): String? {
-        val field =
-            PersonalIdPhoneVerificationFragment::class.java
-                .getDeclaredField("lastOtpMethod")
-        field.isAccessible = true
-        return field.get(verificationFragment) as String?
-    }
-
-    private fun errorView() = verificationFragment.requireView().findViewById<TextView>(R.id.connect_phone_verify_error)
-
-    private fun resendButton() = verificationFragment.requireView().findViewById<View>(R.id.connect_resend_button)
+    private fun resendButton() = fragment.requireView().findViewById<View>(R.id.connect_resend_button)
 
     @Test
     fun `session sms method of personal_id is tracked as personal_id not firebase`() {
@@ -192,12 +155,9 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdPhoneFragmentTest(
         givenFirebaseFailsWith(FirebaseException("An internal error has occurred."))
 
         launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
-        assertEquals(OtpManager.SMS_METHOD_FIREBASE, lastOtpMethod())
-        assertEquals(1, sessionData.otpAttempts)
-
-        ShadowLooper.idleMainLooper()
 
         assertEquals(OtpManager.SMS_METHOD_PERSONAL_ID, lastOtpMethod())
+        assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
         assertEquals(2, sessionData.otpAttempts)
     }
 
@@ -269,16 +229,11 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdPhoneFragmentTest(
 
     /**
      * onCodeVerified is Firebase's local verification step, reached only once signInWithCredential
-     * and getIdToken both resolve -- hence the stubbed FirebaseAuth.
-     *
-     * FirebaseAuthService calls submitOtp(idToken) on the line straight after onCodeVerified, so
-     * reaching the toast unavoidably dispatches a PersonalID request. The MockWebServer is what stops
-     * that request reaching the live server at PersonalIdApiClient.BASE_URL; its response is never
-     * asserted on, and nothing is enqueued for it.
+     * and getIdToken both resolve -- hence the stubbed FirebaseAuth. FirebaseAuthService submits the
+     * token on the line straight after, which the base class's mock server absorbs.
      */
     @Test
     fun `verifying a firebase code shows the verified acknowledgement`() {
-        givenPersonalIdApiIsMocked()
         ShadowPhoneAuthProvider.sendCodeWith("test-verification-id")
 
         launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
@@ -300,11 +255,8 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdPhoneFragmentTest(
         givenFirebaseFailsWith(FirebaseTooManyRequestsException("quota exceeded"))
 
         launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
-        assertEquals(OtpManager.SMS_METHOD_FIREBASE, lastOtpMethod())
-        assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
-
-        ShadowLooper.idleMainLooper()
         assertEquals(OtpManager.SMS_METHOD_PERSONAL_ID, lastOtpMethod())
+        assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
         assertEquals(2, sessionData.otpAttempts)
 
         resendButton().performClick()
