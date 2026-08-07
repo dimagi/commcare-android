@@ -67,7 +67,7 @@ When to run it depends on whether the Kotlin file is new or existing:
 - Instrumentation tests: `app/instrumentation-tests/`
 
 ## Project Structure Notes
-- CommCare Core is in `../commcare-core/`, always include it to the working directory for the current session
+- CommCare Core is in `libs/commcare-core/` (a git submodule), always include it to the working directory for the current session
 - Connect and PersonalID share `org.commcare.connect` package
 - PersonalID Fragments are in `org.commcare.fragments.personalId` package
 - This is a multi-module Android project. When asked to find a file or class, search across all modules (commcare-android, commcare-core, commcare-support-library) rather than assuming the default module.
