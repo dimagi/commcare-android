@@ -112,6 +112,10 @@ public class DispatchActivity extends AppCompatActivity {
         } else if (getIntent().hasExtra(EXTRA_APP_ID)) {
             redirectToLoginAppId = getIntent().getStringExtra(EXTRA_APP_ID);
             forceSingleAppMode = getIntent().getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
+            userTriggeredLogout = getIntent().getBooleanExtra(
+                    LoginActivity.USER_TRIGGERED_LOGOUT,
+                    false
+            );
         }
     }
 

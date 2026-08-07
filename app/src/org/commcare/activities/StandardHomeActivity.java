@@ -286,16 +286,11 @@ public class StandardHomeActivity
     }
 
     private void requestAppSwitch(String appId) {
-        Intent intent = new Intent();
+        Intent intent = new Intent(this, DispatchActivity.class);
         intent.putExtra(EXTRA_APP_ID, appId);
         intent.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
-
-        if (getCallingActivity() == null) {
-            intent.setClass(this, DispatchActivity.class);
-            startActivity(intent);
-        } else {
-            setResult(RESULT_OK, intent);
-        }
+        intent.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
+        startActivity(intent);
     }
 
     @Override
