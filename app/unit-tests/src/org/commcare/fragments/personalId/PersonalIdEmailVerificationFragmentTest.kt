@@ -1,6 +1,5 @@
 package org.commcare.fragments.personalId
 
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -31,11 +30,8 @@ import org.robolectric.shadows.ShadowLooper
  * Uses MockWebServer to make the verify-OTP HTTP call deterministic (mirroring
  * PersonalIdPhoneFragmentStartConfigurationTest) and TestNavHostController so outbound
  * navigation can be observed without instantiating destination fragments.
- *
- * Pinned to API 32 because NumericCodeView uses try-with-resources on TypedArray, and
- * TypedArray.close() was added in API 31. Robolectric 4.8.2 supports up to API 32 (S_V2).
  */
-@Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.S_V2])
+@Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
     @Before
