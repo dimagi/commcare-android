@@ -109,6 +109,9 @@ public class DispatchActivity extends AppCompatActivity {
             waitingForActivityResultFromLogin = savedInstanceState.getBoolean(
                     KEY_WAITING_FOR_ACTIVITY_RESULT
             );
+        } else if (getIntent().hasExtra(EXTRA_APP_ID)) {
+            redirectToLoginAppId = getIntent().getStringExtra(EXTRA_APP_ID);
+            forceSingleAppMode = getIntent().getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
         }
     }
 

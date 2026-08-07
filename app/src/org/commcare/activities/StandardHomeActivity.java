@@ -253,10 +253,7 @@ public class StandardHomeActivity
                     if(!recordId.equals(currentSeatedId)) {
                         //Navigate to LoginActivity for selected app
                         CommCareApplication.instance().closeUserSession();
-                        Intent i = new Intent();
-                        i.putExtra(EXTRA_APP_ID, recordId);
-                        i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
-                        setResult(RESULT_OK, i);
+                        requestAppSwitch(recordId);
                         finish();
                     }
                 }
@@ -285,6 +282,19 @@ public class StandardHomeActivity
                     navigateToWorkHistory();
                 }
             }
+        }
+    }
+
+    private void requestAppSwitch(String appId) {
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_APP_ID, appId);
+        intent.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
+
+        if (getCallingActivity() == null) {
+            intent.setClass(this, DispatchActivity.class);
+            startActivity(intent);
+        } else {
+            setResult(RESULT_OK, intent);
         }
     }
 
