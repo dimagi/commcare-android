@@ -8,10 +8,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
@@ -93,6 +95,21 @@ class ConnectRepository
                 mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
             )
 
+        fun startLearning(
+            user: ConnectUserRecord,
+            jobUUID: String,
+        ): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.startLearnApp(user, jobUUID) }
+
+        fun claimJob(
+            user: ConnectUserRecord,
+            jobUUID: String,
+        ): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.claimJob(user, jobUUID) }
+
+        fun confirmPayments(
+            user: ConnectUserRecord,
+            paymentConfirmations: List<ConnectPaymentConfirmationModel>,
+        ): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.confirmPayments(user, paymentConfirmations) }
+
         /**
          * Emits Cached first,then Loading, then Success or Error after network call.
          * DB writes go in [onNetworkSuccess], re-read in [mapToEmit].
@@ -129,6 +146,14 @@ class ConnectRepository
                 result
                     .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
                     .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
+            }.flowOn(Dispatchers.IO)
+
+        private fun <T> networkOnlyFlow(networkCall: suspend () -> Result<T>): Flow<DataState<T>> =
+            flow {
+                emit(DataState.Loading)
+                networkCall()
+                    .onSuccess { emit(DataState.Success(it)) }
+                    .onFailure { emit(DataState.Error.from(it)) }
             }.flowOn(Dispatchers.IO)
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> {
