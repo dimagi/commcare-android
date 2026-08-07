@@ -131,9 +131,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 if (otpCallback == null) return;
 
                 // Auto-switch from Firebase to PersonalId for non-recoverable errors
-                if (shouldAutoSwitchToPersonalIdAuth(errorType)) {
+                if (shouldAutoSwitchToPersonalIdAuth(errorType) && setupOtpManager(true)) {
                     Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-switching from Firebase to PersonalId auth due to error: " + errorType);
-                    setupOtpManager(true);
                     requestOtp();
                     return;
                 }
@@ -435,7 +434,12 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         Navigation.findNavController(binding.getRoot()).navigate(directions);
     }
 
-    private void setupOtpManager(Boolean useOtpFallback) {
+    /**
+     * @return true if the PersonalID fallback was explicitly applied, false if it was not
+     *         requested or is not allowed for this user. Note that false does not imply Firebase:
+     *         the session's own SMS method may already be PersonalID.
+     */
+    private boolean setupOtpManager(Boolean useOtpFallback) {
         // Check if using the OTP fallback is allowed for the current user.
         Boolean allowedToFallback = personalIdSessionData.getOtpFallback();
 
@@ -448,14 +452,20 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     SMS_METHOD_PERSONAL_ID
             );
             lastOtpMethod = SMS_METHOD_PERSONAL_ID;
-        } else {
-            otpManager = new OtpManager(
-                    activity,
-                    personalIdSessionData,
-                    otpCallback
-            );
-            lastOtpMethod = SMS_METHOD_FIREBASE;
+            return true;
         }
+
+        // This constructor derives the method from the session data, which may itself be
+        // PersonalID, so track whatever it resolved rather than assuming Firebase.
+        otpManager = new OtpManager(
+                activity,
+                personalIdSessionData,
+                otpCallback
+        );
+        lastOtpMethod = SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())
+                ? SMS_METHOD_PERSONAL_ID
+                : SMS_METHOD_FIREBASE;
+        return false;
     }
 
     @Override

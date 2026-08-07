@@ -2,6 +2,19 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.63.5
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- During PersonalID sign-up, the OTP request will automatically fall back to Twilio if Firebase encounters an unrecoverable error—without requiring the user to tap 'Resend Code'.
+
+### QA Notes
+
+- On a device where PersonalID sign-up previously got stuck due to a Firebase OTP error, a pre-invited user will now receive the OTP via Twilio automatically and can complete the sign-up flow.
+- Confirm that entering an incorrect verification code still displays the "incorrect code" error and does not silently trigger a new OTP.
+
 ## CommCare 2.63.4
 
 ### Release Notes
