@@ -192,6 +192,7 @@ public class MicroImageActivity extends BaseCameraActivity implements ImageAnaly
     }
 
     private void showManualModeUI() {
+        cameraControlsContainer.setVisibility(VISIBLE);
         cameraShutterButton.setVisibility(VISIBLE);
         cameraCaptureInstructions.setText(R.string.face_capture_manual_instructions);
         cameraCaptureModeIndicator.setText(R.string.face_capture_manual_mode);
