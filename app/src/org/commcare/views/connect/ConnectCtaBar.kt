@@ -49,6 +49,12 @@ class ConnectCtaBar
             get() = binding.ctaInfoBanner.text
             set(value) = binding.ctaInfoBanner.bindOptional(value)
 
+        var isCtaEnabled: Boolean
+            get() = binding.ctaButton.isEnabled
+            set(value) {
+                binding.ctaButton.isEnabled = value
+            }
+
         init {
             orientation = VERTICAL
 
