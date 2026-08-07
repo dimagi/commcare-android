@@ -10,7 +10,8 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.connect.ConnectApiHandler
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.ConnectApiException
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.applyToJob
@@ -131,47 +132,39 @@ object ConnectJobHelper {
         paymentConfirmations: List<ConnectPaymentConfirmationModel>,
         listener: ConnectActivityCompleteListener,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(context)
-
-        object : ConnectApiHandler<Boolean>() {
-            override fun onSuccess(data: Boolean) {
-                for (paymentConfirmation in paymentConfirmations) {
-                    paymentConfirmation.payment.confirmed = paymentConfirmation.toConfirm
-                    ConnectJobUtils.storePayment(context, paymentConfirmation.payment)
-                }
-
-                FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(true)
-                listener.connectActivityComplete(true)
-            }
-
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                val error = PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, t)
-                FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
-                listener.connectActivityComplete(false, error)
-            }
-        }.setPaymentConfirmations(context, user, paymentConfirmations)
+        val user = ConnectUserDatabaseUtil.getUser(context) ?: return
+        CoroutineScope(Dispatchers.IO).launch {
+            val result = ConnectNetworkClient.getInstance().confirmPayments(user, paymentConfirmations)
+            result.fold(
+                onSuccess = {
+                    for (paymentConfirmation in paymentConfirmations) {
+                        paymentConfirmation.payment.confirmed = paymentConfirmation.toConfirm
+                        ConnectJobUtils.storePayment(context, paymentConfirmation.payment)
+                    }
+                    FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(true)
+                    withContext(Dispatchers.Main) { listener.connectActivityComplete(true) }
+                },
+                onFailure = { throwable ->
+                    val errorCode =
+                        (throwable as? ConnectApiException)?.errorCode
+                            ?: PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR
+                    val error = PersonalIdOrConnectApiErrorHandler.handle(context, errorCode, throwable)
+                    FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
+                    withContext(Dispatchers.Main) { listener.connectActivityComplete(false, error) }
+                },
+            )
+        }
     }
 
     fun retrieveOpportunities(
         context: Context,
         listener: ConnectActivityCompleteListener,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(context)
-        object : ConnectApiHandler<List<ConnectJobRecord>>() {
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?,
-            ) {
-                listener.connectActivityComplete(false)
-            }
-
-            override fun onSuccess(data: List<ConnectJobRecord>) {
-                listener.connectActivityComplete(true)
-            }
-        }.getConnectOpportunities(context, user!!)
+        val user = ConnectUserDatabaseUtil.getUser(context) ?: return
+        CoroutineScope(Dispatchers.IO).launch {
+            val success = ConnectNetworkClient.getInstance().getConnectOpportunities(user).isSuccess
+            withContext(Dispatchers.Main) { listener.connectActivityComplete(success) }
+        }
     }
 
     fun resolveGenericOpportunityDestination(
