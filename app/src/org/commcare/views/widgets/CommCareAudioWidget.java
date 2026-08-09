@@ -96,6 +96,7 @@ public class CommCareAudioWidget extends AudioWidget
 
         captureButton.setOnClickListener(v -> {
             if (Permissions.missingAppPermission((AppCompatActivity)getContext(), RECORD_AUDIO)) {
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 if (Permissions.shouldShowPermissionRationale(
                         (AppCompatActivity)getContext(),
                         Manifest.permission.RECORD_AUDIO)
@@ -134,6 +135,15 @@ public class CommCareAudioWidget extends AudioWidget
 
         showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
         chooseButton.setVisibility(showFileChooser ? VISIBLE : GONE);
+    }
+
+    @Override
+    public void notifyPermission(String permission, boolean permissionGranted) {
+        if (permission.contentEquals(RECORD_AUDIO)) {
+            if (permissionGranted) {
+                captureAudio(mPrompt);
+            }
+        }
     }
 
     @Override

@@ -1739,7 +1739,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_CAMERA_PERMISSION: {
+            case REQUEST_CAMERA_PERMISSION, REQUEST_RECORD_AUDIO_PERMISSION: {
 
                 QuestionWidget pendingWidget = getPendingWidget();
                 resetPendingCalloutIndex();
