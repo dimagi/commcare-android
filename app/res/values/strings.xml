@@ -863,4 +863,7 @@
     <string name="face_capture_auto_mode" cc:translatable="true">Auto capture</string>
     <string name="face_capture_manual_mode" cc:translatable="true">Manual capture</string>
     <string name="face_capture_front_camera_unavailable" cc:translatable="true">Front-facing camera is not available, the option to switch cameras will be disabled</string>
+
+    <string name="permission_microphone_title" cc:translatable="true">Permission for Microphone</string>
+    <string name="permission_microphone_message" cc:translatable="true">In order to record an audio, CommCare needs permission to use your microphone.</string>
 </resources>
