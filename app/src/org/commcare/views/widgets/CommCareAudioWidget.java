@@ -142,6 +142,12 @@ public class CommCareAudioWidget extends AudioWidget
         if (permission.contentEquals(RECORD_AUDIO)) {
             if (permissionGranted) {
                 captureAudio(mPrompt);
+            } else {
+                Toast.makeText(
+                        getContext(),
+                        StringUtils.getStringRobust(getContext(), R.string.permission_microphone_denial_message),
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         }
     }
