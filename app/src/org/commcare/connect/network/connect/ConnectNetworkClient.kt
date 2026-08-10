@@ -10,8 +10,11 @@ import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
+import org.commcare.connect.network.connect.models.PaymentConfirmationBody
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
@@ -73,6 +76,49 @@ class ConnectNetworkClient
                 user = user,
                 apiCall = { auth -> apiService.getDeliveryProgress(auth, job.jobUUID, versionHeaders()) },
                 parse = { code, stream -> DeliveryAppProgressResponseParser<DeliveryAppProgressResponseModel>().parse(code, stream, job) },
+            )
+
+        suspend fun startLearnApp(
+            user: ConnectUserRecord,
+            jobUUID: String,
+        ): Result<Unit> =
+            executeApiCall(
+                user = user,
+                apiCall = { auth -> apiService.startLearnApp(auth, versionHeaders(), jobUUID) },
+                parse = { _, _ -> Unit },
+            )
+
+        suspend fun claimJob(
+            user: ConnectUserRecord,
+            jobUUID: String,
+        ): Result<Unit> =
+            executeApiCall(
+                user = user,
+                apiCall = { auth -> apiService.claimJob(auth, jobUUID, versionHeaders(), emptyMap()) },
+                parse = { _, _ -> Unit },
+            )
+
+        suspend fun confirmPayments(
+            user: ConnectUserRecord,
+            paymentConfirmations: List<ConnectPaymentConfirmationModel>,
+        ): Result<Unit> =
+            executeApiCall(
+                user = user,
+                apiCall = { auth ->
+                    apiService.confirmPayments(auth, versionHeaders(), getConfirmPaymentsRequest(paymentConfirmations))
+                },
+                parse = { _, _ -> Unit },
+            )
+
+        private fun getConfirmPaymentsRequest(paymentConfirmations: List<ConnectPaymentConfirmationModel>) =
+            ConfirmPaymentsRequest(
+                payments =
+                    paymentConfirmations.map { confirmation ->
+                        PaymentConfirmationBody(
+                            id = confirmation.payment.paymentUUID,
+                            confirmed = if (confirmation.toConfirm) "true" else "false",
+                        )
+                    },
             )
 
         private suspend fun <T> executeApiCall(
