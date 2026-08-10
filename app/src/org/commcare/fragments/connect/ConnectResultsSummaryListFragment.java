@@ -48,6 +48,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
     @Override
     public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+        reloadActiveJob();
         setupRecyclerView();
         updateSummaryView();
         return view;
@@ -60,11 +61,11 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
     }
 
     public void updateView() {
+        reloadActiveJob();
         updateSummaryView();
 
         if (adapter != null) {
-            adapter.rebuildPaymentsDisplayList();
-            adapter.notifyDataSetChanged();
+            adapter.updateJobForAdapter(job);
         }
     }
 
@@ -88,7 +89,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        private final ConnectJobRecord job;
+        private ConnectJobRecord job;
         private final boolean showPayments;
         private final Context context;
         private final ArrayList<ConnectJobPaymentRecord> payments = new ArrayList<>();
@@ -288,6 +289,12 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
 
             payments.addAll(unconfirmedPayments);
             payments.addAll(confirmedPayments);
+        }
+
+        void updateJobForAdapter(ConnectJobRecord updatedJob) {
+            job = updatedJob;
+            rebuildPaymentsDisplayList();
+            notifyDataSetChanged();
         }
 
         void rebuildPaymentsDisplayList() {

@@ -60,10 +60,10 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
 
     private static final String OVERLAY_SMALL = "overlay-small";
 
-    private final Button mCaptureButton;
+    protected final Button mCaptureButton;
     protected final Button mChooseButton;
     private final Button mDiscardButton;
-    private ImageView mImageView;
+    protected ImageView mImageView;
 
     private String mBinaryName;
 

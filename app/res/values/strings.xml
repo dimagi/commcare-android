@@ -858,12 +858,13 @@
     <string name="recording_notification_resume_action" cc:translatable="true">Resume</string>
 
     <string name="clear_search_button_description">Clear query</string>
-    <string name="face_capture_manual_instructions" cc:translatable="true">Center a face inside the frame, then tap the white button to take the picture</string>
-    <string name="face_capture_auto_instructions" cc:translatable="true">Center a face inside the frame, hold still to trigger the auto-capture process</string>
+    <string name="face_capture_manual_instructions" cc:translatable="true">Center a face inside the green outline then tap the white button to take the picture</string>
+    <string name="face_capture_auto_instructions" cc:translatable="true">Center a face inside the green outline and hold still, the photo will capture automatically</string>
     <string name="face_capture_auto_mode" cc:translatable="true">Auto capture</string>
     <string name="face_capture_manual_mode" cc:translatable="true">Manual capture</string>
     <string name="face_capture_front_camera_unavailable" cc:translatable="true">Front-facing camera is not available, the option to switch cameras will be disabled</string>
-
+    <string name="face_capture_retake_photo" cc:translatable="true">Retake photo</string>
+  
     <string name="permission_microphone_title" cc:translatable="true">Permission for Microphone</string>
     <string name="permission_microphone_message" cc:translatable="true">In order to record an audio, CommCare needs permission to use your microphone.</string>
     <string name="permission_microphone_denial_message" cc:translatable="true">CommCare doesn\'t have the permission to use your microphone. Please enable via Android\'s settings.</string>

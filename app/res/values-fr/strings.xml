@@ -666,11 +666,12 @@ License.
     <string name="microimage_cropping_failed">Échec du recadrage de l\'image, assurez-vous que la cible est dans la zone de capture</string>
     <string name="microimage_saving_failed">Impossible d\'enregistrer l\'image. Veuillez réessayer</string>
     <string name="face_capture_activity_title">Prendre une photo de visage</string>
-    <string name="face_capture_manual_instructions">Centrez un visage dans le cadre, puis appuyez sur le bouton blanc pour prendre la photo</string>
-    <string name="face_capture_auto_instructions">Centrez un visage dans le cadre et restez immobile pour déclencher la capture automatique</string>
+    <string name="face_capture_manual_instructions">Centrez un visage dans le contour vert, puis appuyez sur le bouton blanc pour prendre la photo</string>
+    <string name="face_capture_auto_instructions">Centrez un visage dans le contour vert et restez immobile, la photo sera prise automatiquement</string>
     <string name="face_capture_auto_mode">Capture automatique</string>
     <string name="face_capture_manual_mode">Capture manuelle</string>
     <string name="face_capture_front_camera_unavailable">La caméra frontale n\'est pas disponible, l\'option de changer de caméra sera désactivée</string>
+    <string name="face_capture_retake_photo">Reprendre la photo</string>
 
     <string name="recording_notification_save_action">Enregistrer</string>
     <string name="recording_notification_pause_action">Pause</string>
