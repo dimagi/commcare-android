@@ -8,7 +8,8 @@
 - Gradle wrapper unusable in sandbox (`~/.gradle` not writable). `./gradlew ktlintFile` always fails — the `.claude/hooks/ktlint-check.sh` PostToolUse hook blocks every Kotlin Edit/Write.
 - Workaround: edit via Bash (sed/python) — Bash isn't matched by the hook. Validate with standalone ktlint at https://github.com/pinterest/ktlint/releases/download/1.5.0/ktlint (matches super-linter v8.3.1).
 - `gh` CLI is unauthenticated — use GitHub MCP tools and safeoutputs MCP tools.
-- To find target PRs, use `search_pull_requests` with `is:pr is:open in:title "[Test Improver]"`. Do NOT use `list_pull_requests` — the repo has ~40 open PRs and the full response (~190KB) overflows the tool-result limit.
+- To find target PRs, use `search_pull_requests` with `is:pr is:open in:title "[Test Improver]"`. Do NOT use `list_pull_requests` — the repo has ~45 open PRs and the full response (~207KB) overflows the tool-result limit.
+- If `list_pull_requests` is called anyway, don't re-fetch: the overflow error names a saved JSON file, and `jq -r '.[] | "\(.number)\t\(.title)"' <file>` reads it cheaply (it's a flat array of PR objects, `.head.ref` for branch).
 
 ## Avoid duplicate summaries
 If all of a PR's feedback is already implemented at head AND a prior run already posted a "no action needed / already addressed" summary, call `noop` — do NOT re-post another identical summary. Only comment when there's a new change, a new clarification needed, or a genuinely new state to report.
