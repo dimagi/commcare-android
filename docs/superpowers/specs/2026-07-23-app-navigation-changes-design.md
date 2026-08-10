@@ -4,32 +4,60 @@
 
 **Ticket:** [CCCT-2520](https://dimagi.atlassian.net/browse/CCCT-2520) · **Related:** [PR #3776](https://github.com/dimagi/commcare-android/pull/3776) (Opportunity Home composition), [PR #3765](https://github.com/dimagi/commcare-android/pull/3765) (silent app launch)
 
-The two diagrams below are the target behavior, carried over from the design doc for reference.
+The diagrams below are carried over from the design doc for reference.
 
 **Where the app opens**
 
 ```mermaid
 flowchart TD
-    Open([User opens the app]) --> Active{Session still active?}
-    Active -- Yes --> Resume[Reopen the last screen they were on]
-    Active -- No --> Type{What has the user set up?}
-    Type -- Nothing yet --> Intro[Intro screen]
-    Type -- CommCare apps only --> Apps[CommCare Apps list]
-    Type -- Has Connect opportunities --> Opp{Opened an opportunity before?}
-    Opp -- Yes --> Home[Home of the most recently opened opportunity]
-    Opp -- No, but only has one opportunity --> HomeSingle[Home of that opportunity]
-    Opp -- No, and has several opportunities --> List[Opportunity List]
+    Open([User opens the app]) --> Active{Logged into a CommCare app?}
+    Active -->|Yes, and user is Traditional CommCare or PersonalID| AppHome[App Home]
+    Active -->|Yes, and user is Connect| OppHome[Opportunity Home]
+    Active -->|No| Type{What has the user set up?}
+    Type -->|Nothing yet| Intro[Intro screen]
+    Type -->|Only CommCare apps| Apps[CommCare Apps list]
+    Type -->|Only Connect opportunities| Opp{Opened an opportunity before?}
+    Type -->|Both| Last{Which did they use last?}
+    Last -->|A CommCare app| Apps
+    Last -->|A Connect opportunity| Opp
+    Opp -->|Yes| Home[Home of the most recently opened opportunity]
+    Opp -->|No, but only has one opportunity| HomeSingle[Home of that opportunity]
+    Opp -->|No, and has several opportunities| List[Opportunity List]
+```
+
+**When startup fails (Connect)**
+
+```mermaid
+flowchart TD
+    Start([Connect user opens the mobile app]) --> Unlock{Unlock PersonalID}
+    Unlock -->|Cancelled or fails| Exit([Exit the app])
+    Unlock -->|Success| Land[Opportunity Home]
+    Land --> Login{Silent sign-in to the app}
+    Login -->|Success| Ready[Opportunity Home, ready to use]
+    Login -->|Network / temporary error| Retry[Opportunity Home with an error and a Retry]
+    Login -->|PersonalID credentials lost| Reregister[Re-register PersonalID]
 ```
 
 **How the Back button behaves**
 
+Back reverses the user's forward steps; the screen the app launched to is the task root, so Back exits from it, and a screen reached by navigating returns to its opener. In-page tabs and drawer section-switches are exceptions that don't retrace — the design doc has the full detail.
+
 ```mermaid
 flowchart TD
-  OppHome[Opportunity Home] -->|Back| OppList[Opportunity List]
-  AppHome[CommCare app Home] -->|Back| AppsList[CommCare Apps list]
-  OppList -->|Back| ExitA([Exit app])
-  AppsList -->|Back| ExitB([Exit app])
-  Detail[Settings / About / Profile detail] -. Back .-> Opener[Screen it was opened from]
+    A[Mobile app opened directly to a Home] -->|Back| AExit([Exit app])
+    B[Opportunity List] -->|tap an opportunity| BHome[Opportunity Home]
+    BHome -->|Back| B
+    B -->|Back| BExit([Exit app])
+```
+
+**Near-term scope: before the CommCare Apps List exists**
+
+The diagrams above are the target; until the CommCare Apps List ships, the current Login Page is the interim home for traditional and PersonalID users — so at startup the "CommCare Apps list" landing becomes the Login Page. Back follows the same rule: it exits directly when App Home was the launch screen, and retraces to the Login Page when the user logged in there (below).
+
+```mermaid
+flowchart TD
+    AppHome[App Home] -->|Back| Login[Login Page]
+    Login -->|Back| Exit([Exit app])
 ```
 
 ## Why today's navigation can't deliver this
@@ -44,15 +72,15 @@ Two changes deliver the target behavior.
 
 **1. A one-time startup router.** A single resolver runs *once* at launch, decides the landing screen, and hands off — taking over the routing role `DispatchActivity` plays today. Running once (instead of on every foreground) is what removes the re-dispatch loop, and it adds the Connect-home branch the current tree lacks. Its outcomes are the "Where the app opens" diagram.
 
-**2. A two-tier structure with stack-based Back.** The identity / Connect / list screens are consolidated into one navigation surface (the "shell"); the CommCare app runtime stays a separately launched screen. Back is then driven by the real screen stack — the user's home screen is the task root (Back there exits) and every other screen sits above it — so the per-case flags disappear. Connect opportunity screens become app-capable *in place* (via #3776), so opening an opportunity doesn't launch a separate home screen and the stack can't grow. This produces the "How the Back button behaves" diagram.
+**2. A two-tier structure with stack-based Back.** The identity / Connect / list screens are consolidated into one navigation surface (the "shell"); the CommCare app runtime stays a separately launched screen. Back is then driven by the real screen stack — the screen the app launched to is the task root (Back exits it) and every screen the user navigates to sits above it — so the per-case flags disappear. Connect opportunity screens become app-capable *in place* (via #3776), so opening an opportunity doesn't launch a separate home screen and the stack can't grow. This produces the "How the Back button behaves" diagram.
 
 ## Why this covers the tricky cases
 
 The stack-based model resolves the edge cases from [#3765's edge-cases doc](https://docs.google.com/document/d/1jiVEbljnR8abPwJnKzqULTEqbAxU_PAt9sRWkPjTB9k/edit?usp=sharing) without special-casing:
 
-- Backing out of a list exits because the list *is* the task root — the same rule whether or not an app was launched (no `appLaunchedFromConnect`-style flag).
+- Backing out of the launch screen exits, because that screen *is* the task root — the same rule whether the user launched there or navigated there (no `appLaunchedFromConnect`-style flag).
 - Switching apps, or re-launching a running app, reuses the existing home rather than leaving a stale one to Back into.
-- One deliberate improvement over today: a notification deep-link builds a real parent screen underneath, so Back returns to the list instead of dropping the user out on the first press.
+- A notification deep-link opens directly to its target, which is then the task root, so Back exits — consistent with every other launch, with no special deep-link back-stack.
 
 ## Dependencies
 
@@ -79,16 +107,16 @@ Testing strategy:
 ### Startup router
 
 - **Discriminator:** how the current session was established — a PersonalID-authenticated session on an opportunity-linked app resumes Opportunity Home; a manual or non-opportunity session resumes the CommCare app home. Verify the live-session signal agrees with `evaluateAppState`.
-- **Inputs → source:**
+**Inputs → source:**
 
-  | Input | Source |
-  |---|---|
-  | Active session? (~24h) | [`CommCareApplication.getSession().isActive()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/CommCareApplication.java#L969) |
-  | Seated-app linkage | [`PersonalIdManager.evaluateAppState`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L520) / [`ConnectJobHelper.getJobForSeatedApp`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/ConnectJobHelper.kt#L23) |
-  | PersonalID status | [`PersonalIdManager.isloggedIn()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L149) |
-  | Connect access + opportunities | [`ConnectUserDatabaseUtil.hasConnectAccess()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/database/ConnectUserDatabaseUtil.java#L44) + opportunity records |
-  | Installed apps | [`MultipleAppsUtil.usableAppsPresent()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/utils/MultipleAppsUtil.java#L50) |
-  | Last-accessed opportunity / last session context | new persistence (below) |
+| Input | Source |
+|---|---|
+| Active session? (~24h) | [`CommCareApplication.getSession().isActive()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/CommCareApplication.java#L969) |
+| Seated-app linkage | [`PersonalIdManager.evaluateAppState`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L520) / [`ConnectJobHelper.getJobForSeatedApp`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/ConnectJobHelper.kt#L23) |
+| PersonalID status | [`PersonalIdManager.isloggedIn()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L149) |
+| Connect access + opportunities | [`ConnectUserDatabaseUtil.hasConnectAccess()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/database/ConnectUserDatabaseUtil.java#L44) + opportunity records |
+| Installed apps | [`MultipleAppsUtil.usableAppsPresent()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/utils/MultipleAppsUtil.java#L50) |
+| Last-accessed opportunity / last session context | new persistence (below) |
 
 - **Precedence:** (1) explicit intent-driven launches first — external `ACTION_VIEW` install (via `CommCareSetupActivity`), `KEY_REQUIRE_REFRESH` verification (via `CommCareVerificationActivity`), deep links, push; (2) active session → resume by the persisted **last session context** (login provenance); tie-break: provenance wins over a stale `evaluateAppState` linkage; (3) no session → resolve by configuration.
 - **PersonalID unlock** ([`PersonalIdUnlocker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdUnlocker.kt)): cancel and failure both resolve through `connectActivityComplete(false)`. On a warm entry the prompt dismisses and the underlying screen is unchanged; on a cold start (nothing beneath) it exits the app.
