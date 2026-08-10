@@ -27,6 +27,7 @@ import com.google.common.base.Strings;
 
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.viewmodel.ConnectDeliveryProgressViewModel;
@@ -154,17 +155,15 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment<FragmentConn
     private void observeDeliveryProgress() {
         observeDataState(
                 viewModel.getDeliveryProgress(),
-                cached -> {
-                    setActiveJob(cached);
-                    updatePendingFilterVisibility();
-                    adapter.updateDeliveries(getFilteredDeliveries());
-                },
-                success -> {
-                    setActiveJob(success);
-                    updatePendingFilterVisibility();
-                    adapter.updateDeliveries(getFilteredDeliveries());
-                }
+                this::updateData,
+                this::updateData
         );
+    }
+
+    private void updateData(@NotNull ConnectJobRecord job) {
+        setActiveJob(job);
+        updatePendingFilterVisibility();
+        adapter.updateDeliveries(getFilteredDeliveries());
     }
 
     @Override
