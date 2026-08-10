@@ -269,7 +269,7 @@ class ConnectRepositoryTest {
         runBlocking {
             coEvery { mockNetworkClient.startLearnApp(any(), any()) } returns Result.success(Unit)
 
-            val emissions = repository.startLearning(mockUser, "test-uuid").toList()
+            val emissions = repository.startLearning("test-uuid").toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
@@ -282,7 +282,7 @@ class ConnectRepositoryTest {
             coEvery { mockNetworkClient.startLearnApp(any(), any()) } returns
                 Result.failure(Exception("Network error"))
 
-            val emissions = repository.startLearning(mockUser, "test-uuid").toList()
+            val emissions = repository.startLearning("test-uuid").toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
@@ -294,7 +294,7 @@ class ConnectRepositoryTest {
         runBlocking {
             coEvery { mockNetworkClient.claimJob(any(), any()) } returns Result.success(Unit)
 
-            val emissions = repository.claimJob(mockUser, "test-uuid").toList()
+            val emissions = repository.claimJob("test-uuid").toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
@@ -307,7 +307,7 @@ class ConnectRepositoryTest {
             coEvery { mockNetworkClient.claimJob(any(), any()) } returns
                 Result.failure(Exception("Network error"))
 
-            val emissions = repository.claimJob(mockUser, "test-uuid").toList()
+            val emissions = repository.claimJob("test-uuid").toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
@@ -319,7 +319,7 @@ class ConnectRepositoryTest {
         runBlocking {
             coEvery { mockNetworkClient.confirmPayments(any(), any()) } returns Result.success(Unit)
 
-            val emissions = repository.confirmPayments(mockUser, emptyList()).toList()
+            val emissions = repository.confirmPayments(emptyList()).toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
@@ -332,7 +332,7 @@ class ConnectRepositoryTest {
             coEvery { mockNetworkClient.confirmPayments(any(), any()) } returns
                 Result.failure(Exception("Network error"))
 
-            val emissions = repository.confirmPayments(mockUser, emptyList()).toList()
+            val emissions = repository.confirmPayments(emptyList()).toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
