@@ -661,11 +661,12 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="microimage_cropping_failed">Yanke hoton ya kasa, ka tabbatar cewa abin da ake nufi yana cikin yankin ɗaukar hoto</string>
     <string name="microimage_saving_failed">An kasa ajiye hoton. Da fatan za a sake gwadawa</string>
     <string name="face_capture_activity_title">Ɗaukar Hoton Fuska</string>
-    <string name="face_capture_manual_instructions">Sanya fuska a tsakiyar firam, sannan ka danna maballin fari don ɗaukar hoton</string>
-    <string name="face_capture_auto_instructions">Sanya fuska a tsakiyar firam, ka tsaya cak don kunna aikin ɗaukar hoto ta atomatik</string>
+    <string name="face_capture_manual_instructions">Sanya fuska a tsakiyar koren zane, sannan ka danna maballin fari don ɗaukar hoton</string>
+    <string name="face_capture_auto_instructions">Sanya fuska a tsakiyar koren zane ka kuma tsaya cak, za a ɗauki hoton ta atomatik</string>
     <string name="face_capture_auto_mode">Ɗaukar hoto ta atomatik</string>
     <string name="face_capture_manual_mode">Ɗaukar hoto da hannu</string>
     <string name="face_capture_front_camera_unavailable">Kyamarar gaba ba ta samuwa, za a kashe zaɓin canza kyamara</string>
+    <string name="face_capture_retake_photo">Sake ɗaukar hoto</string>
 
     <string name="recording_notification_save_action">Ajiye</string>
     <string name="recording_notification_pause_action">Dakata</string>
