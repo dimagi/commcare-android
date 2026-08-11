@@ -241,7 +241,7 @@ class ConnectDeliveryDashboardFragmentTest {
     }
 
     @Test
-    fun `one unit at its daily limit warns without graying the figures`() {
+    fun `one unit at its daily limit grays only that unit's card`() {
         val dashboard =
             launch(
                 progressResponse(
@@ -249,13 +249,33 @@ class ConnectDeliveryDashboardFragmentTest {
                 ),
             )
         val view = dashboard.requireView()
+        val cards = halfCards(dashboard)
 
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.progress_card_info_message).visibility)
         assertTrue(
             "Warning should name the exhausted unit",
             view.findViewById<TextView>(R.id.progress_card_info_text).text.contains("Unit 1"),
         )
-        assertEquals(accentColor(), halfCards(dashboard)[0].valueTextColor())
+        assertEquals("exhausted unit", disabledColor(), cards[0].valueTextColor())
+        assertEquals("unit with visits left", accentColor(), cards[1].valueTextColor())
+        assertEquals("total earnings", accentColor(), cards.last().valueTextColor())
+        assertEquals(
+            "daily visit count on the progress card stays live",
+            accentColor(),
+            view.findViewById<TextView>(R.id.progress_card_bar_count).currentTextColor,
+        )
+    }
+
+    @Test
+    fun `a unit out of visits for good grays only that unit's card`() {
+        val perUnitTotal = ConnectLearnJobTestData.MAX_VISITS / ConnectLearnJobTestData.PAYMENT_UNIT_COUNT
+        val dashboard =
+            launch(progressResponse(deliveries = deliveriesOnPastDays(unit = 1, count = perUnitTotal)))
+        val cards = halfCards(dashboard)
+
+        assertEquals(perUnitTotal.toString(), cards[0].valueText.toString())
+        assertEquals("exhausted unit", disabledColor(), cards[0].valueTextColor())
+        assertEquals("unit with visits left", accentColor(), cards[1].valueTextColor())
     }
 
     @Test
@@ -396,6 +416,17 @@ class ConnectDeliveryDashboardFragmentTest {
     ): List<String> =
         (0 until count).map { index ->
             deliveryJson(id = startId + index, unit = unit, date = Date())
+        }
+
+    /** One visit per earlier day, so a unit reaches its total cap without hitting a daily cap. */
+    private fun deliveriesOnPastDays(
+        unit: Int,
+        count: Int,
+        startId: Int = 1,
+    ): List<String> =
+        (0 until count).map { index ->
+            val date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -(index + 1)) }.time
+            deliveryJson(id = startId + index, unit = unit, date = date)
         }
 
     private fun deliveryJson(

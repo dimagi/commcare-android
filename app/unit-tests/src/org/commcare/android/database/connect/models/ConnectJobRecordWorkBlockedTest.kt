@@ -1,6 +1,7 @@
 package org.commcare.android.database.connect.models
 
 import org.json.JSONObject
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -210,6 +211,45 @@ class ConnectJobRecordWorkBlockedTest {
             )
 
         assertTrue(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `units at limit names only the unit that is out of visits for good`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 100)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 1, maxDaily = 5),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 5),
+            )
+        job.deliveries = listOf(delivery(1, 1, daysFromNow(-3)))
+
+        assertEquals(setOf("unit-1"), job.paymentUnitsAtLimit)
+    }
+
+    @Test
+    fun `units at limit names only the unit that is done for today`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 100)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = 5),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 1),
+            )
+        job.deliveries = listOf(delivery(1, 2, Date()))
+
+        assertEquals(setOf("unit-2"), job.paymentUnitsAtLimit)
+    }
+
+    @Test
+    fun `units at limit is empty while every unit has visits left`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 100)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = 5),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 5),
+            )
+        job.deliveries = listOf(delivery(1, 1, Date()))
+
+        assertTrue(job.paymentUnitsAtLimit.isEmpty())
     }
 
     @Test

@@ -19,6 +19,9 @@ import java.text.DateFormat
 /**
  * Dashboard tab of a delivery opportunity: visit progress and a per-payment-unit breakdown of the
  * worker's own progress.
+ *
+ * Figures render disabled once no further work earns progress, and an individual payment unit's card
+ * also dims on its own once that unit is out of visits.
  */
 class ConnectDeliveryDashboardFragment :
     ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>(),
@@ -88,6 +91,7 @@ class ConnectDeliveryDashboardFragment :
         grid.removeAllViews()
 
         val counts = job.getDeliveryCountsPerPaymentUnit(false)
+        val unitsAtLimit = job.paymentUnitsAtLimit
         job.paymentUnits.forEach { unit ->
             val card =
                 halfCard(
@@ -99,7 +103,7 @@ class ConnectDeliveryDashboardFragment :
                             ConnectMoneyUtils.moneyStringWithSymbol(job.currency, unit.amount),
                         ),
                     iconRes = R.drawable.ic_connect_footprint,
-                    contentEnabled = contentEnabled,
+                    contentEnabled = contentEnabled && !unitsAtLimit.contains(unit.unitUUID),
                 )
             grid.addView(card, cellParams(grid.childCount))
         }

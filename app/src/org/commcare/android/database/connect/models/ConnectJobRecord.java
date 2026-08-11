@@ -24,8 +24,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -724,27 +726,32 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         if (isMultiPayment()) {
-            return allPaymentUnitsAtLimit();
+            return getPaymentUnitsAtLimit().size() == getPaymentUnits().size();
         }
 
         return getDeliveries().size() >= getMaxVisits()
                 || numberOfDeliveriesToday() >= getMaxDailyVisits();
     }
 
-    private boolean allPaymentUnitsAtLimit() {
+    /**
+     * UUIDs of the payment units that cannot earn another visit right now, because they are out of
+     * visits either for good or for today.
+     */
+    public Set<String> getPaymentUnitsAtLimit() {
         HashMap<String, Integer> total = getDeliveryCountsPerPaymentUnit(false);
         HashMap<String, Integer> today = getDeliveryCountsPerPaymentUnit(true);
+        Set<String> atLimit = new HashSet<>();
 
         for (ConnectPaymentUnitRecord unit : getPaymentUnits()) {
             String key = unit.getUnitUUID();
             int totalCount = total.containsKey(key) ? total.get(key) : 0;
             int todayCount = today.containsKey(key) ? today.get(key) : 0;
-            if (totalCount < unit.getMaxTotal() && todayCount < unit.getMaxDaily()) {
-                return false;
+            if (totalCount >= unit.getMaxTotal() || todayCount >= unit.getMaxDaily()) {
+                atLimit.add(key);
             }
         }
 
-        return true;
+        return atLimit;
     }
 
     public static ConnectJobRecord fromV21(ConnectJobRecordV21 oldRecord) {
