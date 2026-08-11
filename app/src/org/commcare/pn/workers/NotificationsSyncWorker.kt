@@ -22,6 +22,7 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_DELIVERY
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectJobHelper
+import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.NotificationRecordDatabaseHelper.getNotificationById
 import org.commcare.dalvik.R
@@ -227,7 +228,11 @@ class NotificationsSyncWorker(
     }
 
     private fun raiseFCMPushNotificationIfApplicable() {
-        if (showNotification && !isNotificationRead() && checkForOpportunityStatus()) {
+        if (PersonalIdManager.getInstance().isloggedIn() &&
+            showNotification &&
+            !isNotificationRead() &&
+            checkForOpportunityStatus()
+        ) {
             FirebaseMessagingUtil.handleNotification(appContext, notificationPayload, null, true)
         }
     }

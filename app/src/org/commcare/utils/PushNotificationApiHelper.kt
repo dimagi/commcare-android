@@ -37,7 +37,9 @@ import org.commcare.connect.network.connectId.parser.NotificationParseResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
+import org.commcare.util.LogTypes
 import org.commcare.utils.coroutines.DispatcherProvider
+import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -85,20 +87,42 @@ object PushNotificationApiHelper {
 
                     scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(DispatcherProvider.io()).launch {
-                        val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
+                        //  runCatching keeps a storage failure from escaping to the uncaught
+                        //  exception handler, and guarantees the continuation is resumed exactly once
+                        val result =
+                            runCatching {
+                                val (savedNotifications, savedNotificationIds) =
+                                    processParsedDataIntoDB(context, parseResult)
 
-                        // Update notification preferences and send broadcasts
-                        if (savedNotificationIds.isNotEmpty()) {
-                            NotificationPrefs.setNotificationAsUnread(context)
-                        }
-                        if (savedNotificationIds.isNotEmpty() || parseResult.messagingNotificationIds.isNotEmpty()) {
-                            NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
-                        }
+                                // Update notification preferences and send broadcasts
+                                if (savedNotificationIds.isNotEmpty()) {
+                                    NotificationPrefs.setNotificationAsUnread(context)
+                                }
+                                if (savedNotificationIds.isNotEmpty() || parseResult.messagingNotificationIds.isNotEmpty()) {
+                                    NotificationBroadcastHelper.sendNewNotificationBroadcast(context)
+                                }
 
-                        // Acknowledge all notifications (both stored and messaging)
-                        acknowledgeNotificationsReceipt(context, savedNotificationIds + parseResult.messagingNotificationIds)
+                                // Acknowledge all notifications (both stored and messaging)
+                                val acknowledged =
+                                    acknowledgeNotificationsReceipt(
+                                        context,
+                                        savedNotificationIds + parseResult.messagingNotificationIds,
+                                    )
+                                if (!acknowledged) {
+                                    //  Not treated as a failure: the notifications are stored, and the
+                                    //  server will resend the unacknowledged ones on the next sync
+                                    Logger.log(
+                                        LogTypes.TYPE_MAINTENANCE,
+                                        "Failed to acknowledge receipt of retrieved notifications",
+                                    )
+                                }
 
-                        continuation.resume(Result.success(savedNotifications))
+                                savedNotifications
+                            }.onFailure {
+                                Logger.exception("Error storing retrieved notifications", it)
+                            }
+
+                        continuation.resume(result)
                     }
                 }
 
@@ -166,7 +190,7 @@ object PushNotificationApiHelper {
         if (savedNotificationIds.isEmpty()) {
             return true
         }
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser(context) ?: return false
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
                 override fun onSuccess(result: Boolean) {
