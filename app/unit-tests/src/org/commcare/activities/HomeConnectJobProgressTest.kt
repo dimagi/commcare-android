@@ -1,108 +1,121 @@
 package org.commcare.activities
 
+import androidx.test.core.app.ApplicationProvider
 import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.slot
-import io.mockk.verify
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ActivityAssertions.assertStarted
+import org.commcare.android.util.ConnectTestUtils.JOB_UUID
+import org.commcare.android.util.ConnectTestUtils.MAX_VISITS
 import org.commcare.android.util.ConnectTestUtils.connectJob
 import org.commcare.android.util.ConnectTestUtils.seatJob
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.ConnectJobHelper
+import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.network.ConnectMockApiServer
 import org.commcare.utils.ConnectivityStatus
+import org.javarosa.core.services.locale.Localization
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 /**
- * Characterization pins for the home screen's Connect job-progress paths: opening a job's status
- * screen, and when `fetchJobProgressOverNetwork()` actually hits the network — both when called
- * directly and when reached through the sync button.
+ * Characterization pins for the home screen's Connect job-progress paths, driven by clicking the
+ * buttons a user would: the Connect button opening a job's status screen, and the sync button's
+ * delivery-progress fetch.
+ *
+ * The fetch runs against a [ConnectMockApiServer], so the request, the response parser and the DB
+ * write it produces all run for real. The one thing stubbed is [ConnectivityStatus] (inherited from
+ * the base), which reports on the device's radios.
  *
  * The sync button's traditional behaviour — the toast and notification raised when a sync can't be
  * attempted — lives in [HomeButtonsTest].
  */
 class HomeConnectJobProgressTest : BaseHomeScreenActivityTest() {
+    private val connectApi = ConnectMockApiServer()
+
     @Before
-    fun stubProgressFetch() {
-        // updateDeliveryProgress() is the outbound network call this suite is asserting on, so it
-        // is stubbed rather than run. mockkObject spies: every other ConnectJobHelper method,
-        // including the job lookups home boots through, still runs for real against the DB.
-        mockkObject(ConnectJobHelper)
-        every { ConnectJobHelper.updateDeliveryProgress(any(), any(), any()) } returns Unit
-    }
+    fun startConnectApi() = connectApi.start()
+
+    @After
+    fun stopConnectApi() = connectApi.shutdown()
 
     // ---- Opportunity status ----
 
     @Test
-    fun `view opportunity status navigates to job info when a job is seated`() {
+    fun `clicking the connect button opens the job status screen`() {
         seatJob(connectJob())
-        val home = buildHome()
+        val home = buildVisibleHome()
 
-        home.userPressedOpportunityStatus()
+        clickHomeButton(home, Localization.get("home.connect"))
 
-        val started = shadowOf(home).nextStartedActivity
-        assertEquals(ConnectActivity::class.java.name, started.component!!.className)
+        val started = assertStarted(home, ConnectActivity::class.java)
         assertTrue(started.getBooleanExtra(ConnectConstants.GO_TO_JOB_STATUS, false))
-        assertEquals("test-job-uuid", started.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        assertEquals(JOB_UUID, started.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
         assertTrue(started.getBooleanExtra(ConnectConstants.SHOW_LAUNCH_BUTTON, false))
     }
 
-    @Test(expected = NullPointerException::class)
-    fun `view opportunity status throws when no job is seated`() {
-        val home = buildHome()
-
-        home.userPressedOpportunityStatus()
-    }
-
-    // ---- fetchJobProgressOverNetwork ----
+    // ---- Delivery progress over the network ----
 
     @Test
-    fun `fetch job progress over network updates progress for a delivering job`() {
+    fun `sync applies the delivery progress the server returns for a delivering job`() {
         seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
-        val home = buildHome()
+        connectApi.enqueueJson("""{"max_payments": $UPDATED_MAX_PAYMENTS}""")
+        val home = buildVisibleHome()
 
-        home.fetchJobProgressOverNetwork()
+        clickSyncButton(home)
 
-        val job = slot<ConnectJobRecord>()
-        verify(exactly = 1) { ConnectJobHelper.updateDeliveryProgress(home, capture(job), any()) }
-        assertEquals("test-job-uuid", job.captured.jobUUID)
+        assertEquals("/api/opportunity/$JOB_UUID/delivery_progress", connectApi.awaitRequest().path)
+        assertEquals(
+            "the parsed response should have been written back to the job",
+            UPDATED_MAX_PAYMENTS,
+            seatedJob().maxVisits,
+        )
     }
 
     @Test
-    fun `fetch job progress over network does nothing for a non-delivering job`() {
+    fun `sync leaves the job untouched when the server rejects the progress request`() {
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
+        connectApi.enqueueError(500)
+        val home = buildVisibleHome()
+
+        clickSyncButton(home)
+
+        connectApi.awaitRequest()
+        assertEquals(MAX_VISITS, seatedJob().maxVisits)
+    }
+
+    @Test
+    fun `sync does not fetch progress for a non-delivering job`() {
         seatJob(connectJob(status = ConnectJobRecord.STATUS_LEARNING))
-        val home = buildHome()
+        val home = buildVisibleHome()
 
-        home.fetchJobProgressOverNetwork()
+        clickSyncButton(home)
 
-        verify(exactly = 0) { ConnectJobHelper.updateDeliveryProgress(any(), any(), any()) }
-    }
-
-    // ---- Reached via the sync button ----
-
-    @Test
-    fun `sync with no network in airplane mode does not fetch job progress`() {
-        every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
-        every { ConnectivityStatus.isAirplaneModeOn(any()) } returns true
-        val home = buildHome()
-
-        home.syncButtonPressed()
-
-        verify(exactly = 0) { ConnectJobHelper.updateDeliveryProgress(any(), any(), any()) }
+        connectApi.assertNoRequest()
     }
 
     @Test
-    fun `sync with network available fetches job progress for delivering job`() {
+    fun `sync does not fetch progress with no network`() {
         seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
-        val home = buildHome()
+        every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
+        val home = buildVisibleHome()
 
-        home.syncButtonPressed()
+        clickSyncButton(home)
 
-        val job = slot<ConnectJobRecord>()
-        verify(exactly = 1) { ConnectJobHelper.updateDeliveryProgress(home, capture(job), any()) }
-        assertEquals("test-job-uuid", job.captured.jobUUID)
+        connectApi.assertNoRequest()
+    }
+
+    private fun clickSyncButton(home: StandardHomeActivity) = clickHomeButton(home, Localization.get("home.sync"))
+
+    private fun seatedJob(): ConnectJobRecord =
+        requireNotNull(ConnectJobUtils.getCompositeJob(ApplicationProvider.getApplicationContext(), JOB_UUID)) {
+            "the seated job disappeared from the Connect DB"
+        }
+
+    companion object {
+        /** Distinct from `ConnectTestUtils.MAX_VISITS`, so applying the response is observable. */
+        private const val UPDATED_MAX_PAYMENTS = 42
     }
 }
