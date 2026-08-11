@@ -592,6 +592,16 @@
     <string name="connect_delivery_start">Iniciar</string>
     <string name="connect_delivery_continue_visits">Continue suas visitas</string>
     <string name="connect_delivery_continue_visits_subtitle">Enviar formulários de entrega</string>
+    <string name="connect_delivery_visit_progress_title">Progresso das visitas</string>
+    <string name="connect_delivery_total_visits_completed">total de visitas concluídas</string>
+    <string name="connect_delivery_daily_visits">Visitas diárias</string>
+    <string name="connect_delivery_your_progress">Seu progresso</string>
+    <string name="connect_delivery_total_earnings">Ganhos totais</string>
+    <string name="connect_delivery_amount_each">%1$s cada</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">%1$d visita restante hoje</item>
+        <item quantity="other">%1$d visitas restantes hoje</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Ver oportunidade</string>
     <string name="install_barcode_top">Bem-vindo ao CommCare!</string>
     <string name="install_barcode_bottom">Por favor, escolha um método de instalação abaixo</string>
