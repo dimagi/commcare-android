@@ -23,7 +23,7 @@ import org.robolectric.shadows.ShadowToast
  * (`CHOSE_REMEMBER_PASSWORD` -> `closeUserSession()`) is likewise unpinned: it tears down the session
  * the base fixture installs, so it needs a fixture that can assert on a closed session.
  */
-class HomeActivityResultTest : HomeScreenActivityTest() {
+class HomeActivityResultTest : BaseHomeScreenActivityTest() {
     @Test
     fun `pin authentication success launches create pin screen`() {
         val home = buildHome()

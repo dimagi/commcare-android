@@ -18,7 +18,7 @@ import org.junit.Test
  *
  * This host's Connect behaviour is pinned in [HomeConnectJobProgressTest] and [HomeConnectTileTest].
  */
-class StandardHomePresentationTest : HomeScreenActivityTest() {
+class StandardHomePresentationTest : BaseHomeScreenActivityTest() {
     // region capabilities answered for the base activity
 
     @Test
@@ -60,7 +60,7 @@ class StandardHomePresentationTest : HomeScreenActivityTest() {
             .edit()
             .putString("cc-show-incomplete", PrefValues.NO)
             .apply()
-        val home = buildHome()
+        val home = buildVisibleHome()
 
         assertFalse(homeButtonLabels(home).contains(Localization.get("home.forms.incomplete")))
     }
@@ -68,9 +68,27 @@ class StandardHomePresentationTest : HomeScreenActivityTest() {
     @Test
     fun `report button hidden by default`() {
         // isHomeReportEnabled() defaults to disabled, so this pins the default rather than a set value.
-        val home = buildHome()
+        val home = buildVisibleHome()
 
         assertFalse(homeButtonLabels(home).contains(Localization.get("home.report")))
+    }
+
+    @Test
+    fun `grid renders the buttons a single-app profile leaves visible`() {
+        // The complement of the two rows above: what a plain form_nav_tests login actually sees, so a
+        // button silently disappearing from the grid fails here rather than passing an assertFalse.
+        val home = buildVisibleHome()
+
+        assertEquals(
+            listOf(
+                Localization.get("home.start"),
+                Localization.get("home.forms.saved"),
+                Localization.get("home.forms.incomplete"),
+                Localization.get("home.sync"),
+                Localization.get("home.logout"),
+            ),
+            homeButtonLabels(home),
+        )
     }
 
     // endregion

@@ -3,6 +3,9 @@ package org.commcare.activities
 import android.view.View
 import android.widget.TextView
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ConnectTestUtils.connectJob
+import org.commcare.android.util.ConnectTestUtils.daysFromNow
+import org.commcare.android.util.ConnectTestUtils.seatJob
 import org.commcare.dalvik.R
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertEquals
@@ -16,12 +19,12 @@ import org.junit.Test
  *
  * Non-Connect home button visibility lives in [StandardHomePresentationTest].
  */
-class HomeConnectTileTest : HomeConnectTestBase() {
+class HomeConnectTileTest : BaseHomeScreenActivityTest() {
     // ---- Connect button ----
 
     @Test
     fun `connect button hidden when no job is seated`() {
-        val home = buildHome()
+        val home = buildVisibleHome()
 
         assertFalse(homeButtonLabels(home).contains(connectLabel))
     }
@@ -31,7 +34,7 @@ class HomeConnectTileTest : HomeConnectTestBase() {
         // shouldShowJobStatus() suppresses the button only in this combination: the seated app is
         // the job's learn app, but the job has already moved on to delivery.
         seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING), isLearning = true)
-        val home = buildHome()
+        val home = buildVisibleHome()
 
         assertFalse(homeButtonLabels(home).contains(connectLabel))
     }
@@ -39,7 +42,7 @@ class HomeConnectTileTest : HomeConnectTestBase() {
     @Test
     fun `connect button shown when a delivery job is seated`() {
         seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
-        val home = buildHome()
+        val home = buildVisibleHome()
 
         assertTrue(homeButtonLabels(home).contains(connectLabel))
     }

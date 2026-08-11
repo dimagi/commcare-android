@@ -6,36 +6,35 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import org.commcare.android.util.ActivityAssertions.assertStarted
+import org.commcare.android.util.ActivityAssertions.assertStartedForResult
 import org.commcare.appupdate.AppUpdateControllerFactory
 import org.commcare.appupdate.AppUpdateState
 import org.commcare.appupdate.FlexibleAppUpdateController
 import org.commcare.dalvik.R
 import org.commcare.preferences.HiddenPreferences
-import org.commcare.utils.ConnectivityStatus
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.robolectric.fakes.RoboMenu
-import org.robolectric.shadows.ShadowToast
 
 /**
- * Characterization pins for the traditional home actions a user can invoke: options-menu visibility
- * (demo and non-demo), item-selection routing, and the sync button's offline handling and sub-text.
+ * Characterization pins for the home options menu: which items a normal and a demo user see, and
+ * where selecting each of them goes.
+ *
+ * Every item `onOptionsItemSelected` handles has a routing row. Four leave an intent; the other three
+ * open a dialog, asserted as the alert-dialog fragment the activity shows.
  *
  * Driven through [StandardHomeActivity] only; [RootMenuHomeActivity] overrides
- * `onOptionsItemSelected` and needs its own rows. Routing is pinned for the two menu items that
- * leave an assertable intent — the rest open dialogs or preference fragments.
- *
- * The Connect job-progress fetch that `syncButtonPressed()` also triggers is pinned in
- * [HomeConnectJobProgressTest].
+ * `onOptionsItemSelected` and needs its own rows.
  */
-class HomeActionsTest : HomeScreenActivityTest() {
+class HomeMenuTest : BaseHomeScreenActivityTest() {
     private val updateController = mockk<FlexibleAppUpdateController>(relaxed = true)
 
-    // region options menu visibility
+    // region item visibility
 
     @Test
     fun `normal user sees management menu items`() {
@@ -66,7 +65,7 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
     // endregion
 
-    // region set-pin menu item
+    // region set-pin item
 
     @Test
     fun `set pin item hidden when the pin feature is off`() {
@@ -107,7 +106,7 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
     // endregion
 
-    // region commcare-update menu item
+    // region commcare-update item
 
     @Test
     fun `commcare update item hidden by default`() {
@@ -148,105 +147,109 @@ class HomeActionsTest : HomeScreenActivityTest() {
 
     // endregion
 
-    // region options menu routing
+    // region routing: items that launch an activity
+
+    @Test
+    fun `selecting update launches the app update activity`() {
+        val home = selectItem(R.id.action_update)
+
+        val started = assertStarted(home, UpdateActivity::class.java)
+        assertFalse(
+            "menu-triggered updates should let the user drive the install",
+            started.getBooleanExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true),
+        )
+    }
 
     @Test
     fun `selecting saved forms launches the form record list`() {
-        val (home, menu) = homeWithMenu()
-
-        home.onOptionsItemSelected(menu.findItem(R.id.action_saved_forms))
+        val home = selectItem(R.id.action_saved_forms)
 
         // goToFormArchive uses startActivityForResult, not startActivity.
-        val started = shadowOf(home).nextStartedActivityForResult.intent
-        assertEquals(FormRecordListActivity::class.java.name, started.component!!.className)
+        assertStartedForResult(home, FormRecordListActivity::class.java)
     }
 
     @Test
-    fun `selecting update launches the update activity`() {
-        val (home, menu) = homeWithMenu()
+    fun `selecting settings launches the commcare preference screen`() {
+        val home = selectItem(R.id.action_preferences)
 
-        home.onOptionsItemSelected(menu.findItem(R.id.action_update))
-
-        val started = shadowOf(home).nextStartedActivity
-        assertEquals(UpdateActivity::class.java.name, started.component!!.className)
-    }
-
-    // endregion
-
-    // region sync button: offline handling
-
-    @Test
-    fun `sync in airplane mode toasts the airplane message and reports a notification`() {
-        every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
-        every { ConnectivityStatus.isAirplaneModeOn(any()) } returns true
-        val home = buildHome()
-
-        home.syncButtonPressed()
-
+        val started = assertStartedForResult(home, SessionAwarePreferenceActivity::class.java)
         assertEquals(
-            Localization.get("notification.sync.airplane.action"),
-            ShadowToast.getTextOfLatestToast(),
+            CommCarePreferenceActivity.PREF_TYPE_COMMCARE,
+            started.getStringExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE),
         )
-        assertTrue("a Sync_AirplaneMode notification should be pending", notificationsArePending())
     }
 
     @Test
-    fun `sync with no connection toasts the connections message and reports a notification`() {
-        // Offline but not in airplane mode: a different message and StockMessage from the row above.
-        every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
-        every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
-        val home = buildHome()
+    fun `selecting advanced launches the same preference screen in advanced-actions mode`() {
+        // Settings and advanced actions differ only by this extra, which is the whole routing
+        // contract: swapping the two would otherwise be invisible.
+        val home = selectItem(R.id.action_advanced)
 
-        home.syncButtonPressed()
-
+        val started = assertStartedForResult(home, SessionAwarePreferenceActivity::class.java)
         assertEquals(
-            Localization.get("notification.sync.connections.action"),
-            ShadowToast.getTextOfLatestToast(),
+            CommCarePreferenceActivity.PREF_TYPE_ADVANCED_ACTIONS,
+            started.getStringExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE),
         )
-        assertTrue("a Sync_NoConnections notification should be pending", notificationsArePending())
     }
 
     @Test
-    fun `sync while online clears the airplane-mode notifications`() {
-        // The offline block is gated on !isNetworkAvailable alone; airplane mode only picks which
-        // message it reports. So seed the notification with the network down, not just airplane on.
-        every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
-        every { ConnectivityStatus.isAirplaneModeOn(any()) } returns true
-        buildHome().syncButtonPressed()
-        assertTrue("fixture failed to leave a notification pending", notificationsArePending())
+    fun `selecting set pin launches pin authentication first`() {
+        offerPinForLogin()
 
-        every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
-        every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
-        buildHome().syncButtonPressed()
+        val home = selectItem(R.id.action_set_pin)
 
-        assertFalse("going back online should clear the airplane-mode notifications", notificationsArePending())
+        // Changing a PIN re-authenticates before CreatePinActivity; that second hop is pinned in
+        // HomeActivityResultTest, which is where the authentication result comes back.
+        assertStartedForResult(home, PinAuthenticationActivity::class.java)
     }
 
     // endregion
 
-    // region sync button: sub-text
+    // region routing: items that open a dialog
 
     @Test
-    fun `sub text press starts no activity when no messages pending`() {
-        val home = buildHome()
+    fun `selecting change language opens the locale chooser`() {
+        val home = selectItem(R.id.action_change_language)
 
-        home.syncSubTextPressed()
-
-        assertNull(shadowOf(home).nextStartedActivity)
+        assertNotNull("selecting change language should raise a dialog", alertDialog(home))
     }
 
     @Test
-    fun `sub text press launches the notifications view when messages are pending`() {
-        reportPendingNotification()
-        val home = buildHome()
+    fun `selecting about opens the about dialog`() {
+        val home = selectItem(R.id.action_about)
 
-        home.syncSubTextPressed()
-
-        val started = shadowOf(home).nextStartedActivity
-        assertEquals(MessageActivity::class.java.name, started.component!!.className)
+        assertNotNull("selecting about should raise a dialog", alertDialog(home))
     }
 
     // endregion
+
+    // region routing: the update item
+
+    @Test
+    fun `selecting update commcare hands off to the play store update`() {
+        val home = buildHomeReportingAvailableUpdate(timesDismissed = MAX_CC_UPDATE_CANCELLATION + 1)
+
+        home.onOptionsItemSelected(menuFor(home).findItem(R.id.action_update_commcare))
+
+        // startUpdate is also called once by handleAppUpdate() in the under-the-limit arm above;
+        // here the counter is over the limit, so the only call can be the user's.
+        verify(exactly = 1) { updateController.startUpdate(home) }
+    }
+
+    // endregion
+
+    /** Build home laid out, select [itemId] from its options menu, and return the activity. */
+    private fun selectItem(itemId: Int): StandardHomeActivity {
+        val home = buildVisibleHome()
+        home.onOptionsItemSelected(menuFor(home).findItem(itemId))
+        return home
+    }
+
+    /** The alert dialog fragment home is showing, or null. */
+    private fun alertDialog(home: StandardHomeActivity): Any? {
+        home.supportFragmentManager.executePendingTransactions()
+        return home.currentAlertDialog
+    }
 
     /**
      * Build home with the in-app update check reporting an available update, having already been

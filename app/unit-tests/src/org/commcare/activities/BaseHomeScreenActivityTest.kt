@@ -1,6 +1,8 @@
 package org.commcare.activities
 
 import android.content.Intent
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,8 +24,10 @@ import org.commcare.models.database.user.DemoUserBuilder
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.PrefValues
 import org.commcare.utils.ConnectivityStatus
+import org.commcare.views.notifications.NotificationMessage
 import org.commcare.views.notifications.NotificationMessageFactory
 import org.junit.After
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -38,16 +42,16 @@ import org.robolectric.shadows.ShadowLooper
  * to build the home activity.
  *
  * The only thing stubbed here is [ConnectivityStatus], which reports on the device's radios; every
- * other dependency, Connect DB included, runs for real. An empty Connect DB is what makes a direct
- * subclass boot with no job seated. Tests that assert on Connect behaviour extend
- * [HomeConnectTestBase], which seats that state in the DB.
+ * other dependency, Connect DB included, runs for real. An empty Connect DB is what makes a plain
+ * subclass boot with no job seated; suites that need one seat it with
+ * `ConnectTestUtils.seatJob(...)`.
  *
  * Subclasses run under [AndroidJUnit4] with [CommCareTestApplication]; add `@Config(sdk = [...])`
  * on individual tests only when a specific Android level matters.
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-abstract class HomeScreenActivityTest {
+abstract class BaseHomeScreenActivityTest {
     @Before
     fun baseSetUp() {
         clearPrefs()
@@ -80,12 +84,27 @@ abstract class HomeScreenActivityTest {
     ): StandardHomeActivity = buildStandardHomeController(personalIdManagedLogin, configureIntent).get()
 
     /**
+     * Build home and take it all the way to a laid-out window, so its views are measured, bound and
+     * clickable. Needed by anything that reads or clicks the button grid: the grid's children are
+     * only created by a layout pass.
+     */
+    protected fun buildVisibleHome(
+        personalIdManagedLogin: Boolean = false,
+        configureIntent: (Intent.() -> Unit)? = null,
+    ): StandardHomeActivity =
+        buildStandardHomeController(personalIdManagedLogin, configureIntent)
+            .start()
+            .resume()
+            .visible()
+            .get()
+            .also { ShadowLooper.idleMainLooper() }
+
+    /**
      * Like [buildHome], but returns the [ActivityController] so a test can drive further lifecycle
-     * transitions (notably `recreate()`). Stopped at `onCreate`.
+     * transitions (`recreate()`, `resume()`). Stopped at `onCreate`.
      *
      * The fake syncer is injected into the instance this returns; `recreate()` produces a new
-     * activity carrying the real one, so a test that recreates and then syncs must call
-     * [injectFakeSyncer] again.
+     * activity carrying the real one, so a test that recreates and then syncs has to re-inject.
      */
     protected fun buildStandardHomeController(
         personalIdManagedLogin: Boolean = false,
@@ -106,32 +125,66 @@ abstract class HomeScreenActivityTest {
     }
 
     /** Swap in a syncer that records instead of hitting the network. */
-    protected fun injectFakeSyncer(home: StandardHomeActivity) = home.setFormAndDataSyncer(FormAndDataSyncerFake())
+    private fun injectFakeSyncer(home: StandardHomeActivity) = home.setFormAndDataSyncer(FormAndDataSyncerFake())
 
     protected fun shadowOf(activity: StandardHomeActivity): ShadowActivity = Shadows.shadowOf(activity)
 
-    protected fun uiController(home: StandardHomeActivity): StandardHomeActivityUIController =
-        home.getUIController() as StandardHomeActivityUIController
+    /** The labels of the buttons the home grid has rendered. Requires a [buildVisibleHome]. */
+    protected fun homeButtonLabels(home: StandardHomeActivity): List<String> = homeButtonCards(home).map { labelOf(it) }
 
     /**
-     * The labels of the buttons the home grid renders, read off the bound card views. Position 0 is
-     * the banner header rather than a button, so it is skipped.
+     * Tap the home-grid button labelled [label], as a user would. The click lands on the same
+     * `R.id.card` the adapter bound the production listener to.
      */
-    protected fun homeButtonLabels(home: StandardHomeActivity): List<String> {
-        val grid = home.findViewById<RecyclerView>(R.id.home_gridview_buttons)
-        val adapter = grid.adapter!!
-        return (1 until adapter.itemCount).map { position ->
-            val holder = adapter.createViewHolder(grid, adapter.getItemViewType(position))
-            adapter.bindViewHolder(holder, position)
-            holder.itemView
-                .findViewById<TextView>(R.id.card_text)
-                .text
-                .toString()
-        }
+    protected fun clickHomeButton(
+        home: StandardHomeActivity,
+        label: String,
+    ) {
+        val card =
+            homeButtonCards(home).firstOrNull { labelOf(it) == label }
+                ?: throw AssertionError("no home button labelled '$label'; rendered: ${homeButtonLabels(home)}")
+        click(home, card.findViewById(R.id.card))
     }
 
-    /** The uniqueId of the currently seated CommCare app. */
-    protected fun seatedAppId(): String = CommCareApplication.instance().currentApp.uniqueId
+    /**
+     * Tap the sub-text strip under the button labelled [label]. Only the sync and logout cards bind
+     * a listener there; it is separate from the card's own.
+     */
+    protected fun clickHomeButtonSubText(
+        home: StandardHomeActivity,
+        label: String,
+    ) {
+        val card =
+            homeButtonCards(home).firstOrNull { labelOf(it) == label }
+                ?: throw AssertionError("no home button labelled '$label'; rendered: ${homeButtonLabels(home)}")
+        click(home, card.findViewById(R.id.card_subtext))
+    }
+
+    private fun click(
+        home: StandardHomeActivity,
+        view: View,
+    ) {
+        home.runOnUiThread { view.performClick() }
+        ShadowLooper.idleMainLooper()
+    }
+
+    /**
+     * The grid's rendered button cards, in display order. Position 0 holds the banner header rather
+     * than a button, so cards are identified by carrying a label rather than by index.
+     */
+    private fun homeButtonCards(home: StandardHomeActivity): List<View> {
+        val grid = home.findViewById<RecyclerView>(R.id.home_gridview_buttons)
+        assertNotNull("home grid was never inflated", grid)
+        val cards = (0 until grid.childCount).map { grid.getChildAt(it) }.filter { labelView(it) != null }
+        if (cards.isEmpty()) {
+            throw AssertionError("the home grid rendered no buttons; build home with buildVisibleHome()")
+        }
+        return cards
+    }
+
+    private fun labelOf(card: View): String = labelView(card)!!.text.toString()
+
+    private fun labelView(card: View): TextView? = (card as? ViewGroup)?.findViewById(R.id.card_text)
 
     /**
      * Replace the standard session installed by [baseSetUp] with a demo-user session, so
@@ -182,6 +235,12 @@ abstract class HomeScreenActivityTest {
     }
 
     protected fun notificationsArePending(): Boolean = CommCareApplication.notificationManager().messagesForCommCareArePending()
+
+    /**
+     * The notifications home has reported, so a test can assert on the text the user is shown.
+     * `purgeNotifications()` is the only read the manager exposes, and it drains: call once.
+     */
+    protected fun pendingNotifications(): List<NotificationMessage> = CommCareApplication.notificationManager().purgeNotifications()
 
     /** The notification manager is app-scoped, so its pending list has to be cleared per test. */
     private fun clearPendingNotifications() = CommCareApplication.notificationManager().clearNotifications(null)

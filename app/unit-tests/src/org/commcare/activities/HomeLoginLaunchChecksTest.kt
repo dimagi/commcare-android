@@ -35,7 +35,7 @@ import org.junit.Test
  * `buildHomeLaunchIntent` is pinned here too: it builds the intent whose extras decide whether these
  * checks run at all, and which mode step 8 sees.
  */
-class HomeLoginLaunchChecksTest : HomeScreenActivityTest() {
+class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     /**
      * The base clears default preferences per test, but the PIN and drift steps read *app*
      * preferences. Belt-and-braces today, since each test reinstalls under a fresh application id.

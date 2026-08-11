@@ -16,7 +16,7 @@ import org.junit.Test
  * observe them through: the round-trip is asserted against the field names via [ReflectionUtils].
  * That scaffolding retires once the fields live behind the coordinator.
  */
-class HomeInstanceStateTest : HomeScreenActivityTest() {
+class HomeInstanceStateTest : BaseHomeScreenActivityTest() {
     @Test
     fun `launch and nav flags survive recreate`() {
         val controller = buildStandardHomeController()

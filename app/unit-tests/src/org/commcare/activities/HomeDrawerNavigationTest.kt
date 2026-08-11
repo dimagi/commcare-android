@@ -1,6 +1,7 @@
 package org.commcare.activities
 
 import android.app.Activity.RESULT_OK
+import org.commcare.android.util.TestAppInstaller.seatedAppId
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -12,7 +13,7 @@ import org.junit.Test
  *
  * The Connect/PersonalId destinations live in [HomeConnectDrawerNavigationTest].
  */
-class HomeDrawerNavigationTest : HomeScreenActivityTest() {
+class HomeDrawerNavigationTest : BaseHomeScreenActivityTest() {
     // ---- COMMCARE_APPS: app switching ----
 
     @Test

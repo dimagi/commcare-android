@@ -6,6 +6,8 @@ import io.mockk.slot
 import io.mockk.verify
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ConnectTestUtils.connectJob
+import org.commcare.android.util.ConnectTestUtils.seatJob
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectJobHelper
 import org.commcare.utils.ConnectivityStatus
@@ -20,9 +22,9 @@ import org.junit.Test
  * directly and when reached through the sync button.
  *
  * The sync button's traditional behaviour — the toast and notification raised when a sync can't be
- * attempted — lives in [HomeActionsTest].
+ * attempted — lives in [HomeButtonsTest].
  */
-class HomeConnectJobProgressTest : HomeConnectTestBase() {
+class HomeConnectJobProgressTest : BaseHomeScreenActivityTest() {
     @Before
     fun stubProgressFetch() {
         // updateDeliveryProgress() is the outbound network call this suite is asserting on, so it

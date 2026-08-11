@@ -1,16 +1,16 @@
 package org.commcare.activities
 
-import android.content.Intent
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
+import org.commcare.android.util.ActivityAssertions.assertStarted
+import org.commcare.android.util.ConnectTestUtils.signInToPersonalId
 import org.commcare.connect.PersonalIdManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.personalId.PersonalIdUnlocker
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -24,7 +24,7 @@ import org.junit.Test
  *
  * The drawer's traditional destinations (app switching) live in [HomeDrawerNavigationTest].
  */
-class HomeConnectDrawerNavigationTest : HomeConnectTestBase() {
+class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
     @Before
     fun grantConnectAccessAndAllowUnlock() {
         // goToConnectJobsList() refuses to navigate without Connect access on the signed-in user.
@@ -99,13 +99,5 @@ class HomeConnectDrawerNavigationTest : HomeConnectTestBase() {
 
         verify(exactly = 1) { PersonalIdUnlocker.unlock(home, any(), any()) }
         assertStarted(home, PersonalIdWorkHistoryActivity::class.java)
-    }
-
-    private fun assertStarted(
-        home: StandardHomeActivity,
-        target: Class<*>,
-    ) {
-        val started: Intent? = shadowOf(home).nextStartedActivity
-        assertEquals(target.name, started?.component?.className)
     }
 }
