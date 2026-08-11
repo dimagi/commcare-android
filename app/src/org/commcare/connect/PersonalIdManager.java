@@ -85,7 +85,7 @@ public class PersonalIdManager {
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
-    private PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
+    private volatile PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
     private int failedPinAttempts = 0;
 
@@ -176,11 +176,13 @@ public class PersonalIdManager {
         if (ConnectDatabaseHelper.dbExists()) {
             FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
         }
-        ConnectUserDatabaseUtil.forgetUser();
+
         personalIdSatus = PersonalIdStatus.NotIntroduced;
 
         // Cancel periodic push notification retrieval when user logs out
         NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
+
+        ConnectUserDatabaseUtil.forgetUser();
 
         // remove notification read / unread preferences
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
