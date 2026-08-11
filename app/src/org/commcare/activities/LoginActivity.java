@@ -49,7 +49,6 @@ import org.commcare.login.LoginRequest;
 import org.commcare.login.LoginResult;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
-import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.UnlockPolicy;
 import org.commcare.preferences.DevSessionRestorer;
@@ -1061,31 +1060,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return shouldShowDrawerAfterCheck(true);
     }
 
-    @Override
-    protected boolean shouldHighlightSeatedApp() {
-        return true;
-    }
-
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
-    }
-
-    @Override
-    protected void handleDrawerItemClick(
-            @NonNull BaseDrawerController.NavItemType itemType,
-            String recordId
-    ) {
-        if (itemType == BaseDrawerController.NavItemType.COMMCARE_APPS) {
-            if (recordId != null) {
-                if (!appIdDropdownList.isEmpty()) {
-                    selectedAppIndex = appIdDropdownList.indexOf(recordId);
-                }
-                presetAppId = null;
-                seatAppIfNeeded(recordId);
-                closeDrawer();
-            }
-        } else {
-            super.handleDrawerItemClick(itemType, recordId);
-        }
     }
 }

@@ -543,6 +543,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
+    <string name="nav_drawer_switch_app_dialog_title">ካብዚ መተግበሪ ትወጽእ?</string>
+    <string name="nav_drawer_switch_app_dialog_message">ካብዚ መተግበሪ ክትወጽእ ኢኻ፡ ናብ መእተዊ መስኮት ድማ ክትምለስ ኢኻ፡ ኣብኡ ካልእ መተግበሪ ክትመርጽ ትኽእል።</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">ቀጽል</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">የቋርፁ</string>
     <string name="play_service_update_error">PersonalID ንኽትጥቀም፡ ናይ Google Play ኣገልግሎታት ከተሐድስ የድልየካ። ምዕዳጋት ንምርኣይ ናብ Google Play Store ንምኻድ ኣብዚ ጠውቕ።</string>
     <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>
     <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>

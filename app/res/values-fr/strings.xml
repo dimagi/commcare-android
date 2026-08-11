@@ -550,6 +550,10 @@ License.
     <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à PersonalID</string>
     <string name="nav_drawer_opportunities">Opportunités</string>
     <string name="nav_drawer_commcare_apps">Applications CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">Se déconnecter de cette application ?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Vous serez déconnecté de cette application et redirigé vers l\'écran de connexion, où vous pourrez choisir une autre application.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Continuer</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Annuler</string>
     <string name="play_service_update_error">Pour utiliser PersonalID, vous devez mettre à jour les services Google Play. Appuyez ici pour accéder au Google Play Store afin de rechercher des mises à jour.</string>
     <string name="nav_drawer_open">Ouvrir le tiroir de navigation</string>
     <string name="nav_drawer_close">Fermer le tiroir de navigation</string>

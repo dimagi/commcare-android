@@ -551,6 +551,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la PersonalID</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">¿Cerrar sesión en esta aplicación?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Se cerrará tu sesión en esta aplicación y volverás a la pantalla de inicio de sesión, donde podrás elegir otra aplicación.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Continuar</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Cancelar</string>
     <string name="play_service_update_error">Para usar PersonalID, necesita actualizar los servicios de Google Play. Toque aquí para ir a Google Play Store y buscar actualizaciones.</string>
     <string name="nav_drawer_open">Abrir el panel de navegación</string>
     <string name="nav_drawer_close">Cerrar el panel de navegación</string>
