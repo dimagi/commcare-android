@@ -77,7 +77,6 @@ object PushNotificationApiHelper {
 
             object : PersonalIdApiHandler<NotificationParseResult>() {
                 override fun onSuccess(parseResult: NotificationParseResult) {
-                    //  the user can sign out while the request is in flight, deleting the DB we store into
                     if (!PersonalIdManager.getInstance().isloggedIn()) {
                         continuation.resume(Result.success(emptyList()))
                         return

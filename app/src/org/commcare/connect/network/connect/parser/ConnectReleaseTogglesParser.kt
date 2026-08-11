@@ -18,7 +18,6 @@ class ConnectReleaseTogglesParser : BaseApiResponseParser<List<ConnectReleaseTog
         val responseJson = JSONObject(responseJsonString)
 
         return ConnectReleaseToggleRecord.releaseTogglesFromJson(responseJson).also {
-            //  the user can sign out while the request is in flight, deleting the DB we store into
             if (PersonalIdManager.getInstance().isloggedIn()) {
                 ConnectAppDatabaseUtil.storeReleaseToggles(anyInputObject as Context, it)
             }
