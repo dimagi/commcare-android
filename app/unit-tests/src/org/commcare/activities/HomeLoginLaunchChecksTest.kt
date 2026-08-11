@@ -3,6 +3,9 @@ package org.commcare.activities
 import android.content.Intent
 import androidx.preference.PreferenceManager
 import org.commcare.CommCareApplication
+import org.commcare.android.util.ActivityAssertions.assertOnly
+import org.commcare.android.util.ActivityAssertions.startedForResultIntents
+import org.commcare.android.util.ActivityAssertions.startedIntents
 import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN
 import org.commcare.core.network.CommCareNetworkServiceGenerator.CURRENT_DRIFT
@@ -17,6 +20,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.robolectric.android.controller.ActivityController
 
 /**
  * Characterization pins for the login-launch check sequence run from `onCreateSessionSafe`
@@ -58,12 +62,14 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     private fun buildHomeFromLogin(
         loginMode: LoginMode = LoginMode.PASSWORD,
         manuallySwitchedToPasswordMode: Boolean = false,
-    ): StandardHomeActivity =
-        buildHome {
-            putExtra(DispatchActivity.START_FROM_LOGIN, true)
-            putExtra(LoginActivity.LOGIN_MODE, loginMode)
-            putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manuallySwitchedToPasswordMode)
-        }
+    ): LaunchCheckRun =
+        LaunchCheckRun(
+            buildStandardHomeController {
+                putExtra(DispatchActivity.START_FROM_LOGIN, true)
+                putExtra(LoginActivity.LOGIN_MODE, loginMode)
+                putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manuallySwitchedToPasswordMode)
+            },
+        )
 
     // region the intent that triggers the checks
 
@@ -95,13 +101,13 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
             HomeScreenBaseActivity.isDemoUser(),
         )
 
-        val home = buildHomeFromLogin(LoginMode.PRIMED)
+        val run = buildHomeFromLogin(LoginMode.PRIMED)
 
         // Step 1 short-circuits with `return false`, so steps 2-9 — including the PIN step that the
         // identical non-demo PRIMED login below reaches — never run, but the launch is not claimed.
-        assertFalse("demo halt should skip the PIN step", launchedCreatePin(startedActivities(home)))
-        assertFalse("demo halt returns false, not a claim", claimedLaunch(home))
-        assertNotNull("demo mode warning should be raised", pendingAlertDialog(home))
+        assertFalse("demo halt should skip the PIN step", run.launchedCreatePin)
+        assertFalse("demo halt returns false, not a claim", run.claimedLaunch)
+        assertNotNull("demo mode warning should be raised", run.alertDialogOnResume())
     }
 
     // endregion
@@ -112,10 +118,10 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     fun `interrupted form session claims the launch and beats session restoration`() {
         seedInterruptedFormSession()
 
-        val home = buildHomeFromLogin(LoginMode.PRIMED)
+        val run = buildHomeFromLogin(LoginMode.PRIMED)
 
-        assertTrue("restoring an interrupted form claims the launch", claimedLaunch(home))
-        val formEntry = onlyStartedActivity(startedActivities(home))
+        assertTrue("restoring an interrupted form claims the launch", run.claimedLaunch)
+        val formEntry = run.onlyStartedForResult()
         assertEquals(FormEntryActivity::class.java.name, formEntry.component!!.className)
         // The interrupted-form restore is the only path that flags the relaunch as a restart after
         // session expiration. Seeding the SSD also leaves a command on the live session, so step 4
@@ -138,12 +144,11 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
             .currentSessionWrapper.session
             .setCommand(FORM_COMMAND)
 
-        val home = buildHomeFromLogin(LoginMode.PRIMED)
+        val run = buildHomeFromLogin(LoginMode.PRIMED)
 
-        val started = startedActivities(home)
-        assertTrue("restoring a saved session claims the launch", claimedLaunch(home))
-        assertFalse("a claimed launch must not fall through to the PIN step", launchedCreatePin(started))
-        val formEntry = onlyStartedActivity(started)
+        assertTrue("restoring a saved session claims the launch", run.claimedLaunch)
+        assertFalse("a claimed launch must not fall through to the PIN step", run.launchedCreatePin)
+        val formEntry = run.onlyStartedForResult()
         assertEquals(FormEntryActivity::class.java.name, formEntry.component!!.className)
         assertFalse(
             "step 4 is a plain session restore, not a restart after expiration",
@@ -159,21 +164,18 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     fun `a forced update prompt claims the launch and skips the pin step`() {
         seedForcedCczUpdatePrompt()
 
-        val home = buildHomeFromLogin(LoginMode.PRIMED)
+        val run = buildHomeFromLogin(LoginMode.PRIMED)
 
-        assertTrue("prompting for an update claims the launch", claimedLaunch(home))
-        // UpdatePromptHelper uses startActivity, not startActivityForResult, so this prompt does not
-        // land in the startedActivities() queue the other steps are asserted against.
+        assertTrue("prompting for an update claims the launch", run.claimedLaunch)
+        // UpdatePromptHelper uses startActivity, not startActivityForResult, so this prompt lands in
+        // the plain started queue rather than the for-result one the other steps are asserted against.
         assertEquals(
             PromptCczUpdateActivity::class.java.name,
-            shadowOf(home).nextStartedActivity.component!!.className,
+            assertOnly(run.started).component!!.className,
         )
         // The identical PRIMED login in the step-8 row below launches CreatePinActivity; that this
         // one does not is what proves step 7 short-circuited ahead of it.
-        assertFalse(
-            "a claimed launch must not fall through to the PIN step",
-            launchedCreatePin(startedActivities(home)),
-        )
+        assertFalse("a claimed launch must not fall through to the PIN step", run.launchedCreatePin)
     }
 
     // endregion
@@ -185,26 +187,26 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     fun `primed login reaches the pin step and launches create pin without claiming`() {
         // A fresh login with nothing pending falls through steps 2-7 to step 8, which in PRIMED
         // mode launches CreatePinActivity — proof that control reached step 8 unclaimed.
-        val home = buildHomeFromLogin(LoginMode.PRIMED)
+        val run = buildHomeFromLogin(LoginMode.PRIMED)
 
-        val started = onlyStartedActivity(startedActivities(home))
+        val started = run.onlyStartedForResult()
         assertEquals(CreatePinActivity::class.java.name, started.component!!.className)
         assertEquals(LoginMode.PRIMED, started.getSerializableExtra(LoginActivity.LOGIN_MODE))
-        assertFalse("the PIN step is a side effect, not a claim", claimedLaunch(home))
+        assertFalse("the PIN step is a side effect, not a claim", run.claimedLaunch)
     }
 
     @Test
     fun `password login offers the pin dialog when enabled and not yet dismissed`() {
         offerPinForLogin()
 
-        val home = buildHomeFromLogin(LoginMode.PASSWORD)
+        val run = buildHomeFromLogin(LoginMode.PASSWORD)
 
-        assertNotNull("password mode should offer the PIN choice dialog", pendingAlertDialog(home))
         assertFalse(
             "password mode prompts rather than launching create-pin directly",
-            launchedCreatePin(startedActivities(home)),
+            run.launchedCreatePin,
         )
-        assertFalse("the PIN step is a side effect, not a claim", claimedLaunch(home))
+        assertFalse("the PIN step is a side effect, not a claim", run.claimedLaunch)
+        assertNotNull("password mode should offer the PIN choice dialog", run.alertDialogOnResume())
     }
 
     @Test
@@ -212,9 +214,9 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
         offerPinForLogin()
         dismissPinCreation()
 
-        val home = buildHomeFromLogin(LoginMode.PASSWORD)
+        val run = buildHomeFromLogin(LoginMode.PASSWORD)
 
-        assertNull("a dismissed PIN prompt must stay dismissed", pendingAlertDialog(home))
+        assertNull("a dismissed PIN prompt must stay dismissed", run.alertDialogOnResume())
     }
 
     @Test
@@ -222,11 +224,11 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
         offerPinForLogin()
         dismissPinCreation()
 
-        val home = buildHomeFromLogin(LoginMode.PASSWORD, manuallySwitchedToPasswordMode = true)
+        val run = buildHomeFromLogin(LoginMode.PASSWORD, manuallySwitchedToPasswordMode = true)
 
         assertNotNull(
             "a manual switch to password mode overrides the earlier dismissal",
-            pendingAlertDialog(home),
+            run.alertDialogOnResume(),
         )
     }
 
@@ -234,11 +236,11 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     fun `password login offers no pin dialog when the pin feature is off`() {
         // OFFER_PIN_FOR_LOGIN defaults to off, so this is also the plain-login baseline: nothing
         // claims the launch and no dialog is raised.
-        val home = buildHomeFromLogin(LoginMode.PASSWORD)
+        val run = buildHomeFromLogin(LoginMode.PASSWORD)
 
-        assertFalse(home.isFinishing)
-        assertNull(pendingAlertDialog(home))
-        assertFalse("a plain password login is claimed by no step", claimedLaunch(home))
+        assertFalse("a plain password login is claimed by no step", run.claimedLaunch)
+        assertFalse(run.home.isFinishing)
+        assertNull(run.alertDialogOnResume())
     }
 
     // endregion
@@ -250,11 +252,11 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
         enableDriftWarning()
         setCurrentDrift(5 * 60 * 1000L)
 
-        val home = buildHomeFromLogin(LoginMode.PASSWORD)
+        val run = buildHomeFromLogin(LoginMode.PASSWORD)
 
-        assertNotNull("nonzero drift should raise the drift dialog", pendingAlertDialog(home))
         assertTrue("showing the drift dialog must stamp the warning time", driftWarningStamped())
-        assertFalse("the drift step is a side effect, not a claim", claimedLaunch(home))
+        assertFalse("the drift step is a side effect, not a claim", run.claimedLaunch)
+        assertNotNull("nonzero drift should raise the drift dialog", run.alertDialogOnResume())
     }
 
     @Test
@@ -262,10 +264,10 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
         enableDriftWarning()
         setCurrentDrift(0L)
 
-        val home = buildHomeFromLogin(LoginMode.PASSWORD)
+        val run = buildHomeFromLogin(LoginMode.PASSWORD)
 
-        assertNull("zero drift should raise no dialog", pendingAlertDialog(home))
         assertFalse("zero drift should not stamp the warning time", driftWarningStamped())
+        assertNull("zero drift should raise no dialog", run.alertDialogOnResume())
     }
 
     // endregion
@@ -280,9 +282,9 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
         HiddenPreferences.setPostUpdateSyncNeeded(true)
         seedPendingSyncRequest()
 
-        val home = buildHomeFromLogin()
+        val run = buildHomeFromLogin()
 
-        assertTrue("step 3 should have claimed this launch", claimedLaunch(home))
+        assertTrue("step 3 should have claimed this launch", run.claimedLaunch)
         assertEquals(
             "interrupted SSD flag not cleared",
             -1,
@@ -303,50 +305,50 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     // region assertions on the launch checks
 
     /**
-     * The boolean `doLoginLaunchChecksInOrder` returned, as stored on the activity. Private with no
-     * accessor; the walk up from [StandardHomeActivity] finds this field rather than the same-named
-     * one further up on `SessionAwareCommCareActivity`.
+     * A home built from a login, with everything the launch checks did during `onCreate` captured up
+     * front.
+     *
+     * The snapshots have to be taken before [alertDialogOnResume] drives the lifecycle forward:
+     * `onResumeSessionSafe` ends in `resetNavigationFlags()`, which clears `redirectedInOnCreate`,
+     * and — for an unclaimed launch — dispatches the home screen, which can start further
+     * activities. Reading after a resume would make [claimedLaunch] pass for free.
      */
-    private fun claimedLaunch(home: StandardHomeActivity): Boolean = ReflectionUtils.readField(home, "redirectedInOnCreate") as Boolean
+    private inner class LaunchCheckRun(
+        private val controller: ActivityController<StandardHomeActivity>,
+    ) {
+        val home: StandardHomeActivity = controller.get()
 
-    /**
-     * The dialog a launch check raised during `onCreate`, or null if none was raised. Asking the
-     * activity to show what it stashed is what `onResume` does, so the dialog becomes a real
-     * fragment to assert on. Drains the pending dialog, so call it once per test.
-     */
-    private fun pendingAlertDialog(home: StandardHomeActivity): Any? {
-        home.showPendingAlertDialog()
-        // DialogFragment.show() commits asynchronously; the fragment isn't findable by tag until
-        // the transaction runs.
-        home.supportFragmentManager.executePendingTransactions()
-        return home.currentAlertDialog
-    }
+        /**
+         * The boolean `doLoginLaunchChecksInOrder` returned, as stored on the activity. Private with
+         * no accessor; the walk up from [StandardHomeActivity] finds this field rather than the
+         * same-named one further up on `SessionAwareCommCareActivity`.
+         */
+        val claimedLaunch: Boolean = ReflectionUtils.readField(home, "redirectedInOnCreate") as Boolean
 
-    /**
-     * Every activity home started for result during create, oldest first. Reading drains the
-     * shadow's queue, so each test takes this list once and asserts against the list.
-     */
-    private fun startedActivities(home: StandardHomeActivity): List<Intent> {
-        val shadow = shadowOf(home)
-        val started = mutableListOf<Intent>()
-        while (true) {
-            started += (shadow.nextStartedActivityForResult ?: break).intent
+        /** Every activity started for result during create, oldest first. */
+        val startedForResult: List<Intent> = startedForResultIntents(home)
+
+        /** Every activity started (not for result) during create, oldest first. */
+        val started: List<Intent> = startedIntents(home)
+
+        val launchedCreatePin: Boolean get() = startedForResult.any { it.component?.className == CreatePinActivity::class.java.name }
+
+        /**
+         * Resume home, and return the dialog a launch check stashed during `onCreate` — or null if
+         * none was raised. `onResumeFragments` is what shows it, since fragments are paused while
+         * `onCreate` runs. Call once per test, last.
+         */
+        fun alertDialogOnResume(): Any? {
+            controller.start().resume()
+            // DialogFragment.show() commits asynchronously; the fragment isn't findable by tag until
+            // the transaction runs.
+            home.supportFragmentManager.executePendingTransactions()
+            return home.currentAlertDialog
         }
-        return started
-    }
 
-    /** Asserts exactly one activity was started, and returns its intent. */
-    private fun onlyStartedActivity(started: List<Intent>): Intent {
-        assertEquals(
-            "expected exactly one started activity, got ${started.map { it.component?.className }}",
-            1,
-            started.size,
-        )
-        return started.single()
+        /** Asserts exactly one activity was started for result during create, and returns it. */
+        fun onlyStartedForResult(): Intent = assertOnly(startedForResult)
     }
-
-    private fun launchedCreatePin(started: List<Intent>): Boolean =
-        started.any { it.component?.className == CreatePinActivity::class.java.name }
 
     // endregion
 
