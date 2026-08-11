@@ -30,6 +30,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.ConnectSsoSyncHelper;
 import org.commcare.connect.network.TokenExceptionHandler;
+import org.commcare.connect.repository.ConnectRequestManager;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.core.network.AuthInfo;
@@ -182,12 +183,16 @@ public class PersonalIdManager {
         // Cancel periodic push notification retrieval when user logs out
         NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
 
+        ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
+
+        //Drop in-flight API requests
+        ConnectRequestManager.INSTANCE.cancelAll();
+
         ConnectUserDatabaseUtil.forgetUser();
 
         // remove notification read / unread preferences
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
 
-        ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
         PersonalIdUnlocker.INSTANCE.resetSession();
         PersonalIdUserPreferences.clear();
     }

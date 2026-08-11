@@ -16,6 +16,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Confirm that entering an incorrect verification code still displays the "incorrect code" error and does not silently trigger a new OTP.
 - After signing out of PersonalID, the nav drawer should offer sign-in/register rather than a "Logged out of PersonalID" error asking you to configure the account again. Worth repeating a few times, and while push notifications are actively arriving, since the original failure depended on timing.
 - Confirm signing back in still works and that notifications and messaging behave normally afterward.
+- Signing out while a Connect request is landing should no longer be able to wipe the account and restart the app. Signing out repeatedly with notifications arriving, then signing back in, should behave normally every time.
 
 ## CommCare 2.63.4
 

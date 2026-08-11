@@ -85,6 +85,7 @@ import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
+import org.commcare.connect.database.ConnectDatabaseUnavailableException;
 import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
@@ -1251,7 +1252,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public IDatabase getConnectDbOpenHelper(Context context) {
         byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
         if (passphrase == null || passphrase.length == 0) {
-            throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
+            //Typed so callers can tell "no account to open a DB for" apart from a DB that won't
+            //open, which is a genuinely broken DB
+            throw new ConnectDatabaseUnavailableException(
+                    "Attempting to access Connect DB without a passphrase");
         }
         return new EncryptedDatabaseAdapter(new DatabaseConnectOpenHelper(
                 context, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.SsoToken;
@@ -14,6 +15,7 @@ import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.modern.database.Table;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
@@ -30,7 +32,8 @@ import java.util.Date;
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     public static IDatabase connectDatabase;
-    static boolean dbBroken = false;
+    //Written under connectDbHandleLock, but isDbBroken() reads it from other threads
+    private static volatile boolean dbBroken = false;
 
     public static void handleReceivedDbPassphrase(Context context, String passphrase) {
         ConnectDatabaseUtils.storeConnectDbPassphrase(context, passphrase);
@@ -52,6 +55,14 @@ public class ConnectDatabaseHelper {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             connectDatabase = CommCareApplication.instance().getConnectDbOpenHelper(context);
+                        } catch (ConnectDatabaseUnavailableException e) {
+                            //There's no account to open a DB for, which is the expected state once
+                            //the user signs out. Don't flag the DB or raise the global error: that
+                            //would wipe the account and restart the process over work that simply
+                            //raced with sign-out
+                            Logger.log(LogTypes.TYPE_MAINTENANCE,
+                                    "Skipping Connect DB access, there is no passphrase to open it");
+                            throw e;
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
@@ -63,6 +74,23 @@ public class ConnectDatabaseHelper {
                 }
             }
         });
+    }
+
+    /**
+     * Deletes the Connect DB along with the passphrase used to open it.
+     * <p>
+     * Held under the same lock as {@link #getConnectStorage} so that a storage operation racing
+     * with sign-out either completes against the live DB or sees it already gone. Without the
+     * lock a reader can open a handle partway through, and re-flag the DB as broken after this
+     * has cleared the flag.
+     */
+    static void clearConnectData() {
+        synchronized (connectDbHandleLock) {
+            teardown();
+            DatabaseConnectOpenHelper.deleteDb();
+            CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
+            dbBroken = false;
+        }
     }
 
     public static void teardown() {

@@ -2,10 +2,7 @@ package org.commcare.connect.database;
 
 import android.content.Context;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.global.models.ConnectKeyRecord;
-import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 
 public class ConnectUserDatabaseUtil {
 
@@ -35,10 +32,7 @@ public class ConnectUserDatabaseUtil {
     }
 
     public static void forgetUser() {
-        DatabaseConnectOpenHelper.deleteDb();
-        CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
-        ConnectDatabaseHelper.dbBroken = false;
-        ConnectDatabaseHelper.teardown();
+        ConnectDatabaseHelper.clearConnectData();
     }
 
     public static boolean hasConnectAccess(Context context) {
